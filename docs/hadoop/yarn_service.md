@@ -15,9 +15,9 @@ This enhancement makes AI job scheduling possible.
 Cluster-configuration(all service base), drivers(GPU support), zoopkeeper(store job status), hdfs(file system).
 
 ### Build
-`
-paictl.py image build -p /path/to/cluster/config -n hadoop-run
-`
+```bash
+python pai_build.py build -c /path/to/configuration/ -s hadoop-run
+```
 
 The command does major 3 steps:
 1. Build a dev container include necessary environment. 
@@ -26,9 +26,9 @@ The command does major 3 steps:
 
 Images should also be pushed to registry with following command for deployment.
 
-`
-paictl.py image push -p /path/to/cluster/config -n hadoop-run
-`
+```bash
+python pai_build.py push -c /path/to/configuration/ -i hadoop-run
+```
 
 ### Configuration  
 Most service configuration are the same as official hadoop, except GPU and port related items, 
@@ -45,18 +45,18 @@ Advanced users can modify related scripts under these folder to customize cluste
 
 YARN deployment leverages k8s Daemonset. RM first then NM:
 
-`
-paictl.py service start -p /path/to/cluster/config -n hadoop-resource-manager/hadoop-node-manager
-`
+```bash
+paictl.py service start -n hadoop-resource-manager/hadoop-node-manager
+```
 
 This command creates a k8s Daemonset, 
 which selects node according to cluster configuration to deploy corresponding service.
 
 You can also stop service similarly.
 
-`
-paictl.py service stop -p /path/to/cluster/config -n hadoop-resource-manager/hadoop-node-manager
-`
+```bash
+paictl.py service stop -n hadoop-resource-manager/hadoop-node-manager
+```
 
 
 

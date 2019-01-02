@@ -32,11 +32,11 @@ This guidance provides users instructions to operate the HDFS cluster in OpenPAI
 
 The HDFS service image can be built together with other services by running this command:
 ```bash
-python paictl.py image build -p /path/to/configuration/
+python pai_build.py build -c /path/to/configuration/
 ```
 HDFS is in the hadoop-run image, it can be built respectively with following commands:
 ```bash
-python paictl.py image build -p /path/to/configuration/ -n hadoop-run
+python pai_build.py push -c /path/to/configuration/ -i hadoop-run
 ```
 
 # Configuration <a name="Configuration"></a>
@@ -53,9 +53,10 @@ for the detailed property descriptions.
   
 ## Storage Path <a name="Storage_Path"></a>
 
-HDFS's data storage path on a machine is configured by *cluster.data-path* in 
+By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in 
 file [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
-All the HDFS related data both on name node and data node will be stored under this path.
+For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, 
+which supports a comma-delimited list of directories to configure multiple disks.
 
 ### Name Node <a name="Name_Node"></a>
 
@@ -66,7 +67,7 @@ All the HDFS related data both on name node and data node will be stored under t
 ### Data Node <a name="Data_Node"></a>
 
 * Configuration Data: Its path is defined by *hadoop-data-node-configuration* configuration map.
-* Data Storage: It is in the *hdfs/data* directory under the storage path.
+* Data Storage: If  *${hadoop-data-node.storage_path}* specified, blocks are stored in these paths, otherwise in the *hdfs/data* directory under the storage path.
 * Host Configuration: Its path is defined by *host-configuration* configuration map.
 * Temp Data: It is in the *hadooptmp/datanode* directory under the storage path.
 
@@ -74,12 +75,12 @@ All the HDFS related data both on name node and data node will be stored under t
 
 HDFS can be deployed when starting the OpenPAI services with command:
 ```bash
-python paictl.py service start -p /service/configuration/path
+python paictl.py service start
 ```
 The name node and data node service can be started separately by specifying the service name in the command.
 ```bash
-python paictl.py service start -p /service/configuration/path -n hadoop-name-node
-python paictl.py service start -p /service/configuration/path -n hadoop-data-node
+python paictl.py service start -n hadoop-name-node
+python paictl.py service start -n hadoop-data-node
 ```
 
 # Upgrading <a name="Upgrading"></a>
