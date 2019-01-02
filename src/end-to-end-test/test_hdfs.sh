@@ -36,19 +36,17 @@ hdfs_uri=$HDFS_URI
 @test "make hdfs test sub dir" {
   result="$(hdfs dfs -mkdir $hdfs_uri/Test/launcher)"
   [[ ! $result == *mkdir* ]]
-  result="$(hdfs dfs -mkdir $hdfs_uri/Test/cntk)"
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test/tensorflow)"
   [[ ! $result == *mkdir* ]]
 }
 
 @test "upload cntk data to hdfs" {
-  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/cntk/)"
-  [[ ! $result == *put* ]]
-  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/BrainScript $hdfs_uri/Test/cntk/)"
+  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/tensorflow/)"
   [[ ! $result == *put* ]]
 }
 
 @test "upload cntk start script to hdfs" {
-  result="$(hdfs dfs -put -f etc/cntk.sh $hdfs_uri/Test/cntk/BrainScript/)"
+  result="$(hdfs dfs -put -f benchmarks $hdfs_uri/Test/tensorflow/)"
   [[ ! $result == *put* ]]
 }
 
