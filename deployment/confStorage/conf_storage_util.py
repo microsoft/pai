@@ -60,8 +60,11 @@ def create_path(path):
 
 def read_file_from_path(file_path):
 
-    with open(file_path, "r") as fin:
-        file_data = fin.read().decode('utf-8')
+    try:
+        with open(file_path, "r") as fin:
+            file_data = fin.read().decode('utf-8')
+    except IOError as e:
+        logger.warning("Failed to read {0}: {1}".format(file_path, e.strerror))
 
     return file_data
 
