@@ -23,8 +23,9 @@ if which docker > /dev/null && [ -S /var/run/docker.sock ]; then
 
     echo "Clean hadoop jobs"
 
+    # Mitigation: Docker daemon might hang by some zombie container, so this deletion is best-effort
     docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs timeout 30 docker stop || \
-    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs docker kill
+    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs timeout 30 docker kill
 fi
 
 
