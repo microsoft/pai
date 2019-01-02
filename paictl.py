@@ -363,7 +363,7 @@ class Cluster(SubCmd):
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
             cluster_object_model_instance = cluster_object_model(args.config_path)
-            com = cluster_object_model_instance.run()
+            com = cluster_object_model_instance.kubernetes_config()
         else:
             com = None
         kubectl_install_worker = kubectl_install.kubectl_install(com)
