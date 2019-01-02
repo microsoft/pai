@@ -507,8 +507,9 @@ def main(args):
         "cluster": Cluster(),
         "config": Configuration()
         }.items():
-        subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
-        subcmd.register(subparser)
+        subcmd_parser = sub_parser.add_parser(name)
+        subcmd_parser.set_defaults(handler=subcmd.run)
+        subcmd.register(subcmd_parser)
 
     args = parser.parse_args(args)
 
