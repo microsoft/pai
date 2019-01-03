@@ -152,7 +152,7 @@ sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configura
 
 sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
 sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.6:8080" /cluster-configuration/services-configuration.yaml
-sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.6" /cluster-configuration/services-configuration.yaml
+sed -i "23i\\ \\ \\ \\ dashboard-host: 10.0.1.6" /cluster-configuration/services-configuration.yaml
 
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
@@ -164,7 +164,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.6" /cluster-configuration/services
 sleep 6s
 
 # TODO generate layout
-#./paictl.py layout
+./paictl.py layout
 
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
@@ -251,7 +251,7 @@ sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configura
 
 sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
 sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.8:8080" /cluster-configuration/services-configuration.yaml
-sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.8" /cluster-configuration/services-configuration.yaml
+sed -i "23i\\ \\ \\ \\ dashboard-host: 10.0.1.8" /cluster-configuration/services-configuration.yaml
 
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
@@ -263,7 +263,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.8" /cluster-configuration/services
 sleep 6s
 
 # TODO generate layout
-#./paictl.py layout
+./paictl.py layout
 
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
