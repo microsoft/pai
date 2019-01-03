@@ -92,6 +92,12 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
             host_config,
             "hostname")
         m["hostname"] = result_stdout.strip()
+
+    #
+    # kubernetes info
+    quick_start_config["api-server-url"] = "http://{0}:{1}".format(quick_start_config["machines"][0]["ip"], 8080)
+    quick_start_config["dashboard-host"] = quick_start_config["machines"][0]["ip"]
+
     #
     # Generate configuration files.
     target_file_names = [
