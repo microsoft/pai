@@ -12,12 +12,13 @@ def generate_layout(output_file):
     machineList = []
     for addresses in addressesList:
         machine = dict()
+        machine['machine-type'] = 'GENERIC'
         for address in addresses:
             if address.type == 'InternalIP':
                 machine['hostip'] = address.address
+            if address.type == 'Hostname':
                 machine['hostname'] = address.address
-                machine['machine-type'] = 'GENERIC'
-                machineList.append(machine)
+        machineList.append(machine)
     machineList.sort(key = lambda k : k['hostname'])
 
     # assgin pai-master
