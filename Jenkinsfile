@@ -76,7 +76,7 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "40s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry_new_com.sh $CONFIG_PATH
 # build images
@@ -146,7 +146,7 @@ cd /pai
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
@@ -241,7 +241,7 @@ cd /pai
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
