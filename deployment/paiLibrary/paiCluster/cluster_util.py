@@ -37,67 +37,65 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         * Service-level configurations: service-configuration.yaml
     """
     quick_start_config_raw = file_handler.load_yaml_config(quick_start_config_file)
-    quick_start_config = {}
+
     #
-    # Prepare config of ssh info.
-    quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
-    quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
-    if "ssh-keyfile-path" in quick_start_config_raw:
-        quick_start_config["ssh-keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
-    if "ssh-secret-name" in quick_start_config_raw:
-        quick_start_config["ssh-secret-name"] = quick_start_config_raw["ssh-secret-name"]
-    quick_start_config["ssh-port"] = \
-        22 if "ssh-port" not in quick_start_config_raw \
-        else quick_start_config_raw["ssh-port"]
+    # Prepare machine list
+    machine_list = []
+    for m in quick_start_config_raw["machines"]:
+        machine = {"hostip": m, "machine-type": "GENERIC"}
+        # TODO on premise, using ip as "nodename"
+        machine["nodename"] = m
+        machine["docker-data"] = "/var/lib/docker"
+        machine["username"] = quick_start_config_raw["ssh-username"]
+        if "ssh-password" in quick_start_config_raw:
+            machine["password"] = quick_start_config_raw["ssh-password"]
+        else:
+            machine["ssh-keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
+            machine["ssh-secret-name"] = quick_start_config_raw["ssh-secret-name"]
+        machine["ssh-port"] = 22 if "ssh-port" not in quick_start_config_raw else quick_start_config_raw["ssh-port"]
+
+        machine_list.append(machine)
+
+    # workers
+    worker_noders = machine_list[1:] if len(machine_list) > 1 else machine_list
+    for machine in worker_noders:
+        # k8s attributes
+        machine["k8s-role"] = "worker"
+        # PAI attributes
+        machine["pai-worker"] = "true"
+
+    # master
+    master_node = machine_list[0]
+    # k8s attributes
+    master_node["k8s-role"] = "master"
+    master_node["etcdid"] = "etcdid1"
+    master_node["dashboard"] = "true"
+    # PAI attributes
+    master_node["pai-master"] = "true"
+    master_node["zkid"] = "1"
+
     #
     # Prepare config of cluster IP range.
-    quick_start_config["service-cluster-ip-range"] = \
+    service_cluster_ip_range = \
         "10.254.0.0/16" if "service-cluster-ip-range" not in quick_start_config_raw \
         else quick_start_config_raw["service-cluster-ip-range"]
     #
-    # Prepare config of machine list.
-    quick_start_config["machines"] = []
-    for m in quick_start_config_raw["machines"]:
-        # TODO on premise, using ip as "nodename"
-        quick_start_config["machines"].append({"hostname": None, "ip": m, "nodename": m})
-    #
     # Auto-complete missing configuration items: Part 1 -- DNS.
     if "dns" in quick_start_config_raw:
-        quick_start_config["dns"] = quick_start_config_raw["dns"]
+        dns = quick_start_config_raw["dns"]
     else:
-        m0 = quick_start_config["machines"][0]
-        host_config = {
-            "hostip": m0["ip"],
-            "username": quick_start_config["ssh-username"],
-            "password": quick_start_config["ssh-password"],
-            "sshport": quick_start_config["ssh-port"]
-        }
-        if "ssh-keyfile-path" in quick_start_config:
-            host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
-            host_config,
+            master_node,
             "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2 | head -n 1")
-        quick_start_config["dns"] = result_stdout.strip()
+        dns = result_stdout.strip()
     #
     # Auto-complete missing configuration items: Part 2 -- hostnames.
-    for m in quick_start_config["machines"]:
-        host_config = {
-            "hostip": m["ip"],
-            "username": quick_start_config["ssh-username"],
-            "password": quick_start_config["ssh-password"],
-            "sshport": quick_start_config["ssh-port"]
-        }
-        if "ssh-keyfile-path" in quick_start_config:
-            host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
+    for host_config in machine_list:
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
             host_config,
             "hostname")
-        m["hostname"] = result_stdout.strip()
+        host_config["hostname"] = result_stdout.strip()
 
-    #
-    # kubernetes info
-    quick_start_config["api-server-url"] = "http://{0}:{1}".format(quick_start_config["machines"][0]["ip"], 8080)
-    quick_start_config["dashboard-host"] = quick_start_config["machines"][0]["ip"]
 
     #
     # Generate configuration files.
@@ -118,4 +116,10 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                 target_file_path,
                 template_handler.generate_from_template_dict(
                     file_handler.read_template("./deployment/quick-start/%s.template" % (x)),
-                    { "env": quick_start_config }))
+                    { "env":
+                        {
+                            "machines": machine_list,
+                            "dns": dns,
+                            "service-cluster-ip-range": service_cluster_ip_range
+                        }
+                    }))
