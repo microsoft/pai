@@ -150,10 +150,6 @@ sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configura
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
-sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
-sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.6:8080" /cluster-configuration/services-configuration.yaml
-sed -i "23i\\ \\ \\ \\ dashboard-host: 10.0.1.6" /cluster-configuration/services-configuration.yaml
-
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
 #>/cluster-configuration/layout.yaml
@@ -248,10 +244,6 @@ cd /pai
 sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
-
-sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
-sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.8:8080" /cluster-configuration/services-configuration.yaml
-sed -i "23i\\ \\ \\ \\ dashboard-host: 10.0.1.8" /cluster-configuration/services-configuration.yaml
 
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
