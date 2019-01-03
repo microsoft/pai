@@ -46,6 +46,7 @@ from deployment.k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
 from deployment.k8sPaiLibrary.maintainlib import kubectl_conf_check
 from deployment.k8sPaiLibrary.maintainlib import kubectl_install
 from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
+from deployment.k8sPaiLibrary.maintainlib import k8s_util
 
 from deployment.clusterObjectModel.cluster_object_model import cluster_object_model
 
@@ -312,7 +313,7 @@ class Cluster(SubCmd):
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.kubernetes_config()
         logger.info("Begin to initialize PAI k8s cluster.")
-        cluster_util.maintain_cluster_k8s(com, option_name="deploy", clean=True)
+        k8s_util.maintain_cluster_k8s(com, option_name="deploy", clean=True)
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):
@@ -355,7 +356,7 @@ class Cluster(SubCmd):
                 return
 
         logger.info("Begin to clean up whole cluster.")
-        cluster_util.maintain_cluster_k8s(com, option_name="clean", force=args.force, clean=True)
+        k8s_util.maintain_cluster_k8s(com, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
     def k8s_set_environment(self, args):

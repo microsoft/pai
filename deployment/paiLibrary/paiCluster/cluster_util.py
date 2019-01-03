@@ -22,21 +22,10 @@ import logging.config
 import importlib
 from ..common import file_handler
 from ..common import template_handler
-from ...k8sPaiLibrary.maintainlib import clean
-from ...k8sPaiLibrary.maintainlib import deploy
 from ...k8sPaiLibrary.maintainlib import common as pai_common
 
 
 logger = logging.getLogger(__name__)
-
-def maintain_cluster_k8s(cluster_config, **kwargs):
-
-    if kwargs["option_name"] == "deploy":
-        job_instance = deploy.deploy(cluster_config, **kwargs)
-        job_instance.run()
-    elif kwargs["option_name"] == "clean":
-        job_instance = clean.clean(cluster_config, **kwargs)
-        job_instance.run()
 
 
 
