@@ -18,6 +18,7 @@
 
 # If corresponding values aren't be set in the machine list, the default value will be filled in.
 
+# TODO please modify it according to your own hardware
 machine-sku:
   GENERIC:
     mem: 1
@@ -30,24 +31,7 @@ machine-sku:
 
 machine-list:
 {%- for m in env["machines"] %}
-  - hostname: {{ m["hostname"] }}
-    hostip: {{ m["ip"] }}
-    machine-type: GENERIC
-  {%- if loop.index == 1 %}
-    k8s-role: master
-    etcdid: etcdid1
-    zkid: "1"
-    dashboard: "true"
-    pai-master: "true"
-  {%- else %}
-    k8s-role: worker
-    pai-worker: "true"
-  {%- endif %}
-  {%- if loop.length == 1 %}
-    pai-worker: "true"
-    docker-data: /var/lib/docker
-  {%- endif %}
-    username: {{ env["ssh-username"] }}
-    password: {{ env["ssh-password"] }}
-    sshport: {{ env["ssh-port"] }}
+  - {% for key, nested_value in m | dictsort %}{{ key }}: {{ nested_value }}
+    {% endfor %}
+
 {%- endfor %}
