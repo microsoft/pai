@@ -160,7 +160,8 @@ sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-config
 sleep 6s
 
 # TODO generate layout
-./paictl.py layout
+# TODO on premise deployment would change the hostname to ip, so can't fetch the right hostname using kubernetes client
+#./paictl.py layout
 
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
@@ -255,7 +256,7 @@ sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-config
 sleep 6s
 
 # TODO generate layout
-./paictl.py layout
+#./paictl.py layout
 
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
