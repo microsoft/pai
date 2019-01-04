@@ -124,6 +124,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                         {
                             "machines": machine_list,
                             "dns": dns,
+                            "load-balance-ip": master_node["hostip"],
                             "service-cluster-ip-range": service_cluster_ip_range,
                             "api-server-url": api_server_url,
                             "dashboard-host": dashboard_host
