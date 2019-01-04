@@ -44,6 +44,7 @@ class Layout:
     def run(self):
         com_layout = dict()
         com_layout["machine-sku"] = self.layout_configuration["machine-sku"]
+        com_layout["kubernetes"] = self.layout_configuration["kubernetes"]
         com_layout["machine-list"] = dict()
 
         for host in self.layout_configuration["machine-list"]:
