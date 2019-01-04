@@ -6,6 +6,8 @@
   - [Parameters of the project](#Parameters_of_the_start.sh)
   - [The mode of the project](#mode)
 - [Note](#Note)
+  - [Add new example](#Add)
+  - [Delete example](#Delete)
 
 ## Introduction <a name="Introduction"></a>
 This python project can help you test all the examples in this folder. 
@@ -59,7 +61,7 @@ And during the runtime of this shell script, it will require you input F/S or jo
 
 - Enter job names like `cntk-mpi,tensorflow-mpi,sklearn-mnist` means you want to run just the three examples.
 
-Here is an example to start the script: `/bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/ 10.20.30.40:9000 http://10.20.30.40:50070 test test`
+Here is an example to start the script: `echo "S" | /bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/ 10.20.30.40:9000 http://10.20.30.40:50070 test test`
 ### mode <a name="mode"></a>
 The project offers 3 different modes.
 1. **ci mode**: If the job can run correctly within 10 minutes, the project will regards it succeeded.
@@ -70,4 +72,13 @@ Use "release" as the first parameter of start.sh to enter this mode.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
 If the parameters contains special characters like '&', please use single qutations to mark that parameter.
-Now(27th September, 2018), the mpi examples are still unready. Ignore them!
+
+If you want to add or delete an example, please follow these steps:
+### For adding <a name="Add"></a>
+1. Prepare your example, include the json file. If you should prepare data and code before submit the job, you should also write a prepare shell script named "prepare.sh". You can refer to [prepare.sh](https://github.com/Microsoft/pai/blob/master/examples/tensorflow/prepare.sh).
+2. Add the job name in your json file to the [start.sh](./start.sh), you can see the comment in line 17. Just add your job name to "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.
+### For deleting <a name="Delete"></a>
+1. Delete your example.
+2. Delete the job name in your json file from the [start.sh](./start.sh), you can see the comment in line 17. Just delete your job name from "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.

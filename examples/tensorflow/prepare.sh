@@ -12,7 +12,7 @@ function imageNet_prepare_data(){
     echo "Uploading imageNet data, waiting..."
     for i in `ls data`
     do
-        hdfs dfs -put data/$i hdfs://$1/examples/tensorflow/imageNet/data
+        hdfs dfs -put data/$i hdfs://$1/$2/examples/tensorflow/imageNet/data
     done
 }
 
@@ -28,36 +28,33 @@ function imageNet_prepare_code(){
     echo "Uploading imageNet code, waiting..."
     for i in `ls slim`
     do
-        hdfs dfs -put slim/$i hdfs://$1/examples/tensorflow/imageNet/code
+        hdfs dfs -put slim/$i hdfs://$1/$2/examples/tensorflow/imageNet/code
     done
 }
 
-echo "You must input hdfs socket as the only parameter! Or you cannot run this script correctly!"
+echo "You must input hdfs socket and username as the only two parameters! Or you cannot run this script correctly!"
 
 #make directory on HDFS
 echo "Make imageNet directory, waiting..."
-hdfs dfs -mkdir -p hdfs://$1/examples/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/data/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/code/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/output/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/imageNet/data/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/imageNet/code/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/imageNet/output/
 
 echo "We have to ignore imageNet example now due to its big input data!"
 echo "If you want to run the imageNet preparing script, just remove the # of #imageNet_prepare_code \$1 and #imageNet_prepare_data \$1"
-hdfs dfs -test -e hdfs://$1/examples/tensorflow/imageNet/code/*
+hdfs dfs -test -e hdfs://$1/$2/examples/tensorflow/imageNet/code/*
 if [ $? -eq 0 ] ;then
     echo "Code exists on HDFS!"
 else
-    #imageNet_prepare_code $1
+    #imageNet_prepare_code $1 $2
     echo "Have prepared code!"
 fi
 
-hdfs dfs -test -e hdfs://$1/examples/tensorflow/imageNet/data/*
+hdfs dfs -test -e hdfs://$1/$2/examples/tensorflow/imageNet/data/*
 if [ $? -eq 0 ] ;then
     echo "Data exists on HDFS!"
 else
-    #imageNet_prepare_data $1
+    #imageNet_prepare_data $1 $2
     echo "Have prepared data"
 fi
 
@@ -77,7 +74,7 @@ function distributed_prepare_data(){
     echo "Uploading cifar-10 data, waiting..."
     for i in `ls cifar-10-batches-py`
     do
-        hdfs dfs -put cifar-10-batches-py/$i hdfs://$1/examples/tensorflow/distributed-cifar-10/data
+        hdfs dfs -put cifar-10-batches-py/$i hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/data
     done
 }
 
@@ -87,29 +84,28 @@ function distributed_prepare_code(){
 
     #upload the code to HDFS
     echo "Uploading benchmarks code, waiting..."
-    hdfs dfs -put benchmarks/ hdfs://$1/examples/tensorflow/distributed-cifar-10/code
+    hdfs dfs -put benchmarks/ hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/code
 }
 
 #make directory on HDFS
 echo "Make distributed cifar-10 directory, waiting..."
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/code/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/data/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/output/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/code/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/data/
+hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/output/
 
-hdfs dfs -test -e hdfs://$1/examples/tensorflow/distributed-cifar-10/code/*
+hdfs dfs -test -e hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/code/*
 if [ $? -eq 0 ] ;then
     echo "Code exists on HDFS!"
 else
-    distributed_prepare_code $1
+    distributed_prepare_code $1 $2
     echo "Have prepared code!"
 fi
 
-hdfs dfs -test -e hdfs://$1/examples/tensorflow/distributed-cifar-10/data/*
+hdfs dfs -test -e hdfs://$1/$2/examples/tensorflow/distributed-cifar-10/data/*
 if [ $? -eq 0 ] ;then
     echo "Data exists on HDFS!"
 else
-    distributed_prepare_data $1
+    distributed_prepare_data $1 $2
     echo "Have prepared data"
 fi
 
@@ -125,18 +121,18 @@ function tensorboard_prepare_code(){
 
     #upload the code to HDFS
     echo "Uploading tensorboard code, waiting..."
-    hdfs dfs -put tensorflow-tensorboard.sh hdfs://$1/examples/tensorflow/tensorboard/code/
+    hdfs dfs -put tensorflow-tensorboard.sh hdfs://$1/$2/examples/tensorflow/tensorboard/code/
 }
 
 
 echo "Prepare tensorboard example!"
 echo "Make tensorboard directory, waiting..."
-hdfs dfs -test -e hdfs://$1/examples/tensorflow/tensorboard/code/tensorflow-tensorboard.sh
+hdfs dfs -test -e hdfs://$1/$2/examples/tensorflow/tensorboard/code/tensorflow-tensorboard.sh
 if [ $? -eq 0 ] ;then
     echo "Code exists on HDFS!"
 else
-    hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/tensorboard/code/
-    tensorboard_prepare_code $1
+    hdfs dfs -mkdir -p hdfs://$1/$2/examples/tensorflow/tensorboard/code/
+    tensorboard_prepare_code $1 $2
     echo "Have prepared code!"
 fi
 

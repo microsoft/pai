@@ -45,11 +45,8 @@ spec:
           - --apiserver-host=http://{{ clusterconfig['api-servers-ip'] }}:8080
         resources:
           # the ideal cpu setting will be 3.5, according to our experiment. If the server hosting k8s dashboard has enough resource, user can change this setting to a larger value.
-          limits:
-            cpu: "1000m"
-            memory: 3000Mi
           requests:
-            cpu: "0.5"
+            cpu: "1000m"
             memory: 1000Mi
         ports:
         - containerPort: 9090

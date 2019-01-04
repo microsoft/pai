@@ -50,8 +50,17 @@ spec:
           name: drivers-log
         - mountPath: /usr/src
           name: kernel-head
-        - mountPath: /etc
-          name: etc-path
+        - mountPath: /etc/ld.so.conf.d
+          name: etc-path-ld
+        - mountPath: /etc/docker
+          name: etc-path-docker
+        - mountPath: /usr/local/nvidia # TODO
+          name: pre-install-nv-driver-path
+        env:
+        - name: DRIVER_PATH
+          value: /var/drivers/nvidia
+        - name: PRE_INSTALLED_NV_DRIVER_PATH
+          value: /usr/local/nvidia # the path user has pre-installed nvidia driver
         readinessProbe:
           exec:
             command:
@@ -64,8 +73,7 @@ spec:
             memory: "2Gi"
           requests:
             memory: "256Mi"
-        command:
-        - "./install-all-drivers"
+        command: ["bash", "-x", "./install-all-drivers"]
         {% if clusterinfo['drivers']['set-nvidia-runtime'] %}
         args:
         - "--config-runtime"
@@ -88,6 +96,12 @@ spec:
       - name: kernel-head
         hostPath:
           path: /usr/src
-      - name: etc-path
+      - name: etc-path-ld
         hostPath:
-          path: /etc
+          path: /etc/ld.so.conf.d
+      - name: etc-path-docker
+        hostPath:
+          path: /etc/docker
+      - name: pre-install-nv-driver-path
+        hostPath:
+          path: /usr/local/nvidia # TODO make it argument

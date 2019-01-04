@@ -41,6 +41,12 @@ Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardwa
 
 OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
 
+## Related Projects
+Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) had also released few other open source projects.
+* [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
+We encourage researchers and students leverage these projects to accelerate the AI development and research.
+* [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
+
 ## How to deploy
 #### 1 Prerequisites
 Before start, you need to meet the following requirements:
@@ -61,7 +67,7 @@ Before start, you need to meet the following requirements:
 ### How to train jobs
 - How to write OpenPAI jobs
     - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart)
-    - [Write job from scratch in deepth](./docs/job_tutorial.md)
+    - [Write job from scratch in depth](./docs/job_tutorial.md)
     - [Learn more example jobs](./examples/#offtheshelf)
 - How to submit OpenPAI jobs
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
@@ -79,7 +85,7 @@ Before start, you need to meet the following requirements:
 
 ## Resources
 
-- The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+- The OpenPAI user [documentation](./docs/documentation.md) provides in-depth instructions for using OpenPAI
 - Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today.
 - [FAQ](./docs/faq.md)
 

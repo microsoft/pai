@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,12 +17,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mkdir -p /usr/local/grafana/datasources/
-mkdir -p /usr/local/grafana/dashboards/
-cp /grafana-configuration/*-datasource.json /usr/local/grafana/datasources/
-cp /grafana-configuration/*-dashboard.json /usr/local/grafana/dashboards/
+CONFIG_RUNTIME=false
 
+if [ "$#" -eq "1" -a "$1" == "--config-runtime" ] ; then
+    CONFIG_RUNTIME=true
+fi
 
-/usr/local/grafana_config.sh &
-/usr/local/start_server.sh
-exit 0
+echo CONFIG_RUNTIME is $CONFIG_RUNTIME
+
+function configDockerRuntime {
+    cp /etc/docker/daemon.json /etc/docker/daemon.json.before_config_runtime
+
+    jq -s '.[0] * .[1]' docker-config-with-nvidia-runtime.json /etc/docker/daemon.json > tmp
+    mv tmp /etc/docker/daemon.json
+
+    pkill -SIGHUP dockerd
+}
+
+function dockerRuntimeConfigured {
+    cat /etc/docker/daemon.json | jq -e 'has("default-runtime")' &> /dev/null
+    return $?
+}
+
+if test $CONFIG_RUNTIME == "true" && ! dockerRuntimeConfigured ; then
+    configDockerRuntime
+fi

@@ -17,12 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+export NV_DRIVER=${DRIVER_PATH}/$NVIDIA_VERSION
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
+export PATH=$PATH:$NV_DRIVER/bin
+
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
-    ./install-nvidia-drivers "$@" || exit $?
-    echo NVIDIA gpu detected, drivers installed
+    if [ -d "$PRE_INSTALLED_NV_DRIVER_PATH" ]; then
+        ls -a $PRE_INSTALLED_NV_DRIVER_PATH
+        echo pre installed nvidia driver detectived, skip driver installation
+        rm -f $DRIVER_PATH/current # remove pre-exist link
+        mkdir -p $DRIVER_PATH
+        ln -s $PRE_INSTALLED_NV_DRIVER_PATH $DRIVER_PATH/current
+    else
+        /bin/bash install-nvidia-drivers || exit $?
+        echo NVIDIA gpu detected, drivers installed
 
-    ./enable-nvidia-persistenced-mode.sh || exit $?
+        /bin/bash enable-nvidia-persistenced-mode.sh || exit $?
+    fi
 
+    ./config-docker-runtime.sh "$@"
 else
     echo NVIDIA gpu not detected, skipping driver installation
 fi

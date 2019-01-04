@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM node:boron
+FROM node:carbon
 
 WORKDIR /usr/src/app
 
@@ -23,7 +23,7 @@ ENV NODE_ENV=production \
     SERVER_PORT=8080
 
 COPY package.json .
-RUN npm run yarn install
+RUN yarn install
 COPY dependency/ ../../
 COPY . .
 RUN npm run build

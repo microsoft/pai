@@ -21,7 +21,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f watchdog.yaml || exit $?
 
 sleep 10

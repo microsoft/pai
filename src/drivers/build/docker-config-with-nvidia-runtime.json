@@ -1,3 +1,9 @@
 {
-  "default-runtime": "nvidia"
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
 }

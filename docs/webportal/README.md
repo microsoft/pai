@@ -24,14 +24,14 @@ To run web portal, the following services should be started, and url of services
 
 For deployment
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build` to bundle the JavaScript/CSS modules and generate HTML pages.
 
 ---
 
 For development
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build:dev` to bundle the JavaScript/CSS modules and generate HTML pages,
    also watch the related source file, re-bundle them when file is mofified.
 3. Another `npm start` is also needed to keep the server running, see [Deployment](#deployment)
@@ -44,7 +44,7 @@ If web portal is deployed within PAI cluster, the following config field could b
 
 ---
 
-If web portal is deployed as a standalone service, the following envioronment variables must be configured:
+If web portal is deployed as a standalone service, the following environment variables must be configured:
 
 * `REST_SERVER_URI`: URI of [REST Server](../rest-server)
 * `PROMETHEUS_URI`: URI of [Prometheus](../../src/prometheus)
@@ -70,7 +70,7 @@ The deployment of web portal goes with the bootstrapping process of the whole PA
 
 ---
 
-If web portal is need to be deplyed as a standalone service, follow these steps:
+If web portal is need to be deployed as a standalone service, follow these steps:
 
 1. Go into the `webportal` directory.
 2. Make sure the environment variables is fully configured.

@@ -62,8 +62,8 @@ mem_total=`cat /proc/meminfo | grep "MemTotal" | awk '{print $2}'`
 # memory size to nodemanager is (mem_total - mem_reserved)
 if [ $(grep 'ip:' /host-configuration/host-configuration.yaml|wc -l) -gt 1 ]
 then
-    echo "Node role is 'Worker'. Reserve 12G for os and k8s."
-    let mem_reserved=12*1024
+    echo "Node role is 'Worker'. Reserve 16G for os and k8s."
+    let mem_reserved=16*1024
 else
     echo "Node role is 'Master & Worker'. Reserve 40G for os and k8s."
     let mem_reserved=40*1024

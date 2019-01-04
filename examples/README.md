@@ -4,6 +4,7 @@
 - [Quick start: how to write and submit a CIFAR-10 job](#quickstart)
 - [List of off-the-shelf examples](#offtheshelf)
 - [List of customized job template](#customize)
+- [What if the example is failed](#debug)
 - [Contributing](#contributing)
   
 ## Quick start: how to write and submit a CIFAR-10 job <a name="quickstart"></a>
@@ -58,8 +59,8 @@ Users can refer to this tutorial [submit a job in web portal](https://github.com
 
 Examples which can be run by submitting the json straightly without any modification.
 
-* [tensorflow.cifar10.json](./tensorflow/tensorflow.cifar10.json): Single GPU trainning on CIFAR-10 using TensorFlow.
-* [pytorch.mnist.json](./pytorch/pytorch.mnist.json): Single GPU trainning on MNIST using PyTorch.
+* [tensorflow.cifar10.json](./tensorflow/tensorflow.cifar10.json): Single GPU training on CIFAR-10 using TensorFlow.
+* [pytorch.mnist.json](./pytorch/pytorch.mnist.json): Single GPU training on MNIST using PyTorch.
 * [pytorch.regression.json](./pytorch/pytorch.regression.json): Regression using PyTorch.
 * [mxnet.autoencoder.json](./mxnet/mxnet.autoencoder.json): Autoencoder using MXNet.
 * [mxnet.image-classification.json](./mxnet/mxnet.image-classification.json): Image 
@@ -97,6 +98,15 @@ These user could customize and run these jobs over OpenPAI.
 * [Open MPI](./mpi): 
   1. [Open MPI TensorFlow CIFAR-10](./mpi#open-mpi-tensorflow-cifar-10-example)
   2. [Open MPI CNTK grapheme-to-phoneme conversion](./mpi#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
+
+## What if the example is failed <a name="debug"></a>
+
+The example in the folder could be failed due to the following reasons:
+
+  1. The format of json is incorrect. You may get error when you copy the json file to the webportal. It may due to version updating of webportal. You should refer to the latest version of it.
+  2. The docker image is removed. You will find this error in your job tracking page. You should create an issue to report it, or you can build the image according to the dockerfile in the example's folder, then push it to another docker registry and modify the json file's image field. Just refer to the README or DOCKER in the folder of that example.
+  3. If the example you submit contains a prepare.sh script shell, it may fail due to the source of the data or code changed or been unstable. You may get error in your job tracking page. Check and try to fix it.
+  4. The version of the code, tools or library. You may get this error if you rebuild the docker image. Some example doesn't fix the version of its dependency, so, you should check the version.
 
 ## Contributing <a name="contributing"></a>
 

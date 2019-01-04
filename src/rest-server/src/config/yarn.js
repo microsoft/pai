@@ -18,6 +18,9 @@
 
 // module dependencies
 const Joi = require('joi');
+const unirest = require('unirest');
+const config = require('./index');
+const logger = require('./logger');
 
 // get config from environment variables
 let yarnConfig = {
@@ -26,7 +29,12 @@ let yarnConfig = {
     'Accept': 'application/json',
   },
   yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+  webserviceUpdateQueueHeaders: {
+    'Content-Type': 'application/xml',
+  },
+  yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
 };
+
 
 const yarnConfigSchema = Joi.object().keys({
   yarnUri: Joi.string()
@@ -37,6 +45,11 @@ const yarnConfigSchema = Joi.object().keys({
   yarnVcInfoPath: Joi.string()
     .uri()
     .required(),
+  webserviceUpdateQueueHeaders: Joi.object()
+    .required(),
+  yarnVcUpdatePath: Joi.string()
+    .uri()
+    .required(),
 }).required();
 
 const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
@@ -44,5 +57,19 @@ if (error) {
   throw new Error(`yarn config error\n${error}`);
 }
 yarnConfig = value;
+
+
+// framework launcher health check
+if (config.env !== 'test') {
+  unirest.get(yarnConfig.yarnVcInfoPath)
+  .timeout(2000)
+  .end((res) => {
+    if (res.status === 200) {
+      logger.info('connected to yarn successfully');
+    } else {
+      throw new Error('cannot connect to yarn');
+    }
+  });
+}
 
 module.exports = yarnConfig;

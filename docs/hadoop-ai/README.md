@@ -34,7 +34,7 @@ Usually there will have multiple patch files, the newest one is the last known g
 
    Below are step-by-step build for advance user:
 
- 1. Prepare linux enviroment
+ 1. Prepare linux environment
  
        Ubuntu 16.04 is the default system. This dependencies must be installed:
 
@@ -256,5 +256,23 @@ Usually there will have multiple patch files, the newest one is the last known g
 
    The GPU count and GPU attribute information are also displayed in the Hadoop web. User can check the overall capacity, used, free information in app information page. User can also check each node’s GPUs utilization information in bitmap format in Node Information page. 
 
-   
+## Known Issues ##
+
+1. Scheduling by GPUType
+
+   Currently the GPU configuration file cannot be put to the cluster correctly so scheduling jobs by GPUType cannot work.
+   A workaround for this is to manually update the configuration file to the cluster. This can be done in following steps:
+   ```bash
+     # In the OpenPAI source code folder where you do the deployment,
+     # there should be a GPU configuration file under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json.
+     # Or you can start cluster-configuration to generate it.
+     sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
+     # Make sure launcher is configured to logged in with admin user and get the admin user name. Those can be retrieved by running following command. The default user name is root.
+     curl "http://master_address:9086/v1/LauncherStatus"
+     # put the configuration to cluster
+     curl -X PUT -H "Content-Type: application/json" -H "UserName: cluster_admin_user" \
+      -d @src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
+     # check the configuration
+     curl "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
+   ```
 

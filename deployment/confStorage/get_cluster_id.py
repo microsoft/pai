@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,21 +15,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import yaml
+import os
+import sys
+import subprocess
+import jinja2
+import argparse
+import logging
+import logging.config
 
-# Variables illustrate:
-# ${UPGRADEALL}, ${GF_PLUGIN_DIR}, ${GF_PATHS_DATA} & ${GF_PATHS_LOGS}, defined in dockerfile.
+from . import conf_storage_util
 
 
-# upgrade all installed plugins
-if [ "$UPGRADEALL" = true ] ; then
-    grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins upgrade-all || true
-fi
+class get_cluster_id:
 
-exec /usr/sbin/grafana-server   \
-  --homepath=/usr/share/grafana              \
-  --config=/etc/grafana/grafana.ini          \
-  cfg:default.paths.data=${GF_PATHS_DATA}    \
-  cfg:default.paths.logs=${GF_PATHS_LOGS}    \
-  cfg:default.paths.plugins=${GF_PLUGIN_DIR} \
-  "$@"
+    def __init__(self, kube_config_path):
+        self.logger = logging.getLogger(__name__)
+        self.kube_config_path = kube_config_path
 
+
+    def run(self):
+
+        cluster_id = conf_storage_util.get_cluster_id(self.kube_config_path)
+
+        if cluster_id is None:
+            self.logger.info("Cluster-id hasn't been set. You could set it when push the cluster configuration into cluster.")
+        else:
+            self.logger.info("Cluster-id is: {0}".format(cluster_id))

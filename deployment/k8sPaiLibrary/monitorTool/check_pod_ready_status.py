@@ -33,7 +33,7 @@ def service_status_check(label_key, label_value):
 
 
 
-def waiting_until_service_ready(label_key, label_value, total_time=216000):
+def waiting_until_service_ready(label_key, label_value, total_time=3600):
 
     while servicestatus.pod_is_ready_or_not(label_key, label_value) != True:
 
@@ -55,7 +55,7 @@ def main():
     parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
     parser.add_argument('-k', '--label-key', dest="label_key", required=True, help="the data of app label-key in your service")
     parser.add_argument('-v', '--label-value', dest="label_value", required=True, help="the data of app label-value in your service")
-    parser.add_argument('-t', '--timeout', type=int, default=216000, help="the data of app label in your service")
+    parser.add_argument('-t', '--timeout', type=int, default=3600, help="the data of app label in your service")
 
     args = parser.parse_args()
     service_label_key = args.label_key
