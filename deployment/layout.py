@@ -6,6 +6,11 @@ def generate_layout(output_file):
     config.load_kube_config()
     v1 = client.CoreV1Api()
 
+    # api server url
+    api_server_url = v1.api_client.configuration.host
+    # TODO dashboard-host
+    dashboard_host = "dashboard_host"
+
     # query k8s nodes
     nodes = v1.list_node(pretty=False, timeout_seconds=56, watch=False)
     addressesList = map(lambda node: node.status.addresses, nodes.items)
@@ -46,6 +51,8 @@ GENERIC:
     """)
 
     layout = {
+        "api-server-url": api_server_url,
+        "dashboard-host": dashboard_host,
         "machine-sku": machineSku,
         "machine-list": machineList
     }

@@ -18,6 +18,11 @@
 
 # If corresponding values aren't be set in the machine list, the default value will be filled in.
 
+# kubernetes api server and dashboard host
+kubernetes:
+  api-server-url: {{ env["api-server-url"] }}
+  dashboard-host: {{ env["dashboard-host"] }}
+
 # TODO please modify it according to your own hardware
 machine-sku:
   GENERIC:
