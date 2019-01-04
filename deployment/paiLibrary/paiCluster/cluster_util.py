@@ -58,7 +58,8 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     # Prepare config of machine list.
     quick_start_config["machines"] = []
     for m in quick_start_config_raw["machines"]:
-        quick_start_config["machines"].append({"hostname": None, "ip": m})
+        # TODO on premise, using ip as "nodename"
+        quick_start_config["machines"].append({"hostname": None, "ip": m, "nodename": m})
     #
     # Auto-complete missing configuration items: Part 1 -- DNS.
     if "dns" in quick_start_config_raw:
