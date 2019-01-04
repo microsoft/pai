@@ -18,10 +18,6 @@
 
 
 cluster:
-  # kubernetes api server and dashboard host
-  kubernetes:
-    api-server-url: {{ env["api-server-url"] }}
-    dashboard-host: {{ env["dashboard-host"] }}
   #common:
   #  clusterid: pai-example
   #

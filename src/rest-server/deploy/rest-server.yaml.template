@@ -51,7 +51,7 @@ spec:
         - name: DEFAULT_PAI_ADMIN_PASSWORD
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: K8S_APISERVER_URI
-          value: {{ cluster_cfg['cluster']['kubernetes']['api-server-url'] }}
+          value: {{ cluster_cfg['layout']['kubernetes']['api-server-url'] }}
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
