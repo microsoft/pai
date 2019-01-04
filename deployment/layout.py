@@ -18,6 +18,8 @@ def generate_layout(output_file):
                 machine['hostip'] = address.address
             if address.type == 'Hostname':
                 machine['hostname'] = address.address
+                # TODO nodename == hostname on aks
+                machine['nodename'] = address.address
         machineList.append(machine)
     machineList.sort(key = lambda k : k['hostname'])
 
