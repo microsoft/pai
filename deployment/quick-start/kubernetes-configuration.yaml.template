@@ -20,7 +20,7 @@ kubernetes:
   cluster-dns: {{ env["dns"] }}
   # To support k8s ha, you should set an lb address here.
   # If deploy k8s with single master node, please set master IP address here
-  load-balance-ip: {{ env["machines"][0]["ip"] }}
+  load-balance-ip: {{ env["load-balance-ip"] }}
 
   # specify an IP range not in the same network segment with the host machine.
   service-cluster-ip-range: {{ env["service-cluster-ip-range"] }}
