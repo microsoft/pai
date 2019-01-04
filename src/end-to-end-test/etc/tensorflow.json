@@ -1,5 +1,5 @@
 {
-  "jobName": "tensorflow-distributed-cifar10-distributed",
+  "jobName": "tensorflow-cifar10",
   "image": "openpai/pai.example.tensorflow",
   "dataDir": "HDFS_URI/Test/tensorflow/cifar-10-batches-py",
   "outputDir": "HDFS_URI/Test/tensorflow/output",
