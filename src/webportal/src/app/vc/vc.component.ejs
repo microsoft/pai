@@ -47,10 +47,9 @@
                 <td>
                   <%= data[vcName]['numJobs'] %>
                 </td>
-
-                <td>
+                <td width="8%">
                   <a onclick="changeVcSate('<%= vcName %>', '<%= data[vcName]['status'] %>')" class="state-vc state-<%= data[vcName]['status'].toLowerCase() %>">
-                    <%= data[vcName]['status'] %>
+                    <%= data[vcName]['status'].toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) %>
                     <% if (vcName !== 'default') {%>
                       <span class="tips"></span>
                     <% } %>
@@ -73,5 +72,5 @@
       </table>
     </div>
   </div>
-  <%= modal() %>
+  <%= modal({'vcDefault': data.default}) %>
 </section>

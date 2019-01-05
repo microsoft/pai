@@ -60,7 +60,7 @@ const loadData = (specifiedVc) => {
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
         ],
       }).api();
-      $(".state-vc .tips").html("Click Change Status");
+      $(".state-vc .tips").html("Click To Change Status");
     },
     error: function() {
       alert('Error when loading data.');
@@ -132,7 +132,7 @@ const virtualClustersAdd = () => {
 // 删除vc一项
 const deleteVcItem = (name) => {
   if (name == "default") return false;
-  const res = confirm(`Are you sure to delete ${name}?`);
+  const res = confirm(`Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`);
   if (!res) return false;
   userAuth.checkToken((token) => {
     $.ajax({

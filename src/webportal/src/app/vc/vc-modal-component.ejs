@@ -6,9 +6,10 @@
            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
              &times;
            </button>
-           <h4 class="modal-title">
-             Add Virtual Cluster
-           </h4>
+           <h3 class="modal-title">
+             Add New Virtual Cluster
+           </h3>
+           <h5 class="modal-title">The capacity of new virtual cluster will be split from the "default" virtual cluster</h5>
          </div>
          <div class="modal-body">
            <div class="modal-vc-content row">
@@ -19,7 +20,7 @@
                <input name="ecapacity" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
              </div>
              <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListAdd">
-               Add Cluster Capacity
+               Add Virtual Cluster
              </button>
            </div>
          </div>
@@ -35,21 +36,23 @@
          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
            &times;
          </button>
-         <h4 class="modal-title">
-           Virtual Cluster Edit
-         </h4>
+         <h3 class="modal-title">
+           Edit Virtual Cluster
+         </h3>
        </div>
        <div class="modal-body">
-         <div class="modal-vc-content row">
-           <div class="form-group">
-             <input name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name">
+         <div class="modal-vc-content">
+           <div class="form-group edit-group">
+             <label for="editName" class="edit-group-item">Name</label>
+             <input id="editName" name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name" readonly=true>
            </div>
-           <div class="form-group">
-             <input name="ecapacityEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
-             <span class="remarks">Value range：0%~default</span>
+           <div class="form-group edit-group">
+             <label for="editCapacity" class="edit-group-item">Capacity</label>
+             <input id="editCapacity" name="ecapacityEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
            </div>
+           <div class="remarks">The new capacity can be set in range of 0%~<%= vcDefault.capacity %>%, the variation will be split from or return to default virtual cluster.</div>
            <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListEdit">
-             Update Cluster Capacity
+             Update Virtual Cluster
            </button>
          </div>
        </div>

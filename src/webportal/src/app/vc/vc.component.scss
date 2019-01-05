@@ -17,7 +17,7 @@
 }
 
 .add-vc-btn{
-  margin: 10px 0;
+  margin: 10px 0 20px 0;
 }
 
 ul, li{
@@ -27,9 +27,17 @@ ul, li{
 }
 
 .modal-vc-content{
-  max-width: 360px;
+  max-width: 390px;
   padding: 30px;
   margin: 0 auto;
+  .edit-group{
+    position: relative;
+    .edit-group-item{
+      position: absolute;
+      top: 10px;
+      left: -76px;
+    }
+  }
   .add-vc-fild{
     position: relative;
     height: auto;
@@ -104,7 +112,7 @@ ul, li{
     color: #444;
   }
   .default{
-    color: #666;
+    color: #c0c0c0;
     cursor: default;
   }
 }
