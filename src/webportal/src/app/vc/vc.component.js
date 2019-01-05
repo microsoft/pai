@@ -196,7 +196,7 @@ const changeVcSate = (name, state) => {
   if (!cookies.get('admin')) return false;
   if (name == 'default') return false;
   userAuth.checkToken((token) => {
-    const res = confirm(`Are you ${state == 'running' ? 'stop' : 'active'} vc ${name}?`);
+    const res = confirm(`Do you want to ${state.toLowerCase() == 'running' ? 'stop' : 'activate'} ${name}?`);
     if (!res) return false;
     if (!cookies.get('admin')) return false;
     $.ajax({
