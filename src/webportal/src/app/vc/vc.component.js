@@ -60,6 +60,7 @@ const loadData = (specifiedVc) => {
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
         ],
       }).api();
+      resizeContentWrapper();
       $(".state-vc .tips").html("Click To Change Status");
     },
     error: function() {
@@ -80,7 +81,7 @@ const formatNumber = (x, precision) => {
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    $('.dataTables_scrollBody').css('height', (($(window).height() - 330)) + 'px');
     table.columns.adjust().draw();
   }
 };
@@ -192,8 +193,9 @@ const editVcItemPut = (name, capacity) => {
 
 //更改状态
 const changeVcSate = (name, state) => {
+  if (!cookies.get('admin')) return false;
+  if (name == 'default') return false;
   userAuth.checkToken((token) => {
-    if (name == 'default') return false;
     const res = confirm(`Are you ${state == 'running' ? 'stop' : 'active'} vc ${name}?`);
     if (!res) return false;
     if (!cookies.get('admin')) return false;
