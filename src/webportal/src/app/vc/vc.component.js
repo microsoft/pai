@@ -86,14 +86,14 @@ const resizeContentWrapper = () => {
   }
 };
 
-// 格式数据
+//
 const virtualClusterShow = () => {
   $("#virtualClustersList input[name='vcname']").val('');
   $("#virtualClustersList input[name='ecapacity']").val('');
   $("#virtualClustersList").modal('show');
 }
 
-// 新增 vc
+//
 const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
     let vcName = $("#virtualClustersList input[name='vcname']").val();
@@ -130,7 +130,7 @@ const virtualClustersAdd = () => {
   })
 }
 
-// 删除vc一项
+//
 const deleteVcItem = (name) => {
   if (name == "default") return false;
   const res = confirm(`Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`);
@@ -156,7 +156,7 @@ const deleteVcItem = (name) => {
   })
 }
 
-// 修改vc一项
+//
 const editVcItem = (name, capacity) => {
   if (name == 'default') return false;
   $("input[name='nameEdit']").val(name);
@@ -164,7 +164,7 @@ const editVcItem = (name, capacity) => {
   $("#virtualClustersEdit").modal("show");
 }
 
-// 修改
+//
 const editVcItemPut = (name, capacity) => {
   userAuth.checkToken((token) => {
     $.ajax({
@@ -191,8 +191,8 @@ const editVcItemPut = (name, capacity) => {
   })
 }
 
-//更改状态
-const changeVcSate = (name, state) => {
+
+const changeVcState = (name, state) => {
   if (!admin) return false;
   if (name == 'default') return false;
   userAuth.checkToken((token) => {
@@ -224,7 +224,7 @@ const changeVcSate = (name, state) => {
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
-window.changeVcSate = changeVcSate;
+window.changeVcState = changeVcState;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
@@ -234,7 +234,7 @@ $(document).ready(() => {
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 
-  // 添加VC
+  // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();
   })

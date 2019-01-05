@@ -48,7 +48,7 @@
                   <%= data[vcName]['numJobs'] %>
                 </td>
                 <td width="8%">
-                  <a onclick="changeVcSate('<%= vcName %>', '<%= data[vcName]['status'] %>')" class="state-vc state-<%= data[vcName]['status'].toLowerCase() %> <%= admin ? '' : 'state-vc-ordinary' %>">
+                  <a onclick="changeVcState('<%= vcName %>', '<%= data[vcName]['status'] %>')" class="state-vc state-<%= data[vcName]['status'].toLowerCase() %> <%= admin ? '' : 'state-vc-ordinary' %>">
                     <%= data[vcName]['status'].toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase()) %>
                     <% if (admin && vcName !== 'default') {%>
                       <span class="tips"></span>
