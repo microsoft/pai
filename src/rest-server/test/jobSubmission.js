@@ -196,7 +196,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
             'name': '7573657231',
         },
         'data': {
-            'admin': 'dHJ1ZQ==',
+            'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'dXNlcjE=',
             'virtualCluster': 'ZGVmYXVsdCx2YzE='

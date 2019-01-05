@@ -192,6 +192,10 @@ const checkUserVc = (username, virtualCluster, next) => {
             if (err) {
               return next(err);
             }
+            // Admin user can have right to all virtual cluster
+            if (res[0]['admin'] === 'true') {
+              return next(null, true);
+            }
             let userVirtualClusters = res[0]['virtualCluster'].trim().split(',');
             for (let item of userVirtualClusters) {
               if (item === virtualCluster) {
