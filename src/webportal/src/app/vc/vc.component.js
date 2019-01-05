@@ -89,7 +89,7 @@ const resizeContentWrapper = () => {
 //
 const virtualClusterShow = () => {
   $("#virtualClustersList input[name='vcname']").val('');
-  $("#virtualClustersList input[name='ecapacity']").val('');
+  $("#virtualClustersList input[name='capacity']").val('');
   $("#virtualClustersList").modal('show');
 }
 
@@ -97,19 +97,19 @@ const virtualClusterShow = () => {
 const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
     let vcName = $("#virtualClustersList input[name='vcname']").val();
-    let ecapacity = $("#virtualClustersList input[name='ecapacity']").val();
+    let capacity = $("#virtualClustersList input[name='capacity']").val();
     if (!vcName) {
       $("#virtualClustersList input[name='vcname']").focus();
       return false;
     }
-    if (!ecapacity) {
-      $("#virtualClustersList input[name='ecapacity']").focus();
+    if (!capacity) {
+      $("#virtualClustersList input[name='capacity']").focus();
       return false;
     }
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
-        "vcCapacity": ecapacity
+        "vcCapacity": capacity
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -160,7 +160,7 @@ const deleteVcItem = (name) => {
 const editVcItem = (name, capacity) => {
   if (name == 'default') return false;
   $("input[name='nameEdit']").val(name);
-  $("input[name='ecapacityEdit']").val(capacity);
+  $("input[name='capacityEdit']").val(capacity);
   $("#virtualClustersEdit").modal("show");
 }
 
@@ -241,7 +241,7 @@ $(document).ready(() => {
 
   $(document).on("click", "#virtualClustersListEdit", () => {
     let name  = $("input[name='nameEdit']").val();
-    let capacity  = $("input[name='ecapacityEdit']").val();
+    let capacity  = $("input[name='capacityEdit']").val();
     editVcItemPut(name, capacity);
   })
 
