@@ -34,7 +34,7 @@ const userAuth = require('../user/user-auth/user-auth.component');
 
 //
 let table = null;
-
+let admin = cookies.get('admin') == 'true' ? true : false;
 //
 
 const loadData = (specifiedVc) => {
@@ -49,7 +49,7 @@ const loadData = (specifiedVc) => {
         formatNumber: formatNumber,
         yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
         grafanaUri: webportalConfig.grafanaUri,
-        admin: cookies.get('admin'),
+        admin,
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
@@ -81,7 +81,7 @@ const formatNumber = (x, precision) => {
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 330)) + 'px');
+    $('.dataTables_scrollBody').css('height', (($(window).height() - (admin ? 335 : 265))) + 'px');
     table.columns.adjust().draw();
   }
 };
@@ -193,12 +193,11 @@ const editVcItemPut = (name, capacity) => {
 
 //更改状态
 const changeVcSate = (name, state) => {
-  if (!cookies.get('admin')) return false;
+  if (!admin) return false;
   if (name == 'default') return false;
   userAuth.checkToken((token) => {
     const res = confirm(`Do you want to ${state.toLowerCase() == 'running' ? 'stop' : 'activate'} ${name}?`);
     if (!res) return false;
-    if (!cookies.get('admin')) return false;
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${$.trim(name)}/status`,
       headers: {
