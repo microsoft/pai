@@ -21,7 +21,4 @@ RUN apt-get -y install zookeeper
 
 ENV PATH $PATH:/usr/share/zookeeper/bin
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
-
 CMD ["/bin/bash"]
