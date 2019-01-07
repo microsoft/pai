@@ -17,13 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
-sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/share/zookeeper/bin/zkEnv.sh
+sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/local/zookeeper/bin/zkEnv.sh
+sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/local/zookeeper/bin/zkEnv.sh
 
 mkdir -p /etc/zookeeper/conf/
-mkdir -p /var/lib/zoodata
+mkdir -p /var/lib/zoodata/
 cp /zk-configuration/myid /var/lib/zoodata/myid
-cp /zk-configuration/zoo.cfg /etc/zookeeper/conf/zoo.cfg
+cp /zk-configuration/zoo.cfg /usr/local/zookeeper/conf/zoo.cfg
 
 
 HOST_NAME=`hostname`
