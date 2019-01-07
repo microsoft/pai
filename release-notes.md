@@ -8,7 +8,7 @@
 
 ## Improvements
 ### Service
-* Cluster object model implementation. -[PR 1735](https://github.com/Microsoft/pai/pull/1735)
+* Cluster object model implementation to make it easier for developer to add customized service configuration generation logic. -[PR 1735](https://github.com/Microsoft/pai/pull/1735)
 * Job exporter refactor to avoid single external command call will make exporter hang indefinitely. -[PR 1840](https://github.com/Microsoft/pai/pull/1840)
 * Make drivers version configurable. - [PR 1626](https://github.com/Microsoft/pai/pull/1626)
 * Extend yarn local log expiration time to 7 days. -[PR 1673](https://github.com/Microsoft/pai/pull/1673)
