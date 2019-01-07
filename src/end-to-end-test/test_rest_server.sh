@@ -27,12 +27,12 @@ rest_server_uri=$REST_SERVER_URI
   [[ $result == *API* ]]
 }
 
-@test "submit cntk test job" {
+@test "submit tensorflow test job" {
   account="$(cat ./etc/account.config)"
   account=(${account//:/ })
-  job_name="cntk-test-$RANDOM-$RANDOM"
+  job_name="tensorflow-test-$RANDOM-$RANDOM"
   token="$(cat ./etc/token.config)"
-  result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X POST -d @- $rest_server_uri/api/v1/user/${account[0]}/jobs)"
+  result="$(cat ./etc/tensorflow.json | sed -e "s@tensorflow-distributed-cifar10-distributed@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X POST -d @- $rest_server_uri/api/v1/user/${account[0]}/jobs)"
   [[ ! $result == *Error* ]]
 }
 
