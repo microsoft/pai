@@ -61,7 +61,7 @@ const loadData = (specifiedVc) => {
         ],
       }).api();
       resizeContentWrapper();
-      $(".state-vc .tips").html("Click To Change Status");
+      $('.state-vc .tips').html('Click To Change Status');
     },
     error: function() {
       alert('Error when loading data.');
@@ -88,28 +88,28 @@ const resizeContentWrapper = () => {
 
 //
 const virtualClusterShow = () => {
-  $("#virtualClustersList input[name='vcname']").val('');
-  $("#virtualClustersList input[name='capacity']").val('');
-  $("#virtualClustersList").modal('show');
-}
+  $('#virtualClustersList input[name="vcname"]').val('');
+  $('#virtualClustersList input[name="capacity"]').val('');
+  $('#virtualClustersList').modal('show');
+};
 
 //
 const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
-    let vcName = $("#virtualClustersList input[name='vcname']").val();
-    let capacity = $("#virtualClustersList input[name='capacity']").val();
+    let vcName = $('#virtualClustersList input[name="vcname"]').val();
+    let capacity = $('#virtualClustersList input[name="capacity"]').val();
     if (!vcName) {
-      $("#virtualClustersList input[name='vcname']").focus();
+      $('#virtualClustersList input[name="vcname"]').focus();
       return false;
     }
     if (!capacity) {
-      $("#virtualClustersList input[name='capacity']").focus();
+      $('#virtualClustersList input[name="capacity"]').focus();
       return false;
     }
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
-        "vcCapacity": capacity
+        'vcCapacity': capacity,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ const virtualClustersAdd = () => {
       dataType: 'json',
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
-        $("#virtualClustersList").modal('hide');
+        $('#virtualClustersList').modal('hide');
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -127,12 +127,12 @@ const virtualClustersAdd = () => {
         alert(res.message);
       },
     });
-  })
-}
+  });
+};
 
 //
 const deleteVcItem = (name) => {
-  if (name == "default") return false;
+  if (name == 'default') return false;
   const res = confirm(`Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`);
   if (!res) return false;
   userAuth.checkToken((token) => {
@@ -153,16 +153,16 @@ const deleteVcItem = (name) => {
         alert(res.message);
       },
     });
-  })
-}
+  });
+};
 
 //
 const editVcItem = (name, capacity) => {
   if (name == 'default') return false;
-  $("input[name='nameEdit']").val(name);
-  $("input[name='capacityEdit']").val(capacity);
-  $("#virtualClustersEdit").modal("show");
-}
+  $('input[name="nameEdit"]').val(name);
+  $('input[name="capacityEdit"]').val(capacity);
+  $('#virtualClustersEdit').modal('show');
+};
 
 //
 const editVcItemPut = (name, capacity) => {
@@ -170,7 +170,7 @@ const editVcItemPut = (name, capacity) => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${name}`,
       data: JSON.stringify({
-        "vcCapacity": parseInt(capacity)
+        'vcCapacity': parseInt(capacity),
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -179,7 +179,7 @@ const editVcItemPut = (name, capacity) => {
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
-        $("#virtualClustersEdit").modal("hide");
+        $('#virtualClustersEdit').modal('hide');
         loadData(url.parse(window.location.href, true).query['vcName']);
         alert(data.message);
       },
@@ -188,8 +188,8 @@ const editVcItemPut = (name, capacity) => {
         alert(res.message);
       },
     });
-  })
-}
+  });
+};
 
 
 const changeVcState = (name, state) => {
@@ -204,22 +204,22 @@ const changeVcState = (name, state) => {
         Authorization: `Bearer ${token}`,
       },
       data: JSON.stringify({
-        "vcStatus": state.toLowerCase() == "running" ? "stopped" : "running"
+        'vcStatus': state.toLowerCase() == 'running' ? 'stopped' : 'running',
       }),
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
-        alert(data.message)
+        alert(data.message);
       },
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },
-    })
-  })
-}
+    });
+  });
+};
 
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
@@ -237,12 +237,11 @@ $(document).ready(() => {
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();
-  })
+  });
 
-  $(document).on("click", "#virtualClustersListEdit", () => {
-    let name  = $("input[name='nameEdit']").val();
-    let capacity  = $("input[name='capacityEdit']").val();
+  $(document).on('click', '#virtualClustersListEdit', () => {
+    let name = $('input[name="nameEdit"]').val();
+    let capacity = $('input[name="capacityEdit"]').val();
     editVcItemPut(name, capacity);
-  })
-
+  });
 });
