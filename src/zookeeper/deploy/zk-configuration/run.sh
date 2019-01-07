@@ -20,10 +20,8 @@
 sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
 sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/share/zookeeper/bin/zkEnv.sh
 
-
-mkdir -p /var/lib/zoodata
-cp /zk-configuration/myid /var/lib/zoodata/myid
 mkdir -p /etc/zookeeper/conf/
+cp /zk-configuration/myid /etc/zookeeper/conf/myid
 cp /zk-configuration/zoo.cfg /etc/zookeeper/conf/zoo.cfg
 
 

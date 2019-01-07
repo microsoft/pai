@@ -17,8 +17,12 @@
 
 FROM base-image
 
-RUN apt-get -y install zookeeper
+ENV ZOOKEEPER_VERSION=3.4.8
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
+RUN wget -O - --no-verbose https://archive.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz | tar -xz -C /usr/local/ && \
+    cd /usr/local/ && \
+    ln -s ./zookeeper-$ZOOKEEPER_VERSION zookeeper
+
+ENV PATH $PATH:/usr/local/zookeeper/bin
 
 CMD ["/bin/bash"]
