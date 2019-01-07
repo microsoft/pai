@@ -19,9 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
+if kubectl get configmap | grep -q "zk-configuration"; then
+    kubectl delete configmap zk-configuration || exit $?
+fi
+
 if kubectl get daemonset | grep -q "zookeeper-ds"; then
     kubectl delete ds zookeeper-ds || exit $?
 fi
-
 
 popd > /dev/null

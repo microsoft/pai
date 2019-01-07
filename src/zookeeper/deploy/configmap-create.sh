@@ -17,17 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-
-/bin/bash configmap-create.sh || exit $?
-
-# Zookeeper
-kubectl apply --overwrite=true -f zookeeper.yaml || exit $?
-
-sleep 10
-# wait until all zookeepers are ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper || exit $?
-
-
-popd > /dev/null
+kubectl create configmap zk-configuration --from-file=zk-configuration/ --dry-run -o yaml| kubectl apply --overwrite=true -f - || exit $?

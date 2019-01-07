@@ -17,11 +17,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/share/zookeeper/bin/zkEnv.sh
+sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/local/zookeeper/bin/zkEnv.sh
+sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/local/zookeeper/bin/zkEnv.sh
+
+mkdir -p /etc/zookeeper/conf/
+mkdir -p /var/lib/zoodata/
+cp /zk-configuration/myid /var/lib/zoodata/myid
+cp /zk-configuration/zoo.cfg /usr/local/zookeeper/conf/zoo.cfg
+
 
 HOST_NAME=`hostname`
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
-cp /myid /var/lib/zoodata/myid
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /usr/local/zookeeper/conf/zoo.cfg -n $HOST_NAME
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
 
 mkdir -p /jobstatus
