@@ -17,17 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/share/zookeeper/bin/zkEnv.sh
 
 
-/bin/bash configmap-create.sh || exit $?
-
-# Zookeeper
-kubectl apply --overwrite=true -f zookeeper.yaml || exit $?
-
-sleep 10
-# wait until all zookeepers are ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper || exit $?
+mkdir -p /var/lib/zoodata
+cp /zk-configuration/myid /var/lib/zoodata/myid
+mkdir -p /etc/zookeeper/conf/
+cp /zk-configuration/zoo.cfg /etc/zookeeper/conf/zoo.cfg
 
 
-popd > /dev/null
+HOST_NAME=`hostname`
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
+
+mkdir -p /jobstatus
+touch /jobstatus/jobok
+
+zkServer.sh start-foreground
+

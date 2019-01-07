@@ -35,6 +35,8 @@ spec:
         image: {{cluster_cfg["cluster"]["docker-registry"]["prefix"]}}zookeeper:{{cluster_cfg["cluster"]["docker-registry"]["tag"]}}
         imagePullPolicy: Always
         volumeMounts:
+        - mountPath: /zk-configuration
+          name: zk-config
         - mountPath: /var/lib/zoodata
           name: zookeeper-storage
         - mountPath: /host-configuration
@@ -46,6 +48,9 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        command:
+          - "/bin/bash"
+          - "/zk-configuration/run.sh"
         env:
         - name: JAVA_OPTS
           value: "-server -Xmx8192m"
@@ -66,3 +71,6 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
+      - name: zk-config
+        configMap:
+          name: zk-configuration
