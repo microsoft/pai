@@ -200,11 +200,11 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
     map(_map_fn, podsJsonObject["items"])
 
 
-def collect_healthz(gauge, histogram, service_name, address, port, url):
+def collect_healthz(gauge, histogram, service_name, scheme, address, port, url, ca_path, headers):
     with histogram.time():
         error = "ok"
         try:
-            error = requests.get("http://{}:{}{}".format(address, port, url)).text
+            error = requests.get("{}://{}:{}{}".format(scheme, address, port, url), headers = headers, verify = ca_path).text
         except Exception as e:
             error_counter.labels(type="healthz").inc()
             error = str(e)
@@ -213,12 +213,11 @@ def collect_healthz(gauge, histogram, service_name, address, port, url):
         gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_component(k8s_gauge, api_server_ip, api_server_port):
+def collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
     collect_healthz(k8s_gauge, api_healthz_histogram,
-            "k8s_api_server", api_server_ip, api_server_port, "/healthz")
+            "k8s_api_server", api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
     collect_healthz(k8s_gauge, etcd_healthz_histogram,
-            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd")
-
+            "k8s_etcd", api_server_scheme, api_server_ip, api_server_port, "/healthz/etcd", ca_path, headers)
 
 def parse_node_item(pai_node_gauge, node):
     name = node["metadata"]["name"]
@@ -269,9 +268,9 @@ def load_machine_list(configFilePath):
         return yaml.load(f)["hosts"]
 
 
-def request_with_histogram(url, histogram):
+def request_with_histogram(url, histogram, ca_path, headers):
     with histogram.time():
-        return requests.get(url).json()
+        return requests.get(url, headers = headers, verify = ca_path).json()
 
 
 def try_remove_old_prom_file(path):
@@ -290,8 +289,18 @@ def main(args):
 
     address = args.k8s_api
     parse_result = urlparse.urlparse(address)
+    api_server_scheme = parse_result.scheme
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
+    ca_path = args.ca
+    bearer_path = args.bearer
+    if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
+        log.warning("please provide bearer_path and ca_path at the same time or not")        
+    headers = None
+    if bearer_path is not None:
+        with open(bearer_path, 'r') as bearer_file:
+           bearer = bearer_file.read()
+           headers = {'Authorization': "Bearer {}".format(bearer)}
 
     list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
     list_nodes_url = "{}/api/v1/nodes/".format(address)
@@ -315,15 +324,15 @@ def main(args):
 
         try:
             # 1. check service level status
-            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram)
+            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram, ca_path, headers)
             process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram)
+            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers) 
             process_nodes_status(pai_node_gauge, nodes_status)
 
             # 3. check k8s level status
-            collect_k8s_component(k8s_gauge, api_server_ip, api_server_port)
+            collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
@@ -359,6 +368,8 @@ if __name__ == "__main__":
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
+    parser.add_argument("--ca", "-c", help="ca file path")
+    parser.add_argument("--bearer", "-b", help="bearer token file path")    
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
