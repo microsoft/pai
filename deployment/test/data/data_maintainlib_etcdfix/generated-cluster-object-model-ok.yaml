@@ -73,7 +73,7 @@ kubernetes:
 
 
 
-machine:
+layout:
 
   machine-sku:
     NC24R:
