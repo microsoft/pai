@@ -16,6 +16,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% if cluster_cfg["alert-manager"]["configured"] %}
+
+{% if cluster_cfg["alert-manager"]["use-pylon"] %}
+{% set external_url = cluster_cfg["pylon"]["uri"] %}
+{% else %}
+{% set external_url = cluster_cfg["alert-manager"]["url"] %}
+{% endif %}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,7 +45,8 @@ spec:
         args:
           - '--config.file=/etc/alertmanager/config.yml'
           - '--storage.path=/alertmanager'
-          - '--web.external-url={{ cluster_cfg["alert-manager"]["url"] }}'
+          - '--web.external-url={{ external_url }}/alert-manager/'
+          - '--web.route-prefix=alert-manager'
         ports:
         - name: alertmanager
           containerPort: {{ cluster_cfg["alert-manager"]["port"] }}
