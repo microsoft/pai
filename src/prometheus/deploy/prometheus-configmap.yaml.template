@@ -31,6 +31,11 @@ data:
     scrape_configs:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{ prom_info["scrape_interval"] }}s
+      {% if 'serviceaccount_token_path' in clusterinfo['kubernetes'] %}
+      tls_config:
+        ca_file: {{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/ca.crt
+      bearer_token_file: {{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/token
+      {% endif %}
       kubernetes_sd_configs:
       - api_server: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         role: pod
