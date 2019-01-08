@@ -51,7 +51,8 @@ class Pylon:
             ('hadoop-name-node', 'master-ip'),
             ('prometheus', 'url'),
             ('alert-manager', 'url'),
-            ('kubernetes', 'dashboard-host'),
+            # TODO remove it temporally
+            #('kubernetes', 'dashboard-host'),
             ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),
             ('webportal', 'uri'),
