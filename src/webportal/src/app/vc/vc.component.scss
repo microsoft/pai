@@ -71,7 +71,6 @@ ul, li{
 }
 #vc-table{
   .state-vc{
-    position: relative;
     display: inline-block;
     padding: .2em .6em .3em;
     font-size: 75%;
@@ -83,26 +82,6 @@ ul, li{
     vertical-align: baseline;
     border-radius: .25em;
     cursor: pointer;
-    .tips{
-      display: none;
-      position: absolute;
-      bottom: -24px;
-      left: 10px;
-      z-index: 1;
-      width: 150px;
-      height: 22px;
-      line-height: 22px;
-      text-align: center;
-      color: #80868b;
-      font-size: 12px;
-      background: #fdfdfd;
-      border: 0.5px solid #d2d2d2;
-    }
-    &:hover{
-      .tips{
-        display: inline-block;
-      }
-    }
   }
   .state-vc-ordinary{
     cursor: default;
@@ -114,6 +93,9 @@ ul, li{
   .state-stopped{
     background: #d2d6de;
     color: #444;
+  }
+  .item-btn{
+    cursor: pointer;
   }
   .default{
     color: #c0c0c0;

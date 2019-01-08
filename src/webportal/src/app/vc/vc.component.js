@@ -34,7 +34,7 @@ const userAuth = require('../user/user-auth/user-auth.component');
 
 //
 let table = null;
-let admin = cookies.get('admin') == 'true' ? true : false;
+let isAdmin = cookies.get('admin');
 //
 
 const loadData = (specifiedVc) => {
@@ -49,7 +49,7 @@ const loadData = (specifiedVc) => {
         formatNumber: formatNumber,
         yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
         grafanaUri: webportalConfig.grafanaUri,
-        admin,
+        isAdmin,
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
@@ -61,7 +61,6 @@ const loadData = (specifiedVc) => {
         ],
       }).api();
       resizeContentWrapper();
-      $('.state-vc .tips').html('Click To Change Status');
     },
     error: function() {
       alert('Error when loading data.');
@@ -81,7 +80,7 @@ const formatNumber = (x, precision) => {
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - (admin ? 335 : 265))) + 'px');
+    $('.dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 335 : 265))) + 'px');
     table.columns.adjust().draw();
   }
 };
@@ -193,8 +192,8 @@ const editVcItemPut = (name, capacity) => {
 
 
 const changeVcState = (name, state) => {
-  if (!admin) return false;
-  if (name == 'default') return false;
+  if (isAdmin !== 'true') return false;
+  if (name === 'default') return false;
   userAuth.checkToken((token) => {
     const res = confirm(`Do you want to ${state.toLowerCase() == 'running' ? 'stop' : 'activate'} ${name}?`);
     if (!res) return false;
@@ -221,10 +220,34 @@ const changeVcState = (name, state) => {
   });
 };
 
+const convertState = (name, state) => {
+  let vcState = '';
+  let vcStateChage = '';
+  let vcStateOrdinary = '';
+  let vcStateTips = '';
+  if (state === 'RUNNING') {
+    vcState = 'Running';
+    vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+  } else if (state === 'STOPPED') {
+    vcState = 'Stopped';
+    vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+  } else {
+    vcState = 'Unknown';
+    vcStateChage = '';
+  }
+  if (isAdmin === 'true' && name !== 'default') {
+    vcStateTips = 'title="Click To Change Status"';
+  } else {
+    vcStateOrdinary = 'state-vc-ordinary';
+  }
+  return `<a ${vcStateChage} class="state-vc state-${vcState.toLowerCase()} ${vcStateOrdinary}" ${vcStateTips}>${vcState}</a>`;
+};
+
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
 window.changeVcState = changeVcState;
+window.convertState = convertState;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');

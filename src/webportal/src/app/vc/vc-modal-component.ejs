@@ -1,12 +1,9 @@
 <!--  Modal component for vc add -->
-  <div class="modal fade vc-model" id="virtualClustersList" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal fade" id="virtualClustersList" tabindex="-1" role="dialog" aria-labelledby="virtualClustersAddTitle">
      <div class="modal-dialog">
        <div class="modal-content">
          <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-             &times;
-           </button>
-           <h3 class="modal-title">
+           <h3 class="modal-title" id="virtualClustersAddTitle">
              Add New Virtual Cluster
            </h3>
            <h5 class="modal-title">The capacity of new virtual cluster will be split from the "default" virtual cluster</h5>
@@ -24,19 +21,19 @@
              </button>
            </div>
          </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
        </div>
      </div>
    </div>
 
 <!-- Modal component for vc edit -->
-<div class="modal fade vc-edit-model" id="virtualClustersEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="virtualClustersEdit" tabindex="-1" role="dialog" aria-labelledby="virtualClustersEditTitle">
    <div class="modal-dialog">
      <div class="modal-content">
        <div class="modal-header">
-         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-           &times;
-         </button>
-         <h3 class="modal-title">
+         <h3 class="modal-title" id="virtualClustersEditTitle">
            Edit Virtual Cluster
          </h3>
        </div>
@@ -44,7 +41,7 @@
          <div class="modal-vc-content">
            <div class="form-group edit-group">
              <label for="editName" class="edit-group-item">Name</label>
-             <input id="editName" name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name" readonly=true>
+             <input id="editName" name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name">
            </div>
            <div class="form-group edit-group">
              <label for="editCapacity" class="edit-group-item">Capacity</label>
@@ -55,6 +52,9 @@
              Update Virtual Cluster
            </button>
          </div>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
        </div>
      </div>
    </div>
