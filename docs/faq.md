@@ -132,15 +132,18 @@ A: Please refer [configure virtual cluster capacity](./../src/hadoop-resource-ma
 
 ### Q: What should the admin do when get NodeFilesystemUsage firing?
 
-A: NodeFilesystemUsage firing is caused by disk pressure. The root cause may be HDFS data, docker data cache or user data cache. when this firing happens, the admin should do the following steps to find out the root cause. 
+A: NodeFilesystemUsage firing is caused by disk pressure. The root cause may be HDFS, docker data cache or user data cache. when this firing happens, the admin should do the following steps mitigate the data load. 
 
-- (1) Check if HDFS is consuming too much space in prod bed.
+- (1) Check HDFS.
+
 Check Hadoop Datanodes (url example: http:// hadoop namenode/dfshealth.html#tab-datanode). 
 If only a few nodes are overused, run "hdfs balancer -policy datanode" to rebalance the data among data nodes via HDFS balancer. 
 If most nodes are in heavy usage, manually clean some data before do rebalance.
 
 - (2) Check docker cached data.
+
 Run "docker system df" to see how much space can be reclaimed. If the space is large, run command "docker system prune -a" to clean the cache.
 
-- (3) Check if /tmp directory contain too much data. 
+- (3) Check /tmp directory. 
+
 Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more. 
