@@ -51,8 +51,10 @@ GENERIC:
     """)
 
     layout = {
-        "api-servers-url": api_servers_url,
-        "dashboard-host": dashboard_host,
+        "kubernetes": {
+            "api-servers-url": api_servers_url,
+            "dashboard-host": dashboard_host
+        },
         "machine-sku": machineSku,
         "machine-list": machineList
     }
