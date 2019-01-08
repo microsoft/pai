@@ -1,10 +1,8 @@
-
-
 ## 1. Overview
 
-提供可供管理员操作的Virtual Cluster（以下简称vc）的交互界面，提供可供普通用户查询vc详情的交互界面
+Provide  user interface  of **Virtual Cluster** (vc) for administrators to manage vcs. Provide user interface for ordinary users to query vc details. 
 
-相关issue：[vc_update](https://github.com/Microsoft/pai/issues/1754)
+Related issues：[vc_update](https://github.com/Microsoft/pai/issues/1754)
 
 ![代码结构](./vc_management.png)
 
@@ -12,84 +10,82 @@
 
 ## 2. Rest API
 
-已有的相关API如下：
+The following table shows some related APIs in rest-server.
 
-| 序号 | API                                     | 请求类型 | 说明               |
-| ---- | --------------------------------------- | -------- | ------------------ |
-| 1    | /api/v1/token                           | POST     | 获取token          |
-| 2    | /api/v1/virtual-clusters                | GET      | 获取vc列表         |
-| 3    | /api/v1/virtual-clusters/:vcName        | GET      | 获取vc详情         |
-| 4    | /api/v1/virtual-clusters/:vcName        | PUT      | 新增或变更vc       |
-| 5    | /api/v1/virtual-clusters/:vcName        | DELETE   | 删除vc             |
-| 6    | /api/v1/virtual-clusters/:vcName/status | PUT      | 变更vc状态         |
-| 7    | /api/v1/user                            | GET      | 获取账户详情       |
-| 8    | /api/v1/user/:username/virtualClusters  | PUT      | 新增或变更用户的vc |
+| No   | API                                     | Request Type | Remark                             |
+| ---- | --------------------------------------- | ------------ | ---------------------------------- |
+| 1    | /api/v1/token                           | POST         | Get a token                        |
+| 2    | /api/v1/virtual-clusters                | GET          | Get vc list                        |
+| 3    | /api/v1/virtual-clusters/:vcName        | GET          | Get *vcName*'s detail              |
+| 4    | /api/v1/virtual-clusters/:vcName        | PUT          | Add or update *vcName*             |
+| 5    | /api/v1/virtual-clusters/:vcName        | DELETE       | Delete *vcName*                    |
+| 6    | /api/v1/virtual-clusters/:vcName/status | PUT          | Update *vcName*'s status           |
+| 7    | /api/v1/user                            | GET          | Get user's detail                  |
+| 8    | /api/v1/user/:username/virtualClusters  | PUT          | Add or update *username*'s vc list |
 
 
 
 ## 3. Implementation
 
-### 3.1 add a vc（admin only）
+### 3.1 Add a vc（admin only）
 
 ![1545896193476](./add_vc.png)
 
-（1）点击“Add“ 按钮，弹出对话框，在其中编辑拟添加vc的名称和容量值。支持在一个页面内填写多个vc。
+（1）A new button "Add Virtual Cluster" will be added. It can only be visible for admin.
 
-（2）在弹出的对话框中，点击“Add”按钮，逐条添加VC。每次添加VC调用一次接口` PUT /api/v1/virtual-clusters/:vcName`，若更新成功则显示“succeed”，更新失败，醒目地显示失败原因。单次调用失败不影响后续过程。
+（2）In the pop-up dialog box, admin can set the new vc's configuration. Web front page will invoke the api `PUT /api/v1/virtual-clusters/:vcName`. The response will be shown in message box. 
 
-### 3.2 delete a vc（admin only）
+### 3.2 Delete a vc（admin only）
 
 ![1545897742293](./delete_vc.png)
 
-（1）点击“Delete”按钮，弹出提示框“是否确认要删除:vcName"，若否，则不做变更；若是，调用`DELETE /api/v1/virtual-clusters/:vcName`，并弹出消息框显示返回信息
+（1）A new button "Delete" will be added. It can only be visible for admin. The "default" vc's "Delete" can not be clicked. After clicking "Delete", a confirm box will be pop-up. Web front page will invoke the api `DELETE /api/v1/virtual-clusters/:vcName`. The response will be shown in message box. 
 
-（2）刷新本页面
+（2）If changed, the page will be refreshed automatically. 
 
-### 3.3 update vc's capacity（admin only）
+### 3.3 Update vc's capacity（admin only）
 
 ![1545898138920](./update_vc.png)
 
-（1）点击"Edit"按钮，弹出对话框，提示可以设置新的vc capacity，并在合适的位置提示该值的取值范围为：0%~default capacity，点击“Update”按钮后，调用`PUT /api/v1/virtual-clusters/:vcName`，并弹出消息框显示返回信息
+（1）A new button "Edit" will be added. It can only be visible for admin. The "default" vc's "Edit" can not be clicked. In the pop-up dialog box, admin can set the vc's capacity.  Web front page will invoke the api `PUT /api/v1/virtual-clusters/:vcName`. The response will be shown in message box. 
 
-（2）注：default vc的Edit按钮不可用，鼠标悬浮提示“default vc can not be set capacity”
+（2）If changed, the page will be refreshed automatically.
 
-（3）刷新本页面
-
-### 3.4 add users to a vc（admin only）
+### 3.4 Add users to a vc（admin only）
 
 ![1545900035211](./add_users_to_vc.png)
 
-（1）点击“Users”按钮，弹出对话框，以如“User Manangement”的方式显示用户列表（调用接口`GET /api/v1/user`，每个条目前增加“复选框”（该复选框的check与否代表用户是否拥有该vc的权限），将拥有该vc权限的用户显示在列表前。管理员可以勾选/取消勾选某个用户来实现新增/新增用户的vc访问权限
+（1）A new button "Users" will be added. It can only be visible for admin. The "default" vc's "Users" can not be clicked. In the pop-up dialog box, admin can set the vc's users.  Web front page will firstly invoke the api `GET /api/v1/user` , and list all users in a pop-up dialog box. Every item represent a user, and has checkbox to show if this user has the priveledge of the vc. Admin can select/deselect the checkbox to add/remove a user's priveledge . 
 
-（2）列表记录了管理员的变更条目，逐条调用变更的条目，若成功则在页面提示”succeed“，失败则醒目显示”失败原因“。单次调用失败不影响后续过程。
+（2）Admin can update multiple items one time. Web front page will invoke the api `PUT api/v1/user` to add/remove user to/from the vc. 
 
-### 3.5 delete users from a vc（admin only）
+### 3.5 Delete users from a vc（admin only）
 
-合并到3.4
+Merged in 3.4.
 
-### 3.6 list the vcs of a user
+### 3.6 List the vcs of a user
 
 ![1545903801627](./list_vc.png)
 
-（1）变更 Virtual Cluster 页面，对于普通用户特殊处理，若该vc是用户不具有的权限，将所在行置灰
+（1）The item of vc's appearance will be changed. If a user does not have priveledge of vc, the relative item will be set unavailable. 
 
-（2）目前还不具备这个能力，缺少REST API支持，拟增加接口`GET /api/v1/user/:username/virtualClusters`返回用户本身所拥有的vc。
+（2）Now the REST API does not support this feature. An API like `GET /api/v1/user/:username/virtualClusters` will be added to list the vcs belong to *username*。
 
-（3）需要变动处：
+（3）To add this API, it needs to do some changes：
 
-routes/uesr.js  增加
+routes/uesr.js  Add
 
 ```javascript
 router.route('/:username/virtualClusters')
     .get(token.check,  userController.getUserVc);
-// 这里的token只能校验用户具有某种token，并不能证明他是:username的token，如果想这么做，还需要进一步优化：
-// 在middlewares/token.js 中增加checkWithUsername
+// The token here can only verify that the user has a token of some kind, but it does not prove that he/she is the token's owner. If want to do so, further optimization is needed:
+// in middlewares/token.js add some function like checkWithUsername
 ```
-controllers/user.js 增加
+controllers/user.js Add
 ```javascript
 const getUserVc = (req, res, next) => {...}
 ```
-models/user.js 增加
+models/user.js Add
 ```javascript
 const getUserVc = (username, virtualCluster, callback) => {
   ...
@@ -99,44 +95,42 @@ const getUserVc = (username, virtualCluster, callback) => {
 ```
 
 
-### 3.7 list the names of all vcs
+### 3.7 List the names of all vcs
 
-现在已支持
+Now supported. 
 
-### 3.8 list the users of a vc
+### 3.8 List the users of a vc
 
-合并到3.4
+Merged in 3.4.
 
-### 3.9 list the jobs of a vc
+### 3.9 List the jobs of a vc
 
-现在已支持
+Now supported. 
 
-### 3.10 list the capacity of a vc
+### 3.10 List the capacity of a vc
 
-现在已支持
+Now supported. 
 
-### 3.11 list the load of a vc
+### 3.11 List the load of a vc
 
-现在已支持
+Now supported. 
 
-### 3.12 list the status of a vc
+### 3.12 List the status of a vc
 
 ![1546433519943](./vc_status.png)
 
-（1）新增一个“开关”，其状态展示了对应vc的状态
+（1）Add a new column "Status", showing the status(Running or Stopped) of vc. 
 
-（2）若用户是管理员，其可以改变”开关“状态
+（2）For admin, the "Running" or "Stopped" label can be click to change status. 
 
-（3）若改变状态失败，则弹出提示框
+（3）If changed, the page will be refreshed automatically. 
 
 ## 4. Steps
 
-将上述功能分解为4个步骤：
+The features will be separated in two steps.
 
-1. 基本功能实现，可以增、删、改、查
-2. 批量增加vc
-3. 用户列表查看和更新
-4. 用户不具有权限的vc将被置灰
+1. Basical features (add, delete, edit) will be implementation firstly. 
+2. Additional features (3.4 and 3.6) will be implementation secondly. 
 
 
 
