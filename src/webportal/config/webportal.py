@@ -58,7 +58,8 @@ class Webportal:
             ('prometheus', 'url'),
             ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),
-            ('kubernetes', 'dashboard-host'),
+            # TODO remove it temporally
+            #('kubernetes', 'dashboard-host'),
             ('node-exporter', 'port'),
             ('prometheus', 'scrape_interval'),
         ):

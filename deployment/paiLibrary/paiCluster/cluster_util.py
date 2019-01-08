@@ -98,7 +98,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
 
     #
     # kubernetes info
-    api_server_url = "http://{0}:{1}".format(master_node["hostip"], 8080)
+    api_servers_url = "http://{0}:{1}".format(master_node["hostip"], 8080)
     dashboard_host = master_node["hostip"]
 
     #
@@ -126,7 +126,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                             "dns": dns,
                             "load-balance-ip": master_node["hostip"],
                             "service-cluster-ip-range": service_cluster_ip_range,
-                            "api-server-url": api_server_url,
+                            "api-servers-url": api_servers_url,
                             "dashboard-host": dashboard_host
                         }
                     }))

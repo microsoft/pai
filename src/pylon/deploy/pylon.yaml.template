@@ -38,7 +38,7 @@ spec:
             - name: REST_SERVER_URI
               value: {{ cluster_cfg['rest-server']['uri'] }}
             - name: K8S_API_SERVER_URI
-              value: {{ cluster_cfg['layout']['kubernetes']['api-server-url'] }}
+              value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
             - name: WEBHDFS_URI
               value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
