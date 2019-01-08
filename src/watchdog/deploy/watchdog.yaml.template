@@ -62,6 +62,12 @@ spec:
           - "30"
           - "--port"
           - "9101"
+        {% if 'serviceaccount_token_path' in  clusterinfo['api-server'] %}
+          - "--ca"
+          - "{{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/ca.crt"
+          - "--bearer"
+          - "{{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/token"
+        {% endif %} 
           - "{{ cluster_cfg['kubernetes']['api-servers-url'] }}"
       volumes:
         - name: collector-mount
