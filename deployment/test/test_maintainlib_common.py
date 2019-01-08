@@ -139,7 +139,7 @@ class TestMaintainlibCommon(unittest.TestCase):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
         cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
-        node_config = cluster_object_model['machine']['machine-list']['worker-01']
+        node_config = cluster_object_model['layout']['machine-list']['worker-01']
 
         common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-1")
         self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common-1.tar"))
@@ -165,7 +165,7 @@ class TestMaintainlibCommon(unittest.TestCase):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
         cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
-        node_config = cluster_object_model['machine']['machine-list']['worker-01']
+        node_config = cluster_object_model['layout']['machine-list']['worker-01']
 
         common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-2")
         self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common-2.tar"))
@@ -191,7 +191,7 @@ class TestMaintainlibCommon(unittest.TestCase):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
         cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
-        node_config = cluster_object_model['machine']['machine-list']['worker-01']
+        node_config = cluster_object_model['layout']['machine-list']['worker-01']
 
 
         common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-3")
