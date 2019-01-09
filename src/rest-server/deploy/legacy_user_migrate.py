@@ -17,7 +17,7 @@ class EtcdUser:
     self.virtual_cluster = 'default'
     self.github_PAT = ''
 
-class transferClient:
+class TransferClient:
 
   def __init__(self, etcd_uri, k8s_uri):
     self.etcd_uri = etcd_uri
@@ -163,7 +163,7 @@ def main():
 
   logger.info('Starts to migrate legacy user data from etcd to kubernetes secrets')
 
-  transferCli = transferClient(etcd_uri, args.k8sUri.replace('http://',''))
+  transferCli = TransferClient(etcd_uri, args.k8sUri.replace('http://',''))
 
   if transferCli.check_transfer_flag():
     logger.info("Etcd data has already been transferred to k8s secret")
