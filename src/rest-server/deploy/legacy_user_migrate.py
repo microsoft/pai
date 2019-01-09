@@ -5,7 +5,6 @@ import sys
 import argparse
 import http.client
 import json
-import time
 import base64
 
 
@@ -27,7 +26,7 @@ class transferClient:
     self.k8s_conn = http.client.HTTPConnection(self.k8s_uri)
     self.flag_path = '/v2/keys/transferFlag'
     self.etcd_prefix = '/users/'
-    self.secret_ns = "pai-users"
+    self.secret_ns = "pai-user"
 
   def etcd_data_parse(self):
     etcd_result = http_get(self.etcd_conn, "/v2/keys/users?recursive=true")
@@ -81,12 +80,12 @@ class transferClient:
     return post_data_dict
 
   def prepare_secret_base_path(self):
-    ns_res = http_get(self.k8s_conn, '/api/v1/namespaces/' + self.secret_ns)
+    ns_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns))
     if ns_res['code'] == 200:
       return
     elif ns_res['code'] == 404:
-      payload = '{"metadata":{"name":"' + self.secret_ns + '"}}'
-      res = http_post(self.k8s_conn, '/api/v1/namespaces', payload)
+      payload = {"metadata":{"name":self.secret_ns}}
+      res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
       if res['code'] == 201:
         logger.info("Create user info namespace successfully")
       else:
@@ -97,9 +96,9 @@ class transferClient:
       sys.exit(1)
 
   def create_secret_user(self, payload):
-    check_res = http_get(self.k8s_conn, '/api/v1/namespaces/' + self.secret_ns + '/secrets/' + payload['metadata']['name'])
+    check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns, payload['metadata']['name']))
     if check_res['code'] == 404:
-      post_res = http_post(self.k8s_conn, '/api/v1/namespaces/' + self.secret_ns + '/secrets/', json.dumps(payload))
+      post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
       if post_res['code'] != 201:
         logger.error("Create user in k8s secret failed")
         sys.exit(1)
@@ -114,7 +113,21 @@ class transferClient:
       logger.error("Connect to etcd failed")
       sys.exit(1)
 
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
+
 logger = logging.getLogger(__name__)
+setup_logger_config(logger)
 
 def http_get(conn, url, headers={}):
   response_dict = dict()
@@ -147,15 +160,10 @@ def main():
   args = parser.parse_args()
 
   etcd_uri = args.etcdUri.split(',')[0].replace('http://','')
-  print('etcd_uri=' + etcd_uri)
-  print('k8s_uri=' + args.k8sUri)
-  # etcd_uri = 'http://10.151.40.234:4001'.replace('http://','')
-  # k8s_uri = 'http://10.151.40.133:8080'
 
   logger.info('Starts to migrate legacy user data from etcd to kubernetes secrets')
 
   transferCli = transferClient(etcd_uri, args.k8sUri.replace('http://',''))
-  # transferCli = transferClient(etcd_uri, k8s_uri.replace('http://',''))
 
   if transferCli.check_transfer_flag():
     logger.info("Etcd data has already been transferred to k8s secret")
@@ -171,6 +179,8 @@ def main():
     logger.info("No legacy data found")
 
   http_post(transferCli.etcd_conn, transferCli.flag_path)
+
+  logger.info('Legacy user data transfer from etcd to kubernetes secret successfully')
 
 if __name__ == "__main__":
     main()
