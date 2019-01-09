@@ -65,7 +65,7 @@ class service_template_generate:
     # according to the "deploy-rules" in service.yaml config file
     # Currently support "In" and "NotIn" rules or the combination of them.
     def add_deploy_rule_to_yaml(self, str_src_yaml):
-        service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod']
+        service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod', 'Service']
 
         config = yaml.load(str_src_yaml)
 
@@ -89,9 +89,11 @@ class service_template_generate:
                     match_expression['values'] = ['true']
                     match_expressions_arr.append(match_expression)
 
-                config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
-                    {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
-                    [{'matchExpressions': match_expressions_arr}]}}}
+                # TODO refine it later
+                if(config['kind'] != 'Service'):
+                    config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
+                        {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
+                        [{'matchExpressions': match_expressions_arr}]}}}
         else:
             logging.info("It is not a service deploy file! Only support " + str(service_deploy_kind_list))
             return str_src_yaml
@@ -126,7 +128,7 @@ class service_template_generate:
                 self.logger.exception("failed to generate template file from %s with dict %s", template_path, service_conf_dict)
                 raise e
 
-            # judge whether it's a service deploy file 
+            # judge whether it's a service deploy file
             if "deploy-rules" in self.service_conf and template_file.find("yaml") >= 0 and template_file.find("delete") == -1:
                 generated_template = self.add_deploy_rule_to_yaml(generated_template)
 
