@@ -38,11 +38,11 @@ class add:
     An class to add new node
     """
 
-    def __init__(self, cluster_config, node_config, clean):
+    def __init__(self, cluster_object_model, node_config, clean):
 
         self.logger = logging.getLogger(__name__)
 
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         self.node_config = node_config
         maintain_configuration_path = os.path.join(package_directory_add, "../maintainconf/add.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
@@ -61,7 +61,7 @@ class add:
 
     def prepare_package(self, node_config, job_name):
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, job_name)
+        common.maintain_package_wrapper(self.cluster_object_model, self.maintain_config, node_config, job_name)
 
 
 
@@ -136,11 +136,11 @@ class add:
 
 
     def job_executer_add_node_to_etcd_cluster(self):
-
+        com = self.cluster_object_model
         self.logger.info("Find a alive etcd node in the cluster")
 
         # Directly find the leader node.
-        good_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
+        good_node_config = pai_common.get_etcd_leader_node(com)
         if good_node_config is None:
             self.logger.error("Unable to find the etcd leader node.")
             sys.exit(1)
@@ -176,10 +176,10 @@ class add:
 
 
     def job_executer_starting_new_master_node(self):
-
-        new_etcd_cluster_ips_peer = pai_common.get_new_etcd_peer_ip_list(self.cluster_config, self.node_config)
-        self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
-        self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
+        com = self.cluster_object_model
+        new_etcd_cluster_ips_peer = pai_common.get_new_etcd_peer_ip_list(com, self.node_config)
+        com['kubernetes']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
+        com['kubernetes']['etcd-initial-cluster-state'] = 'existing'
 
         self.logger.info("---- package wrapper is working now! ----")
         self.prepare_package(self.node_config, "add-master-node-task-two")
@@ -219,6 +219,7 @@ class add:
             self.remote_host_cleaner(self.node_config, "add-master-node-task-two")
 
 
+
     def run_add_master_node(self):
 
         self.logger.info("Begin to add master node into kubernetes cluster.")
@@ -227,8 +228,6 @@ class add:
 
         self.logger.info("TASK 2: ---- Begin to new master node into your k8s cluster ------ ")
         self.job_executer_starting_new_master_node()
-
-
 
 
 

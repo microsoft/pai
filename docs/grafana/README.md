@@ -30,7 +30,7 @@ grafana-port: 3000        # port for grafana
 
 # Deployment
 
-The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/cluster-bootup.md).
+The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/distributed-deploy.md).
 
 If you want to redeploy Grafana only, firstly stop it, note to replace `/path/to/cluster-configuration/dir` with your own cluster configuration path:
 

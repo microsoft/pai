@@ -18,30 +18,35 @@
 
 // module dependencies
 const marked = require('marked');
+const url = require('url');
 
 
-const baseUrl = 'https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles';
+const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
 
 const renderer = new marked.Renderer();
+
 renderer.link = (href, title, text) => {
   if (marked.options.sanitize) {
     try {
       const prot = decodeURIComponent(unescape(href))
           .replace(/[^\w:]/g, '')
           .toLowerCase();
-    } catch(e) {
+      if (prot.indexOf('javascript:') === 0 ||
+          prot.indexOf('vbscript:') === 0 ||
+          prot.indexOf('data:') === 0) {
+            return '';
+      }
+    } catch (e) {
       return '';
-    }
-    if (prot.indexOf('javascript:') === 0 ||
-        prot.indexOf('vbscript:') === 0 ||
-        prot.indexOf('data:') === 0) {
-          return '';
     }
   }
   if (href === text && title == null) {
-    return baseUrl + href;
+    return href;
   }
-  let out = '<a href="' + baseUrl + href + '"';
+  if (href[0] !== '#') {
+    href = url.resolve(baseUrl, href);
+  }
+  let out = '<a href="' + href + '"';
   if (title) {
     out += ' title="' + title + '"';
   }

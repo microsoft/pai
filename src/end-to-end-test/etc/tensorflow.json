@@ -1,0 +1,19 @@
+{
+  "jobName": "tensorflow-cifar10",
+  "image": "openpai/pai.example.tensorflow",
+  "dataDir": "HDFS_URI/Test/tensorflow/cifar-10-batches-py",
+  "outputDir": "HDFS_URI/Test/tensorflow/output",
+  "codeDir": "HDFS_URI/Test/tensorflow/benchmarks",
+  "taskRoles": [
+    {
+      "name": "tf_benchmark",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 10240,
+      "gpuNumber": 1,
+      "command": "pip --quiet install scipy && ls . && python benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --num_batches=1 --local_parameter_device=gpu --batch_size=8 --model=alexnet --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR",
+      "minSucceededTaskCount": 1
+    }
+  ],
+  "retryCount": 0
+}

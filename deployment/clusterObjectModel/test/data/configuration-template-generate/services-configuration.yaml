@@ -1,0 +1,101 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+cluster:
+
+  common:
+    clusterid: pai
+
+    # HDFS, zookeeper data path on your cluster machine.
+    data-path: "/datastorage"
+
+  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
+  docker-registry:
+
+    # domain/namespace/image-name:tag
+
+    # If public, please fill it the same as your username
+    namespace: openpai
+
+    # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
+    # docker_registry_domain: public
+    domain: docker.io
+
+    # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
+    #username: your_registry_username
+    #password: your_registry_password
+  
+    tag: latest
+
+    # The name of the secret in kubernetes will be created in your cluster
+    # Must be lower case, e.g., regsecret.
+    secret-name: regsecret
+
+
+
+hadoop-resource-manager:
+  # port for yarn exporter
+  yarn_exporter_port: 9459
+  # Step 1 of 4 to set up Hadoop queues.
+  # Define all virtual clusters, equivalent concept of Hadoop queues:
+  #   - Each VC will be assigned with (capacity / 100 * 100%) of the resources in the system.
+  #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
+  #     member list of 'default' VC when it is created.
+  virtualClusters:
+    default:
+      description: Default VC.
+      capacity: 100
+
+
+yarn-frameworklauncher:
+  frameworklauncher-port: 9086
+
+
+rest-server:
+  default-pai-admin-username: your_default_pai_admin_username
+  default-pai-admin-password: your_default_pai_admin_password
+
+  
+webportal:
+  # port for webportal
+  server-port: 9286
+
+
+grafana:
+  # port for grafana
+  grafana-port: 3000
+
+drivers:
+  set-nvidia-runtime: false
+  # You can set drivers version here. If this value is miss, default value will be 384.111
+  # Current supported version list
+  # 384.111
+  # 390.25
+  # 410.73
+  version: "384.111"
+
+prometheus:
+  # port for prometheus port
+  port: 9091
+  # How frequently to scrape targets
+  scrape_interval: 30
+
+
+pylon:
+  # port of pylon
+  port: 80
+

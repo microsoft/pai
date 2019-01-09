@@ -32,7 +32,7 @@ spec:
       hostPID: false
       containers:
       - name:  hadoop-name-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /var/lib/hdfs/name
@@ -50,25 +50,27 @@ spec:
           periodSeconds: 3
         env:
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-name-node" ][ "master-ip" ] }}
         - name: HADOOP_NAMENODE_OPTS
           value: "-Xmx6144m"
         - name: GENERATE_CONFIG
           value: namenode-generate-script.sh
         - name: START_SERVICE
           value: namenode-start-service.sh
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "8Gi"
+        {%- endif %}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: hadoop-name-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/name
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hdfs/name
       - name: hadoop-name-node-config-volume
         configMap:
           name: hadoop-name-node-configuration
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/namenode
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/namenode

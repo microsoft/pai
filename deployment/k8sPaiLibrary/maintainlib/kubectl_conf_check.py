@@ -34,10 +34,10 @@ class kubectl_conf_check:
 
     """
 
-    def __init__(self, cluster_config, **kwargs):
+    def __init__(self, cluster_object_model, **kwargs):
 
         self.logger = logging.getLogger(__name__)
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         self.kube_conf_path = os.path.expanduser("~/.kube")
 
 
@@ -61,7 +61,7 @@ class kubectl_conf_check:
             local_kubectl_conf = common.load_yaml_file("{0}/config".format(self.kube_conf_path))
             api_server_address = local_kubectl_conf['clusters'][0]['cluster']['server']
 
-            api_server_address_pai_conf = "http://{0}:8080".format(self.cluster_config['clusterinfo']['api-servers-ip'])
+            api_server_address_pai_conf = self.cluster_object_model['kubernetes']['api-servers-url']
 
             if api_server_address != api_server_address_pai_conf:
                 self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))

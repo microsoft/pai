@@ -26,7 +26,7 @@ cp  /hadoop-dn-configuration/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{NODEMANAGER_ADDRESS}/${NODEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
-sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{ZOOKEEPER_QUORUM}/${ZOOKEEPER_QUORUM}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
@@ -39,6 +39,6 @@ sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-s
 #prepare for launcher
 
 cp  /yarn-frameworklauncher-configuration/frameworklauncher.yml /usr/local/launcher/frameworklauncher.yml
-sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" /usr/local/launcher/frameworklauncher.yml
+sed  -i "s/{ZOOKEEPER_QUORUM}/${ZOOKEEPER_QUORUM}/g" /usr/local/launcher/frameworklauncher.yml
 sed  -i "s/{FRAMEWORKLAUNCHER_VIP}/${FRAMEWORKLAUNCHER_VIP}/g" /usr/local/launcher/frameworklauncher.yml
 sed  -i "s/{FRAMEWORKLAUNCHER_PORT}/${FRAMEWORKLAUNCHER_PORT}/g" /usr/local/launcher/frameworklauncher.yml

@@ -60,14 +60,14 @@ Other pai component also used some metrics for display, they are:
             <li>node_network_transmit_bytes_total</li>
             <li>node_disk_read_bytes_total</li>
             <li>node_disk_written_bytes_total</li>
-            <li>container_CPUPerc</li>
-            <li>container_MemUsage</li>
-            <li>container_NetIn</li>
-            <li>container_NetOut</li>
-            <li>container_BlockIn</li>
-            <li>container_BlockOut</li>
-            <li>container_GPUPerc</li>
-            <li>container_GPUMemPerc</li>
+            <li>task_cpu_percent</li>
+            <li>task_mem_usage_byte</li>
+            <li>task_net_in_byte</li>
+            <li>task_net_out_byte</li>
+            <li>task_block_in_byte</li>
+            <li>task_block_out_byte</li>
+            <li>task_gpu_percent</li>
+            <li>task_gpu_mem_percent</li>
         </ul>
     </td>
 </tr>

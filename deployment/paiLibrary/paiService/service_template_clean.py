@@ -15,13 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import os
 import logging
 import logging.config
 
 from ..common import file_handler
 
-
+package_directory_serv_template_clear = os.path.dirname(os.path.abspath(__file__))
 
 
 class service_template_clean:
@@ -38,6 +38,8 @@ class service_template_clean:
         if "template-list" in self.service_conf:
             self.template_list = self.service_conf["template-list"]
 
+        self.src_path = "{0}/../../../src".format(package_directory_serv_template_clear)
+
 
 
     def template_cleaner(self):
@@ -49,7 +51,7 @@ class service_template_clean:
             return
 
         for template_file in self.template_list:
-            file_path = "src/{0}/deploy/{1}".format(self.service_name, template_file)
+            file_path = "{0}/{1}/deploy/{2}".format(self.src_path, self.service_name, template_file)
             if file_handler.file_exist_or_not(file_path) == True:
                 file_handler.file_delete(file_path)
 

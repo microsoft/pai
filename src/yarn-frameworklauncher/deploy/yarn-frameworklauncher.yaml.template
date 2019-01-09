@@ -32,7 +32,7 @@ spec:
       hostPID: false
       containers:
       - name: yarn-frameworklauncher
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-frameworklauncher:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /hadoop-nm-configuration
@@ -47,36 +47,38 @@ spec:
           name: gpu-confg-volume
         env:
         - name: RESOURCEMANAGER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: ZOOKEEPER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ 'hadoop-resource-manager' ][ 'master-ip' ] }}
+        - name: ZOOKEEPER_QUORUM
+          value: {{ cluster_cfg[ 'zookeeper' ][ 'quorum' ] }}
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ 'hadoop-name-node' ][ 'master-ip' ] }}
         - name: LOGSERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "log-server-ip" ] }}
         - name: TIMELINE_SERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}
         - name: GENERATE_CONFIG
           value: frameworklauncher-generate-config.sh
         - name: FRAMEWORKLAUNCHER_VIP
-          value: {{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_vip' ] }}
+          value: {{ cluster_cfg[ 'yarn-frameworklauncher' ][ 'launcher-address' ] }}
         - name: FRAMEWORKLAUNCHER_PORT
-          value: "{{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_port' ] }}"
+          value: "{{ cluster_cfg[ 'yarn-frameworklauncher' ][ 'frameworklauncher-port' ] }}"
         # Notes: default config '-Xmx3072m, memory limits: "4Gi"' could support about 60k jobs.
         #        You will need increase the resource in order to run more jobs.
         - name: LAUNCHER_OPTS
           value: "-server -Xmx3072m -Djute.maxbuffer=49107800"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "4Gi"
           requests:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]['docker-registry']['secret-name'] }}
       volumes:
       - name: launcher-log
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/launcherlogs
+          path: {{ cluster_cfg['cluster']['common'][ 'data-path' ] }}/launcherlogs
       - name: hadoop-nm-config-volume
         configMap:
           name: hadoop-node-manager-configuration

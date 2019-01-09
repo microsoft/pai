@@ -20,6 +20,8 @@
 pushd $(dirname "$0") > /dev/null
 
 
+/bin/bash configmap-create.sh || exit $?
+
 # Zookeeper
 kubectl apply --overwrite=true -f zookeeper.yaml || exit $?
 

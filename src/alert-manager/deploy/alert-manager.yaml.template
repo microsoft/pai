@@ -15,16 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% set prom_info = clusterinfo['prometheusinfo'] %}
-{% set has_alert_manager = 'alerting' in prom_info %}
-{% if has_alert_manager and 'alert_manager_port' in prom_info['alerting'] %}
-{% set host = clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
-{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
+{% if cluster_cfg["alert-manager"]["configured"] %}
+
+{% if cluster_cfg["alert-manager"]["use-pylon"] %}
+{% set external_url = cluster_cfg["pylon"]["uri"] %}
 {% else %}
-{% set port = 9093 %}
+{% set external_url = cluster_cfg["alert-manager"]["url"] %}
 {% endif %}
 
-{% if has_alert_manager %}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,10 +45,11 @@ spec:
         args:
           - '--config.file=/etc/alertmanager/config.yml'
           - '--storage.path=/alertmanager'
-          - '--web.external-url=http://{{host}}:{{port}}'
+          - '--web.external-url={{ external_url }}/alert-manager/'
+          - '--web.route-prefix=alert-manager'
         ports:
         - name: alertmanager
-          containerPort: {{ port }}
+          containerPort: {{ cluster_cfg["alert-manager"]["port"] }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager

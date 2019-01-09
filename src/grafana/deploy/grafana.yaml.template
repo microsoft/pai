@@ -37,21 +37,23 @@ spec:
           name: grafana-configuration
       containers:
       - name: grafana
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}grafana:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
+        - containerPort: {{ cluster_cfg["grafana"]["port"] }}
           protocol: TCP
         volumeMounts:
         - mountPath: /grafana-configuration
           name: grafana-confg-volume
         env:
         - name : GRAFANA_URL
-          value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
+          value: {{ cluster_cfg["grafana"]["url"] }}
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "256Mi"
+        {%- endif %}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

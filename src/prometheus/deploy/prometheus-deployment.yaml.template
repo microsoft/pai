@@ -15,8 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% set prometheus_url = clusterinfo["prometheusinfo"]["prometheus_url"] %}
-{% set prometheus_port = clusterinfo["prometheusinfo"]["prometheus_port"] %}
+{% set prometheus_port = cluster_cfg["prometheus"]["port"] %}
+
+{% if cluster_cfg["alert-manager"]["use-pylon"] %}
+{% set external_url = cluster_cfg["pylon"]["uri"] %}
+{% else %}
+{% set external_url = cluster_cfg["prometheus"]["url"] %}
+{% endif %}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -36,16 +41,19 @@ spec:
       hostNetwork: true
       containers:
       - name: prometheus
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prometheus:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}prometheus:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "10Gi"
           requests:
             memory: "256Mi"
+        {%- endif %}
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
           - '--web.listen-address=0.0.0.0:{{prometheus_port}}'
-          - '--web.external-url={{prometheus_url}}:{{prometheus_port}}'
+          - '--web.external-url={{ external_url }}/prometheus/'
+          - '--web.route-prefix=prometheus'
         ports:
         - name: web
           containerPort: {{prometheus_port}}
@@ -55,7 +63,7 @@ spec:
         - name: rules-volume
           mountPath: /etc/prometheus-alert
       imagePullSecrets:
-      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: config-volume
         configMap:

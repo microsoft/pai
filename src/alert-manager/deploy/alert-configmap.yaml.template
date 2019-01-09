@@ -4,16 +4,16 @@ metadata:
   name: alertmanager
 data:
   config.yml: |-
-{% if clusterinfo['prometheusinfo']['alerting'] %}
-{% set alert_info = clusterinfo['prometheusinfo']['alerting'] %}
+{% if cluster_cfg["alert-manager"]["configured"] %}
+{% set alert_info = cluster_cfg["alert-manager"] %}
     global:
       resolve_timeout: 5m
-      smtp_smarthost: {{ alert_info['smtp_url'] }}
-      smtp_from: {{ alert_info['smtp_from'] }}
-      smtp_auth_username: {{ alert_info['smtp_auth_username'] }}
-      smtp_auth_password: {{ alert_info['smtp_auth_password'] }}
+      smtp_smarthost: {{ alert_info["smtp_url"] }}
+      smtp_from: {{ alert_info["smtp_from"] }}
+      smtp_auth_username: {{ alert_info["smtp_auth_username"] }}
+      smtp_auth_password: {{ alert_info["smtp_auth_password"] }}
     templates:
-    - '/etc/alertmanager/template/*.tmpl'
+    - "/etc/alertmanager/template/*.tmpl"
     route:
       receiver: pai-alert
       group_wait: 30s
@@ -21,10 +21,10 @@ data:
       repeat_interval: 4h
       group_by: [alertname]
     receivers:
-    - name: 'pai-alert'
+    - name: "pai-alert"
       email_configs:
-        - to: {{ alert_info['alert_receiver'] }}
-          html: '{{ '{{' }} template "email.pai.html" . {{ '}}' }}'
+        - to: {{ alert_info["receiver"] }}
+          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
-            subject: '{{ clusterinfo["clusterid"] }}: {{ '{{' }} template "__subject" . {{ '}}' }}'
+            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}

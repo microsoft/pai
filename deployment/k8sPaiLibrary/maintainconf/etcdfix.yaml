@@ -18,9 +18,9 @@
 
 etcd-reconfiguration-stop:
 
-    file-list:
+    template-list:
     - name: stop-etcd-server.sh
-      src: deployment/k8sPaiLibrary/maintaintool/stop-etcd-server.sh
+      src: deployment/k8sPaiLibrary/template/stop-etcd-server.sh.template
       dst: etcd-reconfiguration-stop
 
 
@@ -33,6 +33,7 @@ etcd-reconfiguration-update:
     - name: add-member-to-etcd-cluster.sh
       src: deployment/k8sPaiLibrary/maintaintool/add-member-to-etcd-cluster.sh
       dst: etcd-reconfiguration-update
+
 
 
 

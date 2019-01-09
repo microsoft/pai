@@ -42,11 +42,11 @@ class deploy:
 
     """
 
-    def __init__(self, cluster_config, **kwargs):
+    def __init__(self, cluster_object_model, **kwargs):
 
         self.logger = logging.getLogger(__name__)
 
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         maintain_configuration_path = os.path.join(package_directory_deploy, "../maintainconf/deploy.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
@@ -55,7 +55,7 @@ class deploy:
 
     def prepare_package(self, node_config, job_name):
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, job_name)
+        common.maintain_package_wrapper(self.cluster_object_model, self.maintain_config, node_config, job_name)
 
 
 
@@ -108,17 +108,16 @@ class deploy:
 
 
     def update_node_config(self):
-        cluster_config = self.cluster_config
+        com = self.cluster_object_model
         node_config_from_cluster_conf = dict()
 
-        for role in cluster_config["remote_deployment"]:
-            listname = cluster_config["remote_deployment"][role]["listname"]
-            if listname not in cluster_config:
+        for role in ["proxy", "master", "worker"]:
+            if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
 
-            for node_key in cluster_config[listname]:
-                node_config = cluster_config[listname][node_key]
-                node_config_from_cluster_conf[node_key] = node_config
+            for hostname in com["kubernetes"]["{0}-list".format(role)]:
+                node_config = com["machine"]["machine-list"][hostname]
+                node_config_from_cluster_conf[hostname] = node_config
 
         kube_config_path = os.path.expanduser("~/.kube/config")
         yaml_data = yaml.dump(node_config_from_cluster_conf, default_flow_style=False)
@@ -128,13 +127,13 @@ class deploy:
 
 
     def create_kube_proxy(self):
-
+        com = self.cluster_object_model
         self.logger.info("Create kube-proxy daemon for kuberentes cluster.")
 
         file_path = "deployment/k8sPaiLibrary/template/kube-proxy.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "clusterconfig": self.cluster_config['clusterinfo']
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -152,14 +151,14 @@ class deploy:
 
 
     def create_k8s_dashboard(self):
-
+        com = self.cluster_object_model
         self.logger.info("Create kubernetes dashboard deployment for kuberentes cluster.")
 
         self.logger.info("Create dashboard service.")
         file_path = "deployment/k8sPaiLibrary/template/dashboard-service.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "clusterconfig": self.cluster_config['clusterinfo']
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -178,7 +177,7 @@ class deploy:
         file_path = "deployment/k8sPaiLibrary/template/dashboard-deployment.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "clusterconfig": self.cluster_config['clusterinfo']
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -193,17 +192,15 @@ class deploy:
 
 
     def run(self):
+        com = self.cluster_object_model
 
         self.logger.warning("Begin to deploy a new cluster to your machine or vm.")
-
-        for role in self.cluster_config["remote_deployment"]:
-            listname = self.cluster_config["remote_deployment"][role]["listname"]
-
-            if listname not in self.cluster_config:
+        for role in ["proxy", "master", "worker"]:
+            if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
 
-            for node_key in self.cluster_config[listname]:
-                node_config = self.cluster_config[listname][node_key]
+            for hostname in com["kubernetes"]["{0}-list".format(role)]:
+                node_config = com["machine"]["machine-list"][hostname]
                 self.logger.info("Begin to deploy k8s on host {0}, the node role is [ {1} ]".format(node_config["hostip"], role))
                 self.prepare_package(node_config, "{0}-deployment".format(role))
                 self.job_executer(node_config, "{0}-deployment".format(role))
@@ -213,12 +210,11 @@ class deploy:
                     self.delete_packege(node_config)
                     self.logger.info(" package cleaner's work finished! ")
 
-                    self.logger.info(
-                        " remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
-                    self.remote_host_cleaner(node_config, "{0}-deployment".format(role))
+                    self.logger.info(" remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
+                    self.remote_host_cleaner(node_config, "{0}-deployment".format("proxy"))
                     self.logger.info(" remote host cleaning job finished! ")
 
-        kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
+        kubectl_install_instance = kubectl_install.kubectl_install(com)
         kubectl_install_instance.run()
 
         # check the registerd api resources

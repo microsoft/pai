@@ -32,7 +32,7 @@ spec:
       hostNetwork: true
       containers:
       - name: docker-cache-cleaner
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
         - 'docker_cache'
         imagePullPolicy: Always
@@ -48,11 +48,13 @@ spec:
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
+        {%- endif %}
       - name: deleted-files-cleaner
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
         - 'deleted_files'
         imagePullPolicy: Always
@@ -65,11 +67,13 @@ spec:
             - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: docker-socket
         hostPath:
