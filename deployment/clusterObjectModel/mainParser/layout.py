@@ -49,7 +49,6 @@ class Layout:
 
         for host in self.layout_configuration["machine-list"]:
             com_layout["machine-list"][host["hostname"]] = host
-            com_layout["machine-list"][host["hostname"]]["nodename"] = host["hostip"]
 
         return com_layout
 
