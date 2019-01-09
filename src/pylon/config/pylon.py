@@ -39,9 +39,11 @@ class Pylon:
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
 
+        # TODO refine later
         return {
             'port': port,
             'uri': uri,
+            'deploy-service': self.service_configuration['deploy-service'],
         }
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
