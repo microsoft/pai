@@ -1,27 +1,38 @@
 # Release v0.9.0
 
 ## New Features
-* Add pai service dashboard to grafana. - [PR 1694](https://github.com/Microsoft/pai/pull/1694)
-* Webportal plugin implementation and change pai marketplace to plugin. -[PR 1700](https://github.com/Microsoft/pai/pull/1700)
-* Support update virtual cluster dynamically from webportal. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) -[PR 1974](https://github.com/Microsoft/pai/pull/1974)
+* Add pai service dashboard to grafana, cluster admin can get pai services resource consumption from paiServiceMetrics page. - [PR 1694](https://github.com/Microsoft/pai/pull/1694)
+* Support to add custom web pages to the web portal of PAI deployments with WebPortal Plugin, refer to [Plugins Doc](https://github.com/Microsoft/pai/blob/master/docs/webportal/PLUGINS.md) for how to use the new feature, and refer to [PR 1700](https://github.com/Microsoft/pai/pull/1700) for how PAI Marketplace is using it as an example.
+* Support update virtual cluster dynamically from webportal. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
+* Support customized job environment variables. -[PR 1544](https://github.com/Microsoft/pai/pull/1544)
 
 
 ## Improvements
 ### Service
 * Cluster object model implementation to make it easier for developer to add customized service configuration generation logic. -[PR 1735](https://github.com/Microsoft/pai/pull/1735)
 * Job exporter refactor to avoid single external command call will make exporter hang indefinitely. -[PR 1840](https://github.com/Microsoft/pai/pull/1840)
-* Make drivers version configurable. - [PR 1626](https://github.com/Microsoft/pai/pull/1626)
 * Extend yarn local log expiration time to 7 days. -[PR 1673](https://github.com/Microsoft/pai/pull/1673)
-* Add two driver images. Current supports driver's versions are 384.111, 390.25 and 410.73. By default will deploy 390.25 version. -[PR 1642](https://github.com/Microsoft/pai/pull/1642)
 * Reduce grafana image from 440M to 280M by merging all startup scripts add removing useless plugin. -[PR 1685](https://github.com/Microsoft/pai/pull/1685)
 * Upgrade Nodejs version of webportal and rest server to 8. -[PR 1453](https://github.com/Microsoft/pai/pull/1453)
+* Support hdfs path customization. -[PR 1922](https://github.com/Microsoft/pai/pull/1922)
+* Migrate user information from etcd to k8s secret to reduce the dependency on raw etcd data. -[PR 1917](https://github.com/Microsoft/pai/pull/1917)
+* Move user code to a background process. -[PR 1461](https://github.com/Microsoft/pai/pull/1461)
+* Support configuration storage all config files will be stored in kubernetes config map. please refer [paictl-manual](https://github.com/Microsoft/pai/blob/master/docs/paictl/paictl-manual.md) to get more information. -[PR 1177](https://github.com/Microsoft/pai/pull/1177) [PR 1431](https://github.com/Microsoft/pai/pull/1431) [PR 1489](https://github.com/Microsoft/pai/pull/1489)
 
 ### Job
 * Add timestamp for cloned job's name - [PR 1532](https://github.com/Microsoft/pai/pull/1532)
 * Add log if job's image doesn't have ssh server - [PR 1675](https://github.com/Microsoft/pai/pull/1675)
+* Escape injected variables in shell scripts -[PR 1860](https://github.com/Microsoft/pai/pull/1860)
+* Add an example of how to integrate jupyter and pai by using restserver. -[PR 1676](https://github.com/Microsoft/pai/pull/1676)
+
+### GPU driver
+* Make GPU drivers version configurable. - [PR 1626](https://github.com/Microsoft/pai/pull/1626)
+* Add two driver images. Current supports driver's versions are 384.111, 390.25 and 410.73. By default will deploy 390.25 version. -[PR 1642](https://github.com/Microsoft/pai/pull/1642)
+* User can skip driver installation if they pre-installed. -[PR 1841](https://github.com/Microsoft/pai/pull/1841)
 
 ### Command
 * Support add machine from node-list file. -[PR 819](https://github.com/Microsoft/pai/pull/819)
+* Add config sub-command in paictl to manage config files. -[PR 1263](https://github.com/Microsoft/pai/pull/1263)
 
 
 ## Bug Fixes
