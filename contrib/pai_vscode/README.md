@@ -2,7 +2,7 @@
 ## Get Started
 1. Run command 'PAI: Add PAI Cluster' from command palette (Ctrl+Shift+P)
 2. Fill in username, password and other fields and press "finish" button.
-![](assets/add-cluster-finish.png)
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
 3. Your cluster will be shown in PAI CLUSTER EXPLORER (at the bottom of VS Code's file explorer by default)
 4. Expand the tree node and double click the command you like.
 ## Submit Job
