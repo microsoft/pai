@@ -1,5 +1,5 @@
 {
-    "name": "openpai-tools",
+    "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
     "version": "0.0.1",
