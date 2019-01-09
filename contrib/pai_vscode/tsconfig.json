@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2017",
+        "outDir": "out",
+        "lib": [
+            "es2017"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": true,
+        "skipLibCheck": true,
+        "noUnusedLocals": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "plugins": [{ 
+            "name": "tslint-language-service",
+            "alwaysShowRuleFailuresAsWarnings": false,
+            "ignoreDefinitionFiles": true
+        }]
+    },
+    "exclude": [
+        "node_modules",
+        ".vscode-test"
+    ]
+}
