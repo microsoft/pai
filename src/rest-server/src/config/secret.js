@@ -38,9 +38,9 @@ userSecretConfig.requestConfig = () => {
     config.httpsAgent = new Agent({ca});
   }
 
-   if ('K8S_APISERVCER_TOKEN_FILE' in process.env) {
+  if ('K8S_APISERVER_TOKEN_FILE' in process.env) {
     const token = readFileSync(process.env.K8S_APISERVER_TOKEN_FILE, 'ascii');
-    config.headers['Authorization'] = `Bearer ${token}`;
+    config.headers = { Authorization: `Bearer ${token}` };
   }
   return config;
 };
