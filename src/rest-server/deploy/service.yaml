@@ -21,6 +21,7 @@ prerequisite:
 
 template-list:
   - rest-server.yaml
+  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh

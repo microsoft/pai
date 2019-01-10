@@ -34,7 +34,6 @@ rest-server:
     github-owner: Microsoft
     github-repository: pai
     github-path: marketplace
-    etcd-uris: 10.0.0.1:4001,10.0.0.2:4001,10.0.0.3:4001
 ```
 
 ## Table <a name="T_Config"></a>
