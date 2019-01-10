@@ -77,11 +77,6 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.treeview.openexternally",
-                "title": "%paiext.treeview.openexternally%",
-                "category": "PAI"
-            },
-            {
                 "command": "paiext.cluster.refresh",
                 "title": "%paiext.cluster.refresh%",
                 "icon": {
@@ -124,10 +119,6 @@
                 },
                 {
                     "command": "paiext.cluster.delete",
-                    "when": "false"
-                },
-                {
-                    "command": "paiext.treeview.openexternally",
                     "when": "false"
                 },
                 {
@@ -207,10 +198,6 @@
                 {
                     "command": "paiext.cluster.delete",
                     "when": "view == PAIExplorer && viewItem == PAIConfiguration"
-                },
-                {
-                    "command": "paiext.treeview.openexternally",
-                    "when": "view == PAIExplorer && viewItem == PAIWebpage"
                 }
             ]
         },

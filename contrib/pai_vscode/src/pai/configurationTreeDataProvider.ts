@@ -14,7 +14,7 @@ import {
 import {
     COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_HDFS,
     COMMAND_REFRESH_CLUSTER, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
-    COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_TREEVIEW_OPEN_EXTERNALLY, COMMAND_TREEVIEW_OPEN_PORTAL,
+    COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_TREEVIEW_OPEN_PORTAL,
     CONTEXT_CONFIGURATION_ITEM, CONTEXT_CONFIGURATION_ITEM_WEBPAGE,
     ICON_CREATE_CONFIG, ICON_DASHBOARD, ICON_EDIT, ICON_HDFS, ICON_LIST_JOB, ICON_PAI, ICON_SIMULATE_JOB, ICON_SUBMIT_JOB,
     VIEW_CONFIGURATION_TREE
@@ -169,12 +169,6 @@ export class ConfigurationTreeDataProvider extends Singleton implements TreeData
                     } else {
                         this.lastClick = { command, time: Date.now() };
                     }
-                }
-            }),
-            commands.registerCommand(COMMAND_TREEVIEW_OPEN_EXTERNALLY, (node: TreeNodeWithLink) => {
-                const command: string | undefined = node.realCommand;
-                if (command) {
-                    void commands.executeCommand(command, node.parent, true);
                 }
             }),
             window.registerTreeDataProvider(VIEW_CONFIGURATION_TREE, this)

@@ -13,7 +13,6 @@
     "paiext.cluster.job.submit": "在 PAI 集群上提交任务",
     "paiext.cluster.job.create-config": "创建 PAI 任务配置 JSON 文件",
     "paiext.cluster.job.simulate": "模拟 PAI 任务执行",
-    "paiext.treeview.openexternally": "用默认浏览器打开",
     "config.title": "OpenPAI VS Code 客户端设置",
     "config.job.upload.enabled": "控制插件是否会自动将项目源代码上传至 PAI 任务配置文件的 CodeDir",
     "config.job.upload.exclude": "控制排除文件、文件夹的 Glob 模式",

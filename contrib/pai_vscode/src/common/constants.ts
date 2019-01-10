@@ -17,7 +17,6 @@ export const COMMAND_OPEN_DASHBOARD = 'paiext.cluster.dashboard.open';
 export const COMMAND_LIST_JOB = 'paiext.cluster.job.list';
 export const COMMAND_TREEVIEW_OPEN_PORTAL = 'paiext.treeview.openPortal';
 export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
-export const COMMAND_TREEVIEW_OPEN_EXTERNALLY = 'paiext.treeview.openexternally';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';

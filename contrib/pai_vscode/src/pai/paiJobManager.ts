@@ -25,10 +25,9 @@ import {
     SETTING_SECTION_JOB
 } from '../common/constants';
 import { __ } from '../common/i18n';
-import { previewHtml } from '../common/previewHtml';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterIdentifier, getClusterName, getClusterWebPortalUri } from './clusterManager';
+import { ClusterManager, getClusterIdentifier, getClusterWebPortalUri } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
 import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
@@ -328,20 +327,16 @@ export class PAIJobManager extends Singleton {
                     });
                 }
                 const open: string = __('job.submission.success.open');
-                const openExternal: string = __('job.submission.success.openExternal');
                 void vscode.window.showInformationMessage(
                     __('job.submission.success'),
-                    open,
-                    openExternal
+                    open
                 ).then(async res => {
                     const url: string = `${getClusterWebPortalUri(param.cluster)}/view.html?${querystring.stringify({
                         username: param.cluster.username,
                         jobName: param.config.jobName
                     })}`;
-                    if (res === openExternal) {
+                    if (res === open) {
                         await Util.openExternally(url);
-                    } else if (res === open) {
-                        await previewHtml(url, __('webpage.joblist', [getClusterName(param.cluster)]));
                     }
                 });
             } catch (e) {

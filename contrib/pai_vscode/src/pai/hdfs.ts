@@ -10,6 +10,7 @@ import * as path from 'path';
 import { Request } from 'request';
 import { Transform } from 'stream';
 import * as streamifier from 'streamifier';
+import unixify = require('unixify'); // tslint:disable-line
 import { promisify } from 'util';
 import * as vscode from 'vscode';
 
@@ -202,8 +203,8 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
                 } catch { }
             }
 
-            const oldPath: string = path.join('/', oldUri.path);
-            const newPath: string = path.basename(newUri.path);
+            const oldPath: string = unixify(path.join('/', oldUri.path));
+            const newPath: string = unixify(path.join('/', newUri.path));
             try {
                 await (await this.getClient(oldUri)).rename(oldPath, newPath);
             } catch (ex) {
@@ -581,6 +582,7 @@ export class HDFS extends Singleton {
                 statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('hdfs.upload.status', [i, localUris.length])}`;
                 await this.provider!.copy(file, Util.uriPathAppend(remote, suffix), { overwrite: true });
             }
+            Util.info('hdfs.upload.success');
         } catch (ex) {
             Util.err('hdfs.upload.error', [ex]);
         }

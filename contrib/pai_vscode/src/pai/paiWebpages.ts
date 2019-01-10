@@ -11,7 +11,6 @@ import {
     COMMAND_LIST_JOB, COMMAND_OPEN_DASHBOARD, COMMAND_TREEVIEW_OPEN_PORTAL
 } from '../common/constants';
 import { __ } from '../common/i18n';
-import { previewHtml } from '../common/previewHtml';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 import { ClusterManager, getClusterName, getClusterWebPortalUri } from './clusterManager';
@@ -39,11 +38,11 @@ export class PAIWebpages extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_TREEVIEW_OPEN_PORTAL,
-                (node: ConfigurationNode, external: boolean = false) => this.openDashboardFromTreeView(node.index, external)
+                (node: ConfigurationNode) => this.openDashboardFromTreeView(node.index)
             ),
             vscode.commands.registerCommand(
                 COMMAND_LIST_JOB,
-                (node: ConfigurationNode, external: boolean = false) => this.listJobs(node.index, external)
+                (node: ConfigurationNode) => this.listJobs(node.index)
             )
         );
     }
@@ -78,27 +77,19 @@ export class PAIWebpages extends Singleton {
         if (!result) {
             Util.err('webpage.dashboard.pick.error');
         } else if (result.detail) {
-            await previewHtml(result.detail, result.label);
+            await Util.openExternally(result.detail);
         }
     }
 
-    public async openDashboardFromTreeView(index: number, external: boolean): Promise<void> {
+    public async openDashboardFromTreeView(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
         const url: string = getClusterWebPortalUri(config);
-        if (external) {
-            await Util.openExternally(url);
-        } else {
-            await previewHtml(url, __('webpage.dashboard.webportal', [getClusterName(config)]));
-        }
+        await Util.openExternally(url);
     }
 
-    public async listJobs(index: number, external: boolean): Promise<void> {
+    public async listJobs(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
         const url: string = getClusterWebPortalUri(config) + '/view.html';
-        if (external) {
-            await Util.openExternally(url);
-        } else {
-            await previewHtml(url, __('webpage.joblist', [getClusterName(config)]));
-        }
+        await Util.openExternally(url);
     }
 }
