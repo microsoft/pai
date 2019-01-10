@@ -27,7 +27,7 @@ cacheVersion="${hadoopBinaryDir}12940533-12933562-docker_executor-done"
 
 echo "hadoopbinarypath:${hadoopBinaryDir}"
 
-[[ -f $cacheVersion ]] &&
+[[ -f $cacheVersion ]] && [[ -f $hadoopBinaryPath ]] && [[ $cacheVersion -ot $hadoopBinaryPath ]] &&
 {
     echo "Hadoop ai with patch 12940533-12933562-docker_executor has been built"
     echo "Skip this build precess"
@@ -41,13 +41,12 @@ echo "hadoopbinarypath:${hadoopBinaryDir}"
 
 }
 
+# When Changing the patch id, please update the filename here.
+rm ${hadoopBinaryDir}/*-done
+touch $cacheVersion
+
 docker build -t hadoop-build -f hadoop-ai .
 
 docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
-
-
-
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
 
 popd > /dev/null
