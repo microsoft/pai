@@ -115,6 +115,15 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 * Hardware: Hardware metrics of each machine.
 * K8s Dashboard: The Kubernetes Dashboard.
 
+### Virtual cluster management
+
+Virtual cluster is a kind of [YARN Capacity Scheduler Queue](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html). Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically:
+
+* Add a new virtual cluster
+* Remove an obsolete virtual cluster
+* Increase or decrease virtual cluster's capacity
+* Change virtual cluster's availability
+
 ### Read documents
 
 Click the tab "Documents" to read the tutorial of submitting a job.
