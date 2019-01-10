@@ -29,6 +29,7 @@ declare type Code =
     'BadConfigurationError' |
     'ConflictJobError' |
     'ConflictUserError' |
+    'ConflictVcError' |
     'ForbiddenUserError' |
     'IncorrectPasswordError' |
     'InvalidParametersError' |
@@ -41,6 +42,7 @@ declare type Code =
     'ReadOnlyJobError' |
     'RemoveAdminError' |
     'UnauthorizedUserError' |
+    'NoEnoughQuotaError' |
     'UnknownError';
 
 declare function createError(status: Status, code: Code, message: string): HttpError;

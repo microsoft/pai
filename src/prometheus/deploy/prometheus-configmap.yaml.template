@@ -56,7 +56,8 @@ data:
 {% if has_alert_manager %}
     alerting:
       alertmanagers:
-        - static_configs:
+        - path_prefix: alert-manager
+          static_configs:
           - targets:
             - {{ cluster_cfg["alert-manager"]["host"] }}:{{ alert_manager_port }}
 {% endif %}

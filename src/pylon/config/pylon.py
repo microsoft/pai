@@ -51,6 +51,7 @@ class Pylon:
             ('kubernetes', 'api-servers-url'),
             ('hadoop-name-node', 'master-ip'),
             ('prometheus', 'url'),
+            ('alert-manager', 'url'),
             ('kubernetes', 'dashboard-host'),
             ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),

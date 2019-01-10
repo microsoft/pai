@@ -17,21 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-mnt_point=/mnt/hdfs
-hdfs_addr=$(sed -e "s@hdfs://\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}\).*@\1@" <<< $PAI_DATA_DIR)
-
-mkdir -p $mnt_point
-hdfs-mount $hdfs_addr $mnt_point &
-export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
-export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
-
-sed -i "/stderr/s/^/# /" G2P.cntk
-sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
-
-# replace train set to accelerate test
-sed -i "s/cmudict-0.7b.train-dev-20-21.ctf/cmudict-0.7b.train-dev-1-21.ctf/g" G2P.cntk
-
-cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
-
-rm -rf $OUTPUT_DIR
+kubectl create configmap zk-configuration --from-file=zk-configuration/ --dry-run -o yaml| kubectl apply --overwrite=true -f - || exit $?

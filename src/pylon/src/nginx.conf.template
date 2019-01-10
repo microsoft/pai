@@ -114,8 +114,13 @@ http {
     }
 
     # Prometheus API server.
-    location ~ ^/prometheus/api(.*)$ {
-      proxy_pass {{PROMETHEUS_URI}}/api$1$is_args$args;
+    location ~ ^/prometheus(.*)$ {
+      proxy_pass {{PROMETHEUS_URI}}/prometheus$1$is_args$args;
+    }
+
+    # alert-manager server.
+    location ~ ^/alert-manager(.*)$ {
+      proxy_pass {{ALERT_MANGER_URI}}/alert-manager$1$is_args$args;
     }
 
     #
@@ -264,7 +269,7 @@ http {
         '<base href="/" />'
         '<base href="$scheme://$http_host/grafana/" />';
       sub_filter
-        '{{PROMETHEUS_URI}}'
+        '{{PROMETHEUS_URI}}/prometheus'
         '$scheme://$http_host/prometheus';
       sub_filter
         '{{GRAFANA_URI}}'
@@ -298,7 +303,7 @@ http {
         '{{K8S_API_SERVER_URI}}'
         '/kubernetes';
       sub_filter
-        '{{PROMETHEUS_URI}}'
+        '{{PROMETHEUS_URI}}/prometheus'
         '/prometheus';
       sub_filter
         '{{YARN_WEB_PORTAL_URI}}'
