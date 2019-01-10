@@ -20,23 +20,14 @@ const VirtualCluster = require('../models/vc');
 const createError = require('../util/error');
 
 /**
- * Load virtual cluster and append to req.
+ * Validation, not allow operation to "default" vc.
  */
-const load = (req, res, next, vcName) => {
-  new VirtualCluster(vcName, (vcInfo, error) => {
-    if (error) {
-      return next(createError.unknown(error));
-    }
-    req.vc = vcInfo;
+const validate = (req, res, next, vcName) => {
+  if (vcName === 'default' && req.method !== 'GET') {
+    return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
+  } else {
     return next();
-  });
-};
-
-/**
- * Get virtual cluster status.
- */
-const get = (req, res) => {
-  return res.json(req.vc);
+  }
 };
 
 /**
@@ -59,9 +50,105 @@ const list = (req, res, next) => {
   });
 };
 
+/**
+ * Get a vc.
+ */
+const get = (req, res, next) => {
+  const vcName = req.params.vcName;
+  VirtualCluster.prototype.getVc(vcName, (vcInfo, err) => {
+    if (err) {
+      return next(createError.unknown(err));
+    } else {
+      return res.status(200).json(vcInfo);
+    }
+  });
+};
+
+
+/**
+ * Add a vc.
+ */
+const update = (req, res, next) => {
+  const vcName = req.params.vcName;
+  const vcCapacity = parseInt(req.body.vcCapacity);
+  if (req.user.admin) {
+    VirtualCluster.prototype.updateVc(vcName, vcCapacity, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
+      } else {
+        return res.status(201).json({
+          message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
+        });
+      }
+    });
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  }
+};
+
+
+/**
+ * Update vc status, changing a vc from running to stopped a vc will only prevent new job in this vc.
+ */
+const updateStatus = (req, res, next) => {
+  const vcName = req.params.vcName;
+  const vcStatus = req.body.vcStatus;
+  if (req.user.admin) {
+    if (vcStatus === 'stopped') {
+      VirtualCluster.prototype.stopVc(vcName, (err) => {
+        if (err) {
+          return next(createError.unknown(err));
+        } else {
+          return res.status(201).json({
+            message: `stop vc ${vcName} successfully`,
+          });
+        }
+      });
+    } else if (vcStatus === 'running') {
+      VirtualCluster.prototype.activeVc(vcName, (err) => {
+        if (err) {
+          return next(createError.unknown(err));
+        } else {
+          return res.status(201).json({
+            message: `active vc ${vcName} successfully`,
+          });
+        }
+      });
+    } else {
+      next(createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${vcStatus}`));
+    }
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  }
+};
+
+
+/**
+ * Remove a vc.
+ */
+const remove = (req, res, next) => {
+  const vcName = req.params.vcName;
+  if (req.user.admin) {
+    VirtualCluster.prototype.removeVc(vcName, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
+      } else {
+        return res.status(201).json({
+          message: `remove vc: ${vcName} successfully`,
+        });
+      }
+    });
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  }
+};
+
 // module exports
 module.exports = {
-  load,
   get,
   list,
+  update,
+  remove,
+  updateStatus,
+  validate,
 };
