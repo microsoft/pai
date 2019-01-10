@@ -15,46 +15,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
 import sys
+import os
 import unittest
-import yaml
-import logging
-import logging.config
+
+import base
 
 sys.path.append(os.path.abspath("../src/"))
 
 from docker_inspect import parse_docker_inspect
 
-class TestDockerInspect(unittest.TestCase):
+class TestDockerInspect(base.TestBase):
     """
     Test docker_inspect.py
     """
-    def setUp(self):
-        try:
-            os.chdir(os.path.abspath("test"))
-        except:
-            pass
-
-        configuration_path = "logging.yaml"
-
-        if os.path.exists(configuration_path):
-            with open(configuration_path, 'rt') as f:
-                logging_configuration = yaml.safe_load(f.read())
-            logging.config.dictConfig(logging_configuration)
-            logging.getLogger()
-
-
-    def tearDown(self):
-        try:
-            os.chdir(os.path.abspath(".."))
-        except:
-            pass
 
     def test_parse_docker_inspect(self):
         sample_path = "data/docker_inspect_sample.json"
-        file = open(sample_path, "r")
-        docker_inspect = file.read()
+        with open(sample_path, "r") as f:
+            docker_inspect = f.read()
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = {"labels": {"container_label_PAI_USER_NAME": "openmindstudio", "container_label_GPU_ID": "0,1,", "container_label_PAI_HOSTNAME": "paigcr-a-gpu-1058", "container_label_PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac", "container_label_PAI_CURRENT_TASK_ROLE_NAME": "tuner"}, "env": {"container_env_PAI_TASK_INDEX": "0"}, "pid": 95539}
         self.assertEqual(target_inspect_info, inspect_info)

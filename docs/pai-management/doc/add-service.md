@@ -81,7 +81,7 @@ cd build/
 
 ## Add Service's Deployment Module <a name="Boot"></a>
 
-After hbase image is built, you need bootstrap it in openPai. Now the service management system is kubernetes.
+After hbase image is built, you need bootstrap it in openPAI. Now the service management system is kubernetes.
 
 
 #### Prepare Service Configuration <a name="service_configuration"></a>

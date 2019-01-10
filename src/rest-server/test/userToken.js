@@ -39,39 +39,39 @@ describe('user token test: post /api/v1/token', () => {
 
   beforeEach(() => {
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/token_test_user?recursive=true')
+    // mock for case 1 username=tokentest
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/746f6b656e74657374')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/token_test_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/token_test_user/admin',
-              'value': 'true',
-              'modifiedIndex': 1,
-              'createdIndex': 1
-            }, {
-              'key': '/users/token_test_user/passwd',
-              'value': 'a293c494f64ee6e56dafaf1863c514986e52a807b96b43332724496b17b86f6191ff900d133da06f68f41053f185f1c588a804e2b746d48f0d1546eb82aba472',
-              'modifiedIndex': 2,
-              'createdIndex': 2
-            }],
-          'modifiedIndex': 3,
-          'createdIndex': 3
-        }
-      });
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': '746f6b656e74657374',
+        },
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
+            'username': 'dG9rZW50ZXN0',
+            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+    });
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/non_exist_user')
-      .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/users/non_exist_user',
-        'index': 4242650
-      });
-
+    nock(apiServerRootUri)
+    .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+    .reply(404, {
+      'kind': 'Status',
+      'apiVersion': 'v1',
+      'metadata': {},
+      'status': 'Failure',
+      'message': 'secrets \'nonexist\' not found',
+      'reason': 'NotFound',
+      'details': {
+          'name': 'nonexist',
+          'kind': 'secrets'
+      },
+      'code': 404
+    });
 
   });
 
@@ -83,7 +83,7 @@ describe('user token test: post /api/v1/token', () => {
     global.chai.request(global.server)
       .post('/api/v1/token')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'token_test_user', 'password': '123456' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
@@ -99,7 +99,7 @@ describe('user token test: post /api/v1/token', () => {
     global.chai.request(global.server)
       .post('/api/v1/token')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'token_test_user', 'password': 'abcdef' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': 'abcdef' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -112,7 +112,7 @@ describe('user token test: post /api/v1/token', () => {
     global.chai.request(global.server)
       .post('/api/v1/token')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'non_exist_user', 'password': 'abcdef' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'nonexist', 'password': 'abcdef' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;

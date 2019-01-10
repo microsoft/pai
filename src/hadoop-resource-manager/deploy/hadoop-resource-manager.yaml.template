@@ -32,6 +32,13 @@ spec:
         prometheus.io/path: '/metrics'
         prometheus.io/port: '{{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}'
     spec:
+      hostAliases:
+      - ip: "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+      - ip: "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
       hostNetwork: true
       hostPID: false
       containers:
@@ -69,11 +76,13 @@ spec:
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "36Gi"
           requests:
             memory: "8Gi"
+        {%- endif %}
       - name: yarn-exporter
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always

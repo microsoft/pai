@@ -68,8 +68,8 @@ path: /a/b/c
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
-- quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1).
-- More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-2). 
+- quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
+- More infomation about this command please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md). 
 - By default, in the generated configuration, a single-master Kubernetes is configured by default.
 - Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 

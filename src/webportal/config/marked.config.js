@@ -21,7 +21,7 @@ const marked = require('marked');
 const url = require('url');
 
 
-const baseUrl = 'https://github.com/Microsoft/pai/tree/master/examples/';
+const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
 
 const renderer = new marked.Renderer();
 

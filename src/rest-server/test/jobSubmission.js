@@ -100,7 +100,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
           global.frameworkDetailTemplate,
           {
             'frameworkName': 'job1',
-            'userName': 'test',
+            'username': 'test',
             'applicationId': 'app1',
           }
         )
@@ -126,16 +126,24 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
                   'queueName': 'default',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc1',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc2',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 }
               ]
             },
@@ -165,16 +173,24 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
                   'queueName': 'default',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc1',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc2',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 }
               ]
             },
@@ -185,19 +201,24 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       });
 
     //
-    // Mock etcd return result
+    // Mock k8s secret return result
     //
-    nock(global.etcdHosts)
-      .get('/v2/keys/users/user1/virtualClusters')
+    nock(global.apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/7573657231')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/user1/virtualClusters',
-          'value': 'default,vc1',
-          'modifiedIndex': 246,
-          'createdIndex': 246
-        }
-      });
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': '7573657231',
+        },
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+            'username': 'dXNlcjE=',
+            'virtualCluster': 'ZGVmYXVsdCx2YzE='
+        },
+        'type': 'Opaque'
+    });
   }
 
   const prepareNockForCaseN08 = (namespace, jobName) => {
@@ -208,47 +229,43 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
           {}
         );
 
-      nock(yarnUri)
-        .get('/ws/v1/cluster/scheduler')
-        .reply(200, {
-          'scheduler': {
-            'schedulerInfo': {
-              'queues': {
-                'queue': [
-                  {
-                    'queueName': 'default',
-                    'state': 'RUNNING',
-                    'type': 'capacitySchedulerLeafQueueInfo',
-                  },
-                  {
-                    'queueName': 'vc1',
-                    'state': 'RUNNING',
-                    'type': 'capacitySchedulerLeafQueueInfo',
-                  },
-                  {
-                    'queueName': 'vc2',
-                    'state': 'RUNNING',
-                    'type': 'capacitySchedulerLeafQueueInfo',
-                  }
-                ]
-              },
-              'type': 'capacityScheduler',
-              'usedCapacity': 0.0
-            }
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
           }
-        });
-
-      //
-      // Mock etcd return result
-      //
-      nock(global.etcdHosts)
-        .get('/v2/keys/users/user1/virtualClusters')
-        .reply(200, {
-          'errorCode':100,
-          'message':'Key not found',
-          'cause':'/users/user1/virtualClusters',
-          'index':51
-        });
+        }
+      });
   }
 
   const prepareNockForCaseN09 = prepareNockForCaseN03;

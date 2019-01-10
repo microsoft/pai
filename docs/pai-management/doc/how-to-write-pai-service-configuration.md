@@ -57,7 +57,7 @@ User could customize Hadoop startup configuration at OpenPAI's [folder / file](.
 
 ## Configure Zookeeper <a name="zookeeper"></a>
 
-User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../../../src/zookeeper/build/zoo.cfg)
+User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zk-configuration/zoo.cfg)
 
 User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zookeeper.yaml.template)
 

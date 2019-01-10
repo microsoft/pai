@@ -48,7 +48,7 @@ We encourage researchers and students leverage these projects to accelerate the 
 * [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
 
 ## How to deploy
-#### 1 Prerequisites
+#### 1 Prerequisites <a name="ref_prerequisites"></a>
 Before start, you need to meet the following requirements:
 
 - Ubuntu 16.04
@@ -60,8 +60,16 @@ Before start, you need to meet the following requirements:
 - See [hardware resource requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement).
 
 #### 2 Deploy OpenPAI
-##### 2.1 [Customized deploy](./docs/pai-management/doc/cluster-bootup.md#customizeddeploy)
-##### 2.2 [Single Box deploy](./docs/pai-management/doc/cluster-bootup.md#singlebox)
+
+If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
+
+If you only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following. 
+
+
+##### 2.1 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
+##### 2.2 [Single Box deploy](./docs/pai-management/doc/single-box.md)
+
+
 
 ## How to use
 ### How to train jobs
@@ -79,7 +87,7 @@ Before start, you need to meet the following requirements:
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
 
 ### Cluster administration
-- [Deployment infrastructure](./docs/pai-management/doc/cluster-bootup.md)
+- [Deployment infrastructure](./docs/pai-management/doc/distributed-deploy.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
 - [Monitoring](./docs/webportal/README.md)
 

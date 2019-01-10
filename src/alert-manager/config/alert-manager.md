@@ -23,6 +23,8 @@ alert-manager:
     port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
 ```
 
+In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True`, to make url from alert email public available.
+
 #### Generated Configuration <a name="G_Config"></a>
 
 After parsing, if you configured the alert-manager the model will be like:
@@ -37,6 +39,7 @@ alert-manager:
     configured: True
     host: master_ip
     url: "http://master_ip:9093"
+    use-pylon: False
 ```
 
 if you didn't configured alert-manager, it will be like:
@@ -46,4 +49,5 @@ alert-manager:
     configured: False
     host: master_ip
     url: "http://master_ip:9093"
+    use-pylon: False
 ```

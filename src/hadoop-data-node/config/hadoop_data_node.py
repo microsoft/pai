@@ -22,17 +22,29 @@ import logging.config
 
 class HadoopDataNode:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
+        self.service_configuration = self.merge_service_configuration(service_configuration,
+                                                                      default_service_configuration)
+
+    def merge_service_configuration(self, overwrite_srv_cfg, default_srv_cfg):
+        if overwrite_srv_cfg is None:
+            return default_srv_cfg
+        srv_cfg = default_srv_cfg.copy()
+        for k in overwrite_srv_cfg:
+            srv_cfg[k] = overwrite_srv_cfg[k]
+        return srv_cfg
 
     def validation_pre(self):
         return True, None
 
     def run(self):
         com = {}
-
+        # com["storage_path"] = self.service_configuration.get("storage_path") or \
+        #                       "{}/hdfs/data".format(self.cluster_configuration["cluster"]["common"]["data-path"])
+        com["storage_path"] = self.service_configuration.get("storage_path")
         return com
 
     def validation_post(self, cluster_object_model):

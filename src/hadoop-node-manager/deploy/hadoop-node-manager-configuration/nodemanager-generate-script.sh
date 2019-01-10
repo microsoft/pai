@@ -34,7 +34,6 @@ echo "The ip-address of this machine is: $host_ip_address"
 
 echo "$host_ip_address  $host_ip_address" >> /etc/hosts
 
-
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml

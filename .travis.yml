@@ -36,12 +36,19 @@ matrix:
 
     - language: python
       python: 2.7
+      install:
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+        - python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
+
+    - language: python
+      python: 3.6
       before_install:
         - cd src/job-exporter/test
       install:
-        - pip install pyyaml
+        - pip install prometheus_client
       script:
-        - python -m unittest discover .
+        - python3 -m unittest discover .
 
     - language: python
       python: 2.7

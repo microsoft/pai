@@ -9,8 +9,6 @@ class NodeExporter(object):
         self.default_service_conf = default_service_conf
 
     def validation_pre(self):
-        print("cluster_config is %s, service_config is %s, default is %s" % \
-                (self.cluster_conf, self.service_conf, self.default_service_conf))
         return True, None
 
     def run(self):

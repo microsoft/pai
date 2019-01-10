@@ -1,0 +1,110 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: job-exporter
+spec:
+  selector:
+    matchLabels:
+      app: job-exporter
+  template:
+    metadata:
+      labels:
+        app: job-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "{{ cluster_cfg["job-exporter"]["port"] }}"
+      name: job-exporter
+    spec:
+      containers:
+      - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}job-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket: # because http get will trigger job-exporter abandom old metrics, so we use tcp instead of http
+            port: {{ cluster_cfg["job-exporter"]["port"] }}
+          initialDelaySeconds: 3
+          periodSeconds: 30
+          timeoutSeconds: 10
+        command:
+        - "python"
+        - "/job_exporter/main.py"
+        - "--port"
+        - "{{ cluster_cfg["job-exporter"]["port"] }}"
+        - "--interval"
+        - "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
+        - "--interface"
+        - "{{ cluster_cfg["job-exporter"]["interface"] }}"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "128Mi"
+        {%- endif %}
+        securityContext:
+          privileged: true # this is required since job-exporter will call setns to other containers
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: LOGGING_LEVEL
+          value: {{ cluster_cfg["job-exporter"]["logging-level"] }}
+        - name: NV_DRIVER
+          value: /var/drivers/nvidia/current
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        - mountPath: /dev
+          name: device-mount
+        - mountPath: /var/drivers/nvidia/current
+          name: driver-path
+        - mountPath: /datastorage/prometheus
+          name: collector-mount
+        - mountPath: /gpu-config
+          name: gpu-config
+        name: job-exporter
+        ports:
+        - containerPort: {{ cluster_cfg["job-exporter"]["port"] }}
+          hostPort: {{ cluster_cfg["job-exporter"]["port"] }}
+          name: main
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: device-mount
+          hostPath:
+            path: /dev
+        - name: driver-path
+          hostPath:
+            path: /var/drivers/nvidia/current
+        - name: collector-mount
+          hostPath:
+            path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus
+        - name: gpu-config
+          configMap:
+            name: gpu-configuration
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      hostNetwork: true
+      hostPID: true # This is required since job-exporter should get list of pid in container
+      tolerations:
+      - key: node.kubernetes.io/memory-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"

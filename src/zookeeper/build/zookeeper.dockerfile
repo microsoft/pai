@@ -17,18 +17,12 @@
 
 FROM base-image
 
-RUN apt-get -y install zookeeper
+ENV ZOOKEEPER_VERSION=3.4.8
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
+RUN wget -O - --no-verbose https://archive.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz | tar -xz -C /usr/local/ && \
+    cd /usr/local/ && \
+    ln -s ./zookeeper-$ZOOKEEPER_VERSION zookeeper
 
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
+ENV PATH $PATH:/usr/local/zookeeper/bin
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
-
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
-
-CMD ["/usr/local/run.sh"]
+CMD ["/bin/bash"]

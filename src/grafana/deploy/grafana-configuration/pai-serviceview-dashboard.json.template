@@ -224,7 +224,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(service_net_in_byte{name=\"$service_name\"}[{{interval}}s])",
+              "expr": "service_net_in_byte{name=\"$service_name\"}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -232,7 +232,7 @@
               "refId": "A"
             },
             {
-              "expr": "irate(service_net_out_byte{name=\"$service_name\"}[{{interval}}s])",
+              "expr": "service_net_out_byte{name=\"$service_name\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{'{{'}}instance{{'}}'}} Outbound",

@@ -32,7 +32,9 @@ RUN git clone https://github.com/sstephenson/bats.git && \
     cd bats && \
     ./install.sh /usr/local
 
-RUN git clone https://github.com/Microsoft/CNTK.git
-
+RUN wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+RUN tar zxvf cifar-10-python.tar.gz
+RUN rm cifar-10-python.tar.gz
+RUN git clone -b tf_benchmark_stage https://github.com/tensorflow/benchmarks.git
 
 CMD ["/bin/bash", "/root/end-to-end-test/start.sh"]

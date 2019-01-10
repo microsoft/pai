@@ -26,6 +26,7 @@
   "dependencies": {
     "@octokit/rest": "~15.9.5",
     "async": "~2.5.0",
+    "axios": "^0.18.0",
     "chai": "~4.1.2",
     "chai-http": "~3.0.0",
     "compression": "~1.7.1",
@@ -49,10 +50,11 @@
     "node-cache": "~4.2.0",
     "node-etcd": "~5.1.0",
     "nyc": "~11.6.0",
+    "ssh-keygen": "~0.4.2",
     "statuses": "~1.5.0",
     "unirest": "~0.5.1",
     "winston": "~2.4.0",
-    "ssh-keygen": "~0.4.2"
+    "xml2js": "~0.4.19"
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",

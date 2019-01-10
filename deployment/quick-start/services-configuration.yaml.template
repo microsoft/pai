@@ -58,6 +58,12 @@ cluster:
 #      description: Default VC.
 #      capacity: 100
 
+#Uncomment following lines if you want to customize hdfs
+#hadoop-data-node:
+#  # storage path for hdfs, support comma-delimited list of directories, eg. /path/to/folder1,/path/to/folder2 ...
+#  # if left empty, will use cluster.common.data-path/hdfs/data
+#  storage_path:
+
 
 # uncomment following if you want to change customeize yarn-frameworklauncher
 #yarn-frameworklauncher:
@@ -92,6 +98,12 @@ rest-server:
 # uncomment following if you want node-exporter listen to different port
 # node-exporter:
 #   port: 9100
+
+# uncomment following if you want to customeize job-exporter
+# job-exporter:
+#   port: 9102
+#   logging-level: INFO
+#   interface: eth0,eno2
 
 # if you want to enable alert manager to send alert email, uncomment following lines and fill
 # the right values.

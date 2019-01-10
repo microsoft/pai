@@ -27,6 +27,7 @@ require('./layout.component.scss');
 const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
+const pluginComponent = require('./plugins.component.ejs');
 
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
@@ -36,4 +37,8 @@ window.userLogout = userLogoutComponent.userLogout;
 $('#navbar').html(userLoginNavHtml);
 if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
+}
+
+if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
+  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
 }

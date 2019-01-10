@@ -39,14 +39,16 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}watchdog:{{cluster_cfg["cluster"]["docker-registry"]["tag"]}}
         imagePullPolicy: Always
         readinessProbe:
-          httpGet:
-            path: /
+          tcpSocket: # because http get will trigger job-exporter abandom old metrics, so we use tcp instead of http
             port: 9101
-          initialDelaySeconds: 30
+          initialDelaySeconds: 3
           periodSeconds: 30
+          timeoutSeconds: 10
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "256Mi"
+        {%- endif %}
         env:
         - name: LOGGING_LEVEL
           value: INFO

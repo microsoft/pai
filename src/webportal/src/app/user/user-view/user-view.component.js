@@ -103,7 +103,7 @@ const loadUsers = (limit, specifiedVc) => {
             displayDataSet.push({
               userName: data[i].username,
               admin: (data[i].admin === 'true') ? 'Yes' : 'No',
-              vcName: data[i].virtualCluster,
+              vcName: (data[i].admin === 'true') ? 'All virtual clusters' : data[i].virtualCluster,
               githubPAT: data[i].githubPAT,
               edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
                     '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].hasGithubPAT + '\')">Edit</button>',

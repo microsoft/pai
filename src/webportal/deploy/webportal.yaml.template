@@ -52,12 +52,18 @@ spec:
           value: "{{ cluster_cfg['node-exporter']['port'] }}"
         - name: PROM_SCRAPE_TIME
           value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
+        - name: WEBPORTAL_PLUGINS
+          # A raw JSON formatted value is required here.
+          value: |
+            {{ cluster_cfg['webportal']['plugins'] }}
         ports:
         - name: webportal
           containerPort: 8080
           hostPort: {{ cluster_cfg['webportal']['server-port'] }}
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "512Mi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

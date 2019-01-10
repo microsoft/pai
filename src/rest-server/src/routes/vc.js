@@ -16,6 +16,9 @@
 // module dependencies
 const express = require('express');
 const vcController = require('../controllers/vc');
+const token = require('../middlewares/token');
+const param = require('../middlewares/parameter');
+const vcConfig = require('../config/vc');
 
 const router = new express.Router();
 
@@ -23,12 +26,22 @@ router.route('/')
     /** GET /api/v1/virtual-clusters - Return cluster virtual cluster info */
     .get(vcController.list);
 
+
 router.route('/:vcName')
     /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
-    .get(vcController.get);
+    .get(vcController.get)
+    /** PUT /api/v1/virtual-clusters/vcName - Create a vc */
+    .put(token.check, param.validate(vcConfig.vcPutInputSchema), vcController.update)
+    /** DELETE /api/v1/virtual-clusters/vcName - Remove a vc */
+    .delete(token.check, vcController.remove);
 
-/** Load virtual cluster when API with vcName route parameter is hit */
-router.param('vcName', vcController.load);
+
+router.route('/:vcName/status')
+    /** PUT /api/v1/virtual-clusters/vcName - Change vc status (running or stopped) */
+    .put(token.check, param.validate(vcConfig.vcStatusPutInputSchema), vcController.updateStatus);
+
+
+router.param('vcName', vcController.validate);
 
 // module exports
 module.exports = router;

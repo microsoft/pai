@@ -20,7 +20,7 @@
 
 <property>
   <name>dfs.replication</name>
-  <value>2</value>
+  <value>3</value>
   <description>
          Default block replication. The actual number of replicas can be specified when
          the file is created. The default is used if replication is not specified at
@@ -39,7 +39,7 @@
 
 <property>
   <name>dfs.datanode.data.dir</name>
-  <value>file:///var/lib/hdfs/data</value>
+  <value>{HADOOP_DATANODE_DATA_DIR}</value>
   <description>
          This property specifies the URIs of the directories where the DataNode stores
          blocks.
