@@ -226,7 +226,8 @@ export class PAIJobManager extends Singleton {
                 Util.info('job.prepare.generate-job-name.undefined.hint');
             }
         }
-        return settings;
+        // reload settings
+        return vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
     }
 
     private static replaceVariables({ cluster, config }: IJobParam): IPAIJobConfig {
@@ -366,6 +367,12 @@ export class PAIJobManager extends Singleton {
             if (!param) {
                 // Error message has been shown.
                 return;
+            }
+
+            // replace env variables if auto upload is disabled
+            // extension will try to download files from hdfs instead of copying local files
+            if (!settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
+                PAIJobManager.replaceVariables(param);
             }
 
             // generate dockerfile
