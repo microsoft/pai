@@ -117,7 +117,7 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 
 ### Virtual cluster management
 
-Virtual cluster is a kind of [YARN Capacity Scheduler Queue](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html). Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically:
+OpenPAI Virtual Cluster is designed to run jobs as a shared, multi-tenant cluster in an operator-friendly manner while maximizing the throughput and the utilization of the cluster. Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically:
 
 * Add a new virtual cluster
 * Remove an obsolete virtual cluster
