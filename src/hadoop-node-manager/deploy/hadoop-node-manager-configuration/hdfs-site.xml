@@ -20,7 +20,7 @@
 
 <property>
   <name>dfs.replication</name>
-  <value>3</value>
+  <value>2</value>
   <description>
          Default block replication. The actual number of replicas can be specified when
          the file is created. The default is used if replication is not specified at
@@ -34,15 +34,6 @@
   <description>
          This property specifies the URIs of the directories where the NameNode
          stores its metadata and edit logs.
-  </description>
-</property>
-
-<property>
-  <name>dfs.datanode.data.dir</name>
-  <value>{HADOOP_DATANODE_DATA_DIR}</value>
-  <description>
-         This property specifies the URIs of the directories where the DataNode stores
-         blocks.
   </description>
 </property>
 
@@ -157,7 +148,6 @@
   </description>
 </property>
 
-
 <property>
   <name>dfs.webhdfs.enabled</name>
   <value>true</value>
@@ -267,40 +257,67 @@
 </property>
 
 <property>
-   <name>dfs.datanode.hostname</name>
-   <value>{{ host_config['ip'] }}</value>
-</property>
-
-<property>
-    <name>dfs.datanode.address</name>
-    <value>0.0.0.0:5010</value>
+    <name>dfs.namenode.http-address</name>
+    <value>0.0.0.0:5070</value>
     <description>
-        The datanode server address and port for data transfer.
+        The address and the base port where the dfs namenode web ui will listen on.
     </description>
 </property>
 
 <property>
-    <name>dfs.datanode.http.address</name>
-    <value>0.0.0.0:5075</value>
+    <name>dfs.namenode.https-address</name>
+    <value>0.0.0.0:5470</value>
     <description>
-        The datanode http server address and port.
+        The namenode secure http server address and port.
     </description>
 </property>
 
 <property>
-    <name>dfs.datanode.ipc.address</name>
-    <value>0.0.0.0:5020</value>
+    <name>dfs.namenode.backup.address</name>
+    <value>0.0.0.0:5100</value>
     <description>
-        The datanode ipc server address and port.
+        The backup node server address and port. If the port is 0 then the server will start on a free port.
     </description>
 </property>
 
 <property>
-    <name>dfs.datanode.https.address</name>
-    <value>0.0.0.0:5475</value>
+    <name>dfs.namenode.backup.http-address</name>
+    <value>0.0.0.0:5105</value>
     <description>
-        The datanode secure http server address and port.
+        The backup node http server address and port. If the port is 0 then the server will start on a free port.
     </description>
+</property>
+
+<property>
+    <name>dfs.namenode.secondary.http-address</name>
+    <value>0.0.0.0:5090</value>
+    <description>
+        The secondary namenode http server address and port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.secondary.https-address</name>
+    <value>0.0.0.0:5091</value>
+    <description>
+        The secondary namenode HTTPS server address and port.
+    </description>
+</property>
+
+<property>
+  <name>dfs.namenode.safemode.threshold-pct</name>
+  <value>0.99f</value>
+  <description>
+        By default safemode threshold is 0.999, reduce to 0.99.
+  </description>
+</property>
+
+<property>
+  <name>dfs.namenode.safemode.min.datanodes</name>
+  <value>1</value>
+  <description>
+        At least 1 datanode needed to leave safemode, default value is 0.
+  </description>
 </property>
 
 <property>
