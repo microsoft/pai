@@ -34,6 +34,7 @@
 ### Command
 * Support add machine from node-list file. -[PR 819](https://github.com/Microsoft/pai/pull/819)
 * Add config sub-command in paictl to manage config files. -[PR 1263](https://github.com/Microsoft/pai/pull/1263)
+* After the configuration storage is enabled -p is no longer required in the service sub-command.
 
 
 ## Bug Fixes
