@@ -36,7 +36,8 @@
 |pai.job.upload.exclude|Glob pattern for excluding files and folders|
 |pai.job.upload.include|Glob pattern for including files and folders|
 |pai.job.generateJobName.enabled|Controls whether the extension will add a random suffix to your job name when submitting job|
-
+## Requirements
+PAI Cluster Version >= 0.8.0
 ## Contributing
 https://github.com/Microsoft/pai#how-to-contribute
 ## License

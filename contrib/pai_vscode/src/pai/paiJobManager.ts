@@ -311,22 +311,12 @@ export class PAIJobManager extends Singleton {
             // send job submission request
             statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
             try {
-                try {
-                    await request.post(`${this.getRestUrl(param.cluster)}/user/${param.cluster.username}/jobs`, {
-                        headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
-                        form: param.config,
-                        timeout: PAIJobManager.TIMEOUT,
-                        json: true
-                    });
-                } catch (e) {
-                    Util.warn('job.submission.fallback');
-                    await request.put(`${this.getRestUrl(param.cluster)}/jobs/${param.config.jobName}`, {
-                        headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
-                        form: param.config,
-                        timeout: PAIJobManager.TIMEOUT,
-                        json: true
-                    });
-                }
+                await request.post(`${this.getRestUrl(param.cluster)}/user/${param.cluster.username}/jobs`, {
+                    headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
+                    form: param.config,
+                    timeout: PAIJobManager.TIMEOUT,
+                    json: true
+                });
                 const open: string = __('job.submission.success.open');
                 void vscode.window.showInformationMessage(
                     __('job.submission.success'),
