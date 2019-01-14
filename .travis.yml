@@ -116,3 +116,12 @@ matrix:
         - npm run build
       script:
         - npm test
+
+    - language: node_js
+      node_js: node
+      before_install:
+        - cd contrib/pai_vscode
+      install:
+        - npm install
+      script:
+        - npm test
