@@ -178,7 +178,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
 | PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
-| PAI\_`$taskRole`\_`$currentTaskIndex`\_`$type`_PORT | The port for `portList.label == $type, task role name == $taskRole and task index of current task role == $currentTaskIndex`. Each port has corresponding environment variable and is exposed to all tasks. |
+| PAI\_`$taskRole`\_`$taskIndex`\_`$type`_PORT | The port for `portList.label == $type, task role name == $taskRole and task index of current task role == $taskIndex`. Each port has corresponding environment variable and is exposed to all tasks. |
 
 
 ### A deep learning job example <a name="example"></a>
