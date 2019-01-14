@@ -1513,10 +1513,10 @@ jsbn@~0.1.0:
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
   integrity sha1-peZUwuWi3rXyAdls77yoDA7y9RM=
 
-json-inline-doc@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/json-inline-doc/-/json-inline-doc-1.0.2.tgz#a88cee14acee94515bc545b4ee1bbebba9781bfa"
-  integrity sha512-RETQNnelLxrS8dcurxOyt+95p66ixmWOg6A6m7AF/QnYcpRlI/Uzj5Fj/juCOCk1uTfnuttzWAp9D5isDdudjw==
+json-inline-doc@^2.0.1:
+  version "2.0.1"
+  resolved "http://registry.npm.taobao.org/json-inline-doc/download/json-inline-doc-2.0.1.tgz#91ab6fc5de16a77e4a9a0d0c091246f1fc3fcec1"
+  integrity sha1-katvxd4Wp35Kmg0MCRJG8fw/zsE=
   dependencies:
     tslib "^1.9.3"
     word-wrap "^1.2.3"
@@ -2956,8 +2956,8 @@ webhdfs@^1.2.0:
 
 word-wrap@^1.2.3:
   version "1.2.3"
-  resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
-  integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+  resolved "http://registry.npm.taobao.org/word-wrap/download/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
+  integrity sha1-YQY29rH3A4kb00dxzLF/uTtHB5w=
 
 wrappy@1:
   version "1.0.2"
