@@ -141,8 +141,10 @@ class Machine:
                     host["keyfile-path"] = com_machine["default-machine-properties"]["keyfile-path"]
             if "nodename" not in host:
                 host["nodename"] = host["hostip"]
-            if "docker-data" not in host:
+            if "docker-data" not in host and "docker-data-root" not in com_machine["machine-sku"][host["machine-type"]]:
                 host["docker-data"] = "/var/lib/docker"
+            elif "docker-data-root" in com_machine["machine-sku"][host["machine-type"]]:
+                host["docker-data"] = com_machine["machine-sku"][host["machine-type"]]["docker-data-root"]
             com_machine["machine-list"][host["hostname"]] = host
 
         return com_machine

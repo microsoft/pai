@@ -35,7 +35,7 @@ machine-sku:
       count: 4
     cpu:
       vcore: 24
-    #dataFolder: "/mnt"
+    #docker-data-root: "/var/lib/docker"
     #Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
     os: ubuntu16.04
 
@@ -43,7 +43,7 @@ machine-sku:
     mem: 32
     cpu:
       vcore: 8
-    #dataFolder: "/mnt"
+    #docker-data-root: "/var/lib/docker"
     #Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
     os: ubuntu16.04
 
