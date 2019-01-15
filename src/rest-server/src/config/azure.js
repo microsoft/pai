@@ -34,4 +34,4 @@ if (error) {
 }
 azureData = value;
 
-module.exports = azureData
+module.exports = azureData;

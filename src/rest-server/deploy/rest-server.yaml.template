@@ -53,7 +53,7 @@ spec:
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
         - name: AZ_RDMA
-          value: "{{ cluster_cfg['cluster'['common']['az-rdma']}}"
+          value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
