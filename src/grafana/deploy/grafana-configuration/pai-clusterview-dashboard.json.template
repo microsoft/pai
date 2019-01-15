@@ -163,7 +163,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "yarn_nodes_active",
+              "expr": "avg(yarn_nodes_active)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -321,7 +321,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "yarn_gpus_used",
+              "expr": "avg(yarn_gpus_used)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
