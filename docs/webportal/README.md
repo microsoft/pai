@@ -117,12 +117,12 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 
 ### Virtual cluster management
 
-OpenPAI Virtual Cluster is designed to run jobs as a shared, multi-tenant cluster in an operator-friendly manner while maximizing the throughput and the utilization of the cluster. Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically:
+OpenPAI Virtual Cluster is designed to run jobs as a shared, multi-tenant cluster in an operator-friendly manner while maximizing the throughput and the utilization of the cluster. Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically (for administrators only):
 
-* Add a new virtual cluster
-* Remove an obsolete virtual cluster
-* Increase or decrease virtual cluster's capacity
-* Change virtual cluster's availability
+* Add a new virtual cluster.
+* Remove an obsolete virtual cluster.
+* Increase or decrease virtual cluster's capacity.  Virtual cluster *capacity* in percentage (%) as a float (e.g. 12.5).  Jobs in the virtual cluster may consume more resources than the its capacity if there are free resources, providing elasticity. 
+* Change virtual cluster's availability. If a virtual cluster is in `STOPPED` state, new jobs cannot be submitted to *itself*. Existing jobs continue to completion, thus the virtual cluster can be *removed* gracefully. The stopped virtual cluster can also be started and change to `RUNNING` state.
 
 ### Read documents
 
