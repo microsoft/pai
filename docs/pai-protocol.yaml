@@ -36,7 +36,8 @@ taskRoles:
       data: Object, optional # Default is None
       output: Object, optional # Default is None
       script: Object, optional # Default is None
-      shmMB: Integer, optional
+      extraContainerOptions: 
+        shmMB: Integer, optional # config the /dev/shm in a docker container
       resource:
         cpu: Integer, required
         memoryMB: Integer, required
@@ -119,7 +120,8 @@ taskRoles:
       data: { cifar10: prerequisites.[data,cifar10] }
       output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
       script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-      shmMB: 64
+      extraContainerOptions: 
+        shmMB: 64      
       resource:
         cpu: 2
         memoryMB: 16384
@@ -144,7 +146,8 @@ taskRoles:
       data: { cifar10: prerequisites.[data,cifar10] }
       output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
       script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-      shmMB: 64
+      extraContainerOptions: 
+        shmMB: 64
       resource:
         cpu: 2
         memoryMB: 8192
