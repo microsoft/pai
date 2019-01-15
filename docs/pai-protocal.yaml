@@ -1,4 +1,3 @@
-
 protocol_version: String, optional # Protocol version. Default is v2
 name: String, required
 type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output
@@ -23,32 +22,33 @@ parameters: # Optional, can be omitted
   <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by $$paramName$$.
   <param2>: value2Type
 
+maxRetryCount: Integer, optional # Default is 0
 taskRoles:
   - protocol_version: String, optional # Protocol version, default is v2
     name: String, required  # Name of the taskRole
-    dockerimage: String, required # Should reference to a dockerimage defined in prerequisites.
-    data: Object, optional # Default is None
-    output: Object, optional # Default is None
-    script: Object, optional # Default is None
-    resource:
-      instances: Integer, optional # Default is 1
-      resourcePerInstance:
+    taskNumber: Integer, optional # Default is 1
+    completion:
+      minFailedTaskCount: Integer, optional # Default 1
+      minSucceededTaskCount: Integer or null, optional # Default null
+    task:
+      maxRetryCount: Integer, optional # Default is 0
+      image: String, required # Should reference to a dockerimage defined in prerequisites.
+      data: Object, optional # Default is None
+      output: Object, optional # Default is None
+      script: Object, optional # Default is None
+      shmMB: Integer, optional
+      resource:
         cpu: Integer, required
         memoryMB: Integer, required
-        shmMB: Integer, optional # Default is 64
         gpu: Integer, required
-      ports:
-        <portLabel1>: Integer, optional, default is 0 # Only for host network
-    completion:
-      minFailedInstances: Integer, optional # Default 1
-      minSucceededInstances: Integer or null, optional # Default null
-    command:
-      - String, required
+        ports:
+          <portLabel1>: Integer, optional, default is 0 # Only for host network
+      command:
+        - String, required
 
 deployment_specific:
   - protocol_version: String, optional # Protocol version, default is v2
     name: String, required
-    jobRetryCount: Integer, optional # Default is 0
     virtualCluster: String # Default is "default"
     taskRoles:
       - name: String, required # Should be the same as taskRoles.name
@@ -105,53 +105,63 @@ parameters:
   model: resnet20
   batchsize: 32
 
+maxRetryCount: 1
 taskRoles:
   - protocol_version: v2
     name: worker
-    dockerimage: tf_example
-    data: { cifar10: prerequisites.[data,cifar10] }
-    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-    resource:
-      instances: 1
-      resourcePerInstance: { cpu: 2, memoryMB: 16384, shmMB: 64, gpu: 4 }
-      ports: { ssh: 0, http: 0 } # only host network support
+    taskNumber: 1
     completion:
-      minFailedInstances: 0
-      minSucceededInstances: 1
-    command:
-      - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-      - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
-      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-      --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
-      --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
-      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
-
+      minFailedTaskCount: 1
+      minSucceededTaskCount: 1
+    task:
+      maxRetryCount: 0
+      image: tf_example
+      data: { cifar10: prerequisites.[data,cifar10] }
+      output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
+      script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+      shmMB: 64
+      resource:
+        cpu: 2
+        memoryMB: 16384
+        gpu: 4
+        ports: { ssh: 0, http: 0 }
+      command:
+        - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+        - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
+        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
   - protocol_version: v2
     name: ps_server
-    dockerimage: tf_example
-    data: { cifar10: prerequisites.[data,cifar10] }
-    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-    resource:
-      instances: 1
-      resourcePerInstance: { cpu: 2, memoryMB: 8192, shmMB: 64, gpu: 0 }
+    taskNumber: 1
     completion:
-      minFailedInstances: 0
-      minSucceededInstances: 1
-    command:
-      - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-      - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
-      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-      --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
-      --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
-      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+      minFailedTaskCount: 1
+      minSucceededTaskCount: null
+    task:
+      maxRetryCount: 0
+      image: tf_example
+      data: { cifar10: prerequisites.[data,cifar10] }
+      output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
+      script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+      shmMB: 64
+      resource:
+        cpu: 2
+        memoryMB: 8192
+        gpu: 0
+        ports: { ssh: 0, http: 0 }
+      command:
+        - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+        - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
+        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
 
 deployment_specific:
   - protocol_version: v2
     name: no_data_cache_local_output_and_hdfs # This implementation assumes no local data cache, model output to local disk and being copied to hdfs
     version: 1.0.0
-    jobRetryCount: 0
     virtualCluster: default
     taskRoles:
       - name: worker
