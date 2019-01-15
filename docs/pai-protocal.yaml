@@ -1,155 +1,161 @@
-DEFINITION:
-  protocol_version: String, optional, default is v2
-  name: String, required
-  type: String, required, must be job, data, script, dockerimage or output
-  version: String, optional, default is latest
-  contributor: String, optional
-  description: String, optional
 
-  prerequisites:
-    - protocol_version: String, optional, default is v2
-      name: String, required
-      type: String, required, must be dockerimage, output, data, or script
-      version: String, optional, default is latest
-      contributor: String, optional
-      description: String, optional
-      authuri: String, optional, only in dockerimage
-      uri: String or list, required, only in data uri is a list
+protocol_version: String, optional, default is v2
+name: String, required
+type: String, required, must be job, data, script, dockerimage or output
+version: String, optional, default is latest
+contributor: String, optional
+description: String, optional
 
-  parameters:
-    <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by $$paramName$$.
-    <param2>: value2Type
+prerequisites:
+  - protocol_version: String, optional, default is v2
+    name: String, required
+    type: String, required, must be dockerimage, output, data, or script
+    version: String, optional, default is latest
+    contributor: String, optional
+    description: String, optional
+    authuri: String, optional, only in dockerimage
+    uri: String or list, required, only in data uri is a list
 
-  tasks:
-    <taskRole1>: # task role
-      dockerimage: String, required
-      data: Object, optional, default is None
-      output: Object, optional, default is None
-      script: Object, optional, default is None
-      resource: 
-        instances: Integer, optional, default is 1
-        resourcePerInstance: 
-          cpu: Integer, required 
-          memoryMB: Integer, required
-          shmMB: Integer, optional, default is 64
-          gpu: Integer, required
-        ports:
-          <portLabel1>: Integer, optional, default is 0 # only host network support, wait for discussion
-      completion:
-        minFailedInstances: Integer, optional
-        minSucceededInstances: Integer, optional
-      command:
-        - String, required
-  
-IMPLEMENTATION:
-  default:
+parameters:
+  <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by $$paramName$$.
+  <param2>: value2Type
+
+taskRoles:
+  - protocol_version: String, optional, default is v2
+    name: String, required  # name of the taskRole
+    dockerimage: String, required
+    data: Object, optional, default is None
+    output: Object, optional, default is None
+    script: Object, optional, default is None
+    resource:
+      instances: Integer, optional, default is 1
+      resourcePerInstance:
+        cpu: Integer, required
+        memoryMB: Integer, required
+        shmMB: Integer, optional, default is 64
+        gpu: Integer, required
+      ports:
+        <portLabel1>: Integer, optional, default is 0 # only host network support, wait for discussion
+    completion:
+      minFailedInstances: Integer, optional
+      minSucceededInstances: Integer, optional
+    command:
+      - String, required
+
+IMPLEMENTATIONS:
+  - protocol_version: String, optional, default is v2
+    name: String, required
     jobRetryCount: Integer, optional, default is 0
     virtualCluster: String, default is default
-    tasks:
-      <taskRole1>:
-        - String, required
+    taskRoles:
+      - name: String, required # Should be the same as taskRoles
+        runtimeCommands:
+          - String, required
 
 # Below is an example:
 
+protocol_version: v2
+name: tensorflow_cifar10
+type: job
+version: 1.0.0
+contributor: Alice
+description: image classification, cifar10 dataset, tensorflow, distributed training
 
-DEFINITION:
-  protocol_version: v2
-  name: tensorflow_cifar10
-  type: job
-  version: 1.0.0
-  contributor: Alice
-  description: image classification, cifar10 dataset, tensorflow, distributed training
+prerequisites:
+  - protocol_version: v2
+    name: tf_example
+    type: dockerimage
+    version: latest
+    contributor: Alice
+    description: python3.5, tensorflow
+    authuri: hdfs://10.151.40.179:9000/user/paidemo/authfile
+    uri: openpai/pai.example.tensorflow
+  - protocol_version: v2
+    name: tensorflow_cifar10_model
+    type: output
+    version: latest
+    contributor: Alice
+    description: cifar10 data output
+    uri: hdfs://10.151.40.179:9000/core/cifar10_model
+  - protocol_version: v2
+    name: tensorflow_cnnbenchmarks
+    type: script
+    version: 84820935288cab696c9c2ac409cbd46a1f24723d
+    contributor: MaggieQi
+    description: tensorflow benchmarks
+    uri: https://github.com/MaggieQi/benchmarks
+  - protocol_version: v2
+    name: cifar10
+    type: data
+    version: latest
+    contributor: Alice
+    description: cifar10 dataset, image classification
+    uri:
+      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
 
-  prerequisites:
-    - protocol_version: v2
-      name: tf_example
-      type: dockerimage
-      version: latest
-      contributor: Alice
-      description: python3.5, tensorflow
-      authuri: hdfs://10.151.40.179:9000/user/paidemo/authfile
-      uri: openpai/pai.example.tensorflow
-    - protocol_version: v2
-      name: tensorflow_cifar10_model
-      type: output
-      version: latest
-      contributor: Alice
-      description: cifar10 data output
-      uri: hdfs://10.151.40.179:9000/core/cifar10_model
-    - protocol_version: v2
-      name: tensorflow_cnnbenchmarks
-      type: script
-      version: 84820935288cab696c9c2ac409cbd46a1f24723d
-      contributor: MaggieQi
-      description: tensorflow benchmarks
-      uri: https://github.com/MaggieQi/benchmarks
-    - protocol_version: v2
-      name: cifar10
-      type: data
-      version: latest
-      contributor: Alice
-      description: cifar10 dataset, image classification
-      uri: 
-        - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+parameters:
+  model: resnet20
+  batchsize: 32
 
-  parameters:
-    model: resnet20
-    batchsize: 32
+taskRoles:
+  - protocol_version: v2
+    name: worker # task role
+    dockerimage: tf_example
+    data: { cifar10: prerequisites.[data,cifar10] }
+    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
+    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+    resource:
+      instances: 1
+      resourcePerInstance: { cpu: 2, memoryMB: 16384, shmMB: 64, gpu: 4 }
+      ports: { ssh: 0, http: 0 } # only host network support, wait for discussion
+    completion:
+      minFailedInstances: 0
+      minSucceededInstances: 1
+    command:
+      - cd script_$$tasks.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+      - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
+      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+      --data_dir=$PAI_WORK_DIR/data_$$tasks.worker.data.cifar10.name$$ --data_name=$$tasks.worker.data.cifar10.name$$
+      --train_dir=$PAI_WORK_DIR/output_$$tasks.worker.output.tf_cifar10_model.name$$
+      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
 
-  tasks:
-    worker: # task role
-      dockerimage: tf_example
-      data: { cifar10: prerequisites.[data,cifar10] }
-      output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-      script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-      resource: 
-        instances: 1
-        resourcePerInstance: { cpu: 2, memoryMB: 16384, shmMB: 64, gpu: 4 }
-        ports: { ssh: 0, http: 0 } # only host network support, wait for discussion
-      completion:
-        minFailedInstances: 0
-        minSucceededInstances: 1
-      command:
-        - cd script_$$tasks.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-        - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server 
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX 
-        --data_dir=$PAI_WORK_DIR/data_$$tasks.worker.data.cifar10.name$$ --data_name=$$tasks.worker.data.cifar10.name$$ 
-        --train_dir=$PAI_WORK_DIR/output_$$tasks.worker.output.tf_cifar10_model.name$$ 
-        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+  - protocol_version: v2
+    name: ps_server # task role
+    dockerimage: tf_example
+    data: { cifar10: prerequisites.[data,cifar10] }
+    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
+    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+    resource:
+      instances: 1
+      resourcePerInstance: { cpu: 2, memoryMB: 8192, shmMB: 64, gpu: 0 }
+    completion:
+      minFailedInstances: 0
+      minSucceededInstances: 1
+    command:
+      - cd script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+      - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
+      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+      --data_dir=$PAI_WORK_DIR/data_$$tasks.ps_server.data.cifar10.name$$ --data_name=$$tasks.ps_server.data.cifar10.name$$
+      --train_dir=$PAI_WORK_DIR/output_$$tasks.ps_server.output.tf_cifar10_model.name$$
+      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
 
-    ps_server: # task role
-      dockerimage: tf_example
-      data: { cifar10: prerequisites.[data,cifar10] }
-      output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-      script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
-      resource:
-        instances: 1
-        resourcePerInstance: { cpu: 2, memoryMB: 8192, shmMB: 64, gpu: 0 }
-      completion:
-        minFailedInstances: 0
-        minSucceededInstances: 1
-      command:
-        - cd script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-        - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server 
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX 
-        --data_dir=$PAI_WORK_DIR/data_$$tasks.ps_server.data.cifar10.name$$ --data_name=$$tasks.ps_server.data.cifar10.name$$ 
-        --train_dir=$PAI_WORK_DIR/output_$$tasks.ps_server.output.tf_cifar10_model.name$$ 
-        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
-  
-IMPLEMENTATION:
-  default:
+IMPLEMENTATIONS:
+  - protocol_version: v2
+    name: pai_default_v2
     jobRetryCount: 0
     virtualCluster: default
-    tasks:
-      worker:
-        - wget $$tasks.worker.data.cifar10.uri$$ -P data_$$tasks.worker.data.cifar10.name$$
-        - > git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ && 
+    taskRoles:
+      - name: worker
+        runtimeCommands:
+          - wget $$tasks.worker.data.cifar10.uri$$ -P data_$$tasks.worker.data.cifar10.name$$
+          - > git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
         cd script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ && git checkout $$tasks.worker.script.tf_cnnbenchmarks.version$$ && cd ..
-        - $$tasks.worker.command$$
-      ps_server:
-        - wget $$tasks.ps_server.data.cifar10.uri$$ -P data_$$tasks.ps_server.data.cifar10.name$$
-        - > git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ && 
+          - $$tasks.worker.command$$
+      - name: ps_server
+        runtimeCommands:
+          - wget $$tasks.ps_server.data.cifar10.uri$$ -P data_$$tasks.ps_server.data.cifar10.name$$
+          - > git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
           cd script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ && git checkout $$tasks.ps_server.script.tf_cnnbenchmarks.version$$ && cd ..
-        - $$tasks.ps_server.command$$
-        - hdfs dfs -cp output_$$tasks.ps_server.output.tf_cifar10_model.name$$ $$tasks.ps_server.output.tf_cifar10_model.uri$$
+          - $$tasks.ps_server.command$$
+          - hdfs dfs -cp output_$$tasks.ps_server.output.tf_cifar10_model.name$$ $$tasks.ps_server.output.tf_cifar10_model.uri$$
 
