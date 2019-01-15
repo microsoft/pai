@@ -1,4 +1,4 @@
-protocol_version: String, optional # Protocol version. Default is v2
+protocolVersion: String, required # Protocol version, current version is 2
 name: String, required
 type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output
 version: String, optional # Component version. Default is latest
@@ -6,7 +6,7 @@ contributor: String, optional
 description: String, optional
 
 prerequisites:
-  - protocol_version: String, optional # Protocol version. Default is v2
+  - protocolVersion: String, optional # If omitted, follow the protocolVersion in root
     name: String, required
     type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job"
     version: String, optional # Component version. Default is latest
@@ -43,13 +43,13 @@ taskRoles:
         gpu: Integer, required
         ports:
           <portLabel1>: Integer, optional, default is 0 # Only for host network
-      command:
+      commands:
         - String, required
 
-deployment_specific:
-  - protocol_version: String, optional # Protocol version, default is v2
+deployments:
+  - protocolVersion: String, optional # If omitted, follow the root protocolVersion
     name: String, required
-    virtualCluster: String # Default is "default"
+    virtualCluster: String, optional # Default is "default"
     taskRoles:
       - name: String, required # Should be the same as taskRoles.name
         preCommands:
@@ -59,7 +59,7 @@ deployment_specific:
 
 # Below is an example for distributed tensorflow:
 
-protocol_version: v2
+protocolVersion: 2
 name: tensorflow_cifar10
 type: job
 version: 1.0.0
@@ -67,7 +67,7 @@ contributor: Alice
 description: image classification, cifar10 dataset, tensorflow, distributed training
 
 prerequisites:
-  - protocol_version: v2
+  - protocolVersion: 2
     name: tf_example
     type: dockerimage
     version: latest
@@ -78,21 +78,21 @@ prerequisites:
       passward: user1
       registryuri: openpai.azurecr.io
     uri: openpai/pai.example.tensorflow
-  - protocol_version: v2
+  - protocolVersion: 2
     name: tensorflow_cifar10_model
     type: output
     version: latest
     contributor: Alice
     description: cifar10 data output
     uri: hdfs://10.151.40.179:9000/core/cifar10_model
-  - protocol_version: v2
+  - protocolVersion: 2
     name: tensorflow_cnnbenchmarks
     type: script
     version: 84820935288cab696c9c2ac409cbd46a1f24723d
     contributor: MaggieQi
     description: tensorflow benchmarks
     uri: https://github.com/MaggieQi/benchmarks
-  - protocol_version: v2
+  - protocolVersion: 2
     name: cifar10
     type: data
     version: latest
@@ -107,7 +107,7 @@ parameters:
 
 maxRetryCount: 1
 taskRoles:
-  - protocol_version: v2
+  - protocolVersion: 2
     name: worker
     taskNumber: 1
     completion:
@@ -125,14 +125,14 @@ taskRoles:
         memoryMB: 16384
         gpu: 4
         ports: { ssh: 0, http: 0 }
-      command:
+      commands:
         - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
         - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
         --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
         --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
         --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
         --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
-  - protocol_version: v2
+  - protocolVersion: 2
     name: ps_server
     taskNumber: 1
     completion:
@@ -150,7 +150,7 @@ taskRoles:
         memoryMB: 8192
         gpu: 0
         ports: { ssh: 0, http: 0 }
-      command:
+      commands:
         - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
         - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
         --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
@@ -158,8 +158,8 @@ taskRoles:
         --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
         --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
 
-deployment_specific:
-  - protocol_version: v2
+deployments:
+  - protocolVersion: 2
     name: no_data_cache_local_output_and_hdfs # This implementation assumes no local data cache, model output to local disk and being copied to hdfs
     version: 1.0.0
     virtualCluster: default
@@ -180,4 +180,3 @@ deployment_specific:
           # after the execution of $$taskRoles.ps_server.command$$, the system goes here
           - hdfs dfs -cp output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$ $$taskRoles.ps_server.output.tf_cifar10_model.uri$$
           # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly. In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
-
