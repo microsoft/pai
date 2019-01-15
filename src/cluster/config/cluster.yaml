@@ -24,6 +24,9 @@ common:
 
   qos-switch: "true"
 
+  az-rdma: "false"
+
+
 
 # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 docker-registry:
