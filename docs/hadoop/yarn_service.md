@@ -69,6 +69,39 @@ Currently, service should restart to refresh configuration:
 * step 3: Start service, command refers to [Deployment](#Deployment), new configuration will overwrite the old.
 
 
+Take VC updating as an example:
+
+VC feature leverages YARN scheduler queue, allows admin to split resources into multiple parts.
+By default, there is only one VC called `default`, 
+which take up 100% resources, related fields in `services-configuration.yaml` look like follows.
+```yaml
+virtualClusters:
+  default:
+    description: Default VC.
+    capacity: 100
+```
+If admin wants to reserve some resources for other usage, 
+a new VC(i.e., vc1) can be added:
+* step 1: Create a new VC called `vc1`, allocate a certain quota for it, 
+```yaml
+virtualClusters:
+  default:
+    description: Default VC.
+    capacity: 70
+  vc1:
+    capacity: 30
+```
+* step 2: Stop RM, `paictl.py service stop -p /path/to/cluster/config -n hadoop-resource-manager`
+* step 3: Restart RM, `paictl.py service start -p /path/to/cluster/config -n hadoop-resource-manager`
+
+Then, `vc1` will be available in webportal. 
+Similarly, admin can change VC quotas or delete a VC, 
+for deletion scenario, all running jobs under deleted VC should be stopped firstly.
+**During entire refreshment, admin must ensure the sum of all VC capacity equals to 100.**
+
+Todo:
+1. For items supporting configured at runtime, avoid restarting service to refresh.
+2. Automatic refreshment.
 
 ### Upgrading
 
