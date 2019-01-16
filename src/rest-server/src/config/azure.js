@@ -24,7 +24,8 @@ let azureData = {
 
 // define the schema for azure
 const azureSchema = Joi.object().keys({
-    azRDMA: Joi.string().validate('false', 'true'),
+    azRDMA: Joi.string().empty('')
+    .valid('false', 'true'),
 }).required();
 
 
