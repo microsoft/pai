@@ -18,7 +18,7 @@
 {% set prom_info = cluster_cfg["prometheus"] %}
 {% set has_alert_manager = cluster_cfg["alert-manager"]["configured"] %}
 {% set alert_manager_port = cluster_cfg["alert-manager"]["port"] %}
-
+{% set token_path = "/var/run/secrets/kubernetes.io/serviceaccount" %}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -31,14 +31,16 @@ data:
     scrape_configs:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{ prom_info["scrape_interval"] }}s
-      {% if 'serviceaccount_token_path' in cluster_cfg['kubernetes'] %}
-      tls_config:
-        ca_file: {{ cluster_cfg['kubernetes']['serviceaccount_token_path'] }}/ca.crt
-      bearer_token_file: {{ cluster_cfg['kubernetes']['serviceaccount_token_path'] }}/token
-      {% endif %}
       kubernetes_sd_configs:
-      - api_server: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+      - api_server: '{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}'
         role: pod
+      {% if token_path is not none %}
+      tls_config:
+        ca_file: {{ token_path }}/ca.crt
+      bearer_token_file: {{ token_path }}/token
+      kubernetes_sd_configs:
+      - role: pod
+      {% endif %}
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           regex: true
