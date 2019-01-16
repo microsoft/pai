@@ -46,7 +46,10 @@ taskRoles:
     commands:
       - String, required
 
-deployments:
+# to handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field.
+# e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
+# in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
+deployments: 
   - protocolVersion: String, optional # If omitted, follow the root protocolVersion
     name: String, required
     virtualCluster: String, optional # Default is "default"
@@ -160,9 +163,8 @@ taskRoles:
 
 deployments:
   - protocolVersion: 2
-    name: no_data_cache_local_output_and_hdfs # This implementation assumes no local data cache, model output to local disk and being copied to hdfs
-    version: 1.0.0
-    virtualCluster: default
+    name: default # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
+    version: 1.0.0    
     taskRoles:
       - name: worker
         preCommands:
