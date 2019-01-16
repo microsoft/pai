@@ -28,8 +28,8 @@ taskRoles:
     name: String, required  # Name of the taskRole
     instances: Integer, optional # Default is 1, instances of a taskRole
     completion:
-      minFailedTaskCount: Integer, optional # Default 1
-      minSucceededTaskCount: Integer or null, optional # Default null
+      minFailedInstances: Integer, optional # Default 1
+      minSucceededInstances: Integer or null, optional # Default null
     taskRetryCount: Integer, optional # Default is 0
     dockerimage: String, required # Should reference to a dockerimage defined in prerequisites.
     data: Object, optional # Default is None
@@ -56,9 +56,9 @@ deployments:
     taskRoles:
       - name: String, required # Should be the same as taskRoles.name
         preCommands:
-          - String, required # execute before $$taskRoles.task.commands$$
+          - String, required # execute before $$commands$$
         postCommands:
-          - String, required # execute after $$taskRoles.task.commands$$
+          - String, required # execute after $$commands$$
 
 # Below is an example for distributed tensorflow:
 
@@ -114,8 +114,8 @@ taskRoles:
     name: worker
     instance: 1
     completion:
-      minFailedTaskCount: 1
-      minSucceededTaskCount: 1
+      minFailedInstances: 1
+      minSucceededInstances: 1
     taskRetryCount: 0
     dockerimage: tf_example
     data: { cifar10: prerequisites.[data,cifar10] }
@@ -139,8 +139,8 @@ taskRoles:
     name: ps_server
     instances: 1
     completion:
-      minFailedTaskCount: 1
-      minSucceededTaskCount: null
+      minFailedInstances: 1
+      minSucceededInstances: null
     taskRetryCount: 0
     dockerimage: tf_example
     data: { cifar10: prerequisites.[data,cifar10] }
