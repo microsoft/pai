@@ -43,3 +43,15 @@ groups:
         for: 5m
         annotations:
           summary: "{{$labels.instance}} is under disk pressure"
+
+      - alert: NodeOutOfDisk
+        expr: pai_node_count{out_of_disk="true"} > 1
+        for: 5m
+        annotations:
+          summary: "{{$labels.instance}} is out of disk"
+
+      - alert: NodeNotReady
+        expr: pai_node_count{ready!="true"} > 1
+        for: 5m
+        annotations:
+          summary: "{{$labels.instance}} is not ready"
