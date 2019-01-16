@@ -95,3 +95,5 @@ spec:
         operator: "Exists"
       - key: node.kubernetes.io/disk-pressure
         operator: "Exists"
+      - key: node.kubernetes.io/out-of-disk
+        operator: "Exists"
