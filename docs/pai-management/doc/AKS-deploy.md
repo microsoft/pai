@@ -20,7 +20,7 @@
 ## OpenPAI deploy on AKS
 
 
-### AKS K8S cluster cluster
+### AKS K8S cluster characteristics
 
 AKS's k8s cluster has the following characteristics, affecting our targeted deployment configuration items.
 
