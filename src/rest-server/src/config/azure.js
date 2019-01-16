@@ -31,7 +31,7 @@ const azureSchema = Joi.object().keys({
 const {error, value} = Joi.validate(azureData, azureSchema);
 if (error) {
     throw new Error(`config error\n${error}`);
-};
+}
 azureData = value;
 
 module.exports = azureData;
