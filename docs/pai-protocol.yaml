@@ -5,7 +5,7 @@ version: String, optional # Component version. Default is latest
 contributor: String, optional
 description: String, optional
 
-prerequisites:
+prerequisites: # Optional
   - protocolVersion: String, optional # If omitted, follow the protocolVersion in root
     name: String, required
     type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job"
@@ -24,11 +24,11 @@ parameters: # Optional, can be omitted
 
 jobRetryCount: Integer, optional # Default is 0
 taskRoles:
-  - protocol_version: String, optional # Protocol version, default is v2
+  - protocol_version: String, optional # Protocol version, default is 2
     name: String, required  # Name of the taskRole
     instances: Integer, optional # Default is 1, instances of a taskRole
     completion:
-      minFailedInstances: Integer, optional # Default 1
+      minFailedInstances: Integer or null, optional # Default 1
       minSucceededInstances: Integer or null, optional # Default null
     taskRetryCount: Integer, optional # Default is 0
     dockerimage: String, required # Should reference to a dockerimage defined in prerequisites.
