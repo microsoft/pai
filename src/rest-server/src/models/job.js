@@ -426,7 +426,7 @@ class Job {
           'jobData': data,
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
-          'azRDMA': azureEnv.azRDMA,
+          'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
         });
     return yarnContainerScript;
   }
