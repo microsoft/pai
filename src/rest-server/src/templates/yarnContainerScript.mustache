@@ -261,7 +261,9 @@ docker run --name $docker_name \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{ taskData.cpuNumber }} \
+{{^ azRDMA }}
   --memory={{ taskData.memoryMB }}m \
+{{/ azRDNA }}
   --shm-size={{ taskData.shmMB }}m \
   $nvidia_devices \
   --device=/dev/fuse \
