@@ -169,7 +169,7 @@ deployments:
           - wget $$taskRoles.worker.data.cifar10.uri$$ -P data_$$taskRoles.worker.data.cifar10.name$$ # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
           - > git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
             cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.worker.script.tf_cnnbenchmarks.version$$ && cd ..
-          # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
+          # and the system will go ahead to execute $$taskRoles.worker.commands$$
       - name: ps_server
         preCommands:
           - wget $$taskRoles.ps_server.data.cifar10.uri$$ -P data_$$taskRoles.ps_server.data.cifar10.name$$
