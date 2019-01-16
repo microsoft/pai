@@ -108,7 +108,7 @@ config items at kubernetes-configuration.yaml:
 ```
 layout:
   kubernetes:
-    load-balance-ip: http://10.1.0.5
+    load-balance-ip: 10.1.0.5
 ```
 
 How to get:
