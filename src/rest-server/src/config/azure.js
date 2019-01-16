@@ -19,7 +19,7 @@
 const Joi = require('joi');
 
 let azureData = {
-  azRDMA: process.env.AZ_RDMA
+  azRDMA: process.env.AZ_RDMA,
 };
 
 // define the schema for azure
