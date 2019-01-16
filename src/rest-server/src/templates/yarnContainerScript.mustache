@@ -261,9 +261,7 @@ docker run --name $docker_name \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{ taskData.cpuNumber }} \
-{{^ azRDMA }}
   --memory={{ taskData.memoryMB }}m \
-{{/ azRDMA }}
   --shm-size={{ taskData.shmMB }}m \
   $nvidia_devices \
   --device=/dev/fuse \
@@ -275,7 +273,6 @@ docker run --name $docker_name \
   --device=/dev/infiniband/rdma_cm \
   --device=/dev/infiniband/uverbs0 \
   --ulimit memlock=-1  \
-  --ulimit nofile=256 \
 {{/ azRDMA }}
   --volume $container_local_dir/$alive_dir:/alive \
   --volume $container_local_dir/$alive_dir/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
