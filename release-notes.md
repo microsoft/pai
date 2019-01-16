@@ -24,7 +24,7 @@
 * Add log if job's image doesn't have ssh server - [PR 1675](https://github.com/Microsoft/pai/pull/1675)
 * Escape injected variables in shell scripts -[PR 1860](https://github.com/Microsoft/pai/pull/1860)
 * Add an example of how to integrate jupyter and pai by using restserver. -[PR 1676](https://github.com/Microsoft/pai/pull/1676)
-* Expose all ports among tasks and the format will be:PAI_${task_role}_${taskidx} _${portlabel}_PORT=${port_number}. -[PR 1918](https://github.com/Microsoft/pai/pull/1918)
+* Expose all ports among tasks and the format will be:PAI_${taskRole}_${taskidx} _${portLabel}_PORT=${portNumber}. -[PR 1918](https://github.com/Microsoft/pai/pull/1918)
 
 ### GPU driver
 * Make GPU drivers version configurable. - [PR 1626](https://github.com/Microsoft/pai/pull/1626)
