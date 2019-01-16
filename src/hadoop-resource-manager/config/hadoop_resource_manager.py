@@ -43,15 +43,6 @@ class HadoopResourceManager:
         else:
             return False, "No master node found in machine list"
 
-        total_capacity = 0
-        virtual_clusters_config = self.service_configuration["virtualClusters"]
-        for vc_name in virtual_clusters_config:
-            if virtual_clusters_config[vc_name]["capacity"] < 0:
-                return False, "Capacity of VC '%s' (=%f) should be a positive number." % (vc_name, virtual_clusters_config[vc_name]["capacity"])
-            total_capacity += virtual_clusters_config[vc_name]["capacity"]
-        if total_capacity != 100:
-            return False, "Total vc capacity doesn't equal to 100"
-
         return True, None
 
 
@@ -65,17 +56,6 @@ class HadoopResourceManager:
                 com["master-ip"] = host_config["hostip"]
                 break
 
-        virtual_clusters_config = self.service_configuration["virtualClusters"]
-
-        hadoop_queues_config = {}
-        for vc_name in virtual_clusters_config:
-            hadoop_queues_config[vc_name] = {
-                "description": virtual_clusters_config[vc_name]["description"],
-                "weight": float(virtual_clusters_config[vc_name]["capacity"])
-            }
-
-        com["virtualClusters"] = virtual_clusters_config
-        com["hadoopQueues"] = hadoop_queues_config
 
         return com
 

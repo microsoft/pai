@@ -13,10 +13,6 @@
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
-- `virtualClusters` Virtual cluster info, containers multiple sub-clusters, the total capacity should equal to 100.
-    - `virtualClusters.{name}` Sub-cluster name. 
-        - `virtualClusters.{name}.description` Comments, no influence.
-        - `virtualClusters.{name}.capacity` Resource quota.
    
 - `yarn_exporter_port` The port used to export yarn metrics.
 
@@ -27,10 +23,6 @@ All configurations in this section is optional. If you want to customized these 
 After parsing, object model looks like:
 ```yaml
 hadoop-resource-manager:
-    virtualClusters:
-      default:
-        description: Default VC.
-        capacity: 100
     
     yarn_exporter_port: 9459
 ```
@@ -44,24 +36,6 @@ hadoop-resource-manager:
     <td>Data in Cluster Object Model</td>
     <td>Data in Jinja2 Template</td>
     <td>Data type</td>
-</tr>
-<tr>
-    <td>hadoop-resource-manager.virtualClusters</td>
-    <td>com["hadoop-resource-manager"]["virtualClusters"]</td>
-    <td>cluster_cfg["hadoop-resource-manager"]["virtualClusters"]</td>
-    <td>Dict</td>
-</tr>
-<tr>
-    <td>hadoop-resource-manager.virtualClusters.{ vcName }.description</td>
-    <td>com["hadoop-resource-manager"]["virtualClusters"][{ vcName }]["description"]</td>
-    <td>cluster_cfg["hadoop-resource-manager"]["virtualClusters"][{ vcName }]["description"]</td>
-    <td>Str</td>
-</tr>
-<tr>
-    <td>hadoop-resource-manager.virtualClusters.{ vcName }.capacity</td>
-    <td>com["hadoop-resource-manager"]["virtualClusters"][{ vcName }]["capacity"]</td>
-    <td>cluster_cfg["hadoop-resource-manager"]["virtualClusters"][{ vcName }]["capacity"]</td>
-    <td>Int</td>
 </tr>
 <tr>
     <td>hadoop-resource-manager.yarn_exporter_port</td>
