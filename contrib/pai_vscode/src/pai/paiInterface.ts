@@ -1,0 +1,35 @@
+/**
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License in the project root for license information.
+ * @author Microsoft
+ */
+
+export interface IPAICluster {
+    name?: string;
+    username: string;
+    password: string;
+    rest_server_uri: string;
+    webhdfs_uri?: string;
+    grafana_uri?: string;
+    k8s_dashboard_uri?: string;
+    web_portal_uri?: string;
+}
+
+export interface IPAITaskRole {
+    name: string;
+    taskNumber: number;
+    cpuNumber: number;
+    gpuNumber: number;
+    memoryMB: number;
+    command: string;
+}
+
+export interface IPAIJobConfig {
+    jobName: string;
+    image: string;
+    dataDir?: string;
+    authFile?: string;
+    codeDir: string;
+    outputDir: string;
+    taskRoles: IPAITaskRole[];
+}
