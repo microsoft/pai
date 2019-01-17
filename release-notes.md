@@ -52,12 +52,12 @@ Or you can clone the code by running
   ```bash
   git clone --branch v0.9.0 git@github.com:Microsoft/pai.git
   ```
-* prepare your cluster configuration by instructions in [OpenPAI Configuration](./docs/pai-management/doc/how-to-write-pai-configuration.md).
-  In the *service-configuration.yaml* file, configure the docker info as following:
+* prepare your cluster configuration by instructions in [OpenPAI Configuration](./examples/cluster-configuration/services-configuration.yaml). Configure the docker info as following:
   ```yaml
-  docker-namespace: openpai
-  docker-registry-domain: docker.io
-  docker-tag: v0.9.0
+  docker-registry:
+    namespace: openpai
+    domain: docker.io
+    tag: v0.9.0
   ```
 * In the code source directory, upgrade by following steps:
   ```bash
