@@ -69,6 +69,29 @@ printf "%s %s\n%s\n\n" "[INFO]" "GPU_ID" "$gpu_id"
 printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 
 
+azure_rdma_env=''
+{{# reqAzRDMA }}
+{{# azRDMA }}
+
+azure_rdma_env+= ' --ulimit memlock=-1'
+azure_rdma_env+= ' --volume /var/lib/hyperv:/var/lib/hyperv'
+azure_rdma_env+= ' --volume /etc/dat.conf:/etc/dat.conf'
+azure_rdma_env+= ' --volume /opt/intel:/opt/intel'
+azure_rdma_env+= ' --device=/dev/infiniband/rdma_cm'
+azure_rdma_env+= ' --device=/dev/infiniband/uverbs0'
+
+printf "[INFO]: Request Azure RDMA, the environment: %s " "$azure_rdma_env"
+
+{{/ azRDMA }}
+
+{{^ azRDMA }}
+echo "[WARNING]: Azure RDMA configuration is not enabled, so paiAzureRDMA request fails!"
+echo "[WARNING]: Please contact with your cluster admin to consult about az-rdma configuraiton!" 
+{{/ azRDMA }}
+{{/ reqAzRDMA }}
+
+
+
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
   eval 'cred=($(hdfs dfs -cat {{ jobData.authFile }}))' \

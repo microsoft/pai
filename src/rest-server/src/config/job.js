@@ -25,7 +25,7 @@ const jobConfigSchema = Joi.object().keys({
     .required(),
   image: Joi.string()
     .required(),
-  paiAzRDMA: Joi.string()
+  paiAzureRDMA: Joi.string()
     .default('false')
     .valid('false', 'true'),
   authFile: Joi.string()
