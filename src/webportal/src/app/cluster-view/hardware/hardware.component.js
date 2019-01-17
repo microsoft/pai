@@ -156,7 +156,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
     url: prometheusUri + '/api/v1/query_range?' +
       'query=avg+by+(instance)(nvidiasmi_utilization_gpu)' +
       '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(data) {debugger
+    success: function(data) {
       initCells('gpu', instanceList, table);
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
