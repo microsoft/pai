@@ -161,7 +161,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpu:' + getHostname((item.metric.instance)));
+        const cellId = getCellId('gpu:' + getHostname(item.metric.instance));
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
@@ -187,7 +187,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpumem:' + getHostname((item.metric.instance)));
+        const cellId = getCellId('gpumem:' + getHostname(item.metric.instance));
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
@@ -226,7 +226,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
           const result = dataOfDiskBytesWritten.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('disk:' + getHostname((item.metric.instance)));
+            const cellId = getCellId('disk:' + getHostname(item.metric.instance));
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
             if (diskBytesRead && diskBytesWritten) {
@@ -277,7 +277,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
           const result = dataOfEthBytesSent.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('eth:' + getHostname((item.metric.instance)));
+            const cellId = getCellId('eth:' + getHostname(item.metric.instance));
             const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
             if (ethBytesReceived && ethBytesSent) {
