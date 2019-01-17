@@ -37,9 +37,7 @@ class serivce_management_start:
 
         self.cluster_object_model = None
 
-        self.kube_config_path = None
-        if kube_config_path != None:
-            self.kube_config_path = kube_config_path
+        self.kube_config_path = kube_config_path
 
         if service_list is None:
             self.service_list = service_management_configuration.get_service_list()
@@ -59,7 +57,7 @@ class serivce_management_start:
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
         service_starter = service_start.service_start(service_conf, serv)
 
-        dependency_list = service_starter.get_dependency()
+        dependency_list = service_conf.get("prerequisite")
         if dependency_list != None:
             for fat_serv in dependency_list:
                 if fat_serv not in self.service_list:

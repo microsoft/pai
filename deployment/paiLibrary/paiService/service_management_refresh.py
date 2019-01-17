@@ -86,7 +86,7 @@ class service_management_refresh:
         machinelist = self.cluster_object_model['layout']['machine-list']
         service_refresher = service_refresh.service_refresh(service_conf, serv, self.label_map)
 
-        dependency_list = service_refresher.get_dependency()
+        dependency_list = service_conf.get("prerequisite")
         if dependency_list != None:
             for fat_serv in dependency_list:
                 if fat_serv not in self.service_list:

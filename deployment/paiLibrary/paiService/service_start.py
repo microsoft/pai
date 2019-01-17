@@ -22,9 +22,7 @@ import logging.config
 from ..common import linux_shell
 
 
-
 class service_start:
-
 
     def __init__(self, service_conf, serivce_name):
 
@@ -32,8 +30,6 @@ class service_start:
 
         self.service_conf = service_conf
         self.service_name = serivce_name
-
-
 
     def start(self):
 
@@ -44,20 +40,6 @@ class service_start:
         self.logger.info("Begin to execute service {0}'s start script.".format(self.service_name))
         linux_shell.execute_shell_raise(cmd, err_msg)
 
-
-
-    def get_dependency(self):
-
-        if "prerequisite" not in self.service_conf:
-            return None
-        return self.service_conf["prerequisite"]
-
-
     def run(self):
 
         self.start()
-
-
-
-
-
