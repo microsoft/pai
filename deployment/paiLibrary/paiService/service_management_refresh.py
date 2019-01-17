@@ -68,7 +68,7 @@ class service_management_refresh:
     def refresh_all_label(self):
         self.logger.info("Begin to refresh all the nodes' labels")
         machinelist = self.cluster_object_model['layout']['machine-list']
-        
+
         labels = ['pai-master', 'pai-worker', 'no-driver', 'no-nodeexporter']
         logging.info("Currently supported labels: " + str(labels))
         for label in labels:
@@ -81,10 +81,10 @@ class service_management_refresh:
                 cmd_checklabel = "kubectl describe node " + nodename + " | grep -q " + label + "='true'"
                 has_label = linux_shell.execute_shell_return(cmd_checklabel, "")
                 # If machinelist config has defined the label, but the node did't have, label it
-                if label in machinelist[host]:  
-                    self.label_map[label].append(nodename)                    
+                if label in machinelist[host]:
+                    self.label_map[label].append(nodename)
                     if not has_label:
-                        self.logger.info("Label defined in cluster-configuration machinelist, label the node " + str(nodename) + " of " + label)                 
+                        self.logger.info("Label defined in cluster-configuration machinelist, label the node " + str(nodename) + " of " + label)
                         cmd = "kubectl label --overwrite=true nodes " + nodename + " " + label +"='true' || exit $?"
                         linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
                 # If machinelist config has not define the label, but the node has the label, remove it
@@ -108,7 +108,7 @@ class service_management_refresh:
         dependency_list = service_refresher.get_dependency()
         if dependency_list != None:
             for fat_serv in dependency_list:
-                if fat_serv not in self.service_list:	
+                if fat_serv not in self.service_list:
                     continue
                 if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
                     continue
@@ -134,8 +134,7 @@ class service_management_refresh:
 
     def run(self):
 
-        config_handler = service_management_configuration.service_management_configuration(kube_config_path=self.kube_config_path)
-        self.cluster_object_model = config_handler.run()
+        self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
 
         self.done_dict = dict()
         self.refresh_all_label()

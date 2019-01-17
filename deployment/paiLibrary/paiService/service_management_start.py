@@ -83,7 +83,7 @@ class serivce_management_start:
         dependency_list = service_starter.get_dependency()
         if dependency_list != None:
             for fat_serv in dependency_list:
-                if fat_serv not in self.service_list:	
+                if fat_serv not in self.service_list:
                     continue
                 if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
                     continue
@@ -130,8 +130,7 @@ class serivce_management_start:
 
     def run(self):
 
-        config_handler = service_management_configuration.service_management_configuration(kube_config_path = self.kube_config_path)
-        self.cluster_object_model = config_handler.run()
+        self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
 
         self.done_dict = dict()
 

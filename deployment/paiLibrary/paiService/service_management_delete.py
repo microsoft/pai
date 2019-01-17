@@ -95,8 +95,7 @@ class service_management_delete:
 
     def run(self):
 
-        config_handler = service_management_configuration.service_management_configuration(kube_config_path=self.kube_config_path)
-        self.cluster_object_model = config_handler.run()
+        self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
 
         for serv in self.service_list:
             if serv == "cluster-configuration":
