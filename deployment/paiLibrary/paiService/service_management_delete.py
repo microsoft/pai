@@ -37,9 +37,7 @@ class service_management_delete:
 
         self.cluster_object_model = None
 
-        self.kube_config_path = None
-        if kube_config_path != None:
-            self.kube_config_path = kube_config_path
+        self.kube_config_path = kube_config_path
 
         if service_list is None:
             self.service_list = service_management_configuration.get_service_list()
@@ -47,10 +45,18 @@ class service_management_delete:
             self.service_list = service_list
         self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))
 
+    def delete_service(self, service_conf, service_name):
+        from ..common import linux_shell
+        delete_script = "src/{0}/deploy/{1}".format(service_name, service_conf["delete-script"])
+
+        cmd = "/bin/bash {0}".format(delete_script)
+        err_msg = "Failed to execute the delete script of service {0}".format(service_name)
+        self.logger.info("Begin to execute service {0}'s delete script.".format(service_name))
+        linux_shell.execute_shell(cmd, err_msg)
+
     def start(self, serv):
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        service_deleter = service_delete.service_delete(service_conf, serv)
 
         self.logger.info("----------------------------------------------------------------------")
         self.logger.info("Begin to generate service {0}'s template file".format(serv))
@@ -60,7 +66,7 @@ class service_management_delete:
         service_template_generater.run()
 
         self.logger.info("Begin to delete service: [ {0} ]".format(serv))
-        service_deleter.run()
+        self.delete_service(service_conf, serv)
 
         self.logger.info("Begin to delete service's generated template file".format(serv))
         service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
