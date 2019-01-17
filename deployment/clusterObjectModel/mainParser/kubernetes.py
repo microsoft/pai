@@ -91,7 +91,13 @@ class Kubernetes:
         com_kubernetes["kube-scheduler-version"] = k8s_cfg["kube-scheduler-version"]
         com_kubernetes["kube-controller-manager-version"] = k8s_cfg["kube-controller-manager-version"]
         com_kubernetes["dashboard-version"] = k8s_cfg["dashboard-version"]
-        com_kubernetes["dashboard-host"] = self.get_k8s_dashboard_node_ip()
+
+        if "dashboard-url" in k8s_cfg:
+            com_kubernetes["dashboard-url"] = k8s_cfg['dashboard-url']
+        else:
+            com_kubernetes["dashboard-host"] = self.get_k8s_dashboard_node_ip()
+            com_kubernetes["dashboard-url"] = "http://{0}:9090".format(com_kubernetes["dashboard-host"])
+
         if "etcd-data-path" not in k8s_cfg:
             com_kubernetes["etcd-data-path"] = "/var/etcd/data"
         else:

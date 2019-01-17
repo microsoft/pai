@@ -45,7 +45,7 @@ spec:
         - name: GRAFANA_URI
           value: {{ cluster_cfg['grafana']['url'] }}
         - name: K8S_DASHBOARD_URI
-          value: http://{{ cluster_cfg['layout']['kubernetes']['dashboard-host'] }}:9090
+          value: {{ cluster_cfg['layout']['kubernetes']['dashboard-url'] }}
         - name: K8S_API_SERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: EXPORTER_PORT
