@@ -1,4 +1,5 @@
 # OpenPAI VS Code Client
+[![Build Status](https://openpai.visualstudio.com/PAIexp/_apis/build/status/pai_vscode?branchName=master)](https://openpai.visualstudio.com/PAIexp/_build/latest?definitionId=9?branchName=master)
 ## Get Started
 1. Run command 'PAI: Add PAI Cluster' from command palette (Ctrl+Shift+P)
 2. Fill in username, password and other fields and press "finish" button.
