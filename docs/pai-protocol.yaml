@@ -31,7 +31,7 @@ taskRoles:
       minFailedInstances: Integer or null, optional # Default 1
       minSucceededInstances: Integer or null, optional # Default null
     taskRetryCount: Integer, optional # Default is 0
-    dockerimage: String, required # Should reference to a dockerimage defined in prerequisites.
+    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites.
     data: Object, optional # Default is None
     output: Object, optional # Default is None
     script: Object, optional # Default is None
@@ -49,16 +49,21 @@ taskRoles:
 # to handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field.
 # e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
 # in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
+# one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
 deployments: 
   - protocolVersion: String, optional # If omitted, follow the root protocolVersion
-    name: String, required
-    virtualCluster: String, optional # Default is "default"
+    name: String, required    
     taskRoles:
       - name: String, required # Should be the same as taskRoles.name
         preCommands:
           - String, required # execute before $$commands$$
         postCommands:
           - String, required # execute after $$commands$$
+
+attachments: # optional, cluster specific parameters
+  -protocolVersion: String, optional
+   virtualCluster: String, optional
+
 
 # Below is an example for distributed tensorflow:
 
@@ -117,7 +122,7 @@ taskRoles:
       minFailedInstances: 1
       minSucceededInstances: 1
     taskRetryCount: 0
-    dockerimage: tf_example
+    dockerImage: tf_example
     data: { cifar10: prerequisites.[data,cifar10] }
     output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
     script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
@@ -142,7 +147,7 @@ taskRoles:
       minFailedInstances: 1
       minSucceededInstances: null
     taskRetryCount: 0
-    dockerimage: tf_example
+    dockerImage: tf_example
     data: { cifar10: prerequisites.[data,cifar10] }
     output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
     script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
