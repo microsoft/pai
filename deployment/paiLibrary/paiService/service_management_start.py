@@ -49,13 +49,21 @@ class serivce_management_start:
         if "retry_times" in kwargs:
             self.retry_times = kwargs["retry_times"]
 
+    def start_service(self, service_conf, service_name):
+        from ..common import linux_shell
+        start_script = "src/{0}/deploy/{1}".format(service_name, service_conf["start-script"])
+
+        cmd = "/bin/bash {0}".format(start_script)
+        err_msg = "Failed to execute the start script of service {0}".format(service_name)
+        self.logger.info("Begin to execute service {0}'s start script.".format(service_name))
+        linux_shell.execute_shell_raise(cmd, err_msg)
+
     def start(self, serv):
 
         if serv in self.done_dict and self.done_dict[serv] == True:
             return
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        service_starter = service_start.service_start(service_conf, serv)
 
         dependency_list = service_conf.get("prerequisite")
         if dependency_list != None:
@@ -76,7 +84,7 @@ class serivce_management_start:
                 service_template_generater.run()
 
                 self.logger.info("Begin to start service: [ {0} ]".format(serv))
-                service_starter.run()
+                self.start_service(service_conf, serv)
 
                 self.logger.info("Begin to clean all service's generated template file".format(serv))
                 service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
