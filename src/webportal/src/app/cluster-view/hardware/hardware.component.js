@@ -30,6 +30,8 @@ const webportalConfig = require('../../config/webportal.config.js');
 //
 let table = null;
 
+const getHostname = (host) => host.split(':', 1)[0];
+
 //
 
 const getCellId = (instanceName) => {
@@ -89,7 +91,7 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('cpu:' + item.metric.instance);
+        const cellId = getCellId('cpu:' + getHostname(item.metric.instance));
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
@@ -127,7 +129,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
           const result = dataOfMemTotal.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('mem:' + item.metric.instance);
+            const cellId = getCellId('mem:' + getHostname(item.metric.instance));
             const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
             table.cell(cellId).data(cellHtml);
@@ -159,7 +161,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpu:' + item.metric.instance);
+        const cellId = getCellId('gpu:' + getHostname(item.metric.instance));
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
@@ -185,7 +187,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpumem:' + item.metric.instance);
+        const cellId = getCellId('gpumem:' + getHostname(item.metric.instance));
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
@@ -224,7 +226,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
           const result = dataOfDiskBytesWritten.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('disk:' + item.metric.instance);
+            const cellId = getCellId('disk:' + getHostname(item.metric.instance));
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
             if (diskBytesRead && diskBytesWritten) {
@@ -275,7 +277,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
           const result = dataOfEthBytesSent.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('eth:' + item.metric.instance);
+            const cellId = getCellId('eth:' + getHostname(item.metric.instance));
             const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
             if (ethBytesReceived && ethBytesSent) {
@@ -326,7 +328,7 @@ const loadData = () => {
       }).api();
       let instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
-        instanceList.push(data.data.result[i].metric.instance);
+        instanceList.push(getHostname(data.data.result[i].metric.instance));
       }
       loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
       loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
