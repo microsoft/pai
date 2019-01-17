@@ -29,11 +29,9 @@ from ..common import directory_handler
 from ..common import file_handler
 
 
-
 class service_management_stop:
 
-
-    def __init__(self, kube_config_path = None, service_list = None, **kwargs):
+    def __init__(self, kube_config_path=None, service_list=None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = None
@@ -43,29 +41,10 @@ class service_management_stop:
             self.kube_config_path = kube_config_path
 
         if service_list is None:
-            self.service_list = self.get_service_list()
+            self.service_list = service_management_configuration.get_service_list()
         else:
             self.service_list = service_list
-
-
-
-    def get_service_list(self):
-
-        service_list = list()
-
-        subdir_list = directory_handler.get_subdirectory_list("src/")
-        for subdir in subdir_list:
-
-            service_deploy_dir = "src/{0}/deploy".format(subdir)
-            service_deploy_conf_path = "src/{0}/deploy/service.yaml".format(subdir)
-            if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
-                service_list.append(subdir)
-
-        self.logger.info("Get the service-list to manage : {0}".format(str(service_list)))
-
-        return service_list
-
-
+        self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))
 
     def start(self, serv):
 
@@ -89,8 +68,6 @@ class service_management_stop:
         self.logger.info("Successfully stop {0}".format(serv))
         self.logger.info("----------------------------------------------------------------------")
 
-
-
     def run(self):
 
         self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
@@ -106,5 +83,3 @@ class service_management_stop:
 
         if "cluster-configuration" in self.service_list:
             self.start("cluster-configuration")
-
-

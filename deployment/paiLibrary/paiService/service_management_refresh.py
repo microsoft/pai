@@ -31,8 +31,7 @@ from ..common import linux_shell
 
 class service_management_refresh:
 
-
-    def __init__(self, kube_config_path = None, service_list = None, **kwargs):
+    def __init__(self, kube_config_path=None, service_list=None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = None
@@ -42,28 +41,12 @@ class service_management_refresh:
             self.kube_config_path = kube_config_path
 
         if service_list is None:
-            self.service_list = self.get_service_list()
+            self.service_list = service_management_configuration.get_service_list()
         else:
             self.service_list = service_list
+        self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))
 
         self.label_map = dict()
-
-    def get_service_list(self):
-
-        service_list = list()
-
-        subdir_list = directory_handler.get_subdirectory_list("src/")
-        for subdir in subdir_list:
-
-            service_deploy_dir = "src/{0}/deploy".format(subdir)
-            service_deploy_conf_path =  "src/{0}/deploy/service.yaml".format(subdir)
-            if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
-                service_list.append(subdir)
-
-        self.logger.info("Get the service-list to manage : {0}".format(str(service_list)))
-
-        return service_list
-
 
     def refresh_all_label(self):
         self.logger.info("Begin to refresh all the nodes' labels")
@@ -85,16 +68,14 @@ class service_management_refresh:
                     self.label_map[label].append(nodename)
                     if not has_label:
                         self.logger.info("Label defined in cluster-configuration machinelist, label the node " + str(nodename) + " of " + label)
-                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + label +"='true' || exit $?"
+                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + label + "='true' || exit $?"
                         linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
                 # If machinelist config has not define the label, but the node has the label, remove it
                 else:
                     if has_label:
                         self.logger.info("Remove Node " + nodename + " label " + label + ", due to the cluster-configuration machinelist doesn't specify this label")
-                        cmd = "kubectl label nodes " + nodename + " " + label +"- || exit $?"
+                        cmd = "kubectl label nodes " + nodename + " " + label + "- || exit $?"
                         linux_shell.execute_shell(cmd, err_msg_prefix + " when kubectl label nodes")
-
-
 
     def start(self, serv):
 
@@ -130,7 +111,6 @@ class service_management_refresh:
         self.logger.info("-----------------------------------------------------------")
 
         self.done_dict[serv] = True
-
 
     def run(self):
 

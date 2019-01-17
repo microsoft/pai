@@ -16,21 +16,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import time
-import os
-import tempfile
-
-from ...confStorage.download import download_configuration
-from ...clusterObjectModel.cluster_object_model import cluster_object_model
-
-
 def gengerate_tmp_path():
+    import time
+    import os
+    import tempfile
+
     time_in_seconds = str(int(time.time()))
     sub_directory = "tmp-service-config-{0}".format(time_in_seconds)
     return os.path.join(tempfile.gettempdir(), sub_directory)
 
 
 def get_cluster_object_model_from_k8s(kube_config_path):
+    from ...confStorage.download import download_configuration
+    from ...clusterObjectModel.cluster_object_model import cluster_object_model
+
     tmp_path = gengerate_tmp_path()
 
     config_get_handler = download_configuration(config_output_path=tmp_path, kube_config_path=kube_config_path)
@@ -40,3 +39,17 @@ def get_cluster_object_model_from_k8s(kube_config_path):
     cluster_object_service = objectModelFactoryHandler.service_config()
 
     return cluster_object_service
+
+
+def get_service_list():
+    from ..common import directory_handler
+    from ..common import file_handler
+
+    service_list = list()
+    subdir_list = directory_handler.get_subdirectory_list("src/")
+    for subdir in subdir_list:
+        service_deploy_dir = "src/{0}/deploy".format(subdir)
+        service_deploy_conf_path = "src/{0}/deploy/service.yaml".format(subdir)
+        if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
+            service_list.append(subdir)
+    return service_list
