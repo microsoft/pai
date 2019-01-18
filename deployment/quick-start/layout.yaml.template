@@ -21,7 +21,7 @@
 # kubernetes api server and dashboard host
 kubernetes:
   api-servers-url: {{ env["api-servers-url"] }}
-  dashboard-host: {{ env["dashboard-host"] }}
+  dashboard-url: {{ env["dashboard-url"] }}
 
 # TODO please modify it according to your own hardware
 machine-sku:

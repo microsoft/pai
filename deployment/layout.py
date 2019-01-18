@@ -1,6 +1,7 @@
 from kubernetes import client, config
 import yaml
 
+
 def generate_layout(output_file):
     # init client
     config.load_kube_config()
@@ -8,8 +9,10 @@ def generate_layout(output_file):
 
     # api server url
     api_servers_url = v1.api_client.configuration.host
-    # TODO dashboard-host
-    dashboard_host = "dashboard_host"
+    # generate dashboard-url
+    services = v1.list_service_for_all_namespaces(field_selector="metadata.name=kubernetes-dashboard", pretty=False, timeout_seconds=56, watch=False)
+    dashboard_service = services.items[0]
+    dashboard_url = "http://{0}:80".format(dashboard_service.spec.cluster_ip)
 
     # query k8s nodes
     nodes = v1.list_node(pretty=False, timeout_seconds=56, watch=False)
@@ -26,7 +29,7 @@ def generate_layout(output_file):
                 # TODO nodename == hostname on aks
                 machine['nodename'] = address.address
         machineList.append(machine)
-    machineList.sort(key = lambda k : k['hostname'])
+    machineList.sort(key=lambda k: k['hostname'])
 
     # assgin pai-master
     master = machineList[0]
@@ -53,7 +56,7 @@ GENERIC:
     layout = {
         "kubernetes": {
             "api-servers-url": api_servers_url,
-            "dashboard-host": dashboard_host
+            "dashboard-url": dashboard_url
         },
         "machine-sku": machineSku,
         "machine-list": machineList
@@ -61,4 +64,3 @@ GENERIC:
     # print(yaml.dump(layout, default_flow_style=False))
     with open(output_file, 'w') as outfile:
         yaml.dump(layout, outfile, default_flow_style=False)
-
