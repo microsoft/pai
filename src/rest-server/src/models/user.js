@@ -240,7 +240,7 @@ const getUserGithubPAT = (username, next) => {
       if (err) {
         return next(err);
       }
-      let githubPAT = res[0]['data']['githubPAT'];
+      let githubPAT = res[0]['githubPAT'];
       next(null, githubPAT);
     });
   }
