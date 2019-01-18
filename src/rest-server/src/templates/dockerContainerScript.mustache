@@ -153,6 +153,21 @@ else
     "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
 
+{{# azRDMA }}
+function  azure_rdma_preparation()
+{
+    # https://unix.stackexchange.com/questions/404189/find-and-sed-string-in-docker-got-error-device-or-resource-busy
+    cp /etc/hosts /hosts.tmp
+
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost" /hosts.tmp
+
+
+
+
+    cat /hosts.tmp > /etc/hosts
+}
+{{/ azRDMA }}
+
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 

@@ -439,6 +439,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'webHdfsUri': launcherConfig.webhdfsUri,
+          'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
         });
     return dockerContainerScript;
   }
