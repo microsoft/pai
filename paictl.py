@@ -26,14 +26,13 @@ import argparse
 import logging
 import logging.config
 
-from deployment.confStorage.download import  download_configuration
+from deployment.confStorage.download import download_configuration
 from deployment.confStorage.synchronization import synchronization
 from deployment.confStorage.external_version_control.external_config import uploading_external_config
 from deployment.confStorage.get_cluster_id import get_cluster_id
 
 from deployment.paiLibrary.common import linux_shell
 from deployment.paiLibrary.common import file_handler
-from deployment.paiLibrary.clusterObjectModel import objectModelFactory
 from deployment.paiLibrary.paiService import service_management_start
 from deployment.paiLibrary.paiService import service_management_stop
 from deployment.paiLibrary.paiService import service_management_delete
@@ -130,9 +129,9 @@ class Machine(SubCmd):
 
         def add_arguments(parser):
             parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                    help="The path of your configuration directory.")
+                                help="The path of your configuration directory.")
             parser.add_argument("-l", "--node-list", dest="node_list", required=True,
-                    help="The node-list to be operator")
+                                help="The node-list to be operator")
 
         add_parser = SubCmd.add_handler(machine_parser, self.machine_add, "add")
         remove_parser = SubCmd.add_handler(machine_parser, self.machine_remove, "remove")
@@ -188,7 +187,7 @@ class Machine(SubCmd):
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
 
-        update_worker = k8s_update.update(kube_config_path = args.kube_config_path)
+        update_worker = k8s_update.update(kube_config_path=args.kube_config_path)
         update_worker.run()
         logger.info("Congratulations! Machine update is finished.")
 
@@ -302,7 +301,7 @@ class Cluster(SubCmd):
         env_parser = SubCmd.add_handler(cluster_parser, self.k8s_set_environment, "k8s-set-env")
 
         bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-            help="path of cluster configuration file")
+                                   help="path of cluster configuration file")
 
         clean_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
         clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
@@ -380,14 +379,14 @@ class Configuration(SubCmd):
                                              description="Generate configuration files based on a quick-start yaml file.",
                                              formatter_class=argparse.RawDescriptionHelpFormatter)
         push_parser = SubCmd.add_handler(conf_parser, self.push_configuration, "push",
-                                           description="Push configuration to kubernetes cluster as configmap.",
-                                           formatter_class=argparse.RawDescriptionHelpFormatter)
+                                         description="Push configuration to kubernetes cluster as configmap.",
+                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         pull_parser = SubCmd.add_handler(conf_parser, self.pull_configuration, "pull",
-                                        description="Get the configuration stored in the k8s cluster.",
-                                        formatter_class=argparse.RawDescriptionHelpFormatter)
+                                         description="Get the configuration stored in the k8s cluster.",
+                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         get_id_parser = SubCmd.add_handler(conf_parser, self.get_cluster_id, "get-id",
-                                        description="Get the cluster-id stored in the k8s cluster.",
-                                        formatter_class=argparse.RawDescriptionHelpFormatter)
+                                           description="Get the cluster-id stored in the k8s cluster.",
+                                           formatter_class=argparse.RawDescriptionHelpFormatter)
         external_config_update_parser = SubCmd.add_handler(conf_parser, self.update_external_config, "external-config-update",
                                                            description="Update configuration of external storage where you could configure the place to sync the latest cluster configuration",
                                                            formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -405,12 +404,12 @@ class Configuration(SubCmd):
         mutually_update_option.add_argument("-e", "--external-storage-conf-path", dest="external_storage_conf_path",  default=None,
                                             help="the path of external storage configuration.")
         push_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
-                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+                                 help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
         pull_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
-                                help="the path of the directory to store the configuration downloaded from k8s.")
+                                 help="the path of the directory to store the configuration downloaded from k8s.")
         pull_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
-                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+                                 help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
         get_id_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
@@ -422,9 +421,9 @@ class Configuration(SubCmd):
 
     def generate_configuration(self, args):
         cluster_util.generate_configuration(
-                args.quick_start_config_file,
-                args.configuration_directory,
-                args.force)
+            args.quick_start_config_file,
+            args.configuration_directory,
+            args.force)
 
     def push_configuration(self, args):
         if args.cluster_conf_path != None:
@@ -446,12 +445,12 @@ class Configuration(SubCmd):
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
         get_handler = download_configuration(
-            config_output_path = args.config_output_path,
-            kube_config_path = args.kube_config_path
+            config_output_path=args.config_output_path,
+            kube_config_path=args.kube_config_path
         )
         get_handler.run()
 
-    def get_cluster_id(self,args):
+    def get_cluster_id(self, args):
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
         get_id_handler = get_cluster_id(kube_config_path=args.kube_config_path)
@@ -468,11 +467,13 @@ class Configuration(SubCmd):
         )
         external_conf_update.update_latest_external_configuration()
 
+
 def handle_layout(args):
     # TODO now no options implemented
     print(args)
     from deployment import layout
     layout.generate_layout(args.output + "/layout.yaml")
+
 
 def check(args):
     import os
@@ -484,6 +485,7 @@ def check(args):
     print("service-configuration.yaml existing:", os.path.exists(serviceConfigFile))
     print("kubernetes ready:", True)
     print("Configuration valid:", True)
+
 
 def main(args):
     parser = argparse.ArgumentParser()
@@ -507,7 +509,7 @@ def main(args):
         "service": Service(),
         "cluster": Cluster(),
         "config": Configuration()
-        }.items():
+    }.items():
         subcmd_parser = sub_parser.add_parser(name)
         subcmd_parser.set_defaults(handler=subcmd.run)
         subcmd.register(subcmd_parser)
