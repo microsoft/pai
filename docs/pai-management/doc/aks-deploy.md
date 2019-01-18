@@ -29,7 +29,7 @@ Users can refer to the AKS official documentation to [deploy an AKS cluster thro
 ***Precautions***:
 
 - Use the ***az aks create*** command to create an AKS cluster. Configure the node os disk through the configuration item ***--node-osdisk-size to*** have large disk space. 
-
+- Disable api-server RBAC when create cluster by param ["--disable-rbac"](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create). OpenPAI will enable aks rbac related feature in the next round.
 - Admin could open the OpenPAI homepage to the external network users through [Azure load balancer and service](https://docs.microsoft.com/en-us/azure/aks/static-ip). Redirect public ip to port 80 (default is OpenPAI entry page default 80 port)
 
 For [this step](https://docs.microsoft.com/en-us/azure/aks/static-ip#create-a-service-using-the-static-ip-address): your k8s service load balancer config to select app pylon.
