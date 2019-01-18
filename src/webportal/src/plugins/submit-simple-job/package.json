@@ -1,0 +1,32 @@
+{
+  "name": "submit-simple-job",
+  "version": "1.0.0",
+  "description": "PAI web portal plugin for submit simple job",
+  "main": "index.tsx",
+  "scripts": {
+    "build": "webpack",
+    "test": "tslint"
+  },
+  "author": "Qixiang Cheng <Qixiang.Cheng@microsoft.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
+  },
+  "dependencies": {
+    "@types/classnames": "^2.2.7",
+    "@types/js-cookie": "^2.2.0",
+    "@types/react": "^16.7.20",
+    "@types/react-dom": "^16.0.11",
+    "@types/whatwg-fetch": "0.0.33",
+    "classnames": "^2.2.6",
+    "fetch": "^1.1.0",
+    "js-cookie": "^2.2.0",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "whatwg-fetch": "^3.0.0"
+  }
+}
