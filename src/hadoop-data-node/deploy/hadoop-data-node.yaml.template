@@ -73,6 +73,10 @@ spec:
           value: datanode-start-service.sh
         - name: HADOOP_DATANODE_DATA_DIR
           value: {{ mount_points|join(",") }}
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
