@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest-lite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rest-lite
+  template:
+    metadata:
+      labels:
+        app: rest-lite
+      name: rest-lite
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: pai-master
+                operator: In
+                values:
+                - 'true'
+      containers:
+      - command:
+        - python
+        - rest.py
+        - -k
+        - http://10.151.40.234:8080
+        - -u
+        - nfs://1.1.1.1
+        image: docker.io/xudifsd/rest-lite:latest
+        imagePullPolicy: Always
+        name: rest-lite
+        resources:
+          limits:
+            memory: 256Mi
+      hostNetwork: true
+      imagePullSecrets:
+      - name: pai-secret
+
