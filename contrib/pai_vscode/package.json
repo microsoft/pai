@@ -1,0 +1,291 @@
+{
+    "name": "pai-vscode",
+    "displayName": "OpenPAI VS Code Client",
+    "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
+    "version": "0.0.1",
+    "publisher": "OpenPAIVSCodeClient",
+    "preview": true,
+    "repository": {
+        "url": "https://github.com/Microsoft/pai"
+    },
+    "engines": {
+        "vscode": "^1.27.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*",
+        "onFileSystem:webhdfs"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "paiext.cluster.dashboard.open",
+                "title": "%paiext.cluster.dashboard.open%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.list",
+                "title": "%paiext.cluster.job.list%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.submit",
+                "title": "%paiext.cluster.job.submit%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.simulate",
+                "title": "%paiext.cluster.job.simulate%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.create-config",
+                "title": "%paiext.cluster.job.create-config%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.delete",
+                "title": "%paiext.cluster.delete%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.edit",
+                "title": "%paiext.cluster.edit%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.hdfs.open",
+                "title": "%paiext.hdfs.open%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.hdfs.upload.files",
+                "title": "%paiext.hdfs.upload.files%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.hdfs.upload.folders",
+                "title": "%paiext.hdfs.upload.folders%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.hdfs.download",
+                "title": "%paiext.hdfs.download%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.refresh",
+                "title": "%paiext.cluster.refresh%",
+                "icon": {
+                    "light": "icons/refresh_light.svg",
+                    "dark": "icons/refresh_dark.svg"
+                },
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.add",
+                "title": "%paiext.cluster.add%",
+                "icon": {
+                    "light": "icons/add_light.svg",
+                    "dark": "icons/add_dark.svg"
+                },
+                "category": "PAI"
+            }
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "PAIExplorer",
+                    "name": "%explorer.paiClusterExplorer%"
+                }
+            ]
+        },
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "paiext.cluster.job.list",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.edit",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.hdfs.open",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.hdfs.upload.files",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.hdfs.upload.folders",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.hdfs.download",
+                    "when": "false"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "paiext.cluster.refresh",
+                    "when": "view == PAIExplorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.cluster.add",
+                    "when": "view == PAIExplorer",
+                    "group": "navigation"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "paiext.cluster.job.create-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.cluster.job.submit",
+                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.cluster.job.simulate",
+                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.hdfs.download",
+                    "when": "resourceScheme == webhdfs"
+                },
+                {
+                    "command": "paiext.hdfs.upload.files",
+                    "when": "resourceScheme == webhdfs && !resourceIsFile"
+                },
+                {
+                    "command": "paiext.hdfs.upload.folders",
+                    "when": "resourceScheme == webhdfs && !resourceIsFile"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "paiext.cluster.job.create-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.cluster.job.submit",
+                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.cluster.job.simulate",
+                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "paiext.cluster.edit",
+                    "when": "view == PAIExplorer && viewItem == PAIConfiguration"
+                },
+                {
+                    "command": "paiext.cluster.delete",
+                    "when": "view == PAIExplorer && viewItem == PAIConfiguration"
+                }
+            ]
+        },
+        "jsonValidation": [
+            {
+                "fileMatch": "*.pai.json*",
+                "url": "./schemas/pai_job_config.schema.json"
+            },
+            {
+                "fileMatch": "pai_cluster_*.json*",
+                "url": "./schemas/pai_cluster.schema.json"
+            },
+            {
+                "fileMatch": "pai_full_configuration.json*",
+                "url": "./schemas/pai_configuration.schema.json"
+            }
+        ],
+        "configuration": {
+            "title": "%config.title%",
+            "properties": {
+                "pai.job.upload.enabled": {
+                    "type": "boolean",
+                    "description": "%config.job.upload.enabled%",
+                    "default": null
+                },
+                "pai.job.upload.exclude": {
+                    "type": "array",
+                    "description": "%config.job.upload.exclude%"
+                },
+                "pai.job.upload.include": {
+                    "type": "array",
+                    "description": "%config.job.upload.include%"
+                },
+                "pai.job.generateJobName.enabled": {
+                    "type": "boolean",
+                    "description": "%config.job.generateJobName.enabled%",
+                    "default": null
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "package": "vsce package",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^5.0.4",
+        "@types/globalize": "^0.0.34",
+        "@types/globby": "^8.0.0",
+        "@types/lodash": "^4.14.117",
+        "@types/mocha": "^5.2.5",
+        "@types/nock": "^9.3.0",
+        "@types/node": "^8.10.25",
+        "@types/opn": "^5.1.0",
+        "@types/request": "^2.47.1",
+        "@types/request-promise-native": "^1.0.15",
+        "@types/semver-compare": "^1.0.0",
+        "@types/uuid": "^3.4.4",
+        "nock": "^10.0.1",
+        "tslint": "^5.8.0",
+        "tslint-language-service": "^0.9.9",
+        "tslint-microsoft-contrib": "^5.2.1",
+        "typescript": "^3.1.1",
+        "vsce": "^1.53.0",
+        "vscode": "^1.1.21"
+    },
+    "dependencies": {
+        "ajv": "^6.5.4",
+        "fs-extra": "^7.0.0",
+        "globalize": "^1.4.0",
+        "globby": "^8.0.1",
+        "inversify": "^4.14.0",
+        "json-inline-doc": "^2.0.1",
+        "json-schema-ref-parser": "^6.0.2",
+        "jsonc-parser": "^2.0.2",
+        "lodash": "^4.17.11",
+        "opn": "^5.4.0",
+        "reflect-metadata": "^0.1.12",
+        "request": "^2.88.0",
+        "request-promise-native": "^1.0.5",
+        "semver-compare": "^1.0.0",
+        "streamifier": "^0.1.1",
+        "unixify": "^1.0.0",
+        "uuid": "^3.3.2",
+        "webhdfs": "^1.2.0"
+    }
+}

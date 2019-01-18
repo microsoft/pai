@@ -1,0 +1,143 @@
+{
+    "type": "object",
+    "description": "PAI job config",
+    "properties": {
+        "jobName": {
+            "type": "string",
+            "description": "Name for the job, need to be unique",
+            "pattern": "^[A-Za-z0-9\\-._~]+$"
+        },
+        "image": {
+            "type": "string",
+            "description": "URL pointing to the Docker image for all tasks in the job"
+        },
+        "authFile": {
+            "type": "string",
+            "description": "Docker registry authentication file existing on HDFS"
+        },
+        "dataDir": {
+            "type": "string",
+            "description": "Data directory existing on HDFS.\nFull HDFS path will be exported as an environment variable $PAI_DATA_DIR."
+        },
+        "outputDir": {
+            "type": "string",
+            "description": "Output directory on HDFS, $PAI_DEFAULT_FS_URI/Output/$jobName will be used if not specified.\nFull HDFS path will be exported as an environment variable $PAI_OUTPUT_DIR."
+        },
+        "codeDir": {
+            "type": "string",
+            "description": "Code directory existing on HDFS.\nFull HDFS path will be exported as an environment variable $PAI_CODE_DIR."
+        },
+        "virtualCluster": {
+            "type": "string",
+            "description": "The virtual cluster job runs on. If omitted, the job will run on default virtual cluster"
+        },
+        "taskRoles": {
+            "type": "array",
+            "description": "List of taskRole, one task role at least",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the task role, need to be unique with other roles",
+                        "pattern": "^[A-Za-z0-9\\-._~]+$"
+                    },
+                    "taskNumber": {
+                        "type": "integer",
+                        "description": "Number of tasks for the task role, no less than 1",
+                        "minimum": 1
+                    },
+                    "cpuNumber": {
+                        "type": "integer",
+                        "description": "CPU number for one task in the task role, no less than 1",
+                        "minimum": 1
+                    },
+                    "memoryMB": {
+                        "type": "integer",
+                        "description": "Memory for one task in the task role, no less than 100",
+                        "minimum": 100
+                    },
+                    "shmMB": {
+                        "type": "integer",
+                        "description": "Shared memory for one task in the task role, no more than memory size. The default value is 64MB"
+                    },
+                    "gpuNumber": {
+                        "type": "integer",
+                        "description": "GPU number for one task in the task role, no less than 0",
+                        "minimum": 0
+                    },
+                    "portList": {
+                        "type": "array",
+                        "description": "List of portType to use",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "description": "Label name for the port type",
+                                    "pattern": "^[A-Za-z0-9._~]+$"
+                                },
+                                "beginAt": {
+                                    "type": "number",
+                                    "description": "The port to begin with in the port type, 0 for random selection"
+                                },
+                                "portNumber": {
+                                    "type": "number",
+                                    "description": "Number of ports for the specific type"
+                                }
+                            },
+                            "required": [
+                                "label",
+                                "beginAt",
+                                "portNumber"
+                            ]
+                        }
+                    },
+                    "command": {
+                        "type": "string",
+                        "description": "Executable command for tasks in the task role, can not be empty\n** PLEASE CHANGE MANUALLY **",
+                        "minLength": 1,
+                        "pattern": "^(?!.*<start up script>)"
+                    },
+                    "minFailedTaskCount": {
+                        "type": ["integer", "null"],
+                        "description": "Number of failed tasks to kill the entire job, null or no less than 1",
+                        "minimum": 1
+                    },
+                    "minSucceededTaskCount": {
+                        "type": ["integer", "null"],
+                        "description": "Number of succeeded tasks to kill the entire job, null or no less than 1",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "name",
+                    "taskNumber",
+                    "cpuNumber",
+                    "memoryMB",
+                    "gpuNumber",
+                    "command"
+                ]
+            },
+            "minItems": 1
+        },
+        "gpuType": {
+            "type": "string",
+            "description": "Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type"
+        },
+        "retryCount": {
+            "type": "integer",
+            "description": "Job retry count, no less than 0",
+            "minimum": 0
+        },
+        "jobEnvs": {
+            "type": "object",
+            "description": "Job env parameters, key-value pairs, available in job container and no substitution allowed"
+        }
+    },
+    "required": [
+        "jobName",
+        "image",
+        "taskRoles"
+    ]
+}

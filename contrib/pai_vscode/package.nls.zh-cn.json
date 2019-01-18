@@ -1,0 +1,21 @@
+{
+    "explorer.paiClusterExplorer": "PAI 集群浏览器",
+    "paiext.cluster.add": "添加 PAI 集群",
+    "paiext.cluster.edit": "编辑 PAI 集群配置",
+    "paiext.cluster.delete": "删除 PAI 集群配置",
+    "paiext.cluster.refresh": "刷新",
+    "paiext.hdfs.open": "打开 HDFS",
+    "paiext.hdfs.upload.files": "上传文件...",
+    "paiext.hdfs.upload.folders": "上传文件夹...",
+    "paiext.hdfs.download": "下载...",
+    "paiext.cluster.dashboard.open": "打开仪表板",
+    "paiext.cluster.job.list": "打开任务列表",
+    "paiext.cluster.job.submit": "在 PAI 集群上提交任务",
+    "paiext.cluster.job.create-config": "创建 PAI 任务配置 JSON 文件",
+    "paiext.cluster.job.simulate": "模拟 PAI 任务执行",
+    "config.title": "OpenPAI VS Code 客户端设置",
+    "config.job.upload.enabled": "控制插件是否会自动将项目源代码上传至 PAI 任务配置文件的 CodeDir",
+    "config.job.upload.exclude": "控制排除文件、文件夹的 Glob 模式",
+    "config.job.upload.include": "控制包括文件、文件夹的 Glob 模式",
+    "config.job.generateJobName.enabled": "控制插件是否会在提交任务时，自动在任务名称后添加随机字符串，以避免重复"
+}
