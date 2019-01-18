@@ -160,12 +160,14 @@ function  azure_rdma_preparation()
     cp /etc/hosts /hosts.tmp
 
     sed -i "/127.0.0.1/c\127.0.0.1 localhost" /hosts.tmp
-
-
-
+{{# paiMachineList }}
+    echo {{hostip}} {{hostname}} >> /hosts.tmp
+{{/ paiMachineList }}
 
     cat /hosts.tmp > /etc/hosts
 }
+
+azure_rdma_preparation
 {{/ azRDMA }}
 
 # Write env to system-wide environment
