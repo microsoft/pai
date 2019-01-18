@@ -21,7 +21,6 @@ import logging
 import time
 import logging.config
 #
-from . import service_start
 from . import service_template_generate
 from . import service_template_clean
 from . import service_management_configuration

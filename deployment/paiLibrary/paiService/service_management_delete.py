@@ -21,7 +21,6 @@ import logging
 import logging.config
 #
 from deployment.paiLibrary.common import file_handler
-from . import service_delete
 from . import service_template_generate
 from . import service_template_clean
 from . import service_management_configuration

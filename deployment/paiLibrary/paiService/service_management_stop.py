@@ -20,7 +20,6 @@ import time
 import logging
 import logging.config
 
-from . import service_stop
 from . import service_template_generate
 from . import service_template_clean
 from . import service_management_configuration
