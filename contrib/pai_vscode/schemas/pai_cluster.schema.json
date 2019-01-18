@@ -1,0 +1,49 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "PAI cluster name"
+        },
+        "username": {
+            "type": "string",
+            "description": "PAI cluster user name",
+            "minLength": 1
+        },
+        "password": {
+            "type": "string",
+            "description": "PAI cluster password",
+            "minLength": 1
+        },
+        "rest_server_uri": {
+            "type": "string",
+            "description": "PAI rest api endpoint",
+            "pattern": "^(?!https?:\/\/).*"
+        },
+        "webhdfs_uri": {
+            "type": "string",
+            "description": "PAI webhdfs endpoint",
+            "pattern": "^(?!https?:\/\/).*"
+        },
+        "grafana_uri": {
+            "type": "string",
+            "description": "PAI grafana dashboard endpoint",
+            "pattern": "^(?!https?:\/\/).*"
+        },
+        "k8s_dashboard_uri": {
+            "type": "string",
+            "description": "PAI kubernetes dashboard endpoint",
+            "pattern": "^(?!https?:\/\/).*"
+        },
+        "web_portal_uri": {
+            "type": "string",
+            "description": "PAI web portal endpoint",
+            "pattern": "^(?!https?:\/\/).*"
+        }
+    },
+    "required": [
+        "username",
+        "password",
+        "rest_server_uri"
+    ]
+}
