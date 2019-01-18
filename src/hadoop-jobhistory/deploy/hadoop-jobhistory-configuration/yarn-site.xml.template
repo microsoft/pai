@@ -13,7 +13,6 @@
   limitations under the License. See accompanying LICENSE file.
 -->
 
-
 <configuration>
 
     <property>
@@ -27,43 +26,10 @@
         <value>204800</value>
         <description>Number of memory that can be allocated for containers.</description>
     </property>
-    
-    <property>
-        <name>yarn.resourcemanager.max-completed-applications</name>
-        <value>1000</value>
-        <description>maximum number of completed applications</description>
-    </property>
 
-    <property>
-        <name>yarn.resourcemanager.bind-host</name>
-        <value>0.0.0.0</value>
-    </property>
-
-    <property>
-        <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>1048576</value>
-        <description>default is 8GB, here we set 1024G</description>
-    </property>
-
-    <property>
-        <name>yarn.scheduler.configuration.store.class</name>
-        <value>zk</value>
-        <description>default is file, change it to zk to enable config by rest api</description>
-    </property>
-    
     <property>
       <name>yarn.resourcemanager.scheduler.class</name>
       <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
-    </property>
-    
-    <property>
-      <name>yarn.resourcemanager.scheduler.monitor.enable</name>
-      <value>true</value>
-    </property>
-    
-    <property>
-      <name>yarn.resourcemanager.scheduler.monitor.policies</name>
-      <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
     </property>
 
     <property>
@@ -104,7 +70,7 @@
 
     <property>
       <name>yarn.log-aggregation.retain-seconds</name>
-       <value>604800</value>
+       <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "yarn_log_retain_seconds" ] }}</value>
     </property>
 
     <property>
@@ -141,12 +107,7 @@
         <name>yarn.log.server.url</name>
         <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
     </property>
-    
-    <property>
-      <name>yarn.nodemanager.recovery.enabled</name>
-      <value>true</value>
-    </property>
-    
+
     <property>
       <name>yarn.nodemanager.recovery.dir</name>
       <value>/var/lib/yarn/yarn-nm-recovery</value>
@@ -222,57 +183,5 @@
         <value>true</value>
     </property>
 
-  <property>
-    <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
-    <value>1500000</value>
-  </property>
 
-  <property>
-    <name>yarn.nm.liveness-monitor.expiry-interval-ms</name>
-    <value>900000</value>
-  </property>
-
-  <property>
-    <name>yarn.am.liveness-monitor.expiry-interval-ms</name>
-    <value>1000000</value>
-  </property>
-
-  <property>
-    <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
-    <value>88000</value>
-  </property>
-  
-  <property>
-    <description>
-    The duration (in ms) the YARN client waits for an expected state change
-    to occur.  -1 means unlimited wait time.
-    </description>
-    <name>yarn.client.application-client-protocol.poll-timeout-ms</name>
-    <value>900000</value>
-  </property>
-
-  <property>
-    <description>The minimum allocation for every container request at the RM,
-      in terms of GPUs. Requests lower than this will throw a
-      InvalidResourceRequestException.</description>
-    <name>yarn.scheduler.minimum-allocation-gpus</name>
-    <value>0</value>
-  </property>
-
-  <property>
-    <description>The maximum allocation for every container request at the RM,
-      in terms of GPUs. Requests higher than this will throw a
-      InvalidResourceRequestException.</description>
-    <name>yarn.scheduler.maximum-allocation-gpus</name>
-    <value>8</value>
-  </property>
-
-  <property>
-    <description>The maximum allocation for every container request at the RM in terms of virtual CPU cores.
-      Requests higher than this will throw an InvalidResourceRequestException.</description>
-    <name>yarn.scheduler.maximum-allocation-vcores</name>
-    <value>32</value>
-  </property>
-    
 </configuration>
-
