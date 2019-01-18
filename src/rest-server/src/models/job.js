@@ -434,7 +434,7 @@ class Job {
   }
 
   generateDockerContainerScript(data, idx) {
-    let paiMachineList = '';
+    let paiMachineList = [];
     if (fs.existsSync('/pai-cluster-config/cluster-configuration.yaml')) {
       paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list']
     }
