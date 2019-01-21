@@ -161,7 +161,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_USER_NAME                      | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
-| PAI_CODE_DIR                       | `codeDir` in config file                 |
+| PAI_CODE_DIR                       | `codeDir` in config file. **Note**: We plan to obsolete PAI_CODE_DIR soon. Users are encouraged to keep their code in Github or any privately managed code repo if the code is not public. When running the Docker image, user can insert some script in the taskRole.command to “git clone …” the code down to the Docker instance.                  |
 | PAI_CURRENT_TASK_ROLE_NAME         | `taskRole.name` of current task role     |
 | PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `taskRole.taskNumber` of current task role |
 | PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `taskRole.cpuNumber` of current task role  |
