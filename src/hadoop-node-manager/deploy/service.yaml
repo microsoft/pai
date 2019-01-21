@@ -26,6 +26,7 @@ prerequisite:
 template-list:
   - hadoop-node-manager.yaml
   - delete.yaml
+  - hadoop-node-manager-configuration/yarn-site.xml
 
 start-script: start.sh
 stop-script: stop.sh
