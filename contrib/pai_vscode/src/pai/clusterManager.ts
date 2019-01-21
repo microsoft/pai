@@ -51,6 +51,7 @@ export class ClusterManager extends Singleton {
         username: '',
         password: '',
         rest_server_uri: '127.0.0.1:9186',
+        hdfs_uri: 'hdfs://127.0.0.1:9000',
         webhdfs_uri: '127.0.0.1:50070',
         grafana_uri: '127.0.0.1:3000',
         k8s_dashboard_uri: '127.0.0.1:9090'
@@ -126,6 +127,7 @@ export class ClusterManager extends Singleton {
             cluster.k8s_dashboard_uri = `${host}/kubernetes-dashboard`;
             cluster.grafana_uri = `${host}/grafana`;
             cluster.web_portal_uri = `${host}/`;
+            cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
         } catch {
             cluster.name = host;
@@ -133,6 +135,7 @@ export class ClusterManager extends Singleton {
             cluster.webhdfs_uri = `${host}:50070/webhdfs/v1`;
             cluster.grafana_uri = `${host}:3000`;
             cluster.web_portal_uri = `${host}`;
+            cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.k8s_dashboard_uri = `${host}:9090`;
         }
         return this.edit(this.configuration!.pais.length, cluster);
