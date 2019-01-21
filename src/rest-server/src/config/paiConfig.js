@@ -45,6 +45,6 @@ const {error, value} = Joi.validate(paiConfigData, paiConfigSchema);
 if (error) {
     throw new Error(`config error\n${error}`);
 }
-paiConfig = value;
+paiConfigData = value;
 
-module.exports = paiConfig;
+module.exports = paiConfigData;
