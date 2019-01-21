@@ -21,8 +21,6 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
-const yaml = require('js-yaml');
-const fs = require('fs');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -31,6 +29,7 @@ const createError = require('../util/error');
 const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
+const paiConfig = require('../config/paiConfig')
 
 class Job {
   constructor(name, namespace, next) {
@@ -434,10 +433,6 @@ class Job {
   }
 
   generateDockerContainerScript(data, idx) {
-    let paiMachineList = [];
-    if (fs.existsSync('/pai-cluster-config/cluster-configuration.yaml')) {
-      paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list'];
-    }
     const dockerContainerScript = mustache.render(
         dockerContainerScriptTemplate, {
           'idx': idx,
@@ -446,7 +441,7 @@ class Job {
           'jobData': data,
           'webHdfsUri': launcherConfig.webhdfsUri,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
-          'paiMachineList': paiMachineList,
+          'paiMachineList': paiConfig.machineList,
         });
     return dockerContainerScript;
   }
