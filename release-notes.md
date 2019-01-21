@@ -35,7 +35,7 @@
 * Support add machine from node-list file. -[PR 819](https://github.com/Microsoft/pai/pull/819)
 * Add config sub-command in paictl to manage config files. -[PR 1263](https://github.com/Microsoft/pai/pull/1263)
 * After the configuration storage is enabled -p is no longer required in the service sub-command.
-* If the user is upgrading from the previous version of pai, please delete the test data file under the hdfs://ip:port/Test folder to ensure that the end-to-end-test works normally. 
+* Use tensorflow jobs instead of cntk jobs as end-to-end tests. Note: If the user is upgrading from the previous version of pai, please delete the test data file under the hdfs://ip:port/Test folder to ensure that the end-to-end-test works normally. 
 
 ## Bug Fixes
 * [issue 1603](https://github.com/Microsoft/pai/issues/1603) is fixed by adding job_exporter_iteration_seconds to expose iteration time.  - [PR 1627](https://github.com/Microsoft/pai/pull/1627).
