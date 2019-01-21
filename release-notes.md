@@ -64,14 +64,14 @@ Or you can clone the code by running
   ```
 * In the code source directory, upgrade by following steps:
   ```bash
+  # push cluster configuration file to kubernetes
+  python paictl config push -p cluster_configuration_file_path
   # stop the services
-  python paictl.py service stop -p cluster_configuration_file_path
+  python paictl.py service stop
   # after the services are stopped, stop the kubernetes cluster
   python paictl.py cluster k8s-clean -p cluster_configuration_file_path
   # reboot the kubernetes cluster
   python paictl.py cluster k8s-bootup -p cluster_configuration_file_path
-  # push cluster configuration file to kubernetes
-  python paictl config push -p cluster_configuration_file_path
   # start the services
   python paictl.py service start
   ```
