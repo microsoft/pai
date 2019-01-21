@@ -22,7 +22,7 @@ const fs = require('fs');
 const logger = require('./logger');
 
 let paiMachineList = [];
-try{
+try {
     paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list'];
 } catch (err) {
     paiMachineList = [];
