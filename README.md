@@ -114,6 +114,10 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+#### Call for contribution
+- PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+- PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+
 #### Who should consider contributing to OpenPAI?
 - Folks who want to add support for other ML and DL frameworks
 - Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
