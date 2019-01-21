@@ -5,6 +5,7 @@
     "version": "0.0.1",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
+    "icon": "assets/pai_logo.png",
     "repository": {
         "url": "https://github.com/Microsoft/pai"
     },
