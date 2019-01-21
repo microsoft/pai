@@ -63,7 +63,7 @@ Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, pleas
 
 ***Precautions***:
 
-- [Prepare kubectl over your deployment environment](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough#connect-to-the-cluster).
+- [Prepare kubectl over your deployment environment](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough#connect-to-the-cluster). Note: kubectl of AKS depends on Azure CLI, user could refer [install Azure CLI doc](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest).
 
 ***
 
@@ -86,20 +86,6 @@ cluster:
   docker-registry:
 ```
 
-***Precautions***:
-
-- config K8S dashboard IP address:
-
-How to get dashboard IP: Pod in kube-system namespace, user can get ip through "kubectl describe pod podname -n namespace"
-
-config items at layout.yaml:
-
-```
-layout:
-  kubernetes:
-    dashboard-host: 10.1.0.5
-```
-
 
 
 ### Step 4. Update cluster configuration into kubernetes <a name="c-step-4"></a>
@@ -118,4 +104,3 @@ layout:
 ### appendix. Validate deployment <a name="appendix"></a>
 
 - [A Guide to validate deployment](./validate-deployment.md)
-
