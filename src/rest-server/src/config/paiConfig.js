@@ -25,8 +25,9 @@ let paiMachineList = [];
 try{
     paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list'];
 } catch (err) {
+    paiMachineList = [];
     logger.info('Unable to load machine list from cluster-configuration.');
-    logger.info(err.stack)
+    logger.info(err.stack);
 }
 
 let paiConfigData = {
@@ -36,7 +37,7 @@ let paiConfigData = {
 
 // define the schema for pai configuration
 const paiConfigSchema = Joi.object().keys({
-    machineList: Joi.array()
+    machineList: Joi.array(),
 }).required();
 
 
