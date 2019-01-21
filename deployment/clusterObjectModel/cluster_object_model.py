@@ -33,7 +33,6 @@ from .mainParser import layout as pai_com_layout
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
 
-
 class cluster_object_model:
 
     def __init__(self, configuration_path):
@@ -45,8 +44,6 @@ class cluster_object_model:
         self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(configuration_path))
         self.cluster_object_model = dict()
 
-
-
     def get_service_model_list(self):
         sub_model_list = []
 
@@ -56,8 +53,6 @@ class cluster_object_model:
             if file_handler.file_exist_or_not(parser_path):
                 sub_model_list.append(sub_dir_name)
         return sub_model_list
-
-
 
     def get_service_parser(self, service_name):
 
@@ -94,8 +89,6 @@ class cluster_object_model:
             parser_dict[service_name] = self.get_service_parser(service_name)
         return parser_dict
 
-
-
     def init_kubernetes_parser(self):
         parser_dict = dict()
 
@@ -106,10 +99,7 @@ class cluster_object_model:
 
         return parser_dict
 
-
-
-    # TODO refine later
-    def xxxrun(self, parser_dict):
+    def load_config(self, parser_dict):
 
         # Pre Validation
         self.logger.info("Begin to do pre-validation for each service parser.")
@@ -147,7 +137,7 @@ class cluster_object_model:
         return self.cluster_object_model
 
     def service_config(self):
-        return self.xxxrun(self.init_service_parser())
+        return self.load_config(self.init_service_parser())
 
     def kubernetes_config(self):
-        return self.xxxrun(self.init_kubernetes_parser())
+        return self.load_config(self.init_kubernetes_parser())
