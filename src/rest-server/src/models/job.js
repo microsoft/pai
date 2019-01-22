@@ -29,6 +29,7 @@ const createError = require('../util/error');
 const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
+const paiConfig = require('../config/paiConfig');
 
 class Job {
   constructor(name, namespace, next) {
@@ -439,6 +440,8 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'webHdfsUri': launcherConfig.webhdfsUri,
+          'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
+          'paiMachineList': paiConfig.machineList,
         });
     return dockerContainerScript;
   }
