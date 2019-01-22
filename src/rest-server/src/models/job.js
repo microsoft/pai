@@ -414,6 +414,11 @@ class Job {
             }
         }
     }
+    let reqAzRDMA = false
+    if ("paiAzRDMA" in data.jobEnvs && data.jobEnvs.paiRDMA === true) {
+      reqAzRDMA = true
+    }
+
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
           'idx': idx,
@@ -428,7 +433,7 @@ class Job {
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
-          'reqAzRDMA': data.paiAzureRDMA == 'false' ? false : true,
+          'reqAzRDMA': reqAzRDMA,
         });
     return yarnContainerScript;
   }
