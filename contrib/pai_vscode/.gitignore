@@ -1,0 +1,8 @@
+out
+node_modules
+.vscode-test/
+*.vsix
+*.log
+!.vscode/
+.vscode/extensions.json
+.vscode/settings.json

@@ -57,6 +57,7 @@ sed  -i "s#{HOST_YARN_NODEMANAGER_STORAGE}#${HOST_YARN_NODEMANAGER_STORAGE}#g" $
 sed  -i "s#{HOST_HADOOP_TMP_STORAGE}#${HOST_HADOOP_TMP_STORAGE}#g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s#{CURRENT_IMAGE_NAME}#${CURRENT_IMAGE_NAME}#g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s#{HADOOP_CONF_DIR}#${HADOOP_CONF_DIR}#g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{POD_IP}/${POD_IP}/g" $HADOOP_CONF_DIR/yarn-site.xml
 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
 

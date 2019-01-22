@@ -27,6 +27,7 @@ prerequisite:
 template-list:
   - hadoop-jobhistory.yaml
   - delete.yaml
+  - hadoop-jobhistory-configuration/yarn-site.xml
 
 start-script: start.sh
 stop-script: stop.sh

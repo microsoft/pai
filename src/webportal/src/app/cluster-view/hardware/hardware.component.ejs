@@ -29,7 +29,7 @@ const idPrefixes = ["cpu", "mem", "gpu", "gpumem", "disk", "eth"];
           const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
           const machineName = metric.nodename;
           const ipAddress = metric.instance.split(":")[0];
-          const idSuffix = ":" + metric.instance;
+          const idSuffix = ":" + ipAddress;
 %>
           <tr>
             <td><a href='<%= nodeViewUrl %>'><%= ipAddress %></a></td>

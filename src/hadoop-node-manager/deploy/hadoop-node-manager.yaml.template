@@ -103,6 +103,10 @@ spec:
           value: "3072"
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
@@ -140,6 +144,8 @@ spec:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
       - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/out-of-disk
         operator: "Exists"
 
 

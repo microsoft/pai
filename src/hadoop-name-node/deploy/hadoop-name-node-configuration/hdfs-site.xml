@@ -206,7 +206,7 @@
 
 <property>
   <name>dfs.client.read.shortcircuit</name>
-  <value>true</value>
+  <value>false</value>
   <description>
          This configuration parameter turns on short-circuit local reads. It requires
          libhadoop.so native library to be installed with Hadoop.

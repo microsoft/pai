@@ -59,6 +59,7 @@ class HadoopResourceManager:
         com = {}
 
         com["yarn_exporter_port"] = self.service_configuration["yarn_exporter_port"]
+        com["yarn_log_retain_seconds"] = self.service_configuration["yarn_log_retain_seconds"]
 
         for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":

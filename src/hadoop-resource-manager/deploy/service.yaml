@@ -26,6 +26,7 @@ template-list:
   - hadoop-resource-manager.yaml
   - delete.yaml
   - hadoop-resource-manager-configuration/capacity-scheduler.xml
+  - hadoop-resource-manager-configuration/yarn-site.xml
 
 start-script: start.sh
 stop-script: stop.sh

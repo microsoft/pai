@@ -216,7 +216,7 @@
 
 <property>
   <name>dfs.client.read.shortcircuit</name>
-  <value>true</value>
+  <value>false</value>
   <description>
          This configuration parameter turns on short-circuit local reads. It requires
          libhadoop.so native library to be installed with Hadoop.
@@ -244,7 +244,7 @@
           rejected. It is recommended that this setting be left on to prevent accidental
           registration of datanodes listed by hostname in the excludes file during a DNS
           outage. Only set this to false in environments where there is no infrastructure
-          to support reverse DNS lookup.  
+          to support reverse DNS lookup.
   </description>
 </property>
 
@@ -268,7 +268,7 @@
 
 <property>
    <name>dfs.datanode.hostname</name>
-   <value>{{ host_config['ip'] }}</value>
+   <value>{POD_IP}</value>
 </property>
 
 <property>

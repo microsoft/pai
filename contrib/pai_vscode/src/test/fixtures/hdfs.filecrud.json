@@ -1,0 +1,311 @@
+[
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/webhdfs/api/v1/testfile?op=getfilestatus&user.name=openmindstudio",
+        "body": "",
+        "status": 404,
+        "response": {
+            "RemoteException": {
+                "exception": "FileNotFoundException",
+                "javaClassName": "java.io.FileNotFoundException",
+                "message": "File does not exist: /testfile"
+            }
+        },
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:27 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "close",
+            "Cache-Control",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:27 GMT",
+            "Pragma",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:27 GMT",
+            "Pragma",
+            "no-cache",
+            "X-FRAME-OPTIONS",
+            "SAMEORIGIN",
+            "Set-Cookie",
+            "hadoop.auth=\"u=openmindstudio&p=openmindstudio&t=simple&e=1540326327132&s=gk5VVv2FU8E1gFEvG1568VFjmoM=\"; Path=/; HttpOnly"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "PUT",
+        "path": "/webhdfs/api/v1/testfile?op=create&user.name=openmindstudio&overwrite=true&permission=0755",
+        "body": "",
+        "status": 307,
+        "response": "<html>\r\n<head><title>307 Temporary Redirect</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>307 Temporary Redirect</h1></center>\r\n<hr><center>nginx/1.13.8</center>\r\n</body>\r\n</html>\r\n",
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:27 GMT",
+            "Content-Type",
+            "text/html",
+            "Content-Length",
+            "187",
+            "Connection",
+            "close",
+            "Location",
+            "http://10.151.40.179/a/10.151.40.173:5075/webhdfs/v1/testfile?op=CREATE&user.name=openmindstudio&namenoderpcaddress=10.151.40.179:9000&createflag=&createparent=true&overwrite=true&permission=755"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "PUT",
+        "path": "/a/10.151.40.173:5075/webhdfs/v1/testfile?op=CREATE&user.name=openmindstudio&namenoderpcaddress=10.151.40.179:9000&createflag=&createparent=true&overwrite=true&permission=755",
+        "body": "fa",
+        "status": 201,
+        "response": "",
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:28 GMT",
+            "Content-Length",
+            "0",
+            "Connection",
+            "close",
+            "Location",
+            "hdfs://10.151.40.179:9000/testfile",
+            "Access-Control-Allow-Origin",
+            "*"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/webhdfs/api/v1/?op=liststatus&user.name=openmindstudio",
+        "body": "",
+        "status": 200,
+        "response": {
+            "FileStatuses": {
+                "FileStatus": [
+                    {
+                        "accessTime": 1540290328498,
+                        "blockSize": 134217728,
+                        "childrenNum": 0,
+                        "fileId": 1462363,
+                        "group": "supergroup",
+                        "length": 2,
+                        "modificationTime": 1540290328561,
+                        "owner": "openmindstudio",
+                        "pathSuffix": "testfile",
+                        "permission": "755",
+                        "replication": 2,
+                        "storagePolicy": 0,
+                        "type": "FILE"
+                    }
+                ]
+            }
+        },
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "close",
+            "Cache-Control",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Pragma",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Pragma",
+            "no-cache",
+            "X-FRAME-OPTIONS",
+            "SAMEORIGIN",
+            "Set-Cookie",
+            "hadoop.auth=\"u=openmindstudio&p=openmindstudio&t=simple&e=1540326329131&s=/oM4SlZTxgdsV9rMa8qSvPltWGs=\"; Path=/; HttpOnly"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/webhdfs/api/v1/testfile?op=getfilestatus&user.name=openmindstudio",
+        "body": "",
+        "status": 200,
+        "response": {
+            "FileStatus": {
+                "accessTime": 1540290328498,
+                "blockSize": 134217728,
+                "childrenNum": 0,
+                "fileId": 1462363,
+                "group": "supergroup",
+                "length": 2,
+                "modificationTime": 1540290328561,
+                "owner": "openmindstudio",
+                "pathSuffix": "",
+                "permission": "755",
+                "replication": 2,
+                "storagePolicy": 0,
+                "type": "FILE"
+            }
+        },
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "close",
+            "Cache-Control",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Pragma",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:29 GMT",
+            "Pragma",
+            "no-cache",
+            "X-FRAME-OPTIONS",
+            "SAMEORIGIN",
+            "Set-Cookie",
+            "hadoop.auth=\"u=openmindstudio&p=openmindstudio&t=simple&e=1540326329678&s=ztLCG83pRcYK5HPcXeciuam13t4=\"; Path=/; HttpOnly"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/webhdfs/api/v1/testfile?op=open&user.name=openmindstudio",
+        "body": "",
+        "status": 307,
+        "response": "<html>\r\n<head><title>307 Temporary Redirect</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>307 Temporary Redirect</h1></center>\r\n<hr><center>nginx/1.13.8</center>\r\n</body>\r\n</html>\r\n",
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:30 GMT",
+            "Content-Type",
+            "text/html",
+            "Content-Length",
+            "187",
+            "Connection",
+            "close",
+            "Location",
+            "http://10.151.40.179/a/10.151.40.192:5075/webhdfs/v1/testfile?op=OPEN&user.name=openmindstudio&namenoderpcaddress=10.151.40.179:9000&offset=0"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/a/10.151.40.192:5075/webhdfs/v1/testfile?op=OPEN&user.name=openmindstudio&namenoderpcaddress=10.151.40.179:9000&offset=0",
+        "body": "",
+        "status": 200,
+        "response": "fa",
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:30 GMT",
+            "Content-Type",
+            "application/octet-stream",
+            "Content-Length",
+            "2",
+            "Connection",
+            "close",
+            "Access-Control-Allow-Methods",
+            "GET",
+            "Access-Control-Allow-Origin",
+            "*"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "DELETE",
+        "path": "/webhdfs/api/v1/testfile?op=delete&user.name=openmindstudio&recursive=false",
+        "body": "",
+        "status": 200,
+        "response": {
+            "boolean": true
+        },
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "close",
+            "Cache-Control",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Pragma",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Pragma",
+            "no-cache",
+            "X-FRAME-OPTIONS",
+            "SAMEORIGIN",
+            "Set-Cookie",
+            "hadoop.auth=\"u=openmindstudio&p=openmindstudio&t=simple&e=1540326331321&s=5bGdVMMD5Ms1MtMs3de1iWsRhsM=\"; Path=/; HttpOnly"
+        ]
+    },
+    {
+        "scope": "http://10.151.40.179:80",
+        "method": "GET",
+        "path": "/webhdfs/api/v1/?op=liststatus&user.name=openmindstudio",
+        "body": "",
+        "status": 200,
+        "response": {
+            "FileStatuses": {
+                "FileStatus": [
+                ]
+            }
+        },
+        "rawHeaders": [
+            "Server",
+            "nginx/1.13.8",
+            "Date",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "close",
+            "Cache-Control",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Pragma",
+            "no-cache",
+            "Expires",
+            "Tue, 23 Oct 2018 10:25:31 GMT",
+            "Pragma",
+            "no-cache",
+            "X-FRAME-OPTIONS",
+            "SAMEORIGIN",
+            "Set-Cookie",
+            "hadoop.auth=\"u=openmindstudio&p=openmindstudio&t=simple&e=1540326331877&s=yenDxednKO6xQad9BGHVgLKlRpI=\"; Path=/; HttpOnly"
+        ]
+    }
+]
