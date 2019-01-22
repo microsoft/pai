@@ -408,11 +408,11 @@ class Job {
     }
     let jobEnvs = [];
     if (data.jobEnvs) {
-      for (let key in data.jobEnvs) {
-        if (data.jobEnvs.hasOwnProperty(key)) {
-          jobEnvs.push({key, value: data.jobEnvs[key]});
+        for (let key in data.jobEnvs) {
+            if (data.jobEnvs.hasOwnProperty(key)) {
+              jobEnvs.push({key, value: data.jobEnvs[key]});
+            }
         }
-      }
     }
 
     const yarnContainerScript = mustache.render(
