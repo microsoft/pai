@@ -26,10 +26,14 @@ spec:
       - command:
         - python
         - rest.py
-        - -k
-        - http://10.151.40.234:8080
-        - -u
+        - --k8s_api
+        - https://default-e80a1e75.hcp.westus2.azmk8s.io:443
+        - --fs_uri
         - nfs://1.1.1.1
+        - --ca
+        - /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - --bearer
+        - /var/run/secrets/kubernetes.io/serviceaccount/token
         image: docker.io/xudifsd/rest-lite:latest
         imagePullPolicy: Always
         name: rest-lite

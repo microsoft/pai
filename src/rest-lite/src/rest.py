@@ -340,7 +340,7 @@ def job():
         try:
             spec = json.loads(spec)
         except ValueError:
-            return "spec is not a valid json object"
+            return "spec is not a valid json object %s" % spec
 
         ensure_http_ssh_port(spec)
 
@@ -366,14 +366,28 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to listen on", type=int, default="5000")
     parser.add_argument("--runtime", "-r", help="runtime image", default= "xudifsd/kube-runtime")
     parser.add_argument("--debug", "-d", help="debug option on flask", type=bool, default="False")
+    parser.add_argument("--ca", "-c", help="ca file path")
+    parser.add_argument("--bearer", "-b", help="bearer token file path")
     args = parser.parse_args()
 
     global k8s_api_server
     global default_fs_uri
     global g_runtime
+    global g_ca_path
+    global g_k8s_api_header
 
     k8s_api_server = args.k8s_api
     default_fs_uri = args.fs_uri
     g_runtime = args.runtime
+
+    g_ca_path = args.ca
+    bearer_path = args.bearer
+    if (g_ca_path is None and bearer_path is not None) or (g_ca_path is not None and bearer_path is None):
+        log.warning("please provide bearer_path and ca_path at the same time or not")
+    g_k8s_api_header = None
+    if bearer_path is not None:
+        with open(bearer_path, "r") as bearer_file:
+           bearer = bearer_file.read()
+           g_k8s_api_header = {"Authorization": "Bearer {}".format(bearer)}
 
     app.run(host=args.host, port=args.port, debug=True)
