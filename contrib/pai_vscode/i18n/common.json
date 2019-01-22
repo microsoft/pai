@@ -65,7 +65,8 @@
         "job.simulation.error": "Error occurred while generating the job simulation dockerfile: {0}",
         "job.simulation.success": "Dockerfile has been generated in {0}/{1}. Please run {2} to simulate the job running. (docker is required)",
         "job.simulation.success-dialog.reveal": "Reveal in Explorer",
-        "job.simulation.success-dialog.run-first-task": "Simulate first task in VS Code terminal"
+        "job.simulation.success-dialog.run-first-task": "Simulate first task in VS Code terminal",
+        "job.simulation.unsupported-env-var": "Job Simulation：Command {0} contains unsupported pai env variable"
     },
     "en": {},
     "zh": {
@@ -137,6 +138,7 @@
         "job.simulation.error": "生成模拟任务 Dockerfile 时发生错误：{0}",
         "job.simulation.success": "Dockerfile 已经自动生成在 {0}/{1}。 请执行脚本 {2} 来模拟执行任务。 (需要 docker)",
         "job.simulation.success-dialog.reveal": "在浏览器中打开",
-        "job.simulation.success-dialog.run-first-task": "在 VS Code 终端中模拟第一个任务"
+        "job.simulation.success-dialog.run-first-task": "在 VS Code 终端中模拟第一个任务",
+        "job.simulation.unsupported-env-var": "模拟运行：命令 {0} 中包含未支持的PAI环境变量"
     }
 }

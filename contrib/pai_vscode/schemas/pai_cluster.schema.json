@@ -25,6 +25,11 @@
             "description": "PAI webhdfs endpoint",
             "pattern": "^(?!https?:\/\/).*"
         },
+        "hdfs_uri": {
+            "type": "string",
+            "description": "PAI hdfs endpoint",
+            "pattern": "^hdfs:\/\/.*"
+        },
         "grafana_uri": {
             "type": "string",
             "description": "PAI grafana dashboard endpoint",

@@ -41,7 +41,7 @@ interface ITokenItem {
 
 interface IJobParam {
     config: IPAIJobConfig;
-    cluster: IPAICluster;
+    cluster?: IPAICluster;
     workspace: string;
     upload?: {
         exclude: string[];
@@ -53,7 +53,6 @@ interface IJobParam {
 interface IJobInput {
     jobConfigPath?: string;
     clusterIndex?: number;
-    ignoreCluster?: boolean;
 }
 
 /**
@@ -64,8 +63,19 @@ export class PAIJobManager extends Singleton {
     private static readonly API_PREFIX: string = 'api/v1';
     private static readonly TIMEOUT: number = 60 * 1000;
     private static readonly SIMULATION_DOCKERFILE_FOLDER: string = '.pai_simulator';
-    private static readonly propertiesToBeReplaced: (keyof IPAIJobConfig)[] =
-        ['codeDir', 'outputDir', 'dataDir', 'authFile'];
+    private static readonly propertiesToBeReplaced: (keyof IPAIJobConfig)[] = [
+        'codeDir',
+        'outputDir',
+        'dataDir',
+        'authFile'
+    ];
+    private static readonly envNeedClusterInfo: string[] = [
+        'PAI_USER_NAME',
+        'PAI_CODE_DIR',
+        'PAI_OUTPUT_DIR',
+        'PAI_DATA_DIR',
+        'PAI_DEFAULT_FS_URI'
+    ];
     private cachedTokens: Map<string, ITokenItem> = new Map();
     private simulateTerminal: vscode.Terminal | undefined;
 
@@ -234,7 +244,7 @@ export class PAIJobManager extends Singleton {
         // Replace environment variable
         function replaceVariable(x: string): string {
             return x.replace('$PAI_JOB_NAME', config.jobName)
-                .replace('$PAI_USER_NAME', cluster.username);
+                .replace('$PAI_USER_NAME', cluster!.username);
         }
         for (const key of PAIJobManager.propertiesToBeReplaced) {
             const old: string | IPAITaskRole[] | undefined = config[key];
@@ -261,6 +271,10 @@ export class PAIJobManager extends Singleton {
             if (!param) {
                 // Error message has been shown.
                 return;
+            }
+
+            if (!param.cluster) {
+                param.cluster = await this.pickCluster();
             }
 
             // add job name suffix
@@ -322,8 +336,8 @@ export class PAIJobManager extends Singleton {
                     __('job.submission.success'),
                     open
                 ).then(async res => {
-                    const url: string = `${getClusterWebPortalUri(param.cluster)}/view.html?${querystring.stringify({
-                        username: param.cluster.username,
+                    const url: string = `${getClusterWebPortalUri(param.cluster!)}/view.html?${querystring.stringify({
+                        username: param.cluster!.username,
                         jobName: param.config.jobName
                     })}`;
                     if (res === open) {
@@ -347,21 +361,34 @@ export class PAIJobManager extends Singleton {
         statusBarItem.show();
 
         try {
-            // ignore pick cluster if auto upload is enabled.
-            const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
-            if (settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
-                input.ignoreCluster = true;
-            }
-
             const param: IJobParam | undefined = await this.prepareJobParam(input);
             if (!param) {
                 // Error message has been shown.
                 return;
             }
 
+            if (!param.cluster) {
+                let pickCluster: boolean = false;
+                // pick cluster if auto upload is disabled.
+                if (!param.upload) {
+                    pickCluster = true;
+                }
+                if (PAIJobManager.envNeedClusterInfo.some(
+                    x => param.config.codeDir.includes(`$${x}`) || param.config.taskRoles.some(
+                        y => y.command.includes(`$${x}`)
+                    )
+                )) {
+                    pickCluster = true;
+                }
+
+                if (pickCluster) {
+                    param.cluster = await this.pickCluster();
+                }
+            }
+
             // replace env variables if auto upload is disabled
             // extension will try to download files from hdfs instead of copying local files
-            if (!settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
+            if (!param.upload) {
                 PAIJobManager.replaceVariables(param);
             }
 
@@ -408,16 +435,44 @@ export class PAIJobManager extends Singleton {
                     if (remoteCodeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
                         remoteCodeDir = remoteCodeDir.substring('$PAI_DEFAULT_FS_URI'.length);
                     }
-                    const remoteCodeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster)}${remoteCodeDir}`);
+                    const remoteCodeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${remoteCodeDir}`);
                     await fsProvider.copy(remoteCodeUri, vscode.Uri.file(codeDir), { overwrite: true });
                 }
                 dockerfile.push('WORKDIR /pai');
                 dockerfile.push(`COPY ${param.config.jobName} /pai/${param.config.jobName}`);
                 dockerfile.push('');
-                // 4. entrypoint
+                // 4. env var
+                dockerfile.push('ENV PAI_WORK_DIR /pai');
+                dockerfile.push(`ENV PAI_JOB_NAME ${param.config.jobName}`);
+                if (param.cluster) {
+                    dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
+                    dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
+                    dockerfile.push(`ENV PAI_DATA_DIR ${param.config.dataDir}`);
+                    dockerfile.push(`ENV PAI_CODE_DIR ${param.config.codeDir}`);
+                    dockerfile.push(`ENV PAI_OUTPUT_DIR ${param.config.outputDir}`);
+                }
+                dockerfile.push('');
+                // check unsupported env variables
+                const supportedEnvList: string[] = [
+                    'PAI_WORK_DIR',
+                    'PAI_JOB_NAME',
+                    'PAI_DEFAULT_FS_URI',
+                    'PAI_USER_NAME',
+                    'PAI_DATA_DIR',
+                    'PAI_CODE_DIR',
+                    'PAI_OUTPUT_DIR'
+                ];
+                let command: string = role.command;
+                for (const env of supportedEnvList) {
+                    command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
+                }
+                if (command.includes('$PAI')) {
+                    Util.warn('job.simulation.unsupported-env-var', role.command);
+                }
+                // 5. entrypoint
                 dockerfile.push(`ENTRYPOINT ${role.command}`);
                 dockerfile.push('');
-                // 5. write dockerfile
+                // 6. write dockerfile
                 await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
                 // EX. write shell script
                 const imageName: string = `pai-simulator-${param.config.jobName}-${role.name}`;
@@ -447,7 +502,7 @@ export class PAIJobManager extends Singleton {
                     }
                     this.simulateTerminal.show(true);
                     if (os.platform() === 'win32') {
-                        this.simulateTerminal.sendText(`"${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}"`);
+                        this.simulateTerminal.sendText(`cmd /k "${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}"`);
                     } else {
                         this.simulateTerminal.sendText(`bash '${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}'`);
                     }
@@ -460,7 +515,16 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    private async prepareJobParam({ jobConfigPath, clusterIndex = -1, ignoreCluster }: IJobInput): Promise<IJobParam | undefined> {
+    private async pickCluster(): Promise<IPAICluster> {
+        const clusterManager: ClusterManager = await getSingleton(ClusterManager);
+        const pickResult: number | undefined = await clusterManager.pick();
+        if (pickResult === undefined) {
+            throw new Error(__('job.prepare.cluster.cancelled'));
+        }
+        return clusterManager.allConfigurations[pickResult];
+    }
+
+    private async prepareJobParam({ jobConfigPath, clusterIndex }: IJobInput): Promise<IJobParam | undefined> {
         const result: Partial<IJobParam> = {};
         // 1. job config
         if (!jobConfigPath) {
@@ -490,16 +554,8 @@ export class PAIJobManager extends Singleton {
         }
         result.workspace = workspace.uri.fsPath;
         // 3. cluster
-        if (!ignoreCluster) {
+        if (clusterIndex) {
             const clusterManager: ClusterManager = await getSingleton(ClusterManager);
-            if (clusterIndex === -1) {
-                const pickResult: number | undefined = await clusterManager.pick();
-                if (pickResult === undefined) {
-                    Util.err('job.prepare.cluster.cancelled');
-                    return;
-                }
-                clusterIndex = pickResult;
-            }
             result.cluster = clusterManager.allConfigurations[clusterIndex];
         }
         // 4. settings
@@ -549,7 +605,7 @@ export class PAIJobManager extends Singleton {
     }
 
     private async uploadCode(param: IJobParam): Promise<boolean> {
-        if (!param.cluster.webhdfs_uri) {
+        if (!param.cluster!.webhdfs_uri) {
             Util.err('pai.webhdfs.missing');
             return false;
         }
@@ -565,7 +621,7 @@ export class PAIJobManager extends Singleton {
             if (codeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
                 codeDir = codeDir.substring('$PAI_DEFAULT_FS_URI'.length);
             }
-            const codeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster)}${codeDir}`);
+            const codeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${codeDir}`);
 
             const total: number = projectFiles.length;
             const createdDirectories: Set<string> = new Set([ codeUri.path ]);

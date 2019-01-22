@@ -11,6 +11,7 @@ export interface IPAICluster {
     rest_server_uri: string;
     webhdfs_uri?: string;
     grafana_uri?: string;
+    hdfs_uri?: string;
     k8s_dashboard_uri?: string;
     web_portal_uri?: string;
 }
