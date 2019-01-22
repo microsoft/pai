@@ -19,19 +19,6 @@ require('@webcomponents/custom-elements');
 
 const url = require('url');
 
-function loadScript(uri, callback) {
-  const script = document.createElement('script');
-  script.addEventListener('load', loadHandler);
-  script.src = uri;
-  document.head.appendChild(script);
-
-  function loadHandler() {
-    script.removeEventListener('load', loadHandler);
-    document.head.removeChild(script);
-    callback();
-  }
-}
-
 $(document).ready(function() {
   const query = url.parse(window.location.href, true).query;
   const index = Number(query['index']);
@@ -44,7 +31,7 @@ $(document).ready(function() {
 
   $('.sidebar-menu .plugin-' + index).addClass('active');
 
-  loadScript(plugin.uri, function() {
+  $.getScript(plugin.uri).then(function() {
     const $plugin = $('<pai-plugin>')
       .attr('pai-rest-server-uri', window.ENV.restServerUri);
     $('#content-wrapper').empty().append($plugin);
