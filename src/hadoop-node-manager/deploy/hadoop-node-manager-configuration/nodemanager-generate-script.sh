@@ -42,6 +42,9 @@ cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 # Share hdfs configuration to user's job
 cp  /hadoop-configuration/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
+cp  /hadoop-configuration/health_checker.sh $HADOOP_CONF_DIR/health_checker.sh
+chmod +x $HADOOP_CONF_DIR/health_checker.sh
+
 HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/yarn-site.xml  -n $HOST_NAME
 
@@ -53,6 +56,7 @@ sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_
 sed  -i "s#{HOST_YARN_NODEMANAGER_STORAGE}#${HOST_YARN_NODEMANAGER_STORAGE}#g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s#{HOST_HADOOP_TMP_STORAGE}#${HOST_HADOOP_TMP_STORAGE}#g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s#{CURRENT_IMAGE_NAME}#${CURRENT_IMAGE_NAME}#g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s#{HADOOP_CONF_DIR}#${HADOOP_CONF_DIR}#g" $HADOOP_CONF_DIR/yarn-site.xml
 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
 
