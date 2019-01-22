@@ -288,6 +288,11 @@
 </property>
 
 <property>
+  <name>yarn.nodemanager.health-checker.interval-ms</name>
+  <value>60000</value>
+</property>
+
+<property>
  <name>yarn.nodemanager.docker-container-executor.exec-name</name>
   <value>/usr/bin/docker</value>
   <description>
