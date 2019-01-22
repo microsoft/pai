@@ -109,7 +109,7 @@ function get_ssh_key_files()
   if [[ "$info_source" = "webhdfs" ]]; then
     webHdfsKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}/{{ jobData.jobName }}/ssh/keyFiles/{{ jobData.jobName }}.pub
     webhdfs_download_file $webHdfsKeyPath $localKeyPath
-    webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}}/{{ jobData.jobName }}}/ssh/keyFiles/{{ jobData.jobName }}
+    webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}/{{ jobData.jobName }}/ssh/keyFiles/{{ jobData.jobName }}
     webhdfs_download_file $webHdfsPrivateKeyPath $localPrivateKeyPath
     chmod 400 ${localPrivateKeyPath}
   else
@@ -152,6 +152,23 @@ else
     "[WARNING]" "Open-ssh server not found, will not enable ssh service." \
     "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
+
+{{# azRDMA }}
+function  azure_rdma_preparation()
+{
+    # https://unix.stackexchange.com/questions/404189/find-and-sed-string-in-docker-got-error-device-or-resource-busy
+    cp /etc/hosts /hosts.tmp
+
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost" /hosts.tmp
+{{# paiMachineList }}
+    echo {{hostip}} {{hostname}} >> /hosts.tmp
+{{/ paiMachineList }}
+
+    cat /hosts.tmp > /etc/hosts
+}
+
+azure_rdma_preparation
+{{/ azRDMA }}
 
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment

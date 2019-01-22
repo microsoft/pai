@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "Version of the configuration in semver format"
+        },
+        "pais": {
+            "type": "array",
+            "description": "Individual configurations of each PAI cluster",
+            "items": { "$ref": "pai_cluster.schema.json" }
+        }
+    },
+    "required": [
+        "version",
+        "pais"
+    ]
+}
