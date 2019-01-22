@@ -415,7 +415,7 @@ class Job {
         }
     }
     let reqAzRDMA = false
-    if ("paiAzRDMA" in data.jobEnvs && data.jobEnvs.paiRDMA === true) {
+    if ("paiAzRDMA" in data.jobEnvs && data.jobEnvs.paiAzRDMA === true) {
       reqAzRDMA = true
     }
 
