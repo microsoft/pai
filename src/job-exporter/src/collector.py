@@ -248,12 +248,12 @@ class DockerCollector(Collector):
         except subprocess.CalledProcessError as e:
             logger.exception("command '%s' return with error (code %d): %s",
                     cmd, e.returncode, e.output)
-            error = e.strerror()
+            error = str(e)
         except subprocess.TimeoutExpired as e:
             logger.warning("check docker active timeout")
             error = "timeout"
         except Exception as e:
-            error = e.strerror()
+            error = e.message
 
         counter = gen_docker_daemon_counter()
         counter.add_metric([error], 1)
