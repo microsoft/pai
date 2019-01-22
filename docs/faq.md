@@ -76,6 +76,23 @@ The limitation is because we only reserve so much memory resource for `PAI servi
 For example, user may have hundreds jobs running, thousands jobs waiting, and tens of thousands jobs finished.
 
 
+### Q: How to solve `failed call to cuInit: CUresult(-1)`
+
+You should check `LD_LIBRARY_PATH` in your job container by using `export` command. It should have one of following:
+
+* `/usr/local/nvidia/lib`
+* `/usr/local/nvidia/lib64`
+* `/usr/local/cuda/extras/CUPTI/lib`
+* `/usr/local/cuda/extras/CUPTI/lib64`
+
+You can add path to `LD_LIBRARY_PATH` in your Dockerfile like:
+```
+ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/extras/CUPTI/lib:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+```
+
+If probelm remains, you can try [this script](https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549) to self diagnose the problem.
+
+
 ## Deploy and maintenance related FAQs
 
 ### Q: Why not recommend deploying the master node to the GPU server and running the job?
