@@ -74,7 +74,7 @@ export class PAIJobManager extends Singleton {
         'PAI_CODE_DIR',
         'PAI_OUTPUT_DIR',
         'PAI_DATA_DIR',
-        'PAI_DEFAULT_FS_URI',
+        'PAI_DEFAULT_FS_URI'
     ];
     private cachedTokens: Map<string, ITokenItem> = new Map();
     private simulateTerminal: vscode.Terminal | undefined;
@@ -453,7 +453,7 @@ export class PAIJobManager extends Singleton {
                 }
                 dockerfile.push('');
                 // check unsupported env variables
-                const supported_env_list: string[] = [
+                const supportedEnvList: string[] = [
                     'PAI_WORK_DIR',
                     'PAI_JOB_NAME',
                     'PAI_DEFAULT_FS_URI',
@@ -463,7 +463,7 @@ export class PAIJobManager extends Singleton {
                     'PAI_OUTPUT_DIR'
                 ];
                 let command: string = role.command;
-                for (const env of supported_env_list) {
+                for (const env of supportedEnvList) {
                     command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
                 }
                 if (command.includes('$PAI')) {
