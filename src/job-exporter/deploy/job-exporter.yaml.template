@@ -54,7 +54,7 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "128Mi"
+            memory: "512Mi"
         {%- endif %}
         securityContext:
           privileged: true # this is required since job-exporter will call setns to other containers
