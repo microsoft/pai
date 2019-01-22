@@ -22,7 +22,7 @@
 function check_gpu_hang()
 {
   stuck_processes=`ps axo pid,state,command | awk '$0~"nvidia-smi" && $2~"D" {print $1}' | xargs`
-  if [ -z "$stuck_processes" ]; then
+  if [ -n "$stuck_processes" ]; then
     echo "ERROR: found stuck processes: ${stuck_processes}"
   else
     echo "OK: no stuck gpu processed found"
