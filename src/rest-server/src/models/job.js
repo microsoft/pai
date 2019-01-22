@@ -410,7 +410,7 @@ class Job {
     if (data.jobEnvs) {
         for (let key in data.jobEnvs) {
             if (data.jobEnvs.hasOwnProperty(key)) {
-              jobEnvs.push({key, value: data.jobEnvs[key]});
+                jobEnvs.push({key, value: data.jobEnvs[key]});
             }
         }
     }
