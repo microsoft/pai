@@ -47,10 +47,6 @@ $(document).ready(function() {
   loadScript(plugin.uri, function() {
     const $plugin = $('<pai-plugin>')
       .attr('pai-rest-server-uri', window.ENV.restServerUri);
-    if (cookies.get('token')) {
-      $plugin.attr('pai-user', cookies.get('user'))
-        .attr('pai-rest-server-token', cookies.get('token'));
-    }
     $('#content-wrapper').empty().append($plugin);
   });
 });
