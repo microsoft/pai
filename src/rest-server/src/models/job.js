@@ -408,15 +408,11 @@ class Job {
     }
     let jobEnvs = [];
     if (data.jobEnvs) {
-        for (let key in data.jobEnvs) {
-            if (data.jobEnvs.hasOwnProperty(key)) {
-                jobEnvs.push({key, value: data.jobEnvs[key]});
-            }
+      for (let key in data.jobEnvs) {
+        if (data.jobEnvs.hasOwnProperty(key)) {
+          jobEnvs.push({key, value: data.jobEnvs[key]});
         }
-    }
-    let reqAzRDMA = false
-    if ("paiAzRDMA" in data.jobEnvs && data.jobEnvs.paiAzRDMA === true) {
-      reqAzRDMA = true
+      }
     }
 
     const yarnContainerScript = mustache.render(
@@ -433,7 +429,7 @@ class Job {
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
-          'reqAzRDMA': reqAzRDMA,
+          'reqAzRDMA': data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return yarnContainerScript;
   }
@@ -448,6 +444,7 @@ class Job {
           'webHdfsUri': launcherConfig.webhdfsUri,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
           'paiMachineList': paiConfig.machineList,
+          'reqAzRDMA': data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return dockerContainerScript;
   }

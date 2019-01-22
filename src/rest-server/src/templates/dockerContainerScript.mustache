@@ -153,6 +153,7 @@ else
     "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
 
+{{# reqAzRDMA }}
 {{# azRDMA }}
 function  azure_rdma_preparation()
 {
@@ -169,6 +170,7 @@ function  azure_rdma_preparation()
 
 azure_rdma_preparation
 {{/ azRDMA }}
+{{/ reqAzRDMA }}
 
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
