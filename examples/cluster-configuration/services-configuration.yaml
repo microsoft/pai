@@ -56,6 +56,8 @@
 
 #Uncomment following lines if you want to customize yarn
 #hadoop-resource-manager:
+#  # job log retain time
+#  yarn_log_retain_seconds: 2592000
 #  # port for yarn exporter
 #  yarn_exporter_port: 9459
 #  # Step 1 of 4 to set up Hadoop queues.

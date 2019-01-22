@@ -21,3 +21,5 @@ virtualClusters:
     capacity: 100
 
 yarn_exporter_port: 9459
+
+yarn_log_retain_seconds: 2592000

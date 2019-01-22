@@ -70,7 +70,7 @@
 
     <property>
       <name>yarn.log-aggregation.retain-seconds</name>
-       <value>604800</value>
+       <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "yarn_log_retain_seconds" ] }}</value>
     </property>
 
     <property>
