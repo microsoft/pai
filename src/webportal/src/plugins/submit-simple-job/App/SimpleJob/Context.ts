@@ -3,13 +3,15 @@ import { createContext } from "react";
 import SimpleJob, { ISimpleJob } from ".";
 
 interface ISimpleJobContext {
-  value: ISimpleJob;
+  value: SimpleJob;
   set: <F extends keyof ISimpleJob>(field: F) => (value: ISimpleJob[F]) => void;
+  apply: (legacyJson: string) => void;
 }
 
 const SimpleJobContext = createContext<ISimpleJobContext>({
   value: new SimpleJob(),
-  set(field) { return (value) => { this.value[field] = value; }; },
+  set() { return () => { return; }; },
+  apply() { return; },
 });
 SimpleJobContext.displayName = "SimpleJobContext";
 

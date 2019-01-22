@@ -1,10 +1,11 @@
 import * as React from "react";
 
-import * as cookie from "js-cookie";
-
 import SimpleJob, { ISimpleJob } from "./SimpleJob";
 import SimpleJobContext from "./SimpleJob/Context";
 import SimpleJobForm from "./SimpleJob/Form";
+
+import TemplatesContext from "./Templates/Context";
+import { templates } from "./Templates/data.json";
 
 import convert from "./convert";
 
@@ -16,6 +17,8 @@ const AppContent: React.FunctionComponent = ({ children }) => (
 
 interface IAppProps {
   api: string;
+  user: string;
+  token: string;
 }
 
 interface IAppState {
@@ -33,12 +36,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   public render() {
     const { simpleJob } = this.state;
-    const { setSimpleJob } = this;
+    const { setSimpleJob, applyLegacyJSON } = this;
     return (
-      <SimpleJobContext.Provider value={{ value: simpleJob, set: setSimpleJob }}>
-        <AppContent>
-          <SimpleJobForm onSubmit={this.submitSimpleJob}/>
-        </AppContent>
+      <SimpleJobContext.Provider value={{ value: simpleJob, set: setSimpleJob, apply: applyLegacyJSON }}>
+        <TemplatesContext.Provider value={{ templates, apply: applyLegacyJSON }}>
+          <AppContent>
+            <SimpleJobForm onSubmit={this.submitSimpleJob}/>
+          </AppContent>
+        </TemplatesContext.Provider>
       </SimpleJobContext.Provider>
     );
   }
@@ -47,18 +52,20 @@ export default class App extends React.Component<IAppProps, IAppState> {
     F extends keyof ISimpleJob,
     V extends ISimpleJob[F],
   >(field: F) => (value: V) => {
-    this.setState(
-      ({ simpleJob }) =>
-        ({ simpleJob: simpleJob.set(field, value) }),
-    );
+    this.setState(({
+      simpleJob,
+    }) => ({
+      simpleJob: simpleJob.clone(field, value),
+    }));
   }
 
-  private submitSimpleJob = (simpleJob: ISimpleJob) => {
-    const { api } = this.props;
-    const job = convert(simpleJob as SimpleJob);
+  private applyLegacyJSON = (json: string) => {
+    this.setState({ simpleJob: SimpleJob.fromLegacyJSON(json) });
+  }
 
-    const user = cookie.get("user");
-    const token = cookie.get("token");
+  private submitSimpleJob = (simpleJob: SimpleJob) => {
+    const { api, user, token } = this.props;
+    const job = convert(simpleJob as SimpleJob, user);
 
     window.fetch(`${api}/api/v1/user/${user}/jobs`, {
       body: JSON.stringify(job),

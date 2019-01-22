@@ -1,6 +1,8 @@
 import * as React from "react";
 
-import { ISimpleJob } from ".";
+import { nfs } from "../../config";
+
+import SimpleJob from ".";
 import SimpleJobContext from "./Context";
 
 import CheckBox from "../Components/FormControls/CheckBox";
@@ -10,6 +12,9 @@ import TextArea from "../Components/FormControls/TextArea";
 import TextInput from "../Components/FormControls/TextInput";
 import Panel from "../Components/Panel";
 
+import TemplatesSelect from "../Templates/Select";
+
+import DatabaseOperation from "./Components/DatabaseOperation";
 import EnvironmentVariables from "./Components/EnvironmentVariables";
 import HyperParameter from "./Components/HyperParameter";
 import MountDirectories from "./Components/MountDirectories";
@@ -38,7 +43,7 @@ const ModelForm: React.FunctionComponent<IModelFormProps> = ({ children, onSubmi
 );
 
 interface ISimpleJobFormProps {
-  onSubmit: (simpleJob: ISimpleJob) => void;
+  onSubmit: (simpleJob: SimpleJob) => void;
 }
 
 const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit }) => (
@@ -51,9 +56,9 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
       };
       return (
         <ModelForm title="Submit Job" submitLabel="Submit Job" onSubmit={onFormSubmit}>
-          <Select className="col-md-6" options={["None"]}>
+          <TemplatesSelect className="col-md-6">
             Job Template
-          </Select>
+          </TemplatesSelect>
           <div className="clearfix"/>
           <TextInput className="col-md-6"
             value={simpleJob.name} onChange={setSimpleJob("name")}>
@@ -109,9 +114,13 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
           <div className="col-md-12">
             <Panel title="Advanced Options">
               <div className="panel-group col-sm-12">
-                <Panel title="Mount Directories">
-                  <MountDirectories/>
-                </Panel>
+                {
+                  nfs ? (
+                    <Panel title="Mount Directories">
+                      <MountDirectories/>
+                    </Panel>
+                  ) : null
+                }
                 <Panel title="HyperParameter Turning">
                   <HyperParameter/>
                 </Panel>
@@ -122,6 +131,11 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
                   <PriviledgedDocker/>
                 </Panel>
               </div>
+            </Panel>
+          </div>
+          <div className="col-md-12">
+            <Panel title="Database operation">
+              <DatabaseOperation/>
             </Panel>
           </div>
         </ModelForm>

@@ -4,75 +4,227 @@ export interface IEnvironmentVariable {
 }
 
 export interface ISimpleJob {
-  name: string;
-  gpus: number;
+  readonly name: string;
+  readonly gpus: number;
 
-  image: string;
-  command: string;
+  readonly image: string;
+  readonly command: string;
 
-  isInteractive: boolean;
-  interactivePorts: string;
+  readonly isInteractive: boolean;
+  readonly interactivePorts: string;
 
-  enableTensorboard: boolean;
-  tensorboardModelPath: string;
+  readonly enableTensorboard: boolean;
+  readonly tensorboardModelPath: string;
 
-  enableWorkMount: boolean;
-  workPath: string;
-  enableDataMount: boolean;
-  dataPath: string;
-  enableJobMount: boolean;
-  jobPath: string;
+  readonly enableWorkMount: boolean;
+  readonly workPath: string;
+  readonly enableDataMount: boolean;
+  readonly dataPath: string;
+  readonly enableJobMount: boolean;
+  readonly jobPath: string;
 
-  hyperParameterName: string;
-  hyperParameterStartValue: number;
-  hyperParameterEndValue: number;
-  hyperParameterStep: number;
+  readonly hyperParameterName: string;
+  readonly hyperParameterStartValue: number;
+  readonly hyperParameterEndValue: number;
+  readonly hyperParameterStep: number;
 
-  environmentVariables: IEnvironmentVariable[];
+  readonly environmentVariables: IEnvironmentVariable[];
 
-  isPrivileged: boolean;
-  cpus: number;
-  memory: number;
+  readonly isPrivileged: boolean;
+  readonly cpus: number;
+  readonly memory: number;
 }
 
 export default class SimpleJob implements ISimpleJob {
-  public readonly name: string = "";
-  public readonly gpus: number = 0;
 
-  public readonly image: string = "";
-  public readonly command: string = "";
+  public static fromLegacyJSON(json: string) {
+    const legacyObject = JSON.parse(json);
+    const simpleJob = new SimpleJob();
 
-  public readonly isInteractive: boolean = false;
-  public readonly interactivePorts: string = "";
+    if (typeof legacyObject.jobName === "string") {
+      simpleJob.name = legacyObject.jobName;
+    }
+    if (typeof legacyObject.resourcegpu === "number") {
+      simpleJob.gpus = Number(legacyObject.resourcegpu) || 0;
+    }
 
-  public readonly enableTensorboard: boolean = false;
-  public readonly tensorboardModelPath: string = "";
+    if (typeof legacyObject.image === "string") {
+      simpleJob.image = legacyObject.image;
+    }
+    if (typeof legacyObject.cmd === "string") {
+      simpleJob.command = legacyObject.cmd;
+    }
 
-  public readonly enableWorkMount: boolean = false;
-  public readonly workPath: string = "";
-  public readonly enableDataMount: boolean = false;
-  public readonly dataPath: string = "";
-  public readonly enableJobMount: boolean = false;
-  public readonly jobPath: string = "";
+    if (typeof legacyObject.is_interactive === "boolean") {
+      simpleJob.isInteractive = legacyObject.is_interactive;
+    }
+    if (simpleJob.isInteractive && typeof legacyObject.interactivePort === "string") {
+      simpleJob.interactivePorts = legacyObject.interactivePort;
+    }
 
-  public readonly hyperParameterName: string = "";
-  public readonly hyperParameterStartValue: number = 0;
-  public readonly hyperParameterEndValue: number = 0;
-  public readonly hyperParameterStep: number = 0;
+    if (typeof legacyObject.do_log === "boolean") {
+      simpleJob.enableTensorboard = legacyObject.do_log;
+    }
+    if (simpleJob.enableTensorboard && typeof legacyObject.logDir === "string") {
+      simpleJob.tensorboardModelPath = legacyObject.logDir;
+    }
 
-  public readonly environmentVariables: IEnvironmentVariable[] = [];
+    if (typeof legacyObject.enableworkpath === "boolean") {
+      simpleJob.enableWorkMount = legacyObject.enableworkpath;
+    }
+    if (typeof legacyObject.workPath === "string") {
+      simpleJob.workPath = legacyObject.workPath;
+    }
+    if (typeof legacyObject.enabledatapath === "boolean") {
+      simpleJob.enableDataMount = legacyObject.enabledatapath;
+    }
+    if (typeof legacyObject.dataPath === "string") {
+      simpleJob.dataPath = legacyObject.dataPath;
+    }
+    if (typeof legacyObject.enablejobpath === "boolean") {
+      simpleJob.enableJobMount = legacyObject.enablejobpath;
+    }
+    if (typeof legacyObject.jobPath === "string") {
+      simpleJob.jobPath = legacyObject.jobPath;
+    }
 
-  public readonly isPrivileged: boolean = false;
-  public readonly cpus: number = 1;
-  public readonly memory: number = 256;
+    if (typeof legacyObject.hyperparametername === "string") {
+      simpleJob.hyperParameterName = legacyObject.hyperparametername;
+    }
+    if (
+      typeof legacyObject.hyperparameterstartvalue === "number" ||
+      typeof legacyObject.hyperparameterstartvalue === "string"
+    ) {
+      simpleJob.hyperParameterStartValue = Number(legacyObject.hyperparameterstartvalue) || 0;
+    }
+    if (
+      typeof legacyObject.hyperparameterendvalue === "number" ||
+      typeof legacyObject.hyperparameterendvalue === "string"
+    ) {
+      simpleJob.hyperParameterEndValue = Number(legacyObject.hyperparameterendvalue) || 0;
+    }
+    if (
+      typeof legacyObject.hyperparameterstep === "number" ||
+      typeof legacyObject.hyperparameterstep === "string"
+    ) {
+      simpleJob.hyperParameterStep = Number(legacyObject.hyperparameterstep) || 0;
+    }
 
-  public set<
+    if (Array.isArray(legacyObject.env)) {
+      const { environmentVariables } = simpleJob;
+      for (const legacyEnv of legacyObject.env) {
+        const { name, value } = legacyEnv;
+        if (typeof name === "string" && typeof value === "string") {
+          environmentVariables.push({ name, value });
+        }
+      }
+    }
+
+    if (typeof legacyObject.isPrivileged === "boolean") {
+      simpleJob.isPrivileged = legacyObject.isPrivileged;
+    }
+
+    if (simpleJob.isPrivileged) {
+      if (
+        typeof legacyObject.cpurequest === "string" ||
+        typeof legacyObject.cpurequest === "number"
+      ) {
+        simpleJob.cpus = Number(legacyObject.cpurequest) || 1;
+      }
+      if (
+        typeof legacyObject.memoryrequest === "string" ||
+        typeof legacyObject.memoryrequest === "number"
+      ) {
+        simpleJob.memory = Number(legacyObject.memoryrequest) || 256;
+      }
+    }
+
+    return simpleJob;
+  }
+
+  public static toLegacyJSON(simpleJob: ISimpleJob): string {
+    const legacyObject: any = {};
+    legacyObject.jobName = simpleJob.name;
+    legacyObject.resourcegpu = simpleJob.gpus;
+
+    legacyObject.image = simpleJob.image;
+    legacyObject.cmd = simpleJob.command;
+
+    if (simpleJob.isInteractive) {
+      legacyObject.is_interactive = simpleJob.isInteractive;
+      legacyObject.interactivePort = simpleJob.interactivePorts;
+    }
+
+    if (simpleJob.enableTensorboard) {
+      legacyObject.do_log = simpleJob.enableTensorboard;
+      legacyObject.logDir = simpleJob.tensorboardModelPath;
+    }
+
+    legacyObject.enableworkpath = simpleJob.enableWorkMount;
+    legacyObject.workPath = simpleJob.workPath;
+    legacyObject.enabledatapath = simpleJob.enableDataMount;
+    legacyObject.dataPath = simpleJob.dataPath;
+    legacyObject.enablejobpath = simpleJob.enableJobMount;
+    legacyObject.jobPath = simpleJob.jobPath;
+
+    legacyObject.hyperparametername = simpleJob.hyperParameterName;
+    legacyObject.hyperparameterstartvalue = simpleJob.hyperParameterStartValue;
+    legacyObject.hyperparameterendvalue = simpleJob.hyperParameterEndValue;
+    legacyObject.hyperparameterstep = simpleJob.hyperParameterStep;
+
+    if (simpleJob.isPrivileged) {
+      legacyObject.isPrivileged = simpleJob.isPrivileged;
+      legacyObject.cpurequest = simpleJob.cpus;
+      legacyObject.memoryrequest = simpleJob.memory;
+    }
+
+    return JSON.stringify(legacyObject);
+  }
+
+  public name: string = "";
+  public gpus: number = 0;
+
+  public image: string = "";
+  public command: string = "";
+
+  public isInteractive: boolean = false;
+  public interactivePorts: string = "";
+
+  public enableTensorboard: boolean = false;
+  public tensorboardModelPath: string = "";
+
+  public enableWorkMount: boolean = false;
+  public workPath: string = "";
+  public enableDataMount: boolean = false;
+  public dataPath: string = "";
+  public enableJobMount: boolean = false;
+  public jobPath: string = "";
+
+  public hyperParameterName: string = "";
+  public hyperParameterStartValue: number = 0;
+  public hyperParameterEndValue: number = 0;
+  public hyperParameterStep: number = 0;
+
+  public environmentVariables: IEnvironmentVariable[] = [];
+
+  public isPrivileged: boolean = false;
+  public cpus: number = 1;
+  public memory: number = 256;
+
+  public constructor(that?: ISimpleJob) {
+    if (that !== undefined) {
+      Object.assign(this, that);
+    }
+  }
+
+  public clone<
     F extends keyof ISimpleJob,
-    V extends ISimpleJob[F],
-  >(field: F, value: V) {
-    const that = Object.create(SimpleJob.prototype) as SimpleJob;
-    Object.assign(that, this);
-    that[field] = value;
+    V extends ISimpleJob[F]
+  >(field?: F, value?: V): SimpleJob {
+    const that = new SimpleJob(this);
+    if (field !== undefined && value !== undefined) {
+      that[field] = value;
+    }
     return that;
   }
 }

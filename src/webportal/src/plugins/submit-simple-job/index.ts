@@ -9,7 +9,14 @@ import App from "./App";
 class PAIPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
-    ReactDOM.render(React.createElement(App, { api }), this);
+    // TODO: remove `js-cookie` after pai-user and pai-rest-server-token is configurad in PAI.
+    const user = this.getAttribute("pai-user") || cookie.get("user");
+    const token = this.getAttribute("pai-rest-server-token") || cookie.get("token");
+    if (user == null || token == null) {
+      window.location.href = "/login.html";
+      return;
+    }
+    ReactDOM.render(React.createElement(App, { api, user, token }), this);
   }
 
   public disconnectedCallback() {
@@ -17,8 +24,4 @@ class PAIPluginElement extends HTMLElement {
   }
 }
 
-if (cookie.get("user") === undefined) {
-  window.location.href = "/login.html";
-} else {
-  window.customElements.define("pai-plugin", PAIPluginElement);
-}
+window.customElements.define("pai-plugin", PAIPluginElement);
