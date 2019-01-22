@@ -414,7 +414,6 @@ class Job {
             }
         }
     }
-
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
           'idx': idx,
@@ -429,7 +428,7 @@ class Job {
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
-          'reqAzRDMA': data.jobEnvs.paiAzRDMA === true ? true : false,
+          'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return yarnContainerScript;
   }
@@ -444,7 +443,7 @@ class Job {
           'webHdfsUri': launcherConfig.webhdfsUri,
           'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
           'paiMachineList': paiConfig.machineList,
-          'reqAzRDMA': data.jobEnvs.paiAzRDMA === true ? true : false,
+          'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return dockerContainerScript;
   }
