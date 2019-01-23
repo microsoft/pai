@@ -9,6 +9,7 @@ export interface ISimpleJob {
 
   readonly image: string;
   readonly command: string;
+  readonly root: boolean;
 
   readonly isInteractive: boolean;
   readonly interactivePorts: string;
@@ -53,6 +54,9 @@ export default class SimpleJob implements ISimpleJob {
     }
     if (typeof legacyObject.cmd === "string") {
       simpleJob.command = legacyObject.cmd;
+    }
+    if (typeof legacyObject.runningasroot === "boolean") {
+      simpleJob.root = legacyObject.runningasroot;
     }
 
     if (typeof legacyObject.is_interactive === "boolean") {
@@ -149,6 +153,7 @@ export default class SimpleJob implements ISimpleJob {
 
     legacyObject.image = simpleJob.image;
     legacyObject.cmd = simpleJob.command;
+    legacyObject.runningasroot = simpleJob.root;
 
     if (simpleJob.isInteractive) {
       legacyObject.is_interactive = simpleJob.isInteractive;
@@ -186,6 +191,7 @@ export default class SimpleJob implements ISimpleJob {
 
   public image: string = "";
   public command: string = "";
+  public root: boolean = true;
 
   public isInteractive: boolean = false;
   public interactivePorts: string = "";
@@ -209,7 +215,7 @@ export default class SimpleJob implements ISimpleJob {
 
   public isPrivileged: boolean = false;
   public cpus: number = 1;
-  public memory: number = 256;
+  public memory: number = 30 * 1024;
 
   public constructor(that?: ISimpleJob) {
     if (that !== undefined) {

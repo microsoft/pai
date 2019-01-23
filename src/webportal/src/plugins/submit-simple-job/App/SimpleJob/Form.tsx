@@ -90,7 +90,9 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
             onChange={setSimpleJob("enableTensorboard")}>
             Enable Tensorboard
           </CheckBox>
-          <CheckBox className="col-md-4">
+          <CheckBox className="col-md-4"
+            value={simpleJob.root}
+            onChange={setSimpleJob("root")}>
             Launch container as root user.
           </CheckBox>
           {

@@ -3,8 +3,37 @@ import SimpleJob from "./SimpleJob";
 import { nfs } from "../config";
 
 function convertCommand(simpleJob: SimpleJob, user: string, hyperParameterValue?: number) {
+  const depends: { [name: string]: boolean } = {};
+
+  const exportCommands = simpleJob.environmentVariables.map(
+    ({ name, value }) => `export ${name}=${value}`);
+  if (hyperParameterValue !== undefined) {
+    exportCommands.push(`export ${simpleJob.hyperParameterName}=${hyperParameterValue}`);
+  }
+
+  const mountCommands = [];
+  if (nfs) {
+    if (simpleJob.enableWorkMount) {
+      mountCommands.push("mkdir --parents /work",
+        `mount -t nfs4 ${nfs}/${user}/${simpleJob.workPath} /work`);
+      depends["nfs-common"] = true;
+    }
+
+    if (simpleJob.enableDataMount) {
+      mountCommands.push("mkdir --parents /data",
+        `mount -t nfs4 ${nfs}/${user}/${simpleJob.dataPath} /data`);
+      depends["nfs-common"] = true;
+    }
+
+    if (simpleJob.enableJobMount) {
+      mountCommands.push("mkdir --parents /job",
+        `mount -t nfs4 ${nfs}/${user}/${simpleJob.jobPath} /job`);
+      depends["nfs-common"] = true;
+    }
+  }
+
   const uid = String(Math.floor(Math.random() * 90000 + 10000));
-  const gid = String(Math.floor(Math.random() * 90000 + 10000));
+  const gid = uid;
   const command = simpleJob.command.replace(/\$\$(username|uid|gid)\$\$/g, (_, key) => {
     if (key === "username") { return user; }
     if (key === "uid") { return uid; }
@@ -12,37 +41,33 @@ function convertCommand(simpleJob: SimpleJob, user: string, hyperParameterValue?
     throw Error("Bad replacement");
   });
 
-  const commands = [ command ];
-
-  if (hyperParameterValue !== undefined) {
-    commands.unshift(`export ${simpleJob.hyperParameterName}=${hyperParameterValue}`);
+  const userCommands = [];
+  if (simpleJob.root) {
+    userCommands.push(command);
+  } else {
+    // Create a user with group.
+    userCommands.push(
+      `groupadd --gid ${gid} ${user}`,
+      `useradd --gid ${gid} --groups sudo --uid ${uid} ${user}`,
+      "echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
+      `echo '${command.replace(/'/g, "'\\''")}' | su --preserve-environment ${user}`,
+    );
+    depends.sudo = true;
   }
 
-  for (const variable of simpleJob.environmentVariables.reverse()) {
-    commands.unshift(`export ${variable.name}=${variable.value}`);
+  const dependencies = Object.keys(depends);
+  const installCommands = [];
+  if (dependencies.length > 0) {
+    installCommands.push(
+      "apt-get update",
+      `apt-get install --assume-yes ${dependencies.join(" ")}`,
+    );
   }
 
-  if (nfs) {
-    let nfsMounted = false;
-    if (simpleJob.enableWorkMount) {
-      commands.unshift("mkdir --parents /work", `mount -t nfs4 ${nfs}/${user}/${simpleJob.workPath} /work`);
-      nfsMounted = true;
-    }
-
-    if (simpleJob.enableDataMount) {
-      commands.unshift("mkdir --parents /data", `mount -t nfs4 ${nfs}/${user}/${simpleJob.dataPath} /data`);
-      nfsMounted = true;
-    }
-
-    if (simpleJob.enableJobMount) {
-      commands.unshift("mkdir --parents /job", `mount -t nfs4 ${nfs}/${user}/${simpleJob.jobPath} /job`);
-      nfsMounted = true;
-    }
-
-    if (nfsMounted) {
-      commands.unshift("apt-get update", "apt-get install --assume-yes nfs-common");
-    }
-  }
+  const commands = installCommands
+    .concat(mountCommands)
+    .concat(exportCommands)
+    .concat(userCommands);
 
   return commands.join(" && ");
 }
@@ -68,7 +93,7 @@ function convertTaskRole(name: string, simpleJob: SimpleJob, user: string, hyper
       portList.push({
         beginAt: port,
         label: `port_${port}`,
-        portNumber: 1
+        portNumber: 1,
       });
     }
     taskRole.portList = portList;
