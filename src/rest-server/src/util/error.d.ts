@@ -41,6 +41,7 @@ declare type Code =
     'NoVirtualClusterError' |
     'ReadOnlyJobError' |
     'RemoveAdminError' |
+    'RemoveRunningVcError' |
     'UnauthorizedUserError' |
     'NoEnoughQuotaError' |
     'UnknownError';
