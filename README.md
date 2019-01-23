@@ -115,6 +115,7 @@ For more information see the [Code of Conduct FAQ](https://opensource.microsoft.
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 #### Call for contribution
+We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
 - PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
 - PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
