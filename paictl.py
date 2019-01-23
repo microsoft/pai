@@ -49,6 +49,8 @@ from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
 
 from deployment.clusterObjectModel.cluster_object_model import cluster_object_model
 
+from deployment.utility.ssh import OpenPaiSSH
+
 
 logger = logging.getLogger(__name__)
 
@@ -502,6 +504,34 @@ class Configuration(SubCmd):
         external_conf_update.update_latest_external_configuration()
 
 
+class utility(SubCmd):
+    def register(self, parser):
+        utility_parser = parser.add_subparsers(help="utility for maintaining in a easy way.")
+
+        ssh_parser = SubCmd.add_handler(utility_parser, self.cluster_ssh, "ssh")
+
+
+        ssh_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
+        ssh_parser.add_argument("-f", "--filter", dest="filter", nargs='+', help="Rule to filter machine. Format: key1=value1 key2=value2 ...")
+        ssh_parser.add_argument("-c", "--command", dest="command", required=True, help="The command to be executed remotely.")
+
+    def rule_check(self, rule_list):
+        if rule_list == None:
+            return
+        for rule in rule_list:
+            kv = rule.splite("=")
+            if len(kv) != 2:
+                logger.error("Please check the filter rule {0}. It's invalid.".format(rule))
+                sys.exit(1)
+
+    def cluster_ssh(self, args):
+        if args.cluster_conf_path != None:
+            args.cluster_conf_path = os.path.expanduser(args.config_path)
+        rule_check(args.filter)
+        ssh_handler = OpenPaiSSH(args.command, args.cluster_conf_path, args.filter)
+        ssh_handler.run()
+
+
 class Main(SubCmd):
     def __init__(self, subcmds):
         self.subcmds = subcmds
@@ -521,7 +551,8 @@ def main(args):
         "machine": Machine(),
         "service": Service(),
         "cluster": Cluster(),
-        "config": Configuration()
+        "config": Configuration(),
+        "utility": utility()
         })
 
     main_handler.register(parser)
