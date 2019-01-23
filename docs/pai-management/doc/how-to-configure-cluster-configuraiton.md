@@ -85,6 +85,7 @@ machine-list:
       dashboard: "true"
       zkid: "1"
       pai-master: "true"
+      #docker-data: /var/lib/docker
 
     - hostname: hostname
       hostip: IP
@@ -95,6 +96,7 @@ machine-list:
       #password: password (Optional)
       k8s-role: master
       node-exporter: "true"
+      #docker-data: /var/lib/docker
 
     - hostname: hostname
       hostip: IP
@@ -104,6 +106,7 @@ machine-list:
       #password: password (Optional)
       k8s-role: worker
       pai-worker: "true"
+      #docker-data: /var/lib/docker
 ```
 
 User could config each service deploy at which node by labeling node with service tag as below:
@@ -121,5 +124,6 @@ User could config each service deploy at which node by labeling node with servic
 | ```zkid``` | Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```.|
 | ```pai-worker``` | Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work|
  ```node-exporter``` | Optional. You can assign this label to nodes to enable hardware and service monitoring.|
-
+ ```docker-data``` | Optional. You configure this path before k8s deployment. When deploying k8s, the docker's data root will be changed to the path configured in this field. The default value is ```/var/lib/docker```. And it's same with the docker's default value. |
+ 
 Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this section.
