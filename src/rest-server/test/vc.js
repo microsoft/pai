@@ -28,10 +28,10 @@ const yarnDefaultResponse = {
                 "queue": [
                     {
                         "type": "capacitySchedulerLeafQueueInfo",
-                        "capacity": 30.000002,
+                        "capacity": 10.000002,
                         "usedCapacity": 0,
                         "maxCapacity": 100,
-                        "absoluteCapacity": 30.000002,
+                        "absoluteCapacity": 10.000002,
                         "absoluteMaxCapacity": 100,
                         "absoluteUsedCapacity": 0,
                         "numApplications": 0,
@@ -97,6 +97,101 @@ const yarnDefaultResponse = {
                         },
                         "numActiveApplications": 0,
                         "numPendingApplications": 0,
+                        "numContainers": 0,
+                        "maxApplications": 3000,
+                        "maxApplicationsPerUser": 3000,
+                        "userLimit": 100,
+                        "users": null,
+                        "userLimitFactor": 1,
+                        "AMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": false,
+                        "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 20.000000,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 20.000000,
+                        "absoluteMaxCapacity": 100,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 2,
+                        "queueName": "c",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "*"
+                        ],
+                        "allocatedContainers": 0,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 30.000002,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 30.000002,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 100
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 15360,
+                                        "vCores": 8,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 1,
+                        "numPendingApplications": 1,
                         "numContainers": 0,
                         "maxApplications": 3000,
                         "maxApplicationsPerUser": 3000,
@@ -578,7 +673,7 @@ describe('VC API  Get /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('capacity', 30);
+        expect(res.body).to.have.property('capacity', 10);
         done();
       });
   });
@@ -986,6 +1081,21 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res.body).to.have.property('code', 'NoVirtualClusterError');
+        done();
+      });
+  });
+
+  it('[Negative] should not delete vc when jobs are running', (done) => {
+    nock(yarnUri)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200);
+
+    chai.request(server)
+      .delete('/api/v1/virtual-clusters/c')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(403);
+        expect(res.body).to.have.property('code', 'RemoveRunningVcError');
         done();
       });
   });
