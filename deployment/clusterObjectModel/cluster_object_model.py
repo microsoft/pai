@@ -18,6 +18,7 @@
 import os
 import sys
 import importlib
+import time
 import logging
 import logging.config
 
@@ -54,8 +55,18 @@ class cluster_object_model:
             self.logger.warning("= a new service-configuraiton.yaml with latest format will be created =")
             self.logger.warning("=======================================================================")
 
-            linux_shell.execute_shell("mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old")
-            file_handler.dump_yaml_data("{0}/service-configuration.yaml", self.overwirte_service_configuration)
+            linux_shell.execute_shell("mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(configuration_path))
+            file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(configuration_path), self.overwirte_service_configuration)
+
+            self.logger.warning("=======================================================================")
+            self.logger.warning("===============  Process will continue after 15s.    ==================")
+            self.logger.warning("=======================================================================")
+            self.logger.warning("=======  Please perform ./paictl.py config push to update the  ========")
+            self.logger.warning("=========      configuration in kubernetes configmap.      ============")
+            self.logger.warning("=======================================================================")
+            time.sleep(10)
+
+
 
 
 
