@@ -30,7 +30,7 @@ class ServiceConfigUpdate:
 
 
     def run(self):
-        overwirte_service_configuration = file_handler.load_yaml_config( "{0}/services-configuration.yaml".format(configuration_path))
+        overwirte_service_configuration = file_handler.load_yaml_config( "{0}/services-configuration.yaml".format(self.config_path))
         self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
 
         if updated is True:
@@ -43,10 +43,10 @@ class ServiceConfigUpdate:
             self.logger.warning("=======================================================================")
 
             linux_shell.execute_shell(
-                "mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(configuration_path),
+                "mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(self.config_path),
                 "failed to mv the old service-configuration.yaml"
             )
-            file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(configuration_path), self.overwirte_service_configuration)
+            file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(self.config_path), self.overwirte_service_configuration)
 
             self.logger.warning("=======================================================================")
             self.logger.warning("===============  Process will continue after 15s.    ==================")
