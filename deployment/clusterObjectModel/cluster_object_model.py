@@ -55,7 +55,10 @@ class cluster_object_model:
             self.logger.warning("= a new service-configuraiton.yaml with latest format will be created =")
             self.logger.warning("=======================================================================")
 
-            linux_shell.execute_shell("mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(configuration_path))
+            linux_shell.execute_shell(
+                "mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(configuration_path),
+                "failed to mv the old service-configuration.yaml"
+            )
             file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(configuration_path), self.overwirte_service_configuration)
 
             self.logger.warning("=======================================================================")
