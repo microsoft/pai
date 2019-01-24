@@ -28,6 +28,16 @@
     </property>
 
     <property>
+        <name>yarn.nodemanager.vmem-pmem-ratio</name>
+        <value>6</value>
+        <description>
+            Ratio between virtual memory to physical memory when setting memory limits for containers.
+            Container allocations are expressed in terms of physical memory, and virtual memory usage
+            is allowed to exceed this allocation by this ratio.
+        </description>
+    </property>
+
+    <property>
         <name>yarn.resourcemanager.max-completed-applications</name>
         <value>1000</value>
         <description>maximum number of completed applications</description>
