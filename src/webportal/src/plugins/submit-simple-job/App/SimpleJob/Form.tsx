@@ -80,6 +80,10 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
             value={simpleJob.command} onChange={setSimpleJob("command")}>
             Command
           </TextArea>
+          <TextInput className="col-md-12"
+            value={simpleJob.virtualCluster} onChange={setSimpleJob("virtualCluster")}>
+            Virtual Cluster
+          </TextInput>
           <CheckBox className="col-md-4"
             value={simpleJob.isInteractive}
             onChange={setSimpleJob("isInteractive")}>

@@ -109,6 +109,7 @@ export default function convert(simpleJob: SimpleJob, user: string) {
   const job: any = {
     image: simpleJob.image,
     jobName: simpleJob.name,
+    virtualCluster: simpleJob.virtualCluster,
   };
 
   const taskRoles = [];

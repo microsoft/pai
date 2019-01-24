@@ -10,6 +10,7 @@ export interface ISimpleJob {
   readonly image: string;
   readonly command: string;
   readonly root: boolean;
+  readonly virtualCluster: string;
 
   readonly isInteractive: boolean;
   readonly interactivePorts: string;
@@ -192,6 +193,7 @@ export default class SimpleJob implements ISimpleJob {
   public image: string = "";
   public command: string = "";
   public root: boolean = true;
+  public virtualCluster: string = "default";
 
   public isInteractive: boolean = false;
   public interactivePorts: string = "";
