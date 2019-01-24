@@ -1,6 +1,6 @@
 cluster:
   common:
-      clusterid: pai_ut
+      cluster-id: pai_ut
       data-path: "/datastorage"
   docker-registry:
       namespace: ut

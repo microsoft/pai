@@ -21,6 +21,7 @@ import logging.config
 from external_version_control.external_config import getting_external_config
 from external_version_control.storage_factory import get_external_storage
 from .upload import upload_configuration
+from ..clusterObjectModel.service_config_update import ServiceConfigUpdate
 
 
 class synchronization:
@@ -65,6 +66,10 @@ class synchronization:
         self.external_storage_configuration = self.get_external_storage_conf()
         with get_external_storage(self.external_storage_configuration) as configuration_path:
             self.logger.info("The temporary cluster configuration path is : {0}".format(configuration_path))
+
+            config_format_check = ServiceConfigUpdate(configuration_path)
+            config_format_check.run()
+
             conf_uploader = upload_configuration(configuration_path, self.kube_config_path)
             conf_uploader.run()
             self.logger.info("Cluster Configuration synchronization from external storage is successful.")

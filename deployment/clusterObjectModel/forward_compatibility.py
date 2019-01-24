@@ -38,7 +38,7 @@ def transform(old_model, old_key, new_model, new_key):
 def service_configuration_convert(service_configuration):
 
     if "hadoop" not in service_configuration and "rest-server" in service_configuration:
-        return service_configuration
+        return service_configuration, False
 
     new_configuration = {}
 
@@ -46,7 +46,7 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "webportal", new_configuration, "webportal")
     transform(service_configuration, "pylon", new_configuration, "pylon")
 
-    transform(service_configuration, "cluster.clusterid", new_configuration, "cluster.common.clusterid")
+    transform(service_configuration, "cluster.clusterid", new_configuration, "cluster.common.cluster-id")
     transform(service_configuration, "cluster.data-path", new_configuration, "cluster.common.data-path")
     transform(service_configuration, "cluster.docker-registry-info.docker-namespace",
               new_configuration, "cluster.docker-registry.namespace")
@@ -93,5 +93,4 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "prometheus.node-exporter-port",
               new_configuration, "node-exporter.port")
 
-    print json.dumps(new_configuration)
-    return new_configuration
+    return new_configuration, True
