@@ -42,7 +42,7 @@ function convertCommand(simpleJob: SimpleJob, user: string, hyperParameterValue?
     if (key === "uid") { return uid; }
     if (key === "gid") { return gid; }
     throw Error("Bad replacement");
-  });
+  }).split("\n").join(" && ");
 
   const userCommands = [];
   if (simpleJob.root) {
