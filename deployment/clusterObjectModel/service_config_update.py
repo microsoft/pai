@@ -52,4 +52,4 @@ class ServiceConfigUpdate:
             self.logger.warning("=======================================================================")
             self.logger.warning("===============  Process will continue after 15s.    ==================")
             self.logger.warning("=======================================================================")
-            time.sleep(10)
+            time.sleep(15)
