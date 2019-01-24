@@ -1,3 +1,5 @@
+import Hashids from "hashids";
+
 import SimpleJob from "./SimpleJob";
 
 import { nfs } from "../config";
@@ -32,7 +34,8 @@ function convertCommand(simpleJob: SimpleJob, user: string, hyperParameterValue?
     }
   }
 
-  const uid = String(Math.floor(Math.random() * 90000 + 10000));
+  const hashids = new Hashids(user, 4, "0123456789ABCDEF");
+  const uid = String(parseInt(hashids.encode(0), 16) + 10000);
   const gid = uid;
   const command = simpleJob.command.replace(/\$\$(username|uid|gid)\$\$/g, (_, key) => {
     if (key === "username") { return user; }
