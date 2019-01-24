@@ -18,6 +18,7 @@
 import os
 import sys
 import importlib
+import time
 import logging
 import logging.config
 
@@ -25,6 +26,7 @@ import logging.config
 from . import forward_compatibility
 from ..paiLibrary.common import file_handler
 from ..paiLibrary.common import directory_handler
+from ..paiLibrary.common import linux_shell
 from .mainParser import kubernetes as pai_com_kubernetes
 from .mainParser import machine as pai_com_machine
 
@@ -40,10 +42,9 @@ class cluster_object_model:
         self.configuration_path = configuration_path
         self.cluster_configuration = file_handler.load_yaml_config("{0}/cluster-configuration.yaml".format(configuration_path))
         overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
-        self.overwirte_service_configuration = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
+        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
         self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
         self.cluster_object_model = dict()
-
 
 
     def get_service_model_list(self):
