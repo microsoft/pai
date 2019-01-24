@@ -48,15 +48,7 @@ cluster:
 #hadoop-resource-manager:
 #  # port for yarn exporter
 #  yarn_exporter_port: 9459
-#  # Step 1 of 4 to set up Hadoop queues.
-#  # Define all virtual clusters, equivalent concept of Hadoop queues:
-#  #   - Each VC will be assigned with (capacity / 100 * 100%) of the resources in the system.
-#  #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
-#  #     member list of 'default' VC when it is created.
-#  virtualClusters:
-#    default:
-#      description: Default VC.
-#      capacity: 100
+
 
 #Uncomment following lines if you want to customize hdfs
 #hadoop-data-node:
