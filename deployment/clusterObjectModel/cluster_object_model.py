@@ -25,6 +25,7 @@ import logging.config
 from . import forward_compatibility
 from ..paiLibrary.common import file_handler
 from ..paiLibrary.common import directory_handler
+from ..paiLibrary.common import linux_shell
 from .mainParser import kubernetes as pai_com_kubernetes
 from .mainParser import machine as pai_com_machine
 
@@ -40,9 +41,21 @@ class cluster_object_model:
         self.configuration_path = configuration_path
         self.cluster_configuration = file_handler.load_yaml_config("{0}/cluster-configuration.yaml".format(configuration_path))
         overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
-        self.overwirte_service_configuration = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
+        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
         self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
         self.cluster_object_model = dict()
+
+        if updated is True:
+            self.logger.warning("=======================================================================")
+            self.logger.warning("============  Your service configuration is out of date. ==============")
+            self.logger.warning("=======================================================================")
+            self.logger.warning("============    Following Operation Will Be Performed    ==============")
+            self.logger.warning("==== service-configuration.yaml -> service-configuraiton.yaml.old =====")
+            self.logger.warning("= a new service-configuraiton.yaml with latest format will be created =")
+            self.logger.warning("=======================================================================")
+
+            linux_shell.execute_shell("mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old")
+            file_handler.dump_yaml_data("{0}/service-configuration.yaml", self.overwirte_service_configuration)
 
 
 
