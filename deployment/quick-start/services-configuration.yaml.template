@@ -19,7 +19,7 @@
 
 cluster:
   #common:
-  #  clusterid: pai-example
+  #  cluster-id: pai-example
   #
   #  # HDFS, zookeeper data path on your cluster machine.
   #  data-path: "/datastorage"
