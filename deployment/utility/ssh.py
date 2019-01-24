@@ -38,7 +38,7 @@ class OpenPaiSSH:
         self.logger.info("=============================================")
         self.logger.info("================ Filter Rule ================")
         self.logger.info("=============================================")
-        if filter_rule != None
+        if filter_rule != None:
             for rule in self.filter_rule:
                 kv = rule.splite("=")
                 rule_list.append({"key":kv[0], "value":kv[1]})
@@ -91,7 +91,7 @@ class OpenPaiSSH:
             if common.ssh_shell_with_password_input_paramiko(host, self.cmd) == False:
                 self.logger.error("[ Failed ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
             else:
-                self.logger.error("[ Successful ]Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
+                self.logger.error("[ Successful ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
 
 
 

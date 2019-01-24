@@ -509,11 +509,14 @@ class utility(SubCmd):
         utility_parser = parser.add_subparsers(help="utility for maintaining in a easy way.")
 
         ssh_parser = SubCmd.add_handler(utility_parser, self.cluster_ssh, "ssh")
-
-
         ssh_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
         ssh_parser.add_argument("-f", "--filter", dest="filter", nargs='+', help="Rule to filter machine. Format: key1=value1 key2=value2 ...")
         ssh_parser.add_argument("-c", "--command", dest="command", required=True, help="The command to be executed remotely.")
+
+
+        scp_parser = SubCmd.add_handler(utility_parser, self.cluster_sftp_copy, "copy")
+
+
 
     def rule_check(self, rule_list):
         if rule_list == None:
