@@ -39,6 +39,11 @@ def load_yaml_config(config_path):
     return cluster_data
 
 
+def dump_yaml_data(file_path, data):
+    with open(file_path, "w") as f:
+        yaml.dump(data, f, default_flow_style=False)
+
+
 
 def read_template(template_path):
 
