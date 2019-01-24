@@ -39,7 +39,7 @@
 
   <property>
      <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
-     <value>1</value>
+     <value>0.5</value>
   </property>
 
   <property>
@@ -64,6 +64,12 @@
     <description>
       {{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ][queueName]["description"] }}
     </description>
+  </property>
+
+  <!-- Disable bonus token -->
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.maximum-capacity</name>
+    <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ][queueName]["weight"] }}</value>
   </property>
 
   <property>

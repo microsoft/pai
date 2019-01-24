@@ -88,6 +88,16 @@ class VirtualCluster {
             },
           };
           data.push({'add-queue': singleQueue});
+          let singleQueueMaximumCapacity = {
+            'queue-name': 'root.' + item,
+            'params': {
+              'entry': {
+                'key': 'maximum-capacity',
+                'value': updateData['pendingAdd'][item],
+              },
+            },
+          };
+          data.push({'update-queue': singleQueueMaximumCapacity});
         }
       }
     }
@@ -286,6 +296,9 @@ class VirtualCluster {
           return callback(createError('Not Found', 'NoVirtualClusterError', `No default vc found, can't free quota`));
         } else if (!vcList.hasOwnProperty(vcName)) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `Can't delete a nonexistent vc ${vcName}`));
+        } else if (vcList[vcName]['numJobs'] > 0) {
+          return callback(createError('Forbidden', 'RemoveRunningVcError',
+            `Can't delete vc ${vcName}, ${vcList[vcName]['numJobs']} jobs are running, stop them before delete vc`));
         } else {
           this.stopVc(vcName, (err) => {
             if (err) {
