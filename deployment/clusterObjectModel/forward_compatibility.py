@@ -93,5 +93,4 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "prometheus.node-exporter-port",
               new_configuration, "node-exporter.port")
 
-    print json.dumps(new_configuration)
     return new_configuration, True
