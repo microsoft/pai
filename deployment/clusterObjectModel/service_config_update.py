@@ -43,10 +43,10 @@ class ServiceConfigUpdate:
             self.logger.warning("=======================================================================")
 
             linux_shell.execute_shell(
-                "mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(self.config_path),
-                "failed to mv the old service-configuration.yaml"
+                "mv {0}/services-configuration.yaml {0}/services-configuration.yaml.old".format(self.config_path),
+                "failed to mv the old services-configuration.yaml"
             )
-            file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(self.config_path), self.overwirte_service_configuration)
+            file_handler.dump_yaml_data("{0}/services-configuration.yaml".format(self.config_path), self.overwirte_service_configuration)
 
             self.logger.warning("=======================================================================")
             self.logger.warning("===============  Process will continue after 15s.    ==================")
