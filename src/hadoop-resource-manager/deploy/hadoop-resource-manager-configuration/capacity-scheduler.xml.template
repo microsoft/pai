@@ -66,6 +66,12 @@
     </description>
   </property>
 
+  <!-- Disable bonus token -->
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.maximum-capacity</name>
+    <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ][queueName]["weight"] }}</value>
+  </property>
+
   <property>
     <name>yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor</name>
     <value>100</value>
