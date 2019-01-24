@@ -41,7 +41,7 @@ def load_yaml_config(config_path):
 
 def dump_yaml_data(file_path, data):
     with open(file_path, "w") as f:
-        yaml.dump(data, f, default_flow_style=True)
+        yaml.dump(data, f, default_flow_style=False)
 
 
 
