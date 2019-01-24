@@ -46,32 +46,6 @@ class cluster_object_model:
         self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
         self.cluster_object_model = dict()
 
-        if updated is True:
-            self.logger.warning("=======================================================================")
-            self.logger.warning("============  Your service configuration is out of date. ==============")
-            self.logger.warning("=======================================================================")
-            self.logger.warning("============    Following Operation Will Be Performed    ==============")
-            self.logger.warning("==== service-configuration.yaml -> service-configuraiton.yaml.old =====")
-            self.logger.warning("= a new service-configuraiton.yaml with latest format will be created =")
-            self.logger.warning("=======================================================================")
-
-            linux_shell.execute_shell(
-                "mv {0}/service-configuration.yaml {0}/service-configuration.yaml.old".format(configuration_path),
-                "failed to mv the old service-configuration.yaml"
-            )
-            file_handler.dump_yaml_data("{0}/service-configuration.yaml".format(configuration_path), self.overwirte_service_configuration)
-
-            self.logger.warning("=======================================================================")
-            self.logger.warning("===============  Process will continue after 15s.    ==================")
-            self.logger.warning("=======================================================================")
-            self.logger.warning("=======  Please perform ./paictl.py config push to update the  ========")
-            self.logger.warning("=========      configuration in kubernetes configmap.      ============")
-            self.logger.warning("=======================================================================")
-            time.sleep(10)
-
-
-
-
 
     def get_service_model_list(self):
         sub_model_list = []
