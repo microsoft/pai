@@ -11,9 +11,11 @@
 
 #### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
 
-All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
+All configurations in this section is optional. 
+If you want to customized these value, you can configure it in service-configuration.yaml. 
 
-- `virtualClusters` Virtual cluster info, containers multiple sub-clusters, the total capacity should equal to 100.
+
+- `virtualClusters` Initial virtual cluster, containers multiple sub-clusters, the total capacity should equal to 100.
     - `virtualClusters.{name}` Sub-cluster name. 
         - `virtualClusters.{name}.description` Comments, no influence.
         - `virtualClusters.{name}.capacity` Resource quota.
