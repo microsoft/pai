@@ -51,11 +51,12 @@ Please refer to this [section](./how-to-setup-dev-box.md) for the customize sett
 ##### (1) Run your dev-box
 
 Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn't run on any PAI cluster node.
+***Choose a release branch. For example: v0.x.y***
 
 ```bash
 
 # Pull the dev-box image from Docker Hub
-sudo docker pull docker.io/openpai/dev-box
+sudo docker pull docker.io/openpai/dev-box:v0.x.y
 
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
@@ -70,7 +71,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box
+        docker.io/openpai/dev-box:v0.x.y
 ```
 ##### (2) Working in your dev-box
 
