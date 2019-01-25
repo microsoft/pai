@@ -540,7 +540,10 @@ class utility(SubCmd):
         if args.cluster_conf_path != None:
             args.cluster_conf_path = os.path.expanduser(args.config_path)
         if args.source != None:
-            args.cluster_conf_path = os.path.expanduser(args.config_path)
+            args.source = os.path.expanduser(args.source)
+        if args.dest != None and os.path.isabs(args.dest) is not True:
+            logger.error("The path of destination should an absolute path.")
+            sys.exit(1)
         rule_check(args.filter)
 
 
