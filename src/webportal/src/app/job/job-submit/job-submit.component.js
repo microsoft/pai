@@ -27,6 +27,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 const url = require('url');
+const stripJsonComments = require('strip-json-comments');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -138,7 +139,7 @@ $(document).ready(() => {
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const jobConfig = event.target.result;
+        const jobConfig = stripJsonComments(event.target.result);
         if (isValidJson(jobConfig)) {
           editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
         }
