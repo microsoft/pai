@@ -196,6 +196,7 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                     "metadata": {"labels": {"type": "kube-launcher-task"}},
                     "spec": {
                         "restartPolicy": "Never",
+                        "serviceAccountName": "frameworkbarrier",
                         "initContainers": gen_init_container(role.command, k8s_api_server),
                         "containers": [{
                             "name": "main",
@@ -346,7 +347,8 @@ def job():
 
         framework = json.dumps(transform(spec, k8s_api_server, default_fs_uri))
         result = requests.post(k8s_api_server + crd_url,
-                headers={"Content-Type": "application/json"},
+                headers=g_k8s_api_header,
+                verify=g_ca_path,
                 data=framework)
         return result.text
     else:
@@ -384,10 +386,10 @@ if __name__ == "__main__":
     bearer_path = args.bearer
     if (g_ca_path is None and bearer_path is not None) or (g_ca_path is not None and bearer_path is None):
         log.warning("please provide bearer_path and ca_path at the same time or not")
-    g_k8s_api_header = None
+    g_k8s_api_header = {"Content-Type": "application/json"}
     if bearer_path is not None:
         with open(bearer_path, "r") as bearer_file:
            bearer = bearer_file.read()
-           g_k8s_api_header = {"Authorization": "Bearer {}".format(bearer)}
+           g_k8s_api_header["Authorization"] = "Bearer {}".format(bearer)
 
     app.run(host=args.host, port=args.port, debug=True)
