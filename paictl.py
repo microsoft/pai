@@ -504,7 +504,7 @@ class Configuration(SubCmd):
         external_conf_update.update_latest_external_configuration()
 
 
-class utility(SubCmd):
+class Utility(SubCmd):
     def register(self, parser):
         utility_parser = parser.add_subparsers(help="utility for maintaining in a easy way.")
 
@@ -570,7 +570,7 @@ def main(args):
         "service": Service(),
         "cluster": Cluster(),
         "config": Configuration(),
-        "utility": utility()
+        "utility": Utility()
         })
 
     main_handler.register(parser)
