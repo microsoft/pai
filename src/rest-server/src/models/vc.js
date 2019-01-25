@@ -114,6 +114,16 @@ class VirtualCluster {
             },
           };
           data.push({'update-queue': singleQueue});
+          let singleQueueMaximumCapacity = {
+            'queue-name': 'root.' + item,
+            'params': {
+              'entry': {
+                'key': 'maximum-capacity',
+                'value': updateData['pendingUpdate'][item],
+              },
+            },
+          };
+          data.push({'update-queue': singleQueueMaximumCapacity});
         }
       }
     }
