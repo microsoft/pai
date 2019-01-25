@@ -513,10 +513,12 @@ class utility(SubCmd):
         ssh_parser.add_argument("-f", "--filter", dest="filter", nargs='+', help="Rule to filter machine. Format: key1=value1 key2=value2 ...")
         ssh_parser.add_argument("-c", "--command", dest="command", required=True, help="The command to be executed remotely.")
 
-
-        scp_parser = SubCmd.add_handler(utility_parser, self.cluster_sftp_copy, "copy")
-
-
+        sftp_cp_parser = SubCmd.add_handler(utility_parser, self.cluster_sftp_copy, "sftp-copy")
+        sftp_cp_parser.add_argument("-f", "--filter", dest="filter", nargs='+', help="Rule to filter machine. Format: key1=value1 key2=value2 ...")
+        sftp_cp_parser.add_argument("-n", "--file-name", dest="file_name", required=True, help="File Name.")
+        sftp_cp_parser.add_argument("-s", "--source", dest="source", required=True, help="The source path of the file.")
+        sftp_cp_parser.add_argument("-d", "--destination", dest="dest", required=True, help="The target path of the file in the remote machines.")
+        sftp_cp_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
 
     def rule_check(self, rule_list):
         if rule_list == None:
@@ -533,6 +535,16 @@ class utility(SubCmd):
         rule_check(args.filter)
         ssh_handler = OpenPaiSSH(args.command, args.cluster_conf_path, args.filter)
         ssh_handler.run()
+
+    def cluster_sftp_copy(self):
+        if args.cluster_conf_path != None:
+            args.cluster_conf_path = os.path.expanduser(args.config_path)
+        if args.source != None:
+            args.cluster_conf_path = os.path.expanduser(args.config_path)
+        rule_check(args.filter)
+
+
+
 
 
 class Main(SubCmd):
