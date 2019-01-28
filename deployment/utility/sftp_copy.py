@@ -92,4 +92,4 @@ class OpenPaiSftpCopy:
             if common.sftp_paramiko(self.source, self.dest, self.filename, host) == False:
                 self.logger.error("[ Failed ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
             else:
-                self.logger.error("[ Successful ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
+                self.logger.info("[ Successful ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
