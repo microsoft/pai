@@ -53,8 +53,8 @@ class OpenPaiSftpCopy:
         self.logger.info("=============================================")
         self.logger.info("======= Machine List After filtered =========")
         self.logger.info("=============================================")
-        for hostname in self.cluster_object_model["machine-list"]:
-            host = self.cluster_object_model["machine-list"][hostname]
+        for hostname in self.cluster_object_model['machine']["machine-list"]:
+            host = self.cluster_object_model['machine']["machine-list"][hostname]
             flag = True
             for rule in rule_list:
                 if rule["key"] not in host:
