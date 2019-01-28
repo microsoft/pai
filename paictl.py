@@ -533,7 +533,7 @@ class Utility(SubCmd):
     def cluster_ssh(self, args):
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
-        rule_check(args.filter)
+        self.rule_check(args.filter)
         ssh_handler = OpenPaiSSH(args.command, args.config_path, args.filter)
         ssh_handler.run()
 
@@ -545,7 +545,7 @@ class Utility(SubCmd):
         if args.dest != None and os.path.isabs(args.dest) is not True:
             logger.error("The path of destination should an absolute path.")
             sys.exit(1)
-        rule_check(args.filter)
+        self.rule_check(args.filter)
         sftp_copy_handler = OpenPaiSftpCopy(args.file_name, args.source, args.dest, args.config_path, args.filter)
         sftp_copy_handler.run()
 
