@@ -95,4 +95,6 @@ cluster:
 
 ###### Note
 - If you wanna enable azure rdma feature in your cluster, please ensure all the worker machines in your cluster is azure rdma capable!
-- TODO: YARN should only schedule the rdma job to the machine with azure rdma machine.   
+    - TODO: YARN should only schedule the rdma job to the machine with azure rdma machine.
+- After enabling azure rdma feature in your cluster, everytime adding new machine or remove machine from the cluster, you should restart restserver to refresh the machinelist in it.
+    - TODO: Make restserver able to update the machinelist through configmap in a loop.
