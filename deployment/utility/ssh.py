@@ -17,6 +17,7 @@
 
 from ..clusterObjectModel import cluster_object_model
 from ..k8sPaiLibrary.maintainlib import common
+import sys
 import logging
 import logging.config
 
@@ -26,7 +27,7 @@ class OpenPaiSSH:
     def __init__(self, command, cluster_config_path, filter):
         self.cmd = command
         objectModelFactoryHandler = cluster_object_model.cluster_object_model(configuration_path=cluster_config_path)
-        self.cluster_object_model = objectModelFactoryHandler.run()
+        self.origin_machine_list = objectModelFactoryHandler.run()["machine"]["machine-list"]
         self.filter_rule = filter
         self.machine_list = {}
 
@@ -51,8 +52,8 @@ class OpenPaiSSH:
         self.logger.info("=============================================")
         self.logger.info("======= Machine List After filtered =========")
         self.logger.info("=============================================")
-        for hostname in self.cluster_object_model['machine']["machine-list"]:
-            host = self.cluster_object_model['machine']["machine-list"][hostname]
+        for hostname in self.origin_machine_list:
+            host = self.origin_machine_list[hostname]
             flag = True
             for rule in rule_list:
                 if rule["key"] not in host:
@@ -78,7 +79,7 @@ class OpenPaiSSH:
                 print(" Please type Y or N.")
             count_input = count_input + 1
             if count_input == 3:
-                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                self.logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 sys.exit(1)
 
 
