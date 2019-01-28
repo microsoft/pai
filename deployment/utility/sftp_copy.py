@@ -40,7 +40,7 @@ class OpenPaiSftpCopy:
         self.logger.info("=============================================")
         self.logger.info("================ Filter Rule ================")
         self.logger.info("=============================================")
-        if filter_rule != None:
+        if self.filter_rule != None:
             for rule in self.filter_rule:
                 kv = rule.split("=")
                 rule_list.append({"key":kv[0], "value":kv[1]})
