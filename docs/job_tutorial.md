@@ -123,6 +123,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `jobEnvs`                        | Object, optional           | Job env parameters, key-value pairs, available in job container and **no substitution allowed** |
+| `jobEnvs.paiAzRDMA`                        | Boolean, optional           | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
 
 For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 

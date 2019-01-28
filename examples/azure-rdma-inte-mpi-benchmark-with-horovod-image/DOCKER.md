@@ -28,4 +28,4 @@ $ sudo docker build -f Dockerfile.example.horovod-intelmpi-az-rdma -t USER/pai.e
 ```bash
 $ sudo docker push USER/pai.example.horovod-intelmpi-az-rdma
 ```
-*Note: Replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.*
+Note: Replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.

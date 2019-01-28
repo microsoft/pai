@@ -45,7 +45,7 @@ Users should prepare their own intel mpi licences to build the docker image. Whe
       "gpuNumber": 1,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": 1,
-      "command": "sleep 1000 &&  /opt/intel/impi/5.1.3.223/bin64/mpirun -d -hosts worker-0,master-0 -n 2 -ppn 1 -env I_MPI_FABRICS=shm:dapl -env I_MPI_DAPL_PROVIDER=ofa-v2-ib0 /opt/intel/impi/5.1.3.223/bin64/IMB-MPI1 >> mpirun.contianer"
+      "command": "sleep 1000 &&  /opt/intel/impi/5.1.3.223/bin64/mpirun -d -hosts worker-0,master-0 -n 2 -ppn 1 -env I_MPI_FABRICS=shm:dapl -env I_MPI_DAPL_PROVIDER=ofa-v2-ib0 /opt/intel/impi/5.1.3.223/bin64/IMB-MPI1"
     },
     {
       "name": "worker",
@@ -65,4 +65,11 @@ Users should prepare their own intel mpi licences to build the docker image. Whe
 }
 ```  
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+- For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+- Sleep 1000 in ```master-0``` is a hack to ensure that all work containers are ready. You could optimize it in a better way. For example try to ssh all the work containers with the hostanme ```${taskname}-${taskid}``` until sccessful.
+- If user wanna a AZ-RDMA capable container. The following parameter is necessary.
+```bash
+"jobEnvs": {
+    "paiAzRDMA": true
+  }
+```
