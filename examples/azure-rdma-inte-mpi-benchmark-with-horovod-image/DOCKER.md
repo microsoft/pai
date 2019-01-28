@@ -13,9 +13,13 @@ First of all, PAI runs all jobs in Docker container.
 
 We need to build a AzureRDMA&IntelMPI image to run intel benchmark workload on OpenPAI, this can be done with following steps:
 
+
+- Get a license for your intel mpi. And then modify the ```ACTIVATION_TYPE``` in the [silent.cfg](./silent.cfg)
+
 - Write an AzureRDMA&IntelMPI Dockerfile and save it to `Dockerfile.example.horovod-intelmpi-az-rdma`:
 
-You could refer to this [Dockerfile](./Dockerfile.example.horovod-intelmpi-az-rdma)
+    - You could refer to this [Dockerfile](./Dockerfile.example.horovod-intelmpi-az-rdma)
+    - If your intel MPI is activated by a license file. You should copy it to the docker image, when building it.
 
 - Build the Docker image from `Dockerfile.example.horovod-intelmpi-az-rdma`:
 
