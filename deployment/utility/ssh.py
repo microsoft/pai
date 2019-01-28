@@ -54,15 +54,12 @@ class OpenPaiSSH:
         self.logger.info("=============================================")
         for hostname in self.origin_machine_list:
             host = self.origin_machine_list[hostname]
-            flag = True
             for rule in rule_list:
                 if rule["key"] not in host:
-                    flag = False
                     break
                 if host[rule["key"]] != rule["value"]:
-                    flag = False
                     break
-            if flag is True:
+            else:
                 self.machine_list[hostname] = host
                 self.logger.info("Machine Host Name: {0},   Machine Ip Address: {1}".format(hostname, host["hostip"]))
         self.logger.info("\n")
