@@ -525,7 +525,7 @@ class Utility(SubCmd):
         if rule_list == None:
             return
         for rule in rule_list:
-            kv = rule.splite("=")
+            kv = rule.split("=")
             if len(kv) != 2:
                 logger.error("Please check the filter rule {0}. It's invalid.".format(rule))
                 sys.exit(1)
