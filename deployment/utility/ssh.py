@@ -87,7 +87,7 @@ class OpenPaiSSH:
         self.construct_machine_list()
 
         for hostname in self.machine_list:
-            host = self.machine_lis[hostname]
+            host = self.machine_list[hostname]
             if common.ssh_shell_with_password_input_paramiko(host, self.cmd) == False:
                 self.logger.error("[ Failed ]: Task on the machine [ hostname: {0},  ip-address: {1} ]".format(hostname, host["hostip"]))
             else:
