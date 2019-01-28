@@ -70,11 +70,3 @@ sudo ./paictl.py utility ssh -p /path/to/cluster/config -f rdma=true -c "sudo /b
 ###### ``` 4. Restart all your rdma capable machines in azure portal```
 
 Please communicate with your cluster owner to reboot the rdma machines after the following steps.
-
-
-
-
-
-
-
-
