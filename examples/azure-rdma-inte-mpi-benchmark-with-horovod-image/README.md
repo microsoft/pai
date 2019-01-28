@@ -56,7 +56,7 @@ Users should prepare their own intel mpi licences to build the docker image. Whe
       "gpuNumber": 1,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": 1,
-      "command": "while true; do sleep 1000; done"
+      "command": "sleep infinity"
     }
   ],
   "jobEnvs": {
