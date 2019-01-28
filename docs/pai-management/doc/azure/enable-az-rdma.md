@@ -75,6 +75,8 @@ Please communicate with your cluster owner to reboot the rdma machines after the
 
 In the [services-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration filed ```cluster.common.az-rdma``` and set its value as ```"true""```.
 
+
+For example, you should modify it as following.
 ```YAML
 cluster:
 #
