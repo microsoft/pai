@@ -20,6 +20,7 @@ We need to build a AzureRDMA&IntelMPI image to run intel benchmark workload on O
 
     - You could refer to this [Dockerfile](./Dockerfile.example.horovod-intelmpi-az-rdma)
     - If your intel MPI is activated by a license file. You should copy it to the docker image, when building it.
+    - You'd better keep the image in a private registry. Because you build the license in the image. 
 
 - Build the Docker image from `Dockerfile.example.horovod-intelmpi-az-rdma`:
 
