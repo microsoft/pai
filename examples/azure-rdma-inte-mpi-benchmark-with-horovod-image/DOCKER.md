@@ -3,6 +3,7 @@
 First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
+
 # AzureRDMA && IntelMpi on PAI docker env
 
 ## Contents
