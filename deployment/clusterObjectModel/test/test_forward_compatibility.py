@@ -61,7 +61,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         ser_cfg = file_handler.load_yaml_config(ser_cfg_before_convert)
         ser_cfg_after_standard = file_handler.load_yaml_config(ser_cfg_after_convert)
-        ser_cfg_after = forward_compatibility.service_configuration_convert(ser_cfg)
+        ser_cfg_after, updated = forward_compatibility.service_configuration_convert(ser_cfg)
 
         print "Generated:"
         print ser_cfg_after
