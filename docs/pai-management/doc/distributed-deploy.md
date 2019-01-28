@@ -26,6 +26,7 @@
 - [Step 4. Update cluster configuration into kubernetes](#c-step-4)
 - [Step 5. Start all OpenPAI services](#c-step-5)
 - [appendix. Validate deployment](#appendix)
+- [appendix. Azure RDMA](#az_rdma)
 
 ***
 
@@ -53,6 +54,9 @@ If you are very familiar with OpenPAI, you could directly write your configurait
 
 ### Step 3. Deploy Kubernetes <a name="c-step-3"></a>
 
+
+If your cluster is deployed in Azure, and there are azure rdma capable machines. Please go to this [section](#az_rdma) first.
+
 - [A Guide to deploy kubenretes with paictl](./how-to-bootup-k8s.md)
 
 ***
@@ -77,3 +81,6 @@ If you are very familiar with OpenPAI, you could directly write your configurait
 ***
 
 
+### appendix. Azure RDMA <a name="az_rdma"></a>
+
+- [A Guide to Enable Azure RDMA](./azure/enable-az-rdma.md)

@@ -59,7 +59,7 @@ According to your requirements, choose the component which you wanna customized.
 
 | Service | Description | Tutorial |
 | --- | --- | --- |
-| cluster <a name="ref_cluster_config"></a>| Configure data-path, cluster-id and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
+| cluster <a name="ref_cluster_config"></a>| Configure data-path, cluster-id, azure rdma switch and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
 | drivers <a name="ref_drivers"></a>| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
 | hadoop-resource-manager <a name="configure_vc_capacity"></a>| yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
 | yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworklauncher/config/yarn-frameworkerlauncher.md)|

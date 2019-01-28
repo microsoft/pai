@@ -70,3 +70,33 @@ sudo ./paictl.py utility ssh -p /path/to/cluster/config -f rdma=true -c "sudo /b
 ###### ``` 4. Restart all your rdma capable machines in azure portal```
 
 Please communicate with your cluster owner to reboot the rdma machines after the following steps.
+
+###### ``` 5. Open the switch configuration for az-rdma whose default value is false```
+
+In the [services-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration field ```cluster.common.az-rdma``` and set its value as ```"true""```.
+
+
+For example, you should modify it as following.
+```YAML
+cluster:
+#
+  common:
+#    clusterid: pai
+#
+#    # HDFS, zookeeper data path on your cluster machine.
+#    data-path: "/datastorage"
+#
+#    # Enable QoS feature or not. Default value is "true"
+#    qos-switch: "true"
+#
+#    # If your cluster is created by Azure and the machine is rdma enabled.
+#    # Set this configuration as  "true", the rdma environment will be set into your container.
+    az-rdma: "true"
+```
+
+
+###### Note
+- If you wanna enable azure rdma feature in your cluster, please ensure all the worker machines in your cluster is azure rdma capable!
+    - TODO: YARN should only schedule the rdma job to the machine with azure rdma machine.
+- After enabling azure rdma feature in your cluster, everytime adding new machine or remove machine from the cluster, you should restart restserver to refresh the machinelist in it.
+    - TODO: Make restserver able to update the machinelist through configmap in a loop.
