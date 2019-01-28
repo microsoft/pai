@@ -427,7 +427,7 @@ class Job {
           'jobData': data,
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
-          'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
+          'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return yarnContainerScript;
@@ -441,7 +441,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'webHdfsUri': launcherConfig.webhdfsUri,
-          'azRDMA': azureEnv.azRDMA == 'false' ? false : true,
+          'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'paiMachineList': paiConfig.machineList,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
         });
