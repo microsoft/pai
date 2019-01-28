@@ -40,7 +40,7 @@ class OpenPaiSSH:
         self.logger.info("=============================================")
         if filter_rule != None:
             for rule in self.filter_rule:
-                kv = rule.splite("=")
+                kv = rule.split("=")
                 rule_list.append({"key":kv[0], "value":kv[1]})
                 self.logger.info("key = {0}, value = {1}".format(kv[0], kv[1]))
         else:
