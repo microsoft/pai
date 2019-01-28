@@ -536,7 +536,7 @@ class Utility(SubCmd):
         ssh_handler = OpenPaiSSH(args.command, args.cluster_conf_path, args.filter)
         ssh_handler.run()
 
-    def cluster_sftp_copy(self):
+    def cluster_sftp_copy(self, args):
         if args.cluster_conf_path != None:
             args.cluster_conf_path = os.path.expanduser(args.config_path)
         if args.source != None:
