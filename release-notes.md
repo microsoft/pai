@@ -3,7 +3,7 @@
 ## New Features
 * Add pai service dashboard to grafana, cluster admin can get pai services resource consumption from paiServiceMetrics page. - [PR 1694](https://github.com/Microsoft/pai/pull/1694)
 * Support to add custom web pages to the web portal of PAI deployments with WebPortal Plugin, refer to [Plugins Doc](https://github.com/Microsoft/pai/blob/master/docs/webportal/PLUGINS.md) for how to use the new feature, and refer to [PR 1700](https://github.com/Microsoft/pai/pull/1700) for how PAI Marketplace is using it as an example.
-* Support update virtual cluster dynamically from webportal. Please refer to [virtual cluster management](https://github.com/Microsoft/pai/tree/master/docs/webportal#virtual-cluster-management) for how to use this new feature.-[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
+* Support update virtual cluster dynamically from webportal. Please refer to [virtual cluster management](https://github.com/Microsoft/pai/tree/master/docs/webportal#virtual-cluster-management) for how to use this new feature. This feature is completed in cooperation with USTC. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
 * Support customized job environment variables. -[PR 1544](https://github.com/Microsoft/pai/pull/1544)
 
 
