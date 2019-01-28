@@ -50,6 +50,7 @@ from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
 from deployment.clusterObjectModel.cluster_object_model import cluster_object_model
 
 from deployment.utility.ssh import OpenPaiSSH
+from deployment.utility.sftp_copy import OpenPaiSftpCopy
 
 
 logger = logging.getLogger(__name__)
@@ -530,24 +531,23 @@ class Utility(SubCmd):
                 sys.exit(1)
 
     def cluster_ssh(self, args):
-        if args.cluster_conf_path != None:
-            args.cluster_conf_path = os.path.expanduser(args.config_path)
+        if args.config_path != None:
+            args.config_path = os.path.expanduser(args.config_path)
         rule_check(args.filter)
-        ssh_handler = OpenPaiSSH(args.command, args.cluster_conf_path, args.filter)
+        ssh_handler = OpenPaiSSH(args.command, args.config_path, args.filter)
         ssh_handler.run()
 
     def cluster_sftp_copy(self, args):
-        if args.cluster_conf_path != None:
-            args.cluster_conf_path = os.path.expanduser(args.config_path)
+        if args.config_path != None:
+            args.config_path = os.path.expanduser(args.config_path)
         if args.source != None:
             args.source = os.path.expanduser(args.source)
         if args.dest != None and os.path.isabs(args.dest) is not True:
             logger.error("The path of destination should an absolute path.")
             sys.exit(1)
         rule_check(args.filter)
-
-
-
+        sftp_copy_handler = OpenPaiSftpCopy(args.file_name, args.source, args.dest, args.config_path, args.filter)
+        sftp_copy_handler.run()
 
 
 class Main(SubCmd):
