@@ -15,37 +15,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#!/bin/bash
 
-common:
-  cluster-id: pai
+apt-get update -y
+apt-get install -y libdapl2 libmlx4-1
 
-  # HDFS, zookeeper data path on your cluster machine.
-  data-path: "/datastorage"
+sed -i "s/# OS.EnableRDMA=y/OS.EnableRDMA=y/g" /etc/waagent.conf
+sed -i "s/# OS.UpdateRdmaDriver=y/OS.UpdateRdmaDriver=y/g" /etc/waagent.conf
 
-  qos-switch: "true"
+if cat /etc/security/limits.conf | grep -qE '* hard  memlock  unlimited'; then
+    echo "Configuration has been changed in /etc/security/limits.conf. Skip it"
+else
+    sed -i '/# End of file/i\* hard  memlock  unlimited' /etc/security/limits.conf
+    sed -i '/# End of file/i\* soft  memlock  unlimited' /etc/security/limits.conf
+fi
 
-  az-rdma: "false"
-
-
-
-# the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
-docker-registry:
-
-  # domain/namespace/
-
-  # If public, please fill it the same as your username
-  namespace: openpai
-
-  # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
-  # domain: public
-  domain: docker.io
-
-  # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
-  #username: your_registry_username
-  #password: your_registry_password
-
-  tag: latest
-
-  # The name of the secret in kubernetes will be created in your cluster
-  # Must be lower case, e.g., regsecret.
-  secret-name: regsecret
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope

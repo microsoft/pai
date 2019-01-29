@@ -35,6 +35,9 @@ spec:
       - name: rest-server
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}rest-server:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /pai-cluster-config
+          name: pai-configuration-rest-server
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
@@ -52,6 +55,8 @@ spec:
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
+        - name: AZ_RDMA
+          value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
@@ -75,3 +80,7 @@ spec:
         {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      volumes:
+      - name: pai-configuration-rest-server
+        configMap:
+          name: pai-configuration

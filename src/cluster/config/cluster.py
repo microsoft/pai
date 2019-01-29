@@ -52,6 +52,10 @@ class Cluster:
             return False, "cluster-id is miss in service-configuration.yaml -> cluster -> common -> cluster-id"
         if "data-path" not in common_configuration:
             return False, "data-path is miss in service-configuration.yaml -> cluster -> common -> data-path"
+        if "qos-switch" not in common_configuration:
+            return False, "qos-switch is miss in service-configuration.yaml -> cluster -> common -> qos-switch"
+        if "az-rdma" not in common_configuration:
+            return False, "az-rdma is miss in service-configuration.yaml -> cluster -> common -> az-rdma"
         return True, None
 
 

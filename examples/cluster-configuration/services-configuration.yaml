@@ -24,8 +24,12 @@
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
 #
-#    #Enable QoS feature or not. Default value is "true"
+#    # Enable QoS feature or not. Default value is "true"
 #    qos-switch: "true"
+#
+#    # If your cluster is created by Azure and the machine is rdma enabled.
+#    # Set this configuration as  "true", the rdma environment will be set into your container.
+#    az-rdma: "false"
 #
 #
 #  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
