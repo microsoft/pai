@@ -75,8 +75,24 @@ which supports a comma-delimited list of directories to configure multiple disks
 
 ## Data Migration <a name="Data_Migration"></a>
 
-If you want to reconfigure HDFS data storage path, please follow these steps to avoid data loss:
-1. Confirm HDFS path, it will be *${hadoop-data-node.storage_path}* if specified, 
+HDFS support configure multipath, 
+if just need to expand current storage, you could keep current path and append a new disk path as below:
+1. Stop hadoop data node.
+    ```bash
+    python paictl.py service stop -n hadoop-data-node
+    ```
+2. Append new path in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) 
+    *${hadoop-data-node.storage_path}*, such as "*${cluster.common.data-path}/hdfs/data*,*/path/to/new/disk*". 
+    Then [push to configmap](../pai-management/doc/push-cfg-and-set-id.md).
+3. Start hadoop data node.
+    ```bash
+    python paictl.py service start -n hadoop-data-node
+    ```
+
+Data migration is only necessary when discard old path. 
+Please follow these steps to achieve it without data loss:
+1. Confirm HDFS path in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml), 
+    it will be *${hadoop-data-node.storage_path}* if specified, 
     or *${cluster.common.data-path}/hdfs/data*. Assume current cluster HDFS path is *path1*, 
     new path is *path2*.
 2. Stop hadoop data node.
@@ -84,7 +100,7 @@ If you want to reconfigure HDFS data storage path, please follow these steps to 
     python paictl.py service stop -n hadoop-data-node
     ```
 3. On every data node, manually copy data from *path1* to *path2*.
-4. Edit cluster-configuration *${hadoop-data-node.storage_path}* to *path2*, 
+4. Edit [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) *${hadoop-data-node.storage_path}* to *path2*, 
     and [push to configmap](../pai-management/doc/push-cfg-and-set-id.md).
 5. Start hadoop data node.
     ```bash
