@@ -34,7 +34,8 @@ data:
       kubernetes_sd_configs:
       - api_server: '{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}'
         role: pod
-      {% if token_path is not none %}
+      # The current tls_config configuration is tested on on-premise and Azure AKS. If your environment is different, please configure and replace it.
+      {% if 'https' in cluster_cfg['layout']['kubernetes']['api-servers-url']  %}
       tls_config:
         ca_file: {{ token_path }}/ca.crt
       bearer_token_file: {{ token_path }}/token
