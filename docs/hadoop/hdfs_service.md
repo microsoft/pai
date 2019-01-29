@@ -75,8 +75,8 @@ which supports a comma-delimited list of directories to configure multiple disks
 
 ## Data Migration <a name="Data_Migration"></a>
 
-HDFS support configure multipath, 
-if just need to expand current storage, you could keep current path and append a new disk path as below:
+HDFS support configure multipath.
+If just need to expand current storage, you could keep current path and append a new disk as below:
 1. Stop hadoop data node.
     ```bash
     python paictl.py service stop -n hadoop-data-node
