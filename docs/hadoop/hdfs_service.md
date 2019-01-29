@@ -90,8 +90,8 @@ If you want to reconfigure HDFS data storage path, please follow these steps to 
     ```bash
     python paictl.py service start -n hadoop-data-node
     ```
-6. Visit HDFS web to confirm no missing block (by default *master_ip:5070*).
-    If no errors reported, you could remove the *path1* data on every data node now.
+6. Access HDFS web to confirm block status(by default *master_ip:5070*).
+    If no missing block reported, you could remove the *path1* data on every data node now.
     
 
 # Deployment <a name="Deployment"></a>
