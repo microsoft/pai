@@ -38,12 +38,17 @@ class Pylon:
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
-        
+
+        deploy_service = self.service_configuration['deploy-service']
+        webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
+
         return {
             'port': port,
             'uri': uri,
+            'deploy-service': deploy_service,
+            'webhdfs-legacy-port': webhdfs_legacy_port,
         }
-    
+
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness. 
     def validation_post(self, cluster_object_model):
         for (service, config) in (
