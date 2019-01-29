@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def generate_configuration(quick_start_config_file, configuration_directory, force):
     """Automatically generate the following configuration files from a quick-start file:
-        * Machine-level configurations: cluster-configuration.yaml
+        * Machine-level configurations: laylout.yaml
         * Kubernetes-level configurations I: kubernetes-configuration.yaml
         * Kubernetes-level configurations II: k8s-role-definition.yaml
         * Service-level configurations: service-configuration.yaml
