@@ -82,4 +82,4 @@ Or you can clone the code by running
 
 Thanks to the following people who have contributed new code or given us helpful suggestions for this release:
 
-Mao Yang, Shuguang liu, Bin Wang, Fan Yang, Can Wang, Di Xu, Dian Wang,  Hao Yuan, Qixiang Cheng, Quanlu Zhang, Scarllet Li, Yanjie Gao, Yundong Ye, Yuqi Wang, Ziming Miao, Xinwei Zheng @USTC (virtual cluster update)
+Mao Yang, Shuguang Liu, Bin Wang, Fan Yang, Can Wang, Di Xu, Dian Wang,  Hao Yuan, Qixiang Cheng, Quanlu Zhang, Scarllet Li, Yanjie Gao, Yundong Ye, Yuqi Wang, Ziming Miao, Xinwei Zheng @USTC (virtual cluster update)
