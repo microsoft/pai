@@ -521,6 +521,10 @@ class Utility(SubCmd):
         sftp_cp_parser.add_argument("-d", "--destination", dest="dest", required=True, help="The target path of the file in the remote machines.")
         sftp_cp_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
 
+    def get_machine_list(self, config_path):
+        objectModelFactoryHandler = cluster_object_model(configuration_path=config_path)
+        return objectModelFactoryHandler.run()["machine"]["machine-list"]
+
     def rule_check(self, rule_list):
         if rule_list == None:
             return
@@ -533,20 +537,26 @@ class Utility(SubCmd):
     def cluster_ssh(self, args):
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
+            machine_list = self.get_machine_list(args.config_path)
+        else:
+            machine_list = {}
         self.rule_check(args.filter)
-        ssh_handler = OpenPaiSSH(args.command, args.config_path, args.filter)
+        ssh_handler = OpenPaiSSH(args.command, machine_list, args.filter)
         ssh_handler.run()
 
     def cluster_sftp_copy(self, args):
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
+            machine_list = self.get_machine_list(args.config_path)
+        else:
+            machine_list = {}
         if args.source != None:
             args.source = os.path.expanduser(args.source)
         if args.dest != None and os.path.isabs(args.dest) is not True:
             logger.error("The path of destination should an absolute path.")
             sys.exit(1)
         self.rule_check(args.filter)
-        sftp_copy_handler = OpenPaiSftpCopy(args.file_name, args.source, args.dest, args.config_path, args.filter)
+        sftp_copy_handler = OpenPaiSftpCopy(args.file_name, args.source, args.dest, machine_list, args.filter)
         sftp_copy_handler.run()
 
 

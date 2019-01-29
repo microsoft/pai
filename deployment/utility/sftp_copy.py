@@ -25,12 +25,11 @@ import logging.config
 
 class OpenPaiSftpCopy:
 
-    def __init__(self, filename, source, dest, cluster_config_path, filter):
+    def __init__(self, filename, source, dest, machine_list, filter):
         self.filename = filename
         self.source = source
         self.dest = dest
-        objectModelFactoryHandler = cluster_object_model.cluster_object_model(configuration_path=cluster_config_path)
-        self.origin_machine_list = objectModelFactoryHandler.run()["machine"]["machine-list"]
+        self.origin_machine_list = machine_list
         self.filter_rule = filter
         self.machine_list = {}
 

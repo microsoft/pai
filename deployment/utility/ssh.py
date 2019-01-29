@@ -24,10 +24,9 @@ import logging.config
 
 class OpenPaiSSH:
 
-    def __init__(self, command, cluster_config_path, filter):
+    def __init__(self, command, machine_list, filter):
         self.cmd = command
-        objectModelFactoryHandler = cluster_object_model.cluster_object_model(configuration_path=cluster_config_path)
-        self.origin_machine_list = objectModelFactoryHandler.run()["machine"]["machine-list"]
+        self.origin_machine_list = machine_list
         self.filter_rule = filter
         self.machine_list = {}
 
