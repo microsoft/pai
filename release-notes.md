@@ -3,7 +3,7 @@
 ## New Features
 * Add pai service dashboard to grafana, cluster admin can get pai services resource consumption from paiServiceMetrics page. - [PR 1694](https://github.com/Microsoft/pai/pull/1694)
 * Support to add custom web pages to the web portal of PAI deployments with WebPortal Plugin, refer to [Plugins Doc](https://github.com/Microsoft/pai/blob/master/docs/webportal/PLUGINS.md) for how to use the new feature, and refer to [PR 1700](https://github.com/Microsoft/pai/pull/1700) for how PAI Marketplace is using it as an example.
-* Support update virtual cluster dynamically from webportal. Please refer to [virtual cluster management](https://github.com/Microsoft/pai/tree/master/docs/webportal#virtual-cluster-management) for how to use this new feature. This feature is completed in cooperation with USTC. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
+* Support update virtual cluster dynamically from webportal. Please refer to [virtual cluster management](https://github.com/Microsoft/pai/tree/master/docs/webportal#virtual-cluster-management) for how to use this new feature. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
 * Support customized job environment variables. -[PR 1544](https://github.com/Microsoft/pai/pull/1544)
 
 
@@ -48,6 +48,8 @@
 * Fix admin can't submit job to newly added virtaul cluster. - [PR 1972](https://github.com/Microsoft/pai/pull/1972)
 * [issue 2005](https://github.com/Microsoft/pai/issues/2005) is fixed by making Grafana Legend unique in task level dashboard. - [PR 1921](https://github.com/Microsoft/pai/pull/1921)
 
+## Known Issues
+* Paictl may fail to start service after calling stop service. [issue 2081](https://github.com/Microsoft/pai/issues/2081)
 
 ## Upgrading from Earlier Release
 * Download the code package of release v0.9.0 from [release page](https://github.com/Microsoft/pai/releases).
@@ -75,3 +77,9 @@ Or you can clone the code by running
   # start the services
   python paictl.py service start
   ```
+
+## Thanks to our Contributors
+
+Thanks to the following people who have contributed new code or given us helpful suggestions for this release:
+
+Mao Yang, Shuguang liu, Bin Wang, Fan Yang, Can Wang, Di Xu, Dian Wang,  Hao Yuan, Qixiang Cheng, Quanlu Zhang, Scarllet Li, Yanjie Gao, Yundong Ye, Yuqi Wang, Ziming Miao, Xinwei Zheng @USTC (virtual cluster update)
