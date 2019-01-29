@@ -25,6 +25,10 @@ Consistent of bunch of extrame jobs which would push PAI into crash, try to figu
 - Stand training task, stand dataset, measuring the performance overhead of PAI.
 - Horizontal scale distribute training task, measuring the scale factor.
 
+## Examples
+
+Run training examples.
+
 ## Longterm stability
 
 Long run job with heavy load, watch:
