@@ -23,7 +23,7 @@ The extension uses a job config file (in json format) to describe a traing job. 
 3. Right click the created JSON file and select "Submit Job to PAI Cluster"
 4. The job will be submitted to PAI cluster
 
-![](./assets/submit-job.gif)
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
 
 ## Simulate Job Running
 The extension has a useful feature called "Simulate Job Running". It enables the users to run and debug their AI jobs in local environment without really submitting the job to PAI cluster. This is helpful when the users want to verify the docker image, start up command, and the code quickly.
@@ -39,8 +39,7 @@ The extension has a useful feature called "Simulate Job Running". It enables the
     This will pops up the OS's file explorer and navigates to the simulation folder. Users can manually execute the simulation command. (run-docker.cmd on Windows, or run-docker.sh on Linux).
 
 
-![](./assets/submit-job.gif)
-
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
 
 ## Commands
