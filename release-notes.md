@@ -50,7 +50,7 @@
 
 ## Known Issues
 * Paictl may fail to start service after calling stop service. [issue 2081](https://github.com/Microsoft/pai/issues/2081)
-* We found job-exporter have deadlock issue, our short-term solution for this is restarting job-exporter whenever deadlock happens, this may loss 2~5 minutes metrics. We have a plan to solve the issue in long term. [issue 2104](https://github.com/Microsoft/pai/issues/2104)
+* Occasionally, the job exporter may restart. This could result in missing of data points for a few minutes. We will fix this in the next release. [issue 2104](https://github.com/Microsoft/pai/issues/2104)
 
 ## Upgrading from Earlier Release
 * Download the code package of release v0.9.0 from [release page](https://github.com/Microsoft/pai/releases).
