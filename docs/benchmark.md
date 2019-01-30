@@ -8,17 +8,32 @@ The benchmark runs on PAI as a normal job, consistents of many metric jobs. All 
 
 Fully test and demostrate API & Protocol, report the supported protocols.
 
-- User APIs
-- Job APIs
-- Metric APIs
+### User APIs
+
+### Job APIs
+
+- verify GPU drivers works
+- verify port works
+
+### Metric APIs
+
+- verify metrics works
 
 ## Capability and Limitations
 
 Consistent of bunch of extrame jobs which would push PAI into crash, try to figure out the limitation.
 
-- Memory stress
-- Disk stress
-- Massive count of jobs, test the scheduler
+### Memory stress
+
+### Disk stress
+
+- test huge docker log (test whether PAI tolerant huge docker log, may using log rotation)
+- test huge images
+- test massive amount of images
+- test write big file in container
+- test node disk pressures behaviour
+
+### Massive count of jobs, test the scheduler
 
 ## Job Performance
 
