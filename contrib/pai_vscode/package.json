@@ -2,18 +2,26 @@
     "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
     "icon": "assets/pai_logo.png",
     "repository": {
         "url": "https://github.com/Microsoft/pai"
     },
+    "bugs": {
+        "url": "https://github.com/Microsoft/pai/issues"
+    },
     "engines": {
         "vscode": "^1.27.0"
     },
     "categories": [
         "Other"
+    ],
+    "keywords": [
+        "AI",
+        "Deep Learning",
+        "PAI"
     ],
     "activationEvents": [
         "*",
