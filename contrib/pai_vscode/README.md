@@ -1,5 +1,6 @@
 # OpenPAI VS Code Client
 [![Build Status](https://openpai.visualstudio.com/PAIexp/_apis/build/status/pai_vscode?branchName=master)](https://openpai.visualstudio.com/PAIexp/_build/latest?definitionId=9?branchName=master)
+OpenPAI Client is an extension to connect PAI clusters, submit AI jobs, and manage files on HDFS.
 
 ## Get Started
 1. Run command 'PAI: Add PAI Cluster' from command palette (Ctrl+Shift+P)
@@ -11,10 +12,35 @@
 4. Expand the tree node and double click the command you like.
 
 ## Submit Job
-1. Double click "Create Job Config..." to generate a PAI job config file.
+The extension uses a job config file (in json format) to describe a traing job. You can create multiple job config files for your code so that you can choose proper settings upon job submission.
+1. Generate a PAI job config file by:
+    - Double click "Create Job Config..."
+    
+    or
+    
+    - Right click a source code file and click "Create PAI Job Config JSON"
 2. Fill the created PAI job config JSON's command and job name fields.
 3. Right click the created JSON file and select "Submit Job to PAI Cluster"
 4. The job will be submitted to PAI cluster
+
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
+
+## Simulate Job Running
+The extension has a useful feature called "Simulate Job Running". It enables the users to run and debug their AI jobs in local environment without really submitting the job to PAI cluster. This is helpful when the users want to verify the docker image, start up command, and the code quickly.
+1. Right click a job config file and click "Simulate PAI Job Running"
+    The extension will prepare necessary files and create a docker file in local folder for later use.
+2. A message box pops up, users have two options:
+    - Simulate first task in VS Code terminal
+    
+    This will execute the simulation command within VS Code terminal window.
+
+    - Reveal in Explorer
+
+    This will pops up the OS's file explorer and navigates to the simulation folder. Users can manually execute the simulation command. (run-docker.cmd on Windows, or run-docker.sh on Linux).
+
+
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
+
 
 ## Commands
 ### Command Pallete
