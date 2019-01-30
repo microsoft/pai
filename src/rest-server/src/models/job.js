@@ -460,10 +460,7 @@ class Job {
         'taskNodeGpuType': gpuType,
         'gangAllocation': true,
         'amResource': {
-          'cpuNumber': 1,
-          'memoryMB': 1024,
-          'diskType': 0,
-          'diskMB': 0,
+          'memoryMB': launcherConfig.amMemoryMB,
         },
       },
     };
