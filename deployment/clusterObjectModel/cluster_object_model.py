@@ -40,11 +40,6 @@ class cluster_object_model:
     def __init__(self, configuration_path):
         self.logger = logging.getLogger(__name__)
         self.configuration_path = configuration_path
-        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
-        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
-        self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
-        self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(configuration_path))
-        self.cluster_object_model = dict()
 
     def get_service_model_list(self):
         sub_model_list = []
@@ -82,27 +77,7 @@ class cluster_object_model:
 
         return parser_instance
 
-    def init_service_parser(self):
-        parser_dict = dict()
-        parser_dict["layout"] = pai_com_layout.Layout(self.layout)
-
-        service_model_list = self.get_service_model_list()
-        for service_name in service_model_list:
-            parser_dict[service_name] = self.get_service_parser(service_name)
-        return parser_dict
-
-    def init_kubernetes_parser(self):
-        parser_dict = dict()
-
-        # init main parser
-        kubernetes_parser = pai_com_kubernetes.Kubernetes(self.layout, self.kubernetes_configuration)
-        parser_dict["kubernetes"] = kubernetes_parser
-        parser_dict["layout"] = pai_com_layout.Layout(self.layout)
-
-        return parser_dict
-
     def load_config(self, parser_dict):
-
         # Pre Validation
         self.logger.info("Begin to do pre-validation for each service parser.")
         for key in parser_dict.iterkeys():
@@ -115,12 +90,14 @@ class cluster_object_model:
             self.logger.info("Pre-validation of {0} is passed".format(key))
         self.logger.info("Pre-validation is successful!")
 
+        cluster_object_model = dict()
+
         # Generate object model
         self.logger.info("Begin to do generate cluster object model.")
         for key in parser_dict.iterkeys():
             value = parser_dict[key]
             self.logger.info("Begin to do generate object model of {0}.".format(key))
-            self.cluster_object_model[key] = value.run()
+            cluster_object_model[key] = value.run()
             self.logger.info("Object model of {0} is generated.".format(key))
         self.logger.info("Cluster Object Model is generated.")
 
@@ -129,17 +106,37 @@ class cluster_object_model:
         for key in parser_dict.iterkeys():
             value = parser_dict[key]
             self.logger.info("Begin to do post-validation of {0}.".format(key))
-            ok, msg = value.validation_post(self.cluster_object_model)
+            ok, msg = value.validation_post(cluster_object_model)
             if ok is False:
                 self.logger.error(msg)
                 sys.exit(1)
             self.logger.info("Post-validation of {0} is passed.".format(key))
         self.logger.info("Post-validation is successful!")
 
-        return self.cluster_object_model
+        return cluster_object_model
 
     def service_config(self):
-        return self.load_config(self.init_service_parser())
+        self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(self.configuration_path))
+        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.configuration_path))
+        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
+
+        parser_dict = dict()
+        parser_dict["layout"] = pai_com_layout.Layout(self.layout)
+
+        service_model_list = self.get_service_model_list()
+        for service_name in service_model_list:
+            parser_dict[service_name] = self.get_service_parser(service_name)
+        return self.load_config(parser_dict)
 
     def kubernetes_config(self):
-        return self.load_config(self.init_kubernetes_parser())
+        self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(self.configuration_path))
+
+        parser_dict = dict()
+
+        # init main parser
+        kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(self.configuration_path))
+        kubernetes_parser = pai_com_kubernetes.Kubernetes(self.layout, kubernetes_configuration)
+        parser_dict["kubernetes"] = kubernetes_parser
+        parser_dict["layout"] = pai_com_layout.Layout(self.layout)
+
+        return self.load_config(parser_dict)
