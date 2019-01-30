@@ -1,5 +1,5 @@
 # OpenPAI VS Code Client
-[![Build Status](https://openpai.visualstudio.com/PAIexp/_apis/build/status/pai_vscode?branchName=master)](https://openpai.visualstudio.com/PAIexp/_build/latest?definitionId=9?branchName=master)
+
 OpenPAI Client is an extension to connect PAI clusters, submit AI jobs, and manage files on HDFS.
 
 ## Get Started
@@ -76,6 +76,10 @@ PAI Cluster Version >= 0.8.0
 
 ## Contributing
 https://github.com/Microsoft/pai#how-to-contribute
+
+**Report an issue**:
+
+If you have issue/ bug/ new feature request, please submit it at [GitHub](https://github.com/Microsoft/pai/issues)
 
 ## License
 MIT
