@@ -5,10 +5,15 @@ import logging
 import os
 import json
 import threading
+import sys
 
-from wsgiref.simple_server import make_server
-from prometheus_client import make_wsgi_app, Gauge
+from prometheus_client import Gauge
 from prometheus_client.core import REGISTRY
+
+from prometheus_client.twisted import MetricsResource
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 import collector
 
@@ -84,6 +89,11 @@ def get_gpu_count(path):
         logger.warning("failed to find gpu count from config %s", gpu_config)
         return 0
 
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
+
 
 def main(args):
     config_environ()
@@ -118,9 +128,12 @@ def main(args):
 
     REGISTRY.register(CustomCollector(refs))
 
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server("", int(args.port), app)
-    httpd.serve_forever()
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
 
 
 if __name__ == "__main__":
