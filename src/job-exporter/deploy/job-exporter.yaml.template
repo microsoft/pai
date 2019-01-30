@@ -29,19 +29,20 @@ spec:
         app: job-exporter
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/path: "/"
+        prometheus.io/path: "/metrics"
         prometheus.io/port: "{{ cluster_cfg["job-exporter"]["port"] }}"
       name: job-exporter
     spec:
       containers:
       - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}job-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        readinessProbe:
-          tcpSocket: # because http get will trigger job-exporter abandom old metrics, so we use tcp instead of http
+        livenessProbe: # we found python may have deadlock and http server can not accept new conn, so use liveness probe to check if it is alive, and kill if it has deadlock. Temporary solution
+          httpGet:
+            path: '/healthz'
             port: {{ cluster_cfg["job-exporter"]["port"] }}
-          initialDelaySeconds: 3
+          initialDelaySeconds: 30
           periodSeconds: 30
-          timeoutSeconds: 10
+          timeoutSeconds: 5
         command:
         - "python"
         - "/job_exporter/main.py"
