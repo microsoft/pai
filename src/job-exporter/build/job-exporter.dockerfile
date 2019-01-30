@@ -30,7 +30,7 @@ RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06
     mkdir -p /job_exporter && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install prometheus_client
+RUN pip3 install prometheus_client twisted
 
 COPY --from=0 infilter/infilter /usr/bin
 COPY src/*.py /job_exporter/

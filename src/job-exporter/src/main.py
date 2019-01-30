@@ -5,10 +5,18 @@ import logging
 import os
 import json
 import threading
+import signal
+import faulthandler
+import gc
 
-from wsgiref.simple_server import make_server
-from prometheus_client import make_wsgi_app, Gauge
+import prometheus_client
+from prometheus_client import Gauge
 from prometheus_client.core import REGISTRY
+from prometheus_client.twisted import MetricsResource
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 import collector
 
@@ -85,7 +93,33 @@ def get_gpu_count(path):
         return 0
 
 
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
+
+
+# https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
+
+    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                prometheus_client.REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
+
+
 def main(args):
+    register_stack_trace_dump()
+    burninate_gc_collector()
     config_environ()
     try_remove_old_prom_file(args.log + "/gpu_exporter.prom")
     try_remove_old_prom_file(args.log + "/job_exporter.prom")
@@ -118,9 +152,12 @@ def main(args):
 
     REGISTRY.register(CustomCollector(refs))
 
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server("", int(args.port), app)
-    httpd.serve_forever()
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
 
 
 if __name__ == "__main__":
