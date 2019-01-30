@@ -5,6 +5,7 @@
 * Support to add custom web pages to the web portal of PAI deployments with WebPortal Plugin, refer to [Plugins Doc](https://github.com/Microsoft/pai/blob/master/docs/webportal/PLUGINS.md) for how to use the new feature, and refer to [PR 1700](https://github.com/Microsoft/pai/pull/1700) for how PAI Marketplace is using it as an example.
 * Support update virtual cluster dynamically from webportal. Please refer to [virtual cluster management](https://github.com/Microsoft/pai/tree/master/docs/webportal#virtual-cluster-management) for how to use this new feature. -[PR 1831](https://github.com/Microsoft/pai/pull/1831) [PR 1974](https://github.com/Microsoft/pai/pull/1974)
 * Support customized job environment variables. -[PR 1544](https://github.com/Microsoft/pai/pull/1544)
+* Add VS Code client for PAI, please refer to [OpenPAI VS Code Client](https://marketplace.visualstudio.com/items?itemName=OpenPAIVSCodeClient.pai-vscode) for more detail.
 
 
 ## Improvements
@@ -83,4 +84,4 @@ Or you can clone the code by running
 
 Thanks to the following people who have contributed new code or given us helpful suggestions for this release:
 
-Mao Yang, Shuguang Liu, Bin Wang, Fan Yang, Can Wang, Di Xu, Dian Wang,  Hao Yuan, Qixiang Cheng, Quanlu Zhang, Scarllet Li, Yanjie Gao, Yundong Ye, Yuqi Wang, Ziming Miao, Xinwei Zheng @USTC (virtual cluster update)
+Bin Wang, Fan Yang, Can Wang, Di Xu, Hao Yuan, Qixiang Cheng, Xinwei Zheng @USTC (virtual cluster update), Yanjie Gao, Yundong Ye, Ziming Miao, Yuqi Wang, Scarlett Li, Dian Wang, Mao Yang, Shuguang Liu, Quanlu Zhang
