@@ -1,0 +1,22 @@
+{
+  "jobName": "cleaner-test-job",
+  "image": "ubuntu",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "",
+  "codeDir": "",
+  "virtualCluster": "default",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "command": "fallocate -l 200G \"fake_base\"; for var in {1..100}; do fallocate -l 1G \"fake$var\"; sleep 5; done"
+    }
+  ],
+  "jobEnvs": {}
+}

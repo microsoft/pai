@@ -28,14 +28,16 @@
 #
 # We summer up the result in column 5 (RECLAIMABLE) and return the size in gigabytes.
 
-docker system df | \
+docker system df --format "{{.Reclaimable}}"  | \
 gawk 'BEGIN {s=0}
       END {print s}
-      match($5, /([0-9]+\.?[0-9]*)(M|G|B)/, a) {
+      match($1, /([0-9]+\.?[0-9]*)(M|G|B|T)/, a) {
           if(a[2] == "M")
               s += a[1]/1024;
           else if(a[2] == "B")
               s += a[1]/1024/1024;
+          else if(a[2] == "T")
+              s += a[1]*1024;
           else
               s += a[1];
       }'

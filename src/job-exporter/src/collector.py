@@ -331,7 +331,8 @@ class ContainerCollector(Collector):
         "node-exporter",
         "job-exporter",
         "yarn-exporter",
-        "nvidia-drivers"
+        "nvidia-drivers", 
+        "docker-cleaner"
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
