@@ -1,6 +1,11 @@
 import os
-from kubernetes import client, config
 import yaml
+import logging
+import logging.config
+
+from kubernetes import client, config
+
+logger = logging.getLogger(__name__)
 
 
 def generate_layout(output_file):
@@ -75,10 +80,10 @@ class LayoutCmd():
 
     def generate_layout(self, args):
         layoutFile = os.path.join(args.output, "layout.yaml")
-        print("Generating:" + layoutFile)
+        logger.info("Generating:" + layoutFile)
         if(os.path.exists(layoutFile)):
             if(args.force):
-                print("Will overwrite existing file:", layoutFile)
+                logger.info("Will overwrite existing file:" + layoutFile)
             else:
-                print("File existing, please passing '-f' to overwrite:", layoutFile)
+                logger.info("File existing, please passing '-f' to overwrite:" + layoutFile)
         generate_layout(layoutFile)

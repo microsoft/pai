@@ -102,7 +102,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     for x in target_file_names:
         target_file_path = os.path.join(configuration_directory, x)
         if file_handler.file_exist_or_not(target_file_path) and force is False:
-            print("File %s exists. Skip." % (target_file_path))
+            logger.warning("File %s exists. Skip." % (target_file_path))
             pass
         else:
             file_handler.create_folder_if_not_exist(configuration_directory)
