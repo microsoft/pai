@@ -502,7 +502,7 @@ export class PAIJobManager extends Singleton {
                     }
                     this.simulateTerminal.show(true);
                     if (os.platform() === 'win32') {
-                        this.simulateTerminal.sendText(`cmd /k "${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}"`);
+                        this.simulateTerminal.sendText(`cmd /c "${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}"`);
                     } else {
                         this.simulateTerminal.sendText(`bash '${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}'`);
                     }
