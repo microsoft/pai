@@ -29,10 +29,17 @@ function exit_handler()
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
 }
 
+function kill_handler()
+{
+  printf "%s %s\n" \
+    "[DEBUG]" "Docker container kill handler: SIGTERM signal received in docker container, exiting ..."
+    exit 0
+}
+
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
-
+trap kill_handler SIGTERM
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
@@ -44,7 +51,6 @@ HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 task_role_no={{ idx }}
-
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
 cp -r /pai/code/* ./
@@ -101,7 +107,6 @@ function get_ssh_key_files()
   info_source="webhdfs"
   localKeyPath=/root/.ssh/{{ jobData.jobName }}.pub
   localPrivateKeyPath=/root/.ssh/{{ jobData.jobName }}
-
   if [[ -f $localKeyPath ]]; then
     rm -f $localKeyPath
   fi
@@ -164,14 +169,12 @@ function  azure_rdma_preparation()
 {{# paiMachineList }}
     echo {{hostip}} {{hostname}} >> /hosts.tmp
 {{/ paiMachineList }}
-
     cat /hosts.tmp > /etc/hosts
 }
 
 azure_rdma_preparation
 {{/ azRDMA }}
 {{/ reqAzRDMA }}
-
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 

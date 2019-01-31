@@ -128,3 +128,7 @@ rest-server:
 # uncomment following section if you want to customize the port of pylon
 # pylon:
 #  port: 80
+
+# uncomment following section if you want to customize the docker path of cleaner
+# cleaner:
+#  threshold: 80 

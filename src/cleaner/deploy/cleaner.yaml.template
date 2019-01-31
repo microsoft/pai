@@ -31,42 +31,16 @@ spec:
       hostPID: true
       hostNetwork: true
       containers:
-      - name: docker-cache-cleaner
+      - name: docker-cleaner
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
-        - 'docker_cache'
+        - -t {{ cluster_cfg["cleaner"]["threshold"] }}
         imagePullPolicy: Always
         securityContext:
           privileged: True
         volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-socket
-        livenessProbe:
-          exec:
-            command:
-            - test
-            - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
-          initialDelaySeconds: 60
-          periodSeconds: 30
-        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
-        resources:
-          limits:
-            memory: "1Gi"
-        {%- endif %}
-      - name: deleted-files-cleaner
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
-        args:
-        - 'deleted_files'
-        imagePullPolicy: Always
-        securityContext:
-          privileged: True
-        livenessProbe:
-          exec:
-            command:
-            - test
-            - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
-          initialDelaySeconds: 60
-          periodSeconds: 30
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
@@ -78,3 +52,8 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
+      tolerations:
+      - key: node.kubernetes.io/memory-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"
