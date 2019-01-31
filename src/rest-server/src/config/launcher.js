@@ -43,6 +43,12 @@ let launcherConfig = {
   jobDirCleanUpIntervalSecond: 7200,
   jobConfigFileName: 'JobConfig.json',
   frameworkDescriptionFilename: 'FrameworkDescription.json',
+  amResource: {
+    cpuNumber: 1,
+    memoryMB: 1024,
+    diskType: 0,
+    diskMB: 0,
+  },
 };
 
 launcherConfig.healthCheckPath = () => {
@@ -125,6 +131,24 @@ const launcherConfigSchema = Joi.object().keys({
     .default('JobConfig.json'),
   frameworkDescriptionFilename: Joi.string()
     .default('FrameworkDescription.json'),
+  amResource: Joi.object().keys({
+    cpuNumber: Joi.number()
+      .integer()
+      .min(1)
+      .default(1),
+    memoryMB: Joi.number()
+      .integer()
+      .min(1024)
+      .default(4096),
+    diskType: Joi.number()
+      .integer()
+      .default(0),
+    diskMB: Joi.number()
+      .integer()
+      .min(0)
+      .default(0),
+  }),
+
 }).required();
 
 const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema);

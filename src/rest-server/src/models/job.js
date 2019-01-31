@@ -466,6 +466,12 @@ class Job {
         'queue': virtualCluster,
         'taskNodeGpuType': gpuType,
         'gangAllocation': true,
+        'amResource': {
+          'cpuNumber': launcherConfig.amResource.cpuNumber,
+          'memoryMB': launcherConfig.amResource.memoryMB,
+          'diskType': launcherConfig.amResource.diskType,
+          'diskMB': launcherConfig.amResource.diskMB,
+        },
       },
     };
     for (let i = 0; i < data.taskRoles.length; i++) {

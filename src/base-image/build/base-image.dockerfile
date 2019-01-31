@@ -38,8 +38,8 @@ RUN apt-get -y update && \
       python-dev \
       python-pip \
       python-mysqldb \
-      openjdk-8-jre \
-      openjdk-8-jdk \
+      openjdk-8-jre=8u191-b12-0ubuntu0.16.04.1 \
+      openjdk-8-jdk=8u191-b12-0ubuntu0.16.04.1 \
       openssh-server \
       openssh-client \
       git \

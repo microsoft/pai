@@ -39,10 +39,12 @@ class Pylon:
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
 
-        # TODO refine later
+        webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
+
         return {
             'port': port,
             'uri': uri,
+            'webhdfs-legacy-port': webhdfs_legacy_port,
         }
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

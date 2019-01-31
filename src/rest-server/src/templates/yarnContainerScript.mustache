@@ -270,7 +270,6 @@ docker run --name $docker_name \
 {{# azRDMA }}
   --volume /var/lib/hyperv:/var/lib/hyperv \
   --volume /etc/dat.conf:/etc/dat.conf \
-  --volume /opt/intel:/opt/intel \
   --device=/dev/infiniband/rdma_cm \
   --device=/dev/infiniband/uverbs0 \
   --ulimit memlock=-1  \
