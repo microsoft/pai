@@ -18,9 +18,9 @@
 
 import logging
 import logging.config
+import copy
 
-
-class Cleaner:
+class Cleaner(object):
 
     def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.logger = logging.getLogger(__name__)
