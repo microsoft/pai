@@ -14,22 +14,22 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import time
+import os
+import tempfile
+from ...confStorage.download import download_configuration
+from ...clusterObjectModel.cluster_object_model import cluster_object_model
+from ..common import directory_handler
+from ..common import file_handler
 
 
 def gengerate_tmp_path():
-    import time
-    import os
-    import tempfile
-
     time_in_seconds = str(int(time.time()))
     sub_directory = "tmp-service-config-{0}".format(time_in_seconds)
     return os.path.join(tempfile.gettempdir(), sub_directory)
 
 
 def get_cluster_object_model_from_k8s(kube_config_path):
-    from ...confStorage.download import download_configuration
-    from ...clusterObjectModel.cluster_object_model import cluster_object_model
-
     tmp_path = gengerate_tmp_path()
 
     config_get_handler = download_configuration(config_output_path=tmp_path, kube_config_path=kube_config_path)
@@ -42,9 +42,6 @@ def get_cluster_object_model_from_k8s(kube_config_path):
 
 
 def get_service_list():
-    from ..common import directory_handler
-    from ..common import file_handler
-
     service_list = list()
     subdir_list = directory_handler.get_subdirectory_list("src/")
     for subdir in subdir_list:
