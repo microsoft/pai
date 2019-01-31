@@ -22,19 +22,25 @@ import logging.config
 
 class Cleaner:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.logger = logging.getLogger(__name__)
-
-        self.cluster_configuration = cluster_configuration
+        self.cluster_conf = cluster_conf
+        self.service_conf = service_conf
+        self.default_service_conf = default_service_conf
 
     def validation_pre(self):
         return True, None
 
     def run(self):
-        com = {}
+        result = copy.deepcopy(self.default_service_conf)
+        result.update(self.service_conf)
+        return result
 
-        return com
-
-    def validation_post(self, cluster_object_model):
+    def validation_post(self, conf):
+        threshold = conf["cleaner"].get("threshold")
+        if type(threshold) != int:
+            msg = "expect threshold in cleaner to be int but get %s with type %s" % \
+                    (threshold, type(threshold))
+            return False, msg
         return True, None
 
