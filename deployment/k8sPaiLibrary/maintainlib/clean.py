@@ -105,7 +105,7 @@ class clean:
             if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
             for hostname in com["kubernetes"]["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][hostname]
+                node_config = com["layout"]["machine-list"][hostname]
                 self.logger.info("Begin to clean data on host {0}".format(node_config["hostip"]))
                 self.prepare_package(node_config)
                 self.job_executer(node_config)

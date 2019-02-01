@@ -62,7 +62,11 @@ spec:
           - "30"
           - "--port"
           - "9101"
-          - "{{ cluster_cfg['kubernetes']['api-servers-url'] }}"
+          - "--ca"
+          - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          - "--bearer"
+          - "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          - "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
       volumes:
         - name: collector-mount
           hostPath:

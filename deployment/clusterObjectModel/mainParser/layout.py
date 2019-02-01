@@ -16,40 +16,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# If corresponding values aren't be set in the machine list, the default value will be filled in.
-default-machine-properties:
-  # Account with sudo permission
-  username: {{ env["ssh-username"] }}
-  password: {{ env["ssh-password"] }}
-  sshport: {{ env["ssh-port"] }}
+import logging
+import logging.config
 
-machine-sku:
-  GENERIC:
-    mem: 1
-    gpu:
-      type: generic
-      count: 1
-    cpu:
-      vcore: 1
-    os: ubuntu16.04
+from ...k8sPaiLibrary.maintainlib import common as pai_k8s_common
 
-machine-list:
-{%- for m in env["machines"] %}
-  - hostname: {{ m["hostname"] }}
-    hostip: {{ m["ip"] }}
-    machine-type: GENERIC
-  {%- if loop.index == 1 %}
-    k8s-role: master
-    etcdid: etcdid1
-    zkid: "1"
-    dashboard: "true"
-    pai-master: "true"
-  {%- else %}
-    k8s-role: worker
-    pai-worker: "true"
-  {%- endif %}
-  {%- if loop.length == 1 %}
-    pai-worker: "true"
-    docker-data: /var/lib/docker
-  {%- endif %}
-{%- endfor %}
+
+class Layout:
+
+    def __init__(self, layout_configuration):
+        self.logger = logging.getLogger(__name__)
+        self.layout_configuration = layout_configuration
+
+
+
+    def validation_pre(self):
+        # TODO
+        return True, None
+
+
+
+    def validation_post(self, cluster_object_model):
+        return True, None
+
+
+
+    def run(self):
+        com_layout = dict()
+        com_layout["machine-sku"] = self.layout_configuration["machine-sku"]
+        com_layout["kubernetes"] = self.layout_configuration["kubernetes"]
+        com_layout["machine-list"] = dict()
+
+        for host in self.layout_configuration["machine-list"]:
+            com_layout["machine-list"][host["hostname"]] = host
+
+        return com_layout
+

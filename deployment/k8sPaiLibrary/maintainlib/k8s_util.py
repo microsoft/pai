@@ -16,48 +16,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import os
 import logging
 import logging.config
-
-from ..common import linux_shell
-
-
-
-class service_start:
+import importlib
+from . import clean
+from . import deploy
+from . import common as pai_common
 
 
-    def __init__(self, service_conf, serivce_name):
+logger = logging.getLogger(__name__)
 
-        self.logger = logging.getLogger(__name__)
+def maintain_cluster_k8s(cluster_config, **kwargs):
 
-        self.service_conf = service_conf
-        self.service_name = serivce_name
-
-
-
-    def start(self):
-
-        start_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["start-script"])
-
-        cmd = "/bin/bash {0}".format(start_script)
-        err_msg = "Failed to execute the start script of service {0}".format(self.service_name)
-        self.logger.info("Begin to execute service {0}'s start script.".format(self.service_name))
-        linux_shell.execute_shell_raise(cmd, err_msg)
-
-
-
-    def get_dependency(self):
-
-        if "prerequisite" not in self.service_conf:
-            return None
-        return self.service_conf["prerequisite"]
-
-
-    def run(self):
-
-        self.start()
-
-
-
-
+    if kwargs["option_name"] == "deploy":
+        job_instance = deploy.deploy(cluster_config, **kwargs)
+        job_instance.run()
+    elif kwargs["option_name"] == "clean":
+        job_instance = clean.clean(cluster_config, **kwargs)
+        job_instance.run()
 
