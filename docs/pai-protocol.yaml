@@ -1,18 +1,20 @@
-version: String, required # Protocol version, current version is 2
+protocolVersion: String, required # Protocol version, current version is 2
 name: String, required
 type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output
-tag: String, optional # Component tag. Default is latest
+version: String, optional # Component version. Default is latest
 contributor: String, optional
 description: String, optional
-license: String, optional
 
 prerequisites: # Optional
-  - version: String, optional # If omitted, follow the version in root
+  - protocolVersion: String, optional # If omitted, follow the protocolVersion in root
     name: String, required
     type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job"
-    tag: String, optional # Component tag. Default is latest
+    version: String, optional # Component version. Default is latest
+    contributor: String, optional
+    description: String, optional
     auth: Object, optional # Only available when the type is dockerimage
-      credential: String, optional # "username:password" encoded in base64
+      username: String, optional
+      passward: String, optional
       registryuri: String, optional
     uri: String or list, required # Only when the type is data can the uri be a list
 
@@ -22,7 +24,7 @@ parameters: # Optional, can be omitted
 
 jobRetryCount: Integer, optional # Default is 0
 taskRoles:
-  - version: String, optional # Protocol version, default is 2
+  - protocol_version: String, optional # Protocol version, default is 2
     name: String, required  # Name of the taskRole
     instances: Integer, optional # Default is 1, instances of a taskRole
     completion:
@@ -43,57 +45,67 @@ taskRoles:
         <portLabel1>: Integer, optional, default is 0 # Only for host network
     commands:
       - String, required
-    # to handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field.
-    # e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
-    # in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
-    # one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
-    deployments: # Optional
-      preCommands:
-        - String, optional # execute before $$commands$$
-      postCommands:
-        - String, optional # execute after $$commands$$
 
+# to handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field.
+# e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
+# in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
+# one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
+deployments: 
+  - protocolVersion: String, optional # If omitted, follow the root protocolVersion
+    name: String, required    
+    taskRoles:
+      - name: String, required # Should be the same as taskRoles.name
+        preCommands:
+          - String, required # execute before $$commands$$
+        postCommands:
+          - String, required # execute after $$commands$$
 
 attachments: # optional, cluster specific parameters
-  - version: String, optional
+  - protocolVersion: String, optional
     virtualCluster: String, optional
 
 
 # Below is an example for distributed tensorflow:
 
-version: 2
+protocolVersion: 2
 name: tensorflow_cifar10
 type: job
-tag: 1.0.0
+version: 1.0.0
 contributor: Alice
 description: image classification, cifar10 dataset, tensorflow, distributed training
-license: CC BY-NC-SA
 
 prerequisites:
-  - version: 2
+  - protocolVersion: 2
     name: tf_example
     type: dockerimage
-    tag: latest
+    version: latest
+    contributor: Alice
+    description: python3.5, tensorflow
     auth:
-      # "username:password" encoded in base64, e.g.
-      # openssl enc -base64 <<< "81f1fd6a-2844-4072-982d-62371fa37bd3:user1"
-      credential: ODFmMWZkNmEtMjg0NC00MDcyLTk4MmQtNjIzNzFmYTM3YmQzOnVzZXIx
+      username: 81f1fd6a-2844-4072-982d-62371fa37bd3
+      passward: user1
       registryuri: openpai.azurecr.io
     uri: openpai/pai.example.tensorflow
-  - version: 2
+  - protocolVersion: 2
     name: tensorflow_cifar10_model
     type: output
-    tag: latest
+    version: latest
+    contributor: Alice
+    description: cifar10 data output
     uri: hdfs://10.151.40.179:9000/core/cifar10_model
-  - version: 2
+  - protocolVersion: 2
     name: tensorflow_cnnbenchmarks
     type: script
-    tag: 84820935288cab696c9c2ac409cbd46a1f24723d
+    version: 84820935288cab696c9c2ac409cbd46a1f24723d
+    contributor: MaggieQi
+    description: tensorflow benchmarks
     uri: https://github.com/MaggieQi/benchmarks
-  - version: 2
+  - protocolVersion: 2
     name: cifar10
     type: data
-    tag: latest
+    version: latest
+    contributor: Alice
+    description: cifar10 dataset, image classification
     uri:
       - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
 
@@ -103,7 +115,7 @@ parameters:
 
 jobRetryCount: 1
 taskRoles:
-  - version: 2
+  - protocolVersion: 2
     name: worker
     instance: 1
     completion:
@@ -125,20 +137,11 @@ taskRoles:
       - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
       - >
         python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
-        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
         --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
         --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
-    deployments:
-      preCommands:
-        - wget $$taskRoles.worker.data.cifar10.uri$$ -P data_$$taskRoles.worker.data.cifar10.name$$ # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
-        - >
-          git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
-          cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$ &&
-          git checkout $$taskRoles.worker.script.tf_cnnbenchmarks.tag$$ && cd ..
-          # and the system will go ahead to execute $$taskRoles.worker.commands$$
-
-  - version: 2
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+  - protocolVersion: 2
     name: ps_server
     instances: 1
     completion:
@@ -160,20 +163,32 @@ taskRoles:
       - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
       - >
         python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
-        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
         --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
         --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
-    deployments:
-      preCommands:
-        - wget $$taskRoles.ps_server.data.cifar10.uri$$ -P data_$$taskRoles.ps_server.data.cifar10.name$$
-        - >
-          git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
-          cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$ &&
-          git checkout $$taskRoles.ps_server.script.tf_cnnbenchmarks.tag$$ && cd ..
-          # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
-      postCommands:
-        # after the execution of $$taskRoles.ps_server.commands$$, the system goes here
-        - hdfs dfs -cp output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$ $$taskRoles.ps_server.output.tf_cifar10_model.uri$$
-        # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
-        # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+
+deployments:
+  - protocolVersion: 2
+    name: default # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
+    version: 1.0.0    
+    taskRoles:
+      - name: worker
+        preCommands:
+          - wget $$taskRoles.worker.data.cifar10.uri$$ -P data_$$taskRoles.worker.data.cifar10.name$$ # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
+          - >
+            git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
+            cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.worker.script.tf_cnnbenchmarks.version$$ && cd ..
+            # and the system will go ahead to execute $$taskRoles.worker.commands$$
+      - name: ps_server
+        preCommands:
+          - wget $$taskRoles.ps_server.data.cifar10.uri$$ -P data_$$taskRoles.ps_server.data.cifar10.name$$
+          - >
+            git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
+            cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.ps_server.script.tf_cnnbenchmarks.version$$ && cd ..
+            # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
+        postCommands:
+          # after the execution of $$taskRoles.ps_server.commands$$, the system goes here
+          - hdfs dfs -cp output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$ $$taskRoles.ps_server.output.tf_cifar10_model.uri$$
+          # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
+          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
