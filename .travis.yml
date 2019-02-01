@@ -12,11 +12,11 @@ matrix:
         - python -m unittest discover test/
 
     - language: python
-      python: 2.7
+      python: 3.6
       before_install:
         - cd src/watchdog/test
       install:
-        - pip install paramiko pyyaml requests prometheus_client
+        - pip install paramiko pyyaml requests prometheus_client twisted
       script:
         - python -m unittest discover .
 

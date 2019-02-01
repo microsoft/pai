@@ -17,7 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import argparse
-import urlparse
+import urllib.parse
 import os
 import json
 import sys
@@ -25,12 +25,20 @@ import requests
 import logging
 import time
 import threading
+import signal
+import faulthandler
+import gc
 
 import paramiko
 import yaml
-from wsgiref.simple_server import make_server
-from prometheus_client import make_wsgi_app, Counter, Summary, Histogram
+import prometheus_client
+from prometheus_client import Counter, Summary, Histogram
 from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, Summary, REGISTRY
+from prometheus_client.twisted import MetricsResource
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +132,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
 
     pod_name = pod["metadata"]["name"]
     labels = pod["metadata"].get("labels")
-    if labels is None or "app" not in labels.keys():
+    if labels is None or "app" not in list(labels.keys()):
         logger.warning("unkown pod %s", pod["metadata"]["name"])
         return None
 
@@ -182,7 +190,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
                     logger.error("unexpected state %s in container %s",
                             json.dumps(state), container_name)
                 else:
-                    container_state = state.keys()[0].lower()
+                    container_state = list(state.keys())[0].lower()
 
             pai_container_gauge.add_metric([service_name, pod_name, container_name,
                 container_state, host_ip, str(ready).lower()], 1)
@@ -197,7 +205,7 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
                 None,
                 pai_pod_gauge, pai_container_gauge, item)
 
-    map(_map_fn, podsJsonObject["items"])
+    list(map(_map_fn, podsJsonObject["items"]))
 
 
 def collect_healthz(gauge, histogram, service_name, address, port, url):
@@ -261,7 +269,7 @@ def process_nodes_status(pai_node_gauge, nodesJsonObject):
                 None,
                 pai_node_gauge, item)
 
-    map(_map_fn, nodesJsonObject["items"])
+    list(map(_map_fn, nodesJsonObject["items"]))
 
 
 def load_machine_list(configFilePath):
@@ -283,13 +291,38 @@ def try_remove_old_prom_file(path):
         except Exception as e:
             log.warning("can not remove old prom file %s", path)
 
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
+
+ # https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
+
+    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                prometheus_client.REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
+
+
 def main(args):
+    register_stack_trace_dump()
+    burninate_gc_collector()
     logDir = args.log
 
     try_remove_old_prom_file(logDir + "/watchdog.prom")
 
     address = args.k8s_api
-    parse_result = urlparse.urlparse(address)
+    parse_result = urllib.parse.urlparse(address)
+    api_server_scheme = parse_result.scheme
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
 
@@ -300,9 +333,14 @@ def main(args):
 
     REGISTRY.register(CustomCollector(atomic_ref))
 
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server("", int(args.port), app)
-    t = threading.Thread(target=httpd.serve_forever)
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+
+    t = threading.Thread(target=reactor.run, name="twisted")
     t.daemon = True
     t.start()
 

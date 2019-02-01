@@ -6,9 +6,18 @@ import os
 import json
 import threading
 import sys
+import signal
+import faulthandler
+import gc
 
+import prometheus_client
 from prometheus_client import Gauge
 from prometheus_client.core import REGISTRY
+from prometheus_client.twisted import MetricsResource
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 from prometheus_client.twisted import MetricsResource
 from twisted.web.server import Site
@@ -89,6 +98,25 @@ def get_gpu_count(path):
         logger.warning("failed to find gpu count from config %s", gpu_config)
         return 0
 
+
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
+
+
+# https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
+
+    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                prometheus_client.REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+
 class HealthResource(Resource):
     def render_GET(self, request):
         request.setHeader("Content-Type", "text/html; charset=utf-8")
@@ -96,6 +124,8 @@ class HealthResource(Resource):
 
 
 def main(args):
+    register_stack_trace_dump()
+    burninate_gc_collector()
     config_environ()
     try_remove_old_prom_file(args.log + "/gpu_exporter.prom")
     try_remove_old_prom_file(args.log + "/job_exporter.prom")

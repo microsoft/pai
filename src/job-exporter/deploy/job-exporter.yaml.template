@@ -36,7 +36,7 @@ spec:
       containers:
       - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}job-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        livenessProbe: # we found python may have deadlock and http server can not accept new conn, so use liveness probe to check if it is alive, and kill if it has deadlock. Temporary solution
+        livenessProbe: # in case job-exporter hangs
           httpGet:
             path: '/healthz'
             port: {{ cluster_cfg["job-exporter"]["port"] }}
