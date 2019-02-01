@@ -31,7 +31,7 @@ spec:
         app: watchdog
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/path: "/"
+        prometheus.io/path: "/metrics"
         prometheus.io/port: "9101"
     spec:
       containers:
@@ -39,7 +39,8 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}watchdog:{{cluster_cfg["cluster"]["docker-registry"]["tag"]}}
         imagePullPolicy: Always
         readinessProbe:
-          tcpSocket: # because http get will trigger job-exporter abandom old metrics, so we use tcp instead of http
+          httpGet:
+            path: '/healthz'
             port: 9101
           initialDelaySeconds: 3
           periodSeconds: 30
