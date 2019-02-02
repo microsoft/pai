@@ -91,8 +91,23 @@ def get_unready_nodes(expect_nodes, current_nodes):
 
 def main():
     parser = argparse.ArgumentParser()
+    # parser.add_argument("-d", "--decommission", dest="decommission", default="localhost", help="Master ip")
+    subparsers = parser.add_subparsers(
+        title="subcommands",
+        description="valid subcommands",
+        dest="subcommands",
+        help="incrementally decommission or recommission nodes, or update full list")
 
-    parser.add_argument("-p", "--master_ip", dest="ip", default="localhost", help="Master ip")
+    parser_dec = subparsers.add_parser("decommission", help="decommission nodes")
+    parser_dec.add_argument("-n", "--nodes", dest="decommission", help='support comma-delimited node list')
+    parser_dec.set_defaults(func=decommission_nodes)
+
+    parser_rec = subparsers.add_parser("recommission", help="recommission nodes")
+    parser_rec.add_argument("-n", "--nodes", dest="recommission", help='support comma-delimited node list')
+
+    parser_rec = subparsers.add_parser("update", help="recommission nodes")
+    parser_rec.add_argument("-f", "--file", dest="file", help='full list to be decommission,'
+                                                              'will overwrite current list')
 
     args = parser.parse_args()
 
