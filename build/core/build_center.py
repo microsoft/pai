@@ -23,6 +23,7 @@ from . import build_handler
 
 import os
 import sys
+import traceback
 import logging
 import logging.config
 
@@ -122,8 +123,9 @@ class BuildCenter:
                     build_worker.build_single_component(self.graph.services[item])
             self.logger.info("Build all components succeed")
 
-        except:
+        except Exception, err:
             self.logger.error("Build all components failed")
+            traceback.print_exc()
             sys.exit(1)
 
         finally:
