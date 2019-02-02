@@ -335,6 +335,7 @@ const loadJobs = (specifiedVc) => {
           }, 0);
         },
       },
+      'pageLength',
       {
         text: 'Select displayed jobs',
         action: function(e, dt) {
@@ -358,7 +359,6 @@ const loadJobs = (specifiedVc) => {
           }
         },
       },
-      'pageLength',
     ],
     'select': {
       style: 'multi',
