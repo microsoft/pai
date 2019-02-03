@@ -10,6 +10,8 @@ const query = ((script) => {
   return qs.parse(search);
 })(document.currentScript) as {
   nfs?: string,
+  "auth-file"?: string,
 };
 
 export const nfs = query.nfs;
+export const authFile = query["auth-file"];

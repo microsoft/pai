@@ -2,7 +2,7 @@ import Hashids from "hashids";
 
 import SimpleJob from "./SimpleJob";
 
-import { nfs } from "../config";
+import { authFile, nfs } from "../config";
 
 function convertCommand(simpleJob: SimpleJob, user: string, hyperParameterValue?: number) {
   const depends: { [name: string]: boolean } = {};
@@ -111,6 +111,10 @@ export default function convert(simpleJob: SimpleJob, user: string) {
     jobName: simpleJob.name,
     virtualCluster: simpleJob.virtualCluster,
   };
+
+  if (authFile !== undefined) {
+    job.authFile = authFile;
+  }
 
   const taskRoles = [];
 
