@@ -34,7 +34,7 @@ class DockerCleaner(LoggerMixin):
         exc = None
         try:
             with CountdownTimer(duration=self.__timeout):
-                self.check_and_clean(self.__threshold, self.__timespan)
+                self.check_and_clean()
         except Timeout as e:
             self.logger.error("Cleaner timeout.")
             exc = e
@@ -48,7 +48,7 @@ class DockerCleaner(LoggerMixin):
     def run(self):
         while True:
             # allow a delay before the cleaning
-            time.sleep(self.__timespan)
+            time.sleep(self.__interval)
             self._exec()
 
 
@@ -67,8 +67,8 @@ class DockerCleaner(LoggerMixin):
         return size
 
 
-    def check_and_clean(self, threshold):
-        if self.check_disk_usage("/") > self.___threshold:
+    def check_and_clean(self):
+        if self.check_disk_usage("/") >= self.__threshold:
             self.logger.info("Disk usage is above {0}%, Try to remove containers".format(self.__threshold))
             self.kill_largest_container()
 
@@ -81,11 +81,11 @@ class DockerCleaner(LoggerMixin):
         containers_source = subprocess.Popen(["docker", "ps", "-a", "--format", r'{{.ID}}\t{{.Image}}\t{{.Size}}\t{{.Names}}'], stdout=subprocess.PIPE)
         for line in containers_source.stdout:
             splitline = line.split("\t")
-            for prefix in white_list:
+            for prefix in self.white_list:
                 if (splitline[3].startswith(prefix)):
                     break
             else:
-                size = calculate_size(splitline[2].split()[0])
+                size = common.calculate_size(splitline[2].split()[0])
                 containers.append([size, splitline[0], splitline[1]])
 
         containers.sort(key=lambda x:x[0], reverse=True)
