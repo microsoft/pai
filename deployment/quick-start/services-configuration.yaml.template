@@ -129,6 +129,7 @@ rest-server:
 # pylon:
 #  port: 80
 
-# uncomment following section if you want to customize the docker path of cleaner
+# uncomment following section if you want to customize the threshold of cleaner
 # cleaner:
-#  threshold: 80 
+#  threshold: 94
+#  interval: 60

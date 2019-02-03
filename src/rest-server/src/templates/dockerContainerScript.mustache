@@ -32,14 +32,14 @@ function exit_handler()
 function kill_handler()
 {
   printf "%s %s\n" \
-    "[DEBUG]" "Docker container kill handler: SIGTERM signal received in docker container, exiting ..."
-    exit 0
+    "[INFO]" "Docker container killed due to disk pressure. If your job needs large disk space, please use HDFS or NFS to store your data."
+    exit 1
 }
 
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
-trap kill_handler SIGTERM
+trap kill_handler SIGRTMIN+8
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 

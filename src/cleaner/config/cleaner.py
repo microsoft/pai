@@ -42,5 +42,16 @@ class Cleaner(object):
             msg = "expect threshold in cleaner to be int but get %s with type %s" % \
                     (threshold, type(threshold))
             return False, msg
+        else:
+            if threshold < 0 or threshold > 100:
+                msg = "expect threshold in [0, 100]"
+                return False, msg
+            
+        interval = conf["cleaner"].get("interval")
+        if type(interval) != int:
+            msg = "expect interval in cleaner to be int but get %s with type %s" % \
+                    (interval, type(interval))
+            return False, msg
+        
         return True, None
 
