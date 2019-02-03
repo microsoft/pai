@@ -19,7 +19,7 @@ import time
 import argparse
 import os
 from datetime import timedelta
-from cleaner.scripts import clean_docker_cache, check_deleted_files, clean_docker
+from cleaner.scripts.clean_docker import DockerCleaner
 from cleaner.worker import Worker
 from cleaner.utils.logger import LoggerMixin
 from cleaner.utils import common
@@ -84,14 +84,13 @@ def get_worker(threshold):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--threshold", help="the disk usage precent to start cleaner")
+    parser.add_argument("-i", "--interval", help="the base interval to check disk usage")
     args = parser.parse_args()
 
     common.setup_logging()
 
-    cleaner = Cleaner("docker-cleaner-healthy")
-    cleaner.add_worker("docker-cleaner", get_worker(args.threshold))
-    cleaner.start()
-    cleaner.sync()
+    cleaner = DockerCleaner(args.threshold, args.interval, timedelta(minutes=10))
+    cleaner.run()
 
 
 if __name__ == "__main__":
