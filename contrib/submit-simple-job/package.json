@@ -4,6 +4,7 @@
   "description": "PAI web portal plugin for submit simple job",
   "main": "index.tsx",
   "scripts": {
+    "watch": "webpack --config webpack.watch.config",
     "build": "webpack",
     "test": "tslint"
   },

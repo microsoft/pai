@@ -1,7 +1,7 @@
-const path = require('path');
+const { resolve } = require('path')
 
 module.exports = {
-  mode: process.env.NODE_ENV || 'development',
+  mode: 'production',
   entry: './index.ts',
   module: {
     rules: [{
@@ -10,12 +10,12 @@ module.exports = {
       exclude: /node_modules/,
     }],
   },
+  output: {
+    path: resolve(__dirname, 'dist'),
+    filename: 'plugin.js'
+  },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-  },
-  output: {
-    filename: 'submit-simple-job.js',
-    path: path.resolve(__dirname, '..', '..', '..', 'dist', 'scripts', 'plugins'),
   },
   watchOptions: {
     ignored: /node_modules/,
