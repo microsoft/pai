@@ -22,7 +22,7 @@ import sys
 import os
 import psutil
 import signal
-
+import re
 
 def kill_process_tree(pid, time_to_die, logger):
     """
