@@ -308,25 +308,26 @@ const loadJobs = (specifiedVc) => {
           return Boolean(token);
         }()),
         init(dt, node) {
-          if (userAuth.checkAdmin()) {
-            // Admins default browse all jobs
-            dt.button(node).active(false);
-            dt.column('user:name').search('');
-          } else {
-            // Users default browse their own jobs.
-            dt.button(node).active(true);
-            dt.column('user:name').search(cookies.get('user'));
+          if (cookies.get('my-jobs')) {
+            if (!cookies.get('user')) {
+              cookies.remove('my-jobs');
+            } else {
+              dt.button(node).active(true);
+              dt.column('user:name').search(cookies.get('user'));
+              setTimeout(function() {
+                dt.draw();
+              }, 0);
+            }
           }
-          setTimeout(function() {
-            dt.draw();
-          }, 0);
         },
         action(e, dt, node) {
           const button = dt.button(node);
           if (button.active()) {
+            cookies.remove('my-jobs');
             button.active(false);
             dt.column('user:name').search('');
           } else {
+            cookies.set('my-jobs', '1');
             button.active(true);
             dt.column('user:name').search(cookies.get('user'));
           }
