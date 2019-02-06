@@ -122,7 +122,8 @@ class BuildCenter:
                     build_worker.build_single_component(self.graph.services[item])
             self.logger.info("Build all components succeed")
 
-        except:
+        except Exception as e:
+            self.logger.error(str(e))
             self.logger.error("Build all components failed")
             sys.exit(1)
 
