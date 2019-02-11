@@ -92,7 +92,7 @@ class DockerCleaner(LoggerMixin):
 
         if containers.count > 0 and containers[0][0] > 1024**3:
             self.logger.warning("Kill container {0} due to disk pressure. Container size: {1}".format(containers[0][1], containers[0][0]))
-            subprocess.Popen(["docker", "kill", "--signal=SIGRTMIN+8", containers[0][1]])
+            subprocess.Popen(["docker", "kill", "--signal=10", containers[0][1]])
 
             # Because docker stop will not immedicately stop container, we can not remove docker image right after stop container
             #container_image = subprocess.Popen(["docker", "inspect", containers[0][1], r"--format='{{.Image}}'"], stdout=subprocess.PIPE).stdout.readline()
