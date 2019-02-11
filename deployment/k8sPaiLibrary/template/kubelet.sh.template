@@ -67,6 +67,8 @@ docker run \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --system-reserved=memory=3Gi \
   --eviction-hard= \
+  --image-gc-high-threshold=100 \
+  --image-gc-low-threshold=95 \
   --healthz-bind-address="0.0.0.0" \
   --healthz-port="10248" \
   --feature-gates="DevicePlugins=true,TaintBasedEvictions=true" \
