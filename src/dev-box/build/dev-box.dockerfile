@@ -40,7 +40,7 @@ RUN apt-get -y update && \
       python-pip \
       python-mysqldb \
       openjdk-8-jre \
-      openjdk-8-jdk1 \
+      openjdk-8-jdk \
       openssh-server \
       openssh-client \
       git \
