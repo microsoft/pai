@@ -157,7 +157,3 @@ class BuildCenter:
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.logger.info("Push image:{0} successfully".format(image))
-
-
-
-
