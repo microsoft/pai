@@ -13,7 +13,7 @@ Configuration file [kubernetes-configuration.yaml](../../examples/cluster-config
 storage-backend: etcd3
 etcd-version: 3.2.17
 ```
-The etcd node can be configured in file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml) by adding a `etcdid` label on the machine.
+The etcd node can be configured in file [layout.yaml](../../examples/cluster-configuration/layout.yaml) by adding a `etcdid` label on the machine.
 
 ## Deployment
 

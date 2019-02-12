@@ -20,7 +20,6 @@ import time
 import logging
 import logging.config
 
-from . import service_stop
 from . import service_template_generate
 from . import service_template_clean
 from . import service_management_configuration
@@ -29,48 +28,34 @@ from ..common import directory_handler
 from ..common import file_handler
 
 
-
 class service_management_stop:
 
-
-    def __init__(self, kube_config_path = None, service_list = None, **kwargs):
+    def __init__(self, kube_config_path=None, service_list=None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = None
 
-        self.kube_config_path = None
-        if kube_config_path != None:
-            self.kube_config_path = kube_config_path
+        self.kube_config_path = kube_config_path
 
         if service_list is None:
-            self.service_list = self.get_service_list()
+            self.service_list = service_management_configuration.get_service_list()
         else:
             self.service_list = service_list
+        self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))
 
 
+    def stop_service(self, service_conf, service_name):
+        from ..common import linux_shell
+        stop_script = "src/{0}/deploy/{1}".format(service_name, service_conf["stop-script"])
 
-    def get_service_list(self):
-
-        service_list = list()
-
-        subdir_list = directory_handler.get_subdirectory_list("src/")
-        for subdir in subdir_list:
-
-            service_deploy_dir = "src/{0}/deploy".format(subdir)
-            service_deploy_conf_path = "src/{0}/deploy/service.yaml".format(subdir)
-            if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
-                service_list.append(subdir)
-
-        self.logger.info("Get the service-list to manage : {0}".format(str(service_list)))
-
-        return service_list
-
-
+        cmd = "/bin/bash {0}".format(stop_script)
+        err_msg = "Failed to execute the stop script of service {0}".format(service_name)
+        self.logger.info("Begin to execute service {0}'s stop script.".format(service_name))
+        linux_shell.execute_shell(cmd, err_msg)
 
     def start(self, serv):
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        service_stopper = service_stop.service_stop(service_conf, serv)
 
         self.logger.info("----------------------------------------------------------------------")
         self.logger.info("Begin to generate service {0}'s template file".format(serv))
@@ -80,7 +65,7 @@ class service_management_stop:
         service_template_generater.run()
 
         self.logger.info("Begin to stop service: [ {0} ]".format(serv))
-        service_stopper.run()
+        self.stop_service(service_conf, serv)
 
         self.logger.info("Begin to clean service's generated template file".format(serv))
         service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
@@ -89,12 +74,9 @@ class service_management_stop:
         self.logger.info("Successfully stop {0}".format(serv))
         self.logger.info("----------------------------------------------------------------------")
 
-
-
     def run(self):
 
-        config_handler = service_management_configuration.service_management_configuration(kube_config_path = self.kube_config_path)
-        self.cluster_object_model = config_handler.run()
+        self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
 
         for serv in self.service_list:
             if serv == "cluster-configuration":
@@ -107,5 +89,3 @@ class service_management_stop:
 
         if "cluster-configuration" in self.service_list:
             self.start("cluster-configuration")
-
-

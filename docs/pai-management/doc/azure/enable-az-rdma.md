@@ -33,7 +33,7 @@ The network topology considerations(Important): https://docs.microsoft.com/en-us
 ###### ``` 1. Mark the RDMA capable machines with label```
 
 
-Based on [the knowledge section](#knowledge), you should mark your RDMA-capable machine with a specify label in [cluster-configuration.yaml](../../../../examples/cluster-configuration/cluster-configuration.yaml). Of course, you could customize the label as what you like.
+Based on [the knowledge section](#knowledge), you should mark your RDMA-capable machine with a specify label in [layout.yaml](../../../../examples/cluster-configuration/layout.yaml). Of course, you could customize the label as what you like.
 
 For example, in this tutorial, the following label will be used.
 

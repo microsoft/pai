@@ -23,6 +23,7 @@ const tokenRouter = require('./token');
 const userRouter = require('./user');
 const jobRouter = require('./job');
 const vcRouter = require('./vc');
+const kubernetesProxy = require('../controllers/kubernetes-proxy');
 
 const router = new express.Router();
 
@@ -33,6 +34,7 @@ router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', vcRouter);
+router.use('/kubernetes', kubernetesProxy);
 
 // module exports
 module.exports = router;

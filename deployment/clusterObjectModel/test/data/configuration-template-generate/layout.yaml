@@ -16,13 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# If corresponding values aren't be set in the machine list, the default value will be filled in.
-default-machine-properties:
-  # Account with root permission
-  username: username
-  password: password
-  sshport: 22
-
+#TODO
+kubernetes:
+  api-servers-url: http://10.0.0.1:8080
+  dashboard-host: 10.0.0.1
 
 machine-sku:
 
