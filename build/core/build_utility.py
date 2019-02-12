@@ -90,7 +90,7 @@ def execute_shell(shell_cmd):
         subprocess.check_call( shell_cmd, shell=True )
         logger.info("Executing command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
-        logger.info("Executing command failed: {0}".format(shell_cmd))
+        logger.error("Executing command failed: {0}".format(shell_cmd))
         sys.exit(1)
 
 
@@ -101,7 +101,7 @@ def execute_shell_with_output(shell_cmd):
         res = subprocess.check_output( shell_cmd, shell=True )
         logger.info("Executes command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
-        logger.info("Executes command failed: {0}".format(shell_cmd))
+        logger.error("Executes command failed: {0}".format(shell_cmd))
         sys.exit(1)
 
     return res
