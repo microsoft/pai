@@ -120,6 +120,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses = new HashMap<>();
     newAggFrameworkStatuses.putAll(reusableAggFrameworkStatuses);
     newAggFrameworkStatuses.putAll(nonreusableAggFrameworkStatuses);
+    reviseAggregatedFrameworkStatuses(newAggFrameworkStatuses);
     aggFrameworkStatuses = CommonExts.asReadOnly(newAggFrameworkStatuses);
 
     LOGGER.logDebug("Pulled AggregatedLauncherStatus: " +
@@ -167,6 +168,38 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     return reusableAggFrameworkStatuses;
   }
 
+  private static void reviseAggregatedFrameworkStatuses(
+      Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses) {
+    for (AggregatedFrameworkStatus aggFrameworkStatus : newAggFrameworkStatuses.values()) {
+      FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();
+      String frameworkName = frameworkStatus.getFrameworkName();
+
+      // Revise FrameworkState:
+      // Framework is running <-> Exists running Task.
+      // This makes the Launcher APIs reflect the real Framework running state, instead of just the
+      // raw AM running state.
+      // It is hard to make sure the FrameworkStatus is consistent with the TaskStatuses outside
+      // WebServer.
+      // However, this will make the exposed FrameworkState is not consistent with the backend,
+      // but it is fine because the revised state, i.e. APPLICATION_RUNNING and APPLICATION_WAITING
+      // are generally exchangeable even in the backend.
+      FrameworkState frameworkState = frameworkStatus.getFrameworkState();
+      if (frameworkState == FrameworkState.APPLICATION_WAITING ||
+          frameworkState == FrameworkState.APPLICATION_RUNNING) {
+        FrameworkState revisedFrameworkState =
+            aggFrameworkStatus.existsRunningTask() ?
+                FrameworkState.APPLICATION_RUNNING :
+                FrameworkState.APPLICATION_WAITING;
+
+        if (frameworkState != revisedFrameworkState) {
+          frameworkStatus.setFrameworkState(revisedFrameworkState);
+          LOGGER.logDebug("Revised Framework [%s] from [%s] to [%s]",
+              frameworkName, frameworkState, revisedFrameworkState);
+        }
+      }
+    }
+  }
+
   private void updateCompletedFrameworkStatuses() throws Exception {
     Map<String, FrameworkStatus> completedFrameworkStatuses = new HashMap<>();
     for (Map.Entry<String, AggregatedFrameworkStatus> aggFrameworkStatusKV : aggFrameworkStatuses.entrySet()) {
@@ -204,7 +237,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
       // If the real Status has not yet appeared, return the inferred Status according to the Request.
       // So, from the Launcher APIs' view, the Status's life cycle is consistent with the Request.
       // This makes the Launcher APIs more convenient for Client to use.
-      // However, we only infer the FrameworkStatus if it does not exist, for other Status, such as the TaskStatuses, 
+      // However, we only infer the FrameworkStatus if it does not exist, for other Status, such as the TaskStatuses,
       // Client still needs to poll the API to check whether the Status has been updated according to the Request.
       return AggregatedFrameworkStatus.newInstance(frameworkRequest);
     }

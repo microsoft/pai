@@ -48,4 +48,15 @@ public class AggregatedFrameworkStatus implements Serializable {
   public void setAggregatedTaskRoleStatuses(Map<String, AggregatedTaskRoleStatus> aggregatedTaskRoleStatuses) {
     this.aggregatedTaskRoleStatuses = aggregatedTaskRoleStatuses;
   }
+
+  public boolean existsRunningTask() {
+    for (AggregatedTaskRoleStatus aggTaskRoleStatus : aggregatedTaskRoleStatuses.values()) {
+      for (TaskStatus taskStatus : aggTaskRoleStatus.getTaskStatuses().getTaskStatusArray()) {
+        if (taskStatus.getTaskState() == TaskState.CONTAINER_RUNNING) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }
