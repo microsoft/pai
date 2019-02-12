@@ -107,6 +107,9 @@ http {
       proxy_intercept_errors on;
       error_page 307 = @handle_webhdfs_api_redirect;
     }
+    location ~ ^/webhdfs/webhdfs {
+      rewrite ^/webhdfs/webhdfs(.*)$ /webhdfs/api$1 last;
+    }
     location @handle_webhdfs_api_redirect {
       if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
         return 307 $scheme://$http_host/a/$1:$2/$3;
