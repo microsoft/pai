@@ -61,5 +61,3 @@ if [ -f "kubernetes.tar" ]; then
     rm -rf kubernetes.tar
 
 fi
-
-apt-get -y purge ntp

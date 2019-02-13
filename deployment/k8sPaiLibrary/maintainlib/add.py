@@ -95,7 +95,7 @@ class add:
 
         commandline = "sudo ./{0}/prerequisites-install.sh {0}".format(self.jobname)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
-            self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
+            self.logger.error("Failed to install prerequisites (NTP service) on {0}".format(self.node_config['hostip']))
             sys.exit(1)
 
         commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(self.jobname)

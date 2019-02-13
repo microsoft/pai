@@ -95,7 +95,7 @@ class deploy:
 
         commandline = "sudo ./{0}/prerequisites-install.sh {0}".format(job_name)
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
-            self.logger.error("Failed to install docker-ce on {0}".format(node_config['hostip']))
+            self.logger.error("Failed to install OpenPAI prerequisites (NTP service) on {0}".format(node_config['hostip']))
             sys.exit(1)
             
         commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(job_name)
