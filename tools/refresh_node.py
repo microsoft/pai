@@ -100,17 +100,16 @@ class YarnOperator(object):
 
     def decommission_nodes(self):
         try:
-            subprocess.check_output(self.update_command, stderr = subprocess.STDOUT, shell = True)
+            subprocess.check_output(self.update_command, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as e:
             logger.error(e.output)
+            raise e
 
 
 def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
     for node, state in current_status.iteritems():
-        if state in {"DECOMMISSIONING", "DECOMMISSIONED"} and node not in decommissioned_nodes:
-            unready_nodes[node] = state
-        elif state not in {"DECOMMISSIONING", "DECOMMISSIONED"} and node in decommissioned_nodes:
+        if state not in {"DECOMMISSIONING", "DECOMMISSIONED"} and node in decommissioned_nodes:
             unready_nodes[node] = state
     return unready_nodes
 
@@ -166,6 +165,8 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
+        else:
+            logger.info("Unready nodes: {}".format(unready_nodes))
         logger.info("Waiting...")
         time.sleep(5)
     logger.info("Successfully refresh nodes.")
