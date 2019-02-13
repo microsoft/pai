@@ -15,7 +15,7 @@ import { promisify } from 'util';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_HDFS_DOWNLOAD, COMMAND_HDFS_UPLOAD_FILES, COMMAND_HDFS_UPLOAD_FOLDERS, COMMAND_OPEN_HDFS, OCTICON_CLOUDUPLOAD
+    COMMAND_HDFS_DOWNLOAD, COMMAND_HDFS_UPLOAD_FILES, COMMAND_HDFS_UPLOAD_FOLDERS, COMMAND_OPEN_HDFS, OCTICON_CLOUDUPLOAD, SETTING_SECTION_HDFS, SETTING_HDFS_EXPLORER_LOCATION, ENUM_HDFS_EXPLORER_LOCATION
 } from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
@@ -24,6 +24,7 @@ import { ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
 import { IPAICluster } from './paiInterface';
 import { createWebHDFSClient, IHDFSClient, IHDFSStatResult } from './webhdfs-workaround';
+import { HDFSTreeDataProvider } from './container/hdfsTreeView';
 
 const stat: (path: string) => Promise<fs.Stats> = promisify(fs.stat);
 const readdir: (path: string) => Promise<string[]> = promisify(fs.readdir);
@@ -464,18 +465,15 @@ export class HDFS extends Singleton {
     private UPLOADFOLDER: string = __('hdfs.dialog.label.upload-folders');
     private DOWNLOADHERE: string = __('hdfs.dialog.label.download');
 
-    private _provider: HDFSFileSystemProvider | undefined;
-    public get provider(): HDFSFileSystemProvider | undefined {
-        return this._provider;
-    }
+    public readonly provider: HDFSFileSystemProvider | undefined;
 
     constructor() {
         super();
         console.log('Registering HDFS...');
         try {
-            this._provider = new HDFSFileSystemProvider();
+            this.provider = new HDFSFileSystemProvider();
             this.context.subscriptions.push(
-                vscode.workspace.registerFileSystemProvider('webhdfs', this._provider, { isCaseSensitive: true })
+                vscode.workspace.registerFileSystemProvider('webhdfs', this.provider, { isCaseSensitive: true })
             );
             console.log('HDFS registered as webhdfs:/...');
         } catch (ex) {
@@ -484,7 +482,20 @@ export class HDFS extends Singleton {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 COMMAND_OPEN_HDFS,
-                (node: ConfigurationNode) => this.open(node.index)
+                async (node?: ConfigurationNode | IPAICluster) => {
+                    if (!node) {
+                        const manager: ClusterManager = await getSingleton(ClusterManager);
+                        const index: number | undefined = await manager.pick();
+                        if (index === undefined) {
+                            return;
+                        }
+                        this.open(manager.allConfigurations[index]);
+                    } else if (node instanceof ConfigurationNode) {
+                        this.open((await getSingleton(ClusterManager)).allConfigurations[node.index]);
+                    } else {
+                        this.open(node);
+                    }
+                }
             ),
             vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FILES, this.uploadFiles.bind(this)),
             vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FOLDERS, this.uploadFolders.bind(this)),
@@ -492,33 +503,37 @@ export class HDFS extends Singleton {
         );
     }
 
-    public async open(index: number): Promise<void> {
-        const configuration: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations[index];
-        if (!configuration.webhdfs_uri) {
+    public async open(conf: IPAICluster): Promise<void> {
+        if (!conf.webhdfs_uri) {
             Util.err('hdfs.initialization.missingconfiguration');
             return;
         }
-        let start: number = 0;
-        let deleteCount: number = 0;
-        if (vscode.workspace.workspaceFolders) {
-            start = vscode.workspace.workspaceFolders.findIndex(folder => folder.uri.scheme === 'webhdfs');
-            if (start >= 0) {
-                deleteCount = 1;
-            } else {
-                start = vscode.workspace.workspaceFolders.length;
+        const setting: string | undefined = vscode.workspace.getConfiguration(SETTING_SECTION_HDFS).get(SETTING_HDFS_EXPLORER_LOCATION);
+        if (setting === ENUM_HDFS_EXPLORER_LOCATION.explorer) {
+            let start: number = 0;
+            let deleteCount: number = 0;
+            if (vscode.workspace.workspaceFolders) {
+                start = vscode.workspace.workspaceFolders.findIndex(folder => folder.uri.scheme === 'webhdfs');
+                if (start >= 0) {
+                    deleteCount = 1;
+                } else {
+                    start = vscode.workspace.workspaceFolders.length;
+                }
             }
-        }
-        try {
-            // this._provider!.addClient(getHDFSUriAuthority(configuration));
-            await vscode.commands.executeCommand('workbench.view.explorer');
-            void vscode.window.showInformationMessage(__('hdfs.open.prompt', [configuration.webhdfs_uri]));
-            vscode.workspace.updateWorkspaceFolders(start, deleteCount, {
-                uri: vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(configuration)}/`),
-                name: __('hdfs.workspace.title', [configuration.webhdfs_uri])
-            });
-            // Extension may be reloaded at this point due to workspace changes
-        } catch (ex) {
-            Util.err('hdfs.open.error', [ex]);
+            try {
+                // this.provider!.addClient(getHDFSUriAuthority(configuration));
+                await vscode.commands.executeCommand('workbench.view.explorer');
+                void vscode.window.showInformationMessage(__('hdfs.open.prompt', [conf.webhdfs_uri]));
+                vscode.workspace.updateWorkspaceFolders(start, deleteCount, {
+                    uri: vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(conf)}/`),
+                    name: __('hdfs.workspace.title', [conf.webhdfs_uri])
+                });
+                // Extension may be reloaded at this point due to workspace changes
+            } catch (ex) {
+                Util.err('hdfs.open.error', [ex]);
+            }
+        } else {
+            (await getSingleton(HDFSTreeDataProvider)).setUri(vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(conf)}/`));
         }
     }
 
@@ -534,7 +549,7 @@ export class HDFS extends Singleton {
         }
     }
 
-    public async download(from: vscode.Uri): Promise<void> {
+    private async download(from: vscode.Uri): Promise<void> {
         const files: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
@@ -547,7 +562,7 @@ export class HDFS extends Singleton {
         await this.provider!.copy(from, files[0], { overwrite: true });
     }
 
-    public async uploadFiles(target: vscode.Uri): Promise<void> {
+    private async uploadFiles(target: vscode.Uri): Promise<void> {
         const files: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
             canSelectFiles: true,
             canSelectMany: true,
@@ -559,7 +574,7 @@ export class HDFS extends Singleton {
         return this.upload(files, target);
     }
 
-    public async uploadFolders(target: vscode.Uri): Promise<void> {
+    private async uploadFolders(target: vscode.Uri): Promise<void> {
         const folders: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,

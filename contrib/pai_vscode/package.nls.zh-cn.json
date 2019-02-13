@@ -1,9 +1,10 @@
 {
     "explorer.paiClusterExplorer": "PAI 集群浏览器",
+    "container.hdfs": "HDFS 浏览器",
+    "paiext.common.refresh": "刷新",
     "paiext.cluster.add": "添加 PAI 集群",
     "paiext.cluster.edit": "编辑 PAI 集群配置",
     "paiext.cluster.delete": "删除 PAI 集群配置",
-    "paiext.cluster.refresh": "刷新",
     "paiext.hdfs.open": "打开 HDFS",
     "paiext.hdfs.upload.files": "上传文件...",
     "paiext.hdfs.upload.folders": "上传文件夹...",
@@ -17,5 +18,6 @@
     "config.job.upload.enabled": "控制插件是否会自动将项目源代码上传至 PAI 任务配置文件的 CodeDir",
     "config.job.upload.exclude": "控制排除文件、文件夹的 Glob 模式",
     "config.job.upload.include": "控制包括文件、文件夹的 Glob 模式",
-    "config.job.generateJobName.enabled": "控制插件是否会在提交任务时，自动在任务名称后添加随机字符串，以避免重复"
+    "config.job.generateJobName.enabled": "控制插件是否会在提交任务时，自动在任务名称后添加随机字符串，以避免重复",
+    "config.hdfs.location": "HDFS 浏览器显示的位置"
 }

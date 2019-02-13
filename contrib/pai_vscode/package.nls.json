@@ -1,9 +1,10 @@
 {
     "explorer.paiClusterExplorer": "PAI Cluster Explorer",
+    "container.hdfs": "HDFS Explorer",
+    "paiext.common.refresh": "Refresh",
     "paiext.cluster.add": "Add PAI Cluster",
     "paiext.cluster.edit": "Edit PAI Cluster Configuration",
     "paiext.cluster.delete": "Delete PAI Cluster Configuration",
-    "paiext.cluster.refresh": "Refresh",
     "paiext.hdfs.open": "Open HDFS",
     "paiext.hdfs.upload.files": "Upload Files...",
     "paiext.hdfs.upload.folders": "Upload Folders...",
@@ -17,5 +18,6 @@
     "config.job.upload.enabled": "Controls whether the extension will upload your project files to PAI job config's code dir automatically",
     "config.job.upload.exclude": "Glob pattern for excluding files and folders",
     "config.job.upload.include": "Glob pattern for including files and folders",
-    "config.job.generateJobName.enabled": "Controls whether the extension will add a random suffix to your job name when submitting job"
+    "config.job.generateJobName.enabled": "Controls whether the extension will add a random suffix to your job name when submitting job",
+    "config.hdfs.location": "Location where hdfs explorer will be shown"
 }
