@@ -65,6 +65,14 @@ master-deployment:
       src: deployment/k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: master-deployment
 
+    - name: prerequisites-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/ntp-install.py
+      dst: master-deployment
+      
+    - name: ntp-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/ntp-install.py
+      dst: master-deployment
+
 worker-deployment:
 
     template-list:
@@ -98,6 +106,14 @@ worker-deployment:
       src: deployment/k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: worker-deployment
 
+    - name: prerequisites-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/prerequisites-install.py
+      dst: worker-deployment
+      
+    - name: ntp-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/ntp-install.py
+      dst: worker-deployment
+      
 proxy-deployment:
 
     template-list:

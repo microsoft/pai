@@ -56,7 +56,13 @@ add-worker-node:
       src: deployment/k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-worker-node
 
+    - name: prerequisites-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/prerequisites-install.py
+      dst: add-worker-node
 
+    - name: ntp-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/ntp-install.py
+      dst: add-worker-node
 
 
 
@@ -121,5 +127,12 @@ add-master-node-task-two:
       src: deployment/k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-master-node-task-two
 
+    - name: prerequisites-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/prerequisites-install.py
+      dst: add-master-node-task-two
+      
+    - name: ntp-install.py
+      src: deployment/k8sPaiLibrary/maintaintool/ntp-install.py
+      dst: add-master-node-task-two
 
 
