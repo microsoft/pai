@@ -229,7 +229,7 @@
 
   <property>
     <name>yarn.nm.liveness-monitor.expiry-interval-ms</name>
-    <value>900000</value>
+    <value>3600000</value>
   </property>
 
   <property>
