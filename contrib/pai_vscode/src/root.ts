@@ -11,6 +11,7 @@ import { ConfigurationTreeDataProvider } from './pai/configurationTreeDataProvid
 import { HDFS } from './pai/hdfs';
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
+import { HDFSTreeDataProvider } from './pai/container/hdfsTreeView';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     UtilClass,
@@ -18,5 +19,6 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     ConfigurationTreeDataProvider,
     PAIJobManager,
     PAIWebpages,
-    HDFS
+    HDFS,
+    HDFSTreeDataProvider
 ];

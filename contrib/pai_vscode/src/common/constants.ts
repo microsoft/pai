@@ -20,11 +20,25 @@ export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';
+export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
 
 export const VIEW_CONFIGURATION_TREE = 'PAIExplorer';
 export const CONTEXT_CONFIGURATION_ITEM = 'PAIConfiguration';
 export const CONTEXT_CONFIGURATION_ITEM_WEBPAGE = 'PAIWebpage';
 
+export const VIEW_CONTAINER_HDFS = 'PAIContainerHDFS';
+export const CONTEXT_HDFS_FILE = 'PAIHdfsFile';
+export const CONTEXT_HDFS_FOLDER = 'PAIHdfsFolder';
+export const CONTEXT_HDFS_ROOT = 'PAIHdfsRoot';
+export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
+export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
+
+export const SETTING_SECTION_HDFS = 'pai.hdfs';
+export const SETTING_HDFS_EXPLORER_LOCATION = 'location';
+export const ENUM_HDFS_EXPLORER_LOCATION = {
+    sidebar: 'sidebar',
+    explorer: 'explorer'
+};
 export const SETTING_SECTION_JOB = 'pai.job';
 export const SETTING_JOB_UPLOAD_ENABLED = 'upload.enabled';
 export const SETTING_JOB_UPLOAD_EXCLUDE = 'upload.exclude';

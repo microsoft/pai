@@ -129,7 +129,7 @@ export class ConfigurationNode extends TreeNode {
             node.command = {
                 title: __(def.title),
                 command: COMMAND_TREEVIEW_DOUBLECLICK,
-                arguments: [this, def.command]
+                arguments: [def.command, this]
             };
             node.iconPath = Util.resolvePath(def.icon);
             this.children.push(node);
@@ -153,10 +153,10 @@ export class ConfigurationTreeDataProvider extends Singleton implements TreeData
         super();
         this.context.subscriptions.push(
             commands.registerCommand(COMMAND_REFRESH_CLUSTER, index => this.refresh(index)),
-            commands.registerCommand(COMMAND_TREEVIEW_DOUBLECLICK, (node: TreeNode, command: string) => {
+            commands.registerCommand(COMMAND_TREEVIEW_DOUBLECLICK, (command: string, ...args: string[]) => {
                 const mode: string | undefined = workspace.getConfiguration('workbench.list').get('openMode');
                 if (mode === 'doubleClick') {
-                    void commands.executeCommand(command, node);
+                    void commands.executeCommand(command, ...args);
                 } else {
                     // Single Click
                     if (
@@ -165,7 +165,7 @@ export class ConfigurationTreeDataProvider extends Singleton implements TreeData
                         Date.now() - this.lastClick.time < this.doubleClickInterval
                     ) {
                         this.lastClick = undefined;
-                        void commands.executeCommand(command, node);
+                        void commands.executeCommand(command, ...args);
                     } else {
                         this.lastClick = { command, time: Date.now() };
                     }
