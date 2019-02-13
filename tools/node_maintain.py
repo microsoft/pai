@@ -171,7 +171,7 @@ def refresh_yarn_nodes(args):
         else:
             logger.info("Unready nodes: {}".format(unready_nodes))
         logger.info("Waiting...")
-        time.sleep(5)
+        time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
 def setup_parser():
