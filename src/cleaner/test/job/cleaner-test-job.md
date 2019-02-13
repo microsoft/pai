@@ -16,15 +16,23 @@
 #### How to configure variables in job <a name="HT_Config"></a>
 
 In the job page, use the following command to run cleaner test:
+```sh
 sh /cleaner-test/cleaner-test.sh <threshold> <time>
- - threshold: Test job will fill the disk to (threshold + 1) percent. Please adjust this value according to cleaner threshold setting.
+```
+Variables:
+ - threshold: Test job will fill the disk to (threshold + 1)%. Please adjust this value according to cleaner threshold settings.
  - time: The time cost that job fill disk to (threshold + 1)%.
 
-In Submit Jobs page, after import json file, you will find "sh /cleaner-test/cleaner-test.sh 94 180" by default.
+By default, in Submit Jobs page, after import json file, you will find run command 
+```sh
+sh /cleaner-test/cleaner-test.sh 94 180
+```
 
 
 #### How to build job docker image <a name="HT_Image"></a>
 
 Run the following command under this folder, make sure you have docker installed.
+```sh
 docker build -f cleaner-test.dockerfile .
-Then tag the docker image and upload to your docker repo. 
+```
+Then tag the docker image and upload to your docker repo. We offer the default docker image on openpai/testcleaner
