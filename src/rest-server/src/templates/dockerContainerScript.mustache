@@ -29,10 +29,11 @@ function exit_handler()
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
 }
 
+# The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
 function kill_handler()
 {
   printf "%s %s\n" \
-    "[INFO]" "Docker container killed due to disk pressure. If your job needs large disk space, please use HDFS or NFS to store your data."
+    "[INFO]" "Docker container killed by cleaner due to disk pressure."
   exit 1
 }
 
