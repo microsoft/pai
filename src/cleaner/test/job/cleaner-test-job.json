@@ -1,6 +1,6 @@
 {
   "jobName": "cleaner-test-job",
-  "image": "ubuntu",
+  "image": "openpai/testcleaner",
   "authFile": "",
   "dataDir": "",
   "outputDir": "",
@@ -15,7 +15,7 @@
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 0,
-      "command": "fallocate -l 200G \"fake_base\"; for var in {1..100}; do fallocate -l 1G \"fake$var\"; sleep 5; done"
+      "command": "sh /cleaner-test/cleaner-test.sh 94 30"
     }
   ],
   "jobEnvs": {}
