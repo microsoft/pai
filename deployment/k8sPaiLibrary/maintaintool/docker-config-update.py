@@ -29,17 +29,17 @@ def dict_overwrite(subset_dict, superset_dict):
     updated = False
     for key in subset_dict:
         if key not in superset_dict:
-            subset_dict[key] = superset_dict[key]
+            superset_dict[key] = subset_dict[key]
             updated = True
         elif isinstance(subset_dict[key], dict) and isinstance(superset_dict[key], dict):
             if dict_overwrite(subset_dict[key], superset_dict[key]) is True:
                 updated = True
         elif isinstance(subset_dict[key], list) and isinstance(superset_dict[key], list):
             if set(subset_dict[key]) != set(superset_dict[key]):
-                subset_dict[key] = superset_dict[key]
+                superset_dict[key] = subset_dict[key]
                 updated = True
         elif subset_dict[key] != superset_dict[key]:
-            subset_dict[key] = superset_dict[key]
+            superset_dict[key] = subset_dict[key]
             updated = True
     return updated
 
