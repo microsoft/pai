@@ -2,12 +2,13 @@ import requests
 import logging
 import os
 import sys
-sys.path.append(".")
-
 import argparse
 import time
+import subprocess
+sys.path.append("..")
 
-from deployment.paiLibrary.common.kubernetes_handler import get_configmap
+
+from deployment.paiLibrary.common.kubernetes_handler import get_configmap, update_configmap
 from deployment.k8sPaiLibrary.maintainlib import common
 
 
@@ -23,19 +24,14 @@ def setup_logger():
     return logger
 
 
-
-class PaiOperator(object):
-
+class KubernetesOperator(object):
     kubernetes_template = "../deployment/k8sPaiLibrary/template/config.template"
-    kube_config_path = os.path.expanduser("~/.kube/config")
+    kube_config_path = "./.config"
     configmap_name = "exclude-file"
+    configmap_data_key = "nodes"
 
     def __init__(self, master_ip):
-        self.yarn_nodes_url = "http://{}:8088/ws/v1/cluster/nodes".format(master_ip)
         self.setup_kubernetes_configfile(master_ip)
-        self.current_nodes = {}
-        self.expect_nodes = {}
-
 
     def setup_kubernetes_configfile(self, api_servers_ip):
 
@@ -47,7 +43,45 @@ class PaiOperator(object):
 
         common.write_generated_file(generated_data, self.kube_config_path)
 
-    def load_current_status(self):
+    def get_nodes(self):
+        configmap_info = get_configmap(self.kube_config_path, self.configmap_name)
+        nodes_str = configmap_info["data"][self.configmap_data_key]
+        nodes = set(nodes_str.splitlines())
+        return nodes
+
+    def set_nodes(self, nodes):
+        nodes = set(nodes)
+        nodes_str = '\n'.join(nodes)
+        data_dict = {self.configmap_data_key: nodes_str}
+        update_configmap(self.kube_config_path, self.configmap_name, data_dict)
+
+
+class YarnOperator(object):
+    yarn_config_path = "./.hadoop"
+    update_command = "yarn --config {} rmadmin -refreshNodes -g -server".format(yarn_config_path)
+
+    def __init__(self, master_ip):
+        self.master_ip = master_ip
+        self.yarn_nodes_url = "http://{}:8088/ws/v1/cluster/nodes".format(master_ip)
+        self.setup_yarn_configfile(master_ip)
+
+    def setup_yarn_configfile(self, yarn_ip):
+        if not os.path.exists(self.yarn_config_path):
+            os.mkdir(self.yarn_config_path)
+
+        yarn_config_str = \
+        '''<configuration>
+            <property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>{}</value>
+            </property>
+        </configuration>'''.format(yarn_ip)
+
+        with open(os.path.join(self.yarn_config_path, "yarn-site.xml"), 'w') as f:
+            f.write(yarn_config_str)
+
+
+    def get_node_status(self):
         try:
             response = requests.get(self.yarn_nodes_url)
         except Exception as e:
@@ -58,78 +92,125 @@ class PaiOperator(object):
             logger.error("Response error: {}".format(response.text))
             exit(1)
         nodes_info = response.json()
+        current_nodes = {}
         for node in nodes_info["nodes"]["node"]:
             host, state = node["nodeHostName"], node["state"]
-            self.current_nodes[host] = state
+            current_nodes[host] = state
+        return current_nodes
 
-    def load_configmap(self):
-        decommision_nodes = get_configmap(self.kube_config_path, self.configmap_name)
-        logger.debug(decommision_nodes)
-
-
-
-    def get_expect_nodes(self):
-        self.load_configmap()
-        return self.expect_nodes.copy()
+    def decommission_nodes(self):
+        try:
+            subprocess.check_output(self.update_command.split(), stderr = subprocess.STDOUT, shell = True)
+        except subprocess.CalledProcessError as e:
+            logger.error(e.output)
 
 
-    def get_current_nodes(self):
-        self.load_current_status()
-        return self.current_nodes.copy()
-
-
-
-
-def get_unready_nodes(expect_nodes, current_nodes):
+def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
-    for host, state in expect_nodes:
-        if host in current_nodes \
-                and current_nodes[host] not in state:
-            unready_nodes[host] = state
+    for node, state in current_status:
+        if state in {"DECOMMISSIONING", "DECOMMISSIONED"} and node not in decommissioned_nodes:
+            unready_nodes[node] = state
+        elif state not in {"DECOMMISSIONING", "DECOMMISSIONED"} and node in decommissioned_nodes:
+            unready_nodes[node] = state
     return unready_nodes
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("-d", "--decommission", dest="decommission", default="localhost", help="Master ip")
-    subparsers = parser.add_subparsers(
-        title="subcommands",
-        description="valid subcommands",
-        dest="subcommands",
-        help="incrementally decommission or recommission nodes, or update full list")
+def get_decommission_nodes(args):
+    k8s_operator = KubernetesOperator(args.ip)
+    existing_nodes = k8s_operator.get_nodes()
+    logger.info("Current unhealthy node list: {}".format(','.join(existing_nodes)))
+    return existing_nodes
 
-    parser_dec = subparsers.add_parser("decommission", help="decommission nodes")
-    parser_dec.add_argument("-n", "--nodes", dest="decommission", help='support comma-delimited node list')
-    parser_dec.set_defaults(func=decommission_nodes)
 
-    parser_rec = subparsers.add_parser("recommission", help="recommission nodes")
-    parser_rec.add_argument("-n", "--nodes", dest="recommission", help='support comma-delimited node list')
+def add_decommission_nodes(args):
+    k8s_operator = KubernetesOperator(args.ip)
+    existing_nodes = k8s_operator.get_nodes()
+    nodes = args.nodes
+    if isinstance(nodes, str):
+        nodes = set(nodes.split(','))
+    full_list = existing_nodes | nodes
+    k8s_operator.set_nodes(full_list)
+    logger.info("Add node: {}".format(args.nodes))
+    return full_list
 
-    parser_rec = subparsers.add_parser("update", help="recommission nodes")
-    parser_rec.add_argument("-f", "--file", dest="file", help='full list to be decommission,'
-                                                              'will overwrite current list')
 
-    args = parser.parse_args()
+def remove_decommission_nodes(args):
+    k8s_operator = KubernetesOperator(args.ip)
+    existing_nodes = k8s_operator.get_nodes()
+    nodes = args.nodes
+    if isinstance(nodes, str):
+        nodes = set(nodes.split(','))
+    full_list = existing_nodes - nodes
+    k8s_operator.set_nodes(full_list)
+    logger.info("Remove node: {}".format(args.nodes))
+    return full_list
 
-    master_ip = args.ip
 
-    pai_operator = PaiOperator(master_ip)
+def update_decommission_nodes(args):
+    k8s_operator = KubernetesOperator(args.ip)
+    nodes = args.nodes
+    if isinstance(nodes, str):
+        nodes = set(nodes.split(','))
+    k8s_operator.set_nodes(nodes)
+    logger.info("Update node list: {}".format(args.nodes))
+    return nodes
 
+
+def refresh_yarn_nodes(args):
+    k8s_operator = KubernetesOperator(args.ip)
+    yarn_operator = YarnOperator(args.ip)
     while True:
-        expect_nodes = pai_operator.get_expect_nodes()
-        expect_nodes = {host: ["DECOMMISSIONED", "DECOMMISSIONING"] for host in expect_nodes}
-        current_nodes = pai_operator.get_current_nodes()
-        if len(get_unready_nodes(expect_nodes, current_nodes)) == 0:
+        yarn_operator.decommission_nodes()
+        current_status = yarn_operator.get_node_status()
+        decommissioned_nodes = k8s_operator.get_nodes()
+        unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
+        if len(unready_nodes) == 0:
             break
+        logger.info("Waiting...")
         time.sleep(5)
 
-    logger.info("All nodes is decommissioning or decommissioned")
 
+def setup_parser():
+    top_parser = argparse.ArgumentParser()
+    top_parser.add_argument("ip", help="Master node ip")
+    subparser = top_parser.add_subparsers(
+        title="subcommands",
+        description="valid subcommands",
+        dest="subcommands")
+
+    # node list parser
+    nodelist_parser = subparser.add_parser("node-list")
+    nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
+
+    parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
+    parser_get.set_defaults(func=get_decommission_nodes)
+
+    parser_add = nodelist_subparsers.add_parser("add", help="add unhealthy nodes")
+    parser_add.add_argument("nodes", help='support comma-delimited node list')
+    parser_add.set_defaults(func=add_decommission_nodes)
+
+    parser_remove = nodelist_subparsers.add_parser("remove", help="remove unhealthy nodes")
+    parser_remove.add_argument("nodes", help='support comma-delimited node list')
+    parser_remove.set_defaults(func=remove_decommission_nodes)
+
+    parser_update = nodelist_subparsers.add_parser("update", help="update unhealthy node list")
+    parser_update.add_argument("nodes", help='support comma-delimited node list')
+    parser_update.set_defaults(func=update_decommission_nodes)
+
+    # yarn operator parser
+    yarn_parser = subparser.add_parser("refresh")
+    yarn_parser.set_defaults(func=refresh_yarn_nodes)
+
+    return top_parser
+
+
+def main():
+
+    parser = setup_parser()
+    args = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":
     logger = setup_logger()
-    pai_operator = PaiOperator("10.130.137.50")
-    pai_operator.load_configmap()
-
-    # main()
+    main()

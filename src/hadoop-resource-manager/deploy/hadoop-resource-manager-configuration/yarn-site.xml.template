@@ -243,6 +243,11 @@
   </property>
   
   <property>
+    <name>yarn.resourcemanager.nodes.exclude-path</name>
+    <value>/exclude-path/nodes</value>
+  </property>
+
+  <property>
     <description>
     The duration (in ms) the YARN client waits for an expected state change
     to occur.  -1 means unlimited wait time.
