@@ -29,7 +29,7 @@ def run(cmd):
         if int(code) !=0:
             exception = 1
         else:
-            #ensure type str return
+            # ensure type str return
             if py_ver_str[0] == '3':
                 op = op.decode('utf-8')
             return op
@@ -41,7 +41,7 @@ def just_run(cmd):
     return commands.getoutput(cmd)
 
 def set_ntp_variables():
-        // Currently only supports Ubuntu, and can be extended to support other operating systems in the future.
+        # Currently only supports Ubuntu, and can be extended to support other operating systems in the future.
         ntp_package = 'ntp'
         ntp_service = 'ntp'
         ntp_query = "dpkg-query -s ntp"
