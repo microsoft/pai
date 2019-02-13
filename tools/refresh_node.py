@@ -103,13 +103,16 @@ class YarnOperator(object):
             subprocess.check_output(self.update_command, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as e:
             logger.error(e.output)
-            raise e
 
 
 def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
     for node, state in current_status.iteritems():
+        # should decommission but not
         if state not in {"DECOMMISSIONING", "DECOMMISSIONED"} and node in decommissioned_nodes:
+            unready_nodes[node] = state
+        # should recommission but not
+        if state in {"DECOMMISSIONING", "DECOMMISSIONED"} and node not in decommissioned_nodes:
             unready_nodes[node] = state
     return unready_nodes
 
