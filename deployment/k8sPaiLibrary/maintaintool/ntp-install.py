@@ -42,12 +42,11 @@ def just_run(cmd):
 
 def set_ntp_variables():
         # Currently only supports Ubuntu, and can be extended to support other operating systems in the future.
-        ntp_package = 'ntp'
         ntp_service = 'ntp'
         ntp_query = "dpkg-query -s ntp"
         ntp_install_command = "apt-get install --force-yes -y ntp"
         ntp_status = "ntpdc -p"
-        return (ntp_package,ntp_service,ntp_query,ntp_install_command)
+        return (ntp_service,ntp_query,ntp_install_command)
 
 def check_ntp_installation(ntp_query,ntp_install_command):
         print('Checking NTP installation status')
@@ -79,7 +78,7 @@ def restart_ntp_service(ntp_service):
         print(just_run("service "+ntp_service+" restart"))
 
 def main():
-        (ntp_package,ntp_service,ntp_query,ntp_install_command)=set_ntp_variables()
+        (ntp_service,ntp_query,ntp_install_command)=set_ntp_variables()
         check_ntp_installation(ntp_query,ntp_install_command)
         add_ntp_servers()
         restart_ntp_service(ntp_service)
