@@ -31,10 +31,10 @@ taskRoles:
       minFailedInstances: Integer or null, optional # Default 1
       minSucceededInstances: Integer or null, optional # Default null
     taskRetryCount: Integer, optional # Default is 0
-    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites.
-    data: Object, optional # Default is None
-    output: Object, optional # Default is None
-    script: Object, optional # Default is None
+    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites
+    data: String, optional # Should reference to data defined in prerequisites
+    output: String, optional # Should reference to output defined in prerequisites
+    script: String, optional # Should reference to script defined in prerequisites
     extraContainerOptions: 
       shmMB: Integer, optional # config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size
     resourcePerInstance:
@@ -61,8 +61,8 @@ deployments:
           - String, required # execute after $$commands$$
 
 attachments: # optional, cluster specific parameters
-  -protocolVersion: String, optional
-   virtualCluster: String, optional
+  - protocolVersion: String, optional
+    virtualCluster: String, optional
 
 
 # Below is an example for distributed tensorflow:
@@ -123,9 +123,9 @@ taskRoles:
       minSucceededInstances: 1
     taskRetryCount: 0
     dockerImage: tf_example
-    data: { cifar10: prerequisites.[data,cifar10] }
-    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+    data: cifar10
+    output: tensorflow_cifar10_model
+    script: tensorflow_cnnbenchmarks
     extraContainerOptions: 
       shmMB: 64      
     resourcePerInstance:
@@ -135,11 +135,12 @@ taskRoles:
       ports: { ssh: 0, http: 0 }
     commands:
       - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-      - >- python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
-      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-      --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
-      --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
-      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+      - >
+        python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
+        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
   - protocolVersion: 2
     name: ps_server
     instances: 1
@@ -148,9 +149,9 @@ taskRoles:
       minSucceededInstances: null
     taskRetryCount: 0
     dockerImage: tf_example
-    data: { cifar10: prerequisites.[data,cifar10] }
-    output: { tf_cifar10_model: prerequisites.[output,tensorflow_cifar10_model] }
-    script: { tf_cnnbenchmarks: prerequisites.[script,tensorflow_cnnbenchmarks] }
+    data: cifar10
+    output: tensorflow_cifar10_model
+    script: tensorflow_cnnbenchmarks
     extraContainerOptions: 
       shmMB: 64
     resourcePerInstanec:
@@ -160,11 +161,12 @@ taskRoles:
       ports: { ssh: 0, http: 0 }
     commands:
       - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
-      - >- python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
-      --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-      --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
-      --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
-      --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+      - >
+        python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
+        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
+        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
 
 deployments:
   - protocolVersion: 2
@@ -174,16 +176,19 @@ deployments:
       - name: worker
         preCommands:
           - wget $$taskRoles.worker.data.cifar10.uri$$ -P data_$$taskRoles.worker.data.cifar10.name$$ # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
-          - > git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
+          - >
+            git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
             cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.worker.script.tf_cnnbenchmarks.version$$ && cd ..
-          # and the system will go ahead to execute $$taskRoles.worker.commands$$
+            # and the system will go ahead to execute $$taskRoles.worker.commands$$
       - name: ps_server
         preCommands:
           - wget $$taskRoles.ps_server.data.cifar10.uri$$ -P data_$$taskRoles.ps_server.data.cifar10.name$$
-          - > git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
-          cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.ps_server.script.tf_cnnbenchmarks.version$$ && cd ..
-          # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
+          - >
+            git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
+            cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.ps_server.script.tf_cnnbenchmarks.version$$ && cd ..
+            # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
         postCommands:
           # after the execution of $$taskRoles.ps_server.commands$$, the system goes here
           - hdfs dfs -cp output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$ $$taskRoles.ps_server.output.tf_cifar10_model.uri$$
-          # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly. In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
+          # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
+          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
