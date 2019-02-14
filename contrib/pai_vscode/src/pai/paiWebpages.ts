@@ -13,7 +13,8 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterName, getClusterWebPortalUri } from './clusterManager';
+
+import { getClusterName, getClusterWebPortalUri, ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
 import { IPAICluster } from './paiInterface';
 

@@ -158,7 +158,13 @@
     "object-literal-sort-keys": false,
     "one-variable-per-declaration": true,
     "only-arrow-functions": false,
-    "ordered-imports": true,
+    "ordered-imports": [
+      true,
+      {
+        "named-imports-order": "lowercase-first",
+        "grouped-imports": true
+      }
+    ],
     "prefer-array-literal": false,
     "prefer-const": true,
     "prefer-for-of": true,

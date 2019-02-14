@@ -2,7 +2,7 @@
     "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
     "icon": "assets/pai_logo.png",
@@ -115,17 +115,36 @@
                     "dark": "icons/refresh_dark.svg"
                 },
                 "category": "PAI"
+            },
+            {
+                "command": "paiext.container.hdfs.delete",
+                "title": "%paiext.container.hdfs.delete%"
+            },
+            {
+                "command": "paiext.container.hdfs.mkdir",
+                "title": "%paiext.container.hdfs.mkdir%"
             }
         ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "PAIContainer",
+                    "title": "%container.title%",
+                    "icon": "icons/pai_container.png"
+                }
+            ]
+        },
         "views": {
             "explorer": [
                 {
                     "id": "PAIExplorer",
                     "name": "%explorer.paiClusterExplorer%"
-                },
+                }
+            ],
+            "PAIContainer": [
                 {
                     "id": "PAIContainerHDFS",
-                    "name": "%container.hdfs%"
+                    "name": "%container.hdfs.title%"
                 }
             ]
         },
@@ -161,6 +180,14 @@
                 },
                 {
                     "command": "paiext.container.hdfs.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.hdfs.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.hdfs.mkdir",
                     "when": "false"
                 }
             ],
@@ -234,6 +261,31 @@
                 {
                     "command": "paiext.cluster.delete",
                     "when": "view == PAIExplorer && viewItem == PAIConfiguration"
+                },
+                {
+                    "command": "paiext.container.hdfs.mkdir",
+                    "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsFile",
+                    "group": "1@1"
+                },
+                {
+                    "command": "paiext.hdfs.download",
+                    "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsRoot",
+                    "group": "2@1"
+                },
+                {
+                    "command": "paiext.hdfs.upload.files",
+                    "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsFile",
+                    "group": "2@2"
+                },
+                {
+                    "command": "paiext.hdfs.upload.folders",
+                    "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsFile",
+                    "group": "2@3"
+                },
+                {
+                    "command": "paiext.container.hdfs.delete",
+                    "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsRoot",
+                    "group": "3@1"
                 }
             ]
         },
