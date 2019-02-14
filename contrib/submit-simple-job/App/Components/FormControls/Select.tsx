@@ -8,9 +8,9 @@ interface IOptionProps {
   value: string;
 }
 
-function Option({ value, label }: IOptionProps) {
+const Option: React.FunctionComponent<IOptionProps> = ({ value, label }) => {
   return <option value={value}>{label}</option>;
-}
+};
 
 interface ISelectProps extends IFormControlProps<string> {
   options: Array<IOptionProps | string>;
