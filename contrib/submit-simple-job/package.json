@@ -5,8 +5,9 @@
   "main": "index.tsx",
   "scripts": {
     "watch": "webpack --env development",
+    "prebuild": "npm test",
     "build": "webpack",
-    "test": "tslint"
+    "test": "tslint --project ."
   },
   "author": "Qixiang Cheng <Qixiang.Cheng@microsoft.com>",
   "license": "MIT",
