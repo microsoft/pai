@@ -8,7 +8,6 @@ import App from "./App";
 class PAIPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
-    // TODO: remove `js-cookie` after pai-user and pai-rest-server-token is configurad in PAI.
     const user = this.getAttribute("pai-user");
     const token = this.getAttribute("pai-rest-server-token");
     if (user == null || token == null) {
