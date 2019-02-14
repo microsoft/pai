@@ -43,9 +43,14 @@ const TextArea: React.FunctionComponent<ITextAreaProps> = (props) => {
   return (
     <div className={classNames("form-group", className)}>
       <label htmlFor={UID}>{children}</label>
-      <textarea className="form-control" id={UID} placeholder={children}
-        rows={rows} cols={cols}
-        value={value} onChange={onTextAreaChange}
+      <textarea
+        className="form-control"
+        id={UID}
+        placeholder={children}
+        rows={rows}
+        cols={cols}
+        value={value}
+        onChange={onTextAreaChange}
       />
     </div>
   );

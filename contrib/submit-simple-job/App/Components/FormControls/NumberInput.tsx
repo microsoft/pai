@@ -42,10 +42,16 @@ const NumberInput: React.FunctionComponent<INumberInputProps> = (props) => {
   return (
     <div className={classNames("form-group", className)}>
       <label htmlFor={UID}>{children}</label>
-      <input type="number" className="form-control"
-        id={UID} placeholder={children}
-        min={min} max={max}
-        value={value} onChange={onInputChange}/>
+      <input
+        type="number"
+        className="form-control"
+        id={UID}
+        placeholder={children}
+        min={min}
+        max={max}
+        value={value}
+        onChange={onInputChange}
+      />
     </div>
   );
 };

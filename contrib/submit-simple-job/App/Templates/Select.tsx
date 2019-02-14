@@ -54,7 +54,7 @@ const TemplatesSelect: React.FunctionComponent<ITemplatesSelectProps> = ({ class
           {children}
         </Select>
       );
-    } }
+    }}
   </TemplatesContext.Consumer>
 );
 

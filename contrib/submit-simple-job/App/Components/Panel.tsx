@@ -53,7 +53,7 @@ export default class Panel extends React.Component<IPanelProps, IPanelState> {
       <div className={classNames("panel", "panel-default", className)}>
         <a className="panel-heading" style={headingStyle}>
           <p className="panel-title" onClick={this.onClickTitle}>
-            <span className={classNames("glyphicon", iconClassName)}></span>
+            <span className={classNames("glyphicon", iconClassName)}/>
             {" "}{title}
           </p>
         </a>

@@ -35,8 +35,11 @@ const PriviledgedDocker: React.FunctionComponent = () => (
     { ({ value: simpleJob, set: setSimpleJob }) => {
       return (
         <>
-          <CheckBox className="col-sm-12"
-            value={simpleJob.isPrivileged} onChange={setSimpleJob("isPrivileged")}>
+          <CheckBox
+            className="col-sm-12"
+            value={simpleJob.isPrivileged}
+            onChange={setSimpleJob("isPrivileged")}
+          >
             Launch privileged docker
           </CheckBox>
           { simpleJob.isPrivileged ? (
@@ -46,19 +49,25 @@ const PriviledgedDocker: React.FunctionComponent = () => (
               <Select className="col-sm-4" options={["Default", "ClusterFirstWithHostNet", "ClusterFirst"]}>
                 Container DNS Policy
               </Select>
-              <NumberInput className="col-sm-6" value={simpleJob.cpus}
-                onChange={setSimpleJob("cpus")}>
+              <NumberInput
+                className="col-sm-6"
+                value={simpleJob.cpus}
+                onChange={setSimpleJob("cpus")}
+              >
                 CPU Request
               </NumberInput>
-              <NumberInput className="col-sm-6" value={simpleJob.memory}
-                onChange={setSimpleJob("memory")}>
+              <NumberInput
+                className="col-sm-6"
+                value={simpleJob.memory}
+                onChange={setSimpleJob("memory")}
+              >
                 Memory Request
               </NumberInput>
             </>
           ) : null }
         </>
       );
-    } }
+    }}
   </SimpleJobContext.Consumer>
 );
 

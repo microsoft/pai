@@ -72,7 +72,7 @@ const DatabaseOperation: React.FunctionComponent = () => (
           </label>
         </div>
       );
-    } }
+    }}
   </SimpleJobContext.Consumer>
 );
 

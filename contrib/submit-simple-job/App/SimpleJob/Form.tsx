@@ -84,59 +84,86 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
             Job Template
           </TemplatesSelect>
           <div className="clearfix"/>
-          <TextInput className="col-md-6"
-            value={simpleJob.name} onChange={setSimpleJob("name")}>
+          <TextInput
+            className="col-md-6"
+            value={simpleJob.name}
+            onChange={setSimpleJob("name")}
+          >
             Job Name
           </TextInput>
           <Select className="col-md-6" options={types}>
             Job Type
           </Select>
-          <NumberInput className="col-md-12"
-            value={simpleJob.gpus} onChange={setSimpleJob("gpus")}
-            min={0} max={8}>
+          <NumberInput
+            className="col-md-12"
+            value={simpleJob.gpus}
+            onChange={setSimpleJob("gpus")}
+            min={0}
+            max={8}
+          >
             Number of GPUs
           </NumberInput>
-          <TextInput className="col-md-12"
-            value={simpleJob.image} onChange={setSimpleJob("image")}>
+          <TextInput
+            className="col-md-12"
+            value={simpleJob.image}
+            onChange={setSimpleJob("image")}
+          >
             Docker Image
           </TextInput>
-          <TextArea className="col-md-12" rows={10}
-            value={simpleJob.command} onChange={setSimpleJob("command")}>
+          <TextArea
+            className="col-md-12"
+            rows={10}
+            value={simpleJob.command}
+            onChange={setSimpleJob("command")}
+          >
             Command
           </TextArea>
-          <TextInput className="col-md-12"
-            value={simpleJob.virtualCluster} onChange={setSimpleJob("virtualCluster")}>
+          <TextInput
+            className="col-md-12"
+            value={simpleJob.virtualCluster}
+            onChange={setSimpleJob("virtualCluster")}
+          >
             Virtual Cluster
           </TextInput>
-          <CheckBox className="col-md-4"
+          <CheckBox
+            className="col-md-4"
             value={simpleJob.isInteractive}
-            onChange={setSimpleJob("isInteractive")}>
+            onChange={setSimpleJob("isInteractive")}
+          >
             Interactive Job
           </CheckBox>
-          <CheckBox className="col-md-4"
+          <CheckBox
+            className="col-md-4"
             value={simpleJob.enableTensorboard}
-            onChange={setSimpleJob("enableTensorboard")}>
+            onChange={setSimpleJob("enableTensorboard")}
+          >
             Enable Tensorboard
           </CheckBox>
-          <CheckBox className="col-md-4"
+          <CheckBox
+            className="col-md-4"
             value={simpleJob.root}
-            onChange={setSimpleJob("root")}>
+            onChange={setSimpleJob("root")}
+          >
             Launch container as root user.
           </CheckBox>
           {
             simpleJob.isInteractive ? (
-              <TextInput className="col-md-12"
+              <TextInput
+                className="col-md-12"
                 value={simpleJob.interactivePorts}
-                onChange={setSimpleJob("interactivePorts")}>
+                onChange={setSimpleJob("interactivePorts")}
+              >
                 Open ports for interactive job
               </TextInput>
             ) : null
           }
           {
             simpleJob.enableTensorboard ? (
-              <TextInput className="col-md-12"
+              <TextInput
+                className="col-md-12"
                 value={simpleJob.tensorboardModelPath}
-                onChange={setSimpleJob("tensorboardModelPath")}>
+                onChange={setSimpleJob("tensorboardModelPath")}
+              >
                 Tensorflow model path, used to enable tensorboard
               </TextInput>
             ) : null
@@ -170,7 +197,7 @@ const SimpleJobForm: React.FunctionComponent<ISimpleJobFormProps> = ({ onSubmit 
           </div>
         </ModelForm>
       );
-    } }
+    }}
   </SimpleJobContext.Consumer>
 );
 

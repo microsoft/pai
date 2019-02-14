@@ -51,43 +51,61 @@ const MountDirectories: React.FunctionComponent = () => (
             <tr>
               <td style={centerdTableDataStyle}><code>/work</code></td>
               <td style={centerdTableDataStyle}>
-                <TextInput value={simpleJob.workPath}
-                  onChange={setSimpleJob("workPath")}>Work Path</TextInput>
+                <TextInput
+                  value={simpleJob.workPath}
+                  onChange={setSimpleJob("workPath")}
+                >
+                  Work Path
+                </TextInput>
               </td>
               <td style={centerdTableDataStyle}>
-                <CheckBox value={simpleJob.enableWorkMount}
-                  onChange={setSimpleJob("enableWorkMount")}/>
+                <CheckBox
+                  value={simpleJob.enableWorkMount}
+                  onChange={setSimpleJob("enableWorkMount")}
+                />
               </td>
-              <td style={centerdTableDataStyle}></td>
+              <td style={centerdTableDataStyle}/>
             </tr>
             <tr>
               <td style={centerdTableDataStyle}><code>/data</code></td>
               <td style={centerdTableDataStyle}>
-                <TextInput value={simpleJob.dataPath}
-                  onChange={setSimpleJob("dataPath")}>Data Path</TextInput>
+                <TextInput
+                  value={simpleJob.dataPath}
+                  onChange={setSimpleJob("dataPath")}
+                >
+                  Data Path
+                </TextInput>
               </td>
               <td style={centerdTableDataStyle}>
-                <CheckBox value={simpleJob.enableDataMount}
-                  onChange={setSimpleJob("enableDataMount")}/>
+                <CheckBox
+                  value={simpleJob.enableDataMount}
+                  onChange={setSimpleJob("enableDataMount")}
+                />
               </td>
-              <td style={centerdTableDataStyle}></td>
+              <td style={centerdTableDataStyle}/>
             </tr>
             <tr>
               <td style={centerdTableDataStyle}><code>/job</code></td>
               <td style={centerdTableDataStyle}>
-                <TextInput value={simpleJob.jobPath}
-                  onChange={setSimpleJob("jobPath")}>Job Path</TextInput>
+                <TextInput
+                  value={simpleJob.jobPath}
+                  onChange={setSimpleJob("jobPath")}
+                >
+                  Job Path
+                </TextInput>
               </td>
               <td style={centerdTableDataStyle}>
-                <CheckBox value={simpleJob.enableJobMount}
-                  onChange={setSimpleJob("enableJobMount")}/>
+                <CheckBox
+                  value={simpleJob.enableJobMount}
+                  onChange={setSimpleJob("enableJobMount")}
+                />
               </td>
-              <td style={centerdTableDataStyle}></td>
+              <td style={centerdTableDataStyle}/>
             </tr>
           </tbody>
         </table>
       );
-    } }
+    }}
   </SimpleJobContext.Consumer>
 );
 

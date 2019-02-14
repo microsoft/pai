@@ -41,9 +41,14 @@ const TextInput: React.FunctionComponent<ITextInputProps> = (props) => {
   return (
     <div className={classNames("form-group", className)}>
       <label htmlFor={UID}>{children}</label>
-      <input type={type} className="form-control"
-        id={UID} placeholder={children}
-        value={value} onChange={onInputChange}/>
+      <input
+        type={type}
+        className="form-control"
+        id={UID}
+        placeholder={children}
+        value={value}
+        onChange={onInputChange}
+      />
     </div>
   );
 };

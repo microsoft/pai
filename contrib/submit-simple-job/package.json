@@ -30,6 +30,7 @@
     "@types/whatwg-fetch": "0.0.33",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
+    "tslint-react": "^3.6.0",
     "typescript": "^3.2.2",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1"

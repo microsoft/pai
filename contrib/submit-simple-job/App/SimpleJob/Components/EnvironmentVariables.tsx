@@ -59,12 +59,20 @@ const EnvironmentVariables: React.FunctionComponent = () => (
             {
               simpleJob.environmentVariables.map((variable, index) => (
                 <React.Fragment key={index}>
-                  <TextInput type="text" className="col-sm-6"
-                    value={variable.name} onChange={setVariableName(index)}>
+                  <TextInput
+                    type="text"
+                    className="col-sm-6"
+                    value={variable.name}
+                    onChange={setVariableName(index)}
+                  >
                     Name of the Environment Variable
                   </TextInput>
-                  <TextInput type="text" className="col-sm-6"
-                    value={variable.value} onChange={setVariableValue(index)}>
+                  <TextInput
+                    type="text"
+                    className="col-sm-6"
+                    value={variable.value}
+                    onChange={setVariableValue(index)}
+                  >
                     Value of the Environment Variable
                   </TextInput>
                 </React.Fragment>
@@ -72,14 +80,14 @@ const EnvironmentVariables: React.FunctionComponent = () => (
             }
             <div className="col-sm-12">
               <button type="button" className="btn btn-info" onClick={addVariable}>
-                <span className="glyphicon glyphicon-plus"></span>
+                <span className="glyphicon glyphicon-plus"/>
                 {" Add Environment Variable"}
               </button>
             </div>
           </div>
         </React.Fragment>
       );
-    } }
+    }}
   </SimpleJobContext.Consumer>
 );
 

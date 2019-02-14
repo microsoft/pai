@@ -35,7 +35,7 @@ import convert from "./convert";
 
 const AppContent: React.FunctionComponent = ({ children }) => (
   <div className="container-fluid">
-    { children }
+    {children}
   </div>
 );
 

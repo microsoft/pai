@@ -51,9 +51,13 @@ const Select: React.FunctionComponent<ISelectProps> = (props) => {
   return (
     <div className={classNames("form-group", className)}>
       <label htmlFor={UID}>{children}</label>
-      <select className="form-control"
-        id={UID} placeholder={children}
-        value={value} onChange={onSelectChange}>
+      <select
+        className="form-control"
+        id={UID}
+        placeholder={children}
+        value={value}
+        onChange={onSelectChange}
+      >
         {
           options.map((option) => {
             if (typeof option === "string") {
