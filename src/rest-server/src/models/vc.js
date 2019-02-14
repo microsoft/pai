@@ -75,97 +75,31 @@ class VirtualCluster {
   generateUpdateInfo(updateData) {
     let jsonBuilder = new xml2js.Builder({rootName: 'sched-conf'});
     let data = [];
-    if (updateData.hasOwnProperty('pendingAdd')) {
-      for (let item in updateData['pendingAdd']) {
-        if (updateData['pendingAdd'].hasOwnProperty(item)) {
+    for (let action of Object.keys(updateData)) {
+      if (action === 'remove-queue') {
+        for (let vcName of Object.keys(updateData[action])) {
+          data.push({[action]: 'root.' + vcName});
+        }
+      } else {
+        for (let vcName of Object.keys(updateData[action])) {
           let singleQueue = {
-            'queue-name': 'root.' + item,
+            'queue-name': 'root.' + vcName,
             'params': {
-              'entry': {
-                'key': 'capacity',
-                'value': updateData['pendingAdd'][item],
-              },
+              'entry': [],
             },
           };
-          data.push({'add-queue': singleQueue});
-          let singleQueueMaximumCapacity = {
-            'queue-name': 'root.' + item,
-            'params': {
-              'entry': {
-                'key': 'maximum-capacity',
-                'value': updateData['pendingAdd'][item],
+          for (let paramKey of Object.keys(updateData[action][vcName])) {
+            singleQueue['params']['entry'].push({
+                'key': paramKey,
+                'value': updateData[action][vcName][paramKey],
               },
-            },
-          };
-          data.push({'update-queue': singleQueueMaximumCapacity});
+            );
+          }
+          data.push({[action]: singleQueue});
         }
       }
     }
-    if (updateData.hasOwnProperty('pendingUpdate')) {
-      for (let item in updateData['pendingUpdate']) {
-        if (updateData['pendingUpdate'].hasOwnProperty(item)) {
-          let singleQueue = {
-            'queue-name': 'root.' + item,
-            'params': {
-              'entry': {
-                'key': 'capacity',
-                'value': updateData['pendingUpdate'][item],
-              },
-            },
-          };
-          data.push({'update-queue': singleQueue});
-          let singleQueueMaximumCapacity = {
-            'queue-name': 'root.' + item,
-            'params': {
-              'entry': {
-                'key': 'maximum-capacity',
-                'value': updateData['pendingUpdate'][item],
-              },
-            },
-          };
-          data.push({'update-queue': singleQueueMaximumCapacity});
-        }
-      }
-    }
-    if (updateData.hasOwnProperty('pendingStop')) {
-      for (let item in updateData['pendingStop']) {
-        if (updateData['pendingStop'].hasOwnProperty(item)) {
-          let singleQueue = {
-            'queue-name': 'root.' + item,
-            'params': {
-              'entry': {
-                'key': 'state',
-                'value': 'STOPPED',
-              },
-            },
-          };
-          data.push({'update-queue': singleQueue});
-        }
-      }
-    }
-    if (updateData.hasOwnProperty('pendingActive')) {
-      for (let item in updateData['pendingActive']) {
-        if (updateData['pendingActive'].hasOwnProperty(item)) {
-          let singleQueue = {
-            'queue-name': 'root.' + item,
-            'params': {
-              'entry': {
-                'key': 'state',
-                'value': 'RUNNING',
-              },
-            },
-          };
-          data.push({'update-queue': singleQueue});
-        }
-      }
-    }
-    if (updateData.hasOwnProperty('pendingRemove')) {
-      for (let item in updateData['pendingRemove']) {
-        if (updateData['pendingRemove'].hasOwnProperty(item)) {
-          data.push({'remove-queue': 'root.' + item});
-        }
-      }
-    }
+
     return jsonBuilder.buildObject(data);
   }
 
@@ -197,7 +131,7 @@ class VirtualCluster {
     });
   }
 
-  updateVc(vcName, capacity, callback) {
+  updateVc(vcName, capacity, maxCapacity, callback) {
     this.getVcList((vcList, err) => {
       if (err) {
         return callback(err);
@@ -213,13 +147,22 @@ class VirtualCluster {
             return callback(createError('Forbidden', 'NoEnoughQuotaError', `No enough quota`));
           }
 
-          let data = {'pendingAdd': {}, 'pendingUpdate': {}};
+          let data = {'add-queue': {}, 'update-queue': {}};
           if (vcList.hasOwnProperty(vcName)) {
-            data['pendingUpdate'][vcName] = capacity;
+            data['update-queue'][vcName] = {
+              'capacity': capacity,
+              'maximum-capacity': maxCapacity,
+            };
           } else {
-            data['pendingAdd'][vcName] = capacity;
+            data['add-queue'][vcName] = {
+              'capacity': capacity,
+              'maximum-capacity': maxCapacity,
+            };
           }
-          data['pendingUpdate']['default'] = defaultQuotaIfUpdated;
+          data['update-queue']['default'] = {
+            'capacity': defaultQuotaIfUpdated,
+            'maximum-capacity': defaultQuotaIfUpdated,
+          };
 
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
@@ -247,8 +190,13 @@ class VirtualCluster {
         if (!vcList.hasOwnProperty(vcName)) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found, can't stop`));
         } else {
-          let data = {'pendingStop': {}};
-          data['pendingStop'][vcName] = null;
+          let data = {
+            'update-queue': {
+              [vcName]: {
+                'state': 'STOPPED',
+              },
+            },
+          };
 
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
@@ -276,8 +224,13 @@ class VirtualCluster {
         if (!vcList.hasOwnProperty(vcName)) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found, can't active`));
         } else {
-          let data = {'pendingActive': {}};
-          data['pendingActive'][vcName] = null;
+          let data = {
+            'update-queue': {
+              [vcName]: {
+                'state': 'RUNNING',
+              },
+            },
+          };
 
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
@@ -315,10 +268,21 @@ class VirtualCluster {
               return callback(err);
             } else {
               let defaultQuotaIfUpdated = vcList['default']['capacity'] + vcList[vcName]['capacity'];
-              let data = {'pendingRemove': {}, 'pendingUpdate': {}};
-              data['pendingUpdate'][vcName] = 0;
-              data['pendingUpdate']['default'] = defaultQuotaIfUpdated;
-              data['pendingRemove'][vcName] = null;
+              let data = {
+                'update-queue': {
+                  [vcName]: {
+                    'capacity': 0,
+                  },
+                  'default': {
+                    'capacity': defaultQuotaIfUpdated,
+                    'maximum-capacity': defaultQuotaIfUpdated,
+                  },
+                },
+                'remove-queue': {
+                  [vcName]: null,
+                },
+              };
+
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
               // logger.debug('Xml send to yarn: ', vcdataXml);

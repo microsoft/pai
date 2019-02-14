@@ -71,8 +71,9 @@ const get = (req, res, next) => {
 const update = (req, res, next) => {
   const vcName = req.params.vcName;
   const vcCapacity = parseInt(req.body.vcCapacity);
+  const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
   if (req.user.admin) {
-    VirtualCluster.prototype.updateVc(vcName, vcCapacity, (err) => {
+    VirtualCluster.prototype.updateVc(vcName, vcCapacity, vcMaxCapacity, (err) => {
       if (err) {
         return next(createError.unknown(err));
       } else {
