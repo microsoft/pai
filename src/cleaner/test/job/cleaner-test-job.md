@@ -11,7 +11,7 @@
 3. Change variables in command text field if needed.
 4. Click Submit button to submit job.
 5. Go to Jobs page, keep monitoring the job you just submitted. 
-6. If everything work as expected, the job will be killed by cleaner. Click "Go to Tracking Page", you will find info "Docker container killed by cleaner due to disk pressure".
+6. If everything work as expected, the job will fail due to killed by cleaner. Click "Go to Tracking Page", you will find info "Docker container killed by cleaner due to disk pressure" in the end.
 
 #### How to configure variables in job <a name="HT_Config"></a>
 
@@ -23,7 +23,7 @@ Variables:
  - threshold: Test job will fill the disk to (threshold + 1)%. Please adjust this value according to cleaner threshold settings.
  - time: The time cost that job fill disk to (threshold + 1)%.
 
-By default, in Submit Jobs page, after import json file, you will find run command 
+By default, the run command should be:
 ```sh
 sh /cleaner-test/cleaner-test.sh 94 180
 ```
