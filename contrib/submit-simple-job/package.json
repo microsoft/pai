@@ -9,7 +9,7 @@
     "build": "webpack",
     "test": "tslint --project ."
   },
-  "author": "Qixiang Cheng <Qixiang.Cheng@microsoft.com>",
+  "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
     "classnames": "^2.2.6",
