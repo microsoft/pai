@@ -7,8 +7,8 @@
 import { injectable } from 'inversify';
 import { isNil } from 'lodash';
 import {
-    commands, Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window,
-    workspace
+    commands, window, workspace,
+    Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState
 } from 'vscode';
 
 import {
@@ -22,7 +22,8 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterName } from './clusterManager';
+
+import { getClusterName, ClusterManager } from './clusterManager';
 import { IPAICluster } from './paiInterface';
 
 interface IChildNodeDefinition {

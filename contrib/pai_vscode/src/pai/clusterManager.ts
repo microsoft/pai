@@ -15,6 +15,7 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
+
 import { ConfigurationNode, ConfigurationTreeDataProvider } from './configurationTreeDataProvider';
 import { IPAICluster } from './paiInterface';
 

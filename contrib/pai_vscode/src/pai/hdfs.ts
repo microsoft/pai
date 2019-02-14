@@ -15,16 +15,18 @@ import { promisify } from 'util';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_HDFS_DOWNLOAD, COMMAND_HDFS_UPLOAD_FILES, COMMAND_HDFS_UPLOAD_FOLDERS, COMMAND_OPEN_HDFS, OCTICON_CLOUDUPLOAD, SETTING_SECTION_HDFS, SETTING_HDFS_EXPLORER_LOCATION, ENUM_HDFS_EXPLORER_LOCATION
+    COMMAND_HDFS_DOWNLOAD, COMMAND_HDFS_UPLOAD_FILES, COMMAND_HDFS_UPLOAD_FOLDERS, COMMAND_OPEN_HDFS,
+    ENUM_HDFS_EXPLORER_LOCATION, OCTICON_CLOUDUPLOAD, SETTING_HDFS_EXPLORER_LOCATION, SETTING_SECTION_HDFS
 } from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
+
 import { ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
+import { HDFSTreeDataProvider } from './container/hdfsTreeView';
 import { IPAICluster } from './paiInterface';
 import { createWebHDFSClient, IHDFSClient, IHDFSStatResult } from './webhdfs-workaround';
-import { HDFSTreeDataProvider } from './container/hdfsTreeView';
 
 const stat: (path: string) => Promise<fs.Stats> = promisify(fs.stat);
 const readdir: (path: string) => Promise<string[]> = promisify(fs.readdir);
@@ -100,6 +102,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
             await this.createDirectory(Util.uriPathPop(uri));
             try {
                 await (await this.getClient(uri)).mkdir(path.join('/', uri.path));
+                this.onDidChangeFileEmitter.fire([{ type: vscode.FileChangeType.Created, uri }]);
             } catch (ex) {
                 throw new vscode.FileSystemError(ex);
             }
@@ -109,6 +112,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
     public async delete(uri: vscode.Uri, options: {recursive: boolean}): Promise<void> {
         try {
             await (await this.getClient(uri)).unlink(path.join('/', uri.path), options.recursive);
+            this.onDidChangeFileEmitter.fire([{ type: vscode.FileChangeType.Deleted, uri }]);
         } catch (ex) {
             throw new vscode.FileSystemError(ex);
         }
@@ -249,79 +253,81 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
         const client: IHDFSClient = (await this.getClient(uri));
         const filePath: string = path.join('/', uri.path);
         await vscode.window.withProgress<Buffer>(
-        {
-            location: vscode.ProgressLocation.Notification,
-            title: __('hdfs.uploading', [filePath]),
-            cancellable: true
-        },
-        (progress, cancellationToken) => new Promise(async (resolve, reject) => {
-            try {
-                if ((await client.stat(filePath)).type === 'DIRECTORY') {
-                    reject(vscode.FileSystemError.FileIsADirectory(uri));
-                    return;
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: __('hdfs.uploading', [filePath]),
+                cancellable: true
+            },
+            (progress, cancellationToken) => new Promise(async (resolve, reject) => {
+                try {
+                    if ((await client.stat(filePath)).type === 'DIRECTORY') {
+                        reject(vscode.FileSystemError.FileIsADirectory(uri));
+                        return;
+                    }
+                    if (!options.overwrite) {
+                        reject(vscode.FileSystemError.FileExists(uri));
+                        return;
+                    }
+                } catch {
+                    if (!options.create) {
+                        reject(vscode.FileSystemError.FileNotFound(uri));
+                        return;
+                    }
                 }
-                if (!options.overwrite) {
-                    reject(vscode.FileSystemError.FileExists(uri));
-                    return;
+                const local: fs.ReadStream = streamifier.createReadStream(content);
+                let writeAmount: number = 0;
+                const transform: Transform = new Transform({
+                    transform: (chunk: string | Buffer, encoding: string, callback: Function) => {
+                        writeAmount += chunk.length;
+                        progress.report({
+                            message: __('hdfs.progress', [
+                                (writeAmount / content.length * 100).toFixed(0), writeAmount, content.length
+                            ]),
+                            increment: chunk.length / content.length * 100
+                        });
+                        callback(null, chunk);
+                    }
+                });
+                const stream: Request = await client.createRobustWriteStream(filePath);
+                let error: any;
+
+                function cleanup(): void {
+                    local.unpipe();
+                    transform.unpipe();
+                    local.destroy();
+                    transform.destroy();
+                    stream.destroy();
                 }
-            } catch {
-                if (!options.create) {
-                    reject(vscode.FileSystemError.FileNotFound(uri));
-                    return;
-                }
-            }
-            const local: fs.ReadStream = streamifier.createReadStream(content);
-            let writeAmount: number = 0;
-            const transform: Transform = new Transform({
-                transform: (chunk: string | Buffer, encoding: string, callback: Function) => {
-                    writeAmount += chunk.length;
-                    progress.report({
-                        message: __('hdfs.progress', [
-                            (writeAmount / content.length * 100).toFixed(0), writeAmount, content.length
-                        ]),
-                        increment: chunk.length / content.length * 100
-                    });
-                    callback(null, chunk);
-                }
-            });
-            const stream: Request = await client.createRobustWriteStream(filePath);
-            let error: any;
 
-            function cleanup(): void {
-                local.unpipe();
-                transform.unpipe();
-                local.destroy();
-                transform.destroy();
-                stream.destroy();
-            }
+                cancellationToken.onCancellationRequested(() => {
+                    error = true;
+                    cleanup();
+                    reject(__('hdfs.write.cancelled'));
+                });
 
-            cancellationToken.onCancellationRequested(() => {
-                error = true;
-                cleanup();
-                reject(__('hdfs.write.cancelled'));
-            });
+                local.once('error', err => {
+                    error = err;
+                    cleanup();
+                    reject(new vscode.FileSystemError(err));
+                });
+                stream.once('error', err => {
+                    error = err;
+                    cleanup();
+                    reject(new vscode.FileSystemError(err));
+                });
 
-            local.once('error', err => {
-                error = err;
-                cleanup();
-                reject(new vscode.FileSystemError(err));
-            });
-            stream.once('error', err => {
-                error = err;
-                cleanup();
-                reject(new vscode.FileSystemError(err));
-            });
+                stream.once('finish', () => {
+                    cleanup();
+                    if (!error) {
+                        resolve();
+                    }
+                });
 
-            stream.once('finish', () => {
-                cleanup();
-                if (!error) {
-                    resolve();
-                }
-            });
-
-            // TODO: local.pipe(transform).pipe(stream); is not working due to unknown reason...maybe a bug in node-webhdfs?
-            local.pipe(transform).pipe(stream);
-        }));
+                // TODO: local.pipe(transform).pipe(stream); is not working due to unknown reason...maybe a bug in node-webhdfs?
+                local.pipe(transform).pipe(stream);
+            })
+        );
+        this.onDidChangeFileEmitter.fire([{ type: vscode.FileChangeType.Created, uri }]);
     }
 
     public async copy(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
@@ -461,24 +467,19 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
  */
 @injectable()
 export class HDFS extends Singleton {
+    public readonly provider: HDFSFileSystemProvider;
     private UPLOADFILES: string = __('hdfs.dialog.label.upload-files');
     private UPLOADFOLDER: string = __('hdfs.dialog.label.upload-folders');
     private DOWNLOADHERE: string = __('hdfs.dialog.label.download');
 
-    public readonly provider: HDFSFileSystemProvider | undefined;
-
     constructor() {
         super();
         console.log('Registering HDFS...');
-        try {
-            this.provider = new HDFSFileSystemProvider();
-            this.context.subscriptions.push(
-                vscode.workspace.registerFileSystemProvider('webhdfs', this.provider, { isCaseSensitive: true })
-            );
-            console.log('HDFS registered as webhdfs:/...');
-        } catch (ex) {
-            Util.err('hdfs.initialization.error', [ex]);
-        }
+        this.provider = new HDFSFileSystemProvider();
+        this.context.subscriptions.push(
+            vscode.workspace.registerFileSystemProvider('webhdfs', this.provider, { isCaseSensitive: true })
+        );
+        console.log('HDFS registered as webhdfs:/...');
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 COMMAND_OPEN_HDFS,
@@ -489,17 +490,23 @@ export class HDFS extends Singleton {
                         if (index === undefined) {
                             return;
                         }
-                        this.open(manager.allConfigurations[index]);
+                        await this.open(manager.allConfigurations[index]);
                     } else if (node instanceof ConfigurationNode) {
-                        this.open((await getSingleton(ClusterManager)).allConfigurations[node.index]);
+                        await this.open((await getSingleton(ClusterManager)).allConfigurations[node.index]);
                     } else {
-                        this.open(node);
+                        await this.open(node);
                     }
                 }
             ),
-            vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FILES, this.uploadFiles.bind(this)),
-            vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FOLDERS, this.uploadFolders.bind(this)),
-            vscode.commands.registerCommand(COMMAND_HDFS_DOWNLOAD, this.download.bind(this))
+            vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FILES, async (param: vscode.Uri | vscode.TreeItem) => {
+                await this.uploadFiles(this.unpackParam(param));
+            }),
+            vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FOLDERS, async (param: vscode.Uri | vscode.TreeItem) => {
+                await this.uploadFolders(this.unpackParam(param));
+            }),
+            vscode.commands.registerCommand(COMMAND_HDFS_DOWNLOAD, async (param: vscode.Uri | vscode.TreeItem) => {
+                await this.download(this.unpackParam(param));
+            })
         );
     }
 
@@ -533,7 +540,8 @@ export class HDFS extends Singleton {
                 Util.err('hdfs.open.error', [ex]);
             }
         } else {
-            (await getSingleton(HDFSTreeDataProvider)).setUri(vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(conf)}/`));
+            const provider: HDFSTreeDataProvider = await getSingleton(HDFSTreeDataProvider);
+            provider.setUri(vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(conf)}/`));
         }
     }
 
@@ -546,6 +554,18 @@ export class HDFS extends Singleton {
             if (pos >= 0) {
                 vscode.workspace.updateWorkspaceFolders(pos, 1);
             }
+        }
+    }
+
+    private unpackParam(param: vscode.Uri | vscode.TreeItem): vscode.Uri {
+        if (param instanceof vscode.TreeItem) {
+            if (param.resourceUri !== undefined) {
+                return param.resourceUri;
+            } else {
+                throw new Error('Invalid HDFS operation param');
+            }
+        } else {
+            return param;
         }
     }
 

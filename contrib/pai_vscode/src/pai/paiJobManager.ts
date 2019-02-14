@@ -27,7 +27,8 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterIdentifier, getClusterWebPortalUri } from './clusterManager';
+
+import { getClusterIdentifier, getClusterWebPortalUri, ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
 import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
