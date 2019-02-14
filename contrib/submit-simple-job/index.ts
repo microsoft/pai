@@ -10,7 +10,7 @@ class PAIPluginElement extends HTMLElement {
     const api = this.getAttribute("pai-rest-server-uri") as string;
     const user = this.getAttribute("pai-user");
     const token = this.getAttribute("pai-rest-server-token");
-    if (user == null || token == null) {
+    if (user === null || token === null) {
       window.location.href = "/login.html";
       return;
     }
