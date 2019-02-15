@@ -1,6 +1,6 @@
 {
   "jobName": "cleaner-test-job",
-  "image": "openpai/testcleaner",
+  "image": "openpai/testcleaner:stable",
   "authFile": "",
   "dataDir": "",
   "outputDir": "",

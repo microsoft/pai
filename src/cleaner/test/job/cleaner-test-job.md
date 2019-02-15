@@ -33,6 +33,6 @@ sh /cleaner-test/cleaner-test.sh 94 180
 
 Run the following command under this folder, make sure you have docker installed.
 ```sh
-docker build -f cleaner-test.df .
+docker build -f cleaner-test.df -t <your image tag> .
 ```
 Then tag the docker image and upload to your docker repo. We offer the default docker image on openpai/testcleaner
