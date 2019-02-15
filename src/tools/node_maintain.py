@@ -172,7 +172,7 @@ def refresh_yarn_nodes(args):
 
 def setup_parser():
     top_parser = argparse.ArgumentParser()
-    top_parser.add_argument("master_ip", dest="ip", required=True,
+    top_parser.add_argument("master-ip", required=True,
                             help="master node ip")
     top_parser.add_argument("--yarn-ip",
                             help="specify yarn resource manager ip separately, by default it's master node ip")
@@ -212,8 +212,8 @@ def setup_parser():
 def main():
     parser = setup_parser()
     args = parser.parse_args()
-    args.kubernetes_ip = args.kubernetes_ip or args.ip
-    args.yarn_ip = args.yarn_ip or args.ip
+    args.kubernetes_ip = args.kubernetes_ip or args.master_ip
+    args.yarn_ip = args.yarn_ip or args.master_ip
     args.func(args)
 
 
