@@ -10,14 +10,21 @@ Fully test and demostrate API & Protocol, report the supported protocols.
 
 ### User APIs
 
+TODO we need to cover all user APIs with an automatically benchmark.
+
+- [ ] Check all user APIs
+
 ### Job APIs
 
-- [ ] verify GPU drivers works
-- [ ] verify port works
+TODO we need to cover all job APIs with an automatically benchmark.
+
+- [ ] Check all job APIs
 
 ### Metric APIs
 
-- [ ] verify metrics works
+TODO we need to cover all job APIs with an automatically benchmark.
+
+- [ ] Each metrics works as expected
 
 ## Features, Capability and Limitations
 
@@ -109,16 +116,16 @@ Version beside the "Feedback" menu item in web portal, can be modified in "versi
 - [ ] No ‘N/A’ value in CPU/Memory/GPU/GPU Mem/Disk/Ethernet status
 - [ ] Grafana view: Cluster metrics, Node metrics
 
-## Job Performance
+## Performance
 
 - [ ] Stand training task, stand dataset, measuring the performance overhead of PAI.
 - [ ] Horizontal scale distribute training task, measuring the scale factor.
 
-## Examples
+## Job Examples
 
 Run all the training examples.
 
-## Longterm stability
+## Reliability and Stress
 
 Long run job with heavy load, watch:
 
