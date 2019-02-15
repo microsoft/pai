@@ -177,17 +177,11 @@ def setup_parser():
                             help="specify yarn resource manager ip separately, by default it's master node ip")
     top_parser.add_argument("--kubernetes-ip",
                             help="specify kubernetes api-server ip separately, by default it's master node ip")
-    sub_parser = top_parser.add_subparsers(
-        title="subcommands",
-        description="valid subcommands",
-        dest="subcommands")
+    sub_parser = top_parser.add_subparsers(dest="subcommands")
 
     # node list parser
-    nodelist_parser = sub_parser.add_parser("node-list")
-    nodelist_subparsers = nodelist_parser.add_subparsers(
-        dest="action",
-        description="get or edit unhealthy node-list, won't trigger refresh"
-    )
+    nodelist_parser = sub_parser.add_parser("node-list", description="get or edit unhealthy node-list, won't trigger refresh")
+    nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
 
     parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
     parser_get.set_defaults(func=get_decommission_nodes)
