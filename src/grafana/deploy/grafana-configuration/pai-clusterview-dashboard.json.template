@@ -83,7 +83,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "100 * sum(yarn_gpus_used) / sum(configured_gpu_count)",
+              "expr": "100 * sum(yarn_gpus_used) / sum(yarn_total_gpu_num)",
               "format": "time_series",
               "hide": false,
               "instant": false,
