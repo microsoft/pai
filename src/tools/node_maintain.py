@@ -171,7 +171,7 @@ def refresh_yarn_nodes(args):
 
 
 def setup_parser():
-    top_parser = argparse.ArgumentParser()
+    top_parser = argparse.ArgumentParser("A tool to graceful decommission nodes in PAI")
     top_parser.add_argument("master-ip", help="master node ip")
     top_parser.add_argument("--yarn-ip",
                             help="specify yarn resource manager ip separately, by default it's master node ip")
@@ -184,7 +184,10 @@ def setup_parser():
 
     # node list parser
     nodelist_parser = sub_parser.add_parser("node-list")
-    nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
+    nodelist_subparsers = nodelist_parser.add_subparsers(
+        dest="action",
+        description="get or edit unhealthy node-list, won't trigger refresh"
+    )
 
     parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
     parser_get.set_defaults(func=get_decommission_nodes)
@@ -202,7 +205,8 @@ def setup_parser():
     parser_update.set_defaults(func=update_decommission_nodes)
 
     # yarn operator parser
-    yarn_parser = sub_parser.add_parser("refresh")
+    yarn_parser = sub_parser.add_parser("refresh", help="enforce service to graceful decommission nodes in node-list,"
+                                                        "will not kill running job")
     yarn_parser.set_defaults(func=refresh_yarn_nodes)
 
     return top_parser
