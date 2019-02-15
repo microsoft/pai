@@ -5,16 +5,15 @@
 Graceful decommissioning could minimize the impact on existing job when remove unhealthy nodes. 
 This is a tool to help you achieve it in OpenPAI. 
 
-
-**NOTES: This tool only decommission node in YARN, HDFS will not be decommissioned.**
-
-## Subcommand
-
 In OpenPAI, an unhealthy node-list records the nodes to be decommissioned. 
-The list will be synced to necessary components, then every component could remove them as needed.
+Components could sync the list and decommission them as needed.
+
+**NOTES: For now, only YARN nodes are decommissioned, HDFS doesn't.**
+
+## Commands
 
 Currently, node-list update and component refresh are both manual actions. 
-This tool provide corresponding command for them. 
+This tool provides corresponding command for them. 
 The only mandatory argument for all commands is `master_ip`. Usually, components share the same master ip,
 in different case(i.e. load-balance), you could overwrite `master_ip` separately by `--kubernetes-ip` and `--yarn-ip`
 
@@ -40,9 +39,9 @@ notice that the change will not trigger the real refresh behavior.
 Enforce the node-list, it's a blocking command and won't exit until all nodes in node-list are decommissioned.
 
 
-## Scenario
+## Scenarios
 
-In this section, we assume you have a cluster without load-balance, as below:
+For convenience, in this section, we assume you have a cluster without load-balance, as below:
 ```
 10.0.0.10 master
 10.0.0.1 work-1

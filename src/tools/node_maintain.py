@@ -5,12 +5,10 @@ import sys
 import argparse
 import time
 import subprocess
+
 sys.path.append("../..")
-
-
 from deployment.paiLibrary.common.kubernetes_handler import get_configmap, update_configmap
 from deployment.k8sPaiLibrary.maintainlib import common
-
 
 
 def setup_logger():
@@ -79,7 +77,6 @@ class YarnOperator(object):
 
         with open(os.path.join(self.yarn_config_path, "yarn-site.xml"), 'w') as f:
             f.write(yarn_config_str)
-
 
     def get_node_status(self):
         try:
@@ -172,6 +169,7 @@ def refresh_yarn_nodes(args):
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
+
 def setup_parser():
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument("master_ip", dest="ip", required=True,
@@ -212,7 +210,6 @@ def setup_parser():
 
 
 def main():
-
     parser = setup_parser()
     args = parser.parse_args()
     args.kubernetes_ip = args.kubernetes_ip or args.ip
