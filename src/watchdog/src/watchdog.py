@@ -51,11 +51,8 @@ error_counter = Counter("process_error_log_total", "total count of error log", [
 api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
         "Response latency for requesting k8s api healthz (seconds)")
 
-# use `histogram_quantile(0.95, sum(rate(k8s_etcd_resp_latency_seconds_bucket[5m])) by (le))`
+# use `histogram_quantile(0.95, sum(rate(k8s_api_list_pods_latency_seconds_bucket[5m])) by (le))`
 # to get 95 percentile latency in past 5 miniute.
-etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
-        "Response latency for requesting etcd healthz (seconds)")
-
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
 
@@ -75,9 +72,9 @@ def gen_pai_node_gauge():
     return GaugeMetricFamily("pai_node_count", "count of pai node",
             labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready"])
 
-def gen_k8s_component_gauge():
-    return GaugeMetricFamily("k8s_component_count", "count of k8s component",
-            labels=["service_name", "error", "host_ip"])
+def gen_k8s_api_gauge():
+    return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
+            labels=["error", "host_ip"])
 
 ##### watchdog will generate above metrics
 
@@ -208,7 +205,7 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
     list(map(_map_fn, podsJsonObject["items"]))
 
 
-def collect_healthz(gauge, histogram, service_name, scheme, address, port, url, ca_path, headers):
+def collect_healthz(gauge, histogram, scheme, address, port, url, ca_path, headers):
     with histogram.time():
         error = "ok"
         try:
@@ -218,14 +215,12 @@ def collect_healthz(gauge, histogram, service_name, scheme, address, port, url, 
             error = str(e)
             logger.exception("requesting %s:%d%s failed", address, port, url)
 
-        gauge.add_metric([service_name, error, address], 1)
+        gauge.add_metric([error, address], 1)
 
 
 def collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
     collect_healthz(k8s_gauge, api_healthz_histogram,
-            "k8s_api_server", api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
-    collect_healthz(k8s_gauge, etcd_healthz_histogram,
-            "k8s_etcd", api_server_scheme, api_server_ip, api_server_port, "/healthz/etcd", ca_path, headers)
+            api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
 
 def parse_node_item(pai_node_gauge, node):
     name = node["metadata"]["name"]
@@ -288,7 +283,7 @@ def try_remove_old_prom_file(path):
         try:
             os.unlink(path)
         except Exception as e:
-            log.warning("can not remove old prom file %s", path)
+            logger.warning("can not remove old prom file %s", path)
 
 def register_stack_trace_dump():
     faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
@@ -315,9 +310,9 @@ class HealthResource(Resource):
 def main(args):
     register_stack_trace_dump()
     burninate_gc_collector()
-    logDir = args.log
+    log_dir = args.log
 
-    try_remove_old_prom_file(logDir + "/watchdog.prom")
+    try_remove_old_prom_file(log_dir + "/watchdog.prom")
 
     address = args.k8s_api
     parse_result = urllib.parse.urlparse(address)
@@ -327,7 +322,7 @@ def main(args):
     ca_path = args.ca
     bearer_path = args.bearer
     if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
-        log.warning("please provide bearer_path and ca_path at the same time or not")        
+        logger.warning("please provide bearer_path and ca_path at the same time or not")
     headers = None
     if not os.path.isfile(ca_path):
         ca_path = None
@@ -361,7 +356,7 @@ def main(args):
         pai_pod_gauge = gen_pai_pod_gauge()
         pai_container_gauge = gen_pai_container_gauge()
         pai_node_gauge = gen_pai_node_gauge()
-        k8s_gauge = gen_k8s_component_gauge()
+        k8s_gauge = gen_k8s_api_gauge()
 
         try:
             # 1. check service level status
@@ -410,7 +405,7 @@ if __name__ == "__main__":
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
     parser.add_argument("--ca", "-c", help="ca file path")
-    parser.add_argument("--bearer", "-b", help="bearer token file path")    
+    parser.add_argument("--bearer", "-b", help="bearer token file path")
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
