@@ -5,7 +5,7 @@ import sys
 import argparse
 import time
 import subprocess
-sys.path.append("..")
+sys.path.append("../..")
 
 
 from deployment.paiLibrary.common.kubernetes_handler import get_configmap, update_configmap
@@ -25,7 +25,7 @@ def setup_logger():
 
 
 class KubernetesOperator(object):
-    kubernetes_template = "../deployment/k8sPaiLibrary/template/config.template"
+    kubernetes_template = "../../deployment/k8sPaiLibrary/template/config.template"
     kube_config_path = "./.config"
     configmap_name = "exclude-file"
     configmap_data_key = "nodes"
@@ -109,23 +109,23 @@ def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
     for node, state in current_status.iteritems():
         # should decommission but not
-        if state not in {"DECOMMISSIONING", "DECOMMISSIONED"} and node in decommissioned_nodes:
+        if state not in {"DECOMMISSIONED"} and node in decommissioned_nodes:
             unready_nodes[node] = state
         # should recommission but not
-        if state in {"DECOMMISSIONING", "DECOMMISSIONED"} and node not in decommissioned_nodes:
+        if state in {"DECOMMISSIONED"} and node not in decommissioned_nodes:
             unready_nodes[node] = state
     return unready_nodes
 
 
 def get_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.ip)
+    k8s_operator = KubernetesOperator(args.kubernetes_ip)
     existing_nodes = k8s_operator.get_nodes()
     logger.info("Current unhealthy node list: {}".format(','.join(existing_nodes)))
     return existing_nodes
 
 
 def add_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.ip)
+    k8s_operator = KubernetesOperator(args.kubernetes_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
     if isinstance(nodes, str):
@@ -137,7 +137,7 @@ def add_decommission_nodes(args):
 
 
 def remove_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.ip)
+    k8s_operator = KubernetesOperator(args.kubernetes_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
     if isinstance(nodes, str):
@@ -149,7 +149,7 @@ def remove_decommission_nodes(args):
 
 
 def update_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.ip)
+    k8s_operator = KubernetesOperator(args.kubernetes_ip)
     nodes = args.nodes
     if isinstance(nodes, str):
         nodes = set(nodes.split(','))
@@ -159,8 +159,8 @@ def update_decommission_nodes(args):
 
 
 def refresh_yarn_nodes(args):
-    k8s_operator = KubernetesOperator(args.ip)
-    yarn_operator = YarnOperator(args.ip)
+    k8s_operator = KubernetesOperator(args.kubernetes_ip)
+    yarn_operator = YarnOperator(args.yarn_ip)
     while True:
         yarn_operator.decommission_nodes()
         current_status = yarn_operator.get_node_status()
@@ -168,22 +168,25 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
-        else:
-            logger.info("Unready nodes: {}".format(unready_nodes))
-        logger.info("Waiting...")
+        logger.info("Unready nodes: {}. Waiting...".format(unready_nodes))
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
 def setup_parser():
     top_parser = argparse.ArgumentParser()
-    top_parser.add_argument("ip", help="Master node ip")
-    subparser = top_parser.add_subparsers(
+    top_parser.add_argument("master_ip", dest="ip", required=True,
+                            help="master node ip")
+    top_parser.add_argument("--yarn-ip",
+                            help="specify yarn resource manager ip separately, by default it's master node ip")
+    top_parser.add_argument("--kubernetes-ip",
+                            help="specify kubernetes api-server ip separately, by default it's master node ip")
+    sub_parser = top_parser.add_subparsers(
         title="subcommands",
         description="valid subcommands",
         dest="subcommands")
 
     # node list parser
-    nodelist_parser = subparser.add_parser("node-list")
+    nodelist_parser = sub_parser.add_parser("node-list")
     nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
 
     parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
@@ -202,7 +205,7 @@ def setup_parser():
     parser_update.set_defaults(func=update_decommission_nodes)
 
     # yarn operator parser
-    yarn_parser = subparser.add_parser("refresh")
+    yarn_parser = sub_parser.add_parser("refresh")
     yarn_parser.set_defaults(func=refresh_yarn_nodes)
 
     return top_parser
@@ -212,6 +215,8 @@ def main():
 
     parser = setup_parser()
     args = parser.parse_args()
+    args.kubernetes_ip = args.kubernetes_ip or args.ip
+    args.yarn_ip = args.yarn_ip or args.ip
     args.func(args)
 
 
