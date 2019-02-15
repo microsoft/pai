@@ -86,11 +86,11 @@ class YarnOperator(object):
             response = requests.get(self.yarn_nodes_url)
         except Exception as e:
             logger.exception(e)
-            exit(1)
+            sys.exit(1)
 
         if response.status_code != requests.codes.ok:
             logger.error("Response error: {}".format(response.text))
-            exit(1)
+            sys.exit(1)
         nodes_info = response.json()
         current_nodes = {}
         for node in nodes_info["nodes"]["node"]:
