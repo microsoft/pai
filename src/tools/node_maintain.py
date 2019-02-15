@@ -180,7 +180,7 @@ def setup_parser():
     sub_parser = top_parser.add_subparsers(dest="subcommands")
 
     # node list parser
-    nodelist_parser = sub_parser.add_parser("node-list", description="get or edit unhealthy node-list, won't trigger refresh")
+    nodelist_parser = sub_parser.add_parser("node-list", help="get or edit unhealthy node-list, won't trigger refresh")
     nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
 
     parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
