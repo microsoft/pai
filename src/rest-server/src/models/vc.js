@@ -272,6 +272,7 @@ class VirtualCluster {
                 'update-queue': {
                   [vcName]: {
                     'capacity': 0,
+                    'maximum-capacity': 0,
                   },
                   'default': {
                     'capacity': defaultQuotaIfUpdated,
