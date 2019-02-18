@@ -15,7 +15,9 @@ Components could sync the list and decommission them as needed.
 Currently, node-list update and component refresh are both manual actions. 
 This tool provides corresponding command for them. 
 The only mandatory argument for all commands is `master_ip`. Usually, components share the same master ip,
-in different case(i.e. load-balance), you could overwrite `master_ip` separately by `--kubernetes-ip` and `--yarn-ip`
+in different case(i.e. load-balance), you could overwrite `master_ip` separately by `--api-server-ip` and `--resource-manager-ip`.
+`api-server-ip` should be the kubernetes load-balance ip in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml).
+`resource-manager-ip` should be the pai-master node ip of machine-list in [cluster-configuration](../../examples/cluster-configuration/cluster-configuration.yaml)
 
 So, a common invoking looks like:
 ```bash

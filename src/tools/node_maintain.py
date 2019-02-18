@@ -115,14 +115,14 @@ def get_unready_nodes(decommissioned_nodes, current_status):
 
 
 def get_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.kubernetes_ip)
+    k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
     logger.info("Current unhealthy node list: {}".format(','.join(existing_nodes)))
     return existing_nodes
 
 
 def add_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.kubernetes_ip)
+    k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
     if isinstance(nodes, str):
@@ -134,7 +134,7 @@ def add_decommission_nodes(args):
 
 
 def remove_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.kubernetes_ip)
+    k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
     if isinstance(nodes, str):
@@ -146,7 +146,7 @@ def remove_decommission_nodes(args):
 
 
 def update_decommission_nodes(args):
-    k8s_operator = KubernetesOperator(args.kubernetes_ip)
+    k8s_operator = KubernetesOperator(args.api_server_ip)
     nodes = args.nodes
     if isinstance(nodes, str):
         nodes = set(nodes.split(','))
@@ -156,8 +156,8 @@ def update_decommission_nodes(args):
 
 
 def refresh_yarn_nodes(args):
-    k8s_operator = KubernetesOperator(args.kubernetes_ip)
-    yarn_operator = YarnOperator(args.yarn_ip)
+    k8s_operator = KubernetesOperator(args.api_server_ip)
+    yarn_operator = YarnOperator(args.resource_manager_ip)
     while True:
         yarn_operator.decommission_nodes()
         current_status = yarn_operator.get_node_status()
@@ -173,9 +173,9 @@ def refresh_yarn_nodes(args):
 def setup_parser():
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument("master_ip", help="master node ip")
-    top_parser.add_argument("--yarn-ip",
+    top_parser.add_argument("--resource-manager-ip",
                             help="specify yarn resource manager ip separately, by default it's master node ip")
-    top_parser.add_argument("--kubernetes-ip",
+    top_parser.add_argument("--api-server-ip",
                             help="specify kubernetes api-server ip separately, by default it's master node ip")
     sub_parser = top_parser.add_subparsers(dest="subcommands")
 
@@ -209,8 +209,8 @@ def setup_parser():
 def main():
     parser = setup_parser()
     args = parser.parse_args()
-    args.kubernetes_ip = args.kubernetes_ip or args.master_ip
-    args.yarn_ip = args.yarn_ip or args.master_ip
+    args.resource_manager_ip = args.resource_manager_ip or args.master_ip
+    args.api_server_ip = args.api_server_ip or args.master_ip
     args.func(args)
 
 
