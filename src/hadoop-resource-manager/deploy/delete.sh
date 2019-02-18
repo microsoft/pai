@@ -39,6 +39,9 @@ fi
 if kubectl get configmap | grep -q "hadoop-resource-manager-delete"; then
     kubectl delete configmap hadoop-resource-manager-delete || exit $?
 fi
+if kubectl get configmap | grep -q "exclude-file"; then
+    kubectl delete configmap exclude-file || exit $?
+fi
 sleep 5
 
 popd > /dev/null

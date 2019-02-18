@@ -18,3 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml| kubectl apply --overwrite=true -f - || exit $?
+
+if ! kubectl get configmap | grep -q "exclude-file"; then
+    kubectl create configmap exclude-file --from-literal=nodes= --dry-run -o yaml| kubectl apply --overwrite=true -f - || exit $?
+fi
