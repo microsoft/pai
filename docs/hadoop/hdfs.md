@@ -6,8 +6,7 @@ This guidance provides users instructions to access the HDFS data in OpenPAI.
 - [ Access HDFS Data ](#Access_HDFS_Data)
     - [ WebHDFS ](#WebHDFS)
     - [ HDFS Command ](#HDFS_Command)
-    - [ Web Portal ](#Web_Portal)
-    - [ Mountable HDFS ](#Mountable_HDFS)
+    - [ Web Portal ](#Web_Portal)    
     - [ API ](#API)
         - [ Java API ](#Java_API)
         - [ C API ](#C_API)
@@ -15,7 +14,7 @@ This guidance provides users instructions to access the HDFS data in OpenPAI.
 
 # Access HDFS Data <a name="Access_HDFS_Data"></a>
 
-Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs.
+Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs. For shell access, user can use [WebHDFS](#WebHDFS) and [HDFS Command](#HDFS_Command) to access HDFS data. User can also user web browser to view HDFS data through the [web portal](#Web_Portal). For accessing data from a deep learning framework, please use [HDFS API](#API) and avoid using other means for best performance as well as robustness. Note that some deep learning framework has built-in support to HDFS. For example, to traini on large data, TensorFlow usually serializes the data into several big files like [TF Record](https://www.tensorflow.org/tutorials/load_data/tf_records) and it supports HDFS [natively](https://www.tensorflow.org/deploy/hadoop#hdfs). For PyTorch, it recommended to use [HDFS Python library](#Python_API) to access HDFS data during the training.
 
 ## WebHDFS <a name="WebHDFS"></a>
 
@@ -89,22 +88,6 @@ Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-no
 The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
 in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
-
-## Mountable HDFS <a name="Mountable_HDFS"></a>
-
-The *hadoop-hdfs-fuse* tool can mount HDFS on local file system and users can access the data with Linux commands.
-The tool can be installed with following commands on Ubuntu system:
-```bash
-# add the CDH5 repository
-wget http://archive.cloudera.com/cdh5/one-click-install/trusty/amd64/cdh5-repository_1.0_all.deb
-sudo dpkg -i cdh5-repository_1.0_all.deb
-# install the hadoop-dfs-fuse tool
-sudo apt-get update
-sudo apt-get install hadoop-hdfs-fuse
-# mount to local system
-mkdir -p your-mount-directory
-sudo hadoop-fuse-dfs dfs://hdfs-name-node-address:9000 your-mount-directory
-```
 
 ## API <a name="API"></a>
 
