@@ -14,7 +14,7 @@ This guidance provides users instructions to access the HDFS data in OpenPAI.
 
 # Access HDFS Data <a name="Access_HDFS_Data"></a>
 
-Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs. For shell access, user can use WebHDFS and HDFS command to access HDFS data. User can also user web browser to view HDFS data through the [web portal](#Web_Portal). For accessing data from a deep learning framework, please use [HDFS API](#API) and avoid using other means for best performance as well as robustness.
+Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs. For shell access, user can use [WebHDFS](#WebHDFS) and [HDFS Command](#HDFS_Command) to access HDFS data. User can also user web browser to view HDFS data through the [web portal](#Web_Portal). For accessing data from a deep learning framework, please use [HDFS API](#API) and avoid using other means for best performance as well as robustness.
 
 ## WebHDFS <a name="WebHDFS"></a>
 
