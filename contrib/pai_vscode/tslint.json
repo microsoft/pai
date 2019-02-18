@@ -207,7 +207,8 @@
     "import-spacing": true,
     "indent": [
       true,
-      "spaces"
+      "spaces",
+      4
     ],
     "linebreak-style": true,
     "newline-before-return": false,
