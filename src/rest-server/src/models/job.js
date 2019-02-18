@@ -51,11 +51,11 @@ class Job {
       case 'APPLICATION_CREATED':
       case 'APPLICATION_LAUNCHED':
       case 'APPLICATION_WAITING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
         jobState = 'WAITING';
         break;
       case 'APPLICATION_RUNNING':
-      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
-      case 'APPLICATION_COMPLETED':
         jobState = 'RUNNING';
         break;
       case 'FRAMEWORK_COMPLETED':
