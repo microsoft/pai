@@ -48,11 +48,11 @@
 
 ## Upgrading from Earlier Release ##
 
-* Download the code package of release v0.9.0 from [release page](https://github.com/Microsoft/pai/releases),
+* Download the code package of release v0.10.0 from [release page](https://github.com/Microsoft/pai/releases),
   or you can clone the code by running:
 
   ```bash
-  git clone --branch v0.9.0 git@github.com:Microsoft/pai.git
+  git clone --branch v0.10.0 git@github.com:Microsoft/pai.git
   ```
 
 * Prepare your cluster configuration by instructions in [OpenPAI Configuration](./docs/pai-management/doc/how-to-write-pai-configuration.md).
