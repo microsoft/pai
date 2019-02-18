@@ -68,10 +68,6 @@
             {
                 "command": "paiext.hdfs.open",
                 "title": "%paiext.hdfs.open%",
-                "icon": {
-                    "light": "icons/connected_light.svg",
-                    "dark": "icons/connected_dark.svg"
-                },
                 "category": "PAI"
             },
             {
@@ -124,6 +120,14 @@
                     "dark": "icons/refresh_dark.svg"
                 },
                 "category": "PAI"
+            },
+            {
+                "command": "paiext.container.hdfs.back",
+                "title": "%paiext.container.hdfs.back%",
+                "icon": {
+                    "light": "icons/octicon/home.svg",
+                    "dark": "icons/octicon/home_dark.svg"
+                }
             },
             {
                 "command": "paiext.container.hdfs.delete",
@@ -196,6 +200,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "paiext.container.hdfs.back",
+                    "when": "false"
+                },
+                {
                     "command": "paiext.container.hdfs.delete",
                     "when": "false"
                 },
@@ -221,7 +229,7 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "paiext.hdfs.open",
+                    "command": "paiext.container.hdfs.back",
                     "when": "view == PAIContainerHDFS",
                     "group": "navigation"
                 },
