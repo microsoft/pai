@@ -28,6 +28,8 @@ for node in old_cluster_config["machine-list"]:
 layout["machine-sku"] = old_cluster_config["machine-sku"]
 # read api-server ip from kubernetes-configuration.yaml
 kubernetes_config = yaml.load(open(os.path.join(input_dir, "kubernetes-configuration.yaml")))
+api_servers_schema = kubernetes_config["kubernetes"]["api-servers-http-schema"] if kubernetes_config["kubernetes"]["api-servers-http-schema"] is not None else "http"
+api_servers_port = kubernetes_config["kubernetes"]["api-servers-port"] if kubernetes_config["kubernetes"]["api-servers-port"] is not None else "8080"
 # got dashboard ip
 dashboard_ip = ""
 for node in old_cluster_config["machine-list"]:
@@ -36,7 +38,7 @@ for node in old_cluster_config["machine-list"]:
         break
 # assign api-servers-url and dashboard-url
 layout["kubernetes"] = {
-    "api-servers-url": "http://"+kubernetes_config["kubernetes"]["load-balance-ip"]+":443",
+    "api-servers-url": api_servers_schema + "://"+kubernetes_config["kubernetes"]["load-balance-ip"]+":" + api_servers_port,
     "dashboard-url": "http://"+dashboard_ip+":80"}
 
 # write out the file
