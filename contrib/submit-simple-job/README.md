@@ -2,12 +2,12 @@
 
 ## Background ##
 
-Per customer's requirement, "Submie Simple Job" is released to be a [PAI web portal plugin](../../docs/webportal/PLUGINS.md) with a UI similar to [DLWorkspace](https://github.com/Microsoft/DLWorkspace), and following features:
+Per customer's requirement, "Submit Simple Job" is released to be a [PAI web portal plugin](../../docs/webportal/PLUGINS.md) with a UI similar to [DLWorkspace](https://github.com/Microsoft/DLWorkspace), and following features:
 
 - Caffe / Tensorflow / Pytorch job templates
 - Multilined command support
 - One-click tensorboard support
-- Customize running user (root / current user)
+- Customize the running user (root / current user)
 - NFS mount (Extra configuration needed)
 - HyperParameter training
 
@@ -15,7 +15,7 @@ Per customer's requirement, "Submie Simple Job" is released to be a [PAI web por
 
 ### Entrance ###
 
-The plugin could be accessed by the link in the "plugins" section of sidebar manu, with title customized by system administrator. If you do not know which one is the plugin, ask your system administrator.
+The plugin could be accessed by the link in the "plugins" section of sidebar menu, with title customized by the system administrator. If you do not know which one is the plugin, ask your system administrator.
 
 ### Usage ###
 
@@ -30,18 +30,18 @@ The plugin could be accessed by the link in the "plugins" section of sidebar man
 - **Job Name**: the name of the job, similar to PAI
 - **Job Type**: WIP, now regular job only.
 - **Number of GPUs**: setting how many GPUs used in *each* task.
-- **Docker Image**: the base docker image of the job, private docker registry is supported only if system administrator is configured the authentication file.
-- **Command**: the command to run the job, will running in root if the followed "Launch container as root user" is checked.
+- **Docker Image**: the base Docker image of the job, private docker registry is supported only if the system administrator is configured the authentication file.
+- **Command**: the command to run the job, will be running in root if the followed "Launch container as root user" is checked.
 - **Virtual Cluster**: which virtual cluster the job will running on.
 - **Interactive Job**: checked if the job could publish network interfaces, and then the specific ports could be customized.
   ![Interactive Job](docs/interactive-job.png)
-- **Enable Tensorboard**: checked if a tensorboard task will be runned. A model path could be customized.
+- **Enable Tensorboard**: checked if a tensorboard task will be run. A model path could be customized.
   ![Tensorboard](docs/tensorboard.png)
 - **Launch container as root user**: if checked, the *Command* will be run in root user, otherwise it will be run in the current user.
 
 #### Advanced Section ####
 
-- **Mount Directories**: Mount NFS directories to the job container. This option could be appeared only if the NFS option of the plugin is fully configured.
+- **Mount Directories**: Mount NFS directories to the job container. This option could be displayed only if the NFS option of the plugin is fully configured.
   ![Mount Directories](docs/mount-directories.png)
 - **HyperParameter Training**: Enable hyper parameter training.
   ![Hyper Parameter](docs/hyper-parameter.png)
@@ -55,7 +55,7 @@ The plugin could be accessed by the link in the "plugins" section of sidebar man
 ![Database Operation](docs/database-operation.png)
 
 - Download JSON: export the current form to a JSON file.
-- Upload JSOB: import the JSON file exported from this plugin of DLWorkspace to the form.
+- Upload JSON: import the JSON file exported from this plugin of DLWorkspace to the form.
 
 ## System Administrator's Guide ##
 
@@ -68,7 +68,7 @@ The build file is located in `./dist/plugin.js`
 
 ### Deploy ###
 
-Deploy the build file to any server that accessible by web portal users. Write down the public url of the file for configuration.
+Deploy the build file to any server accessible by web portal users. Write down the public URL of the file for configuration.
 
 ### Install ###
 
@@ -84,7 +84,7 @@ webportal:
 
 ### Configure ###
 
-Accroding to the YAML config in [Install section](#install), there are two config fields available, in query string syntax appended to the plugin file url: (** Don't forget to do character encoding **)
+According to the YAML config in [Install section](#install), there are two config fields available, in query string syntax appended to the plugin file URL: (** Don't forget to do character encoding **)
 
 - `nfs` the NFS host and root directory, in `[host]:[root]` format, for example `nfs=10.0.0.1%3A%2Fusers`.
 - `auth-file` the docker registry authorization file path in HDFS, in `hdfs:[path]` format, for example `auth-file=hdfs%3A%2F%2F10.0.0.1%3A8020%2Fauth.txt`.
@@ -97,7 +97,7 @@ Start the local web portal server with .env settings:
 
     WEBPORTAL_PLUGINS=[{"title":"Submit Simple Job", "uri": "/scripts/plugins/submit-simple-job.js"}]
 
-And then run the builder within plugin directory.
+And then run the builder within the plugin directory.
 
     npm install
     npm run watch
