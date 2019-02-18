@@ -13,7 +13,7 @@ import {
 } from 'vscode';
 
 import {
-    COMMNAD_CONTAINER_HDFS_BACK, COMMAND_CONTAINER_HDFS_DELETE, COMMAND_CONTAINER_HDFS_MKDIR, COMMAND_CONTAINER_HDFS_REFRESH,
+    COMMAND_CONTAINER_HDFS_BACK, COMMAND_CONTAINER_HDFS_DELETE, COMMAND_CONTAINER_HDFS_MKDIR, COMMAND_CONTAINER_HDFS_REFRESH,
     COMMAND_OPEN_HDFS, COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_HDFS_FILE, CONTEXT_HDFS_FOLDER, CONTEXT_HDFS_ROOT, CONTEXT_HDFS_SELECT_CLUSTER, CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
     ICON_PAI, VIEW_CONTAINER_HDFS
@@ -120,7 +120,7 @@ export class HDFSTreeDataProvider extends Singleton implements TreeDataProvider<
     public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
             commands.registerCommand(COMMAND_CONTAINER_HDFS_REFRESH, () => this.refresh()),
-            commands.registerCommand(COMMNAD_CONTAINER_HDFS_BACK, () => this.reset()),
+            commands.registerCommand(COMMAND_CONTAINER_HDFS_BACK, () => this.reset()),
             commands.registerCommand(COMMAND_CONTAINER_HDFS_DELETE, async (node: TreeItem) => {
                 await (await getSingleton(HDFS)).provider!.delete(node.resourceUri!, { recursive: true });
             }),
