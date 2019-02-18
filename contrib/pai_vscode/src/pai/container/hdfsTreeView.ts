@@ -32,7 +32,7 @@ type IFileList = [string, FileType][];
  * Abstract tree node
  */
 abstract class TreeNode extends TreeItem {
-  public parent?: TreeNode;
+    public parent?: TreeNode;
 }
 
 /**
@@ -139,10 +139,10 @@ export class HDFSTreeDataProvider extends Singleton implements TreeDataProvider<
     }
 
     public setUri(uri: Uri): void {
-      this.uri = uri;
-      this.root = new RootNode(this.uri);
-      this.refresh();
-      void this.view.reveal(this.root);
+        this.uri = uri;
+        this.root = new RootNode(this.uri);
+        this.refresh();
+        void this.view.reveal(this.root);
     }
 
     public refresh(node?: TreeNode): void {
