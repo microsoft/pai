@@ -138,7 +138,7 @@ function get_host_list()
         fi
       done
     done < <(echo $taskrole_statuses | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts, .taskIndex")
-    echo PAI_TASK_ROLE_TASK_COUNT_${taskrole}=$(echo $taskrole_statuses | jq ".${taskrole}.taskStatuses.taskStatusArray[] | length") >> $1
+    echo PAI_TASK_ROLE_TASK_COUNT_${taskrole}=$(echo $taskrole_statuses | jq ".${taskrole}.taskStatuses.taskStatusArray | length") >> $1
     # Backward compatibility
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
@@ -164,7 +164,6 @@ PAI_TEMP={{ jobData.userName }} && echo PAI_USER_NAME=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ hdfsUri }} && echo PAI_DEFAULT_FS_URI=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ taskRolesNumber }} && echo PAI_TASK_ROLE_COUNT=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ taskRoleList }} && echo PAI_TASK_ROLE_LIST=$PAI_TEMP >> $ENV_LIST
-PAI_TEMP={{ taskData.taskNumber }} && echo PAI_TASK_ROLE_TASK_COUNT_{{ taskData.name }}=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP="{{ taskData.gpuNumber }},{{ taskData.cpuNumber }},{{ taskData.memoryMB }},{{ taskData.shmMB }}" \
   && echo PAI_RESOURCE=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ taskData.minFailedTaskCount }} && echo PAI_MIN_FAILED_TASK_COUNT_{{ taskData.name }}=$PAI_TEMP >> $ENV_LIST
