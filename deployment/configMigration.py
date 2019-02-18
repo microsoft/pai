@@ -45,7 +45,7 @@ layout["kubernetes"] = {
 layout_file = os.path.join(output_dir, "layout.yaml")
 if(os.path.exists(layout_file)):
     print"!!! Error, file already existing:", layout_file
-    exit(-1)
+    sys.exit(-1)
 
 
 with open(layout_file, 'w') as outfile:
