@@ -55,7 +55,7 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 ## Try OpenPAI
 
-To try OpenPAI, you can follow Installation(#Installation) below, and skip customization part. You can add more servers as needed any time if you keep OpenPAI for using.
+To try OpenPAI quickly, you can follow [Installation](#Installation) below, and skip customization part. You can add more servers as needed after deployed if you keep OpenPAI for using.
 
 It's highly recommended to try OpenPAI on server(s), which has no usage and service. You can deploy OpenPAI on one or multiple server(s), please refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
