@@ -84,7 +84,7 @@ webportal:
 
 ### Configure ###
 
-According to the YAML config in [Install section](#install), there are two config fields available, in query string syntax appended to the plugin file URL: (** Don't forget to do character encoding **)
+According to the YAML config in [Install section](#install), there are two config fields available, in query string syntax appended to the plugin file URL: **(Don't forget to do character encoding)**
 
 - `nfs` the NFS host and root directory, in `[host]:[root]` format, for example `nfs=10.0.0.1%3A%2Fusers`.
 - `auth-file` the docker registry authorization file path in HDFS, in `hdfs:[path]` format, for example `auth-file=hdfs%3A%2F%2F10.0.0.1%3A8020%2Fauth.txt`.
