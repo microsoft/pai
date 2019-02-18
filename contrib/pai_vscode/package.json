@@ -90,6 +90,15 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.container.joblist.refresh",
+                "title": "%paiext.common.refresh%",
+                "icon": {
+                    "light": "icons/refresh_light.svg",
+                    "dark": "icons/refresh_dark.svg"
+                },
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.cluster.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -145,6 +154,10 @@
                 {
                     "id": "PAIContainerHDFS",
                     "name": "%container.hdfs.title%"
+                },
+                {
+                    "id": "PAIContainerJobList",
+                    "name": "%container.joblist.title%"
                 }
             ]
         },
@@ -155,15 +168,15 @@
                     "when": "false"
                 },
                 {
-                    "command": "paiext.cluster.refresh",
-                    "when": "false"
-                },
-                {
                     "command": "paiext.cluster.edit",
                     "when": "false"
                 },
                 {
                     "command": "paiext.cluster.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.joblist.refresh",
                     "when": "false"
                 },
                 {
@@ -210,6 +223,11 @@
                 {
                     "command": "paiext.hdfs.open",
                     "when": "view == PAIContainerHDFS",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.container.joblist.refresh",
+                    "when": "view == PAIContainerJobList",
                     "group": "navigation"
                 }
             ],
@@ -324,9 +342,27 @@
                     "description": "%config.job.generateJobName.enabled%",
                     "default": null
                 },
+                "pai.job.jobList.recentJobsLength": {
+                    "type": "number",
+                    "description": "%config.job.jobList.recentJobsLength%",
+                    "default": 5
+                },
+                "pai.job.jobList.allJobsength": {
+                    "type": "number",
+                    "description": "%config.job.jobList.allJobsength%",
+                    "default": 20
+                },
+                "pai.job.jobList.refreshInterval": {
+                    "type": "number",
+                    "description": "%config.job.jobList.refreshInterval%",
+                    "default": 10
+                },
                 "pai.hdfs.location": {
                     "type": "string",
-                    "enum": ["sidebar", "explorer"],
+                    "enum": [
+                        "sidebar",
+                        "explorer"
+                    ],
                     "default": "sidebar",
                     "description": "%config.hdfs.location%"
                 }
@@ -346,6 +382,7 @@
         "@types/globalize": "^0.0.34",
         "@types/globby": "^8.0.0",
         "@types/lodash": "^4.14.117",
+        "@types/lru-cache": "^4.1.1",
         "@types/mocha": "^5.2.5",
         "@types/nock": "^9.3.0",
         "@types/node": "^8.10.25",
@@ -372,6 +409,7 @@
         "json-schema-ref-parser": "^6.0.2",
         "jsonc-parser": "^2.0.2",
         "lodash": "^4.17.11",
+        "lru-cache": "^5.1.1",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",

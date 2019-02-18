@@ -8,15 +8,17 @@ import { injectable } from 'inversify';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_LIST_JOB, COMMAND_OPEN_DASHBOARD, COMMAND_TREEVIEW_OPEN_PORTAL
+    COMMAND_LIST_JOB, COMMAND_OPEN_DASHBOARD, COMMAND_TREEVIEW_OPEN_PORTAL, COMMAND_VIEW_JOB
 } from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
-import { getClusterName, getClusterWebPortalUri, ClusterManager } from './clusterManager';
+import { getClusterName, ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
+import { JobNode } from './container/jobListTreeView';
 import { IPAICluster } from './paiInterface';
+import { PAIWebPortalUri } from './paiUri';
 
 const paiDashboardPropertyLabelMapping: { [propertyName: string]: string } = {
     grafana_uri: 'Grafana',
@@ -44,6 +46,10 @@ export class PAIWebpages extends Singleton {
             vscode.commands.registerCommand(
                 COMMAND_LIST_JOB,
                 (node: ConfigurationNode) => this.listJobs(node.index)
+            ),
+            vscode.commands.registerCommand(
+                COMMAND_VIEW_JOB,
+                this.viewJob.bind(this)
             )
         );
     }
@@ -56,7 +62,7 @@ export class PAIWebpages extends Singleton {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
 
         const options: vscode.QuickPickItem[] = [];
-        const paiUrl: string = getClusterWebPortalUri(config);
+        const paiUrl: string = PAIWebPortalUri.getClusterWebPortalUri(config);
         options.push({
             label: __('webpage.dashboard.webportal', [getClusterName(config)]),
             detail: paiUrl
@@ -84,13 +90,19 @@ export class PAIWebpages extends Singleton {
 
     public async openDashboardFromTreeView(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
-        const url: string = getClusterWebPortalUri(config);
+        const url: string = PAIWebPortalUri.getClusterWebPortalUri(config);
         await Util.openExternally(url);
     }
 
     public async listJobs(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
-        const url: string = getClusterWebPortalUri(config) + '/view.html';
+        const url: string = PAIWebPortalUri.jobs(config);
+        await Util.openExternally(url);
+    }
+
+    public async viewJob(node: JobNode): Promise<void> {
+        const config: IPAICluster = node.parent.parent.configuration;
+        const url: string = PAIWebPortalUri.jobDetail(config, config.username, node.jobInfo.name);
         await Util.openExternally(url);
     }
 }

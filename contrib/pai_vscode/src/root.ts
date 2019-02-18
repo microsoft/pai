@@ -5,10 +5,12 @@
  */
 
 import { Singleton } from './common/singleton';
+import { TreeViewHelper } from './common/treeViewHelper';
 import { UtilClass } from './common/util';
 import { ClusterManager } from './pai/clusterManager';
 import { ConfigurationTreeDataProvider } from './pai/configurationTreeDataProvider';
 import { HDFSTreeDataProvider } from './pai/container/hdfsTreeView';
+import { JobListTreeDataProvider } from './pai/container/jobListTreeView';
 import { HDFS } from './pai/hdfs';
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
@@ -16,9 +18,11 @@ import { PAIWebpages } from './pai/paiWebpages';
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     UtilClass,
     ClusterManager,
+    TreeViewHelper,
     ConfigurationTreeDataProvider,
     PAIJobManager,
     PAIWebpages,
     HDFS,
-    HDFSTreeDataProvider
+    HDFSTreeDataProvider,
+    JobListTreeDataProvider
 ];

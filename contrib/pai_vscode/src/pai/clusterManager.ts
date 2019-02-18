@@ -10,7 +10,7 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_ADD_CLUSTER, COMMAND_DELETE_CLUSTER, COMMAND_EDIT_CLUSTER
+    COMMAND_ADD_CLUSTER, COMMAND_DELETE_CLUSTER, COMMAND_EDIT_CLUSTER, SETTING_JOB_JOBLIST_RECENTJOBSLENGTH, SETTING_SECTION_JOB
 } from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
@@ -20,6 +20,7 @@ import { ConfigurationNode, ConfigurationTreeDataProvider } from './configuratio
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
+import { JobListTreeDataProvider } from './container/jobListTreeView';
 export interface IConfiguration {
     readonly version: string;
     pais: IPAICluster[];
@@ -33,16 +34,13 @@ export function getClusterName(conf: IPAICluster): string {
     return conf.name || getClusterIdentifier(conf);
 }
 
-export function getClusterWebPortalUri(conf: IPAICluster): string {
-    return conf.web_portal_uri || conf.rest_server_uri.split(':')[0];
-}
-
 /**
  * Manager class for cluster configurations
  */
 @injectable()
 export class ClusterManager extends Singleton {
     private static readonly CONF_KEY: string = 'openpai.conf';
+    private static readonly RECENT_JOBS_KEY: string = 'openpai.recentJobs';
     private static readonly default: IConfiguration = {
         version: '0.0.1',
         pais: []
@@ -62,6 +60,7 @@ export class ClusterManager extends Singleton {
     private readonly DISCARD: string = __('cluster.activate.fix.discard');
 
     private configuration: IConfiguration | undefined;
+    private recentJobs: string[][] | undefined;
 
     public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
@@ -70,6 +69,7 @@ export class ClusterManager extends Singleton {
             vscode.commands.registerCommand(COMMAND_DELETE_CLUSTER, (node: ConfigurationNode) => this.delete(node.index))
         );
         this.configuration = this.context.globalState.get<IConfiguration>(ClusterManager.CONF_KEY) || ClusterManager.default;
+        this.recentJobs = this.context.globalState.get<string[][]>(ClusterManager.RECENT_JOBS_KEY) || [];
         try {
             await this.validateConfiguration();
         } catch (ex) {
@@ -89,6 +89,10 @@ export class ClusterManager extends Singleton {
 
     public get allConfigurations(): IPAICluster[] {
         return this.configuration!.pais;
+    }
+
+    public get allRecentJobs(): string[][] {
+        return this.recentJobs!;
     }
 
     public async add(): Promise<void> {
@@ -151,19 +155,40 @@ export class ClusterManager extends Singleton {
         );
         if (editResult) {
             this.configuration!.pais[index] = editResult;
-            await (await getSingleton(ConfigurationTreeDataProvider)).refresh(index);
+            this.recentJobs![index] = [];
             await this.save();
+            await this.saveRecentJobs(index);
         }
     }
 
     public async delete(index: number): Promise<void> {
         this.configuration!.pais.splice(index, 1);
-        await (await getSingleton(ConfigurationTreeDataProvider)).refresh();
+        this.recentJobs!.splice(index, 1);
         await this.save();
+        await this.saveRecentJobs();
     }
 
-    public save(): PromiseLike<void> {
-        return this.context.globalState.update(ClusterManager.CONF_KEY, this.configuration!);
+    public async save(): Promise<void> {
+        await this.context.globalState.update(ClusterManager.CONF_KEY, this.configuration!);
+        await (await getSingleton(ConfigurationTreeDataProvider)).refresh();
+    }
+
+    public async saveRecentJobs(index: number = -1): Promise<void> {
+        await this.context.globalState.update(ClusterManager.RECENT_JOBS_KEY, this.recentJobs!);
+        await (await getSingleton(JobListTreeDataProvider)).refresh(index);
+    }
+
+    public async enqueueRecentJobs(cluster: IPAICluster, jobName: string): Promise<void> {
+        const index: number = this.allConfigurations.findIndex(c => c === cluster);
+        if (index === -1) {
+            return;
+        }
+        const list: string[] = this.recentJobs![index] = this.recentJobs![index] || [];
+        list.unshift(jobName);
+        const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
+        const maxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
+        list.splice(maxLen); // Make sure not longer than maxLen
+        await this.saveRecentJobs(index);
     }
 
     public async pick(): Promise<number | undefined> {
@@ -196,7 +221,6 @@ export class ClusterManager extends Singleton {
                 );
                 if (editResult) {
                     this.configuration = editResult;
-                    await (await getSingleton(ConfigurationTreeDataProvider)).refresh();
                     await this.save();
                 }
                 break;
@@ -206,5 +230,7 @@ export class ClusterManager extends Singleton {
             default:
                 break;
         }
+        this.recentJobs = [];
+        await this.saveRecentJobs();
     }
 }
