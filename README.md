@@ -16,7 +16,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 1. [Why choose OpenPAI](#why-choose-openpai)
 1. [Try OpenPAI](#try-openpai)
 1. [Installation](#installation)
-1. [Training model on OpenPAI](#training-model-on-openpai)
+1. [Train model](#train-model)
 1. [Administration](#administration)
 1. [Reference](#reference)
 1. [Get involved](#get-involved)
@@ -55,7 +55,7 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 ## Try OpenPAI
 
-If you'd like to try OpenPAI, you can follow Installation(#Installation) below, and skip customization part. You can add more servers as needed any time if you keep OpenPAI for using.
+To try OpenPAI, you can follow Installation(#Installation) below, and skip customization part. You can add more servers as needed any time if you keep OpenPAI for using.
 
 It's highly recommended to try OpenPAI on server(s), which has no usage and service. You can deploy OpenPAI on one or multiple server(s), please refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
@@ -76,7 +76,7 @@ Follow this part to check prerequisites, deploy and validate an OpenPAI cluster.
 
 ### Deploy
 
-The default deployment includes minimum steps to deploy an OpenPAI cluster. After that, you may customize OpenPAI cluster for different hardware environments and use scenarios.
+The default deployment includes minimum steps to deploy an OpenPAI cluster. Base on the default configuration, you can customize OpenPAI deployment for different hardware environments and use scenarios.
 
 #### Deploy with default configurations
 
@@ -86,7 +86,7 @@ If your are deploying a large size cluster, this section is still needed to gene
 
 [Deploy with default configurations](docs/pai-management/doc/distributed-deploy.md)
 
-#### Customize cluster
+#### Customize deployment
 
 As various hardware environments and different use sencarios, default configuration of OpenPAI may not fit your case. Based on genereted default configration in last section, you can change it before deploying.
 
@@ -108,9 +108,9 @@ If there is any question durding deployment, check [here](docs/faq.md#deploy-and
 
 If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
 
-## Train model on OpenPAI
+## Train model
 
-### Learn to schedule jobs
+### Why to schedule jobs
 
 Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, users is recommended to submit training jobs into OpenPAI, and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This approach is different with on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage your jobs on OpenPAI.
 
@@ -118,7 +118,7 @@ OpenPAI also supports to allocate dedicated resource for users, and user can use
 
 ### Train first model
 
-You can follow [here](examples/README.md#quickstart) to create your first job definition and have a look on job definition. Then refer to [here](docs/submit_from_webportal.md) to submit it to OpenPAI. It may be a very simple job, as it downloads data and code from internet, and doesn't copy model back to you. It's used to let you understand OpenPAI job definition and familiar with Web portal.
+Follow [here](examples/README.md#quickstart) to create your first job definition and have a look on job definition. Then refer to [here](docs/submit_from_webportal.md) to submit it to OpenPAI. It may be a very simple job, as it downloads data and code from internet, and doesn't copy model back to you. It's used to let you understand OpenPAI job definition and familiar with Web portal.
 
 ### Learn deeper on job definition
 
