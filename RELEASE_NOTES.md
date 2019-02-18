@@ -2,44 +2,44 @@
 
 ## New Features ##
 
-* "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131)
 * Support configure vc bonus [#2147](https://github.com/Microsoft/pai/pull/2147)
-* Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111)
-* Support AKS deployment [#1980](https://github.com/Microsoft/pai/pull/1980)
-* Diawang/dockercleaner [#2119](https://github.com/Microsoft/pai/pull/2119)
-* PAI VS Code extension [#1984](https://github.com/Microsoft/pai/pull/1984)
 * Support Azure RDMA [#2091](https://github.com/Microsoft/pai/pull/2091)
+* PAI VS Code extension [#1984](https://github.com/Microsoft/pai/pull/1984)
+* Diawang/dockercleaner [#2119](https://github.com/Microsoft/pai/pull/2119)
+* Support AKS deployment [#1980](https://github.com/Microsoft/pai/pull/1980)
+* Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111)
+* "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131)
 
 ## Improvements ##
 
 ### Service ###
 
-* Web Portal: Allow jsonc in job submission [#2084](https://github.com/Microsoft/pai/pull/2084)
-* Grafana: Use yarn's metrics in cluster view [#2148](https://github.com/Microsoft/pai/pull/2148)
-* Alart Manager: Make it more clear in service not up [#2105](https://github.com/Microsoft/pai/pull/2105)
-* Hadoop: extend nm expiry time to 60 mins [#2142](https://github.com/Microsoft/pai/pull/2142)
-* Pylon: WebHDFS library compatibility [#2134](https://github.com/Microsoft/pai/pull/2134)
-* Kubernetes: Disable kubernetes's pod eviction [#2124](https://github.com/Microsoft/pai/pull/2124)
-* Hadoop: Reduce am resource [#2072](https://github.com/Microsoft/pai/pull/2072)
-* Expose log retain time [#2034](https://github.com/Microsoft/pai/pull/2034)
 * Hadoop: disable hdfs shortcircuit [#2027](https://github.com/Microsoft/pai/pull/2027)
+* Hadoop: Expose log retain time [#2034](https://github.com/Microsoft/pai/pull/2034)
+* Hadoop: Reduce am resource [#2072](https://github.com/Microsoft/pai/pull/2072)
+* Kubernetes: Disable kubernetes's pod eviction [#2124](https://github.com/Microsoft/pai/pull/2124)
+* Pylon: WebHDFS library compatibility [#2134](https://github.com/Microsoft/pai/pull/2134)
+* Hadoop: Extend nm expiry time to 60 mins [#2142](https://github.com/Microsoft/pai/pull/2142)
+* Alart Manager: Make it more clear in service not up [#2105](https://github.com/Microsoft/pai/pull/2105)
+* Grafana: Use yarn's metrics in cluster view [#2148](https://github.com/Microsoft/pai/pull/2148)
+* Web Portal: Allow jsonc in job submission [#2084](https://github.com/Microsoft/pai/pull/2084)
 
 ### Command ###
 
-* Deploy: Only restart docker deamon, if the configuration is updated. [#2138](https://github.com/Microsoft/pai/pull/2138)
 * Build: Add error message when image build failed [#2133](https://github.com/Microsoft/pai/pull/2133)
+* Deploy: Only restart docker deamon, if the configuration is updated. [#2138](https://github.com/Microsoft/pai/pull/2138)
 
 ### Documentation ###
 
-* HDFS data migration doc [#2096](https://github.com/Microsoft/pai/pull/2096)
-* Note tell user take care dev-box-version for doc [#2087](https://github.com/Microsoft/pai/pull/2087)
-* Add issue to readme [#2044](https://github.com/Microsoft/pai/pull/2044)
 * Update document about docker data root's configuration [#2052](https://github.com/Microsoft/pai/pull/2052)
+* Add issue to readme [#2044](https://github.com/Microsoft/pai/pull/2044)
+* Note tell user take care dev-box-version for doc [#2087](https://github.com/Microsoft/pai/pull/2087)
+* HDFS data migration doc [#2096](https://github.com/Microsoft/pai/pull/2096)
 
 ### Examples ###
 
-* Add an exmaple of horovod with rdma & intel mpi [#2112](https://github.com/Microsoft/pai/pull/2112)
 * Add /usr/local/cuda/extras/CUPTI/lib64 to LD_LIBRARY_PATH [#2043](https://github.com/Microsoft/pai/pull/2043)
+* Add an exmaple of horovod with rdma & intel mpi [#2112](https://github.com/Microsoft/pai/pull/2112)
 
 ## Bug Fixes ##
 
