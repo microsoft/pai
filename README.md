@@ -10,23 +10,27 @@
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
-# Table of Contents
+## Table of Contents
+
 1. [When to consider OpenPAI](#when-to-consider-openpai)
-2. [Why choose OpenPAI](#why-choose-openpai)
-3. [How to deploy](#how-to-deploy)
-4. [How to use](#how-to-use)
-5. [Resources](#resources)
-6. [Get Involved](#get-involved)
-7. [How to contribute](#how-to-contribute)
+1. [Why choose OpenPAI](#why-choose-openpai)
+1. [Try OpenPAI](#try-openpai)
+1. [Installation](#installation)
+1. [Training model on OpenPAI](#training-model-on-openpai)
+1. [Administration](#administration)
+1. [Reference](#reference)
+1. [Get involved](#get-involved)
+1. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
+
 1. When your organization needs to share powerful AI computing resources (GPU/FPGA farm, etc.) among teams.
 2. When your organization needs to share and reuse common AI assets like Model, Data, Environment, etc.
 3. When your organization needs an easy IT ops platform for AI.
 4. When you want to run a complete training pipeline in one place.
 
-
 ## Why choose OpenPAI
+
 The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
 
 ### Support on-premises and easy to deploy
@@ -39,69 +43,131 @@ Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardwa
 
 ### Most complete solution and easy to extend
 
-OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
+OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
 
 ## Related Projects
+
 Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) had also released few other open source projects.
+
 * [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
 We encourage researchers and students leverage these projects to accelerate the AI development and research.
 * [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
 
-## How to deploy
-#### 1 Prerequisites <a name="ref_prerequisites"></a>
-Before start, you need to meet the following requirements:
+## Try OpenPAI
 
-- Ubuntu 16.04
-- Assign each server a static IP address. Network is reachable between servers.
-- Server can access the external network, especially need to have access to a Docker registry service (e.g., Docker hub) to pull the Docker images for the services to be deployed.
-- All machines' SSH service is enabled, share the same username / password and have sudo privilege.
-- Need to enable NTP service.
-- Recommend no Docker installed or a Docker with api version >= 1.26.
-- See [hardware resource requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement).
+If you'd like to try OpenPAI, you can follow Installation(#Installation) below, and skip customization part. You can add more servers as needed any time if you keep OpenPAI for using.
 
-#### 2 Deploy OpenPAI
+It's highly recommended to try OpenPAI on server(s), which has no usage and service. You can deploy OpenPAI on one or multiple server(s), please refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
-If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
+## Installation
 
-If you only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following. 
+Follow this part to check prerequisites, deploy and validate an OpenPAI cluster.
 
+### Prerequisites
 
-##### 2.1 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
-##### 2.2 [Single Box deploy](./docs/pai-management/doc/single-box.md)
+* Ubuntu 16.04 (18.04 should work, but not fully tested.)
+* Assign each server a static IP address, and servers can communicate each other.
+* Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images of OpenPAI.
+* SSH service is enabled and share the same username/password and have sudo privilege.
+* NTP service is enabled.
+* Recommend not to install docker or docker's version must be higher than 1.26.
+* OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check [hardware requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for details.
+* Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
+### Deploy
 
+The default deployment includes minimum steps to deploy an OpenPAI cluster. After that, you may customize OpenPAI cluster for different hardware environments and use scenarios.
 
-## How to use
-### How to train jobs
-- How to write OpenPAI jobs
-    - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart)
-    - [Write job from scratch in depth](./docs/job_tutorial.md)
-    - [Learn more example jobs](./examples/#offtheshelf)
-- How to submit OpenPAI jobs
-    - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
-    - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md)
-    - [OpenPAI VS Code Extension](./contrib/pai_vscode)
-- How to run AutoML jobs on OpenPAI
-    - [Submit a job in Neural Network Intelligence](https://github.com/Microsoft/nni/blob/master/docs/PAIMode.md)
-- How to request on-demand resource for in place training
-    - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
+#### Deploy with default configurations
 
-### Cluster administration
-- [Deployment infrastructure](./docs/pai-management/doc/distributed-deploy.md)
-- [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
-- [Monitoring](./docs/webportal/README.md)
+If you are deploying a small or medium size cluster, which is less than 20 servers, it's recommended.
 
-## Resources
+If your are deploying a large size cluster, this section is still needed to generate default configuration, then customize on it.
 
-- The OpenPAI user [documentation](./docs/documentation.md) provides in-depth instructions for using OpenPAI
-- Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today.
-- [FAQ](./docs/faq.md)
+[Deploy with default configurations](docs/pai-management/doc/distributed-deploy.md)
 
-## Get Involved
-- [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
-- [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
+#### Customize cluster
+
+As various hardware environments and different use sencarios, default configuration of OpenPAI may not fit your case. Based on genereted default configration in last section, you can change it before deploying.
+
+[Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)
+
+### Validate deployment
+
+After deployed, it needs to check if key components in health status.
+
+[Validate deployment](docs/pai-management/doc/validate-deployment.md)
+
+After validated the deployment, you can submit a job to have a try, and check if it works end-to-end.
+
+[Submit a test job](examples/README.md#quickstart)
+
+### FAQ
+
+If there is any question durding deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
+
+If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
+
+## Train model on OpenPAI
+
+### Learn to schedule jobs
+
+Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, users is recommended to submit training jobs into OpenPAI, and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This approach is different with on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage your jobs on OpenPAI.
+
+OpenPAI also supports to allocate dedicated resource for users, and user can use SSH or Jupyter on assigned environment like a standalone server. Refer [here](examples/jupyter/README.md) to use OpenPAI like this way. Though it's not efficient to use resource, but it also saves cost on setup and managing environments on physical servers.
+
+### Train first model
+
+You can follow [here](examples/README.md#quickstart) to create your first job definition and have a look on job definition. Then refer to [here](docs/submit_from_webportal.md) to submit it to OpenPAI. It may be a very simple job, as it downloads data and code from internet, and doesn't copy model back to you. It's used to let you understand OpenPAI job definition and familiar with Web portal.
+
+### Learn deeper on job definition
+
+* Choose training environment. OpenPAI uses [Docker](https://www.docker.com/) to provide runtime environment.
+
+    You can refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, ufoym/deepo:pytorch-py36-cu90. Note, it doesn't include openssh-server, curl. So you want to use ssh with those docker images, you need use `apt install openssh-server curl` in command field to enable ssh.
+
+* Put code and data in. OpenPAI creates a clean environment, you need to use co mmand field to copy data and code in, and start training. You can join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install`.
+
+    There are some suggestions to exchange data with running environment, but you should check with OpenPAI administrator, which kind of storage is supported, and recommended approach to access it. Refer to [here](TODO provide storage solution) for sample solutions.
+
+* Copy model out. It's similiar with above topic, if code and data can copy in, model can also be copied out.
+
+* Running distributed training job. OpenPAI can allocate multiple environments to same job to support distributed training.
+
+If you want to learn more, refer to [here](docs/job_tutorial.md#write-a-job-json-configuration-file-) for more information on job definition.
+
+### OpenPAI client
+
+Rather than web portal, and RESTful API, OpenPAI have a friendly client tool for user. It's an extension of [Visual Studio Code](https://code.visualstudio.com/), called `OpenPAI VS Code Client`. Once you installed Visual Studio Code, you can search and install it in extensions tab.
+
+`OpenPAI VS Code Client` can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on. Refer to [here](https://marketplace.visualstudio.com/items?itemName=OpenPAIVSCodeClient.pai-vscode) for more information.
+
+### Troubleshooting job failure
+
+You can use Web portal and job log to analyze job failure, also you can log into environment with SHH to do it.
+
+Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more informaiton of troubleshooting job failure on OpenPAI. It's recommended to get job running successfully locally, and then submit it to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
+
+## Administration
+
+* [Manage cluster with paictl](docs/paictl/paictl-manual.md)
+* [Monitoring](./docs/webportal/README.md)
+
+## Reference
+
+* [Job definition](docs/job_tutorial.md#write-a-job-json-configuration-file-)
+* [RESTful API](docs/rest-server/API.md)
+* Design documents could be found [here](docs).
+
+## Get involved
+
+* [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
+* [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
+
 ## How to contribute
-#### Contributor License Agreement
+
+### Contributor License Agreement
+
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
@@ -114,17 +180,21 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-#### Call for contribution
+### Call for contribution
+
 We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
-- PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-- PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
-#### Who should consider contributing to OpenPAI?
-- Folks who want to add support for other ML and DL frameworks
-- Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
-- Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
+* PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+* PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
-#### Contributors
+### Who should consider contributing to OpenPAI
+
+* Folks who want to add support for other ML and DL frameworks
+* Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
+* Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
+
+### Contributors
+
 One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
 PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
