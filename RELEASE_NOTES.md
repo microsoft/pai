@@ -2,11 +2,12 @@
 
 ## New Features ##
 
+* "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131)
 * Support configure vc bonus [#2147](https://github.com/Microsoft/pai/pull/2147)
 * Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111)
 * Support AKS deployment [#1980](https://github.com/Microsoft/pai/pull/1980)
 * Diawang/dockercleaner [#2119](https://github.com/Microsoft/pai/pull/2119)
-* PAI VS Code extension v0.0.1 [#1984](https://github.com/Microsoft/pai/pull/1984)
+* PAI VS Code extension [#1984](https://github.com/Microsoft/pai/pull/1984)
 * Support Azure RDMA [#2091](https://github.com/Microsoft/pai/pull/2091)
 
 ## Improvements ##
