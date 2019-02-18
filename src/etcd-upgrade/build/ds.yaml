@@ -30,7 +30,7 @@ spec:
       name: etcd-upgrade
     spec:
       containers:
-      - image: docker.io/xudifsd/etcd-upgrade # TODO docker.io/openpai/etcd-upgrade:v0.10.0
+      - image: docker.io/openpai/etcd-upgrade:v0.10.0
         name: etcd-upgrade
         imagePullPolicy: Always
         readinessProbe:
