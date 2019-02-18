@@ -5,8 +5,7 @@
 * Support configure vc bonus [#2147](https://github.com/Microsoft/pai/pull/2147)
 * Support Azure RDMA [#2091](https://github.com/Microsoft/pai/pull/2091)
 * PAI VS Code extension [#1984](https://github.com/Microsoft/pai/pull/1984)
-* Diawang/dockercleaner [#2119](https://github.com/Microsoft/pai/pull/2119)
-* Support AKS deployment [#1980](https://github.com/Microsoft/pai/pull/1980)
+* Kill job container that consumes most of the disk in case of disk pressure. [#2119](https://github.com/Microsoft/pai/pull/2119)
 * Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111)
 * "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131)
 
