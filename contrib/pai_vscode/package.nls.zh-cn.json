@@ -10,6 +10,7 @@
     "paiext.hdfs.upload.files": "上传文件",
     "paiext.hdfs.upload.folders": "上传文件夹",
     "paiext.hdfs.download": "下载",
+    "paiext.container.hdfs.back": "后退至集群选择",
     "paiext.container.hdfs.delete": "删除",
     "paiext.container.hdfs.mkdir": "新建文件夹",
     "paiext.cluster.dashboard.open": "打开仪表板",

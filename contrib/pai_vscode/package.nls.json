@@ -10,6 +10,7 @@
     "paiext.hdfs.upload.files": "Upload Files",
     "paiext.hdfs.upload.folders": "Upload Folders",
     "paiext.hdfs.download": "Download",
+    "paiext.container.hdfs.back": "Go back to cluster selection",
     "paiext.container.hdfs.delete": "Delete",
     "paiext.container.hdfs.mkdir": "New Folder",
     "paiext.cluster.dashboard.open": "Open Dashboard",
