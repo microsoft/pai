@@ -81,6 +81,8 @@ spec:
         # Rolling File Appender, by default it keeps at most 256M*20=5G logs.
         - name: YARN_ROOT_LOGGER
           value: INFO,console,RFA
+        - name: YARN_LOG_DIR
+          value: /var/log/hadoop
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
