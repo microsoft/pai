@@ -23,7 +23,7 @@ WebHDFS provides a set of REST APIs and this is our recommended way to access da
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
 In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node.
 So the rest server URI will be http://master-node-address/webhdfs. The *master-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
@@ -62,12 +62,12 @@ tar -zxvf hadoop-package-name
 ```
 
 All commands are located in *bin* directory.
-    
+
 **Method 2 (docker container env):**
 
 We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
     Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
-    
+
 All commands are located in *bin* directory.
 
 - How to use cmd:
@@ -77,17 +77,17 @@ Please refer [HDFS Command Guide](http://hadoop.apache.org/docs/stable/hadoop-pr
 - Where to get the HDFS entrypoint:
 
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
-Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address. 
+Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address.
 
 Note: *hdfs-name-node-address* It is the address of the machine with *pai-master* label *true* in configuration
-file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 If you don't know where this file is, please contact the cluster administrator.
 
 ## Web Portal <a name="Web_Portal"></a>
 
 Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready.
 The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
 
 ## Mountable HDFS <a name="Mountable_HDFS"></a>

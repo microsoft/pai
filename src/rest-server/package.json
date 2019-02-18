@@ -39,6 +39,7 @@
     "express": "~4.16.2",
     "fs-extra": "~4.0.2",
     "http-errors": "~1.6.3",
+    "http-proxy-middleware": "^0.19.1",
     "joi": "~13.0.1",
     "js-base64": "~2.4.8",
     "js-yaml": "~3.12.0",

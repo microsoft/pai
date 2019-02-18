@@ -20,7 +20,6 @@ prerequisite:
 
 template-list:
   - pylon.yaml
-  - pylon-service.yaml
   - start.sh
 
 start-script: start.sh

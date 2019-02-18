@@ -31,6 +31,7 @@ cluster:
       cluster-id: pai
       data-path: "/datastorage"
       qos-switch: "true"
+      az-rdma: "false"
     docker-registry:
       namespace: openpai
       domain: docker.io
@@ -72,6 +73,12 @@ cluster:
     <td>com["cluster"]["common"]["qos-switch"]</td>
     <td>cluster_cfg["cluster"]["common"]["qos-switch"]</td>
     <td>string</td>
+</tr>
+<tr>
+    <td>cluster.common.az-rdma</td>
+    <td>com["cluster"]["common"]["az-rdma"]</td>
+    <td>cluster_cfg["cluster"]["common"]["az-rdma"]</td>
+    <td>string, "true" or "false"</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.namespace</td>

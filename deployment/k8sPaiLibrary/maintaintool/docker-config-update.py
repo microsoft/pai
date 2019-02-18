@@ -19,6 +19,31 @@ import sys
 import json
 import argparse
 
+
+# unable to handle list in list or dict in list.
+# Such as [ a, b, [c, d], e ]
+# Such as [ a, b, {k1:c, k2:d}, e ]
+def dict_overwrite(subset_dict, superset_dict):
+    if subset_dict == None:
+        return False
+    updated = False
+    for key in subset_dict:
+        if key not in superset_dict:
+            superset_dict[key] = subset_dict[key]
+            updated = True
+        elif isinstance(subset_dict[key], dict) and isinstance(superset_dict[key], dict):
+            if dict_overwrite(subset_dict[key], superset_dict[key]) is True:
+                updated = True
+        elif isinstance(subset_dict[key], list) and isinstance(superset_dict[key], list):
+            if set(subset_dict[key]) != set(superset_dict[key]):
+                superset_dict[key] = subset_dict[key]
+                updated = True
+        elif subset_dict[key] != superset_dict[key]:
+            superset_dict[key] = subset_dict[key]
+            updated = True
+    return updated
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -34,9 +59,8 @@ if __name__ == "__main__":
     with open(args.dst_json, "r") as jsonFile:
         dst_data = json.load(jsonFile)
 
-    for conf_key in src_data:
-        dst_data[conf_key] = src_data[conf_key]
-        changed = True
+    if dict_overwrite(src_data, dst_data) is False:
+        sys.exit(1)
 
     with open(args.dst_json, 'w') as jsonFile:
         json.dump(dst_data, jsonFile)

@@ -105,11 +105,15 @@ http {
     location ~ ^/webhdfs/api(.*)$ {
       proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
       proxy_intercept_errors on;
-      error_page 307 = @handle_webhdfs_api_redirect;
+      error_page 307 @handle_webhdfs_api_redirect;
+    }
+    location ~ ^/webhdfs/webhdfs {
+      rewrite ^/webhdfs/webhdfs(.*)$ /webhdfs/api$1 last;
     }
     location @handle_webhdfs_api_redirect {
       if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
-        return 307 $scheme://$http_host/a/$1:$2/$3;
+        add_header Location $scheme://$http_host/a/$1:$2/$3;
+        return 300 "";
       }
     }
 

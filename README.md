@@ -3,9 +3,8 @@
 [logo]: ./pailogo.jpg "OpenPAI"
 
 [![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai)
-[![Issues](https://img.shields.io/github/issues-raw/Microsoft/pai.svg)](https://github.com/Microsoft/pai/issues?q=is%3Aissue+is%3Aopen)
-[![Pull Requests](https://img.shields.io/github/issues-pr-raw/Microsoft/pai.svg)](https://github.com/Microsoft/pai/pulls?q=is%3Apr+is%3Aopen)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master)
+[![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
@@ -80,7 +79,7 @@ If you only have one mahince, and want to deploy pai on it. Please choose ```Sin
 - How to submit OpenPAI jobs
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md)
-    - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
+    - [OpenPAI VS Code Extension](./contrib/pai_vscode)
 - How to run AutoML jobs on OpenPAI
     - [Submit a job in Neural Network Intelligence](https://github.com/Microsoft/nni/blob/master/docs/PAIMode.md)
 - How to request on-demand resource for in place training

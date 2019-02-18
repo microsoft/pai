@@ -6,7 +6,7 @@ release.
 
 To enable Alert Manager, please follow instruction [here](../../src/alert-manager/config/alert-manager.md)
 
-Refer to example [`cluster-configuration`](../../examples/cluster-configuration/cluster-configuration.yaml) and
+Refer to example [`layout`](../../examples/cluster-configuration/layout.yaml) and
 [`service-configuration`](../../examples/cluster-configuration/services-configuration.yaml) for more
 information.
 

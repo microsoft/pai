@@ -57,7 +57,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         no_overwrite_path = "data/configuration-none-overwrite/"
         com_handler = cluster_object_model.cluster_object_model(no_overwrite_path)
-        com_handler.run()
+        com_handler.kubernetes_config()
 
 
 
@@ -65,7 +65,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         overwrite_path = "data/configuration-overwrite/"
         com_handler = cluster_object_model.cluster_object_model(overwrite_path)
-        com_handler.run()
+        com_handler.kubernetes_config()
 
 
 

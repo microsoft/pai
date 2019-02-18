@@ -17,34 +17,29 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Customize Your Cluster-Cofiguration.yaml
+## Customize Your layout.yaml
 
 ### Index
 
 - [Configuration Example](#example)
 - [Field 1. default-machine-properties](#defaultMachineProperties)
 - [Field 2. machine-sku](#machineSku)
-- [Field 3. machine-list](#machineList) 
+- [Field 3. machine-list](#machineList)
 
 
 ### Example <a name="example"></a>
 
-An example cluster-configuration.yaml is available [here](../../../examples/cluster-configuration/cluster-configuration.yaml). In the following we explain the fields in the yaml file one by one.
+An example layout.yaml is available [here](../../../examples/cluster-configuration/layout.yaml). In the following we explain the fields in the yaml file one by one.
 
-### Field 1. default-machine-properties <a name="defaultMachineProperties"></a>
+### Field 1. kubernetes <a name="kubernetes"></a>
 
 ```YAML
-default-machine-properties:
-  # A Linux host account with sudo permission
-  username: username
-  password: password
-  #keyfile-path: /the/path/to/your/ssh/key
-  sshport: port
+kubernetes:
+  api-servers-url: http://ip:port
+  dashboard-url: http://ip:port
 ```
 
-Set the default value of ```username```, ```password```, ```keyfile-path``` and ```sshport``` in ```default-machine-properties.``` OpenPAI will use these default values to access cluster machines. User can override the default access information for each machine in [machine-list](#machineList).
-
-Note: Please only write one of ```keyfile-path``` and ```password```
+Set kubernets api server and dashboard urls. (Recommand to use our config generator, so you don't need to worry about it.)
 
 ### Field 2. machine-sku <a name="machineSku"></a>
 
@@ -78,9 +73,11 @@ machine-list:
       hostip: IP
       machine-type: D8SV3
       etcdid: etcdid1
-      #sshport: PORT (Optional)
-      #username: username (Optional)
+      sshport: PORT
+      username: username
       #password: password (Optional)
+      #keyfile-path: /the/path/to/your/ssh/key (Optional)
+      nodename: nodename # should be the same as hostip
       k8s-role: master
       dashboard: "true"
       zkid: "1"
@@ -91,9 +88,11 @@ machine-list:
       hostip: IP
       machine-type: D8SV3
       etcdid: etcdid2
-      #sshport: PORT (Optional)
-      #username: username (Optional)
+      sshport: PORT
+      username: username
       #password: password (Optional)
+      #keyfile-path: /the/path/to/your/ssh/key (Optional)
+      nodename: nodename # should be the same as hostip
       k8s-role: master
       node-exporter: "true"
       #docker-data: /var/lib/docker
@@ -101,9 +100,11 @@ machine-list:
     - hostname: hostname
       hostip: IP
       machine-type: NC24R
-      #sshport: PORT (Optional)
-      #username: username (Optional)
+      sshport: PORT
+      username: username
       #password: password (Optional)
+      #keyfile-path: /the/path/to/your/ssh/key (Optional)
+      nodename: nodename # should be the same as hostip
       k8s-role: worker
       pai-worker: "true"
       #docker-data: /var/lib/docker
@@ -116,7 +117,8 @@ User could config each service deploy at which node by labeling node with servic
 | ```hostname``` | Required. You could get the hostname by the command ```echo `hostname` ``` on the host.|
 | ```hostip```| Required. The ip address of the corresponding host.
 | ```machine-type``` | Required. The sku name defined in the ```machine-sku```.|
-| ```sshport, username, password, keyfile-path``` | Optional. Used if this machine's account and port is different from the default properties. Or you can remove them.|
+| ```sshport, username, password, keyfile-path``` | ```sshport``` and ```username``` are reuired, ```password``` and ```keyfile-path``` need to fill at least one.|
+| ```nodename``` | The nodename displaying on k8s, should be the same as ```hostip```|
 | ```etcdid``` | K8s-Master Required. The etcd is part of kubernetes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.|
 | ```k8s-role``` | Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](./kubernetes-ha.md).|
 | ```dashboard``` | Select one node to set this field. And set the value as ``` "true" ```.|
@@ -125,5 +127,5 @@ User could config each service deploy at which node by labeling node with servic
 | ```pai-worker``` | Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work|
  ```node-exporter``` | Optional. You can assign this label to nodes to enable hardware and service monitoring.|
  ```docker-data``` | Optional. You configure this path before k8s deployment. When deploying k8s, the docker's data root will be changed to the path configured in this field. The default value is ```/var/lib/docker```. And it's same with the docker's default value. |
- 
+
 Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this section.

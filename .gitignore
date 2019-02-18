@@ -23,3 +23,7 @@ __pycache__
 *.swp
 *.swo
 .DS_Store
+*.sln
+*.pyproj.user
+*.pyproj
+*.vs

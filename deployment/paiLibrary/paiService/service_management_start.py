@@ -21,7 +21,6 @@ import logging
 import time
 import logging.config
 #
-from . import service_start
 from . import service_template_generate
 from . import service_template_clean
 from . import service_management_configuration
@@ -32,45 +31,31 @@ from ..common import file_handler
 
 class serivce_management_start:
 
-
-
-    def __init__(self, kube_config_path = None, service_list = None, **kwargs):
+    def __init__(self, kube_config_path=None, service_list=None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = None
 
-        self.kube_config_path = None
-        if kube_config_path != None:
-            self.kube_config_path = kube_config_path
+        self.kube_config_path = kube_config_path
 
         if service_list is None:
-            self.service_list = self.get_service_list()
+            self.service_list = service_management_configuration.get_service_list()
         else:
             self.service_list = service_list
+        self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))
 
         self.retry_times = 5
         if "retry_times" in kwargs:
             self.retry_times = kwargs["retry_times"]
 
+    def start_service(self, service_conf, service_name):
+        from ..common import linux_shell
+        start_script = "src/{0}/deploy/{1}".format(service_name, service_conf["start-script"])
 
-
-    def get_service_list(self):
-
-        service_list = list()
-
-        subdir_list = directory_handler.get_subdirectory_list("src/")
-        for subdir in subdir_list:
-
-            service_deploy_dir = "src/{0}/deploy".format(subdir)
-            service_deploy_conf_path =  "src/{0}/deploy/service.yaml".format(subdir)
-            if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
-                service_list.append(subdir)
-
-        self.logger.info("Get the service-list to manage : {0}".format(str(service_list)))
-
-        return service_list
-
-
+        cmd = "/bin/bash {0}".format(start_script)
+        err_msg = "Failed to execute the start script of service {0}".format(service_name)
+        self.logger.info("Begin to execute service {0}'s start script.".format(service_name))
+        linux_shell.execute_shell_raise(cmd, err_msg)
 
     def start(self, serv):
 
@@ -78,12 +63,11 @@ class serivce_management_start:
             return
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        service_starter = service_start.service_start(service_conf, serv)
 
-        dependency_list = service_starter.get_dependency()
+        dependency_list = service_conf.get("prerequisite")
         if dependency_list != None:
             for fat_serv in dependency_list:
-                if fat_serv not in self.service_list:	
+                if fat_serv not in self.service_list:
                     continue
                 if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
                     continue
@@ -99,7 +83,7 @@ class serivce_management_start:
                 service_template_generater.run()
 
                 self.logger.info("Begin to start service: [ {0} ]".format(serv))
-                service_starter.run()
+                self.start_service(service_conf, serv)
 
                 self.logger.info("Begin to clean all service's generated template file".format(serv))
                 service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
@@ -115,7 +99,7 @@ class serivce_management_start:
 
                 try_counts = try_counts + 1
                 if try_counts >= self.retry_times:
-                    self.logger.error("Have retried {0} times, but service {1} doesn't start. Please check it.".format(self.retry_times, serv ))
+                    self.logger.error("Have retried {0} times, but service {1} doesn't start. Please check it.".format(self.retry_times, serv))
                     sys.exit(1)
 
                 time.sleep(10)
@@ -126,12 +110,9 @@ class serivce_management_start:
 
         self.done_dict[serv] = True
 
-
-
     def run(self):
 
-        config_handler = service_management_configuration.service_management_configuration(kube_config_path = self.kube_config_path)
-        self.cluster_object_model = config_handler.run()
+        self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path=self.kube_config_path)
 
         self.done_dict = dict()
 
@@ -143,18 +124,3 @@ class serivce_management_start:
             if serv in self.done_dict and self.done_dict[serv] == True:
                 continue
             self.start(serv)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

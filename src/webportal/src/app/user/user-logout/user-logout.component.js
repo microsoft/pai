@@ -21,6 +21,7 @@ const userLogout = () => {
   cookies.remove('token');
   cookies.remove('admin');
   cookies.remove('hasGitHubPAT');
+  cookies.remove('my-jobs');
   window.location.replace('/login.html');
 };
 

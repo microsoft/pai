@@ -27,6 +27,7 @@ process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
 process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
 process.env.YARN_URI = 'http://yarn.test.pai:8088';
 process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
+process.env.AZ_RDMA = 'false';
 
 
 // module dependencies
@@ -73,7 +74,7 @@ global.jobConfigTemplate = JSON.stringify({
   'jobEnvs': {
     'job_parameter1': 'value1',
     'job_parameter2': 'value2',
-  }
+  },
 });
 
 global.frameworkDetailTemplate = JSON.stringify({

@@ -29,10 +29,18 @@ function exit_handler()
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
 }
 
+# The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
+function kill_handler()
+{
+  printf "%s %s\n" \
+    "[INFO]" "Docker container killed by cleaner due to disk pressure."
+  exit 1
+}
+
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
-
+trap kill_handler 10
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
@@ -44,7 +52,6 @@ HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 task_role_no={{ idx }}
-
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
 cp -r /pai/code/* ./
@@ -101,7 +108,6 @@ function get_ssh_key_files()
   info_source="webhdfs"
   localKeyPath=/root/.ssh/{{ jobData.jobName }}.pub
   localPrivateKeyPath=/root/.ssh/{{ jobData.jobName }}
-
   if [[ -f $localKeyPath ]]; then
     rm -f $localKeyPath
   fi
@@ -153,6 +159,23 @@ else
     "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
 
+{{# reqAzRDMA }}
+{{# azRDMA }}
+function  azure_rdma_preparation()
+{
+    # https://unix.stackexchange.com/questions/404189/find-and-sed-string-in-docker-got-error-device-or-resource-busy
+    cp /etc/hosts /hosts.tmp
+
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost" /hosts.tmp
+{{# paiMachineList }}
+    echo {{hostip}} {{hostname}} >> /hosts.tmp
+{{/ paiMachineList }}
+    cat /hosts.tmp > /etc/hosts
+}
+
+azure_rdma_preparation
+{{/ azRDMA }}
+{{/ reqAzRDMA }}
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 

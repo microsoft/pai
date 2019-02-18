@@ -116,7 +116,7 @@ machine-list:
     machine-type: p100-node
 ```
 
-##### (4) The default value in the generated configuration 
+##### (4) The default value in the generated configuration
 The `paictl` tool sets the following default values in the 4 configuration files:
 
 | Configuration Property | Default value |
@@ -128,7 +128,7 @@ The `paictl` tool sets the following default values in the 4 configuration files
 | ```docker registry``` | The docker registry is set to `docker.io`, and the docker namespace is set to `openpai`. In another word, all PAI service images will be pulled from `docker.io/openpai` (see [this link](https://hub.docker.com/r/openpai/) on DockerHub for the details of all images). |
 | ```Cluster id``` | Cluster id is set to `pai-example` |
 | ```REST server's admin user``` | REST server's admin user is set to `admin`, and its password is set to `admin-password` |
-| ```VC``` | There is only one VC in the system, `default`, which has 100% of the resource capacity. |  
+| ```VC``` | There is only one VC in the system, `default`, which has 100% of the resource capacity. |
 
 ### Optional Step 3. Customize configure OpenPAI <a name="Customize"></a>
 This method is for advanced users.
@@ -138,8 +138,8 @@ The description of each field in these configuration files can be found in [A Gu
 If user want to customize configuration, please see the table below
 - Configure OpenPAI from scenarios
     - placement
-      - [configure node placement of service](./how-to-configure-cluster-configuraiton.md#machineList)
-      - [configure install gpu driver on which server](./how-to-configure-cluster-configuraiton.md#gpu_driver)
+      - [configure node placement of service](./how-to-configure-layout.md#machineList)
+      - [configure install gpu driver on which server](./how-to-configure-layout.md#gpu_driver)
     - scheduling
       - [configure virtual cluster capacity](./how-to-congiure-service-config.md#configure_vc_capacity)
     - account
@@ -155,7 +155,7 @@ If user want to customize configuration, please see the table below
       - [Kubernetes High Availability Configuration](./kubernetes-ha.md)
 
 - [Configure OpenPAI from files](./customized-configuration.md)
-  - Cluster related configuration: [configuration of cluster-configuration.yaml](./how-to-configure-cluster-configuraiton.md)
+  - Cluster related configuration: [configuration of layout.yaml](./how-to-configure-layout.md)
   - Kubernetes role related configuration: It will be deprecated
   - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-configure-k8s-config.md)
   - Service related configuration: [configuration of services-configuration.yaml](./how-to-congiure-service-config.md)

@@ -266,6 +266,15 @@ docker run --name $docker_name \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
+{{# reqAzRDMA }}
+{{# azRDMA }}
+  --volume /var/lib/hyperv:/var/lib/hyperv \
+  --volume /etc/dat.conf:/etc/dat.conf \
+  --device=/dev/infiniband/rdma_cm \
+  --device=/dev/infiniband/uverbs0 \
+  --ulimit memlock=-1  \
+{{/ azRDMA }}
+{{/ reqAzRDMA }}
   --volume $container_local_dir/$alive_dir:/alive \
   --volume $container_local_dir/$alive_dir/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
   --volume $container_local_dir/$log_dir:/pai/log \

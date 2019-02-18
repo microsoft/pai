@@ -24,7 +24,7 @@
 ### Index
 
 - [Overview](#overview)
-- [Step a. How to write cluster-configuraiton.yaml](#step_a)
+- [Step a. How to write layout.yaml](#step_a)
 - [Step b. How to write kubernetes-configuration.yaml](#step_b)
 - [Step c. How to write service-configuraiton.yaml](#step_c)
 - [Step d. How to write k8s-role-definition.yaml](#step_d)
@@ -33,14 +33,14 @@
 
 PAI configuration consists of 4 YAML files:
 
-- [`cluster-configuration.yaml`](../../../examples/cluster-configuration/cluster-configuration.yaml) - Machine-level configurations. This file contains basic configurations of cluster, such as the login info, machine SKUs, labels of each machine, etc.
+- [`layout.yaml`](../../../examples/cluster-configuration/layout.yaml) - Machine-level configurations. This file contains basic configurations of cluster, such as the login info, machine SKUs, labels of each machine, etc.
 - [`kubernetes-configuration.yaml`](../../../examples/cluster-configuration/kubernetes-configuration.yaml) - Kubernetes-level configurations. This file contains basic configurations of Kubernetes, such as the version info, network configurations, etc.
 - [`k8s-role-definition.yaml`](../../../examples/cluster-configuration/k8s-role-definition.yaml) - Kubernetes-level configurations. This file contains the mappings of Kubernetes roles and machine labels. It will be deprecated in the future.
 - [`serivices-configuration.yaml`](../../../examples/cluster-configuration/services-configuration.yaml) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
 ### Step a. How to write cluster-configuration.yaml  <a name="step_a"></a>
 
-[A Guide of customize cluster-configuration.yaml](./how-to-configure-cluster-configuraiton.md)
+[A Guide of customize layout.yaml](./how-to-configure-layout.md)
 
 ### Step b. How to write kubernetes-configuration.yaml <a name="step_b"></a>
 

@@ -39,10 +39,13 @@ Dev-Box is a docker container which contains necessary dependent software for pa
 
 ### Use prebuild dev-box image <a name="c-step-1.1"></a>
 
+Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn't run on any PAI cluster node.
+***Choose a release branch. For example: v0.x.y***
+
 ```bash
 
 # Pull the dev-box image from Docker Hub
-sudo docker pull docker.io/openpai/dev-box
+sudo docker pull docker.io/openpai/dev-box:v0.x.y
 
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
@@ -56,7 +59,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box
+        docker.io/openpai/dev-box:v0.x.y
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
