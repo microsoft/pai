@@ -32,8 +32,8 @@ Consistent of bunch of extrame jobs which would push PAI into crash, try to figu
 
 ### Azure RDMA
 
-- [ ] Based on this knowledge(https://github.com/Microsoft/pai/blob/master/docs/pai-management/doc/azure/enable-az-rdma.md#knowledge-)， please ensure all worker machines in your cluster is rdma-capable and they are all in the same available set.
-- [ ] Build the intel-mpi bench marking image. https://github.com/Microsoft/pai/tree/master/examples/azure-rdma-inte-mpi-benchmark-with-horovod-image
+- [ ] Based on this [knowledge](https://github.com/Microsoft/pai/blob/master/docs/pai-management/doc/azure/enable-az-rdma.md#knowledge-)， please ensure all worker machines in your cluster is rdma-capable and they are all in the same available set.
+- [ ] Build the [intel-mpi bench marking image](https://github.com/Microsoft/pai/tree/master/examples/azure-rdma-inte-mpi-benchmark-with-horovod-image).
 - [ ] Submit the job through the webportal with the json in this link. Note: Please change the "image" field with yours image url.
 
 ### Cleaner
