@@ -30,3 +30,7 @@ List all the metrics PAI concerns, and validate PAI could collect each one.
 ## Alerting
 
 List all the altering rules, and validate whether PAI could monitor and alter.
+
+## Features
+
+- [ ] Does it support RDMA?
