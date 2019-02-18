@@ -21,6 +21,7 @@ metadata:
   name: etcd-server
   labels:
     app: etcd-server
+    monitored: pai
 spec:
   hostNetwork: true
   containers:

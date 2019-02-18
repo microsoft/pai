@@ -27,6 +27,7 @@ spec:
     metadata:
       labels:
         app: cleaner
+        monitored: pai
     spec:
       hostPID: true
       hostNetwork: true

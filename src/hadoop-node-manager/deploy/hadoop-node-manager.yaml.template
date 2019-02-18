@@ -27,6 +27,7 @@ spec:
     metadata:
       labels:
         app: hadoop-node-manager
+        monitored: pai
     spec:
       hostAliases:
       - ip: "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"

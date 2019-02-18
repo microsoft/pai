@@ -28,6 +28,7 @@ spec:
       name: rest-server
       labels:
         app: rest-server
+        monitored: pai
     spec:
       hostNetwork: false
       hostPID: false

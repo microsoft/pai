@@ -129,7 +129,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
 
     pod_name = pod["metadata"]["name"]
     labels = pod["metadata"].get("labels")
-    if labels is None or "app" not in list(labels.keys()):
+    if labels is None or "app" not in labels or labels.get("monitored") != "pai":
         logger.warning("unkown pod %s", pod["metadata"]["name"])
         return None
 

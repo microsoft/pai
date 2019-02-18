@@ -27,6 +27,7 @@ spec:
     metadata:
       labels:
         app: hadoop-resource-manager
+        monitored: pai
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/metrics'

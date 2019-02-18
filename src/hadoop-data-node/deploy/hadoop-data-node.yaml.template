@@ -28,6 +28,7 @@ spec:
     metadata:
       labels:
         app: hadoop-data-node
+        monitored: pai
     spec:
       hostNetwork: true
       hostPID: false
