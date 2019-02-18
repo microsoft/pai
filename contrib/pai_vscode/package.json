@@ -95,6 +95,11 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.container.joblist.more",
+                "title": "%paiext.cluster.job.more%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.cluster.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -172,6 +177,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "paiext.cluster.refresh",
+                    "when": "false"
+                },
+                {
                     "command": "paiext.cluster.edit",
                     "when": "false"
                 },
@@ -181,6 +190,10 @@
                 },
                 {
                     "command": "paiext.container.joblist.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.joblist.more",
                     "when": "false"
                 },
                 {
@@ -355,9 +368,9 @@
                     "description": "%config.job.jobList.recentJobsLength%",
                     "default": 5
                 },
-                "pai.job.jobList.allJobsength": {
+                "pai.job.jobList.allJobsPageSize": {
                     "type": "number",
-                    "description": "%config.job.jobList.allJobsength%",
+                    "description": "%config.job.jobList.allJobsPageSize%",
                     "default": 20
                 },
                 "pai.job.jobList.refreshInterval": {

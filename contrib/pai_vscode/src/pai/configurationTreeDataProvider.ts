@@ -149,7 +149,7 @@ export class ConfigurationTreeDataProvider extends Singleton implements TreeData
     constructor() {
         super();
         this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_REFRESH_CLUSTER, index => this.refresh(index)),
+            commands.registerCommand(COMMAND_REFRESH_CLUSTER, () => this.refresh()),
             window.registerTreeDataProvider(VIEW_CONFIGURATION_TREE, this)
         );
     }

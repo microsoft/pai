@@ -26,6 +26,7 @@ export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
 export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';
 export const COMMAND_CONTAINER_HDFS_MKDIR = 'paiext.container.hdfs.mkdir';
 export const COMMAND_CONTAINER_JOBLIST_REFRESH = 'paiext.container.joblist.refresh';
+export const COMMAND_CONTAINER_JOBLIST_MORE = 'paiext.container.joblist.more';
 
 export const VIEW_CONFIGURATION_TREE = 'PAIExplorer';
 export const CONTEXT_CONFIGURATION_ITEM = 'PAIConfiguration';
@@ -52,7 +53,7 @@ export const SETTING_JOB_UPLOAD_EXCLUDE = 'upload.exclude';
 export const SETTING_JOB_UPLOAD_INCLUDE = 'upload.include';
 export const SETTING_JOB_GENERATEJOBNAME_ENABLED = 'generateJobName.enabled';
 export const SETTING_JOB_JOBLIST_RECENTJOBSLENGTH = 'jobList.recentJobsLength';
-export const SETTING_JOB_JOBLIST_ALLJOBSLENGTH = 'jobList.allJobsength';
+export const SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE = 'jobList.allJobsPageSize';
 export const SETTING_JOB_JOBLIST_REFERSHINTERVAL = 'jobList.refreshInterval';
 
 export const ICON_PAI = {
@@ -88,6 +89,7 @@ export const ICON_RUN = 'icons/run.svg';
 export const ICON_OK = 'icons/ok.svg';
 export const ICON_HISTORY = 'icons/history.svg';
 export const ICON_LATEST = 'icons/latest.svg';
+export const ICON_ELLIPSIS = 'icons/ellipsis.svg';
 export const ICON_LOADING = {
     light: 'icons/loading.svg',
     dark: 'icons/loading_dark.svg'

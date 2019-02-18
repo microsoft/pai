@@ -102,7 +102,7 @@ export class PAIWebpages extends Singleton {
 
     public async viewJob(node: JobNode): Promise<void> {
         const config: IPAICluster = node.parent.parent.configuration;
-        const url: string = PAIWebPortalUri.jobDetail(config, config.username, node.jobInfo.name);
+        const url: string = PAIWebPortalUri.jobDetail(config, node.jobInfo.username, node.jobInfo.name);
         await Util.openExternally(url);
     }
 }

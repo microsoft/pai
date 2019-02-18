@@ -5,6 +5,7 @@
  */
 /* tslint:disable:max-classes-per-file */
 
+import { deepEqual } from 'assert';
 import { injectable } from 'inversify';
 import { flatMap, isEqual } from 'lodash';
 import * as LRU from 'lru-cache';
@@ -15,8 +16,10 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_CONTAINER_JOBLIST_REFRESH, COMMAND_TREEVIEW_DOUBLECLICK,
-    COMMAND_VIEW_JOB, ICON_ERROR,
+    COMMAND_CONTAINER_JOBLIST_MORE, COMMAND_CONTAINER_JOBLIST_REFRESH,
+    COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_VIEW_JOB,
+    ICON_ELLIPSIS,
+    ICON_ERROR,
     ICON_HISTORY,
     ICON_LATEST,
     ICON_OK,
@@ -24,7 +27,7 @@ import {
     ICON_QUEUE,
     ICON_RUN,
     ICON_STOP,
-    SETTING_JOB_JOBLIST_ALLJOBSLENGTH,
+    SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE,
     SETTING_JOB_JOBLIST_RECENTJOBSLENGTH,
     SETTING_JOB_JOBLIST_REFERSHINTERVAL,
     SETTING_SECTION_JOB,
@@ -62,10 +65,7 @@ export class JobNode extends TreeNode<FilterNode, undefined> {
     };
     private static cache: LRU.Cache<string, JobNode> = new LRU(100);
 
-    private constructor(
-        private _jobInfo: IPAIJobInfo,
-        parent: FilterNode
-    ) {
+    private constructor(private _jobInfo: IPAIJobInfo, parent: FilterNode) {
         super(_jobInfo.name, parent);
         this.command = {
             title: __('treeview.joblist.view'),
@@ -94,13 +94,25 @@ export class JobNode extends TreeNode<FilterNode, undefined> {
     }
 }
 
+class ShowMoreNode extends TreeNode<FilterNode, undefined> {
+    public constructor(parent: FilterNode) {
+        super(__('treeview.joblist.more'), parent);
+        this.command = {
+            title: __('treeview.joblist.more'),
+            command: COMMAND_TREEVIEW_DOUBLECLICK,
+            arguments: [COMMAND_CONTAINER_JOBLIST_MORE, this]
+        };
+        this.iconPath = Util.resolvePath(ICON_ELLIPSIS);
+    }
+}
+
 enum FilterType {
     Latest = 0,
     All = 1
 }
 
-class FilterNode extends TreeNode<ConfigurationNode, JobNode> {
-    constructor(parent: ConfigurationNode, type: FilterType) {
+class FilterNode extends TreeNode<ConfigurationNode, JobNode | ShowMoreNode> {
+    public constructor(parent: ConfigurationNode, type: FilterType) {
         if (type === FilterType.Latest) {
             super(__('treeview.joblist.recent'), parent);
             this.collapsibleState = TreeItemCollapsibleState.Expanded;
@@ -117,11 +129,13 @@ class FilterNode extends TreeNode<ConfigurationNode, JobNode> {
  * Root nodes representing cluster configuration
  */
 export class ConfigurationNode extends TreeNode<undefined, FilterNode> {
+    public shownAmount: number;
+
     private onDidChangeEmitter: EventEmitter<JobNode> = new EventEmitter<JobNode>();
     public onDidChange: Event<JobNode> = this.onDidChangeEmitter.event; // tslint:disable-line
 
     private jobs: IPAIJobInfo[] = [];
-    private lastRecentJobName: string | undefined;
+    private lastLatestJobName: string | undefined;
 
     public constructor(private _configuration: IPAICluster, public readonly index: number) {
         super('...', undefined);
@@ -132,6 +146,8 @@ export class ConfigurationNode extends TreeNode<undefined, FilterNode> {
             new FilterNode(this, FilterType.All)
         ];
         this.collapsibleState = TreeItemCollapsibleState.Collapsed;
+        const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
+        this.shownAmount = settings.get(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
     }
 
     public get configuration(): IPAICluster {
@@ -150,25 +166,56 @@ export class ConfigurationNode extends TreeNode<undefined, FilterNode> {
         this.jobs = newJobs;
         const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
         const recentMaxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
-        const allMaxLen: number = settings.get(SETTING_JOB_JOBLIST_ALLJOBSLENGTH) || 20;
         const recentJobs: string[] = (await getSingleton(ClusterManager)).allRecentJobs[this.index];
-        this.children[0].children = flatMap(
+        this.recentJobs.children = flatMap(
             recentJobs.slice(0, recentMaxLen),
             name => {
                 const foundJob: IPAIJobInfo | undefined = this.jobs.find(job => job.name === name);
-                return foundJob ? [JobNode.get(foundJob, this.children[0])] : [];
+                return foundJob ? [JobNode.get(foundJob, this.recentJobs)] : [];
             }
         );
-        this.children[1].children = this.jobs.slice(0, allMaxLen).map(
-            job => JobNode.get(job, this.children[1])
-        );
-        this.onDidChangeEmitter.fire();
+        this.updateAllJobs();
 
         // If latest submitted job changed, reveal it
-        if (this.lastRecentJobName !== recentJobs[0]) {
-            this.onDidChangeEmitter.fire(this.children[0].children[0]);
-            this.lastRecentJobName = recentJobs[0];
+        if (this.lastLatestJobName !== recentJobs[0]) {
+            const latestJobNode: JobNode | ShowMoreNode = this.recentJobs.children[0];
+            if (latestJobNode instanceof JobNode) {
+                this.onDidChangeEmitter.fire(latestJobNode);
+                this.lastLatestJobName = recentJobs[0];
+            }
         }
+    }
+
+    public showMore(): void {
+        if (this.jobs.length <= this.shownAmount) {
+            return;
+        }
+        const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
+        const oldAmount: number = this.shownAmount;
+        this.shownAmount += settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
+        this.updateAllJobs();
+        const extendedFirstNode: JobNode | ShowMoreNode = this.allJobs.children[oldAmount - 1];
+        if (extendedFirstNode instanceof JobNode) {
+            this.onDidChangeEmitter.fire(extendedFirstNode);
+        }
+    }
+
+    private updateAllJobs(): void {
+        this.allJobs.children = this.jobs.slice(0, this.shownAmount).map(
+            job => JobNode.get(job, this.allJobs)
+        );
+        if (this.jobs.length > this.shownAmount) {
+            this.allJobs.children.push(new ShowMoreNode(this.allJobs));
+        }
+        this.onDidChangeEmitter.fire();
+    }
+
+    private get recentJobs(): FilterNode {
+        return this.children[0];
+    }
+
+    private get allJobs(): FilterNode {
+        return this.children[1];
     }
 }
 
@@ -189,7 +236,11 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         super();
         this.treeView = window.createTreeView(VIEW_CONTAINER_JOBLIST, { treeDataProvider: this });
         this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_CONTAINER_JOBLIST_REFRESH, index => this.refresh(index)),
+            commands.registerCommand(COMMAND_CONTAINER_JOBLIST_REFRESH, () => this.refresh()),
+            commands.registerCommand(
+                COMMAND_CONTAINER_JOBLIST_MORE,
+                (node: ShowMoreNode) => node.parent.parent.showMore()
+            ),
             this.treeView
         );
     }
