@@ -2,7 +2,7 @@
 
 ## Overview
 
-Graceful decommissioning could minimize the impact on existing job when remove unhealthy nodes. 
+Graceful decommissioning could minimize the impact on existing job when removing unhealthy nodes. 
 This is a tool to help you achieve it in OpenPAI. 
 
 In OpenPAI, an unhealthy node-list records the nodes to be decommissioned. 
@@ -22,6 +22,7 @@ So, a common invoking looks like:
 python node_maintain.py {master_ip} sub-command sub-command-arguments
 ```
 
+Noticed that execution path should be `{PAI_ROOT_DIR}/src/tools`.
 
 ### node-list sub-command
 
