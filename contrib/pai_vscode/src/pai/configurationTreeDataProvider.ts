@@ -37,8 +37,11 @@ interface IChildNodeDefinition {
  * General tree node recording its parent
  */
 class TreeNode extends TreeItem {
-    constructor(title: string, public readonly parent?: TreeNode) {
+    public readonly parent: TreeNode | undefined;
+
+    constructor(title: string, parent?: TreeNode) {
         super(title, parent ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Expanded);
+        this.parent = parent;
     }
 }
 
@@ -102,16 +105,19 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
  */
 export class ConfigurationNode extends TreeNode {
     public children: TreeNode[] = [];
+    public readonly index: number;
+    private _configuration: IPAICluster | undefined;
 
-    public constructor(private _configuration: IPAICluster, public readonly index: number) {
+    public constructor(configuration: IPAICluster, index: number) {
         super('...');
         this.iconPath = Util.resolvePath(ICON_PAI);
-        this.configuration = this._configuration;
+        this.index = index;
+        this.configuration = configuration;
         this.contextValue = CONTEXT_CONFIGURATION_ITEM;
     }
 
     public get configuration(): IPAICluster {
-        return this._configuration;
+        return this._configuration!;
     }
     public set configuration(to: IPAICluster) {
         this.label = getClusterName(to);

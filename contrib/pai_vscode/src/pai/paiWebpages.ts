@@ -17,7 +17,7 @@ import { Util } from '../common/util';
 import { getClusterName, ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
 import { JobNode } from './container/jobListTreeView';
-import { IPAICluster } from './paiInterface';
+import { IPAICluster, IPAIJobInfo } from './paiInterface';
 import { PAIWebPortalUri } from './paiUri';
 
 const paiDashboardPropertyLabelMapping: { [propertyName: string]: string } = {
@@ -100,9 +100,8 @@ export class PAIWebpages extends Singleton {
         await Util.openExternally(url);
     }
 
-    public async viewJob(node: JobNode): Promise<void> {
-        const config: IPAICluster = node.parent.parent.configuration;
-        const url: string = PAIWebPortalUri.jobDetail(config, node.jobInfo.username, node.jobInfo.name);
+    public async viewJob(jobInfo: IPAIJobInfo, config: IPAICluster): Promise<void> {
+        const url: string = PAIWebPortalUri.jobDetail(config, jobInfo.username, jobInfo.name);
         await Util.openExternally(url);
     }
 }

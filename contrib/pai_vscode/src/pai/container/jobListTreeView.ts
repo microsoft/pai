@@ -5,13 +5,10 @@
  */
 /* tslint:disable:max-classes-per-file */
 
-import { deepEqual } from 'assert';
 import { injectable } from 'inversify';
-import { flatMap, isEqual } from 'lodash';
-import * as LRU from 'lru-cache';
 import * as request from 'request-promise-native';
 import {
-    commands, window, workspace, Disposable, Event, EventEmitter, TreeDataProvider,
+    commands, window, workspace, Event, EventEmitter, TreeDataProvider,
     TreeItem, TreeItemCollapsibleState, TreeView, WorkspaceConfiguration
 } from 'vscode';
 
@@ -22,6 +19,7 @@ import {
     ICON_ERROR,
     ICON_HISTORY,
     ICON_LATEST,
+    ICON_LOADING,
     ICON_OK,
     ICON_PAI,
     ICON_QUEUE,
@@ -39,23 +37,30 @@ import { Util } from '../../common/util';
 import { getClusterName, ClusterManager } from '../clusterManager';
 import { IPAICluster, IPAIJobInfo } from '../paiInterface';
 import { PAIRestUri } from '../paiUri';
+import { RecentJobManager } from '../recentJobManager';
 
-/**
- * Base tree node
- */
-class TreeNode<TP, TC> extends TreeItem {
-    public children: TC[] = [];
-    public constructor(label: string, public readonly parent: TP) {
-        super(label);
-    }
+enum FilterType {
+    Recent = 0,
+    All = 1
 }
 
-type AnyTreeNode = TreeNode<any, any>;
+enum LoadingState {
+    Finished = 0,
+    Loading = 1,
+    Error = 2
+}
+
+enum TreeDataType {
+    Cluster = 0,
+    Filter = 1,
+    Job = 2,
+    More = 3
+}
 
 /**
- * Node representing job on PAI
+ * Leaf node representing job on PAI
  */
-export class JobNode extends TreeNode<FilterNode, undefined> {
+export class JobNode extends TreeItem {
     private static statusIcons: { [status in IPAIJobInfo['state']]: string } = {
         SUCCEEDED: ICON_OK,
         FAILED: ICON_ERROR,
@@ -63,173 +68,100 @@ export class JobNode extends TreeNode<FilterNode, undefined> {
         STOPPED: ICON_STOP,
         RUNNING: ICON_RUN
     };
-    private static cache: LRU.Cache<string, JobNode> = new LRU(100);
 
-    private constructor(private _jobInfo: IPAIJobInfo, parent: FilterNode) {
-        super(_jobInfo.name, parent);
+    public constructor(jobInfo: IPAIJobInfo, config: IPAICluster) {
+        super(jobInfo.name);
         this.command = {
             title: __('treeview.joblist.view'),
             command: COMMAND_TREEVIEW_DOUBLECLICK,
-            arguments: [COMMAND_VIEW_JOB, this]
+            arguments: [COMMAND_VIEW_JOB, jobInfo, config]
         };
-        this.jobInfo = _jobInfo;
-        JobNode.cache.set(parent.id + _jobInfo.name, this);
-    }
-
-    public get jobInfo(): IPAIJobInfo {
-        return this._jobInfo;
-    }
-    public set jobInfo(to: IPAIJobInfo) {
-        this._jobInfo = to;
-        this.iconPath = Util.resolvePath(JobNode.statusIcons[this.jobInfo.state]);
-    }
-
-    public static get(jobInfo: IPAIJobInfo, parent: FilterNode): JobNode {
-        const foundNode: JobNode | undefined = JobNode.cache.get(parent.id + jobInfo.name);
-        if (!foundNode) {
-            return new JobNode(jobInfo, parent);
-        }
-        foundNode.jobInfo = jobInfo;
-        return foundNode;
+        this.iconPath = Util.resolvePath(JobNode.statusIcons[jobInfo.state]);
     }
 }
 
-class ShowMoreNode extends TreeNode<FilterNode, undefined> {
-    public constructor(parent: FilterNode) {
-        super(__('treeview.joblist.more'), parent);
+/**
+ * Expand job list when chosen
+ */
+class ShowMoreNode extends TreeItem {
+    public constructor(cluster: IClusterData) {
+        super(__('treeview.joblist.more'));
         this.command = {
             title: __('treeview.joblist.more'),
             command: COMMAND_TREEVIEW_DOUBLECLICK,
-            arguments: [COMMAND_CONTAINER_JOBLIST_MORE, this]
+            arguments: [COMMAND_CONTAINER_JOBLIST_MORE, cluster]
         };
         this.iconPath = Util.resolvePath(ICON_ELLIPSIS);
     }
 }
 
-enum FilterType {
-    Latest = 0,
-    All = 1
-}
-
-class FilterNode extends TreeNode<ConfigurationNode, JobNode | ShowMoreNode> {
-    public constructor(parent: ConfigurationNode, type: FilterType) {
-        if (type === FilterType.Latest) {
-            super(__('treeview.joblist.recent'), parent);
-            this.collapsibleState = TreeItemCollapsibleState.Expanded;
-            this.iconPath = Util.resolvePath(ICON_LATEST);
+/**
+ * Secondary node containing filtered job list
+ */
+class FilterNode extends TreeItem {
+    public constructor(type: FilterType, loadingState: LoadingState) {
+        if (type === FilterType.Recent) {
+            super(__('treeview.joblist.recent'), TreeItemCollapsibleState.Expanded);
         } else {
-            super(__('treeview.joblist.all'), parent);
-            this.collapsibleState = TreeItemCollapsibleState.Collapsed;
-            this.iconPath = Util.resolvePath(ICON_HISTORY);
+            super(__('treeview.joblist.all'), TreeItemCollapsibleState.Collapsed);
         }
+        this.iconPath = Util.resolvePath(
+            loadingState === LoadingState.Loading ? ICON_LOADING :
+                loadingState === LoadingState.Error ? ICON_ERROR :
+                    type === FilterType.Recent ? ICON_LATEST : ICON_HISTORY);
     }
 }
 
 /**
- * Root nodes representing cluster configuration
+ * Root node representing PAI cluster
  */
-export class ConfigurationNode extends TreeNode<undefined, FilterNode> {
-    public shownAmount: number;
-
-    private onDidChangeEmitter: EventEmitter<JobNode> = new EventEmitter<JobNode>();
-    public onDidChange: Event<JobNode> = this.onDidChangeEmitter.event; // tslint:disable-line
-
-    private jobs: IPAIJobInfo[] = [];
-    private lastLatestJobName: string | undefined;
-
-    public constructor(private _configuration: IPAICluster, public readonly index: number) {
-        super('...', undefined);
+class ClusterNode extends TreeItem {
+    public constructor(configuration: IPAICluster) {
+        super(getClusterName(configuration), TreeItemCollapsibleState.Collapsed);
         this.iconPath = Util.resolvePath(ICON_PAI);
-        this.configuration = this._configuration;
-        this.children = [
-            new FilterNode(this, FilterType.Latest),
-            new FilterNode(this, FilterType.All)
-        ];
-        this.collapsibleState = TreeItemCollapsibleState.Collapsed;
-        const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
-        this.shownAmount = settings.get(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
-    }
-
-    public get configuration(): IPAICluster {
-        return this._configuration;
-    }
-    public set configuration(to: IPAICluster) {
-        this.label = getClusterName(to);
-        this._configuration = to;
-    }
-
-    public async loadJobs(): Promise<void> {
-        const newJobs: IPAIJobInfo[] = await request.get(PAIRestUri.jobs(this.configuration), { json: true });
-        if (isEqual(this.jobs, newJobs)) {
-            return;
-        }
-        this.jobs = newJobs;
-        const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
-        const recentMaxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
-        const recentJobs: string[] = (await getSingleton(ClusterManager)).allRecentJobs[this.index];
-        this.recentJobs.children = flatMap(
-            recentJobs.slice(0, recentMaxLen),
-            name => {
-                const foundJob: IPAIJobInfo | undefined = this.jobs.find(job => job.name === name);
-                return foundJob ? [JobNode.get(foundJob, this.recentJobs)] : [];
-            }
-        );
-        this.updateAllJobs();
-
-        // If latest submitted job changed, reveal it
-        if (this.lastLatestJobName !== recentJobs[0]) {
-            const latestJobNode: JobNode | ShowMoreNode = this.recentJobs.children[0];
-            if (latestJobNode instanceof JobNode) {
-                this.onDidChangeEmitter.fire(latestJobNode);
-                this.lastLatestJobName = recentJobs[0];
-            }
-        }
-    }
-
-    public showMore(): void {
-        if (this.jobs.length <= this.shownAmount) {
-            return;
-        }
-        const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
-        const oldAmount: number = this.shownAmount;
-        this.shownAmount += settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
-        this.updateAllJobs();
-        const extendedFirstNode: JobNode | ShowMoreNode = this.allJobs.children[oldAmount - 1];
-        if (extendedFirstNode instanceof JobNode) {
-            this.onDidChangeEmitter.fire(extendedFirstNode);
-        }
-    }
-
-    private updateAllJobs(): void {
-        this.allJobs.children = this.jobs.slice(0, this.shownAmount).map(
-            job => JobNode.get(job, this.allJobs)
-        );
-        if (this.jobs.length > this.shownAmount) {
-            this.allJobs.children.push(new ShowMoreNode(this.allJobs));
-        }
-        this.onDidChangeEmitter.fire();
-    }
-
-    private get recentJobs(): FilterNode {
-        return this.children[0];
-    }
-
-    private get allJobs(): FilterNode {
-        return this.children[1];
     }
 }
+
+interface IClusterData {
+    type: TreeDataType.Cluster;
+    config: IPAICluster;
+    index: number;
+    shownAmount: number;
+    loadingState: LoadingState;
+    jobs: IPAIJobInfo[];
+    lastLatestJobName?: string;
+    lastShownAmount?: number;
+}
+
+interface IFilterData {
+    type: TreeDataType.Filter;
+    filterType: FilterType;
+    parent: IClusterData;
+}
+
+interface IJobData {
+    type: TreeDataType.Job;
+    job: IPAIJobInfo;
+    parent: IFilterData;
+}
+
+interface IMoreData {
+    type: TreeDataType.More;
+    parent: IFilterData;
+}
+
+type ITreeData = IClusterData | IFilterData | IJobData | IMoreData;
 
 /**
  * Contributes to the tree view of cluster job list
  */
 @injectable()
-export class JobListTreeDataProvider extends Singleton implements TreeDataProvider<AnyTreeNode> {
-    private onDidChangeTreeDataEmitter: EventEmitter<AnyTreeNode> = new EventEmitter<AnyTreeNode>();
-    public onDidChangeTreeData: Event<AnyTreeNode> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
+export class JobListTreeDataProvider extends Singleton implements TreeDataProvider<ITreeData> {
+    private onDidChangeTreeDataEmitter: EventEmitter<ITreeData> = new EventEmitter<ITreeData>();
+    public onDidChangeTreeData: Event<ITreeData> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
 
-    private configurationNodes: ConfigurationNode[] = [];
-    private onUpdateDisposables: Disposable[] = [];
-    private readonly treeView: TreeView<AnyTreeNode>;
+    private clusters: IClusterData[] = [];
+    private readonly treeView: TreeView<ITreeData>;
     private refreshTimer: NodeJS.Timer | undefined;
 
     constructor() {
@@ -239,51 +171,121 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             commands.registerCommand(COMMAND_CONTAINER_JOBLIST_REFRESH, () => this.refresh()),
             commands.registerCommand(
                 COMMAND_CONTAINER_JOBLIST_MORE,
-                (node: ShowMoreNode) => node.parent.parent.showMore()
-            ),
-            this.treeView
+                (cluster: IClusterData) => {
+                    if (cluster.jobs.length <= cluster.shownAmount) {
+                        return;
+                    }
+                    const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
+                    cluster.lastShownAmount = cluster.shownAmount;
+                    cluster.shownAmount += settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
+                    void this.refresh(cluster.index, false);
+                }
+            )
         );
     }
 
-    public async refresh(index: number = -1): Promise<void> {
-        const allConfigurations: IPAICluster[] = (await getSingleton(ClusterManager)).allConfigurations;
-        if (index === -1 || !this.configurationNodes[index]) {
-            this.onUpdateDisposables.forEach(d => d.dispose());
-            this.configurationNodes = allConfigurations.map((conf, i) => new ConfigurationNode(conf, i));
-            this.onUpdateDisposables = this.configurationNodes.map(
-                node => node.onDidChange(
-                    latestJob => {
-                        if (latestJob) {
-                            this.treeView.reveal(latestJob);
-                        } else {
-                            node.children.forEach(filterNode => this.onDidChangeTreeDataEmitter.fire(filterNode));
-                        }
-                    }
-                )
-            );
+    public async refresh(index: number = -1, reload: boolean = true): Promise<void> {
+        if (index === -1 || !this.clusters[index]) {
+            const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
+            const allConfigurations: IPAICluster[] = (await getSingleton(ClusterManager)).allConfigurations;
+            this.clusters = allConfigurations.map((config, i) => <IClusterData>({
+                type: TreeDataType.Cluster,
+                index: i,
+                config,
+                loadingState: LoadingState.Finished,
+                jobs: [],
+                shownAmount: settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20
+            }));
             this.onDidChangeTreeDataEmitter.fire();
-            await this.reloadJobs();
+            if (reload) {
+                await this.reloadJobs();
+            }
         } else {
-            const node: ConfigurationNode = this.configurationNodes[index];
-            node.configuration = allConfigurations[index];
-            await this.reloadJobs(node);
+            this.onDidChangeTreeDataEmitter.fire(this.clusters[index]);
+            if (reload) {
+                await this.reloadJobs(index);
+            }
         }
     }
 
-    public getTreeItem(element: AnyTreeNode): AnyTreeNode {
-        return element;
+    public getTreeItem(element: ITreeData): TreeItem {
+        switch (element.type) {
+            case TreeDataType.Cluster:
+                return new ClusterNode(element.config);
+            case TreeDataType.Filter:
+                return new FilterNode(element.filterType, element.parent.loadingState);
+            case TreeDataType.Job:
+                return new JobNode(element.job, element.parent.parent.config);
+            case TreeDataType.More:
+                return new ShowMoreNode(element.parent.parent);
+            default:
+                throw new Error('Unexpected node type');
+        }
     }
 
-    public getChildren(element?: AnyTreeNode): AnyTreeNode[] | undefined {
+    public async getChildren(element?: ITreeData): Promise<ITreeData[] | undefined> {
         if (!element) {
             // Root nodes: configurations
-            return this.configurationNodes;
+            return this.clusters;
         }
-        return element.children;
+        switch (element.type) {
+            case TreeDataType.Cluster:
+            {
+                return [
+                    { type: TreeDataType.Filter, filterType: FilterType.Recent, parent: element },
+                    { type: TreeDataType.Filter, filterType: FilterType.All, parent: element }
+                ];
+            }
+            case TreeDataType.Filter:
+                if (element.filterType === FilterType.Recent) {
+                    const cluster: IClusterData = element.parent;
+                    const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
+                    const recentMaxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
+                    const recentJobs: string[] | undefined = (await getSingleton(RecentJobManager)).allRecentJobs[cluster.index] || [];
+                    const result: IJobData[] = [];
+                    for (const name of recentJobs.slice(0, recentMaxLen)) {
+                        const foundJob: IPAIJobInfo | undefined = cluster.jobs.find(job => job.name === name);
+                        if (foundJob) {
+                            result.push({
+                                type: TreeDataType.Job,
+                                job: foundJob,
+                                parent: element
+                            });
+                        }
+                    }
+                    if (result.length > 0 && result[0].job.name !== cluster.lastLatestJobName) {
+                        setImmediate(jobData => this.treeView.reveal(jobData, { focus: true }), result[0]);
+                        cluster.lastLatestJobName = result[0].job.name;
+                    }
+
+                    return result;
+                } else {
+                    const cluster: IClusterData = element.parent;
+                    const result: (IJobData | IMoreData)[] = cluster.jobs.slice(0, cluster.shownAmount).map(
+                        job => <IJobData>({
+                            type: TreeDataType.Job,
+                            job,
+                            parent: element
+                        })
+                    );
+                    if (cluster.lastShownAmount && cluster.lastShownAmount !== cluster.shownAmount) {
+                        setImmediate(i => this.treeView.reveal(result[i], { select: false }), cluster.lastShownAmount - 1);
+                        cluster.lastShownAmount = cluster.shownAmount;
+                    }
+                    if (cluster.jobs.length > cluster.shownAmount) {
+                        result.push({ type: TreeDataType.More, parent: element });
+                    }
+                    return result;
+                }
+            case TreeDataType.Job:
+            case TreeDataType.More:
+                return undefined;
+            default:
+        }
     }
 
-    public getParent(element: AnyTreeNode): AnyTreeNode | undefined {
-        return element.parent;
+    public getParent(element: ITreeData): ITreeData | undefined {
+        return 'parent' in element ? element.parent : undefined;
     }
 
     public onActivate(): Promise<void> {
@@ -294,20 +296,31 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         if (this.refreshTimer) {
             clearTimeout(this.refreshTimer);
         }
-        this.onUpdateDisposables.forEach(d => d.dispose());
+        this.treeView.dispose();
     }
 
-    private async reloadJobs(node?: ConfigurationNode): Promise<void> {
+    private async reloadJobs(index: number = -1): Promise<void> {
         if (this.refreshTimer) {
             clearTimeout(this.refreshTimer);
         }
-        if (node) {
-            await node.loadJobs();
-        } else {
-            await Promise.all(this.configurationNodes.map(n => n.loadJobs()));
-        }
+        const clusters: IClusterData[] = index !== -1 ? [this.clusters[index]] : this.clusters;
+        await Promise.all(clusters.map(async cluster => {
+            cluster.loadingState = LoadingState.Loading;
+            this.onDidChangeTreeDataEmitter.fire(cluster);
+            try {
+                cluster.jobs = await request.get(
+                    PAIRestUri.jobs(cluster.config),
+                    { json: true }
+                );
+                cluster.loadingState = LoadingState.Finished;
+            } catch (e) {
+                Util.err('treeview.joblist.error', [e.message || e]);
+                cluster.loadingState = LoadingState.Error;
+            }
+            this.onDidChangeTreeDataEmitter.fire(cluster);
+        }));
         const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
         const interval: number = settings.get(SETTING_JOB_JOBLIST_REFERSHINTERVAL) || 10;
-        this.refreshTimer = setTimeout(this.reloadJobs.bind(this), interval);
+        this.refreshTimer = setTimeout(this.reloadJobs.bind(this), interval * 1000);
     }
 }

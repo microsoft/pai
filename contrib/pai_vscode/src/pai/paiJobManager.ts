@@ -35,6 +35,7 @@ import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
 import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
 import { PAIRestUri, PAIWebPortalUri } from './paiUri';
+import { RecentJobManager } from './recentJobManager';
 interface ITokenItem {
     token: string;
     expireTime: number;
@@ -331,7 +332,7 @@ export class PAIJobManager extends Singleton {
                     timeout: PAIJobManager.TIMEOUT,
                     json: true
                 });
-                (await getSingleton(ClusterManager)).enqueueRecentJobs(param.cluster, param.config.jobName);
+                void (await getSingleton(RecentJobManager)).enqueueRecentJobs(param.cluster, param.config.jobName);
                 const open: string = __('job.submission.success.open');
                 void vscode.window.showInformationMessage(
                     __('job.submission.success'),
