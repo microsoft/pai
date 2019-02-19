@@ -156,7 +156,6 @@ Below we show a complete list of environment variables accessible in a Docker co
 | Category          | Environment Variable Name                 | Description                                                 |
 | :---------------- | :---------------------------------------- | :---------------------------------------------------------- |
 | Job level         | PAI_JOB_NAME                              | `jobName` in config file                                    |
-|                   | PAI_JOB_VC_NAME                           | The virtual cluster in which the job is running             |
 |                   | PAI_USER_NAME                             | User who submit the job                                     |
 |                   | PAI_DEFAULT_FS_URI                        | Default file system uri in PAI                              |
 | Task role level   | PAI_TASK_ROLE_COUNT                       | Total task roles' number in config file                     |

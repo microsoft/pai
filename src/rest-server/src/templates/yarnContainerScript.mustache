@@ -159,7 +159,6 @@ echo PAI_CONTAINER_ID=$CONTAINER_ID >> $ENV_LIST
 
 # PAI environment variables
 PAI_TEMP={{ jobData.jobName }} && echo PAI_JOB_NAME=$PAI_TEMP >> $ENV_LIST
-PAI_TEMP={{ jobData.virtualCluster }} && echo PAI_JOB_VC_NAME=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ jobData.userName }} && echo PAI_USER_NAME=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ hdfsUri }} && echo PAI_DEFAULT_FS_URI=$PAI_TEMP >> $ENV_LIST
 PAI_TEMP={{ taskRolesNumber }} && echo PAI_TASK_ROLE_COUNT=$PAI_TEMP >> $ENV_LIST
