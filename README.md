@@ -55,9 +55,9 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 ## Try OpenPAI
 
-To try OpenPAI quickly, you can follow [Installation](#Installation) below, and skip customization part. You can add more servers as needed after deployed if you keep OpenPAI for using.
+To try OpenPAI quickly, you can follow [Installation](#Installation) below and skip customization part. You can add more servers as needed after initial  deployed.
 
-It's highly recommended to try OpenPAI on server(s), which has no usage and service. You can deploy OpenPAI on one or multiple server(s), please refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
+It's highly recommended to try OpenPAI on server(s), which has no usage or service. You can deploy OpenPAI on one or multiple server(s), please refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
 ## Installation
 
@@ -82,13 +82,13 @@ The default deployment includes minimum steps to deploy an OpenPAI cluster. Base
 
 If you are deploying a small or medium size cluster, which is less than 20 servers, it's recommended.
 
-If your are deploying a large size cluster, this section is still needed to generate default configuration, then customize on it.
+If you are deploying a large size cluster, this section is still needed to generate default configuration, then customize on it.
 
 [Deploy with default configurations](docs/pai-management/doc/distributed-deploy.md)
 
 #### Customize deployment
 
-As various hardware environments and different use sencarios, default configuration of OpenPAI may not fit your case. Based on genereted default configration in last section, you can change it before deploying.
+As various hardware environments and different use scenarios, default configuration of OpenPAI may not fit your case. Based on generated default configuration in last section, you can change it before deploying.
 
 [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)
 
@@ -104,7 +104,7 @@ After validated the deployment, you can submit a job to have a try, and check if
 
 ### FAQ
 
-If there is any question durding deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
+If there is any question during deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
 
 If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
 
@@ -124,13 +124,13 @@ Follow [here](examples/README.md#quickstart) to create your first job definition
 
 * Choose training environment. OpenPAI uses [Docker](https://www.docker.com/) to provide runtime environment.
 
-    You can refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, ufoym/deepo:pytorch-py36-cu90. Note, it doesn't include openssh-server, curl. So you want to use ssh with those docker images, you need use `apt install openssh-server curl` in command field to enable ssh.
+    You can refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, ufoym/deepo:pytorch-py36-cu90. Note, it doesn't include openssh-server, curl. So you want to use SSH with those docker images, you need use `apt install openssh-server curl` in command field to enable SSH.
 
-* Put code and data in. OpenPAI creates a clean environment, you need to use co mmand field to copy data and code in, and start training. You can join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install`.
+* Put code and data in. OpenPAI creates a clean environment, you need to use command field to copy data and code in and start training. You can join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install`.
 
     There are some suggestions to exchange data with running environment, but you should check with OpenPAI administrator, which kind of storage is supported, and recommended approach to access it. Refer to [here](TODO provide storage solution) for sample solutions.
 
-* Copy model out. It's similiar with above topic, if code and data can copy in, model can also be copied out.
+* Copy model out. It's similar with above topic, if code and data can copy in, model can also be copied out.
 
 * Running distributed training job. OpenPAI can allocate multiple environments to same job to support distributed training.
 
@@ -146,7 +146,7 @@ Rather than web portal, and RESTful API, OpenPAI have a friendly client tool for
 
 You can use Web portal and job log to analyze job failure, also you can log into environment with SHH to do it.
 
-Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more informaiton of troubleshooting job failure on OpenPAI. It's recommended to get job running successfully locally, and then submit it to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
+Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information of troubleshooting job failure on OpenPAI. It's recommended to get job running successfully locally, and then submit it to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
 
 ## Administration
 
