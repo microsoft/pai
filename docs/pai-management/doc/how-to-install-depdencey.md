@@ -17,10 +17,12 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-#### Install necessary dependency on your host.
+# Install necessary dependency
 
-```
-apt-get -y update 
+**Notice**, replace version number in below script to latest release's version, which can be found [here](https://github.com/Microsoft/pai/releases). For example, latest release is 0.9.5, so the git command should be `git clone -b v0.9.5 https://github.com/Microsoft/pai.git`
+
+```bash
+apt-get -y update
 
 apt-get -y install \
       nano \
@@ -56,5 +58,6 @@ apt-get -y install \
 
 pip install python-etcd docker kubernetes GitPython
 
-git clone https://github.com/Microsoft/pai.git
+# replace version number to latest, like v0.9.5.
+git clone -b v0.x.y https://github.com/Microsoft/pai.git
 ```
