@@ -13,6 +13,7 @@
         "creationTimestamp": "2018-07-18T06:27:22Z",
         "labels": {
             "app": "drivers-one-shot",
+            "monitored": "pai",
             "controller-revision-hash": "2607302775",
             "pod-template-generation": "1"
         }

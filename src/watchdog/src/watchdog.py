@@ -29,7 +29,6 @@ import signal
 import faulthandler
 import gc
 
-import paramiko
 import yaml
 import prometheus_client
 from prometheus_client import Counter, Summary, Histogram

@@ -14,7 +14,8 @@
                 "labels": {
                     "controller-revision-hash": "2698008918",
                     "pod-template-generation": "1",
-                    "app": "frameworklauncher"
+                    "app": "frameworklauncher",
+                    "monitored": "pai"
                 },
                 "ownerReferences": [
                     {
