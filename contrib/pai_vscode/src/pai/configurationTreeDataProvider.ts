@@ -5,9 +5,8 @@
  */
 
 import { injectable } from 'inversify';
-import { isNil } from 'lodash';
 import {
-    commands, window, workspace,
+    commands, window,
     Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState
 } from 'vscode';
 
@@ -38,8 +37,11 @@ interface IChildNodeDefinition {
  * General tree node recording its parent
  */
 class TreeNode extends TreeItem {
-    constructor(title: string, public readonly parent?: TreeNode) {
+    public readonly parent: TreeNode | undefined;
+
+    constructor(title: string, parent?: TreeNode) {
         super(title, parent ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Expanded);
+        this.parent = parent;
     }
 }
 
@@ -103,16 +105,19 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
  */
 export class ConfigurationNode extends TreeNode {
     public children: TreeNode[] = [];
+    public readonly index: number;
+    private _configuration: IPAICluster | undefined;
 
-    public constructor(private _configuration: IPAICluster, public readonly index: number) {
+    public constructor(configuration: IPAICluster, index: number) {
         super('...');
         this.iconPath = Util.resolvePath(ICON_PAI);
-        this.configuration = this._configuration;
+        this.index = index;
+        this.configuration = configuration;
         this.contextValue = CONTEXT_CONFIGURATION_ITEM;
     }
 
     public get configuration(): IPAICluster {
-        return this._configuration;
+        return this._configuration!;
     }
     public set configuration(to: IPAICluster) {
         this.label = getClusterName(to);
@@ -147,31 +152,10 @@ export class ConfigurationTreeDataProvider extends Singleton implements TreeData
     public onDidChangeTreeData: Event<TreeNode> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
 
     private configurationNodes: ConfigurationNode[] = [];
-    private lastClick?: { command: string, time: number };
-    private readonly doubleClickInterval: number = 300;
-
     constructor() {
         super();
         this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_REFRESH_CLUSTER, index => this.refresh(index)),
-            commands.registerCommand(COMMAND_TREEVIEW_DOUBLECLICK, (command: string, ...args: string[]) => {
-                const mode: string | undefined = workspace.getConfiguration('workbench.list').get('openMode');
-                if (mode === 'doubleClick') {
-                    void commands.executeCommand(command, ...args);
-                } else {
-                    // Single Click
-                    if (
-                        !isNil(this.lastClick) &&
-                        this.lastClick.command === command &&
-                        Date.now() - this.lastClick.time < this.doubleClickInterval
-                    ) {
-                        this.lastClick = undefined;
-                        void commands.executeCommand(command, ...args);
-                    } else {
-                        this.lastClick = { command, time: Date.now() };
-                    }
-                }
-            }),
+            commands.registerCommand(COMMAND_REFRESH_CLUSTER, () => this.refresh()),
             window.registerTreeDataProvider(VIEW_CONFIGURATION_TREE, this)
         );
     }

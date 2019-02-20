@@ -86,6 +86,20 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.container.joblist.refresh",
+                "title": "%paiext.common.refresh%",
+                "icon": {
+                    "light": "icons/refresh_light.svg",
+                    "dark": "icons/refresh_dark.svg"
+                },
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.container.joblist.more",
+                "title": "%paiext.cluster.job.more%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.cluster.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -149,6 +163,10 @@
                 {
                     "id": "PAIContainerHDFS",
                     "name": "%container.hdfs.title%"
+                },
+                {
+                    "id": "PAIContainerJobList",
+                    "name": "%container.joblist.title%"
                 }
             ]
         },
@@ -168,6 +186,14 @@
                 },
                 {
                     "command": "paiext.cluster.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.joblist.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.container.joblist.more",
                     "when": "false"
                 },
                 {
@@ -218,6 +244,11 @@
                 {
                     "command": "paiext.container.hdfs.back",
                     "when": "view == PAIContainerHDFS",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.container.joblist.refresh",
+                    "when": "view == PAIContainerJobList",
                     "group": "navigation"
                 }
             ],
@@ -294,6 +325,10 @@
                     "command": "paiext.container.hdfs.delete",
                     "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsRoot",
                     "group": "3@1"
+                },
+                {
+                    "command": "paiext.cluster.job.list",
+                    "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
                 }
             ]
         },
@@ -332,9 +367,27 @@
                     "description": "%config.job.generateJobName.enabled%",
                     "default": null
                 },
+                "pai.job.jobList.recentJobsLength": {
+                    "type": "number",
+                    "description": "%config.job.jobList.recentJobsLength%",
+                    "default": 5
+                },
+                "pai.job.jobList.allJobsPageSize": {
+                    "type": "number",
+                    "description": "%config.job.jobList.allJobsPageSize%",
+                    "default": 20
+                },
+                "pai.job.jobList.refreshInterval": {
+                    "type": "number",
+                    "description": "%config.job.jobList.refreshInterval%",
+                    "default": 10
+                },
                 "pai.hdfs.location": {
                     "type": "string",
-                    "enum": ["sidebar", "explorer"],
+                    "enum": [
+                        "sidebar",
+                        "explorer"
+                    ],
                     "default": "sidebar",
                     "description": "%config.hdfs.location%"
                 }

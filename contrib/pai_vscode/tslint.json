@@ -141,7 +141,7 @@
     "no-inferrable-types": false,
     "no-multiline-string": true,
     "no-null-keyword": false,
-    "no-parameter-properties": false,
+    "no-parameter-properties": true,
     "no-relative-imports": false,
     "no-require-imports": true,
     "no-shadowed-variable": true,
