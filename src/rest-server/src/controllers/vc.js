@@ -25,8 +25,7 @@ const createError = require('../util/error');
 const validate = (req, res, next, vcName) => {
   if (! /^[A-Za-z0-9_,]+$/.test(vcName)) {
     return next(createError('Bad Request', 'InvalidParametersError', 'VC name should only contain alpha-numeric and underscore characters'));
-  }
-  if (vcName === 'default' && req.method !== 'GET') {
+  } else if (vcName === 'default' && req.method !== 'GET') {
     return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
   } else {
     return next();
