@@ -23,6 +23,9 @@ const createError = require('../util/error');
  * Validation, not allow operation to "default" vc.
  */
 const validate = (req, res, next, vcName) => {
+  if (! /^[A-Za-z0-9._~]+$/.test(vcName)) {
+    return next(createError('Bad Request', 'InvalidParametersError', 'VC name should only container letters, numbers and ._~'));
+  }
   if (vcName === 'default' && req.method !== 'GET') {
     return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
   } else {
