@@ -62,12 +62,13 @@ enum TreeDataType {
  * Leaf node representing job on PAI
  */
 export class JobNode extends TreeItem {
-    private static statusIcons: { [status in IPAIJobInfo['state']]: string } = {
+    private static statusIcons: { [status in IPAIJobInfo['state']]: string | undefined } = {
         SUCCEEDED: ICON_OK,
         FAILED: ICON_ERROR,
         WAITING: ICON_QUEUE,
         STOPPED: ICON_STOP,
-        RUNNING: ICON_RUN
+        RUNNING: ICON_RUN,
+        UNKNOWN: undefined
     };
 
     public constructor(jobInfo: IPAIJobInfo, config: IPAICluster) {
@@ -77,7 +78,10 @@ export class JobNode extends TreeItem {
             command: COMMAND_TREEVIEW_DOUBLECLICK,
             arguments: [COMMAND_VIEW_JOB, jobInfo, config]
         };
-        this.iconPath = Util.resolvePath(JobNode.statusIcons[jobInfo.state]);
+        const icon: string | undefined = JobNode.statusIcons[jobInfo.state];
+        if (icon) {
+            this.iconPath = Util.resolvePath(icon);
+        }
     }
 }
 
