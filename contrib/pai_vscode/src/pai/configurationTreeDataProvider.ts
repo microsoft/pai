@@ -6,7 +6,7 @@
 
 import { injectable } from 'inversify';
 import {
-    commands, window, workspace,
+    commands, window,
     Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState
 } from 'vscode';
 

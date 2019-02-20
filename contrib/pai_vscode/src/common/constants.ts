@@ -40,6 +40,7 @@ export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
 
 export const VIEW_CONTAINER_JOBLIST = 'PAIContainerJobList';
+export const CONTEXT_JOBLIST_CLUSTER = 'PAIJobListCluster';
 
 export const SETTING_SECTION_HDFS = 'pai.hdfs';
 export const SETTING_HDFS_EXPLORER_LOCATION = 'location';

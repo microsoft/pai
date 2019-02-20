@@ -16,7 +16,7 @@ import { Util } from '../common/util';
 
 import { getClusterName, ClusterManager } from './clusterManager';
 import { ConfigurationNode } from './configurationTreeDataProvider';
-import { JobNode } from './container/jobListTreeView';
+import { ClusterNode } from './container/jobListTreeView';
 import { IPAICluster, IPAIJobInfo } from './paiInterface';
 import { PAIWebPortalUri } from './paiUri';
 
@@ -45,7 +45,7 @@ export class PAIWebpages extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_LIST_JOB,
-                (node: ConfigurationNode) => this.listJobs(node.index)
+                (node: ConfigurationNode | ClusterNode) => this.listJobs(node.index)
             ),
             vscode.commands.registerCommand(
                 COMMAND_VIEW_JOB,

@@ -15,6 +15,7 @@ import {
 import {
     COMMAND_CONTAINER_JOBLIST_MORE, COMMAND_CONTAINER_JOBLIST_REFRESH,
     COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_VIEW_JOB,
+    CONTEXT_JOBLIST_CLUSTER,
     ICON_ELLIPSIS,
     ICON_ERROR,
     ICON_HISTORY,
@@ -115,10 +116,13 @@ class FilterNode extends TreeItem {
 /**
  * Root node representing PAI cluster
  */
-class ClusterNode extends TreeItem {
-    public constructor(configuration: IPAICluster) {
+export class ClusterNode extends TreeItem {
+    public readonly index: number;
+    public constructor(configuration: IPAICluster, index: number) {
         super(getClusterName(configuration), TreeItemCollapsibleState.Collapsed);
+        this.index = index;
         this.iconPath = Util.resolvePath(ICON_PAI);
+        this.contextValue = CONTEXT_JOBLIST_CLUSTER;
     }
 }
 
@@ -211,7 +215,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
     public getTreeItem(element: ITreeData): TreeItem {
         switch (element.type) {
             case TreeDataType.Cluster:
-                return new ClusterNode(element.config);
+                return new ClusterNode(element.config, element.index);
             case TreeDataType.Filter:
                 return new FilterNode(element.filterType, element.parent.loadingState);
             case TreeDataType.Job:
@@ -269,7 +273,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                         })
                     );
                     if (cluster.lastShownAmount && cluster.lastShownAmount !== cluster.shownAmount) {
-                        setImmediate(i => this.treeView.reveal(result[i], { select: false }), cluster.lastShownAmount - 1);
+                        setImmediate(i => this.treeView.reveal(result[i]), cluster.lastShownAmount - 1);
                         cluster.lastShownAmount = cluster.shownAmount;
                     }
                     if (cluster.jobs.length > cluster.shownAmount) {

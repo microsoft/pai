@@ -325,6 +325,10 @@
                     "command": "paiext.container.hdfs.delete",
                     "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsRoot",
                     "group": "3@1"
+                },
+                {
+                    "command": "paiext.cluster.job.list",
+                    "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
                 }
             ]
         },

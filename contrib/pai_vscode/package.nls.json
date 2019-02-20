@@ -15,7 +15,7 @@
     "paiext.container.hdfs.delete": "Delete",
     "paiext.container.hdfs.mkdir": "New Folder",
     "paiext.cluster.dashboard.open": "Open Dashboard",
-    "paiext.cluster.job.list": "Open Job List",
+    "paiext.cluster.job.list": "Open Job List Externally",
     "paiext.cluster.job.submit": "Submit Job to PAI Cluster",
     "paiext.cluster.job.create-config": "Create PAI Job Config JSON",
     "paiext.cluster.job.simulate": "Simulate PAI Job Running",

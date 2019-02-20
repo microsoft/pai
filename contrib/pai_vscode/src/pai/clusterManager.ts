@@ -10,8 +10,7 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_ADD_CLUSTER, COMMAND_DELETE_CLUSTER, COMMAND_EDIT_CLUSTER, SETTING_JOB_JOBLIST_RECENTJOBSLENGTH, SETTING_SECTION_JOB
-} from '../common/constants';
+    COMMAND_ADD_CLUSTER, COMMAND_DELETE_CLUSTER, COMMAND_EDIT_CLUSTER} from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
@@ -20,7 +19,6 @@ import { ConfigurationNode, ConfigurationTreeDataProvider } from './configuratio
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
-import { JobListTreeDataProvider } from './container/jobListTreeView';
 
 export interface IConfiguration {
     readonly version: string;
