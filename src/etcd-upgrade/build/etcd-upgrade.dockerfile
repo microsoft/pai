@@ -15,19 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+FROM python:3.7
 
-groups:
-    - name: k8s_component
-      rules:
-      - alert: k8sApiServerNotOk
-        expr: k8s_api_server_count{error!="ok"} > 0
-        for: 5m
-        annotations:
-          summary: "api server in {{$labels.host_ip}} is {{$labels.error}}"
+RUN pip3 install PyYAML && \
+        mkdir /upgrade
 
-      - alert: k8sDockerDaemonNotOk
-        expr: docker_daemon_count{error!="ok"} > 0
-        for: 5m
-        annotations:
-          summary: "docker daemon in {{$labels.ip}} is {{$labels.error}}"
+COPY build/*.py build/*.sh /upgrade/

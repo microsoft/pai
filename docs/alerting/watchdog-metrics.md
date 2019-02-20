@@ -55,14 +55,13 @@ vi watchdog-xx.log
 ## K8s Health Metrics
 | Metric name| Description |
 | ---------- |  ----------- |
-| k8s_component_count | valid label value for key `service_name` is `k8s_api_server` and `k8s_etcd`, use label `error` to represent status, if `error` != "ok", means `service_name` not functioning correctly |
+| k8s_api_server_count | use label `error` to represent status, if `error` != "ok", means k8s api server is not functioning correctly |
 
 ## Other Metrics
 | Metric name| Description |
 | ---------- |  ----------- |
 | process_error_log_total | count of error/exception log |
 | k8s_api_healthz_resp_latency_seconds | response latency from k8s api healthz page |
-| k8s_etcd_resp_latency_seconds | response latency from etcd healthz page |
 | k8s_api_list_pods_latency_seconds | response latency from listing pods from k8s api |
 | k8s_api_list_nodes_latency_seconds | response latency from listing nodes from k8s api |
 
