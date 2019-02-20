@@ -212,6 +212,13 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         }
     }
 
+    public async eagerLoadRecent(index: number): Promise<void> {
+        const filters: ITreeData[] | undefined = await this.getChildren(this.clusters[index]);
+        if (filters) {
+            this.getChildren(filters[0]);
+        }
+    }
+
     public getTreeItem(element: ITreeData): TreeItem {
         switch (element.type) {
             case TreeDataType.Cluster:
