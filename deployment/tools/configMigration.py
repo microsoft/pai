@@ -42,7 +42,7 @@ for node in old_cluster_config["machine-list"]:
 # assign api-servers-url and dashboard-url
 layout["kubernetes"] = {
     "api-servers-url": api_servers_schema + "://"+kubernetes_config["kubernetes"]["load-balance-ip"]+":" + api_servers_port,
-    "dashboard-url": "http://"+dashboard_ip+":80"}
+    "dashboard-url": "http://"+dashboard_ip+":9090"}
 
 # write out the file
 layout_file = os.path.join(output_dir, "layout.yaml")
