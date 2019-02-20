@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
-from clusterObjectModel import forward_compatibility
 import shutil
 import yaml
 import os
 import sys
+sys.path.extend("..")
+from deployment.clusterObjectModel import forward_compatibility
+
+
 print("This script is used for migrating config from v0.8 to v0.10!")
 print("Usage: configMigration.py from_directory to_directory")
 
