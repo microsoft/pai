@@ -63,8 +63,8 @@ export class ClusterManager extends Singleton {
         k8s_dashboard_uri: '127.0.0.1:9090'
     };
 
-    private onDidModifyEmitter: vscode.EventEmitter<IClusterModification> = new vscode.EventEmitter<IClusterModification>();
-    public onDidModify: vscode.Event<IClusterModification> = this.onDidModifyEmitter.event; // tslint:disable-line
+    private onDidChangeEmitter: vscode.EventEmitter<IClusterModification> = new vscode.EventEmitter<IClusterModification>();
+    public onDidChange: vscode.Event<IClusterModification> = this.onDidChangeEmitter.event; // tslint:disable-line
 
     private readonly EDIT: string = __('common.edit');
     private readonly DISCARD: string = __('cluster.activate.fix.discard');
@@ -159,14 +159,14 @@ export class ClusterManager extends Singleton {
         );
         if (editResult) {
             this.allConfigurations[index] = editResult;
-            this.onDidModifyEmitter.fire({ type: 'EDIT', index });
+            this.onDidChangeEmitter.fire({ type: 'EDIT', index });
             await this.save();
         }
     }
 
     public async delete(index: number): Promise<void> {
         this.allConfigurations.splice(index, 1);
-        this.onDidModifyEmitter.fire({ type: 'REMOVE', index });
+        this.onDidChangeEmitter.fire({ type: 'REMOVE', index });
         await this.save();
     }
 
@@ -214,6 +214,6 @@ export class ClusterManager extends Singleton {
             default:
                 break;
         }
-        this.onDidModifyEmitter.fire({ type: 'RESET' });
+        this.onDidChangeEmitter.fire({ type: 'RESET' });
     }
 }

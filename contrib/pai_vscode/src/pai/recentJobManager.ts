@@ -25,11 +25,11 @@ import { JobListTreeDataProvider } from './container/jobListTreeView';
 export class RecentJobManager extends Singleton {
     private static readonly RECENT_JOBS_KEY: string = 'openpai.recentJobs';
 
-    private onClusterModifyDisposable: vscode.Disposable | undefined;
+    private onClusterChangeDisposable: vscode.Disposable | undefined;
     private recentJobs: (string[] | undefined)[] | undefined;
 
     public async onActivate(): Promise<void> {
-        this.onClusterModifyDisposable = (await getSingleton(ClusterManager)).onDidModify(modification => {
+        this.onClusterChangeDisposable = (await getSingleton(ClusterManager)).onDidChange(modification => {
             switch (modification.type) {
                 case 'EDIT':
                     this.allRecentJobs[modification.index] = [];
@@ -64,14 +64,14 @@ export class RecentJobManager extends Singleton {
         const list: string[] = this.allRecentJobs[index] = this.allRecentJobs[index] || [];
         list.unshift(jobName);
         const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
-        const maxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
+        const maxLen: number = settings.get<number>(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH)!;
         list.splice(maxLen); // Make sure not longer than maxLen
         await this.saveRecentJobs(index);
     }
 
     public onDeactivate(): void {
-        if (this.onClusterModifyDisposable) {
-            this.onClusterModifyDisposable.dispose();
+        if (this.onClusterChangeDisposable) {
+            this.onClusterChangeDisposable.dispose();
         }
     }
 }

@@ -14,10 +14,12 @@ import { JobListTreeDataProvider } from './pai/container/jobListTreeView';
 import { HDFS } from './pai/hdfs';
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
+import { RecentJobManager } from './pai/recentJobManager';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     UtilClass,
     ClusterManager,
+    RecentJobManager,
     TreeViewHelper,
     ConfigurationTreeDataProvider,
     PAIJobManager,

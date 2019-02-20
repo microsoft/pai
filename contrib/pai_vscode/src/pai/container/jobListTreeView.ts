@@ -177,7 +177,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                     }
                     const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
                     cluster.lastShownAmount = cluster.shownAmount;
-                    cluster.shownAmount += settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20;
+                    cluster.shownAmount += settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE)!;
                     void this.refresh(cluster.index, false);
                 }
             )
@@ -194,7 +194,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                 config,
                 loadingState: LoadingState.Finished,
                 jobs: [],
-                shownAmount: settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE) || 20
+                shownAmount: settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE)!
             }));
             this.onDidChangeTreeDataEmitter.fire();
             if (reload) {
@@ -240,7 +240,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                 if (element.filterType === FilterType.Recent) {
                     const cluster: IClusterData = element.parent;
                     const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
-                    const recentMaxLen: number = settings.get(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH) || 5;
+                    const recentMaxLen: number = settings.get<number>(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH)!;
                     const recentJobs: string[] | undefined = (await getSingleton(RecentJobManager)).allRecentJobs[cluster.index] || [];
                     const result: IJobData[] = [];
                     for (const name of recentJobs.slice(0, recentMaxLen)) {
@@ -320,7 +320,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             this.onDidChangeTreeDataEmitter.fire(cluster);
         }));
         const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
-        const interval: number = settings.get(SETTING_JOB_JOBLIST_REFERSHINTERVAL) || 10;
+        const interval: number = settings.get<number>(SETTING_JOB_JOBLIST_REFERSHINTERVAL)!;
         this.refreshTimer = setTimeout(this.reloadJobs.bind(this), interval * 1000);
     }
 }
