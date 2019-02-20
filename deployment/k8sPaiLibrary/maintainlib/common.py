@@ -176,9 +176,16 @@ def sftp_paramiko(src, dst, filename, host_config):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
+    if 'password' not in host_config and 'keyfile-path' not in host_config:
+        logger.error("At least, you should config a password or ssh key file path for a node.")
+        logger.error(
+            "Both password and ssh key file path are missing in the node [ {0} ].".format(host_config['hostip']))
+        return False
 
     username = str(host_config['username'])
-    password = str(host_config['password'])
+    password = None
+    if 'password' in host_config:
+        password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -196,7 +203,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
 
     stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
-    stdin.write(password + '\n')
+    stdin.write(password if password is not None else '' + '\n')
     stdin.flush()
     for response_msg in stdout:
         print(response_msg.encode('utf-8').strip('\n'))
@@ -234,8 +241,16 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
+    if 'password' not in host_config and 'keyfile-path' not in host_config:
+        logger.error("At least, you should config a password or ssh key file path for a node.")
+        logger.error(
+            "Both password and ssh key file path are missing in the node [ {0} ].".format(host_config['hostip']))
+        return False
+
     username = str(host_config['username'])
-    password = str(host_config['password'])
+    password = None
+    if 'password' in host_config:
+        password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -275,9 +290,16 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
+    if 'password' not in host_config and 'keyfile-path' not in host_config:
+        logger.error("At least, you should config a password or ssh key file path for a node.")
+        logger.error(
+            "Both password and ssh key file path are missing in the node [ {0} ].".format(host_config['hostip']))
+        return False
 
     username = str(host_config['username'])
-    password = str(host_config['password'])
+    password = None
+    if 'password' in host_config:
+        password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -294,7 +316,7 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    stdin.write(password + '\n')
+    stdin.write(password if password is not None else '' + '\n')
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
