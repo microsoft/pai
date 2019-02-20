@@ -27,7 +27,6 @@ spec:
     metadata:
       labels:
         app: yarn-frameworklauncher
-        monitored: pai
     spec:
       hostNetwork: true
       hostPID: false

@@ -1,14 +1,14 @@
 # Background
 
-In Pai version before 0.10.0, pai did not have a monitor solution for etcd deployed
+In Pai version before 0.11.0, pai did not have a monitor solution for etcd deployed
 by OpenPai, so admin will not get notified when something wrong with etcd and can not
 running correctly.
 
 To monitor etcd, we have watchdog service, this service monitor pods with special
 labels and check its running status via readiness probe. If you have deployed
-kubernetes using version larger than 0.10.0, you can ignore this document, because
+kubernetes using version larger than 0.11.0, you can ignore this document, because
 the etcd has configured correctly. But if you have deployed kubernetes using version
-before 0.10.0, you should do following upgrade to configure etcd correctly so it can
+before 0.11.0, you should do following upgrade to configure etcd correctly so it can
 be monitored.
 
 # Upgrade steps
@@ -16,7 +16,7 @@ be monitored.
 Please note following steps involves restart etcd pods, the etcd process will stop for around 5 minutes, and **kubernetes can not work during the time**, please plan upgrade in advance to minimize the possible impact.
 
 1. Please use a [dev-box](pai-management/doc/how-to-setup-dev-box.md) to do following operations, as dev-box can provide a clean environment.
-2. Checkout the 0.10.0 version branch of pai: `cd $PAI_ROOT && git checkout v0.10.0`.
+2. Checkout the 0.11.0 version branch of pai: `cd $PAI_ROOT && git checkout v0.11.0`.
 3. Apply upgrade script: `cd $PAI_ROOT/src/etcd-upgrade/build && kubectl apply -f ds.yaml`.
 4. When upgrade finished, all etcd-upgrade pods will be ready, and you can know delete these pods using `kubectl delete -f ds.yaml`
 

@@ -27,7 +27,6 @@ spec:
     metadata:
       labels:
         app: drivers-one-shot
-        monitored: pai
     spec:
       hostNetwork: true
       hostPID: true

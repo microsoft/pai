@@ -27,7 +27,6 @@ spec:
       name: pylon
       labels:
         app: pylon
-        monitored: pai
     spec:
       hostNetwork: false
       hostPID: false

@@ -31,7 +31,6 @@ spec:
       name: end-to-end-test
       labels:
         app: end-to-end-test
-        monitored: pai
     spec:
       hostNetwork: false
       hostPID: false

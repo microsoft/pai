@@ -29,7 +29,6 @@ spec:
       name: watchdog
       labels:
         app: watchdog
-        monitored: pai
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"

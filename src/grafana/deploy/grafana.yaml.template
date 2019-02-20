@@ -28,7 +28,6 @@ spec:
     metadata:
       labels:
         app: grafana
-        monitored: pai
     spec:
       hostNetwork: true
       hostPID: false

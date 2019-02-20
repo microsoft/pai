@@ -4,7 +4,7 @@ import copy
 import sys
 import yaml
 
-labels = {"app": "etcd-server", "monitored": "pai"}
+labels = {"app": "etcd-server"}
 
 probe = {"httpGet": {"path": "/health", "port": 4001},
          "initialDelaySeconds": 10,

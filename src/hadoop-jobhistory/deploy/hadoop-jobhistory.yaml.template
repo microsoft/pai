@@ -27,7 +27,6 @@ spec:
     metadata:
       labels:
         app: hadoop-jobhistory-service
-        monitored: pai
     spec:
       hostAliases:
       - ip: "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"

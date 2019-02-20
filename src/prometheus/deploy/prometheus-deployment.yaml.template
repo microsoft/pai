@@ -37,7 +37,6 @@ spec:
       name: prometheus
       labels:
         app: prometheus
-        monitored: pai
     spec:
       hostNetwork: true
       containers:

@@ -27,7 +27,6 @@ spec:
     metadata:
       labels:
         app: zookeeper
-        monitored: pai
     spec:
       hostNetwork: true
       hostPID: false

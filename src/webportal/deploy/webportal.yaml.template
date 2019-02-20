@@ -28,7 +28,6 @@ spec:
       name: webportal
       labels:
         app: webportal
-        monitored: pai
     spec:
       hostNetwork: false
       hostPID: false
