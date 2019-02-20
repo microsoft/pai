@@ -52,7 +52,8 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     #
     # Prepare config of ssh info.
     quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
-    quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
+    if "ssh-password" in quick_start_config_raw:
+        quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
     if "ssh-keyfile-path" in quick_start_config_raw:
         quick_start_config["ssh-keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
     if "ssh-secret-name" in quick_start_config_raw:
@@ -79,9 +80,10 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         host_config = {
             "hostip": m0["ip"],
             "username": quick_start_config["ssh-username"],
-            "password": quick_start_config["ssh-password"],
             "sshport": quick_start_config["ssh-port"]
         }
+        if "ssh-password" in quick_start_config:
+            host_config["password"] = quick_start_config["ssh-password"]
         if "ssh-keyfile-path" in quick_start_config:
             host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
@@ -94,9 +96,10 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         host_config = {
             "hostip": m["ip"],
             "username": quick_start_config["ssh-username"],
-            "password": quick_start_config["ssh-password"],
             "sshport": quick_start_config["ssh-port"]
         }
+        if "ssh-password" in quick_start_config:
+            host_config["password"] = quick_start_config["ssh-password"]
         if "ssh-keyfile-path" in quick_start_config:
             host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
