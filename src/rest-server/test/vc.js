@@ -890,6 +890,25 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       });
   });
 
+  it('[Negative] should not update vc if  vcname contains illegal character', (done) => {
+    nock.cleanAll();
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnErrorResponse);
+
+    chai.request(server)
+      .put('/api/v1/virtual-clusters/aaa%20bbb')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        'vcCapacity': 80
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(400);
+        expect(res.body).to.have.property('code', 'InvalidParametersError');
+        done();
+      });
+  });
+
   it('[Negative] should not update vc if upstream error', (done) => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
