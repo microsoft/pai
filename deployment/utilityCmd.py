@@ -30,7 +30,7 @@ class UtilityCmd():
 
     def get_machine_list(self, config_path):
         objectModelFactoryHandler = cluster_object_model(configuration_path=config_path)
-        return objectModelFactoryHandler.kubernetes_config()["machine"]["machine-list"]
+        return objectModelFactoryHandler.kubernetes_config()["layout"]["machine-list"]
 
     def rule_check(self, rule_list):
         if rule_list == None:
