@@ -313,15 +313,35 @@ def main(args):
 
     try_remove_old_prom_file(log_dir + "/watchdog.prom")
 
+    atomic_ref = AtomicRef()
+
+    t = threading.Thread(target=loop, name="loop", args=(args, atomic_ref))
+    t.daemon = True
+    t.start()
+
+    REGISTRY.register(CustomCollector(atomic_ref))
+
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
+
+
+def loop(args, atomic_ref):
     address = args.k8s_api
     parse_result = urllib.parse.urlparse(address)
     api_server_scheme = parse_result.scheme
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
+
     ca_path = args.ca
     bearer_path = args.bearer
     if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
         logger.warning("please provide bearer_path and ca_path at the same time or not")
+
     headers = None
     if not os.path.isfile(ca_path):
         ca_path = None
@@ -334,21 +354,6 @@ def main(args):
 
     list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
     list_nodes_url = "{}/api/v1/nodes/".format(address)
-
-    atomic_ref = AtomicRef()
-
-    REGISTRY.register(CustomCollector(atomic_ref))
-
-    root = Resource()
-    root.putChild(b"metrics", MetricsResource())
-    root.putChild(b"healthz", HealthResource())
-
-    factory = Site(root)
-    reactor.listenTCP(int(args.port), factory)
-
-    t = threading.Thread(target=reactor.run, name="twisted")
-    t.daemon = True
-    t.start()
 
     while True:
         # these gauge is generate on each iteration
