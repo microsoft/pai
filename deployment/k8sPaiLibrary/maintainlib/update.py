@@ -94,7 +94,7 @@ class update:
                 continue
 
             for node_key in com['kubernetes']["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][node_key]
+                node_config = com["layout"]["machine-list"][node_key]
                 node_config_from_cluster_conf[node_key] = node_config
 
         self.logger.info("Successfully get latest configuration from cluster configuration.")
@@ -196,7 +196,7 @@ class update:
                 continue
 
             for node_key in com['kubernetes']["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][node_key]
+                node_config = com["layout"]["machine-list"][node_key]
 
                 if not self.node_status_check(node_config, node_list):
                     self.logger.info("Begin to add new node into pai cluster.")
