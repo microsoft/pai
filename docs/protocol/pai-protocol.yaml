@@ -35,7 +35,7 @@ taskRoles:
     data: String, optional # Should reference to data defined in prerequisites
     output: String, optional # Should reference to output defined in prerequisites
     script: String, optional # Should reference to script defined in prerequisites
-    extraContainerOptions: 
+    extraContainerOptions:
       shmMB: Integer, optional # config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size
     resourcePerInstance:
       cpu: Integer, required
@@ -50,9 +50,9 @@ taskRoles:
 # e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
 # in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
 # one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
-deployments: 
+deployments:
   - protocolVersion: String, optional # If omitted, follow the root protocolVersion
-    name: String, required    
+    name: String, required
     taskRoles:
       - name: String, required # Should be the same as taskRoles.name
         preCommands:
@@ -126,8 +126,8 @@ taskRoles:
     data: cifar10
     output: tensorflow_cifar10_model
     script: tensorflow_cnnbenchmarks
-    extraContainerOptions: 
-      shmMB: 64      
+    extraContainerOptions:
+      shmMB: 64
     resourcePerInstance:
       cpu: 2
       memoryMB: 16384
@@ -152,7 +152,7 @@ taskRoles:
     data: cifar10
     output: tensorflow_cifar10_model
     script: tensorflow_cnnbenchmarks
-    extraContainerOptions: 
+    extraContainerOptions:
       shmMB: 64
     resourcePerInstanec:
       cpu: 2
@@ -171,7 +171,7 @@ taskRoles:
 deployments:
   - protocolVersion: 2
     name: default # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
-    version: 1.0.0    
+    version: 1.0.0
     taskRoles:
       - name: worker
         preCommands:
