@@ -71,7 +71,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job CPU Usage",
+          "title": "Task CPU Usage",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -147,7 +147,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job Memory Usage",
+          "title": "Task Memory Usage",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -230,7 +230,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job Network Usage",
+          "title": "Task Network Usage",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -313,7 +313,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job Disk Usage",
+          "title": "Task Disk Usage",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -389,7 +389,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job GPU Util",
+          "title": "Task GPU Util",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -465,7 +465,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Job GPU Memory Util",
+          "title": "Task GPU Memory Util",
           "tooltip": {
             "shared": true,
             "sort": 0,

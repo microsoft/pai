@@ -26,6 +26,26 @@
   "rows": [
     {
       "collapse": false,
+      "height": "30px",
+      "panels": [
+        {
+          "content": "[All Tasks in This Node]({{url}}/dashboard/db/tasks-in-node?var-node=$node) ",
+          "id": 24,
+          "mode": "markdown",
+          "span": 12,
+          "title": "",
+          "type": "text"
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
       "height": 266,
       "panels": [
         {
