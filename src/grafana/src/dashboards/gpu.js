@@ -125,7 +125,7 @@ for (var i = 0; i < gpuNum; i++) {
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "percent",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -201,7 +201,7 @@ for (var i = 0; i < gpuNum; i++) {
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "percent",
               "label": null,
               "logBase": 1,
               "max": null,
