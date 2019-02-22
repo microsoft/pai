@@ -153,33 +153,21 @@ Those environment variables can also be used in the job config file.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
-| Environment Variable Name          | Description                              |
-| :--------------------------------- | :--------------------------------------- |
-| PAI_WORK_DIR                       | Working directory in Docker container    |
-| PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
-| PAI_JOB_NAME                       | `jobName` in config file                 |
-| PAI_JOB_VC_NAME                    | The virtual cluster in which the job is running     |
-| PAI_USER_NAME                      | User who submit the job                  |
-| PAI_DATA_DIR                       | `dataDir` in config file                 |
-| PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
-| PAI_CODE_DIR                       | `codeDir` in config file. **Note**: we plan to obsolete PAI_CODE_DIR soon. Users are encouraged to keep their code in Github or any privately managed code repo if the code is not public. When running the Docker image,user can insert some script in the taskRole.command to “git clone …” the code down to the Docker instance.                 |
-| PAI_CURRENT_TASK_ROLE_NAME         | `taskRole.name` of current task role     |
-| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `taskRole.taskNumber` of current task role |
-| PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `taskRole.cpuNumber` of current task role  |
-| PAI_CURRENT_TASK_ROLE_MEM_MB       | `taskRole.memoryMB` of current task role   |
-| PAI_CURRENT_TASK_ROLE_SHM_MB       | `taskRole.shmMB` of current task role      |
-| PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `taskRole.gpuNumber` of current task role  |
-| PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT    | `taskRole.minFailedTaskCount` of current task role    |
-| PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT | `taskRole.minSucceededTaskCount` of current task role |
-| PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | Index of current task in current task role, starting from 0 |
-| PAI_JOB_TASK_COUNT                 | Total tasks' number in config file       |
-| PAI_JOB_TASK_ROLE_COUNT            | Total task roles' number in config file  |
-| PAI_JOB_TASK_ROLE_LIST             | Comma separated all task role names in config file |
-| PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
-| PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
-| PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
-| PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
-| PAI\_`$taskRole`\_`$taskIndex`\_`$type`_PORT | The port for `portList.label == $type, task role name == $taskRole and task index of current task role == $taskIndex`. Each port has corresponding environment variable and is exposed to all tasks. |
+| Category          | Environment Variable Name                 | Description                                                 |
+| :---------------- | :---------------------------------------- | :---------------------------------------------------------- |
+| Job level         | PAI_JOB_NAME                              | `jobName` in config file                                    |
+|                   | PAI_USER_NAME                             | User who submit the job                                     |
+|                   | PAI_DEFAULT_FS_URI                        | Default file system uri in PAI                              |
+| Task role level   | PAI_TASK_ROLE_COUNT                       | Total task roles' number in config file                     |
+|                   | PAI_TASK_ROLE_LIST                        | Comma separated all task role names in config file          |
+|                   | PAI_TASK_ROLE_TASK_COUNT\_`$taskRole`     | Task count of the task role                                 |
+|                   | PAI_HOST_IP\_`$taskRole`\_`$taskIndex`    | The host IP for `taskIndex` task in `taskRole`              |
+|                   | PAI_PORT_LIST\_`$taskRole`\_`$taskIndex`\_`$portType` | The `$portType` port list for `taskIndex` task in `taskRole`     |
+|                   | PAI_RESOURCE\_`$taskRole`                 | Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format |
+|                   | PAI_MIN_FAILED_TASK_COUNT\_`$taskRole`    | `taskRole.minFailedTaskCount` of the task role              |
+|                   | PAI_MIN_SUCCEEDED_TASK_COUNT\_`$taskRole` | `taskRole.minSucceededTaskCount` of the task role           |
+| Current task role | PAI_CURRENT_TASK_ROLE_NAME                | `taskRole.name` of current task role                        |
+| Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX  | Index of current task in current task role, starting from 0 |
 
 
 ### A deep learning job example <a name="example"></a>
