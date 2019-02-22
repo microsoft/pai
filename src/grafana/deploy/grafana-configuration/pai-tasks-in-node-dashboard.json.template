@@ -1,4 +1,5 @@
 {% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
   "annotations": {
@@ -33,7 +34,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 1,
           "legend": {
             "avg": false,
@@ -54,12 +55,12 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_cpu_percent{instance=~\"$node:.*\"}",
+              "expr": "task_cpu_percent{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -109,7 +110,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 2,
           "legend": {
             "avg": false,
@@ -130,12 +131,12 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_mem_usage_byte{instance=~\"$node:.*\"}",
+              "expr": "task_mem_usage_byte{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -185,7 +186,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 3,
           "legend": {
             "avg": false,
@@ -206,12 +207,12 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_net_in_byte{instance=~\"$node:.*\"}",
+              "expr": "task_net_in_byte{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -219,7 +220,7 @@
               "refId": "A"
             },
             {
-              "expr": "task_net_out_byte{instance=~\"$node:.*\"}",
+              "expr": "task_net_out_byte{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Net Out {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
@@ -261,26 +262,14 @@
               "show": false
             }
           ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    },
-    {
-      "collapse": false,
-      "height": 250,
-      "panels": [
+        },
         {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 4,
           "legend": {
             "avg": false,
@@ -301,12 +290,12 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(task_block_in_byte{instance=~\"$node:.*\"}[{{interval}}s])",
+              "expr": "irate(task_block_in_byte{instance=~\"$node(:[0-9]*)?$\"}[300s])",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -314,7 +303,7 @@
               "refId": "A"
             },
             {
-              "expr": "irate(task_block_out_byte{instance=~\"$node:.*\"}[{{interval}}s])",
+              "expr": "irate(task_block_out_byte{instance=~\"$node(:[0-9]*)?$\"}[300s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Write {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
@@ -363,7 +352,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 5,
           "legend": {
             "avg": false,
@@ -384,16 +373,16 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_gpu_percent{instance=~\"$node:.*\"}",
+              "expr": "task_gpu_percent{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}} minor_number {{'}}'}}",
+              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -439,7 +428,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": null,
-          "fill": 1,
+          "fill": 0,
           "id": 6,
           "legend": {
             "avg": false,
@@ -460,16 +449,16 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_gpu_mem_percent{instance=~\"$node:.*\"}",
+              "expr": "task_gpu_mem_percent{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}} minor_number {{'}}'}}",
+              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -508,6 +497,229 @@
               "show": false
             }
           ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 250,
+      "panels": [
+        {
+          "columns": [],
+          "datasource": null,
+          "fontSize": "100%",
+          "id": 7,
+          "links": [],
+          "pageSize": null,
+          "repeat": null,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
+          "span": 12,
+          "styles": [
+            {
+              "alias": "Time",
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "pattern": "Time",
+              "type": "hidden"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "__name__",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "container_label_PAI_HOSTNAME",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "instance",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "job",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "pai_service_name",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "scraped_from",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "Value",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "task index",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "link": true,
+              "linkTooltip": "Click to view each task's usage",
+              "linkUrl": "{{url}}/dashboard/db/tasklevelmetrics?var-job=$__cell_5",
+              "pattern": "container_env_PAI_TASK_INDEX",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            },
+            {
+              "alias": "task role",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "link": true,
+              "linkTooltip": "Click to view each task role's usage",
+              "linkUrl": "{{url}}/dashboard/db/taskrolelevelmetrics?var-job=$__cell_5",
+              "pattern": "container_label_PAI_CURRENT_TASK_ROLE_NAME",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            },
+            {
+              "alias": "job name",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "link": true,
+              "linkTooltip": "Click to view job's usage",
+              "linkUrl": "{{url}}/dashboard/db/joblevelmetrics?var-job=$__cell_5",
+              "pattern": "container_label_PAI_JOB_NAME",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            },
+            {
+              "alias": "user name",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "container_label_PAI_USER_NAME",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            }
+          ],
+          "targets": [
+            {
+              "expr": "task_cpu_percent{instance=~\"$node(:[0-9]*)?$\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "intervalFactor": 1,
+              "refId": "A"
+            }
+          ],
+          "title": "Tasks in Node",
+          "transform": "table",
+          "type": "table"
         }
       ],
       "repeat": null,
