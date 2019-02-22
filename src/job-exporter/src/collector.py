@@ -180,7 +180,8 @@ class Collector(object):
         histogram_key = "collector_%s_iteration_lantecy_seconds" % self.name
         histogram_desc = "latency for execute one interation of %s collector (seconds)" % \
                 self.name
-        self.collector_histogram = Histogram(histogram_key, histogram_desc)
+        self.collector_histogram = Histogram(histogram_key, histogram_desc,
+                buckets=(.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, float("inf")))
 
         logger.debug("init %s with sleep_time %d", self.name, self.sleep_time)
 
@@ -198,7 +199,7 @@ class Collector(object):
                 logger.debug("finished collect metrcis from %s, will sleep for %s",
                         self.name, self.sleep_time)
 
-                time.sleep(self.sleep_time)
+            time.sleep(self.sleep_time)
 
     def collect_impl(self):
         """ implementations are expected to return an array of
@@ -363,8 +364,9 @@ class ContainerCollector(Collector):
                 ContainerCollector.stats_timeout)
         self.stats_info_ref.get_and_set(stats_obj)
 
-        logger.debug("all_conns is %s, gpu_info is %s, stats_obj is %s",
-                all_conns, gpu_infos, stats_obj)
+        logger.debug("all_conns is %s", all_conns)
+        logger.debug("gpu_info is %s", gpu_infos)
+        logger.debug("stats_obj is %s", stats_obj)
 
         return self.collect_container_metrics(stats_obj, gpu_infos, all_conns)
 

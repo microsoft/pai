@@ -142,7 +142,7 @@ def main(args):
     # should only sleep 10s to adapt to scrape interval
     collector_args = [
             ("docker_daemon_collector", interval, collector.DockerCollector),
-            ("gpu_collector", interval, collector.GpuCollector, gpu_info_ref),
+            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref),
             ("container_collector", interval - 18, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
             ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
