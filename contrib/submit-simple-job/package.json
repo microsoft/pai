@@ -1,6 +1,6 @@
 {
   "name": "submit-simple-job",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "PAI web portal plugin for submit simple job",
   "main": "index.tsx",
   "scripts": {
