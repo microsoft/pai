@@ -47,7 +47,7 @@ function exit_handler()
     is_oom=$(docker inspect --format={{{ inspectOOMKilledFormat }}} $docker_name 2>/dev/null)
     debug_log "$handler" "docker container $docker_name is exited by OOM? $is_oom"
     if [ "$is_oom" = "true" ]; then
-      rc=5
+      rc=55
     fi
   fi
 
