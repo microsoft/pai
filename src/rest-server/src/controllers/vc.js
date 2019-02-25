@@ -23,7 +23,9 @@ const createError = require('../util/error');
  * Validation, not allow operation to "default" vc.
  */
 const validate = (req, res, next, vcName) => {
-  if (vcName === 'default' && req.method !== 'GET') {
+  if (! /^[A-Za-z0-9_]+$/.test(vcName)) {
+    return next(createError('Bad Request', 'InvalidParametersError', 'VC name should only contain alpha-numeric and underscore characters'));
+  } else if (vcName === 'default' && req.method !== 'GET') {
     return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
   } else {
     return next();
@@ -71,8 +73,9 @@ const get = (req, res, next) => {
 const update = (req, res, next) => {
   const vcName = req.params.vcName;
   const vcCapacity = parseInt(req.body.vcCapacity);
+  const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
   if (req.user.admin) {
-    VirtualCluster.prototype.updateVc(vcName, vcCapacity, (err) => {
+    VirtualCluster.prototype.updateVc(vcName, vcCapacity, vcMaxCapacity, (err) => {
       if (err) {
         return next(createError.unknown(err));
       } else {

@@ -1,0 +1,20 @@
+version: '3'
+services:
+  pylon:
+    build:
+      context: .
+      dockerfile: build/pylon.dockerfile
+    environment:
+      REST_SERVER_URI: http://10.151.40.234:9186 
+      K8S_API_SERVER_URI: http://10.151.40.234:8080 
+      WEBHDFS_URI: http://10.151.40.234:5070 
+      WEBHDFS_LEGACY_PORT: 50070 
+      PROMETHEUS_URI: http://10.151.40.234:9091 
+      ALERT_MANGER_URI: http://10.151.40.234:9093 
+      K8S_DASHBOARD_URI: http://10.254.252.222:80 
+      YARN_WEB_PORTAL_URI: http://10.151.40.234:8088 
+      GRAFANA_URI: http://10.151.40.234:3000 
+      PAI_WEB_PORTAL_URI: http://10.151.40.234:9286 
+    ports:
+      - "8080:80"
+      - "50070:50070"

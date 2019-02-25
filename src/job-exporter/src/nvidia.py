@@ -20,10 +20,33 @@ import subprocess
 from xml.dom import minidom
 import os
 import logging
+import re
 
 import utils
 
 logger = logging.getLogger(__name__)
+
+def convert_to_byte(data):
+    data = data.lower()
+    number = float(re.findall(r"[0-9.]+", data)[0])
+    if "tb" in data:
+        return number * 10 ** 12
+    elif "gb" in data:
+        return number * 10 ** 9
+    elif "mb" in data:
+        return number * 10 ** 6
+    elif "kb" in data:
+        return number * 10 ** 3
+    elif "tib" in data:
+        return number * 2 ** 40
+    elif "gib" in data:
+        return number * 2 ** 30
+    elif "mib" in data:
+        return number * 2 ** 20
+    elif "kib" in data:
+        return number * 2 ** 10
+    else:
+        return number
 
 def parse_smi_xml_result(smi):
     xmldoc = minidom.parseString(smi)
@@ -36,7 +59,17 @@ def parse_smi_xml_result(smi):
         utilization = gpu.getElementsByTagName("utilization")[0]
 
         gpu_util = utilization.getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
-        gpu_mem_util = utilization.getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
+
+        gpu_mem_util = "N/A"
+
+        memory_usage_list = gpu.getElementsByTagName("fb_memory_usage")
+        if len(memory_usage_list) != 0:
+            memory_usage = memory_usage_list[0]
+            mem_used = convert_to_byte(memory_usage.getElementsByTagName("used")[0].childNodes[0].data)
+            mem_total = convert_to_byte(memory_usage.getElementsByTagName("total")[0].childNodes[0].data)
+
+            if mem_total != 0:
+                gpu_mem_util = mem_used / mem_total * 100
 
         if gpu_util == "N/A" or gpu_mem_util == "N/A":
             continue

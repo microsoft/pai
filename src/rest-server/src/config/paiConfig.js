@@ -23,7 +23,7 @@ const logger = require('./logger');
 
 let paiMachineList = [];
 try {
-    paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list'];
+    paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/layout.yaml', 'utf8'))['machine-list'];
 } catch (err) {
     paiMachineList = [];
     logger.info('Unable to load machine list from cluster-configuration.');

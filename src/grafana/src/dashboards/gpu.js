@@ -66,8 +66,8 @@ if(!_.isUndefined(ARGS.host)) {
 }
 
 var arrPanels = new Array()
-for (var i = 0; i < gpuNum; i++) { 
-  arrPanels[i] = {
+for (var i = 0; i < gpuNum; i++) {
+  arrPanels[2 * i] = {
           "aliasColors": {},
           "bars": false,
           "dashLength": 12,
@@ -80,7 +80,7 @@ for (var i = 0; i < gpuNum; i++) {
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -94,15 +94,15 @@ for (var i = 0; i < gpuNum; i++) {
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 3,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "nvidiasmi_utilization_gpu{instance=\"" + hostName+ "\",job=\"node_exporter\",minor_number=\""+ i + "\"}",
+              "expr": "nvidiasmi_utilization_gpu{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "gpu utilization",
+              "legendFormat": "Gpu Utilization",
               "refId": "A"
             }
           ],
@@ -125,7 +125,7 @@ for (var i = 0; i < gpuNum; i++) {
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "percent",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -142,7 +142,82 @@ for (var i = 0; i < gpuNum; i++) {
             }
           ]
         };
-  
+
+  arrPanels[2 * i + 1] = {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 12,
+          "dashes": false,
+          "datasource": "PM",
+          "fill": 1,
+          "id": null,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+             "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 6,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "nvidiasmi_utilization_memory{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Gpu Mem Utilization",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "GPU Memory Utilization " + i,
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
+        };
 }
 
 dashboard.rows.push(
