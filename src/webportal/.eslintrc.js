@@ -5,7 +5,11 @@ module.exports = {
     "node": true,
     "jquery": true,
   },
-  "extends": ["eslint:recommended", "google"],
+  "extends": [
+    "eslint:recommended", 
+    "plugin:react/recommended",
+    "google"
+  ],
   "globals": {
     "cookies": false,
     "userLogout": false,
@@ -15,4 +19,21 @@ module.exports = {
     "require-jsdoc": 0,
     "valid-jsdoc": 0,
   },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "overrides": [
+    {
+      "files": "**/*.jsx",
+      "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+      }
+    }
+  ]
 };
