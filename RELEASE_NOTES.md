@@ -5,8 +5,8 @@
 * Admin can configure **MaxCapacity** through REST API for a given Virtual Cluster so that the virtual cluster can use iddle resources as bonus. [#2147](https://github.com/Microsoft/pai/pull/2147)
 * Support Azure RDMA [#2091](https://github.com/Microsoft/pai/pull/2091); [how-to doc](https://github.com/Microsoft/pai/blob/master/docs/pai-management/doc/azure/enable-az-rdma.md) 
 * New disk cleaning support to mitigate the disk pressure by killing job container that consumes most of the disk. [#2119](https://github.com/Microsoft/pai/pull/2119)
-* Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111)
-* "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131)
+* Web portal: add "My jobs" filter button. [#2111](https://github.com/Microsoft/pai/pull/2111) ![](https://user-images.githubusercontent.com/2500247/52035750-16262000-2566-11e9-8ae7-5e98e25cb5db.png)
+* "Submit Simple Job" web portal plugin [#2131](https://github.com/Microsoft/pai/pull/2131) [Document](https://github.com/Microsoft/pai/blob/pai-0.10.y/contrib/submit-simple-job/README.md)
 
 ## Improvements ##
 
