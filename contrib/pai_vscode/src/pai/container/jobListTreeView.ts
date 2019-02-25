@@ -290,14 +290,14 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
     }
 
     public getParent(element: ITreeData): ITreeData | undefined {
-        if ('clusterIndex' in element) {
-            if ('filterType' in element) {
-                return {
-                    type: TreeDataType.Filter,
-                    filterType: element.filterType,
-                    clusterIndex: element.clusterIndex
-                };
-            }
+        if (element.type === TreeDataType.Job) {
+            return {
+                type: TreeDataType.Filter,
+                filterType: element.filterType,
+                clusterIndex: element.clusterIndex
+            };
+        }
+        if (element.type === TreeDataType.Filter) {
             return this.clusters[element.clusterIndex];
         }
     }
