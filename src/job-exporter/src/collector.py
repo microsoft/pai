@@ -181,7 +181,8 @@ class Collector(object):
         histogram_desc = "latency for execute one interation of %s collector (seconds)" % \
                 self.name
         self.collector_histogram = Histogram(histogram_key, histogram_desc,
-                buckets=(.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, float("inf")))
+                buckets=(.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0,
+                    7.5, 10.0, 12.5, 15.0, 17.5, 20.0, float("inf")))
 
         logger.debug("init %s with sleep_time %d", self.name, self.sleep_time)
 
