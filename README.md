@@ -78,9 +78,9 @@ Follow this part to check prerequisites, deploy and validate an OpenPAI cluster.
 
 The default deployment includes minimum steps to deploy an OpenPAI cluster. Base on the default configuration, you can customize OpenPAI deployment for different hardware environments and use scenarios.
 
-#### Deploy with default configurations
+#### Deploy with default configuration
 
-If you are deploying a small or medium size cluster, which is less than 20 servers, it's recommended.
+If you are deploying a small or medium size cluster, which is less than 20 servers, it's recommended to deploy with default configuration. Even you have only one powerful server, you can deploy OpenPAI as a single box on this server.
 
 If you are deploying a large size cluster, this section is still needed to generate default configuration, then customize on it.
 
