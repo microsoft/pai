@@ -27,7 +27,6 @@
 ### Documentation ###
 
 * Update document about docker data root's configuration [#2052](https://github.com/Microsoft/pai/pull/2052)
-* Add issue to readme [#2044](https://github.com/Microsoft/pai/pull/2044)
 * Note tell user take care dev-box-version for doc [#2087](https://github.com/Microsoft/pai/pull/2087)
 * HDFS data migration doc [#2096](https://github.com/Microsoft/pai/pull/2096)
 
