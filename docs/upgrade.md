@@ -18,7 +18,7 @@ Below is a compatibility table of Kubernetes and PAI Services.
 
 | release | PAI Services | PAI upgradable since | Kubernetes | Compatibility Kubernetes | Kubernetes upgradeable since |
 | :-----: | :----------: | :------------------: | :--------: | :----------------------: | :--------------------------: |
-| v0.10   | v0.10        | v0.9                 | v0.10      | since v0.10              | since v0.9                   |
+| v0.10   | v0.10        | v0.9                 | v0.10-pai  | since v0.10-pai          | since v0.9-pai               |
 
 Take the release v0.10 as example, it says:
 
@@ -34,7 +34,8 @@ Warning! Kubernetes upgrade may interrupt running jobs, please check the release
 Simply the upgrade include the below steps:
 
 - Upgrade Kubernetes config
-- Upgrade kubernetes components
+- Stop the Kubernetes  (paictl.py cluster k8s-clean ...)
+- Start kubernetes components (paictl.py cluster k8s-bootup ...)
 
 ## PAI Services Update
 
@@ -42,10 +43,14 @@ Idealy, the PAI service update won't interrupt running jobs, please double check
 
 Simple the upgrade include the below steps:
 
-- Upgrade PAI services config(Migrate and push to cluster)
-- Stop the PAI services
-- Start the PAI services
+- Upgrade PAI services config(Maybe: paictl.py config upgrade ...)
+- Stop the PAI services (paictl.py service stop ...)
+- Start the PAI services (paictl.py service start ...)
 
-## Implementation
+## Implementation (PAI Services)
 
-TODO. Uncompatiable upgrade may need additional effort. For example, may need to destroy old cluster using the tools in old release and manually migrate configurations.
+1. All service config should be forward-compatible, we can always upgrade the config first.
+2. Simplely stop all the old services and start the new services with the latest config.
+3. OPTIONAL. Uncompatiable upgrade may need some adhoc steps.
+
+There are some assumptions for services, discuss it later.
