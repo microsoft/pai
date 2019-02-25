@@ -32,7 +32,6 @@ function exit_handler()
   rc=$?
   echo "Exited with $rc"
   local handler="Yarn container exit handler"
-  local if_cgroup_oom=""
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
   debug_log "$handler" "trying to kill docker container $docker_name"
@@ -48,10 +47,7 @@ function exit_handler()
     is_oom=$(docker inspect --format={{{ inspectOOMKilledFormat }}} $docker_name 2>/dev/null)
     debug_log "$handler" "docker container $docker_name is exited by OOM? $is_oom"
     if [ "$is_oom" = "true" ]; then
-      is_cgroup_oom=$(dmesg | grep "Memory cgroup out of memory: Kill $docker_pid")
-      debug_log "$handler" "docker container $docker_name is exited by cgroup OOM? $is_cgroup_oom"
-      if [ -n "$is_cgroup_oom" ]; then
-        rc=206
+      rc=5
     fi
   fi
 
