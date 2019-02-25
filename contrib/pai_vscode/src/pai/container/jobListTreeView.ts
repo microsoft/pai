@@ -137,25 +137,25 @@ interface IClusterData {
     shownAmount: number;
     loadingState: LoadingState;
     jobs: IPAIJobInfo[];
-    lastLatestJobName?: string;
     lastShownAmount?: number;
 }
 
 interface IFilterData {
     type: TreeDataType.Filter;
     filterType: FilterType;
-    parent: IClusterData;
+    clusterIndex: number;
 }
 
 interface IJobData {
     type: TreeDataType.Job;
     job: IPAIJobInfo;
-    parent: IFilterData;
+    clusterIndex: number;
+    filterType: FilterType;
 }
 
 interface IMoreData {
     type: TreeDataType.More;
-    parent: IFilterData;
+    clusterIndex: number;
 }
 
 type ITreeData = IClusterData | IFilterData | IJobData | IMoreData;
@@ -216,23 +216,16 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         }
     }
 
-    public async eagerLoadRecent(index: number): Promise<void> {
-        const filters: ITreeData[] | undefined = await this.getChildren(this.clusters[index]);
-        if (filters) {
-            this.getChildren(filters[0]);
-        }
-    }
-
     public getTreeItem(element: ITreeData): TreeItem {
         switch (element.type) {
             case TreeDataType.Cluster:
                 return new ClusterNode(element.config, element.index);
             case TreeDataType.Filter:
-                return new FilterNode(element.filterType, element.parent.loadingState);
+                return new FilterNode(element.filterType, this.clusters[element.clusterIndex].loadingState);
             case TreeDataType.Job:
-                return new JobNode(element.job, element.parent.parent.config);
+                return new JobNode(element.job, this.clusters[element.clusterIndex].config);
             case TreeDataType.More:
-                return new ShowMoreNode(element.parent.parent);
+                return new ShowMoreNode(this.clusters[element.clusterIndex]);
             default:
                 throw new Error('Unexpected node type');
         }
@@ -247,13 +240,13 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             case TreeDataType.Cluster:
             {
                 return [
-                    { type: TreeDataType.Filter, filterType: FilterType.Recent, parent: element },
-                    { type: TreeDataType.Filter, filterType: FilterType.All, parent: element }
+                    { type: TreeDataType.Filter, filterType: FilterType.Recent, clusterIndex: element.index },
+                    { type: TreeDataType.Filter, filterType: FilterType.All, clusterIndex: element.index }
                 ];
             }
             case TreeDataType.Filter:
                 if (element.filterType === FilterType.Recent) {
-                    const cluster: IClusterData = element.parent;
+                    const cluster: IClusterData = this.clusters[element.clusterIndex];
                     const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
                     const recentMaxLen: number = settings.get<number>(SETTING_JOB_JOBLIST_RECENTJOBSLENGTH)!;
                     const recentJobs: string[] | undefined = (await getSingleton(RecentJobManager)).allRecentJobs[cluster.index] || [];
@@ -264,23 +257,20 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                             result.push({
                                 type: TreeDataType.Job,
                                 job: foundJob,
-                                parent: element
+                                clusterIndex: element.clusterIndex,
+                                filterType: element.filterType
                             });
                         }
                     }
-                    if (result.length > 0 && result[0].job.name !== cluster.lastLatestJobName) {
-                        setImmediate(jobData => this.treeView.reveal(jobData, { focus: true }), result[0]);
-                        cluster.lastLatestJobName = result[0].job.name;
-                    }
-
                     return result;
                 } else {
-                    const cluster: IClusterData = element.parent;
+                    const cluster: IClusterData = this.clusters[element.clusterIndex];
                     const result: (IJobData | IMoreData)[] = cluster.jobs.slice(0, cluster.shownAmount).map(
                         job => <IJobData>({
                             type: TreeDataType.Job,
                             job,
-                            parent: element
+                            clusterIndex: element.clusterIndex,
+                            filterType: element.filterType
                         })
                     );
                     if (cluster.lastShownAmount && cluster.lastShownAmount !== cluster.shownAmount) {
@@ -288,7 +278,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                         cluster.lastShownAmount = cluster.shownAmount;
                     }
                     if (cluster.jobs.length > cluster.shownAmount) {
-                        result.push({ type: TreeDataType.More, parent: element });
+                        result.push({ type: TreeDataType.More, clusterIndex: element.clusterIndex });
                     }
                     return result;
                 }
@@ -300,7 +290,36 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
     }
 
     public getParent(element: ITreeData): ITreeData | undefined {
-        return 'parent' in element ? element.parent : undefined;
+        if ('clusterIndex' in element) {
+            if ('filterType' in element) {
+                return {
+                    type: TreeDataType.Filter,
+                    filterType: element.filterType,
+                    clusterIndex: element.clusterIndex
+                };
+            }
+            return this.clusters[element.clusterIndex];
+        }
+    }
+
+    public revealLatestJob(clusterIndex: number, jobName: string): void {
+        const job: IPAIJobInfo | undefined = this.clusters[clusterIndex].jobs.find(j => j.name === jobName);
+        if (job) {
+            /**
+             * Note: treeView.reveal() will obtain the node's parent and
+             * traverse to ancestors (upwards) until a expanded node has been found,
+             * then go back down and expand nodes via getChildren() on demand
+             */
+            this.treeView.reveal(
+                {
+                    type: TreeDataType.Job,
+                    job: job,
+                    clusterIndex: clusterIndex,
+                    filterType: FilterType.Recent
+                },
+                { focus: true }
+            );
+        }
     }
 
     public onActivate(): Promise<void> {

@@ -56,7 +56,10 @@ export class RecentJobManager extends Singleton {
         const provider: JobListTreeDataProvider = await getSingleton(JobListTreeDataProvider);
         await provider.refresh(index);
         if (index !== -1) {
-            await provider.eagerLoadRecent(index);
+            const latestJobName: string | undefined = (this.allRecentJobs[index] || [])[0];
+            if (latestJobName) {
+                await provider.revealLatestJob(index, latestJobName);
+            }
         }
     }
 
