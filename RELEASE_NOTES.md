@@ -1,4 +1,4 @@
-# Release v0.10.0 #
+# Release v0.10.1 #
 
 ## New Features ##
 
