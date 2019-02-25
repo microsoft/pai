@@ -382,7 +382,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -458,7 +458,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
               "refId": "A"
             }
           ],
