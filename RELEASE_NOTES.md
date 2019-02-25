@@ -2,7 +2,7 @@
 
 ## New Features ##
 
-* Support configure vc bonus [#2147](https://github.com/Microsoft/pai/pull/2147)
+* Admin can configure **MaxCapacity** through REST API for a given Virtual Cluster so that the virtual cluster can use iddle resources as bonus. [#2147](https://github.com/Microsoft/pai/pull/2147)
 * Support Azure RDMA [#2091](https://github.com/Microsoft/pai/pull/2091)
 * PAI VS Code extension [#1984](https://github.com/Microsoft/pai/pull/1984)
 * Kill job container that consumes most of the disk in case of disk pressure. [#2119](https://github.com/Microsoft/pai/pull/2119)
