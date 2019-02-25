@@ -18,7 +18,6 @@
 * Pylon: WebHDFS library compatibility [#2134](https://github.com/Microsoft/pai/pull/2134)
 * Hadoop: Extend nm expiry time to 60 mins [#2142](https://github.com/Microsoft/pai/pull/2142)
 * Alart Manager: Make it more clear in service not up [#2105](https://github.com/Microsoft/pai/pull/2105)
-* Grafana: Use yarn's metrics in cluster view [#2148](https://github.com/Microsoft/pai/pull/2148)
 * Web Portal: Allow jsonc in job submission [#2084](https://github.com/Microsoft/pai/pull/2084)
 
 ### Command ###
@@ -43,6 +42,8 @@
 * Issue [#2099](https://github.com/Microsoft/pai/pull/2099) is fixed by
   * Launcher: Revise the definition of Framework running state [#2135](https://github.com/Microsoft/pai/pull/2135)
   * REST server: Classify two states to WAITING [#2154](https://github.com/Microsoft/pai/pull/2154)
+* Kubernetes: Disable kubernetes's pod eviction [#2124](https://github.com/Microsoft/pai/pull/2124)
+* Grafana: Use yarn's metrics in cluster view [#2148](https://github.com/Microsoft/pai/pull/2148)
 
 ## Upgrading from Earlier Release ##
 
