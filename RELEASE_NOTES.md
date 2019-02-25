@@ -32,7 +32,6 @@
 
 ### Examples ###
 
-* Add /usr/local/cuda/extras/CUPTI/lib64 to LD_LIBRARY_PATH [#2043](https://github.com/Microsoft/pai/pull/2043)
 * Add an exmaple of horovod with rdma & intel mpi [#2112](https://github.com/Microsoft/pai/pull/2112)
 
 ### Others ###
@@ -46,6 +45,7 @@
   * REST server: Classify two states to WAITING [#2154](https://github.com/Microsoft/pai/pull/2154)
 * Kubernetes: Disable kubernetes's pod eviction [#2124](https://github.com/Microsoft/pai/pull/2124)
 * Grafana: Use yarn's metrics in cluster view [#2148](https://github.com/Microsoft/pai/pull/2148)
+* Add /usr/local/cuda/extras/CUPTI/lib64 to LD_LIBRARY_PATH [#2043](https://github.com/Microsoft/pai/pull/2043)
 
 ## Upgrading from Earlier Release ##
 
