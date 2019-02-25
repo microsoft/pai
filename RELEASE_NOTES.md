@@ -20,10 +20,9 @@
 * Alart Manager: Make it more clear in service not up [#2105](https://github.com/Microsoft/pai/pull/2105)
 * Web Portal: Allow jsonc in job submission [#2084](https://github.com/Microsoft/pai/pull/2084)
 
-### Command ###
+### Deployment ###
 
-* Build: Add error message when image build failed [#2133](https://github.com/Microsoft/pai/pull/2133)
-* Deploy: Only restart docker deamon, if the configuration is updated. [#2138](https://github.com/Microsoft/pai/pull/2138)
+* Only restart docker deamon, if the configuration is updated. [#2138](https://github.com/Microsoft/pai/pull/2138)
 
 ### Documentation ###
 
@@ -36,6 +35,10 @@
 
 * Add /usr/local/cuda/extras/CUPTI/lib64 to LD_LIBRARY_PATH [#2043](https://github.com/Microsoft/pai/pull/2043)
 * Add an exmaple of horovod with rdma & intel mpi [#2112](https://github.com/Microsoft/pai/pull/2112)
+
+### Others ###
+
+* Build: Add error message when image build failed [#2133](https://github.com/Microsoft/pai/pull/2133)
 
 ## Bug Fixes ##
 
