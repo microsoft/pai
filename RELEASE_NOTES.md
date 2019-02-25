@@ -15,7 +15,6 @@
 * Hadoop: disable hdfs shortcircuit [#2027](https://github.com/Microsoft/pai/pull/2027)
 * Hadoop: Expose log retain time [#2034](https://github.com/Microsoft/pai/pull/2034)
 * Hadoop: Reduce am resource [#2072](https://github.com/Microsoft/pai/pull/2072)
-* Kubernetes: Disable kubernetes's pod eviction [#2124](https://github.com/Microsoft/pai/pull/2124)
 * Pylon: WebHDFS library compatibility [#2134](https://github.com/Microsoft/pai/pull/2134)
 * Hadoop: Extend nm expiry time to 60 mins [#2142](https://github.com/Microsoft/pai/pull/2142)
 * Alart Manager: Make it more clear in service not up [#2105](https://github.com/Microsoft/pai/pull/2105)
