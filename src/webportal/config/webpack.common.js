@@ -51,7 +51,7 @@ const config = (env, argv) => ({
     changePassword: './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
-    view: './src/app/job/job-view/job-view.component.js',
+    view: './src/app/job/job-view/fabric/job-view.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -84,6 +84,16 @@ const config = (env, argv) => ({
   },
   module: {
     rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react', '@babel/preset-env']
+          }
+        }
+      },
       {
         test: /\.txt$/,
         loader: 'raw-loader'
