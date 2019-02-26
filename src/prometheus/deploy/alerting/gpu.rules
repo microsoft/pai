@@ -27,7 +27,13 @@ groups:
           summary: "95th nvidia-smi call latency is larger than 40s in {{$labels.instance}}, should check the gpu status manually"
 
       - alert: NvidiaSmiEccError
-        expr: nvidiasmi_ecc_error_count > 0
+        expr: nvidiasmi_ecc_error_count{type="double"} > 0
         for: 5m
         annotations:
           summary: "nvidia card from {{$labels.instance}} minor number {{$labels.minor_number}} has {{$labels.type}} ecc error, count {{$value}}"
+
+      - alert: NvidiaMemoryLeak
+        expr: nvidiasmi_memory_leak_count > 0
+        for: 5m
+        annotations:
+          summary: "found nvidia memory leak from {{$labels.instance}} minor number {{$labels.minor_number}}"

@@ -62,6 +62,11 @@ def gen_gpu_ecc_counter():
             "count of nvidia ecc error",
             labels=["minor_number", "type"])
 
+def gen_gpu_memory_leak_counter():
+    return GaugeMetricFamily("nvidiasmi_memory_leak_count",
+            "count of nvidia memory leak",
+            labels=["minor_number"])
+
 
 class ResourceGauges(object):
     def __init__(self):
@@ -290,12 +295,16 @@ class GpuCollector(Collector):
             core_utils = gen_gpu_util_gauge()
             mem_utils = gen_gpu_mem_util_gauge()
             ecc_errors = gen_gpu_ecc_counter()
+            mem_leak = gen_gpu_memory_leak_counter()
 
             for minor, info in gpu_info.items():
                 core_utils.add_metric([minor], info.gpu_util)
                 mem_utils.add_metric([minor], info.gpu_mem_util)
                 ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
                 ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
+                if info.gpu_mem_util > 20 * 1024 * 1024 and len(info.pids) == 0:
+                    # we found memory leak less than 20M can be mitigated automatically
+                    mem_leak.add_metric([minor], 1)
 
             return [core_utils, mem_utils, ecc_errors]
 
