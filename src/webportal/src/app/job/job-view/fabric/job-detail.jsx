@@ -15,14 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-// module dependencies
-
 import React from 'react';
 import ReactDOM from 'react-dom';
+import t from 'tachyons/src/_widths.css';
+import {initializeIcons} from '@uifabric/icons';
 
-const App = () => (
-  <div>Hello World</div>
+import Top from './components/top';
+
+initializeIcons();
+const PARAMS = new URLSearchParams(window.location.search);
+
+const JobDetail = () => (
+  <div className={t.w100}>
+    <Top />
+    <div>{PARAMS.get('username')}</div>
+    <div>{PARAMS.get('jobName')}</div>
+  </div>
 );
 
-ReactDOM.render(<App />, document.getElementById('content-wrapper'));
+ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'));
