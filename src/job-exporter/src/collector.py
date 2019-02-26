@@ -57,6 +57,11 @@ def gen_gpu_mem_util_gauge():
             "gpu memory utilization of card",
             labels=["minor_number"])
 
+def gen_gpu_ecc_counter():
+    return GaugeMetricFamily("nvidiasmi_ecc_error_count",
+            "count of nvidia ecc error",
+            labels=["minor_number", "type"])
+
 
 class ResourceGauges(object):
     def __init__(self):
@@ -284,12 +289,15 @@ class GpuCollector(Collector):
         if gpu_info is not None:
             core_utils = gen_gpu_util_gauge()
             mem_utils = gen_gpu_mem_util_gauge()
+            ecc_errors = gen_gpu_ecc_counter()
 
             for minor, info in gpu_info.items():
-                core_utils.add_metric([minor], info["gpu_util"])
-                mem_utils.add_metric([minor], info["gpu_mem_util"])
+                core_utils.add_metric([minor], info.gpu_util)
+                mem_utils.add_metric([minor], info.gpu_mem_util)
+                ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
+                ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
 
-            return [core_utils, mem_utils]
+            return [core_utils, mem_utils, ecc_errors]
 
         return None
 
@@ -443,13 +451,17 @@ class ContainerCollector(Collector):
 
             if gpu_infos:
                 for id in gpu_ids:
+                    if gpu_infos.get(id) is None:
+                        continue
+
+                    nvidia_gpu_status = gpu_infos[id]
                     labels = copy.deepcopy(container_labels)
                     labels["minor_number"] = id
 
                     gauges.add_value("task_gpu_percent",
-                            labels, gpu_infos[id]["gpu_util"])
+                            labels, nvidia_gpu_status.gpu_util)
                     gauges.add_value("task_gpu_mem_percent",
-                            labels, gpu_infos[id]["gpu_mem_util"])
+                            labels, nvidia_gpu_status.gpu_mem_util)
 
             gauges.add_value("task_cpu_percent", container_labels, stats["CPUPerc"])
             gauges.add_value("task_mem_usage_byte", container_labels, stats["MemUsage_Limit"]["usage"])

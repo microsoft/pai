@@ -25,3 +25,9 @@ groups:
         for: 5m
         annotations:
           summary: "95th nvidia-smi call latency is larger then 3s in {{$labels.instance}}, should check the gpu status manually"
+
+      - alert: NvidiaSmiEccError
+        expr: nvidiasmi_ecc_error_count > 0
+        for: 5m
+        annotations:
+          summary: "nvidia card from {{$labels.instance}} minor number {{$labels.minor_number}} has {{$labels.type}} ecc error, count {{$value}}"
