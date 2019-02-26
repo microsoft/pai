@@ -272,7 +272,7 @@ class GpuCollector(Collector):
     cmd_histogram = Histogram("cmd_nvidia_smi_latency_seconds",
             "Command call latency for nvidia-smi (seconds)")
 
-    cmd_timeout = 5 # 99th latency is 0.97s
+    cmd_timeout = 60 # 99th latency is 0.97s
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
