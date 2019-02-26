@@ -32,6 +32,7 @@ import utils
 import docker_inspect
 import docker_stats
 import nvidia
+import ps
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,11 @@ def gen_gpu_memory_leak_counter():
     return GaugeMetricFamily("nvidiasmi_memory_leak_count",
             "count of nvidia memory leak",
             labels=["minor_number"])
+
+def gen_zombie_process_counter():
+    return GaugeMetricFamily("zombie_process_count",
+            "count of zombie process",
+            labels=["command"])
 
 
 class ResourceGauges(object):
@@ -636,3 +642,27 @@ class ZombieCollector(Collector):
         # we will get None
         stats_info = self.stats_info_ref.get_and_set(None)
         self.update_zombie_count(stats_info)
+
+
+class ProcessCollector(Collector):
+    cmd_histogram = Histogram("cmd_ps_latency_seconds",
+            "Command call latency for ps (seconds)")
+
+    cmd_timeout = 10 # TODO 99th latency is xxx
+
+    def __init__(self, name, sleep_time, atomic_ref, iteration_counter):
+        Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
+
+    def collect_impl(self):
+        process = ps.get_zombie_process(ProcessCollector.cmd_histogram,
+                ProcessCollector.cmd_timeout)
+
+        if len(process) > 0:
+            zombie_metrics = gen_zombie_process_counter()
+
+            for cmd, count in process.items():
+                zombie_metrics.add_metric([cmd], count)
+
+            return [zombie_metrics]
+
+        return None

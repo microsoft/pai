@@ -37,3 +37,9 @@ groups:
         for: 5m
         annotations:
           summary: "found nvidia memory leak from {{$labels.instance}} minor number {{$labels.minor_number}}"
+
+      - alert: NvidiaZombieProcess
+        expr: zombie_process_count{command="nvidia-smi"} > 0
+        for: 5m
+        annotations:
+          summary: "found nvidia zombie process in {{$labels.instance}}"

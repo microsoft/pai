@@ -146,6 +146,7 @@ def main(args):
             ("container_collector", interval - 18, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
             ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
+            ("process_collector", interval, collector.ProcessCollector),
             ]
 
     refs = list(map(lambda x: collector.make_collector(*x), collector_args))
