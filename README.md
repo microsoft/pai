@@ -79,7 +79,7 @@ If you only have one mahince, and want to deploy pai on it. Please choose ```Sin
 - How to submit OpenPAI jobs
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md)
-    - [OpenPAI VS Code Extension](./contrib/pai_vscode)
+    - [OpenPAI VS Code Extension](./contrib/pai_vscode/VSCodeExt.md)
 - How to run AutoML jobs on OpenPAI
     - [Submit a job in Neural Network Intelligence](https://github.com/Microsoft/nni/blob/master/docs/PAIMode.md)
 - How to request on-demand resource for in place training
