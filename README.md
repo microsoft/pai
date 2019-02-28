@@ -54,17 +54,17 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 ## Get started
 
-OpenPAI manages computing resources, and optimizing for machine learning. Through docker techology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, create consistent environments.
+OpenPAI manages computing resources, and optimizing for machine learning. Through docker techology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
 
 As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI, and manage its resource.
 
-If a cluster is ready, [train models](#train-models) is helpful to use it.
+If the cluster is ready, learn from [train models](#train-models) about how to use it.
 
 ## Deploy OpenPAI
 
 Follow this part to check prerequisites, deploy and validate an OpenPAI cluster. More servers can be added as needed after initial deployed.
 
-It's highly recommended to try OpenPAI on server(s), which has no usage or service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
+It's highly recommended to try OpenPAI on server(s), which has no usage and service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
 ### Prerequisites and preparation
 
@@ -79,29 +79,25 @@ It's highly recommended to try OpenPAI on server(s), which has no usage or servi
 
 ### Deploy
 
-The default deployment includes minimum steps to deploy an OpenPAI cluster, and it's suitable for most small and middle size clusters within 50 servers. Base on the default configuration, the customized deployment can optimize it for different hardware environments and use scenarios.
+The [Deploy with default configuration](#Deploy-with-default-configuration) part is minimum steps to deploy an OpenPAI cluster, and it's suitable for most small and middle size clusters within 50 servers. Base on the default configuration, the customized deployment can optimize the cluster for different hardware environments and use scenarios.
 
 #### Deploy with default configuration
 
-For a small or medium size cluster, which is less than 50 servers, it's recommended to deploy with default configuration. if there is only one powerful server, refer to [deploy OpenPAI as a single box](docs/pai-management/doc/single-box.md).
+For a small or medium size cluster, which is less than 50 servers, it's recommended to [deploy with default configuration](docs/pai-management/doc/distributed-deploy.md). if there is only one powerful server, refer to [deploy OpenPAI as a single box](docs/pai-management/doc/single-box.md).
 
-If you are deploying a large size cluster, this section is still needed to generate default configuration, then customize on it.
-
-[Deploy with default configurations](docs/pai-management/doc/distributed-deploy.md)
+For a large size cluster, this section is still needed to generate default configuration, then [customize the deployment](#customize-deployment).
 
 #### Customize deployment
 
-As various hardware environments and different use scenarios, default configuration of OpenPAI may not fit your case. Based on the generated default configuration in **Deploy with default configuration**, you can change it before deploying.
-
-[Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)
+As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be updated. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
 
 ### Validate deployment
 
-After deployment, it's recommended to [validate key components in health status](docs/pai-management/doc/validate-deployment.md). After validation is success, [submit a "hello world" job](examples/README.md#quickstart), and check if it works end-to-end.
+After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](examples/README.md#quickstart), and check if it works end-to-end.
 
 ### Train users before "train model"
 
-The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to people. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly, and save time on maintaining environments.
+The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly, and save time on maintaining environments.
 
 For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits, and know how to use it. Users of OpenPAI can learn from [Train models](#train-models). But below content is for various scenarios, and may be too much to specific users. So a simplified document based on below content is easier to learn.
 
@@ -113,41 +109,41 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## Train models
 
-Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs into OpenPAI, and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This approach is different with on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage your jobs on OpenPAI.
+Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs into OpenPAI, and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This is different with training models on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
-OpenPAI also supports to allocate dedicated resource for users, and user can use SSH or Jupyter on assigned environment like a standalone server. Refer [here](examples/jupyter/README.md) to use OpenPAI like this way. Though it's not efficient to use resource, but it also saves cost on setup and managing environments on physical servers.
+OpenPAI also supports to allocate ondemand resource to users, and users can use SSH or Jupyter like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
 
-### Train your first model on OpenPAI
+### Train first model on OpenPAI
 
-Follow [here](examples/README.md#quickstart) to create your first job definition and have a look on job definition. Then refer to [here](docs/submit_from_webportal.md) to submit it to OpenPAI. It may be a very simple job, as it downloads data and code from internet, and doesn't copy model back to you. It's used to let you understand OpenPAI job definition and familiar with Web portal.
+Follow [here](examples/README.md#quickstart) to create the first job definition. Then [submit the job via web portal](docs/submit_from_webportal.md). It's a very simple job, as it downloads data and code from internet, and doesn't copy model back. It's used to understand OpenPAI job definition and familiar with Web portal.
 
 ### Learn deeper on job definition
 
 * Choose training environment. OpenPAI uses [Docker](https://www.docker.com/) to provide runtime environment.
 
-    You can refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, ufoym/deepo:pytorch-py36-cu90. Note, it doesn't include openssh-server, curl. So you want to use SSH with those docker images, you need use `apt install openssh-server curl` in command field to enable SSH.
+    Refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, `ufoym/deepo:pytorch-py36-cu90`.
 
-* Put code and data in. OpenPAI creates a clean environment, you need to use command field to copy data and code in and start training. You can join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install`.
+    Note, this docker doesn't include openssh-server, curl. So if SSH is necessary with those docker images, it nedss to run `apt install openssh-server curl` in command field.
 
-    There are some suggestions to exchange data with running environment, but you should check with OpenPAI administrator, which kind of storage is supported, and recommended approach to access it in your OpenPAI clulster. Refer to [here](TODO provide storage solution) for examples of solution.
+* Put code and data in. OpenPAI creates a clean environment as docker image. The data and code may not be in the docker. So it needs to use command field to copy data and code into docker before training. The command field supports to join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install` as well.
 
-* Copy model out. It's similar with above topic, if code and data can copy in, model can also be copied out.
+    There are some suggested approach to exchange data with running environment, but it's better to check with administrators of OpenPAI, which kind of storage is supported, and recommended approach to access it.
 
-* Running distributed training job. OpenPAI can allocate multiple environments to same job to support distributed training.
+* Copy model back. It's similar with above topic, if code and data can copy into docker, model can also be copied back.
 
-If you want to learn more about job definition, refer to [here](docs/job_tutorial.md#write-a-job-json-configuration-file-).
+* Running distributed training job. OpenPAI can allocate multiple environments to one job to support distributed training.
+
+Learn more about job definition, refer to [here](docs/job_tutorial.md#write-a-job-json-configuration-file-).
 
 ### OpenPAI client
 
-Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have a friendly client tool for user. It's an extension of [Visual Studio Code](https://code.visualstudio.com/), called `OpenPAI VS Code Client`. Once you installed Visual Studio Code, you can search and install it in extensions tab.
-
-`OpenPAI VS Code Client` can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on. Refer to [here](contrib/pai_vscode/VSCodeExt.md) for more information.
+Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have a friendly client tool for user. It's an extension of Visual Studio Code, called [OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md). It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
 
 ### Troubleshooting job failure
 
-You can use Web portal and job log to analyze job failure, also you can log into environment with SHH to do it.
+Web portal and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
 
-Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information of troubleshooting job failure on OpenPAI. It's recommended to get job running successfully locally, and then submit it to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
+Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information of troubleshooting job failure on OpenPAI. It's recommended to get code succeeded locally, then submit to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
 
 ## Administration
 
