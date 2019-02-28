@@ -26,6 +26,26 @@
   "rows": [
     {
       "collapse": false,
+      "height": "30px",
+      "panels": [
+        {
+          "content": "[Resource Util of This Node]({{url}}/dashboard/db/pai_nodeview?var-node=$node) ",
+          "id": 24,
+          "mode": "markdown",
+          "span": 12,
+          "title": "",
+          "type": "text"
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
       "height": "250px",
       "panels": [
         {
