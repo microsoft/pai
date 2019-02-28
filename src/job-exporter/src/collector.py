@@ -23,6 +23,7 @@ import threading
 import subprocess
 import time
 import copy
+import os
 
 from prometheus_client import make_wsgi_app, Counter, Gauge, Histogram
 from prometheus_client.core import GaugeMetricFamily
@@ -288,6 +289,26 @@ class GpuCollector(Collector):
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
         self.gpu_info_ref = gpu_info_ref
+
+    @staticmethod
+    def get_container_id(pid):
+        """ return two values, the first one is if we found the corresponding
+        container_id, the second one is the container_id if found """
+        path = "/proc/%d/cgroup" % (pid)
+        if not os.path.isfile(path):
+            return False, ""
+
+        with open(path) as f:
+            content = f.read()
+
+        for line in content.split("\n"):
+            line = line.strip()
+            if "pids" in line and "/docker/" in line:
+                parts = line.split("/docker/")
+                if len(parts) == 2 and re.match(u"[0-9a-f]+", parts[1]):
+                    return True, parts[1]
+
+        return False, ""
 
     def collect_impl(self):
         gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
