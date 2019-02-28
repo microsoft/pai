@@ -160,7 +160,7 @@ Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information
 
 * [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 * [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in microsoft/pai conversation.
-* [create an issue or feature request:](https://github.com/Microsoft/pai/issues/new/choose) If you have issue/ bug/ new feature, please submit it at Github
+* [Create an issue or feature request:](https://github.com/Microsoft/pai/issues/new/choose) If you have issue/ bug/ new feature, please submit it at Github
 
 ## How to contribute
 
