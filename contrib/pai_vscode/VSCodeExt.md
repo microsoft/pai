@@ -18,4 +18,4 @@ To install the OpenPAI Client:
 ![Extension](./assets/ext-install-1.png)
 
 ## Next steps
-Learn how to [use OpenPAI VS Code Client](./readme.md)
+Learn how to [use OpenPAI VS Code Client](./README.md)
