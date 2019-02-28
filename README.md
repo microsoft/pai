@@ -54,9 +54,9 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 ## Get started
 
-OpenPAI manages computing resources, and optimizing for machine learning. Through docker techology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
+OpenPAI manages computing resources and optimizing for machine learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
 
-As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI, and manage its resource.
+As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
 
 If the cluster is ready, learn from [train models](#train-models) about how to use it.
 
@@ -93,13 +93,13 @@ As various hardware environments and different use scenarios, default configurat
 
 ### Validate deployment
 
-After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](examples/README.md#quickstart), and check if it works end-to-end.
+After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](examples/README.md#quickstart) and check if it works end-to-end.
 
 ### Train users before "train model"
 
-The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly, and save time on maintaining environments.
+The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly and save time on maintaining environments.
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits, and know how to use it. Users of OpenPAI can learn from [Train models](#train-models). But below content is for various scenarios, and may be too much to specific users. So a simplified document based on below content is easier to learn.
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users of OpenPAI can learn from [Train models](#train-models). But below content is for various scenarios and may be too much to specific users. So, a simplified document based on below content is easier to learn.
 
 ### FAQ
 
@@ -109,9 +109,9 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## Train models
 
-Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs into OpenPAI, and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This is different with training models on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This is different with training models on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
-OpenPAI also supports to allocate ondemand resource to users, and users can use SSH or Jupyter like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
+OpenPAI also supports to allocate on demand resource to users, and users can use SSH or Jupyter like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### Train first model on OpenPAI
 
@@ -123,7 +123,7 @@ Follow [here](examples/README.md#quickstart) to create the first job definition.
 
     Refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, `ufoym/deepo:pytorch-py36-cu90`.
 
-    Note, this docker doesn't include openssh-server, curl. So if SSH is necessary with those docker images, it nedss to run `apt install openssh-server curl` in command field.
+    Note, this docker doesn't include openssh-server, curl. So, if SSH is necessary with those docker images, it needs to add `apt install openssh-server curl` in command field.
 
 * Put code and data in. OpenPAI creates a clean environment as docker image. The data and code may not be in the docker. So it needs to use command field to copy data and code into docker before training. The command field supports to join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install` as well.
 
@@ -158,9 +158,9 @@ Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information
 
 ## Get involved
 
-* [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
+* [Stack Overflow](./docs/stackoverflow.md): If you have questions about OpenPAI, please submit question at Stack Overflow under tag: openpai
 * [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in microsoft/pai conversation.
-* [Create an issue or feature request:](https://github.com/Microsoft/pai/issues/new/choose) If you have issue/ bug/ new feature, please submit it at Github
+* [Create an issue or feature request](https://github.com/Microsoft/pai/issues/new/choose): If you have issue/ bug/ new feature, please submit it to GitHub.
 
 ## How to contribute
 
