@@ -202,6 +202,11 @@ else
   wait $user_command_pid
   user_command_exitcode=$?
   echo "job has finished with exit code $user_command_exitcode"
+  if [[ $user_command_exitcode -ne 0 ]; then
+    echo "The job container failed, so it will be reserved for 1 week"
+    echo "After debugging, please stop the job manually."
+    sleep 604800
+  fi
   exit $user_command_exitcode
 fi
 
