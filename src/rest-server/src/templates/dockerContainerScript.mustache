@@ -216,6 +216,10 @@ else
         [ $sleep_count -lt $sleep_time ]; do
         sleep 20
         sleep_count=$((sleep_count+20))
+        if [ $sleep_count -lt $sleep_time ]; then
+            echo "sleep_count: $sleep_count"
+            echo "sleep_time: $sleep_time"
+        fi
     done
 
   fi
