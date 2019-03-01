@@ -16,128 +16,116 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from wsgiref.simple_server import make_server
 import urllib.parse
 import argparse
+import signal
+import faulthandler
+import gc
 
-from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, REGISTRY
-from prometheus_client import make_wsgi_app
-import attr
+from prometheus_client.core import GaugeMetricFamily, REGISTRY
+from prometheus_client import Histogram
+from prometheus_client.twisted import MetricsResource
+
 import requests
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
+
+##### yarn-exporter will generate following metrics
+
+cluster_metrics_histogram = Histogram("yarn_api_cluster_metrics_latency_seconds",
+        "Resource latency for requesting yarn api /ws/v1/cluster/metrics")
+
+def gen_total_gpu_count():
+    return GaugeMetricFamily("yarn_total_gpu_num", "count of total gpu number")
+
+def gen_used_gpu_count():
+    return GaugeMetricFamily("yarn_gpus_used", "count of allocated gpu by yarn")
+
+def gen_total_node_count():
+    return GaugeMetricFamily("yarn_nodes_all", "total node count in yarn")
+
+def gen_active_node_count():
+    return GaugeMetricFamily("yarn_nodes_active", "active node count in yarn")
+
+##### yarn-exporter will generate above metrics
+
+def request_with_histogram(url, histogram, *args, **kwargs):
+    with histogram.time():
+        return requests.get(url, *args, **kwargs)
 
 
 class YarnCollector(object):
-    api_path = '/'
-
-    def __init__(self, endpoint, cluster_name='yarn'):
-        self.endpoint = endpoint
-        self.cluster_name = cluster_name
-
-    @property
-    def metric_url(self):
-        return urllib.parse.urljoin(self.endpoint, self.api_path)
+    def __init__(self, yarn_url):
+        self.metric_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/metrics")
 
     def collect(self):
-        raise NotImplemented
-
-
-@attr.s
-class YarnMetric(object):
-    GAUGE = 'gauge'
-    COUNTER = 'counter'
-    supported_type = [GAUGE, COUNTER]
-
-    namespace = "yarn"
-
-    name = attr.ib()
-    metric_type = attr.ib()
-
-    @metric_type.validator
-    def check(self, _, value):
-        if value not in self.supported_type:
-            raise ValueError('Parameter metric_type value must in {0}, can not be {1}'.format(self.supported_type, value))
-
-    description = attr.ib()
-    labels = attr.ib(default=attr.Factory(list))
-
-    @property
-    def metric_name(self):
-        return '{0}_{1}'.format(self.namespace, self.name)
-
-    def create_metric(self):
-        if self.metric_type == self.GAUGE:
-            return GaugeMetricFamily(self.metric_name, self.description, labels=self.labels)
-        elif self.metric_type == self.COUNTER:
-            return CounterMetricFamily(self.metric_name, self.description, labels=self.labels)
-        else:
-            raise ValueError('property metric_type value must in {0}, can not be {1}'.format(self.supported_type, self.metric_type))
-
-
-class YarnMetricCollector(YarnCollector):
-    api_path = '/ws/v1/cluster/metrics'
-
-    def collect(self):
-        response = requests.get(self.metric_url, allow_redirects=True)
+        response = request_with_histogram(self.metric_url, cluster_metrics_histogram,
+                allow_redirects=True)
         response.raise_for_status()
-        metric = response.json()['clusterMetrics']
+        metric = response.json()["clusterMetrics"]
 
-
-        total_gpu_num = YarnMetric('total_gpu_num', YarnMetric.COUNTER, 
-                                    'The total number of GPUs of cluster',['cluster']).create_metric()
-        total_gpu_num.add_metric([self.cluster_name], metric['totalGPUs'])
+        total_gpu_num = gen_total_gpu_count()
+        total_gpu_num.add_metric([], metric["totalGPUs"])
         yield total_gpu_num
 
-        gpus_used = YarnMetric('gpus_used', YarnMetric.COUNTER, 
-                                    'The number of allocated GPUs',['cluster']).create_metric()
-        gpus_used.add_metric([self.cluster_name], metric['allocatedGPUs'])
+        gpus_used = gen_used_gpu_count()
+        gpus_used.add_metric([], metric["allocatedGPUs"])
         yield gpus_used
 
-        nodes_all = YarnMetric('nodes_all', YarnMetric.GAUGE,
-                               'The total number of nodes', ['cluster']).create_metric()
-        nodes_all.add_metric([self.cluster_name], metric['totalNodes'])
+        nodes_all = gen_total_gpu_count()
+        nodes_all.add_metric([], metric["totalNodes"])
         yield nodes_all
 
-        nodes_active = YarnMetric('nodes_active', YarnMetric.GAUGE,
-                                  'The number of active nodes', ['cluster']).create_metric()
-        nodes_active.add_metric([self.cluster_name], metric['activeNodes'])
+        nodes_active = gen_active_node_count()
+        nodes_active.add_metric([], metric["activeNodes"])
         yield nodes_active
 
-        # nodes_lost = YarnMetric('nodes_lost', YarnMetric.GAUGE,
-        #                         'The number of lost nodes', ['cluster']).create_metric()
-        # nodes_lost.add_metric([self.cluster_name], metric['lostNodes'])
-        # yield nodes_lost
 
-        # nodes_unhealthy = YarnMetric('nodes_unhealthy', YarnMetric.GAUGE,
-        #                              'The number of unhealthy nodes', ['cluster']).create_metric()
-        # nodes_unhealthy.add_metric([self.cluster_name], metric['unhealthyNodes'])
-        # yield nodes_unhealthy
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
 
-        # nodes_decommissioned = YarnMetric('nodes_decommissioned', YarnMetric.COUNTER,
-        #                                   'The number of nodes decommissioned', ['cluster']).create_metric()
-        # nodes_decommissioned.add_metric([self.cluster_name], metric['decommissionedNodes'])
-        # yield nodes_decommissioned
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
 
-        # nodes_rebooted = YarnMetric('nodes_rebooted', YarnMetric.COUNTER,
-        #                             'The number of nodes rebooted', ['cluster']).create_metric()
-        # nodes_rebooted.add_metric([self.cluster_name], metric['rebootedNodes'])
-        # yield nodes_rebooted
+ # https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
 
-def get_parser():
+    for name, collector in list(REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+def main(args):
+    register_stack_trace_dump()
+    burninate_gc_collector()
+
+    REGISTRY.register(YarnCollector(args.yarn_url))
+
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("yarn_url", help="Yarn rest api address, eg: http://127.0.0.1:8088")
     parser.add_argument("--cluster-name", "-n", help="Yarn cluster name",
                         default="cluster_0")
     parser.add_argument("--port", "-p", help="Exporter listen port",default="9459")
-    parser.add_argument("--host", "-H", help="Exporter host address", default="0.0.0.0")
-    parser.add_argument("--collected-apps", "-c", nargs="*",
-                        help="Name of applications need to collect running status")
 
-    return parser
+    args = parser.parse_args()
 
-if __name__ == "__main__":
-    args = get_parser().parse_args()
-
-    REGISTRY.register(YarnMetricCollector(args.yarn_url + '/metrics', args.cluster_name))
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server(args.host, int(args.port), app)
-    httpd.serve_forever()
+    main(args)
