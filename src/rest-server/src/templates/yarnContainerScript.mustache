@@ -30,9 +30,33 @@ BASH_XTRACEFD=13
 function exit_handler()
 {
   rc=$?
-  printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
+  echo "Exited with $rc"
+  local handler="Yarn container exit handler"
+  debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
-  printf "[DEBUG] Write exit code $rc to file /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode.\n"
+  debug_log "$handler" "trying to kill docker container $docker_name"
+  docker logs $docker_name
+  docker inspect $docker_name
+  pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
+  if [ $pid -gt 0 ]; then
+    kill -9 $pid &&\
+      debug_log "$handler" "docker caontainer $docker_name killed successfully." ||\
+      debug_log "$handler" "tries to kill the container $docker_name but failed. Maybe it has already exited."
+  else
+    debug_log "$handler" "docker container $docker_name has already exited"
+    is_oom=$(docker inspect --format={{{ inspectOOMKilledFormat }}} $docker_name 2>/dev/null)
+    debug_log "$handler" "docker container $docker_name is exited by OOM? $is_oom"
+    if [ "$is_oom" = "true" ]; then
+      rc=55
+    fi
+  fi
+
+  docker container rm $docker_name
+  pkill --parent $$
+
+  debug_log "$handler" "write exit code to file"
+  debug_log "$handler" "yarn container exit code: $rc"
+  debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
 
   exit $rc
@@ -266,7 +290,7 @@ docker pull {{ jobData.image }} \
 ## network consumption
 docker run --name $docker_name \
   --init \
-  --rm \
+  --detach \
   --tty \
   --privileged=false \
   --oom-score-adj=1000 \
@@ -306,3 +330,8 @@ docker run --name $docker_name \
    {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 
+docker_pid=$(docker inspect --format "{{{ inspectPidFormat }}}" $docker_name)
+
+echo "Docker container pid is $docker_pid"
+
+docker attach --no-stdin $docker_name
