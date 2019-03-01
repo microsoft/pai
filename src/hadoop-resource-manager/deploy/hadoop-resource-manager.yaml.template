@@ -52,13 +52,10 @@ spec:
           name: yarn-resourcemanager-storage
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
-<<<<<<< HEAD
         - mountPath: /var/log/hadoop
           name: log-dir
-=======
         - mountPath: /exclude-path
           name: hadoop-resource-manager-exclude-nodes
->>>>>>> master
         readinessProbe:
           exec:
             command:
