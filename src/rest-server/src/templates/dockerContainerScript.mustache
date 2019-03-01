@@ -213,7 +213,7 @@ else
     sleep_count = 0
 
     while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 30 ] && \
-        [ $sleep_count -lt $sleep_time]; do
+        [ $sleep_count -lt $sleep_time ]; do
         sleep 20
         sleep_count=$((sleep_count+20))
     done
