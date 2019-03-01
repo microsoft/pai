@@ -84,6 +84,7 @@ machine-list:
       k8s-role: master
       dashboard: "true"
       zkid: "1"
+      #docker-data: /mnt/docker (Optional)
       pai-master: "true"
 
     - hostname: hostname
@@ -94,6 +95,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
+      #docker-data: /mnt/docker (Optional)
       node-exporter: "true"
 
     - hostname: hostname
@@ -103,6 +105,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
+      #docker-data: /mnt/docker (Optional)
       pai-worker: "true"
 ```
 
@@ -119,6 +122,7 @@ User could config each service deploy at which node by labeling node with servic
 | ```dashboard``` | Select one node to set this field. And set the value as ``` "true" ```.|
 | ```pai-master``` | Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.|
 | ```zkid``` | Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```.|
+| ```docker-data``` | Optional. Set the path of docker data. |
 | ```pai-worker``` | Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work|
  ```node-exporter``` | Optional. You can assign this label to nodes to enable hardware and service monitoring.|
 
