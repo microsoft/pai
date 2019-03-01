@@ -15,22 +15,67 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import classNames from 'classnames';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import t from 'tachyons/src/_widths.css';
 import {initializeIcons} from '@uifabric/icons';
 
+import t from './tachyons.css';
+
 import Top from './components/top';
+import Summary from './components/summary';
+import Loading from './components/loading';
+import {FontClassNames} from '@uifabric/styling';
+
+import config from '../../../config/webportal.config';
 
 initializeIcons();
-const PARAMS = new URLSearchParams(window.location.search);
 
-const JobDetail = () => (
-  <div className={t.w100}>
-    <Top />
-    <div>{PARAMS.get('username')}</div>
-    <div>{PARAMS.get('jobName')}</div>
-  </div>
-);
+function getParams() {
+  return new URLSearchParams(window.location.search);
+}
+
+class JobDetail extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      jobInfo: null,
+    };
+  }
+
+  componentDidMount() {
+    const param = getParams();
+    const namespace = param.get('username');
+    const jobName = param.get('jobName');
+    const url = namespace
+      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+      : `${config.restServerUri}/api/v1/jobs/${jobName}`;
+    void fetch(url).then(async (res) => {
+      if (res.ok) {
+        const json = await res.json();
+        this.setState({jobInfo: json});
+      } else {
+        const json = await res.json();
+        alert(json.message);
+      }
+    }).catch((e) => {
+      alert(e);
+    });
+  }
+
+  render() {
+    const {jobInfo} = this.state;
+    if (!jobInfo) {
+      return <Loading />;
+    } else {
+      return (
+        <div className={classNames(t.w100, t.ph4, t.pv3, FontClassNames.medium)}>
+          <Top />
+          <Summary className={t.mt3} jobInfo={jobInfo} />
+        </div>
+      );
+    }
+  }
+}
 
 ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'));

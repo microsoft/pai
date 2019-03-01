@@ -63,3 +63,6 @@ typings/
 
 # dotenv environment variables file
 .env*
+
+# css TypeScript definition files
+*.css.d.ts

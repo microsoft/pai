@@ -15,22 +15,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import classNames from 'classnames';
 import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
+import PropTypes from 'prop-types';
 
 import t from '../tachyons.css';
 
-const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{iconName: 'revToggleKey'}}
-        href='/view.html'
-      >
-        Back to Jobs
-      </ActionButton>
-    </div>
+const Card = ({children, className}) => (
+  <div className={classNames(className, t.bgWhite)}>
+    {children}
   </div>
 );
 
-export default Top;
+Card.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+export default Card;
