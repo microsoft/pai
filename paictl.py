@@ -58,10 +58,10 @@ def main(args):
     layout_cmd = LayoutCmd()
     layout_cmd.register(layout_parser)
 
-    # # create the parser for "check" command
-    # check_parser = sub_parser.add_parser("check", help="check PAI status")
-    # check_cmd = CheckCmd()
-    # check_cmd.register(check_parser)
+    # create the parser for "check" command
+    check_parser = sub_parser.add_parser("check", help="check PAI status")
+    check_cmd = CheckCmd()
+    check_cmd.register(check_parser)
 
     # create the parser for "config" command
     config_parser = sub_parser.add_parser("config")

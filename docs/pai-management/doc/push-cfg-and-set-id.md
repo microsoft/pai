@@ -51,7 +51,7 @@ python paictl.py config push -p /path/to/config/dir [-c ~/.kube/config]
 #################
 
 type: git
-url: https://github.com/microsoft/pai.git
+url: url of git code
 branch: branch_name
 path: path_in_repo
 ```

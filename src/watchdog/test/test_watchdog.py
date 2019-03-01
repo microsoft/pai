@@ -88,7 +88,7 @@ class TestJobExporter(unittest.TestCase):
         watchdog.process_pods_status(pod_gauge, container_gauge, obj)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
-        self.assertEquals(0, len(container_gauge.samples))
+        self.assertEqual(0, len(container_gauge.samples))
 
     def test_process_pod_with_no_host_ip(self):
         obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))

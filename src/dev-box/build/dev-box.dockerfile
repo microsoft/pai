@@ -59,6 +59,28 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 RUN echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 
+# install hadoop
+ENV HADOOP_VERSION=2.9.0
+LABEL HADOOP_VERSION=2.9.0
+
+RUN wget -qO- http://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz | \
+    tar xz -C /usr/local && \
+    mv /usr/local/hadoop-${HADOOP_VERSION} /usr/local/hadoop
+
+ENV HADOOP_INSTALL=/usr/local/hadoop \
+    NVIDIA_VISIBLE_DEVICES=all
+
+ENV HADOOP_PREFIX=${HADOOP_INSTALL} \
+    HADOOP_BIN_DIR=${HADOOP_INSTALL}/bin \
+    HADOOP_SBIN_DIR=${HADOOP_INSTALL}/sbin \
+    HADOOP_HDFS_HOME=${HADOOP_INSTALL} \
+    HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_INSTALL}/lib/native \
+    HADOOP_OPTS="-Djava.library.path=${HADOOP_INSTALL}/lib/native"
+
+ENV PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${HADOOP_BIN_DIR}:${HADOOP_SBIN_DIR} \
+    LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/targets/x86_64-linux/lib/stubs:${JAVA_HOME}/jre/lib/amd64/server
+
+
 # Only node manager need this.#
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
 RUN tar xzvf docker-17.06.2-ce.tgz

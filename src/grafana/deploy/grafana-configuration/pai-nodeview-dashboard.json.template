@@ -641,7 +641,7 @@
               "decimals": 0,
               "link": true,
               "linkTooltip": "Click to view usage of each GPU",
-              "linkUrl": "{{url}}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkUrl": "{{url}}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_6",
               "pattern": "instance",
               "preserveFormat": false,
               "sanitize": false,

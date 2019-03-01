@@ -812,7 +812,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Parameters*
 ```
 {
-  "vcCapacity": new capacity
+  "vcCapacity": new capacity,
+  "vcMaxCapacity": new max capacity, range of [vcCapacity, 100]
 }
 ```
 

@@ -72,8 +72,8 @@
         </clocks_throttle_reasons>
         <fb_memory_usage>
             <total>8112 MiB</total>
-            <used>2466 MiB</used>
-            <free>5646 MiB</free>
+            <used>2028 MiB</used>
+            <free>6084 MiB</free>
         </fb_memory_usage>
         <bar1_memory_usage>
             <total>256 MiB</total>
@@ -289,8 +289,8 @@
         </clocks_throttle_reasons>
         <fb_memory_usage>
             <total>8114 MiB</total>
-            <used>2294 MiB</used>
-            <free>5820 MiB</free>
+            <used>4057 MiB</used>
+            <free>4057 MiB</free>
         </fb_memory_usage>
         <bar1_memory_usage>
             <total>256 MiB</total>
