@@ -209,8 +209,8 @@ else
     echo "======          After debugging, please stop the job manually.         ======"
     echo "============================================================================="
 
-    sleep_time = 604800
-    sleep_count = 0
+    sleep_time=604800
+    sleep_count=0
 
     while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 30 ] && \
         [ "$sleep_count" -lt "$sleep_time" ]; do
