@@ -66,6 +66,8 @@ spec:
           name: host-confg-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /var/log/hadoop
+          name: log-dir
         readinessProbe:
           exec:
             command:
@@ -107,6 +109,11 @@ spec:
           value: "3072"
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
+        # Rolling File Appender, by default it keeps at most 256M*20=5G logs.
+        - name: YARN_ROOT_LOGGER
+          value: INFO,console,RFA
+        - name: YARN_LOG_DIR
+          value: /var/log/hadoop
         - name: POD_IP
           valueFrom:
             fieldRef:
@@ -144,6 +151,9 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
+      - name: log-dir
+        hostPath:
+          path: /var/log/node-manager
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
