@@ -38,7 +38,7 @@ export interface IPAIJobConfig {
 export interface IPAIJobInfo {
     name: string;
     username: string;
-    state: 'SUCCEEDED' | 'FAILED' | 'WAITING' | 'STOPPED' | 'RUNNING';
+    state: 'SUCCEEDED' | 'FAILED' | 'WAITING' | 'STOPPED' | 'RUNNING' | 'UNKNOWN';
     subState: 'FRAMEWORK_COMPLETED' | 'FRAMEWORK_WAITING';
     executionType: 'START' | 'STOP';
     retries: number;

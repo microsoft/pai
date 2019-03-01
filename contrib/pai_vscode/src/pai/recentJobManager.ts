@@ -53,7 +53,14 @@ export class RecentJobManager extends Singleton {
 
     public async saveRecentJobs(index: number = -1): Promise<void> {
         await this.context.globalState.update(RecentJobManager.RECENT_JOBS_KEY, this.allRecentJobs);
-        await (await getSingleton(JobListTreeDataProvider)).refresh(index);
+        const provider: JobListTreeDataProvider = await getSingleton(JobListTreeDataProvider);
+        await provider.refresh(index);
+        if (index !== -1) {
+            const latestJobName: string | undefined = (this.allRecentJobs[index] || [])[0];
+            if (latestJobName) {
+                await provider.revealLatestJob(index, latestJobName);
+            }
+        }
     }
 
     public async enqueueRecentJobs(cluster: IPAICluster, jobName: string): Promise<void> {
