@@ -26,14 +26,8 @@ module.exports = {
   },
   "overrides": [
     {
-      "files": "**/*.jsx",
-      "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module",
-        "ecmaFeatures": {
-            "jsx": true
-        }
-      }
+      "files": ["**/*.jsx", "src/app/job/job-view/fabric/**/*.js"],
+      "parser": "babel-eslint"
     }
   ]
 };

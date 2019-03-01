@@ -30,7 +30,7 @@ const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
-const TACHYONS_DIR = path.resolve(__dirname, '../node_modules/tachyons');
+const TACHYONS_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 
 
 const htmlMinifierOptions = {
@@ -54,7 +54,7 @@ const config = (env, argv) => ({
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     jobList: './src/app/job/job-view/job-view.component.js',
-    jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
+    jobDetail: ['babel-polyfill', './src/app/job/job-view/fabric/job-detail.jsx'],
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -132,7 +132,7 @@ const config = (env, argv) => ({
                 sourceMap: true,
                 modules: true,
                 camelCase: true,
-                localIdentName: '[path][name]__[local]--[hash:base64:5]',
+                localIdentName: '[name]-[local]--[hash:base64:5]',
               },
             },
           ],
