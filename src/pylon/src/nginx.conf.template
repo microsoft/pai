@@ -213,7 +213,7 @@ http {
     }
     location @handle_yarn_redirect {
       if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*/)?([^/]*)$) {
-        return 301 $scheme://$http_host/yarn/$1:$2/$3$4$is_args$args;
+        return 301 $scheme://$http_host/yarn/$1:$2/$3$4;
       }
     }
 
