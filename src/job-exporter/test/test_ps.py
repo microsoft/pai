@@ -23,28 +23,19 @@ import base
 
 sys.path.append(os.path.abspath("../src/"))
 
-import nvidia
+import ps
 
-class TestNvidia(base.TestBase):
+class TestPS(base.TestBase):
     """
-    Test nvidia.py
+    Test ps.py
     """
-    def test_parse_smi_xml_result(self):
-        sample_path = "data/nvidia_smi_sample.xml"
+    def test_parse_ps_result(self):
+        sample_path = "data/ps_sample.txt"
         with open(sample_path, "r") as f:
-            nvidia_smi_result = f.read()
-        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
-        target_smi_info = {"1": nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError()),
-                "0": nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError())}
-        self.assertEqual(target_smi_info, nvidia_smi_parse_result)
-
-    def test_exporter_will_not_report_unsupported_gpu(self):
-        sample_path = "data/nvidia_smi_outdated_gpu.xml"
-        with open(sample_path, "r") as f:
-            nvidia_smi_result = f.read()
-        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
-        self.assertEqual({}, nvidia_smi_parse_result)
-
+            ps_result = f.read()
+        parse_result = ps.parse_result(ps_result)
+        target_result = {"nvidia-smi": 1}
+        self.assertEqual(target_result, parse_result)
 
 if __name__ == '__main__':
     unittest.main()
