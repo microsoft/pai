@@ -32,7 +32,7 @@ try {
 
 let paiConfigData = {
     machineList: paiMachineList,
-    debuggingReservationSeconds: Number(process.env.DEBUGGING_RESERVATION_SECONDS || "604800"),
+    debuggingReservationSeconds: Number(process.env.DEBUGGING_RESERVATION_SECONDS || '604800'),
 };
 
 
