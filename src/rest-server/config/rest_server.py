@@ -21,7 +21,7 @@ class RestServer:
         self.cluster_configuration = cluster_configuration
         self.service_configuration = dict(default_service_configuraiton,
                                           **service_configuration)
-	
+  
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
         machine_list = self.cluster_configuration['machine-list']
@@ -31,7 +31,7 @@ class RestServer:
             return False, '"default-pai-admin-password" is required in rest-server'
 
         return True, None
-	
+  
     #### Generate the final service object model
     def run(self):
         # parse your service object model here, and return a generated dictionary
