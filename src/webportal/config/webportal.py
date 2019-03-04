@@ -58,6 +58,7 @@ class Webportal:
         server_port = self.service_configuration['server-port']
         uri = 'http://{0}:{1}'.format(master_ip, server_port)
         plugins = self.service_configuration['plugins']
+        print plugins
         return {
             'server-port': server_port,
             'uri': uri,
