@@ -56,9 +56,9 @@ deployments:
     taskRoles:
       <name>: String, required # Should be in taskRoles
         preCommands:
-          - String, required # execute before $$commands$$
+          - String, required # execute before the taskRole's command
         postCommands:
-          - String, required # execute after $$commands$$
+          - String, required # execute after the taskRole's command
 
 attachments: # optional, cluster specific parameters
   - protocolVersion: String, optional
@@ -208,7 +208,7 @@ deployments:
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
             # and the system will go ahead to execute ps_server's command
         postCommands:
-          # after the execution of $$taskRoles.ps_server.commands$$, the system goes here
+          # after the execution of ps_server's command, the system goes here
           - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
           # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
           # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>"
