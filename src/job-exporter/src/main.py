@@ -135,6 +135,9 @@ def main(args):
     # used to exchange docker stats info between ContainerCollector and ZombieCollector
     stats_info_ref = collector.AtomicRef()
 
+    # used to exchange zombie info between GpuCollector and ZombieCollector
+    zombie_info_ref = collector.AtomicRef()
+
     interval = args.interval
     # Because all collector except container_collector will spent little time in calling
     # external command to get metrics, so they need to sleep 30s to align with prometheus
@@ -142,10 +145,11 @@ def main(args):
     # should only sleep 10s to adapt to scrape interval
     collector_args = [
             ("docker_daemon_collector", interval, collector.DockerCollector),
-            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref),
+            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref, zombie_info_ref, args.threshold),
             ("container_collector", interval - 18, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
-            ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
+            ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref, zombie_info_ref),
+            ("process_collector", interval, collector.ProcessCollector),
             ]
 
     refs = list(map(lambda x: collector.make_collector(*x), collector_args))
@@ -166,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9102")
     parser.add_argument("--interval", "-i", help="prometheus scrape interval", type=int, default=30)
     parser.add_argument("--interface", "-n", help="network interface for job-exporter to listen on", required=True)
+    parser.add_argument("--threshold", "-t", help="memory threshold to consider gpu memory leak", type=int, default=20 * 1024 * 1024)
     args = parser.parse_args()
 
     def get_logging_level():

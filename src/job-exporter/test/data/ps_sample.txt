@@ -1,0 +1,10 @@
+D /var/drivers/nvidia/current/bin/nvidia-smi -q -x
+S /lib/systemd/systemd --system --deserialize 27
+S [kthreadd]
+I [kworker/0:0H]
+I [mm_percpu_wq]
+S [ksoftirqd/0]
+I [rcu_sched]
+I [rcu_bh]
+S [migration/0]
+S [watchdog/0]

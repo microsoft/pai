@@ -17,10 +17,13 @@ webportal:
   plugins:
   - title: Marketplace
     uri: /scripts/plugins/marketplace.bundle.js
+    config:
+      repo: Microsoft/pai
 ```
 
 - The `title` field is the title of the web portal plugin listed in the menu, it could be customized by administrators for the same plugin with different configurations.
 - The `uri` field is the entry file of the web portal plugin, usually previded by the plugin developer. It may be an absolute URL or a root-relative URL, as the different deploy type of the web portal plugin.
+- The `config` field is a key-value dictionary to configure the web portal plugin, available configs are listed in web portal plugin's specific document.
 
 In addition, you can also lock the plugin version if the uri refers the Internet, follow the [Publish](#publish) section to move the online web portal plugin to offline.
 
@@ -50,7 +53,7 @@ If any other PAI configuration is needed, please open an issue, PAI developers w
 
 ### Provide Plugin Configurations
 
-Ask system administration to set the query string of the entry file, like `http://example.com/github-plugin.js?repo=Microsoft%2Fpai`, `document.currentScript.src` would help you get the full uri of the script, including the query string.
+The config of the plugin will be set as the query string of the entry file, like `http://example.com/github-plugin.js?repo=Microsoft%2Fpai`, `document.currentScript.src` would help you get the full uri of the script, including the query string.
 
 ### Migrate Current AI Web Tools to PAI Web Portal Plugin
 
