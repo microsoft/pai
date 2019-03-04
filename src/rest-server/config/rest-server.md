@@ -19,7 +19,7 @@ other config fields are optional, includes:
 - `github-owner: Microsoft` The marketplace repo owner in GitHub
 - `github-repository: pai` The marketplace repo name
 - `github-path: marketplace` The marketpalce path in the repo
-- `debugging-reservation-seconds` The seconds to reserved a job container to debug.
+- `debugging-reservation-seconds: 604800` The seconds to reserved a job container to debug.
 
 ## Generated Configuration <a name="G_Config"></a>
 
