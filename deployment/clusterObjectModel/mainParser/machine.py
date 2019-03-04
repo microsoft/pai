@@ -47,7 +47,7 @@ class Machine:
     def validation_machine_sku(self):
         cluster_cfg = self.cluster_configuration
         if "machine-sku" not in cluster_cfg:
-            return False, "mahince-sku is miss."
+            return False, "machine-sku is miss."
         for sku_name in cluster_cfg["machine-sku"]:
             sku = cluster_cfg["machine-sku"][sku_name]
             if "cpu" not in sku:

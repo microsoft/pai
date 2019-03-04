@@ -28,6 +28,7 @@ template-list:
   - grafana-configuration/pai-taskview-dashboard.json
   - grafana-configuration/prom-datasource.json
   - grafana-configuration/pai-serviceview-dashboard.json
+  - grafana-configuration/pai-tasks-in-node-dashboard.json
 
 start-script: start.sh
 stop-script: stop.sh
