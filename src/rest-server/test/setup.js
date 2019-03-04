@@ -28,6 +28,7 @@ process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
 process.env.YARN_URI = 'http://yarn.test.pai:8088';
 process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
 process.env.AZ_RDMA = 'false';
+process.env.DEBUGGING_RESERVATION_SECONDS = '604800';
 
 
 // module dependencies
