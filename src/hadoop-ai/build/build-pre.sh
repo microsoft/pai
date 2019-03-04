@@ -42,7 +42,7 @@ echo "hadoopbinarypath:${hadoopBinaryDir}"
 }
 
 # When Changing the patch id, please update the filename here.
-rm ${hadoopBinaryDir}/*-done
+rm ${hadoopBinaryDir}*-done
 touch $cacheVersion
 
 docker build -t hadoop-build -f hadoop-ai .
