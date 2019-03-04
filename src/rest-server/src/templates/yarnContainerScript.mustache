@@ -290,7 +290,6 @@ docker pull {{ jobData.image }} \
 ## network consumption
 docker run --name $docker_name \
   --init \
-  --detach \
   --tty \
   --privileged=false \
   --oom-score-adj=1000 \
@@ -329,9 +328,3 @@ docker run --name $docker_name \
   --entrypoint="" \
    {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
-
-docker_pid=$(docker inspect --format "{{{ inspectPidFormat }}}" $docker_name)
-
-echo "Docker container pid is $docker_pid"
-
-docker attach --no-stdin $docker_name
