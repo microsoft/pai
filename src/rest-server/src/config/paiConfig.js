@@ -32,12 +32,14 @@ try {
 
 let paiConfigData = {
     machineList: paiMachineList,
+    debuggingReservationSeconds: process.env.DEBUGGING_RESERVATION_SECONDS,
 };
 
 
 // define the schema for pai configuration
 const paiConfigSchema = Joi.object().keys({
     machineList: Joi.array(),
+    debuggingReservationSeconds: Joi.number().integer().positive(),
 }).required();
 
 
