@@ -18,24 +18,24 @@ prerequisites: # Optional
       registryuri: String, optional
     uri: String or list, required # Only when the type is data can the uri be a list
 
-parameters: # Optional, can be omitted
-  <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by $$paramName$$.
-  <param2>: value2Type
+parameters: # Optional, can be omitted. If specified, the whole object can be referenced as `$parameters`
+  <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template.
+  <param2>: value2Type # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`
 
 jobRetryCount: Integer, optional # Default is 0
 taskRoles:
-  - protocol_version: String, optional # Protocol version, default is 2
-    name: String, required  # Name of the taskRole
+  <name>: String, required  # Name of the taskRole
+   protocol_version: String, optional # Protocol version, default is 2
     instances: Integer, optional # Default is 1, instances of a taskRole
     completion:
       minFailedInstances: Integer or null, optional # Default 1
       minSucceededInstances: Integer or null, optional # Default null
     taskRetryCount: Integer, optional # Default is 0
     dockerImage: String, required # Should reference to a dockerimage defined in prerequisites
-    data: String, optional # Should reference to data defined in prerequisites
-    output: String, optional # Should reference to output defined in prerequisites
-    script: String, optional # Should reference to script defined in prerequisites
-    extraContainerOptions: 
+    data: String, optional # Should reference to data defined in prerequisites, the whole data object in this taskRole can be referenced as `$data`
+    output: String, optional # Should reference to output defined in prerequisites, the whole output object in this taskRole can be referenced as `$output`
+    script: String, optional # Should reference to script defined in prerequisites, the whole script object in this taskRole can be referenced as `$script`
+    extraContainerOptions:
       shmMB: Integer, optional # config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size
     resourcePerInstance:
       cpu: Integer, required
@@ -50,11 +50,11 @@ taskRoles:
 # e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
 # in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
 # one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
-deployments: 
+deployments:
   - protocolVersion: String, optional # If omitted, follow the root protocolVersion
-    name: String, required    
+    name: String, required
     taskRoles:
-      - name: String, required # Should be the same as taskRoles.name
+      <name>: String, required # Should be in taskRoles
         preCommands:
           - String, required # execute before $$commands$$
         postCommands:
@@ -63,6 +63,10 @@ deployments:
 attachments: # optional, cluster specific parameters
   - protocolVersion: String, optional
     virtualCluster: String, optional
+
+default: # optional, default settings used in the job
+  deployment: String, optional # Should reference to deployment defined in deployments
+
 
 
 # Below is an example for distributed tensorflow:
@@ -115,8 +119,8 @@ parameters:
 
 jobRetryCount: 1
 taskRoles:
-  - protocolVersion: 2
-    name: worker
+  worker:
+    protocolVersion: 2
     instance: 1
     completion:
       minFailedInstances: 1
@@ -126,23 +130,31 @@ taskRoles:
     data: cifar10
     output: tensorflow_cifar10_model
     script: tensorflow_cnnbenchmarks
-    extraContainerOptions: 
-      shmMB: 64      
+    extraContainerOptions:
+      shmMB: 64
     resourcePerInstance:
       cpu: 2
       memoryMB: 16384
       gpu: 4
-      ports: { ssh: 0, http: 0 }
+      ports:
+        ssh: 0
+        http: 0
     commands:
-      - cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+      - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
-        python tf_cnn_benchmarks.py --job_name=worker --local_parameter_device=gpu --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.worker.data.cifar10.name$$ --data_name=$$taskRoles.worker.data.cifar10.name$$
-        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.worker.output.tf_cifar10_model.name$$
-        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
-  - protocolVersion: 2
-    name: ps_server
+        python tf_cnn_benchmarks.py --job_name=worker
+        --local_parameter_device=gpu
+        --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
+        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_name=<% $data.name %>
+        --data_dir=$PAI_WORK_DIR/data_<% $data.name %>
+        --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
+        --model=<% $parameters.model %>
+        --batch_size=<% $parameters.batchsize %>
+  ps_server:
+    protocolVersion: 2
     instances: 1
     completion:
       minFailedInstances: 1
@@ -152,43 +164,54 @@ taskRoles:
     data: cifar10
     output: tensorflow_cifar10_model
     script: tensorflow_cnnbenchmarks
-    extraContainerOptions: 
+    extraContainerOptions:
       shmMB: 64
     resourcePerInstanec:
       cpu: 2
       memoryMB: 8192
       gpu: 0
-      ports: { ssh: 0, http: 0 }
+      ports:
+        ssh: 0
+        http: 0
     commands:
-      - cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$/scripts/tf_cnn_benchmarks
+      - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
-        python tf_cnn_benchmarks.py --job_name=ps --local_parameter_device=gpu --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-        --data_dir=$PAI_WORK_DIR/data_$$taskRoles.ps_server.data.cifar10.name$$ --data_name=$$taskRoles.ps_server.data.cifar10.name$$
-        --train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$
-        --model=$$parameters.model$$ --batch_size=$$parameters.batchsize$$
+        python tf_cnn_benchmarks.py --job_name=ps
+        --local_parameter_device=gpu
+        --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
+        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_<% $data.name %>
+        --data_name=<% $data.name %>
+        --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
+        --model=<% $parameters.model %>
+        --batch_size=<% $parameters.batchsize %>
 
 deployments:
   - protocolVersion: 2
-    name: default # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
-    version: 1.0.0    
+    name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
+    version: 1.0.0
     taskRoles:
-      - name: worker
+      worker:
         preCommands:
-          - wget $$taskRoles.worker.data.cifar10.uri$$ -P data_$$taskRoles.worker.data.cifar10.name$$ # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
+          - wget <% $data.uri[0] %> -P data_<% $data.name %> # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
           - >
-            git clone $tasks.worker.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.worker.script.tf_cnnbenchmarks.name$$ &&
-            cd script_$$taskRoles.worker.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.worker.script.tf_cnnbenchmarks.version$$ && cd ..
-            # and the system will go ahead to execute $$taskRoles.worker.commands$$
-      - name: ps_server
+            git clone <% $script.uri %> script_<% $script.name %> &&
+            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
+            # and the system will go ahead to execute worker's command
+      ps_server:
         preCommands:
-          - wget $$taskRoles.ps_server.data.cifar10.uri$$ -P data_$$taskRoles.ps_server.data.cifar10.name$$
+          - wget <% $data.uri[0] %> -P data_<% $data.name %>
           - >
-            git clone $tasks.ps_server.script.tensorflow_cnnbenchmarks.uri$$ script_$$tasks.ps_server.script.tf_cnnbenchmarks.name$$ &&
-            cd script_$$taskRoles.ps_server.script.tf_cnnbenchmarks.name$$ && git checkout $$taskRoles.ps_server.script.tf_cnnbenchmarks.version$$ && cd ..
-            # and the system will go ahead to execute $$taskRoles.ps_server.commands$$
+            git clone <% $script.uri %> script_<% $script.name %> &&
+            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
+            # and the system will go ahead to execute ps_server's command
         postCommands:
           # after the execution of $$taskRoles.ps_server.commands$$, the system goes here
-          - hdfs dfs -cp output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$ $$taskRoles.ps_server.output.tf_cifar10_model.uri$$
+          - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
           # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
-          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_$$taskRoles.ps_server.output.tf_cifar10_model.name$$"
+          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>"
+
+default:
+  deployment: prod # use prod deployment
