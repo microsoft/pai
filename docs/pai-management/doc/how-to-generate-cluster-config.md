@@ -130,7 +130,8 @@ The `paictl` tool sets the following default values in the 4 configuration files
 | ```REST server's admin user``` | REST server's admin user is set to `admin`, and its password is set to `admin-password` |
 | ```VC``` | There is only one VC in the system, `default`, which has 100% of the resource capacity. |
 
-### Optional Step 3. Customize configure OpenPAI <a name="Customize"></a>
+<a name="Customize"></a>
+### Optional Step 3. Customize configure OpenPAI
 This method is for advanced users.
 
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](./customized-configuration.md).
