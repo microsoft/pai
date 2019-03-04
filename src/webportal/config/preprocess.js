@@ -19,7 +19,6 @@
 // module dependencies
 const fse = require('fs-extra');
 const helpers = require('./helpers');
-const packageInfo = require('../package.json');
 
 // copy docs to app
 fse.copySync(
@@ -29,7 +28,3 @@ fse.copySync(
 fse.copySync(
     helpers.root('../../examples/tensorflow/tensorflow.distributed-cifar10.json'),
     helpers.root('src/app/job/job-submit/job-submit.example.json'));
-
-fse.appendFileSync(
-    helpers.root('src/app/env.js.template'),
-    'window.PAI_VERSION = ' + JSON.stringify(packageInfo.version) + '\n');
