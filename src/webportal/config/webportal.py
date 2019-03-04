@@ -49,8 +49,8 @@ class Webportal:
                 config_query = urllib.urlencode(plugin['config'], True).replace('+', '%20')
                 uri = urlparse.urljoin(uri, '?' + config_query)
             return {
-                title: plugin['title'],
-                uri: uri,
+                'title': plugin['title'],
+                'uri': uri,
             }
 
         machine_list = self.cluster_configuration['machine-list']
@@ -58,7 +58,6 @@ class Webportal:
         server_port = self.service_configuration['server-port']
         uri = 'http://{0}:{1}'.format(master_ip, server_port)
         plugins = self.service_configuration['plugins']
-        print plugins
         return {
             'server-port': server_port,
             'uri': uri,
