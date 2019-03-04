@@ -296,10 +296,12 @@ class GpuCollector(Collector):
 
     cmd_timeout = 60 # 99th latency is 0.97s
 
-    def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref, zombie_info_ref):
+    def __init__(self, name, sleep_time, atomic_ref, iteration_counter,
+            gpu_info_ref, zombie_info_ref, mem_leak_thrashold):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
         self.gpu_info_ref = gpu_info_ref
         self.zombie_info_ref = zombie_info_ref
+        self.mem_leak_thrashold = mem_leak_thrashold
 
     @staticmethod
     def get_container_id(pid):
@@ -322,7 +324,7 @@ class GpuCollector(Collector):
         return False, ""
 
     @staticmethod
-    def convert_to_metrics(gpu_info, zombie_info, pid_to_cid_fn):
+    def convert_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
         """ This fn used to convert gpu_info & zombie_info into metrics, used to make
         it easier to do unit test """
         core_utils = gen_gpu_util_gauge()
@@ -339,7 +341,7 @@ class GpuCollector(Collector):
             mem_utils.add_metric([minor], info.gpu_mem_util)
             ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
             ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
-            if info.gpu_mem_util > 20 * 1024 * 1024 and len(info.pids) == 0:
+            if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
                 # we found memory leak less than 20M can be mitigated automatically
                 mem_leak.add_metric([minor], 1)
 
@@ -373,7 +375,7 @@ class GpuCollector(Collector):
 
         if gpu_info is not None:
             return GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                    GpuCollector.get_container_id)
+                    GpuCollector.get_container_id, self.mem_leak_thrashold)
         return None
 
 

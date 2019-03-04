@@ -145,7 +145,7 @@ def main(args):
     # should only sleep 10s to adapt to scrape interval
     collector_args = [
             ("docker_daemon_collector", interval, collector.DockerCollector),
-            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref, zombie_info_ref),
+            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref, zombie_info_ref, args.threshold),
             ("container_collector", interval - 18, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
             ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref, zombie_info_ref),
@@ -170,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9102")
     parser.add_argument("--interval", "-i", help="prometheus scrape interval", type=int, default=30)
     parser.add_argument("--interface", "-n", help="network interface for job-exporter to listen on", required=True)
+    parser.add_argument("--threshold", "-t", help="memory threshold to consider gpu memory leak", type=int, default=20 * 1024 * 1024)
     args = parser.parse_args()
 
     def get_logging_level():

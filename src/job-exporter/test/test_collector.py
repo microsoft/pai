@@ -201,7 +201,7 @@ class TestGpuCollector(base.TestBase):
         pid_to_cid_mapping = {33: "def", 22: "ghi", 44: "jkl"} # only 33 is zombie
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                self.make_pid_to_cid_fn(pid_to_cid_mapping))
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
         core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
 
@@ -235,7 +235,7 @@ class TestGpuCollector(base.TestBase):
             nvidia.EccError(single=2, double=3))}
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                self.make_pid_to_cid_fn(pid_to_cid_mapping))
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
         core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
 
@@ -268,7 +268,7 @@ class TestGpuCollector(base.TestBase):
             nvidia.EccError())}
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                self.make_pid_to_cid_fn(pid_to_cid_mapping))
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024 * 1024)
 
         core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
 
@@ -299,7 +299,7 @@ class TestGpuCollector(base.TestBase):
             nvidia.EccError())}
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                self.make_pid_to_cid_fn(pid_to_cid_mapping))
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
         core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
 
