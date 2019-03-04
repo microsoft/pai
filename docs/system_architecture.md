@@ -1,8 +1,6 @@
 ## System Architecture
 
-<p style="text-align: left;">
-  <img src="https://github.com/Microsoft/pai/blob/master/sysarch.png" title="System Architecture" alt="System Architecture" />
-</p>
+![System Architecture](../sysarch.png)
 
 The system architecture is illustrated above.
 User submits jobs or monitors cluster status through the [Web Portal](webportal/README.md),
