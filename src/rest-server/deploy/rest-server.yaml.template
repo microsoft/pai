@@ -58,7 +58,7 @@ spec:
         - name: AZ_RDMA
           value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
         - name: DEBUGGING_RESERVATION_SECONDS
-          value: "{{ cluster_cfg['cluster']['common']['debugging-reservation-seconds']}}"
+          value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
