@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,17 +15,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+import os
+import sys
+import unittest
 
-# Check whether has etcd-uri in cluster config if so need to transfer user-data
-{% if cluster_cfg['rest-server']['etcd-uris'] -%}
-python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }} || exit $?
-{% endif -%}
+import base
 
-kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
+sys.path.append(os.path.abspath("../src/"))
 
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rest-server || exit $?
+import ps
 
-popd > /dev/null
+class TestPS(base.TestBase):
+    """
+    Test ps.py
+    """
+    def test_parse_ps_result(self):
+        sample_path = "data/ps_sample.txt"
+        with open(sample_path, "r") as f:
+            ps_result = f.read()
+        parse_result = ps.parse_result(ps_result)
+        target_result = {"nvidia-smi": 1}
+        self.assertEqual(target_result, parse_result)
+
+if __name__ == '__main__':
+    unittest.main()
