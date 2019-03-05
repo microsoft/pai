@@ -27,11 +27,6 @@ lspci | grep -qE '(Network|Infiniband) controller.*Mellanox.*ConnectX' ||
 # This script is used for installation of InfiniBand drivers
 KERNEL_FULL_VERSION=`uname -r`
 
-[[ -f /lib/modules/$KERNEL_FULL_VERSION/.modules-prepared ]] || {
-  echo Modules not yet prepared
-  exit 1
-}
-
 HOSTNAME=`hostname`
 # HACK: using last octet of the host's IP
 LAST_OCTET=`host $HOSTNAME | head -n1 | sed 's/^.*\.//'`
