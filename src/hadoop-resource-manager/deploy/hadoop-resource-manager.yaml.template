@@ -124,7 +124,7 @@ spec:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/resourcemanager
       - name: log-dir
         hostPath:
-          path: /var/log/resource-manager
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log/resource-manager
       - name: hadoop-resource-manager-exclude-nodes
         configMap:
           name: exclude-file

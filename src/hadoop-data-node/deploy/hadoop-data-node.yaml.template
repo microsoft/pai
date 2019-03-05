@@ -107,7 +107,7 @@ spec:
           name: host-configuration
       - name: log-dir
         hostPath:
-          path: /var/log/data-node
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log/data-node
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

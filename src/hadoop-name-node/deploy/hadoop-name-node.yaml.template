@@ -83,4 +83,4 @@ spec:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/namenode
       - name: log-dir
         hostPath:
-          path: /var/log/name-node
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log/name-node

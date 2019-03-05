@@ -153,7 +153,7 @@ spec:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
       - name: log-dir
         hostPath:
-          path: /var/log/node-manager
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log/node-manager
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
