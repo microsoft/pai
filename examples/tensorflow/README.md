@@ -26,11 +26,15 @@ The following contents show some basic TensorFlow examples, other customized Ten
 
 ## Contents
 
-1. [TensorFlow CIFAR-10 image classification](#tensorflow-cifar-10-image-classification)
-2. [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
-3. [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification )
-4. [TensorFlow Tensorboard](#tensorflow-tensorboard)
-5. [Note](#Note)
+- [TensorFlow on OpenPAI](#tensorflow-on-openpai)
+  - [Contents](#contents)
+- [TensorFlow examples](#tensorflow-examples)
+    - [Prepare work](#prepare-work)
+    - [TensorFlow CIFAR-10 image classification](#tensorflow-cifar-10-image-classification)
+    - [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
+    - [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification)
+    - [TensorFlow Tensorboard](#tensorflow-tensorboard)
+    - [Note](#note)
 
 # TensorFlow examples
 
@@ -166,7 +170,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).
 
 ### Note
 

@@ -1,59 +1,15 @@
 # OpenPAI Job Examples
 
-## Table of Contents
-- [Quick start: how to write and submit a CIFAR-10 job](#quickstart)
-- [List of off-the-shelf examples](#offtheshelf)
-- [List of customized job template](#customize)
-- [What if the example is failed](#debug)
-- [Contributing](#contributing)
-  
-## Quick start: how to write and submit a CIFAR-10 job <a name="quickstart"></a>
+- [OpenPAI Job Examples](#openpai-job-examples)
+  - [Quick start: submit a "hello world" job](#quick-start-submit-a-%22hello-world%22-job)
+  - [List of off-the-shelf examples <a name="offtheshelf"></a>](#list-of-off-the-shelf-examples-a-name%22offtheshelf%22a)
+  - [List of customized job template <a name="customize"></a>](#list-of-customized-job-template-a-name%22customize%22a)
+  - [What if the example is failed <a name="debug"></a>](#what-if-the-example-is-failed-a-name%22debug%22a)
+  - [Contributing](#contributing)
 
-####  (1) Prepare a job json file
+## Quick start: submit a "hello world" job
 
-In this section, we will use CIFAR-10 training job as an example to explain how to write and submit a job in OpenPAI.
-
-[CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is an established computer-vision dataset used for image classification.
-
-- Full example for tensorflow cifar10 image classification training on OpenPAI: 
-
-```js
-{
-  // Name for the job, need to be unique
-  "jobName": "tensorflow-cifar10",
-  // URL pointing to the Docker image for all tasks in the job
-  "image": "openpai/pai.example.tensorflow",
-  // Data directory existing on HDFS
-  "dataDir": "/tmp/data",
-  // Output directory on HDFS, 
-  "outputDir": "/tmp/output",
-  // List of taskRole, one task role at least
-  "taskRoles": [
-    {
-      // Name for the task role
-      "name": "cifar_train",
-      // Number of tasks for the task role, no less than 1
-      "taskNumber": 1,
-      // CPU number for one task in the task role, no less than 1
-      "cpuNumber": 8,
-      // Memory for one task in the task role, no less than 100
-      "memoryMB": 32768,
-      // GPU number for one task in the task role, no less than 0
-      "gpuNumber": 1,
-      // Executable command for tasks in the task role, can not be empty
-      "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=$PAI_DATA_DIR && python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
-    }
-  ]
-}
-```
-
-- Save content to a file. Name this file as cifar10.json
-
-- [Job configuration items introduction](../docs/job_tutorial.md#json-config-file-for-job-submission)
-
-####  (2) Submit job json file from OpenPAI webportal
-
-Users can refer to this tutorial [submit a job in web portal](https://github.com/Microsoft/pai/blob/master/docs/submit_from_webportal.md) for job submission from OpenPAI webportal.
+Refer to [how to submit a "hello world" job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
 
 ## List of off-the-shelf examples <a name="offtheshelf"></a>
 
@@ -108,7 +64,7 @@ The example in the folder could be failed due to the following reasons:
   3. If the example you submit contains a prepare.sh script shell, it may fail due to the source of the data or code changed or been unstable. You may get error in your job tracking page. Check and try to fix it.
   4. The version of the code, tools or library. You may get this error if you rebuild the docker image. Some example doesn't fix the version of its dependency, so, you should check the version.
 
-## Contributing <a name="contributing"></a>
+## Contributing
 
 If you want to contribute a job example that can be run on PAI, please open a new pull request.
 
@@ -124,7 +80,3 @@ If you want to contribute a job example that can be run on PAI, please open a ne
 2.	Dockerfile: Example's dependencies
 3.	Pai job json file: Example's OpenPAI job json template
 4.	[Optional] Code file: Example's code file
-
-
-
-

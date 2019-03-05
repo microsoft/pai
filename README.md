@@ -15,7 +15,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 1. [Why choose OpenPAI](#why-choose-openpai)
 1. [Get started](#get-started)
 1. [Deploy OpenPAI](#deploy-openpai)
-1. [Train model](#train-models)
+1. [Train models](#train-models)
 1. [Administration](#administration)
 1. [Reference](#reference)
 1. [Get involved](#get-involved)
@@ -93,7 +93,7 @@ As various hardware environments and different use scenarios, default configurat
 
 ### Validate deployment
 
-After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](examples/README.md#quickstart) and check if it works end-to-end.
+After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](docs/user/training.md) and check if it works end-to-end.
 
 ### Train users before "train model"
 
@@ -109,31 +109,13 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## Train models
 
-Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs and OpenPAI will allocate resource to run it. If there are too many jobs, some jobs may wait in the queue. This is different with training models on dedicated servers for each person, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may wait in the queue, and OpenPAI choose some server(s) to run a job. This is different with run code on specified servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
-OpenPAI also supports to allocate on demand resource to users, and users can use SSH or Jupyter like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
+Note, OpenPAI also supports to allocate on demand resource besides queuing jobs. Users can use SSH or Jupyter to connect like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
 
-### Train first model on OpenPAI
+### Train models on OpenPAI
 
-Follow [here](examples/README.md#quickstart) to create the first job definition. Then [submit the job via web portal](docs/submit_from_webportal.md). It's a very simple job, as it downloads data and code from internet, and doesn't copy model back. It's used to understand OpenPAI job definition and familiar with Web portal.
-
-### Learn deeper on job definition
-
-* Choose training environment. OpenPAI uses [Docker](https://www.docker.com/) to provide runtime environment.
-
-    Refer to [here](https://hub.docker.com/r/ufoym/deepo) to find more deep learning environments, for example, `ufoym/deepo:pytorch-py36-cu90`.
-
-    Note, this docker doesn't include openssh-server, curl. So, if SSH is necessary with those docker images, it needs to add `apt install openssh-server curl` in command field.
-
-* Put code and data in. OpenPAI creates a clean environment as docker image. The data and code may not be in the docker. So it needs to use command field to copy data and code into docker before training. The command field supports to join multiple commands with `&&`. If extra system or Python components are needed, they can be installed in the command by `apt install` or `python -m pip install` as well.
-
-    There are some suggested approach to exchange data with running environment, but it's better to check with administrators of OpenPAI, which kind of storage is supported, and recommended approach to access it.
-
-* Copy model back. It's similar with above topic, if code and data can copy into docker, model can also be copied back.
-
-* Running distributed training job. OpenPAI can allocate multiple environments to one job to support distributed training.
-
-Learn more about job definition, refer to [here](docs/job_tutorial.md#write-a-job-json-configuration-file-).
+Follow [here](docs/user/training.md) to learn how to train models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
 
 ### OpenPAI client
 
@@ -143,7 +125,7 @@ Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have
 
 Web portal and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
 
-Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information of troubleshooting job failure on OpenPAI. It's recommended to get code succeeded locally, then submit to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
+Refer to [here](docs/job_tutorial.md#how-to-debug-a-job) for more information of troubleshooting job failure on OpenPAI. It's recommended to get code succeeded locally, then submit to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
 
 ## Administration
 
@@ -152,7 +134,7 @@ Refer to [here](docs/job_tutorial.md#how-to-debug-the-job-) for more information
 
 ## Reference
 
-* [Job definition](docs/job_tutorial.md#write-a-job-json-configuration-file-)
+* [Job definition](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
 * Design documents could be found [here](docs).
 

@@ -90,7 +90,7 @@ The full OCR job description is shown as below：
 }
 ```
 *For more details on how to write a job configuration file, 
-please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).*
+please refer to [job tutorial](../../docs/user/training.md).*
 
 After submitting this job, it might take few mins for OpenPAI to load docker image and deploy the service.
 
@@ -99,11 +99,3 @@ After submitting this job, it might take few mins for OpenPAI to load docker ima
 OpenPAI will dynamic allocate resources, IP and Port for jobs. 
 Dynamic allocated IP and Port can be found in the job detail page, with which
 users could access the web-server
-
-
-
-
-
-
-
-

@@ -65,7 +65,7 @@ Users should prepare their own intel mpi licences to build the docker image. Whe
 }
 ```  
 
-- For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+- For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).
 - Sleep 1000 in ```master-0``` is a hack to ensure that all work containers are ready. You could optimize it in a better way. For example try to ssh all the work containers with the hostanme ```${taskname}-${taskid}``` until sccessful.
 - If user wanna a AZ-RDMA capable container. The following parameter is necessary.
 ```bash

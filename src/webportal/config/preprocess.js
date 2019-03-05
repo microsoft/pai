@@ -23,6 +23,7 @@ const helpers = require('./helpers');
 // copy docs to app
 fse.copySync(
     helpers.root('../../docs/job_tutorial.md'),
+    helpers.root('../../docs/user/training.md'),
     helpers.root('src/app/job/job-docs/job-docs.md'));
 
 fse.copySync(
