@@ -103,13 +103,14 @@ class YarnOperator(object):
 
 
 class AlertOperator(object):
+    GPU_alert_name = ["NvidiaSmiLatencyTooLarge", "NvidiaMemoryLeak", "NvidiaZombieProcess", "GpuUsedByExternalProcess"]
 
-    def __init__(self, alert_manager_ip, alert_manager_port=9093):
-        self.master_ip = alert_manager_ip
-        self.master_port = alert_manager_port
-        self.alert_manager_url = "http://{}:{}/alert-manager/api/v1/alerts".format(alert_manager_ip, alert_manager_port)
+    def __init__(self, prometheus_ip, prometheus_port=9091):
+        self.master_ip = prometheus_ip
+        self.master_port = prometheus_port
+        self.alert_manager_url = "http://{}:{}/prometheus/api/v1/query?query=ALERTS".format(prometheus_ip, prometheus_port)
 
-    def get_alert_nodes(self):
+    def get_gpu_alert_nodes(self):
         try:
             response = requests.get(self.alert_manager_url)
         except Exception as e:
@@ -119,15 +120,21 @@ class AlertOperator(object):
         if response.status_code != requests.codes.ok or response.json()["status"] != "success":
             logger.error("Response error: {}".format(response.text))
             sys.exit(1)
-        nodes_info = response.json()["data"]
-        current_nodes = {}
-        pass
+        alerts_info = response.json()["data"]["result"]
+        gpu_alert_nodes = {}
+        for alert in alerts_info:
+            metric = alert["metric"]
+            if metric["alertname"] in self.GPU_alert_name and metric["alertstate"] == "firing":
+                node_ip = metric["instance"].split(':')[0]
+                gpu_alert_nodes[node_ip] = metric["alertname"]
 
-    def decommission_nodes(self):
-        try:
-            subprocess.check_output(self.update_command, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        return gpu_alert_nodes
+
+
+def get_gpu_alert(args):
+    alert_operator = AlertOperator(args.prometheus_ip, args.prometheus_port)
+    alerting_nodes = alert_operator.get_gpu_alert_nodes()
+    logger.info("Current gpu alerting nodes: {}".format(alerting_nodes))
 
 
 def get_unready_nodes(decommissioned_nodes, current_status):
@@ -205,6 +212,10 @@ def setup_parser():
                             help="specify yarn resource manager ip separately, by default it's master node ip")
     top_parser.add_argument("--api-server-ip",
                             help="specify kubernetes api-server ip separately, by default it's master node ip")
+    top_parser.add_argument("--prometheus-ip",
+                            help="specify prometheus ip separately, by default it's master node ip")
+    top_parser.add_argument("--prometheus-port", default=9091,
+                            help="specify prometheus port, by default it's 9091")
     sub_parser = top_parser.add_subparsers(dest="subcommands")
 
     # node list parser
@@ -231,6 +242,10 @@ def setup_parser():
                                                         "will not kill running job")
     yarn_parser.set_defaults(func=refresh_yarn_nodes)
 
+    # prometheus operator parser
+    yarn_parser = sub_parser.add_parser("alerting", help="get current gpu alerting nodes")
+    yarn_parser.set_defaults(func=get_gpu_alert)
+
     return top_parser
 
 
@@ -239,6 +254,7 @@ def main():
     args = parser.parse_args()
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
+    args.prometheus_ip = args.prometheus_ip or args.master_ip
     args.func(args)
 
 
