@@ -25,321 +25,321 @@ ajvMerge(ajv);
 
 // base schema
 const baseSchema = {
-    "$id": "base.json",
-    "type": "object",
-    "properties": {
-        "protocolVersion": {
-            "type": "number",
-            "enum": [2],
+    '$id': 'base.json',
+    'type': 'object',
+    'properties': {
+        'protocolVersion': {
+            'type': 'number',
+            'enum': [2],
         },
-        "name": {
-            "type": "string",
+        'name': {
+            'type': 'string',
         },
-        "version": {
-            "type": "string",
+        'version': {
+            'type': 'string',
         },
-        "contributor": {
-            "type": "string",
+        'contributor': {
+            'type': 'string',
         },
-        "description": {
-            "type": "string",
+        'description': {
+            'type': 'string',
         },
     },
-    "required": [
-        "name",
+    'required': [
+        'name',
     ],
-    "additionalProperties": false,
+    'additionalProperties': false,
 };
 
 // job protocol schema
 const protocolSchema = {
-    "$id": "protocol.json",
-    "type": "object",
-    "properties": {
-        "protocolVersion": {
-            "$ref": "base.json#/properties/protocolVersion",
+    '$id': 'protocol.json',
+    'type': 'object',
+    'properties': {
+        'protocolVersion': {
+            '$ref': 'base.json#/properties/protocolVersion',
         },
-        "name": {
-            "$ref": "base.json#/properties/name",
+        'name': {
+            '$ref': 'base.json#/properties/name',
         },
-        "type": {
-            "type": "string",
-            "enum": ["job"],
+        'type': {
+            'type': 'string',
+            'enum': ['job'],
         },
-        "version": {
-            "$ref": "base.json#/properties/version",
+        'version': {
+            '$ref': 'base.json#/properties/version',
         },
-        "contributor": {
-            "$ref": "base.json#/properties/contributor",
+        'contributor': {
+            '$ref': 'base.json#/properties/contributor',
         },
-        "description": {
-            "$ref": "base.json#/properties/description",
+        'description': {
+            '$ref': 'base.json#/properties/description',
         },
-        "prerequisites": {
-            "type": "array",
-            "items": {
-                "prerequisite": {
-                    "type": "object",
-                    "oneOf": [
+        'prerequisites': {
+            'type': 'array',
+            'items': {
+                'prerequisite': {
+                    'type': 'object',
+                    'oneOf': [
                         {
                             // script or output prerequisite
-                            "$merge": {
-                                "source": {
-                                    "$ref": "base.json#",
+                            '$merge': {
+                                'source': {
+                                    '$ref': 'base.json#',
                                 },
-                                "with": {
-                                    "properties": {
-                                        "type": {
-                                            "type": "string",
-                                            "enum": ["script", "output"],
+                                'with': {
+                                    'properties': {
+                                        'type': {
+                                            'type': 'string',
+                                            'enum': ['script', 'output'],
                                         },
-                                        "uri": {
-                                            "type": "string",
+                                        'uri': {
+                                            'type': 'string',
                                         },
                                     },
-                                    "required": [
-                                        "type",
-                                        "uri",
+                                    'required': [
+                                        'type',
+                                        'uri',
                                     ],
-                                    "additionalProperties": false,
-                                }
-                            }
+                                    'additionalProperties': false,
+                                },
+                            },
                         },
                         {
                             // data prerequisite
-                            "$merge": {
-                                "source": {
-                                    "$ref": "base.json#",
+                            '$merge': {
+                                'source': {
+                                    '$ref': 'base.json#',
                                 },
-                                "with": {
-                                    "properties": {
-                                        "type": {
-                                            "type": "string",
-                                            "enum": ["data"],
+                                'with': {
+                                    'properties': {
+                                        'type': {
+                                            'type': 'string',
+                                            'enum': ['data'],
                                         },
-                                        "uri": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string",
-                                            }
+                                        'uri': {
+                                            'type': 'array',
+                                            'items': {
+                                                'type': 'string',
+                                            },
                                         },
                                     },
-                                    "required": [
-                                        "type",
-                                        "uri",
+                                    'required': [
+                                        'type',
+                                        'uri',
                                     ],
-                                    "additionalProperties": false,
-                                }
-                            }
+                                    'additionalProperties': false,
+                                },
+                            },
                         },
                         {
                             // docker image prerequisite
-                            "$merge": {
-                                "source": {
-                                    "$ref": "base.json#",
+                            '$merge': {
+                                'source': {
+                                    '$ref': 'base.json#',
                                 },
-                                "with": {
-                                    "properties": {
-                                        "type": {
-                                            "type": "string",
-                                            "enum": ["dockerimage"],
+                                'with': {
+                                    'properties': {
+                                        'type': {
+                                            'type': 'string',
+                                            'enum': ['dockerimage'],
                                         },
-                                        "auth": {
-                                            "type": "object",
-                                            "properties": {
-                                                "username": {
-                                                    "type": "string",
+                                        'auth': {
+                                            'type': 'object',
+                                            'properties': {
+                                                'username': {
+                                                    'type': 'string',
                                                 },
-                                                "password": {
-                                                    "type": "string",
+                                                'password': {
+                                                    'type': 'string',
                                                 },
-                                                "registryuri": {
-                                                    "type": "string",
+                                                'registryuri': {
+                                                    'type': 'string',
                                                 },
                                             },
                                         },
-                                        "uri": {
-                                            "type": "string",
+                                        'uri': {
+                                            'type': 'string',
                                         },
                                     },
-                                    "required": [
-                                        "type",
-                                        "uri",
+                                    'required': [
+                                        'type',
+                                        'uri',
                                     ],
-                                    "additionalProperties": false,
-                                }
-                            }
+                                    'additionalProperties': false,
+                                },
+                            },
                         },
                     ],
                 },
             },
-            "minItems": 1,
+            'minItems': 1,
         },
-        "parameters": {
-            "type": "object",
-            "additionalProperties": true,
+        'parameters': {
+            'type': 'object',
+            'additionalProperties': true,
         },
-        "jobRetryCount": {
-            "type": "integer",
-            "minimum": 0,
+        'jobRetryCount': {
+            'type': 'integer',
+            'minimum': 0,
         },
-        "taskRoles": {
-            "patternProperties": {
-                "^[A-Za-z0-9._~]+$": {
-                    "type": "object",
-                    "properties": {
-                        "protocolVersion": {
-                            "$ref": "base.json#/properties/protocolVersion",
+        'taskRoles': {
+            'patternProperties': {
+                '^[A-Za-z0-9._~]+$': {
+                    'type': 'object',
+                    'properties': {
+                        'protocolVersion': {
+                            '$ref': 'base.json#/properties/protocolVersion',
                         },
-                        "instances": {
-                            "type": "integer",
-                            "minimum": 1,
+                        'instances': {
+                            'type': 'integer',
+                            'minimum': 1,
                         },
-                        "completion": {
-                            "type": "object",
-                            "properties": {
-                                "minFailedInstances": {
-                                    "type": ["integer", "null"],
+                        'completion': {
+                            'type': 'object',
+                            'properties': {
+                                'minFailedInstances': {
+                                    'type': ['integer', 'null'],
                                 },
-                                "minSucceededInstances": {
-                                    "type": ["integer", "null"],
+                                'minSucceededInstances': {
+                                    'type': ['integer', 'null'],
                                 },
-                                "additionalProperties": false,
+                                'additionalProperties': false,
                             },
                         },
-                        "taskRetryCount": {
-                            "type": "integer",
+                        'taskRetryCount': {
+                            'type': 'integer',
                         },
-                        "dockerImage": {
-                            "type": "string",
+                        'dockerImage': {
+                            'type': 'string',
                         },
-                        "data": {
-                            "type": "string",
+                        'data': {
+                            'type': 'string',
                         },
-                        "output": {
-                            "type": "string",
+                        'output': {
+                            'type': 'string',
                         },
-                        "script": {
-                            "type": "string",
+                        'script': {
+                            'type': 'string',
                         },
-                        "extraContainerOptions": {
-                            "type": "object",
-                            "properties": {
-                                "shmMB": {
-                                    "type": "integer",
+                        'extraContainerOptions': {
+                            'type': 'object',
+                            'properties': {
+                                'shmMB': {
+                                    'type': 'integer',
                                 },
-                                "additionalProperties": false,
+                                'additionalProperties': false,
                             },
                         },
-                        "resourcePerInstance": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "integer",
+                        'resourcePerInstance': {
+                            'type': 'object',
+                            'properties': {
+                                'cpu': {
+                                    'type': 'integer',
                                 },
-                                "memoryMB": {
-                                    "type": "integer",
+                                'memoryMB': {
+                                    'type': 'integer',
                                 },
-                                "gpu": {
-                                    "type": "integer",
+                                'gpu': {
+                                    'type': 'integer',
                                 },
-                                "ports": {
-                                    "patternProperties": {
-                                        "^[A-Za-z0-9._~]+$": {
-                                            "type": "integer",
+                                'ports': {
+                                    'patternProperties': {
+                                        '^[A-Za-z0-9._~]+$': {
+                                            'type': 'integer',
                                         },
                                     },
-                                    "minProperties": 1,
-                                    "additionalProperties": false,
+                                    'minProperties': 1,
+                                    'additionalProperties': false,
                                 },
                             },
-                            "required": [
-                                "cpu",
-                                "memoryMB",
-                                "gpu",
+                            'required': [
+                                'cpu',
+                                'memoryMB',
+                                'gpu',
                             ],
-                            "additionalProperties": false,
+                            'additionalProperties': false,
                         },
-                        "commands": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
+                        'commands': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'string',
                             },
-                            "minItems": 1,
+                            'minItems': 1,
                         },
                     },
-                    "required": [
-                        "dockerImage",
-                        "resourcePerInstance",
-                        "commands",
+                    'required': [
+                        'dockerImage',
+                        'resourcePerInstance',
+                        'commands',
                     ],
-                    "additionalProperties": false,
+                    'additionalProperties': false,
                 },
             },
-            "minProperties": 1,
-            "additionalProperties": false,
+            'minProperties': 1,
+            'additionalProperties': false,
         },
-        "deployments": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "protocolVersion": {
-                        "$ref": "base.json#/properties/protocolVersion",
+        'deployments': {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'protocolVersion': {
+                        '$ref': 'base.json#/properties/protocolVersion',
                     },
-                    "name": {
-                        "$ref": "base.json#/properties/name",
+                    'name': {
+                        '$ref': 'base.json#/properties/name',
                     },
-                    "taskRoles": {
-                        "patternProperties": {
-                            "^[A-Za-z0-9._~]+$": {
-                                "type": "object",
-                                "properties": {
-                                    "preCommands": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string",
+                    'taskRoles': {
+                        'patternProperties': {
+                            '^[A-Za-z0-9._~]+$': {
+                                'type': 'object',
+                                'properties': {
+                                    'preCommands': {
+                                        'type': 'array',
+                                        'items': {
+                                            'type': 'string',
                                         },
-                                        "minItems": 1,
+                                        'minItems': 1,
                                     },
-                                    "postCommands": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string",
+                                    'postCommands': {
+                                        'type': 'array',
+                                        'items': {
+                                            'type': 'string',
                                         },
-                                        "minItems": 1,
+                                        'minItems': 1,
                                     },
                                 },
-                                "additionalProperties": false,
+                                'additionalProperties': false,
                             },
                         },
-                        "minProperties": 1,
-                        "additionalProperties": false,
+                        'minProperties': 1,
+                        'additionalProperties': false,
                     },
                 },
-                "required": [
-                    "name",
-                    "taskRoles",
+                'required': [
+                    'name',
+                    'taskRoles',
                 ],
             },
-            "minItems": 1,
+            'minItems': 1,
         },
-        "defaults": {
-            "type": "object",
-            "properties": {
-                "deployment": {
-                    "type": "string",
-                }
-            }
+        'defaults': {
+            'type': 'object',
+            'properties': {
+                'deployment': {
+                    'type': 'string',
+                },
+            },
         },
     },
-    "required": [
-        "protocolVersion",
-        "name",
-        "type",
-        "taskRoles",
+    'required': [
+        'protocolVersion',
+        'name',
+        'type',
+        'taskRoles',
     ],
-    "additionalProperties": false,
+    'additionalProperties': false,
 };
 
 const protocolValidate = ajv.addSchema(baseSchema).compile(protocolSchema);
