@@ -93,7 +93,7 @@ As various hardware environments and different use scenarios, default configurat
 
 ### Validate deployment
 
-After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a "hello world" job](docs/user/training.md) and check if it works end-to-end.
+After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a hello-world job](docs/user/training.md) and check if it works end-to-end.
 
 ### Train users before "train model"
 

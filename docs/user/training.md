@@ -20,22 +20,22 @@
 # Train models on OpenPAI
 
 - [Train models on OpenPAI](#train-models-on-openpai)
-  - [Submit a "hello world" job](#submit-a-%22hello-world%22-job)
+  - [Submit a hello-world job](#submit-a-hello-world-job)
   - [Understand OpenPAI job](#understand-openpai-job)
     - [Prepare job configuration](#prepare-job-configuration)
     - [Flow of a job](#flow-of-a-job)
-    - [Explain "hello world" job configuration](#explain-%22hello-world%22-job-configuration)
+    - [Explain hello-world job configuration](#explain-hello-world-job-configuration)
   - [Reference](#reference)
 
 This document is the beginning for people, who use OpenPAI to train machine learning models.
 
 It assumes that you know address of OpenPAI and have an account to login. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
-## Submit a "hello world" job
+## Submit a hello-world job
 
 The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can execute model training , or any other kinds of commands, even it's a distributed work executed on multiple servers.
 
-Following this section to submit a very simple job like "hello world" when learning a program language. It trains a model on CIFAR-10 dataset, and is implemented by TensorFlow. It's a very simple job, as it downloads data and code from internet, and doesn't copy model back. It helps beginners of OpenPAI to get started. After this section, there are more details to help learning how to submit real jobs.
+Following this section to submit a very simple job like hello-world when learning a program language. It trains a model on CIFAR-10 dataset, and is implemented by TensorFlow. It's a very simple job, as it downloads data and code from internet, and doesn't copy model back. It helps beginners of OpenPAI to get started. After this section, there are more details to help learning how to submit real jobs.
 
 1. Navigate to OpenPAI web portal. It needs to get IP address or domain name of OpenPAI from administrator, and an account to login.
 
@@ -82,7 +82,7 @@ Following this section to submit a very simple job like "hello world" when learn
 
 ## Understand OpenPAI job
 
-The previous section demonstrates how to submit a "hello world" job. But it's not enough to write your own job. This section introduces most knowledge about the job and provides links for further information.
+The previous section demonstrates how to submit a hello-world job. But it's not enough to write your own job. This section introduces most knowledge about the job and provides links for further information.
 
 ### Prepare job configuration
 
@@ -114,9 +114,9 @@ Once job configuration is prepared, it's ready to be submitted to OpenPAI. OpenP
 
 Once job is submitted to OpenPAI, user can see job's status is switching from waiting, running to succeeded or failed. It may show stopped if the job is interrupted by user or system reason.
 
-### Explain "hello world" job configuration
+### Explain hello-world job configuration
 
-The **job configuration** is a json file, which is posted to OpenPAI. Here uses the "hello world" job configuration as an example to explain key fields.
+The **job configuration** is a json file, which is posted to OpenPAI. Here uses the hello-world job configuration as an example to explain key fields.
 
 The job configuration of OpenPAI has two levels. The top level describes shared information of the job, including job name, docker image, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and a corresponding configuration of running enviroment.
 
@@ -126,7 +126,7 @@ Below is part of fields in the job configuration. Refer to [here](../job_tutoria
 
 - **image**. It's name of docker image, which includes specified system and Python packages, and provides a clean and consistent environment for each running.
 
-    Administrator may provide a docker repository for the OpenPAI cluster. The hub.docker.com is a public docker repository with a lot of docker images and the [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) is recommended for deep learning docker images. In "hello world" example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
+    Administrator may provide a docker repository for the OpenPAI cluster. The hub.docker.com is a public docker repository with a lot of docker images and the [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) is recommended for deep learning docker images. In hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
 
     If an appropriate docker image isn't found, it's not hard to [build a docker image](../job_docker_env.md) from scratch.
 
@@ -138,9 +138,9 @@ Below is part of fields in the job configuration. Refer to [here](../job_tutoria
 
 - **taskRoles/cpuNumber**, taskRoles/memoryMB, taskRoles/gpuNumber. Their name is easy to understand. They specify corresponding hardware resources including count of CPU core, MB of memory, and count of GPU.
 
-- **taskRoles/command**. This is the command to run in the enviroment. It can be multiple commands, which are joint by && or ; like in bash. In the "hello world" job configuration, it clones code from GitHub, downloads data and starts the training progress in one line.
+- **taskRoles/command**. This is the command to run in the enviroment. It can be multiple commands, which are joint by && or ; like in bash. In the hello-world job configuration, it clones code from GitHub, downloads data and starts the training progress in one line.
 
-    As the "hello world" job, user needs to construct such command(s) to get code, data and trigger executing. It can be multiple commands, or composite into one script.
+    As the hello-world job, user needs to construct such command(s) to get code, data and trigger executing. It can be multiple commands, or composite into one script.
 
 ## Reference
 

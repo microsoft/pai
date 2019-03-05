@@ -25,7 +25,7 @@ Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
 - [Job definition](#job-definition)
-  - [Quick start: submit a "hello world" job](#quick-start-submit-a-%22hello-world%22-job)
+  - [Quick start: submit a hello-world job](#quick-start-submit-a-hello-world-job)
   - [Job configuration](#job-configuration)
     - [Job definition](#job-definition-1)
     - [Environment variables](#environment-variables)
@@ -33,9 +33,9 @@ This guide introduces the details of job submission.
   - [How to debug a job](#how-to-debug-a-job)
   - [Learn more job examples](#learn-more-job-examples)
 
-## Quick start: submit a "hello world" job
+## Quick start: submit a hello-world job
 
-Refer to [how to submit a "hello world" job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
+Refer to [how to submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
 
 ## Job configuration
 

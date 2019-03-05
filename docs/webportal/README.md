@@ -101,7 +101,7 @@ To run web portal on system, a [Node.js](https://nodejs.org/) 6+ runtime is requ
 
 ### Submit a job
 
-Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [submit a "hello world" job](../user/training.md).
+Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [submit a hello-world job](../user/training.md).
 
 ### View job status
 

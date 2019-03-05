@@ -1,15 +1,15 @@
 # OpenPAI Job Examples
 
 - [OpenPAI Job Examples](#openpai-job-examples)
-  - [Quick start: submit a "hello world" job](#quick-start-submit-a-%22hello-world%22-job)
+  - [Quick start: submit a hello-world job](#quick-start-submit-a-hello-world-job)
   - [List of off-the-shelf examples <a name="offtheshelf"></a>](#list-of-off-the-shelf-examples-a-name%22offtheshelf%22a)
   - [List of customized job template <a name="customize"></a>](#list-of-customized-job-template-a-name%22customize%22a)
   - [What if the example is failed <a name="debug"></a>](#what-if-the-example-is-failed-a-name%22debug%22a)
   - [Contributing](#contributing)
 
-## Quick start: submit a "hello world" job
+## Quick start: submit a hello-world job
 
-Refer to [how to submit a "hello world" job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
+Refer to [how to submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
 
 ## List of off-the-shelf examples <a name="offtheshelf"></a>
 
