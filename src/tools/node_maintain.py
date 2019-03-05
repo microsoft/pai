@@ -102,6 +102,34 @@ class YarnOperator(object):
             logger.error(e.output)
 
 
+class AlertOperator(object):
+
+    def __init__(self, alert_manager_ip, alert_manager_port=9093):
+        self.master_ip = alert_manager_ip
+        self.master_port = alert_manager_port
+        self.alert_manager_url = "http://{}:{}/alert-manager/api/v1/alerts".format(alert_manager_ip, alert_manager_port)
+
+    def get_alert_nodes(self):
+        try:
+            response = requests.get(self.alert_manager_url)
+        except Exception as e:
+            logger.exception(e)
+            sys.exit(1)
+
+        if response.status_code != requests.codes.ok or response.json()["status"] != "success":
+            logger.error("Response error: {}".format(response.text))
+            sys.exit(1)
+        nodes_info = response.json()["data"]
+        current_nodes = {}
+        pass
+
+    def decommission_nodes(self):
+        try:
+            subprocess.check_output(self.update_command, stderr=subprocess.STDOUT, shell=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(e.output)
+
+
 def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
     for node, state in current_status.iteritems():
