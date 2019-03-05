@@ -38,7 +38,7 @@ CURRENT_DRIVER=/var/drivers/mellanox/current
 if [[ ! -f /var/drivers/mellanox/$MLNX_OFED_STRING/mlnxofedinstall ]]; then
     [[ -f /tmp/$MLNX_OFED_STRING-ext.tgz ]] ||
     {
-        ./ /mlnx_add_kernel_support.sh -y -m ./$MLNX_OFED_STRING --make-tgz || exit $?
+        ./mlnx_add_kernel_support.sh -y -m ./$MLNX_OFED_STRING --make-tgz || exit $?
     }
     mkdir -p /var/drivers/mellanox/$MLNX_OFED_STRING || exit $?
     tar -xvf /tmp/$MLNX_OFED_STRING-ext.tgz -C /var/drivers/mellanox/$MLNX_OFED_STRING --strip 1 || exit $?
