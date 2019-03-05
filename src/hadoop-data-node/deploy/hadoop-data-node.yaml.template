@@ -79,6 +79,7 @@ spec:
           value: datanode-start-service.sh
         - name: HADOOP_DATANODE_DATA_DIR
           value: {{ mount_points|join(",") }}
+        # Rolling File Appender, by default it keeps at most 256M*20=5G logs.
         - name: HADOOP_ROOT_LOGGER
           value: INFO,console,RFA
         - name: HADOOP_LOG_DIR
