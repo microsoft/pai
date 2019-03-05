@@ -16,6 +16,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+// skip guard-for-in becasue protocolValidate has already filtered keys
+/* eslint guard-for-in: 0 */
+
 // module dependencies
 const yaml = require('js-yaml');
 const template = require('lodash.template');
@@ -25,14 +28,14 @@ const prerequisiteTypes = [
     'script',
     'output',
     'data',
-    'dockerimage'
+    'dockerimage',
 ];
 
 const prerequisiteFields = [
     'script',
     'output',
     'data',
-    'dockerImage'
+    'dockerImage',
 ];
 
 const protocolValidate = async (ctx, next) => {
@@ -40,7 +43,7 @@ const protocolValidate = async (ctx, next) => {
     const protocolYAML = ctx.body;
     const protocolJSON = yaml.safeLoad(protocolYAML);
     if (!protocolSchema.validate(protocolJSON)) {
-        throw(new Error(protocolSchema.validate.errors));
+        throw new Error(protocolSchema.validate.errors);
     }
     // convert prerequisites list to dict
     const prerequisites = {};
@@ -62,19 +65,19 @@ const protocolValidate = async (ctx, next) => {
     }
     protocolJSON.deployments = deployments;
     // check prerequisites in taskRoles
-    for (let taskRole in protocolJSON) {
+    for (let taskRole in protocolJSON.taskRoles) {
         for (let field of prerequisiteFields) {
-            if (field in protocolJSON[taskRole] &&
-                !protocolJSON[taskRole][field] in prerequisites[field.toLowerCase()]) {
-                throw(new Error('prerequisite does not exist'));
+            if (field in protocolJSON.taskRoles[taskRole] &&
+                !(protocolJSON.taskRoles[taskRole][field] in prerequisites[field.toLowerCase()])) {
+                throw new Error('prerequisite does not exist');
             }
         }
     }
     // check deployment in defaults
     if ('defaults' in protocolJSON) {
         if ('deployment' in protocolJSON.defaults &&
-            ! protocolJSON.defaults.deployment in deployments) {
-            throw(new Error('default deployment does not exist'));
+            !(protocolJSON.defaults.deployment in deployments)) {
+            throw new Error('default deployment does not exist');
         }
     }
     await next();
@@ -82,8 +85,8 @@ const protocolValidate = async (ctx, next) => {
 
 const protocolRender = async (ctx, next) => {
     const protocolJSON = ctx.body;
-    for (let taskRole in protocolJSON) {
-        let commands = protocolJSON[taskRole].commands;
+    for (let taskRole in protocolJSON.taskRoles) {
+        let commands = protocolJSON.taskRoles[taskRole].commands;
         if (taskRole in protocolJSON.deployments) {
             if ('preCommands' in protocolJSON.deployments[taskRole]) {
                 commands = protocolJSON.deployments[taskRole].preCommands.concat(commands);
