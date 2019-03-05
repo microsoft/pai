@@ -19,31 +19,33 @@
 
 pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary/"
+hadoopBinaryDir="/hadoop-binary"
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12940533-12933562-docker_executor-done"
+# When Changing the patch id, please update it.
+patchId="12940533-12933562-docker_executor"
+
+hadoopBinaryPath="${hadoopBinaryDir}/hadoop-2.9.0.tar.gz"
+cacheVersion="${hadoopBinaryDir}/${patchId}-done"
 
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
+echo "Hadoop binary path: ${hadoopBinaryDir}"
 
-[[ -f $cacheVersion ]] && [[ -f $hadoopBinaryPath ]] && [[ $cacheVersion -ot $hadoopBinaryPath ]] &&
+[[ -f ${cacheVersion} ]] && [[ -f ${hadoopBinaryPath} ]] && [[ ${cacheVersion} -ot ${hadoopBinaryPath} ]] &&
 {
-    echo "Hadoop ai with patch 12940533-12933562-docker_executor has been built"
+    echo "Hadoop ai with patch ${patchId} has been built"
     echo "Skip this build precess"
     exit 0
 }
 
-[[ ! -f "$hadoopBinaryPath" ]] ||
+[[ ! -f "${hadoopBinaryPath}" ]] ||
 {
 
-    rm -rf $hadoopBinaryPath
+    rm -rf ${hadoopBinaryPath}
 
 }
 
-# When Changing the patch id, please update the filename here.
 rm ${hadoopBinaryDir}/*-done
-touch $cacheVersion
+touch ${cacheVersion}
 
 docker build -t hadoop-build -f hadoop-ai .
 
