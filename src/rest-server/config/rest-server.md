@@ -19,6 +19,7 @@ other config fields are optional, includes:
 - `github-owner: Microsoft` The marketplace repo owner in GitHub
 - `github-repository: pai` The marketplace repo name
 - `github-path: marketplace` The marketpalce path in the repo
+- `debugging-reservation-seconds: 604800` The seconds to reserved a job container to debug.
 
 ## Generated Configuration <a name="G_Config"></a>
 
@@ -34,6 +35,7 @@ rest-server:
     github-owner: Microsoft
     github-repository: pai
     github-path: marketplace
+    debugging-reservation-seconds: 604800
 ```
 
 ## Table <a name="T_Config"></a>
@@ -97,6 +99,12 @@ rest-server:
     <td>rest-server.etcd-uris</td>
     <td>com["rest-server"]["etcd-uris"]</td>
     <td>cluster_cfg["rest-server"]["etcd-uris"]</td>
+    <td>String</td>
+</tr>
+<tr>
+    <td>rest-server.debugging-reservation-seconds</td>
+    <td>com["rest-server"]["debugging-reservation-seconds"]</td>
+    <td>cluster_cfg["rest-server"]["debugging-reservation-seconds"]</td>
     <td>String</td>
 </tr>
 </table>

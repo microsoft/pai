@@ -446,6 +446,7 @@ class Job {
           'paiMachineList': paiConfig.machineList,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
+          'debuggingReservationSeconds': paiConfig.debuggingReservationSeconds,
         });
     return dockerContainerScript;
   }
