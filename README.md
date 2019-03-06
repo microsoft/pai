@@ -115,9 +115,9 @@ Note, OpenPAI also supports to allocate on demand resource besides queuing jobs.
 
 ### Train models on OpenPAI
 
-Follow [here](docs/user/training.md) to learn how to train models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
+Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
 
-### OpenPAI client
+### OpenPAI VS Code Client
 
 Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have a friendly client tool for user. It's an extension of Visual Studio Code, called [OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md). It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
 
@@ -125,7 +125,7 @@ Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have
 
 Web portal and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
 
-Refer to [here](docs/job_tutorial.md#how-to-debug-a-job) for more information of troubleshooting job failure on OpenPAI. It's recommended to get code succeeded locally, then submit to OpenPAI. So that it doesn't need to troubleshoot code problems remotely.
+Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure. It's recommended to get code succeeded locally, then submit to OpenPAI. It reduces posibility to troubleshoot remotely.
 
 ## Administration
 
