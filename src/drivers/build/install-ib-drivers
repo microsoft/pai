@@ -113,7 +113,7 @@ EOF
 # Installing GPU direct RDMA drivers
 # NOTE: do this here because it takes some time to install GDR drivers
 # and that's enough time for IB devices to come up so we can test them
-/bin/bash install-gdr-drivers || exit $?
+./install-gdr-drivers || exit $?
 
 IB_DEVICES=`ibstat -l | xargs`
 
