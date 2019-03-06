@@ -16,9 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// skip guard-for-in becasue protocolValidate has already filtered keys
-/* eslint guard-for-in: 0 */
-
 // module dependencies
 const yaml = require('js-yaml');
 const template = require('lodash.template');
@@ -65,7 +62,7 @@ const protocolValidate = async (ctx, next) => {
     }
     protocolJSON.deployments = deployments;
     // check prerequisites in taskRoles
-    for (let taskRole in protocolJSON.taskRoles) {
+    for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
         for (let field of prerequisiteFields) {
             if (field in protocolJSON.taskRoles[taskRole] &&
                 !(protocolJSON.taskRoles[taskRole][field] in prerequisites[field.toLowerCase()])) {
@@ -85,7 +82,7 @@ const protocolValidate = async (ctx, next) => {
 
 const protocolRender = async (ctx, next) => {
     const protocolJSON = ctx.body;
-    for (let taskRole in protocolJSON.taskRoles) {
+    for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
         let commands = protocolJSON.taskRoles[taskRole].commands;
         if (taskRole in protocolJSON.deployments) {
             if ('preCommands' in protocolJSON.deployments[taskRole]) {
