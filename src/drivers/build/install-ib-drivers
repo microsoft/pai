@@ -30,9 +30,9 @@ KERNEL_FULL_VERSION=`uname -r`
 HOSTNAME=`hostname`
 # HACK: using last octet of the host's IP
 LAST_OCTET=`host $HOSTNAME | head -n1 | sed 's/^.*\.//'`
-
-OCT1=`echo $POD_IP | awk -F'.' '{ print $(NF-1) }'`
-OCT2=`echo $POD_IP | awk -F'.' '{ print $(NF) }'`
+echo POD_IP: ${POD_IP}
+OCT1=`echo ${POD_IP} | awk -F'.' '{ print $(NF-1) }'`
+OCT2=`echo ${POD_IP} | awk -F'.' '{ print $(NF) }'`
 IP_ADDRESS="192.168.$OCT1.$OCT2"
 
 CURRENT_DRIVER=/var/drivers/mellanox/current
