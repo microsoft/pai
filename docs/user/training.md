@@ -35,7 +35,7 @@ It assumes that you know IP address or domain name and have an account of OpenPA
 
 The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, or other kinds of commands, even it's distributed on multiple servers.
 
-Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet, and doesn't copy model out. It helps getting started with OpoenPAI. Next sections include more details to help on submitting real jobs.
+Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpoenPAI. Next sections include more details to help on submitting real jobs.
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
 
@@ -130,7 +130,7 @@ Below is key part of all fields and [full spec of job configuration](../job_tuto
 
 The data here doesn't only mean *dataset* of machine learning, also includes all files and information, like code, scripts, trained model, and so on. Most model training and other kinds of jobs need to exchange data between docker container and outside.
 
-OpenPAI creates a clean docker container. Some data can be built into docker image directly, if it's changed rarely.
+OpenPAI creates a clean docker container. Some data can be built into docker image directly if it's changed rarely.
 
 If it needs to exchange data on runtime, the command, which passes to docker in job configuration, needs to initiate the data exchange progress. For example, use `git`, `wget`, `scp`, `sftp` or other commands to copy data in and out. If some command is not built in docker, it can be installed in the command by `apt install` or `python -m pip install`.
 
