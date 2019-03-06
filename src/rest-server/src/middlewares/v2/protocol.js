@@ -36,9 +36,9 @@ const prerequisiteFields = [
     'dockerImage',
 ];
 
-const protocolValidate = async (ctx, next) => {
+const protocolValidate = async (req, res, next) => {
     // TODO
-    const protocolYAML = ctx.body;
+    const protocolYAML = req.body;
     const protocolJSON = yaml.safeLoad(protocolYAML);
     if (!protocolSchema.validate(protocolJSON)) {
         throw createError('Bad Request', 'InvalidProtocolError', protocolSchema.validate.errors);
@@ -89,8 +89,8 @@ const protocolValidate = async (ctx, next) => {
     await next();
 };
 
-const protocolRender = async (ctx, next) => {
-    const protocolJSON = ctx.body;
+const protocolRender = async (req, res, next) => {
+    const protocolJSON = req.body;
     for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
         let commands = protocolJSON.taskRoles[taskRole].commands;
         if (taskRole in protocolJSON.deployments) {
