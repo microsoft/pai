@@ -1,12 +1,12 @@
 # OpenPAI VS Code Client
 
-OpenPAI VS Code Client can submit AI jobs, and manage files on HDFS, etc. It's  an extension of Visual Studio Code.
+OpenPAI VS Code Client can submit AI jobs, simulate job running locally, manage HDFS files, and etc. It's an extension of Visual Studio Code.
 
 Visual Studio Code is a popular, free, lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
 
 ## Installation
 
-1. Install [Visual Studio Code](https://code.visualstudio.com/).
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/) by several clicks.
 
 2. Install **OpenPAI Client**.
 
