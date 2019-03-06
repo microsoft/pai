@@ -34,7 +34,7 @@ This guide introduces the details of job submission.
 
 ## Quick start: submit a hello-world job
 
-Refer to [submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job) firstly. It's a good start for beginners.
+Refer to [submit a hello-world job](user/training.md#submit-a-hello-world-job) firstly. It's a good start for beginners.
 
 ## Job configuration
 

@@ -9,7 +9,7 @@
 
 ## Quick start: submit a hello-world job
 
-Refer to [how to submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
+Refer to [how to submit a hello-world job](../docs/user/training.md#submit-a-hello-world-job). It's a good start for beginners.
 
 ## List of off-the-shelf examples <a name="offtheshelf"></a>
 
