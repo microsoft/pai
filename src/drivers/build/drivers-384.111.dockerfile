@@ -141,6 +141,9 @@ RUN chmod a+x enable-nvidia-persistenced-mode.sh install-all-drivers install-gdr
     echo LIBRARY_PATH: $LIBRARY_PATH && \
     echo LD_LIBRARY_PATH: $LD_LIBRARY_PATH && \
     echo PATH: $PATH
+#IBRARY_PATH: /usr/local/cuda/lib64/stubs
+#LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+#PATH: /usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 
 CMD /bin/bash install-all-drivers
