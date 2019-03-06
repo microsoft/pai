@@ -19,6 +19,7 @@
 // module dependencies
 const yaml = require('js-yaml');
 const mustache = require('mustache');
+const createError = require('../../util/error');
 const protocolSchema = require('../../config/v2/protocol');
 
 const prerequisiteTypes = [
@@ -40,7 +41,7 @@ const protocolValidate = async (ctx, next) => {
     const protocolYAML = ctx.body;
     const protocolJSON = yaml.safeLoad(protocolYAML);
     if (!protocolSchema.validate(protocolJSON)) {
-        throw new Error(protocolSchema.validate.errors);
+        throw createError('Bad Request', 'InvalidProtocolError', protocolSchema.validate.errors);
     }
     // convert prerequisites list to dict
     const prerequisites = {};
@@ -66,7 +67,11 @@ const protocolValidate = async (ctx, next) => {
         for (let field of prerequisiteFields) {
             if (field in protocolJSON.taskRoles[taskRole] &&
                 !(protocolJSON.taskRoles[taskRole][field] in prerequisites[field.toLowerCase()])) {
-                throw new Error('prerequisite does not exist');
+                throw createError(
+                    'Bad Request',
+                    'InvalidProtocolError',
+                    `Prerequisite ${protocolJSON.taskRoles[taskRole][field]} does not exist.`
+                );
             }
         }
     }
@@ -74,7 +79,11 @@ const protocolValidate = async (ctx, next) => {
     if ('defaults' in protocolJSON) {
         if ('deployment' in protocolJSON.defaults &&
             !(protocolJSON.defaults.deployment in deployments)) {
-            throw new Error('default deployment does not exist');
+                throw createError(
+                    'Bad Request',
+                    'InvalidProtocolError',
+                    `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
+                );
         }
     }
     await next();
