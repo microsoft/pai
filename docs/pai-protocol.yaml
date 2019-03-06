@@ -1,54 +1,62 @@
-protocolVersion: Number, required # Protocol version, current version is 2
+protocolVersion: Number, required # Protocol version, current version is 2.
 name: String, required
-type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output
-version: String, optional # Component version. Default is latest
+type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output.
+version: String, optional # Component version, default is latest.
 contributor: String, optional
 description: String, optional
 
 prerequisites: # Optional
-  - protocolVersion: Number, optional # If omitted, follow the protocolVersion in root
+  - protocolVersion: Number, optional # If omitted, follow the protocolVersion in root.
     name: String, required
-    type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job"
-    version: String, optional # Component version. Default is latest
+    type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job".
+    version: String, optional # Component version, Default is latest.
     contributor: String, optional
     description: String, optional
-    auth: Object, optional # Only available when the type is dockerimage
+    auth: Object, optional # Only available when the type is dockerimage.
       username: String, optional
       passward: String, optional
       registryuri: String, optional
-    uri: String or list, required # Only when the type is data can the uri be a list
+    uri: String or list, required # Only when the type is data can the uri be a list.
 
-parameters: # Optional, can be omitted. If specified, the whole object can be referenced as `$parameters`
-  <param1>: value1Type # Specify name and value of all the referencable parameters that will be used in the whole job template.
-  <param2>: value2Type # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`
+# If specified, the whole parameters object can be referenced as `$parameters`.
+# Scope of reference `$parameters`: the refercen is global and shared among all task roles.
+parameters: # Optional, can be omitted.
+  <param1>: value1 # Specify name and value of all the referencable parameters that will be used in the whole job template.
+  <param2>: value2 # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`.
 
-jobRetryCount: Integer, optional # Default is 0
+jobRetryCount: Integer, optional # Default is 0.
+# Task roles are different types of task in the protocol.
+# One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.
 taskRoles:
-  <name>: String, required  # Name of the taskRole
-    instances: Integer, optional # Default is 1, instances of a taskRole
-    completion:
-      minFailedInstances: Integer or null, optional # Default 1
-      minSucceededInstances: Integer or null, optional # Default null
-    taskRetryCount: Integer, optional # Default is 0
-    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites
-    data: String, optional # Should reference to data defined in prerequisites, the whole data object in this taskRole can be referenced as `$data`
-    output: String, optional # Should reference to output defined in prerequisites, the whole output object in this taskRole can be referenced as `$output`
-    script: String, optional # Should reference to script defined in prerequisites, the whole script object in this taskRole can be referenced as `$script`
+  <name>: String, required  # Name of the taskRole, string in ^[A-Za-z0-9\-._~]+$ format.
+    instances: Integer, optional # Default is 1, instances of a taskRole, no less than 1.
+    completion: # Completion poclicy for the job, https://github.com/Microsoft/pai/blob/master/subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy.
+      # Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure.
+      minFailedInstances: Integer or null, optional # Default is 1.
+      # Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedInstances is not triggered.
+      minSucceededInstances: Integer or null, optional # Default is null.
+    taskRetryCount: Integer, optional # Default is 0.
+    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites.
+    # Scope of the reference `$data`, '$output', `$script`: the reference is only valid inside this task role.
+    # User cannot reference them from another task role. Reference for `$parameters` is global and shared among task roles.
+    data: String, optional # Should reference to data defined in prerequisites, the whole data object in this task role can be referenced as `$data`.
+    output: String, optional # Should reference to output defined in prerequisites, the whole output object in this task role can be referenced as `$output`.
+    script: String, optional # Should reference to script defined in prerequisites, the whole script object in this task role can be referenced as `$script`.
     extraContainerOptions:
-      shmMB: Integer, optional # config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size
+      shmMB: Integer, optional # Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.
     resourcePerInstance:
       cpu: Integer, required
       memoryMB: Integer, required
       gpu: Integer, required
       ports:
-        <portLabel1>: Integer, optional, default is 0 # Only for host network
+        <portLabel>: Integer, required, default is 0 # Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
     commands:
       - String, required
 
-# to handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field.
+# To handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field,
 # e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
-# in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
-# one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
+# In summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
+# One could have many deployments, but only one deployment can be activated at runtime by specifying in "defaults". User can choose the deployment and specify in "defaults" at submission time.
 deployments:
   - name: String, required
     taskRoles:
@@ -59,7 +67,7 @@ deployments:
           - String, required # execute after the taskRole's command
 
 
-default: # optional, default cluster specific settings
+defaults: # optional, default cluster specific settings
   virtualCluster: String, optional
   deployment: String, optional # Should reference to deployment defined in deployments
 
@@ -183,28 +191,28 @@ taskRoles:
         --batch_size=<% $parameters.batchsize %>
 
 deployments:
-  - name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
+  - name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs.
     version: 1.0.0
     taskRoles:
       worker:
         preCommands:
-          - wget <% $data.uri[0] %> -P data_<% $data.name %> # if local data cache deployed, one can copy data from local cache, only wget in case of cache miss
+          - wget <% $data.uri[0] %> -P data_<% $data.name %> # If local data cache deployed, one can copy data from local cache, only wget in case of cache miss.
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
-            # and the system will go ahead to execute worker's command
+            # Then the system will go ahead to execute worker's command.
       ps_server:
         preCommands:
           - wget <% $data.uri[0] %> -P data_<% $data.name %>
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
-            # and the system will go ahead to execute ps_server's command
+            # Then the system will go ahead to execute ps_server's command.
         postCommands:
-          # after the execution of ps_server's command, the system goes here
+          # After the execution of ps_server's command, the system goes here.
           - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
-          # assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
-          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>"
+          # Assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
+          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>".
 
 default:
-  deployment: prod # use prod deployment
+  deployment: prod # Use prod deployment in job submission.
