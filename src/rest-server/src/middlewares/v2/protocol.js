@@ -18,7 +18,7 @@
 
 // module dependencies
 const yaml = require('js-yaml');
-const template = require('lodash.template');
+const mustache = require('mustache');
 const protocolSchema = require('../../config/v2/protocol');
 
 const prerequisiteTypes = [
@@ -92,14 +92,27 @@ const protocolRender = async (ctx, next) => {
                 commands = commands.concat(protocolJSON.deployments[taskRole].postCommands);
             }
         }
-        let entrypoint = commands.join(' ; ').replace('<%', '<%=');
-        const compiled = template(entrypoint);
-        entrypoint = compiled({
+        let entrypoint = '';
+        const tokens = mustache.parse(commands.join(' ; '));
+        const context = new mustache.Context({
             '$parameters': protocolJSON.parameters,
             '$script': protocolJSON.prerequisites['script'][taskRole],
             '$output': protocolJSON.prerequisites['output'][taskRole],
             '$data': protocolJSON.prerequisites['data'][taskRole],
         });
+        for (let token of tokens) {
+            const symbol = token[0];
+            let tokenStr = token[1];
+            if (symbol === 'text') {
+                entrypoint += tokenStr;
+            } else if (symbol === 'name') {
+                tokenStr = tokenStr.replace(/\[(\d+)\]/g, '.$1');
+                const value = context.lookup(tokenStr);
+                if (value != null) {
+                    entrypoint += value;
+                }
+            }
+        }
         protocolJSON[taskRole].entrypoint = entrypoint;
     }
     await next();
