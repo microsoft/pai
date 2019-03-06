@@ -1,4 +1,4 @@
-protocolVersion: String, required # Protocol version, current version is 2
+protocolVersion: Number, required # Protocol version, current version is 2
 name: String, required
 type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output
 version: String, optional # Component version. Default is latest
@@ -6,7 +6,7 @@ contributor: String, optional
 description: String, optional
 
 prerequisites: # Optional
-  - protocolVersion: String, optional # If omitted, follow the protocolVersion in root
+  - protocolVersion: Number, optional # If omitted, follow the protocolVersion in root
     name: String, required
     type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job"
     version: String, optional # Component version. Default is latest
@@ -25,7 +25,6 @@ parameters: # Optional, can be omitted. If specified, the whole object can be re
 jobRetryCount: Integer, optional # Default is 0
 taskRoles:
   <name>: String, required  # Name of the taskRole
-   protocol_version: String, optional # Protocol version, default is 2
     instances: Integer, optional # Default is 1, instances of a taskRole
     completion:
       minFailedInstances: Integer or null, optional # Default 1
@@ -51,8 +50,7 @@ taskRoles:
 # in summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
 # one could have many deployments, but only the first deployment can be activated at runtime. User can choose the deployment at job submission time.
 deployments:
-  - protocolVersion: String, optional # If omitted, follow the root protocolVersion
-    name: String, required
+  - name: String, required
     taskRoles:
       <name>: String, required # Should be in taskRoles
         preCommands:
@@ -60,11 +58,9 @@ deployments:
         postCommands:
           - String, required # execute after the taskRole's command
 
-attachments: # optional, cluster specific parameters
-  - protocolVersion: String, optional
-    virtualCluster: String, optional
 
-default: # optional, default settings used in the job
+default: # optional, default cluster specific settings
+  virtualCluster: String, optional
   deployment: String, optional # Should reference to deployment defined in deployments
 
 
@@ -120,7 +116,6 @@ parameters:
 jobRetryCount: 1
 taskRoles:
   worker:
-    protocolVersion: 2
     instance: 1
     completion:
       minFailedInstances: 1
@@ -154,7 +149,6 @@ taskRoles:
         --model=<% $parameters.model %>
         --batch_size=<% $parameters.batchsize %>
   ps_server:
-    protocolVersion: 2
     instances: 1
     completion:
       minFailedInstances: 1
@@ -189,8 +183,7 @@ taskRoles:
         --batch_size=<% $parameters.batchsize %>
 
 deployments:
-  - protocolVersion: 2
-    name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
+  - name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs
     version: 1.0.0
     taskRoles:
       worker:
