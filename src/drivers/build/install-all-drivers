@@ -22,7 +22,7 @@ export NV_DRIVER=${DRIVER_PATH}/$NVIDIA_VERSION
 export LD_LIBRARY_PATH=${MLNX_PREFIX}/lib:$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
 export PATH=${MLNX_PREFIX}/bin:$PATH:$NV_DRIVER/bin
 export C_INCLUDE_PATH=${C_INCLUDE_PATH:+$C_INCLUDE_PATH:}${MLNX_PREFIX}/include:${MLNX_PREFIX}/include/infiniband
-export CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH:+$CPLUS_INCLUDE_PATH:}${MLNX_PREFIX}/include:${MLNX_PREFIX}/include/
+export CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH:+$CPLUS_INCLUDE_PATH:}${MLNX_PREFIX}/include:${MLNX_PREFIX}/include/infiniband
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
     if [ -f "$PRE_INSTALLED_NV_DRIVER_PATH/bin/nvidia-smi" ]; then
