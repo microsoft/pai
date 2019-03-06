@@ -1,7 +1,7 @@
-protocol_version : v2
-name : tf_serving_example
-type : dockerimage
-version : 1.0.0
-contributor : Qi chen
+protocolVersion: 2
+name: tf_serving_example
+type: dockerimage
+version: 1.0.0
+contributor : OpenPAI
 description: python3.5, tensorflow
 uri : openpai/pai.example.tensorflow-serving

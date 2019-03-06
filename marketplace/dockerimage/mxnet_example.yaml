@@ -1,7 +1,7 @@
 protocolVersion: 2
-name: caffe_example
+name: mxnet_example
 type: dockerimage
 version: 1.0.0
 contributor : OpenPAI
 description: caffe
-uri : openpai/pai.example.caffe
+uri : openpai/pai.example.mxnet

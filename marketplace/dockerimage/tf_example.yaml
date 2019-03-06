@@ -1,7 +1,7 @@
-protocol_version : v2
-name : tf_example
-type : dockerimage
-version : 1.0
-contributor : Qi Chen
+protocolVersion: 2
+name: tf_example
+type: dockerimage
+version: latest
+contributor: Alice
 description: python3.5, tensorflow
-uri : openpai/pai.example.tensorflow
+uri: openpai/pai.example.tensorflow

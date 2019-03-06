@@ -1,7 +1,7 @@
-protocol_version : v2
-name : chainer
-type : dockerimage
-version : 1.0.0
-contributor : Yanli
+protocolVersion: 2
+name: chainer_example
+type: dockerimage
+version: 1.0.0
+contributor : OpenPAI
 description: chainer
 uri : openpai/pai.example.chainer

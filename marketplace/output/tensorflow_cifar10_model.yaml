@@ -1,0 +1,7 @@
+protocolVersion: 2
+name: tensorflow_cifar10_model
+type: output
+version: latest
+contributor: Alice
+description: cifar10 data output
+uri: hdfs://10.151.40.179:9000/core/cifar10_model

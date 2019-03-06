@@ -1,26 +1,28 @@
-protocol_version: v2
-name : chainer_cifar
-type : job
-version : 1.0.0
-contributor : Yanli
-description : chainer, cifar
-retryCount: 0 
+protocolVersion: 2
+name: chainer_cifar
+type: job
+version: 1.0.0
+contributor: OpenPAI
+description: chainer, cifar
 
-tasks :
-  - role: main
-    dockerimage : chainer
-    resource: 
-      instances : 1
-      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
-    minSucceededTaskCount: 1
-    command:
-      - python ./chainer/examples/cifar/train_cifar.py
-
-prerequisites : 
-  - protocol_version : v2
-    name : chainer
-    type : dockerimage
-    version : 1.0.0
-    contributor : Yanli
+prerequisites:
+  - protocolVersion: 2
+    name: chainer_example
+    type: dockerimage
+    version: 1.0.0
+    contributor : OpenPAI
     description: chainer
     uri : openpai/pai.example.chainer
+
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: chainer_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - python ./chainer/examples/cifar/train_cifar.py
