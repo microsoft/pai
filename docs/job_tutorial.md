@@ -17,29 +17,28 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Job definition
+# Job reference
 
 OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc.
 It also supports other type of job through a customized docker image.
 Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
-- [Job definition](#job-definition)
+- [Job reference](#job-reference)
   - [Quick start: submit a hello-world job](#quick-start-submit-a-hello-world-job)
   - [Job configuration](#job-configuration)
-    - [Job definition](#job-definition-1)
+    - [Specification](#specification)
     - [Environment variables](#environment-variables)
     - [A complete example](#a-complete-example)
-  - [How to debug a job](#how-to-debug-a-job)
   - [Learn more job examples](#learn-more-job-examples)
 
 ## Quick start: submit a hello-world job
 
-Refer to [how to submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job). It's a good start for beginners.
+Refer to [submit a hello-world job](user/training.md#submit-a-%22hello-world%22-job) firstly. It's a good start for beginners.
 
 ## Job configuration
 
-### Job definition
+### Specification
 
 A json file describe detailed configuration required for a job submission. The detailed format is shown as below:
 
@@ -84,33 +83,33 @@ A json file describe detailed configuration required for a job submission. The d
 
 Below please find the detailed explanation for each of the parameters in the config file:
 
-| Field Name                       | Schema                     | Description                              |
-| :------------------------------- | :------------------------- | :--------------------------------------- |
-| `jobName`                        | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique |
-| `image`                          | String, required           | URL pointing to the Docker image for all tasks in the job |
-| `authFile`                       | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
-| `dataDir`                        | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                      | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
-| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS, should not contain any data and should be less than 200MB. codeDir will created to your job container local environment and could be accessed inner job container. NOTE: this folder is readonly     |
-| `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
-| `taskRoles`                      | List, required             | List of `taskRole`, one task role at least |
-| `taskRole.name`                  | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
-| `taskRole.taskNumber`            | Integer, required          | Number of tasks for the task role, no less than 1 |
-| `taskRole.cpuNumber`             | Integer, required          | CPU number for one task in the task role, no less than 1 |
-| `taskRole.memoryMB`              | Integer, required          | Memory for one task in the task role, no less than 100 |
-| `taskRole.shmMB`                 | Integer, optional          | Shared memory for one task in the task role, no more than memory size. The default value is 64MB |
-| `taskRole.gpuNumber`             | Integer, required          | GPU number for one task in the task role, no less than 0 |
-| `taskRole.portList`              | List, optional             | List of `portType` to use                |
-| `taskRole.portType.label`        | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
-| `taskRole.portType.beginAt`      | Integer, required          | The port to begin with in the port type, 0 for random selection |
-| `taskRole.portType.portNumber`   | Integer, required          | Number of ports for the specific type    |
-| `taskRole.command`               | String, required           | Executable command for tasks in the task role, can not be empty |
-| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure. Please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
-| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedTaskCount is not triggered. Please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
-| `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
-| `jobEnvs`                        | Object, optional           | Job env parameters, key-value pairs, available in job container and **no substitution allowed** |
-| `jobEnvs.paiAzRDMA`                        | Boolean, optional           | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
+| Field Name                       | Schema                                           | Description                                                                                                                                                                                                                                                                                                                                        |
+| :------------------------------- | :----------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `jobName`                        | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique                                                                                                                                                                                                                                                                                                                |
+| `image`                          | String, required                                 | URL pointing to the Docker image for all tasks in the job                                                                                                                                                                                                                                                                                          |
+| `authFile`                       | String, optional, HDFS URI                       | Docker registry authentication file existing on HDFS                                                                                                                                                                                                                                                                                               |
+| `dataDir`                        | String, optional, HDFS URI                       | Data directory existing on HDFS                                                                                                                                                                                                                                                                                                                    |
+| `outputDir`                      | String, optional, HDFS URI                       | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified                                                                                                                                                                                                                                                      |
+| `codeDir`                        | String, optional, HDFS URI                       | Code directory existing on HDFS, should not contain any data and should be less than 200MB. codeDir will created to your job container local environment and could be accessed inner job container. NOTE: this folder is readonly                                                                                                                  |
+| `virtualCluster`                 | String, optional                                 | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster                                                                                                                                                                                                                                                         |
+| `taskRoles`                      | List, required                                   | List of `taskRole`, one task role at least                                                                                                                                                                                                                                                                                                         |
+| `taskRole.name`                  | String in `^[A-Za-z0-9._~]+$` format, required   | Name for the task role, need to be unique with other roles                                                                                                                                                                                                                                                                                         |
+| `taskRole.taskNumber`            | Integer, required                                | Number of tasks for the task role, no less than 1                                                                                                                                                                                                                                                                                                  |
+| `taskRole.cpuNumber`             | Integer, required                                | CPU number for one task in the task role, no less than 1                                                                                                                                                                                                                                                                                           |
+| `taskRole.memoryMB`              | Integer, required                                | Memory for one task in the task role, no less than 100                                                                                                                                                                                                                                                                                             |
+| `taskRole.shmMB`                 | Integer, optional                                | Shared memory for one task in the task role, no more than memory size. The default value is 64MB                                                                                                                                                                                                                                                   |
+| `taskRole.gpuNumber`             | Integer, required                                | GPU number for one task in the task role, no less than 0                                                                                                                                                                                                                                                                                           |
+| `taskRole.portList`              | List, optional                                   | List of `portType` to use                                                                                                                                                                                                                                                                                                                          |
+| `taskRole.portType.label`        | String in `^[A-Za-z0-9._~]+$` format, required   | Label name for the port type                                                                                                                                                                                                                                                                                                                       |
+| `taskRole.portType.beginAt`      | Integer, required                                | The port to begin with in the port type, 0 for random selection                                                                                                                                                                                                                                                                                    |
+| `taskRole.portType.portNumber`   | Integer, required                                | Number of ports for the specific type                                                                                                                                                                                                                                                                                                              |
+| `taskRole.command`               | String, required                                 | Executable command for tasks in the task role, can not be empty                                                                                                                                                                                                                                                                                    |
+| `taskRole.minFailedTaskCount`    | Integer, optional                                | Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure. Please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details                                               |
+| `taskRole.minSucceededTaskCount` | Integer, optional                                | Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedTaskCount is not triggered. Please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `gpuType`                        | String, optional                                 | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type                                                                                                                                                                                                                                                         |
+| `retryCount`                     | Integer, optional                                | Job retry count, no less than 0                                                                                                                                                                                                                                                                                                                    |
+| `jobEnvs`                        | Object, optional                                 | Job env parameters, key-value pairs, available in job container and **no substitution allowed**                                                                                                                                                                                                                                                    |
+| `jobEnvs.paiAzRDMA`              | Boolean, optional                                | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image)                                                                                                             |
 
 For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 
@@ -140,21 +139,21 @@ Those environment variables can also be used in the job config file.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
-| Category          | Environment Variable Name                 | Description                                                 |
-| :---------------- | :---------------------------------------- | :---------------------------------------------------------- |
-| Job level         | PAI_JOB_NAME                              | `jobName` in config file                                    |
-|                   | PAI_USER_NAME                             | User who submit the job                                     |
-|                   | PAI_DEFAULT_FS_URI                        | Default file system uri in PAI                              |
-| Task role level   | PAI_TASK_ROLE_COUNT                       | Total task roles' number in config file                     |
-|                   | PAI_TASK_ROLE_LIST                        | Comma separated all task role names in config file          |
-|                   | PAI_TASK_ROLE_TASK_COUNT\_`$taskRole`     | Task count of the task role                                 |
-|                   | PAI_HOST_IP\_`$taskRole`\_`$taskIndex`    | The host IP for `taskIndex` task in `taskRole`              |
-|                   | PAI_PORT_LIST\_`$taskRole`\_`$taskIndex`\_`$portType` | The `$portType` port list for `taskIndex` task in `taskRole`     |
-|                   | PAI_RESOURCE\_`$taskRole`                 | Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format |
-|                   | PAI_MIN_FAILED_TASK_COUNT\_`$taskRole`    | `taskRole.minFailedTaskCount` of the task role              |
-|                   | PAI_MIN_SUCCEEDED_TASK_COUNT\_`$taskRole` | `taskRole.minSucceededTaskCount` of the task role           |
-| Current task role | PAI_CURRENT_TASK_ROLE_NAME                | `taskRole.name` of current task role                        |
-| Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX  | Index of current task in current task role, starting from 0 |
+| Category          | Environment Variable Name                             | Description                                                                        |
+| :---------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| Job level         | PAI_JOB_NAME                                          | `jobName` in config file                                                           |
+|                   | PAI_USER_NAME                                         | User who submit the job                                                            |
+|                   | PAI_DEFAULT_FS_URI                                    | Default file system uri in PAI                                                     |
+| Task role level   | PAI_TASK_ROLE_COUNT                                   | Total task roles' number in config file                                            |
+|                   | PAI_TASK_ROLE_LIST                                    | Comma separated all task role names in config file                                 |
+|                   | PAI_TASK_ROLE_TASK_COUNT\_`$taskRole`                 | Task count of the task role                                                        |
+|                   | PAI_HOST_IP\_`$taskRole`\_`$taskIndex`                | The host IP for `taskIndex` task in `taskRole`                                     |
+|                   | PAI_PORT_LIST\_`$taskRole`\_`$taskIndex`\_`$portType` | The `$portType` port list for `taskIndex` task in `taskRole`                       |
+|                   | PAI_RESOURCE\_`$taskRole`                             | Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format |
+|                   | PAI_MIN_FAILED_TASK_COUNT\_`$taskRole`                | `taskRole.minFailedTaskCount` of the task role                                     |
+|                   | PAI_MIN_SUCCEEDED_TASK_COUNT\_`$taskRole`             | `taskRole.minSucceededTaskCount` of the task role                                  |
+| Current task role | PAI_CURRENT_TASK_ROLE_NAME                            | `taskRole.name` of current task role                                               |
+| Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX              | Index of current task in current task role, starting from 0                        |
 
 ### A complete example
 
@@ -228,53 +227,6 @@ A distributed TensorFlow job is listed below as an example:
   }
 }
 ```
-
-## How to debug a job
-
-1. From OpenPAI web page to debug job
-
-    Please refer doc [How to diagnose job problems through logs](job_log.md)
-
-1. SSH to job container and debug job
-
-    You can ssh connect to a specified container either from outside or inside container.
-
-    - SSH connect from outside
-
-      1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
-
-      2. Open a Bash shell terminal.
-
-      3. Download the corresponding private key from HDFS.
-         For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
-
-         ```sh
-         wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/userName~jobName?op=OPEN -O userName~jobName
-         ```
-
-      4. Use `chmod` command to set correct permission for the key file.
-
-         ```sh
-         chmod 400 userName~jobName
-         ```
-
-      5. Use `ssh` command to connect into container. for example
-
-         ```sh
-         ssh -i userName~jobName -p ssh_port root@container_ip
-         ```
-
-    - SSH connect inside containers
-
-      You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
-
-      ```sh
-      ssh worker-0
-      ```
-
-1. Job Profiling
-
-      Users can view the resource cost and bottlenecks of various metrics of the job by following the [job profiling doc](job_profiling.md).
 
 ## Learn more job examples
 
