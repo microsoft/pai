@@ -26,7 +26,8 @@ try {
     paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/layout.yaml', 'utf8'))['machine-list'];
 } catch (err) {
     paiMachineList = [];
-    logger.error('Unable to load machine list from cluster-configuration.');
+    logger.warn('Unable to load machine list from cluster-configuration.');
+    logger.warn('The machine list will be initialized as an empty list.');
 }
 
 let paiConfigData = {
