@@ -29,6 +29,12 @@ class RestServer:
             return False, '"default-pai-admin-username" is required in rest-server'
         if 'default-pai-admin-password' not in self.service_configuration:
             return False, '"default-pai-admin-password" is required in rest-server'
+        try:
+            reservation_time = int(self.service_configuration['debugging-reservation-seconds'])
+        except ValueError:
+            return False, '"debugging-reservation-seconds" should be a positive integer.'
+        if reservation_time <= 0:
+            return False, '"debugging-reservation-seconds" should be a positive integer.'
 
         return True, None
 
@@ -50,6 +56,7 @@ class RestServer:
         service_object_model['github-owner'] = self.service_configuration['github-owner']
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
+        service_object_model['debugging-reservation-seconds'] = self.service_configuration['debugging-reservation-seconds']
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')
