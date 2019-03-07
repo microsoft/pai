@@ -33,7 +33,7 @@ It assumes that you know IP address or domain name and have an account of OpenPA
 
 ## Submit a hello-world job
 
-The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, or other kinds of commands, even it's distributed on multiple servers.
+The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
 
 Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpoenPAI. Next sections include more details to help on submitting real jobs.
 

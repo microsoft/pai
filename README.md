@@ -95,7 +95,7 @@ As various hardware environments and different use scenarios, default configurat
 
 After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a hello-world job](docs/user/training.md) and check if it works end-to-end.
 
-### Train users before "train model"
+### Train users before "train models"
 
 The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly and save time on maintaining environments.
 
@@ -109,17 +109,17 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## Train models
 
-Like all machine learning platforms, OpenPAI is a production tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may wait in the queue, and OpenPAI choose some server(s) to run a job. This is different with run code on specified servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available, and OpenPAI choose some server(s) to run a job. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
 Note, OpenPAI also supports to allocate on demand resource besides queuing jobs. Users can use SSH or Jupyter to connect like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
 
-### Train models on OpenPAI
+### Submit training jobs
 
 Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
 
 ### OpenPAI VS Code Client
 
-Rather than web portal, and [RESTful API](docs/rest-server/API.md), OpenPAI have a friendly client tool for user. It's an extension of Visual Studio Code, called [OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md). It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
 
 ### Troubleshooting job failure
 
