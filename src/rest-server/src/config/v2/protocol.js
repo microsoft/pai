@@ -25,321 +25,321 @@ ajvMerge(ajv);
 
 // base schema
 const baseSchema = {
-    '$id': 'base.json',
-    'type': 'object',
-    'properties': {
-        'protocolVersion': {
-            'type': 'number',
-            'enum': [2],
-        },
-        'name': {
-            'type': 'string',
-        },
-        'version': {
-            'type': 'string',
-        },
-        'contributor': {
-            'type': 'string',
-        },
-        'description': {
-            'type': 'string',
-        },
+  '$id': 'base.json',
+  'type': 'object',
+  'properties': {
+    'protocolVersion': {
+      'type': 'number',
+      'enum': [2],
     },
-    'required': [
-        'name',
-    ],
-    'additionalProperties': false,
+    'name': {
+      'type': 'string',
+    },
+    'version': {
+      'type': 'string',
+    },
+    'contributor': {
+      'type': 'string',
+    },
+    'description': {
+      'type': 'string',
+    },
+  },
+  'required': [
+    'name',
+  ],
+  'additionalProperties': false,
 };
 
 // job protocol schema
 const protocolSchema = {
-    '$id': 'protocol.json',
-    'type': 'object',
-    'properties': {
-        'protocolVersion': {
-            '$ref': 'base.json#/properties/protocolVersion',
-        },
-        'name': {
-            '$ref': 'base.json#/properties/name',
-        },
-        'type': {
-            'type': 'string',
-            'enum': ['job'],
-        },
-        'version': {
-            '$ref': 'base.json#/properties/version',
-        },
-        'contributor': {
-            '$ref': 'base.json#/properties/contributor',
-        },
-        'description': {
-            '$ref': 'base.json#/properties/description',
-        },
-        'prerequisites': {
-            'type': 'array',
-            'items': {
-                'prerequisite': {
-                    'type': 'object',
-                    'oneOf': [
-                        {
-                            // script or output prerequisite
-                            '$merge': {
-                                'source': {
-                                    '$ref': 'base.json#',
-                                },
-                                'with': {
-                                    'properties': {
-                                        'type': {
-                                            'type': 'string',
-                                            'enum': ['script', 'output'],
-                                        },
-                                        'uri': {
-                                            'type': 'string',
-                                        },
-                                    },
-                                    'required': [
-                                        'type',
-                                        'uri',
-                                    ],
-                                    'additionalProperties': false,
-                                },
-                            },
-                        },
-                        {
-                            // data prerequisite
-                            '$merge': {
-                                'source': {
-                                    '$ref': 'base.json#',
-                                },
-                                'with': {
-                                    'properties': {
-                                        'type': {
-                                            'type': 'string',
-                                            'enum': ['data'],
-                                        },
-                                        'uri': {
-                                            'type': 'array',
-                                            'items': {
-                                                'type': 'string',
-                                            },
-                                        },
-                                    },
-                                    'required': [
-                                        'type',
-                                        'uri',
-                                    ],
-                                    'additionalProperties': false,
-                                },
-                            },
-                        },
-                        {
-                            // docker image prerequisite
-                            '$merge': {
-                                'source': {
-                                    '$ref': 'base.json#',
-                                },
-                                'with': {
-                                    'properties': {
-                                        'type': {
-                                            'type': 'string',
-                                            'enum': ['dockerimage'],
-                                        },
-                                        'auth': {
-                                            'type': 'object',
-                                            'properties': {
-                                                'username': {
-                                                    'type': 'string',
-                                                },
-                                                'password': {
-                                                    'type': 'string',
-                                                },
-                                                'registryuri': {
-                                                    'type': 'string',
-                                                },
-                                            },
-                                        },
-                                        'uri': {
-                                            'type': 'string',
-                                        },
-                                    },
-                                    'required': [
-                                        'type',
-                                        'uri',
-                                    ],
-                                    'additionalProperties': false,
-                                },
-                            },
-                        },
-                    ],
+  '$id': 'protocol.json',
+  'type': 'object',
+  'properties': {
+    'protocolVersion': {
+      '$ref': 'base.json#/properties/protocolVersion',
+    },
+    'name': {
+      '$ref': 'base.json#/properties/name',
+    },
+    'type': {
+      'type': 'string',
+      'enum': ['job'],
+    },
+    'version': {
+      '$ref': 'base.json#/properties/version',
+    },
+    'contributor': {
+      '$ref': 'base.json#/properties/contributor',
+    },
+    'description': {
+      '$ref': 'base.json#/properties/description',
+    },
+    'prerequisites': {
+      'type': 'array',
+      'items': {
+        'prerequisite': {
+          'type': 'object',
+          'oneOf': [
+            {
+              // script or output prerequisite
+              '$merge': {
+                'source': {
+                  '$ref': 'base.json#',
                 },
-            },
-            'minItems': 1,
-        },
-        'parameters': {
-            'type': 'object',
-            'additionalProperties': true,
-        },
-        'jobRetryCount': {
-            'type': 'integer',
-            'minimum': 0,
-        },
-        'taskRoles': {
-            'patternProperties': {
-                '^[A-Za-z0-9._~]+$': {
-                    'type': 'object',
-                    'properties': {
-                        'protocolVersion': {
-                            '$ref': 'base.json#/properties/protocolVersion',
-                        },
-                        'instances': {
-                            'type': 'integer',
-                            'minimum': 1,
-                        },
-                        'completion': {
-                            'type': 'object',
-                            'properties': {
-                                'minFailedInstances': {
-                                    'type': ['integer', 'null'],
-                                },
-                                'minSucceededInstances': {
-                                    'type': ['integer', 'null'],
-                                },
-                                'additionalProperties': false,
-                            },
-                        },
-                        'taskRetryCount': {
-                            'type': 'integer',
-                        },
-                        'dockerImage': {
-                            'type': 'string',
-                        },
-                        'data': {
-                            'type': 'string',
-                        },
-                        'output': {
-                            'type': 'string',
-                        },
-                        'script': {
-                            'type': 'string',
-                        },
-                        'extraContainerOptions': {
-                            'type': 'object',
-                            'properties': {
-                                'shmMB': {
-                                    'type': 'integer',
-                                },
-                                'additionalProperties': false,
-                            },
-                        },
-                        'resourcePerInstance': {
-                            'type': 'object',
-                            'properties': {
-                                'cpu': {
-                                    'type': 'integer',
-                                },
-                                'memoryMB': {
-                                    'type': 'integer',
-                                },
-                                'gpu': {
-                                    'type': 'integer',
-                                },
-                                'ports': {
-                                    'patternProperties': {
-                                        '^[A-Za-z0-9._~]+$': {
-                                            'type': 'integer',
-                                        },
-                                    },
-                                    'minProperties': 1,
-                                    'additionalProperties': false,
-                                },
-                            },
-                            'required': [
-                                'cpu',
-                                'memoryMB',
-                                'gpu',
-                            ],
-                            'additionalProperties': false,
-                        },
-                        'commands': {
-                            'type': 'array',
-                            'items': {
-                                'type': 'string',
-                            },
-                            'minItems': 1,
-                        },
+                'with': {
+                  'properties': {
+                    'type': {
+                      'type': 'string',
+                      'enum': ['script', 'output'],
                     },
-                    'required': [
-                        'dockerImage',
-                        'resourcePerInstance',
-                        'commands',
-                    ],
-                    'additionalProperties': false,
+                    'uri': {
+                      'type': 'string',
+                    },
+                  },
+                  'required': [
+                    'type',
+                    'uri',
+                  ],
+                  'additionalProperties': false,
                 },
+              },
+            },
+            {
+              // data prerequisite
+              '$merge': {
+                'source': {
+                  '$ref': 'base.json#',
+                },
+                'with': {
+                  'properties': {
+                    'type': {
+                      'type': 'string',
+                      'enum': ['data'],
+                    },
+                    'uri': {
+                      'type': 'array',
+                      'items': {
+                        'type': 'string',
+                      },
+                    },
+                  },
+                  'required': [
+                    'type',
+                    'uri',
+                  ],
+                  'additionalProperties': false,
+                },
+              },
+            },
+            {
+              // docker image prerequisite
+              '$merge': {
+                'source': {
+                  '$ref': 'base.json#',
+                },
+                'with': {
+                  'properties': {
+                    'type': {
+                      'type': 'string',
+                      'enum': ['dockerimage'],
+                    },
+                    'auth': {
+                      'type': 'object',
+                      'properties': {
+                        'username': {
+                          'type': 'string',
+                        },
+                        'password': {
+                          'type': 'string',
+                        },
+                        'registryuri': {
+                          'type': 'string',
+                        },
+                      },
+                    },
+                    'uri': {
+                      'type': 'string',
+                    },
+                  },
+                  'required': [
+                    'type',
+                    'uri',
+                  ],
+                  'additionalProperties': false,
+                },
+              },
+            },
+          ],
+        },
+      },
+      'minItems': 1,
+    },
+    'parameters': {
+      'type': 'object',
+      'additionalProperties': true,
+    },
+    'jobRetryCount': {
+      'type': 'integer',
+      'minimum': 0,
+    },
+    'taskRoles': {
+      'patternProperties': {
+        '^[A-Za-z0-9._~]+$': {
+          'type': 'object',
+          'properties': {
+            'protocolVersion': {
+              '$ref': 'base.json#/properties/protocolVersion',
+            },
+            'instances': {
+              'type': 'integer',
+              'minimum': 1,
+            },
+            'completion': {
+              'type': 'object',
+              'properties': {
+                'minFailedInstances': {
+                  'type': ['integer', 'null'],
+                },
+                'minSucceededInstances': {
+                  'type': ['integer', 'null'],
+                },
+                'additionalProperties': false,
+              },
+            },
+            'taskRetryCount': {
+              'type': 'integer',
+            },
+            'dockerImage': {
+              'type': 'string',
+            },
+            'data': {
+              'type': 'string',
+            },
+            'output': {
+              'type': 'string',
+            },
+            'script': {
+              'type': 'string',
+            },
+            'extraContainerOptions': {
+              'type': 'object',
+              'properties': {
+                'shmMB': {
+                  'type': 'integer',
+                },
+                'additionalProperties': false,
+              },
+            },
+            'resourcePerInstance': {
+              'type': 'object',
+              'properties': {
+                'cpu': {
+                  'type': 'integer',
+                },
+                'memoryMB': {
+                  'type': 'integer',
+                },
+                'gpu': {
+                  'type': 'integer',
+                },
+                'ports': {
+                  'patternProperties': {
+                    '^[A-Za-z0-9._~]+$': {
+                      'type': 'integer',
+                    },
+                  },
+                  'minProperties': 1,
+                  'additionalProperties': false,
+                },
+              },
+              'required': [
+                'cpu',
+                'memoryMB',
+                'gpu',
+              ],
+              'additionalProperties': false,
+            },
+            'commands': {
+              'type': 'array',
+              'items': {
+                'type': 'string',
+              },
+              'minItems': 1,
+            },
+          },
+          'required': [
+            'dockerImage',
+            'resourcePerInstance',
+            'commands',
+          ],
+          'additionalProperties': false,
+        },
+      },
+      'minProperties': 1,
+      'additionalProperties': false,
+    },
+    'deployments': {
+      'type': 'array',
+      'items': {
+        'type': 'object',
+        'properties': {
+          'protocolVersion': {
+            '$ref': 'base.json#/properties/protocolVersion',
+          },
+          'name': {
+            '$ref': 'base.json#/properties/name',
+          },
+          'taskRoles': {
+            'patternProperties': {
+              '^[A-Za-z0-9._~]+$': {
+                'type': 'object',
+                'properties': {
+                  'preCommands': {
+                    'type': 'array',
+                    'items': {
+                      'type': 'string',
+                    },
+                    'minItems': 1,
+                  },
+                  'postCommands': {
+                    'type': 'array',
+                    'items': {
+                      'type': 'string',
+                    },
+                    'minItems': 1,
+                  },
+                },
+                'additionalProperties': false,
+              },
             },
             'minProperties': 1,
             'additionalProperties': false,
+          },
         },
-        'deployments': {
-            'type': 'array',
-            'items': {
-                'type': 'object',
-                'properties': {
-                    'protocolVersion': {
-                        '$ref': 'base.json#/properties/protocolVersion',
-                    },
-                    'name': {
-                        '$ref': 'base.json#/properties/name',
-                    },
-                    'taskRoles': {
-                        'patternProperties': {
-                            '^[A-Za-z0-9._~]+$': {
-                                'type': 'object',
-                                'properties': {
-                                    'preCommands': {
-                                        'type': 'array',
-                                        'items': {
-                                            'type': 'string',
-                                        },
-                                        'minItems': 1,
-                                    },
-                                    'postCommands': {
-                                        'type': 'array',
-                                        'items': {
-                                            'type': 'string',
-                                        },
-                                        'minItems': 1,
-                                    },
-                                },
-                                'additionalProperties': false,
-                            },
-                        },
-                        'minProperties': 1,
-                        'additionalProperties': false,
-                    },
-                },
-                'required': [
-                    'name',
-                    'taskRoles',
-                ],
-            },
-            'minItems': 1,
-        },
-        'defaults': {
-            'type': 'object',
-            'properties': {
-                'deployment': {
-                    'type': 'string',
-                },
-            },
-        },
+        'required': [
+          'name',
+          'taskRoles',
+        ],
+      },
+      'minItems': 1,
     },
-    'required': [
-        'protocolVersion',
-        'name',
-        'type',
-        'taskRoles',
-    ],
-    'additionalProperties': false,
+    'defaults': {
+      'type': 'object',
+      'properties': {
+        'deployment': {
+          'type': 'string',
+        },
+      },
+    },
+  },
+  'required': [
+    'protocolVersion',
+    'name',
+    'type',
+    'taskRoles',
+  ],
+  'additionalProperties': false,
 };
 
 const protocolValidate = ajv.addSchema(baseSchema).compile(protocolSchema);
@@ -347,5 +347,5 @@ const protocolValidate = ajv.addSchema(baseSchema).compile(protocolSchema);
 
 // module exports
 module.exports = {
-    validate: protocolValidate,
+  validate: protocolValidate,
 };
