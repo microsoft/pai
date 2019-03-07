@@ -21,7 +21,7 @@ class RestServer:
         self.cluster_configuration = cluster_configuration
         self.service_configuration = dict(default_service_configuraiton,
                                           **service_configuration)
-    
+  
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
         machine_list = self.cluster_configuration['machine-list']
@@ -31,7 +31,7 @@ class RestServer:
             return False, '"default-pai-admin-password" is required in rest-server'
 
         return True, None
-    
+  
     #### Generate the final service object model
     def run(self):
         # parse your service object model here, and return a generated dictionary
@@ -50,9 +50,12 @@ class RestServer:
         service_object_model['github-owner'] = self.service_configuration['github-owner']
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
+        service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
+                                                     for host in machine_list
+                                                     if host.get('k8s-role') == 'master')
 
         return service_object_model
-    
+
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness. 
     def validation_post(self, cluster_object_model):
         if 'yarn-frameworklauncher' not in cluster_object_model or 'webservice' not in cluster_object_model['yarn-frameworklauncher']:
