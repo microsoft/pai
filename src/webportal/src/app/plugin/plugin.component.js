@@ -46,7 +46,8 @@ $(document).ready(function() {
 
   loadScript(plugin.uri, function() {
     const $plugin = $('<pai-plugin>')
-      .attr('pai-rest-server-uri', window.ENV.restServerUri);
+      .attr('pai-rest-server-uri', window.ENV.restServerUri)
+      .attr('pai-version', window.PAI_VERSION);
     if (cookies.get('token')) {
       $plugin.attr('pai-user', cookies.get('user'))
         .attr('pai-rest-server-token', cookies.get('token'));
