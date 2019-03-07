@@ -86,6 +86,7 @@ const protocolValidate = async (req, res, next) => {
                 );
         }
     }
+    req.body = protocolJSON;
     await next();
 };
 
@@ -102,7 +103,7 @@ const protocolRender = async (req, res, next) => {
             }
         }
         let entrypoint = '';
-        const tokens = mustache.parse(commands.join(' ; '));
+        const tokens = mustache.parse(commands.join(' ; '), ['<%', '%>']);
         const context = new mustache.Context({
             '$parameters': protocolJSON.parameters,
             '$script': protocolJSON.prerequisites['script'][taskRole],
@@ -122,15 +123,20 @@ const protocolRender = async (req, res, next) => {
                 }
             }
         }
-        protocolJSON[taskRole].entrypoint = entrypoint;
+        protocolJSON.taskRoles[taskRole].entrypoint = entrypoint;
     }
+    req.body = protocolJSON;
     await next();
 };
 
-const submission = [
+const protocolSubmission = [
     protocolValidate,
     protocolRender,
 ];
 
 // module exports
-module.exports = {submission};
+module.exports = {
+    validate: protocolValidate,
+    render: protocolRender,
+    submission: protocolSubmission,
+};
