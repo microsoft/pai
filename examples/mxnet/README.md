@@ -25,8 +25,13 @@ The following contents show some basic MXNet examples, other customized MXNet co
 
 ## Contents
 
-1. [MXNet autoencoder examples](#mxnet-autoencoder-examples)
-2. [MXNet image classification examples](#mxnet-image-classification-examples)
+- [Apache MXNet on PAI](#apache-mxnet-on-pai)
+  - [Contents](#contents)
+  - [MXNet autoencoder examples](#mxnet-autoencoder-examples)
+    - [autoencoder](#autoencoder)
+  - [MXNet image classification examples](#mxnet-image-classification-examples)
+    - [image classification](#image-classification)
+    - [Note:](#note)
 
 ## MXNet autoencoder examples
 
@@ -75,7 +80,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).
 
 ### Note:
 
