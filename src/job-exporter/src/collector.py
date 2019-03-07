@@ -348,6 +348,7 @@ class GpuCollector(Collector):
             if len(info.pids) > 0:
                 pids_use_gpu[minor]= info.pids
 
+        logger.debug("pids_use_gpu is %s, zombie_info is %s", pids_use_gpu, zombie_info)
         if len(pids_use_gpu) > 0:
             if zombie_info is None:
                 zombie_info = []
@@ -355,6 +356,7 @@ class GpuCollector(Collector):
             for minor, pids in pids_use_gpu.items():
                 for pid in pids:
                     found, z_id = pid_to_cid_fn(pid)
+                    logger.debug("pid %s has found %s, z_id %s", pid, found, z_id)
                     if found:
                         if z_id in zombie_info:
                             # found corresponding container
