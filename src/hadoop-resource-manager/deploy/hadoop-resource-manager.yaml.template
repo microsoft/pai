@@ -106,10 +106,11 @@ spec:
           - "-p {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}"
         livenessProbe:
           httpGet:
-            path: /
+            path: '/healthz'
             port: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
-          initialDelaySeconds: 5
-          timeoutSeconds: 1
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
