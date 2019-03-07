@@ -198,7 +198,7 @@ class TestGpuCollector(base.TestBase):
 
         zombie_info = {"abc", "def"}
 
-        pid_to_cid_mapping = {33: "def", 22: "ghi", 44: "jkl"} # only 33 is zombie
+        pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 33 is zombie
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
@@ -222,7 +222,6 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_mem_leak, mem_leak)
 
         target_external_process = collector.gen_gpu_used_by_external_process_counter()
-        target_external_process.add_metric(["0", 22], 1)
         target_external_process.add_metric(["0", 44], 1)
         self.assertEqual(target_external_process, external_process)
 
@@ -306,6 +305,38 @@ class TestGpuCollector(base.TestBase):
         target_mem_leak = collector.gen_gpu_memory_leak_counter()
         target_mem_leak.add_metric(["3"], 1)
         self.assertEqual(target_mem_leak, mem_leak)
+
+    def test_convert_to_metrics_with_no_zombie_info_BUGFIX(self):
+        gpu_info = {"0": nvidia.NvidiaGpuStatus(20, 21, [22, 33, 44],
+            nvidia.EccError())}
+
+        # zombie_info is empty should also have external process metric
+        zombie_info = []
+
+        pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 44 is external process
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(0, len(zombie_container.samples))
+        self.assertEqual(1, len(external_process.samples))
+        self.assertEqual("0", external_process.samples[0].labels["minor_number"])
+        self.assertEqual(44, external_process.samples[0].labels["pid"])
+
+        # zombie_info is None should also have external process metric
+        zombie_info = None
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(0, len(zombie_container.samples))
+        self.assertEqual(1, len(external_process.samples))
+        self.assertEqual("0", external_process.samples[0].labels["minor_number"])
+        self.assertEqual(44, external_process.samples[0].labels["pid"])
 
 if __name__ == '__main__':
     unittest.main()

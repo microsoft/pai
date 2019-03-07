@@ -348,13 +348,17 @@ class GpuCollector(Collector):
             if len(info.pids) > 0:
                 pids_use_gpu[minor]= info.pids
 
-        if zombie_info is not None and len(zombie_info) > 0 and len(pids_use_gpu) > 0:
+        if len(pids_use_gpu) > 0:
+            if zombie_info is None:
+                zombie_info = []
+
             for minor, pids in pids_use_gpu.items():
                 for pid in pids:
                     found, z_id = pid_to_cid_fn(pid)
-                    if found and z_id in zombie_info:
-                        # found corresponding container
-                        zombie_container.add_metric([minor, z_id], 1)
+                    if found:
+                        if z_id in zombie_info:
+                            # found corresponding container
+                            zombie_container.add_metric([minor, z_id], 1)
                     else:
                         external_process.add_metric([minor, pid], 1)
             logger.warning("found gpu used by external %s, zombie container %s",
