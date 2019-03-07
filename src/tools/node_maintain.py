@@ -103,7 +103,7 @@ class YarnOperator(object):
 
 
 class AlertOperator(object):
-    GPU_alert_name = ["NvidiaSmiLatencyTooLarge", "NvidiaMemoryLeak", "NvidiaZombieProcess", "GpuUsedByExternalProcess"]
+    GPU_alert_name = ["NvidiaSmiLatencyTooLarge", "NvidiaSmiEccError", "NvidiaMemoryLeak", "NvidiaZombieProcess", "GpuUsedByExternalProcess", "GpuUsedByZombieContainer"]
 
     def __init__(self, prometheus_ip, prometheus_port=9091):
         self.master_ip = prometheus_ip
