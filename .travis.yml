@@ -51,6 +51,15 @@ matrix:
         - python3 -m unittest discover .
 
     - language: python
+      python: 3.6
+      before_install:
+        - cd src/yarn-exporter/test
+      install:
+        - pip install prometheus_client
+      script:
+        - python3 -m unittest discover .
+
+    - language: python
       python: 2.7
       install:
         - pip install markdown==2.6.11
