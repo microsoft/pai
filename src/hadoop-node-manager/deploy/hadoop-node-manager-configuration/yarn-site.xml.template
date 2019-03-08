@@ -284,6 +284,21 @@
   </property>
 
   <property>
+    <name>yarn.timeline-service.http-cross-origin.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.webapp.cross-origin.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.webapp.cross-origin.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
     <description>
     The duration (in ms) the YARN client waits for an expected state change
     to occur.  -1 means unlimited wait time.
