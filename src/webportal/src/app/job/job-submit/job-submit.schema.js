@@ -246,9 +246,9 @@ const jobSchema = {
     extras: {
       type: 'object',
       format: 'grid',
-      propertyOrder: 200,
+      propertyOrder: 201,
       additionalProperties: true,
-        description: 'Extra parameters, store any information that job may use',
+      description: 'Extra parameters, store any information that job may use',
     },
   },
   required: [
