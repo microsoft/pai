@@ -21,10 +21,12 @@ const axios = require('axios');
 const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
-const HDFS = require('../util/hdfs');
 const userModel = require('../user');
-const azureEnv = require('../config/azure');
-const paiConfig = require('../config/paiConfig');
+const HDFS = require('../../util/hdfs');
+const createError = require('../../util/error');
+const logger = require('../../config/logger');
+const azureEnv = require('../../config/azure');
+const paiConfig = require('../../config/paiConfig');
 const launcherConfig = require('../../config/launcher');
 const yarnContainerScriptTemplate = require('../../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../../templates/dockerContainerScript');
@@ -165,7 +167,7 @@ const generateDockerContainerScript = (jobName, userName, config, taskRole) => {
 };
 
 const generateSSHKeys = (jobName) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     keygen({
       location: jobName,
       comment: `ssh key for ${jobName}`,
@@ -173,7 +175,8 @@ const generateSSHKeys = (jobName) => {
       destroy: true,
     }, (err, out) => {
       if (err) {
-        reject(err);
+        logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
+        resolve(null);
       } else {
         const keys = {};
         // private key
@@ -194,7 +197,11 @@ const prepareContainerScripts = async (jobName, userName, config) => {
     const options = {'user.name': user, 'permission': mode};
     return new Promise((resolve) => {
       hdfs.createFolder(path, options, (err, result) => {
-        err ? () => {throw err} : resolve(result);
+        if (err) {
+          throw err;
+        } else {
+          resolve(result);
+        }
       });
     });
   };
@@ -203,7 +210,11 @@ const prepareContainerScripts = async (jobName, userName, config) => {
     const options = {'user.name': user, 'permission': mode, 'overwrite': 'true'};
     return new Promise((resolve) => {
       hdfs.createFile(path, data, options, (err, result) => {
-        err ? () => {throw err} : resolve(result);
+        if (err) {
+          throw err;
+        } else {
+          resolve(result);
+        }
       });
     });
   };
@@ -228,15 +239,12 @@ const prepareContainerScripts = async (jobName, userName, config) => {
 
   // generate ssh key
   if (process.platform.toUpperCase() === 'LINUX') {
-    await generateSSHKeys(jobName)
-      .then((keys) => {
-        for (let keyname of Object.keys(keys)) {
-          await upload(`${pathPrefix}/ssh/keyFiles/${keyname}`, keys[keyname], userName, '755');
-        }
-      })
-      .catch((err) => {
-        logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
-      });
+    const keys = await generateSSHKeys(jobName);
+    if (keys) {
+      for (let keyname of Object.keys(keys)) {
+        await upload(`${pathPrefix}/ssh/keyFiles/${keyname}`, keys[keyname], userName, '755');
+      }
+    }
   }
 
   // return framework description
@@ -253,9 +261,15 @@ const Job = (jobName, userName, config) => {
 
 Job.prototype.put = async (next) => {
   // check user vc
+  const virtualCluster = ('defaults' in this.config && this.config.defaults.virtualCluster != null) ?
+    this.config.defaults.virtualCluster : 'default';
   await new Promise((resolve) => {
-    userModel.checkUserVc(data.userName, data.virtualCluster, (err, result) => {
-      err ? () => {throw err} : resolve(result);
+    userModel.checkUserVc(this.userName, virtualCluster, (err, result) => {
+      if (err) {
+        throw err;
+      } else {
+        resolve(result);
+      }
     });
   });
 
@@ -263,17 +277,17 @@ Job.prototype.put = async (next) => {
   const frameworkDescription = await prepareContainerScripts(this.jobName, this.userName, this.config);
 
   // send request to framework launcher
-  axios({
+  const response = await axios({
     method: 'put',
     url: launcherConfig.frameworkPath(this.frameworkName),
     headers: launcherConfig.webserviceRequestHeaders(this.userName),
     data: frameworkDescription,
-  }).then((response) => {
-    if (response.status !== status('Accepted')) {
-      throw createError(response.status, 'UnknownError', response.data.raw_body);
-    }
-    await next();
   });
+  if (response.status !== status('Accepted')) {
+    throw createError(response.status, 'UnknownError', response.data.raw_body);
+  } else {
+    await next();
+  }
 };
 
 // module exports
