@@ -87,7 +87,7 @@ def stats(histogram, timeout):
     try:
         result = utils.exec_cmd([
             "docker", "stats", "--no-stream", "--format",
-            "table {{.Container}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"],
+            "table {{.ID}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"],
             histogram=histogram,
             timeout=timeout)
         return parse_docker_stats(result)

@@ -76,6 +76,7 @@ class TestDockerCollector(base.TestBase):
         _, c = collector.instantiate_collector(
                 "test_docker_collector1",
                 0.5,
+                datetime.timedelta(seconds=1),
                 collector.DockerCollector)
 
         self.assert_metrics(c.collect_impl())
@@ -86,11 +87,12 @@ class TestDockerCollector(base.TestBase):
         ref = collector.make_collector(
                 "test_docker_collector2",
                 0.5,
+                datetime.timedelta(seconds=10),
                 collector.DockerCollector)
 
         metrics = None
         for i in range(10):
-            metrics = ref.get()
+            metrics = ref.get(datetime.datetime.now())
             if metrics is not None:
                 break
             time.sleep(0.1)
@@ -107,12 +109,14 @@ class TestZombieCollector(base.TestBase):
         # in from name, we need to differentiate name using time.
         t = str(time.time()).replace(".", "_")
 
+        decay_time = datetime.timedelta(seconds=1)
         _, self.collector = collector.instantiate_collector(
                 "test_zombie_collector" + t,
                 0.5,
+                decay_time,
                 collector.ZombieCollector,
-                collector.AtomicRef(),
-                collector.AtomicRef())
+                collector.AtomicRef(decay_time),
+                collector.AtomicRef(decay_time))
 
     def test_update_zombie_count_type1(self):
         start = datetime.datetime.now()
@@ -198,7 +202,7 @@ class TestGpuCollector(base.TestBase):
 
         zombie_info = {"abc", "def"}
 
-        pid_to_cid_mapping = {33: "def", 22: "ghi", 44: "jkl"} # only 33 is zombie
+        pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 33 is zombie
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
@@ -222,7 +226,6 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_mem_leak, mem_leak)
 
         target_external_process = collector.gen_gpu_used_by_external_process_counter()
-        target_external_process.add_metric(["0", 22], 1)
         target_external_process.add_metric(["0", 44], 1)
         self.assertEqual(target_external_process, external_process)
 
@@ -306,6 +309,84 @@ class TestGpuCollector(base.TestBase):
         target_mem_leak = collector.gen_gpu_memory_leak_counter()
         target_mem_leak.add_metric(["3"], 1)
         self.assertEqual(target_mem_leak, mem_leak)
+
+    def test_convert_to_metrics_with_no_zombie_info_BUGFIX(self):
+        gpu_info = {"0": nvidia.NvidiaGpuStatus(20, 21, [22, 33, 44],
+            nvidia.EccError())}
+
+        # zombie_info is empty should also have external process metric
+        zombie_info = []
+
+        pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 44 is external process
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(0, len(zombie_container.samples))
+        self.assertEqual(1, len(external_process.samples))
+        self.assertEqual("0", external_process.samples[0].labels["minor_number"])
+        self.assertEqual(44, external_process.samples[0].labels["pid"])
+
+        # zombie_info is None should also have external process metric
+        zombie_info = None
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(0, len(zombie_container.samples))
+        self.assertEqual(1, len(external_process.samples))
+        self.assertEqual("0", external_process.samples[0].labels["minor_number"])
+        self.assertEqual(44, external_process.samples[0].labels["pid"])
+
+    def test_convert_to_metrics_with_real_id_BUGFIX(self):
+        gpu_info = {"0": nvidia.NvidiaGpuStatus(20, 21, [22],
+            nvidia.EccError())}
+
+        # zombie_info is empty should also have external process metric
+        zombie_info = {"ce5de12d6275"}
+
+        pid_to_cid_mapping = {22: "ce5de12d6275dc05c9ec5b7f58484f075f4775d8f54f6a4be3dc1439344df356"}
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(1, len(zombie_container.samples))
+        self.assertEqual("0", zombie_container.samples[0].labels["minor_number"])
+        self.assertEqual("ce5de12d6275", zombie_container.samples[0].labels["container_id"])
+
+class TestAtomicRef(base.TestBase):
+    """
+    Test AtomicRef in collecotr.py
+    """
+
+    def test_expiration(self):
+        ref = collector.AtomicRef(datetime.timedelta(seconds=10))
+
+        now = datetime.datetime.now()
+
+        delta = datetime.timedelta(seconds=1)
+
+        ref.set(1, now)
+
+        self.assertEquals(1, ref.get(now))
+        self.assertEquals(1, ref.get(now - delta))
+        self.assertEquals(1, ref.get(now + delta))
+        self.assertEquals(1, ref.get(now + delta * 10))
+        self.assertEquals(None, ref.get(now + delta * 11))
+        self.assertEquals(1, ref.get(now + delta * 10))
+
+        ref.set(2, now + delta)
+        self.assertEquals(2, ref.get(now))
+        self.assertEquals(2, ref.get(now + delta * 10))
+        self.assertEquals(2, ref.get(now + delta * 11))
+        self.assertEquals(None, ref.get(now + delta * 12))
+
 
 if __name__ == '__main__':
     unittest.main()
