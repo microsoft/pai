@@ -33,8 +33,8 @@ class ServiceConfigUpdate:
         self.config_path = config_path
 
     def run(self):
-        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.config_path))
-        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
+        service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.config_path))
+        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(service_configuration)
 
         if updated is True:
             self.logger.warning("=======================================================================")
@@ -49,6 +49,7 @@ class ServiceConfigUpdate:
                 "mv {0}/services-configuration.yaml {0}/services-configuration.yaml.old".format(self.config_path),
                 "failed to mv the old services-configuration.yaml"
             )
+            self.overwirte_service_configuration["cluster"]["docker-registry"]["tag"] = "v0.10.0"
             file_handler.dump_yaml_data("{0}/services-configuration.yaml".format(self.config_path), self.overwirte_service_configuration)
 
             self.logger.warning("=======================================================================")
