@@ -76,6 +76,7 @@ class TestDockerCollector(base.TestBase):
         _, c = collector.instantiate_collector(
                 "test_docker_collector1",
                 0.5,
+                datetime.timedelta(seconds=1),
                 collector.DockerCollector)
 
         self.assert_metrics(c.collect_impl())
@@ -86,11 +87,12 @@ class TestDockerCollector(base.TestBase):
         ref = collector.make_collector(
                 "test_docker_collector2",
                 0.5,
+                datetime.timedelta(seconds=1),
                 collector.DockerCollector)
 
         metrics = None
         for i in range(10):
-            metrics = ref.get()
+            metrics = ref.get(datetime.datetime.now())
             if metrics is not None:
                 break
             time.sleep(0.1)
@@ -107,12 +109,14 @@ class TestZombieCollector(base.TestBase):
         # in from name, we need to differentiate name using time.
         t = str(time.time()).replace(".", "_")
 
+        decay_time = datetime.timedelta(seconds=1)
         _, self.collector = collector.instantiate_collector(
                 "test_zombie_collector" + t,
-                0.5,
+                decay_time,
+                datetime.timedelta,
                 collector.ZombieCollector,
-                collector.AtomicRef(),
-                collector.AtomicRef())
+                collector.AtomicRef(decay_time),
+                collector.AtomicRef(decay_time))
 
     def test_update_zombie_count_type1(self):
         start = datetime.datetime.now()
