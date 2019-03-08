@@ -87,7 +87,7 @@ class TestDockerCollector(base.TestBase):
         ref = collector.make_collector(
                 "test_docker_collector2",
                 0.5,
-                datetime.timedelta(seconds=1),
+                datetime.timedelta(seconds=10),
                 collector.DockerCollector)
 
         metrics = None
@@ -112,8 +112,8 @@ class TestZombieCollector(base.TestBase):
         decay_time = datetime.timedelta(seconds=1)
         _, self.collector = collector.instantiate_collector(
                 "test_zombie_collector" + t,
+                0.5,
                 decay_time,
-                datetime.timedelta,
                 collector.ZombieCollector,
                 collector.AtomicRef(decay_time),
                 collector.AtomicRef(decay_time))
@@ -359,6 +359,34 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(1, len(zombie_container.samples))
         self.assertEqual("0", zombie_container.samples[0].labels["minor_number"])
         self.assertEqual("ce5de12d6275", zombie_container.samples[0].labels["container_id"])
+
+class TestAtomicRef(base.TestBase):
+    """
+    Test AtomicRef in collecotr.py
+    """
+
+    def test_expiration(self):
+        ref = collector.AtomicRef(datetime.timedelta(seconds=10))
+
+        now = datetime.datetime.now()
+
+        delta = datetime.timedelta(seconds=1)
+
+        ref.set(1, now)
+
+        self.assertEquals(1, ref.get(now))
+        self.assertEquals(1, ref.get(now - delta))
+        self.assertEquals(1, ref.get(now + delta))
+        self.assertEquals(1, ref.get(now + delta * 10))
+        self.assertEquals(None, ref.get(now + delta * 11))
+        self.assertEquals(1, ref.get(now + delta * 10))
+
+        ref.set(2, now + delta)
+        self.assertEquals(2, ref.get(now))
+        self.assertEquals(2, ref.get(now + delta * 10))
+        self.assertEquals(2, ref.get(now + delta * 11))
+        self.assertEquals(None, ref.get(now + delta * 12))
+
 
 if __name__ == '__main__':
     unittest.main()
