@@ -132,7 +132,7 @@
 
     <property>
       <name>yarn.log.server.web-service.url</name>
-      <value>http://{LOGSERVER_ADDRESS}:8188/ws/v1/applicationhistory/logs</value>
+      <value>http://{LOGSERVER_ADDRESS}:8188/ws/v1/applicationhistory</value>
     </property>
     
     <property>
