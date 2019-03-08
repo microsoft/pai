@@ -55,7 +55,7 @@ matrix:
       before_install:
         - cd src/yarn-exporter/test
       install:
-        - pip install prometheus_client
+        - pip install prometheus_client twisted
       script:
         - python3 -m unittest discover .
 
