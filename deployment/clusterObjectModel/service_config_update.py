@@ -16,12 +16,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import time
+import os
 import logging
 import logging.config
 import forward_compatibility
 from ..paiLibrary.common import file_handler
 from ..paiLibrary.common import directory_handler
 from ..paiLibrary.common import linux_shell
+from ..tools.convert_to_layout import convert_to_layout
+
 
 class ServiceConfigUpdate:
 
@@ -29,9 +32,8 @@ class ServiceConfigUpdate:
         self.logger = logging.getLogger(__name__)
         self.config_path = config_path
 
-
     def run(self):
-        overwirte_service_configuration = file_handler.load_yaml_config( "{0}/services-configuration.yaml".format(self.config_path))
+        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.config_path))
         self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
 
         if updated is True:
@@ -53,3 +55,10 @@ class ServiceConfigUpdate:
             self.logger.warning("===============  Process will continue after 15s.    ==================")
             self.logger.warning("=======================================================================")
             time.sleep(15)
+
+        # TODO convert cluster-configuration.yaml to layout.yaml
+        cluster_configuration_file = os.path.join(self.config_path, "cluster-configuration.yaml")
+        if(os.path.exists(cluster_configuration_file)):
+            convert_to_layout(self.config_path, self.config_path)
+            cluster_configuration_bak = os.path.join(self.config_path, "layout.yaml.old")
+            os.rename(cluster_configuration_file, cluster_configuration_bak)
