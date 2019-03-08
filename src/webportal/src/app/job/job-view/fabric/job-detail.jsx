@@ -19,59 +19,87 @@ import classNames from 'classnames';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {initializeIcons} from '@uifabric/icons';
+import {FontClassNames} from '@uifabric/styling';
 
 import t from './tachyons.css';
 
-import Top from './components/top';
-import Summary from './components/summary';
-import Loading from './components/loading';
-import {FontClassNames} from '@uifabric/styling';
-
-import config from '../../../config/webportal.config';
+import Top from './job-detail/components/top';
+import Summary from './job-detail/components/summary';
+import {SpinnerLoading} from './job-detail/components/loading';
+import TaskRole from './job-detail/components/task-role';
+import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob} from './job-detail/conn';
+import {getHumanizedJobStateString} from './job-detail/util';
 
 initializeIcons();
-
-function getParams() {
-  return new URLSearchParams(window.location.search);
-}
 
 class JobDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       jobInfo: null,
+      jobConfig: null,
+      loading: true,
+      sshInfo: null,
     };
+    this.stop = this.stop.bind(this);
   }
 
   componentDidMount() {
-    const param = getParams();
-    const namespace = param.get('username');
-    const jobName = param.get('jobName');
-    const url = namespace
-      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
-      : `${config.restServerUri}/api/v1/jobs/${jobName}`;
-    void fetch(url).then(async (res) => {
-      if (res.ok) {
-        const json = await res.json();
-        this.setState({jobInfo: json});
-      } else {
-        const json = await res.json();
-        alert(json.message);
-      }
-    }).catch((e) => {
-      alert(e);
+    void this.reload();
+  }
+
+  async stop() {
+    await stopJob();
+    await this.reload();
+  }
+
+  async reload() {
+    await Promise.all([
+      fetchJobInfo().catch(alert),
+      fetchJobConfig().catch((err) => {
+        // console.log(err);
+        return null;
+      }),
+      fetchSshInfo().catch((err) => {
+        // console.log(err);
+        return null;
+      }),
+    ]).then(([jobInfo, jobConfig, sshInfo]) => {
+      this.setState({
+        loading: false,
+        jobInfo: jobInfo,
+        jobConfig: jobConfig,
+        sshInfo: sshInfo,
+      });
     });
   }
 
   render() {
-    const {jobInfo} = this.state;
-    if (!jobInfo) {
-      return <Loading />;
+    const {loading, jobConfig, jobInfo, sshInfo} = this.state;
+    if (loading) {
+      return <SpinnerLoading />;
     } else {
       return (
         <div className={classNames(t.w100, t.ph4, t.pv3, FontClassNames.medium)}>
           <Top />
-          <Summary className={t.mt3} jobInfo={jobInfo} />
+          <Summary
+            className={t.mt3}
+            jobInfo={jobInfo}
+            jobConfig={jobConfig}
+            onStopJob={this.stop}
+          />
+          {
+            jobInfo.taskRoles && Object.keys(jobInfo.taskRoles).map((key) => (
+              <TaskRole
+                key={key}
+                className={t.mt3}
+                taskInfo={jobInfo.taskRoles[key]}
+                jobStatus={getHumanizedJobStateString(jobInfo)}
+                sshInfo={sshInfo}
+                taskConfig={jobConfig && jobConfig.taskRoles.find((x) => x.name === key)}
+              />
+            ))
+          }
         </div>
       );
     }

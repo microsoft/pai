@@ -15,27 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import classNames from 'classnames';
 import React from 'react';
+import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 
-import t from '../tachyons.css';
+import t from '../../tachyons.css';
 
-import loadingGif from '../../../../../assets/img/loading.gif';
-
-const Loading = () => (
-  <div className={classNames(t.absolute, t.top0, t.left0, t.w100, t.h100, t.o05, t.bgNearWhite)}>
-    <div
-      className={classNames(t.block, t.absolute, t.center)}
-      style={{
-        top: '40%',
-        left: '40%',
-        width: '20%',
-        height: '20%',
-      }}
-    >
-      <img src={loadingGif} />
+const Top = () => (
+  <div className={t.flex}>
+    <div>
+      <ActionButton
+        iconProps={{iconName: 'revToggleKey'}}
+        href='/view.html'
+      >
+        Back to Jobs
+      </ActionButton>
     </div>
   </div>
 );
 
-export default Loading;
+export default Top;

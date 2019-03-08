@@ -15,22 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import {FontClassNames} from '@uifabric/styling';
+import c from 'classnames';
+import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 
-import t from '../tachyons.css';
+import t from '../../tachyons.css';
 
-const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{iconName: 'revToggleKey'}}
-        href='/view.html'
-      >
-        Back to Jobs
-      </ActionButton>
+import loadingGif from '../../../../../../assets/img/loading.gif';
+
+export const Loading = () => (
+  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
+    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
+      <img className={t.o50} src={loadingGif} />
     </div>
   </div>
 );
 
-export default Top;
+export const SpinnerLoading = () => (
+  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
+    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
+      <div className={c(t.flex, t.itemsCenter)}>
+        <Spinner size={SpinnerSize.large} />
+        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+      </div>
+    </div>
+  </div>
+);

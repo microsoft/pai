@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import classNames from 'classnames';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import t from '../tachyons.css';
+import t from '../../tachyons.css';
 
 const Card = ({children, className}) => (
   <div className={classNames(className, t.bgWhite)}>

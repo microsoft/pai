@@ -47,8 +47,8 @@ export function getHumanizedJobStateString(jobInfo) {
 }
 
 export function getDurationString(jobInfo) {
-  const dt0 = DateTime.fromMillis(jobInfo.jobStatus.createdTime);
-  const dt1 = DateTime.fromMillis(jobInfo.jobStatus.completedTime);
+  const dt0 = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
+  const dt1 = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
   if (dt0 && dt1) {
     return Interval.fromDateTimes(dt0, dt1).toDuration(['hours', 'minutes', 'seconds']).toFormat('h:mm:ss');
   } else {
@@ -63,4 +63,15 @@ export function printDateTime(dt) {
   } else {
     return dt.toLocaleString(DateTime.DATETIME_MED);
   }
+}
+
+export function parseGpuAttr(attr) {
+  const res = [];
+  for (let i = 0; attr !== 0; i++, attr>>=1) {
+    if ((attr & 1) === 1) {
+      res.push(i);
+    }
+  }
+
+  return res;
 }

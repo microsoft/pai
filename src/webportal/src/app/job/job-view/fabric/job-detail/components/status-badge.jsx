@@ -15,17 +15,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import {FontClassNames} from '@uifabric/styling';
 import classNames from 'classnames';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import t from '../tachyons.css';
+import t from '../../tachyons.css';
 
 export const Badge = ({children, className}) => (
-  <div className={classNames(t.center, t.f4, t.w4, t.pv1, t.tc, className)}>
+  <div className={classNames(t.center, FontClassNames.small, t.w4, t.pv1, t.tc, className)}>
     {children}
   </div>
 );
+
+Badge.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
 
 export const SuccessBadge = ({children}) => (
   <Badge className={classNames(t.white, t.bgGreen)}>
@@ -33,11 +39,19 @@ export const SuccessBadge = ({children}) => (
   </Badge>
 );
 
+SuccessBadge.propTypes = {
+  children: PropTypes.node,
+};
+
 export const PrimaryBadge = ({children}) => (
   <Badge className={classNames(t.white, t.bgBlue)}>
     {children}
   </Badge>
 );
+
+PrimaryBadge.propTypes = {
+  children: PropTypes.node,
+};
 
 export const WarningBadge = ({children}) => (
   <Badge className={classNames(t.black, t.bgGold)}>
@@ -45,11 +59,19 @@ export const WarningBadge = ({children}) => (
   </Badge>
 );
 
+WarningBadge.propTypes = {
+  children: PropTypes.node,
+};
+
 export const DangerBadge = ({children}) => (
   <Badge className={classNames(t.white, t.bgDarkRed)}>
     {children}
   </Badge>
 );
+
+DangerBadge.propTypes = {
+  children: PropTypes.node,
+};
 
 export const DefaultBadge = ({children}) => (
   <Badge className={classNames(t.white, t.bgGray)}>
@@ -57,6 +79,9 @@ export const DefaultBadge = ({children}) => (
   </Badge>
 );
 
+DefaultBadge.propTypes = {
+  children: PropTypes.node,
+};
 
 export const StatusBadge = ({status}) => {
   switch (status) {
@@ -72,34 +97,14 @@ export const StatusBadge = ({status}) => {
     case 'Stopped':
     case 'Unknown':
       return <DefaultBadge>{status}</DefaultBadge>;
+    default:
+      return <DefaultBadge>{status}</DefaultBadge>;
   }
-};
-
-Badge.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-};
-
-PrimaryBadge.propTypes = {
-  children: PropTypes.node,
-};
-
-WarningBadge.propTypes = {
-  children: PropTypes.node,
-};
-
-DangerBadge.propTypes = {
-  children: PropTypes.node,
-};
-
-SuccessBadge.propTypes = {
-  children: PropTypes.node,
-};
-
-DefaultBadge.propTypes = {
-  children: PropTypes.node,
 };
 
 StatusBadge.propTypes = {
   status: PropTypes.oneOf(['Running', 'Stopping', 'Waiting', 'Failed', 'Succeeded', 'Stopped', 'Unknown']),
 };
+
+
+export default StatusBadge;
