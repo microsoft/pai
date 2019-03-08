@@ -132,5 +132,13 @@ class TestYarnCollector(base.TestBase):
         self.assertEqual(1, len(metrics[9].samples))
         self.assertEqual(0, metrics[9].samples[0].value)
 
+    def test_gen_nodes_metrics_using_empty_nodes(self):
+        with open("data/empty_nodes") as f:
+            obj = json.loads(f.read())
+
+        total_resource = yarn_exporter.ResourceItem()
+        node_count = yarn_exporter.NodeCount()
+        metrics = YarnCollector.gen_nodes_metrics(obj, total_resource, node_count)
+
 if __name__ == '__main__':
     unittest.main()

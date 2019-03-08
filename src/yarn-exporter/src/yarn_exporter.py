@@ -21,6 +21,8 @@ import argparse
 import signal
 import faulthandler
 import gc
+import logging
+import os
 
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from prometheus_client import Histogram
@@ -31,6 +33,8 @@ import requests
 from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.internet import reactor
+
+logger = logging.getLogger(__name__)
 
 ##### yarn-exporter will generate following metrics
 
@@ -107,6 +111,10 @@ def gen_node_gpu_available():
     return GaugeMetricFamily("yarn_node_gpu_available", "available gpu in node",
             labels=["node_ip"])
 
+def gen_yarn_exporter_error():
+    return GaugeMetricFamily("yarn_exporter_error_count", "error count yarn exporter encountered",
+            labels=["error"])
+
 ##### yarn-exporter will generate above metrics
 
 def request_with_histogram(url, histogram, *args, **kwargs):
@@ -132,31 +140,71 @@ class YarnCollector(object):
         self.scheduler_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/scheduler")
 
     def collect(self):
+        error_counter = gen_yarn_exporter_error()
+
+        response = None
+
         # nodes_url
-        response = request_with_histogram(self.nodes_url, cluster_nodes_histogram,
-                allow_redirects=True)
-        response.raise_for_status()
+        try:
+            response = request_with_histogram(self.nodes_url, cluster_nodes_histogram,
+                    allow_redirects=True)
+        except Exception as e:
+            error_counter.add_metric([str(e)], 1)
+            logger.exception(e)
 
         total_resource = ResourceItem()
         node_count = NodeCount()
 
-        for metric in YarnCollector.gen_nodes_metrics(response.json(),
-                total_resource, node_count):
-            yield metric
+        if response is not None:
+            if response.status_code != 200:
+                msg = "requesting %s with code %d" % (self.nodes_url, response.status_code)
+                logger.warning(msg)
+                error_counter.add_metric([msg], 1)
+            else:
+                try:
+                    metrics = YarnCollector.gen_nodes_metrics(response.json(),
+                            total_resource, node_count)
+                    for metric in metrics:
+                        yield metric
+                except Exception as e:
+                    error_counter.add_metric([str(e)], 1)
+                    logger.exception(e)
 
         nodes_active = gen_active_node_count()
         nodes_active.add_metric([], node_count.active)
         yield nodes_active
 
         # scheduler_url
-        response = request_with_histogram(self.scheduler_url, cluster_scheduler_histogram,
-                allow_redirects=True)
-        response.raise_for_status()
-        for metric in YarnCollector.gen_scheduler_metrics(response.json(), total_resource):
-            yield metric
+        response = None
+        try:
+            response = request_with_histogram(self.scheduler_url, cluster_scheduler_histogram,
+                    allow_redirects=True)
+        except Exception as e:
+            error_counter.add_metric([str(e)], 1)
+            logger.exception(e)
+
+        if response is not None:
+            if response.status_code != 200:
+                msg = "requesting %s with code %d" % (self.scheduler_url, response.status_code)
+                logger.warning(msg)
+                error_counter.add_metric([msg], 1)
+            else:
+                try:
+                    metrics = YarnCollector.gen_scheduler_metrics(response.json(),
+                            total_resource)
+                    for metric in metrics:
+                        yield metric
+                except Exception as e:
+                    error_counter.add_metric([str(e)], 1)
+                    logger.exception(e)
+
+        yield error_counter
 
     @staticmethod
     def gen_nodes_metrics(obj, total_resource, node_count):
+        if obj["nodes"] is None:
+            return []
+
         nodes = obj["nodes"]["node"]
 
         node_total_cpu = gen_node_cpu_total()
@@ -210,6 +258,9 @@ class YarnCollector(object):
 
     @staticmethod
     def gen_scheduler_metrics(obj, total_resource):
+        if obj["scheduler"] is None:
+            return []
+
         scheduler_info = obj["scheduler"]["schedulerInfo"]
 
         cpu_cap = gen_queue_cpu_cap()
@@ -292,5 +343,27 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="Exporter listen port",default="9459")
 
     args = parser.parse_args()
+
+    def get_logging_level():
+        mapping = {
+                "DEBUG": logging.DEBUG,
+                "INFO": logging.INFO,
+                "WARNING": logging.WARNING
+                }
+
+        result = logging.INFO
+
+        if os.environ.get("LOGGING_LEVEL") is not None:
+            level = os.environ["LOGGING_LEVEL"]
+            result = mapping.get(level.upper())
+            if result is None:
+                sys.stderr.write("unknown logging level " + level + \
+                        ", default to INFO\n")
+                result = logging.INFO
+
+        return result
+
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(filename)s:%(lineno)s - %(message)s",
+            level=get_logging_level())
 
     main(args)
