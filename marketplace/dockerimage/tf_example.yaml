@@ -1,7 +1,9 @@
 protocolVersion: 2
 name: tf_example
 type: dockerimage
-version: latest
-contributor: Alice
-description: python3.5, tensorflow
+version: 1.0-r1.4
+contributor: OpenPAI
+description: |
+  This is an [example TensorFlow Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/tensorflow).
+  It is built for TensorFlow r1.4 with HDFS support.
 uri: openpai/pai.example.tensorflow

@@ -3,5 +3,11 @@ name: tensorflow_cnnbenchmarks
 type: script
 version: 84820935288cab696c9c2ac409cbd46a1f24723d
 contributor: MaggieQi
-description: tensorflow benchmarks
+description: |
+  # TensorFlow benchmarks
+  This repository contains various TensorFlow benchmarks. Currently, it consists of two projects
+  * scripts/tf_cnn_benchmarks
+    The TensorFlow CNN benchmarks contain benchmarks for several convolutional neural networks.
+  * scripts/keras_benchmarks
+    The Keras benchmarks contain benchmarks for several models using Keras. Note this project is deprecated and unmaintained.
 uri: https://github.com/MaggieQi/benchmarks

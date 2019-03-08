@@ -1,7 +1,8 @@
 protocolVersion: 2
 name: chainer_example
 type: dockerimage
-version: 1.0.0
+version: 1.0
 contributor : OpenPAI
-description: chainer
+description: |
+  This is an [example chainer Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/chainer).
 uri : openpai/pai.example.chainer

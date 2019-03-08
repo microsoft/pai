@@ -1,7 +1,8 @@
 protocolVersion: 2
 name: keras_tensorflow_example
 type: dockerimage
-version: 1.0.0
+version: 1.0
 contributor : OpenPAI
-description: keras, tensorflow
+description: |
+  This is an [example Keras with TensorFlow backend Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/keras).
 uri : openpai/pai.example.keras.tensorflow

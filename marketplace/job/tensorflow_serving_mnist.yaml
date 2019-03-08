@@ -1,9 +1,14 @@
 protocolVersion: 2
 name: tensorflow_serving_mnist
 type: job
-version: 1.0.0
+version: 1.0
 contributor: OpenPAI
-description: image classification, mnist dataset, tensorflow, serving
+description: |
+  # Serving a TensorFlow MNIST Digit Recognition Model
+  This example shows you how to use TensorFlow Serving components to export a trained TensorFlow model
+  and use the standard tensorflow_model_server to serve it on OpenPAI.
+  This example uses the simple Softmax Regression model introduced in the TensorFlow tutorial for handwritten image (MNIST data) classification.
+  Reference https://www.tensorflow.org/tfx/serving/serving_basic.
 
 parameters:
   modelPath: /tmp/mnist_model
@@ -12,9 +17,10 @@ prerequisites:
   - protocolVersion: 2
     name: tf_serving_example
     type: dockerimage
-    version: 1.0.0
+    version: 1.0-r1.4
     contributor : OpenPAI
-    description: python3.5, tensorflow
+    description: |
+      This is an [example TensorFlow Serving Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/serving).
     uri : openpai/pai.example.tensorflow-serving
 
 jobRetryCount: -2
