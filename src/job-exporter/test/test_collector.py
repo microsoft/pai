@@ -338,5 +338,23 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual("0", external_process.samples[0].labels["minor_number"])
         self.assertEqual(44, external_process.samples[0].labels["pid"])
 
+    def test_convert_to_metrics_with_real_id_BUGFIX(self):
+        gpu_info = {"0": nvidia.NvidiaGpuStatus(20, 21, [22],
+            nvidia.EccError())}
+
+        # zombie_info is empty should also have external process metric
+        zombie_info = {"ce5de12d6275"}
+
+        pid_to_cid_mapping = {22: "ce5de12d6275dc05c9ec5b7f58484f075f4775d8f54f6a4be3dc1439344df356"}
+
+        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+                self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
+
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container = metrics
+
+        self.assertEqual(1, len(zombie_container.samples))
+        self.assertEqual("0", zombie_container.samples[0].labels["minor_number"])
+        self.assertEqual("ce5de12d6275", zombie_container.samples[0].labels["container_id"])
+
 if __name__ == '__main__':
     unittest.main()

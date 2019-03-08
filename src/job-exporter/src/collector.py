@@ -358,13 +358,17 @@ class GpuCollector(Collector):
                     found, z_id = pid_to_cid_fn(pid)
                     logger.debug("pid %s has found %s, z_id %s", pid, found, z_id)
                     if found:
-                        if z_id in zombie_info:
-                            # found corresponding container
-                            zombie_container.add_metric([minor, z_id], 1)
+                        # NOTE: zombie_info is a set of short docker container id, but
+                        # z_id is full id.
+                        for zombie_id in zombie_info:
+                            if z_id.startswith(zombie_id):
+                                # found corresponding container
+                                zombie_container.add_metric([minor, zombie_id], 1)
                     else:
                         external_process.add_metric([minor, pid], 1)
-            logger.warning("found gpu used by external %s, zombie container %s",
-                    external_process, zombie_container)
+            if len(zombie_container.samples) > 0 or len(external_process.samples) > 0:
+                logger.warning("found gpu used by external %s, zombie container %s",
+                        external_process, zombie_container)
 
         return [core_utils, mem_utils, ecc_errors, mem_leak,
             external_process, zombie_container]
@@ -424,7 +428,7 @@ class ContainerCollector(Collector):
         "node-exporter",
         "job-exporter",
         "yarn-exporter",
-        "nvidia-drivers", 
+        "nvidia-drivers",
         "docker-cleaner"
         ]))
 
