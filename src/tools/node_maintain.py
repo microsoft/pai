@@ -144,7 +144,7 @@ def get_unready_nodes(decommissioned_nodes, current_status):
         if state not in {"DECOMMISSIONED"} and node in decommissioned_nodes:
             unready_nodes[node] = state
         # should recommission but not
-        if state in {"DECOMMISSIONED"} and node not in decommissioned_nodes:
+        if state in {"DECOMMISSIONED", "DECOMMISSIONING"} and node not in decommissioned_nodes:
             unready_nodes[node] = state
     return unready_nodes
 
