@@ -29,13 +29,14 @@ class KubernetesOperator(object):
     configmap_data_key = "nodes"
 
     def __init__(self, master_ip):
+        self.master_ip = master_ip
         self.setup_kubernetes_configfile(master_ip)
 
     def setup_kubernetes_configfile(self, api_servers_ip):
 
         template_data = common.read_template(self.kubernetes_template)
         dict_map = {
-            "cluster_cfg": { "kubernetes": {"api-servers-ip": api_servers_ip}},
+            "cluster_cfg": {"kubernetes": {"api-servers-ip": api_servers_ip}},
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -80,14 +81,12 @@ class YarnOperator(object):
 
     def get_node_status(self):
         try:
-            response = requests.get(self.yarn_nodes_url)
-        except Exception as e:
+            response = requests.get(self.yarn_nodes_url, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
             logger.exception(e)
             sys.exit(1)
 
-        if response.status_code != requests.codes.ok:
-            logger.error("Response error: {}".format(response.text))
-            sys.exit(1)
         nodes_info = response.json()
         current_nodes = {}
         for node in nodes_info["nodes"]["node"]:
@@ -103,7 +102,9 @@ class YarnOperator(object):
 
 
 class AlertOperator(object):
-    GPU_alert_name = ["NvidiaSmiLatencyTooLarge", "NvidiaSmiEccError", "NvidiaMemoryLeak", "NvidiaZombieProcess", "GpuUsedByExternalProcess", "GpuUsedByZombieContainer"]
+    ALERT_TYPE = {
+        "gpu_related": {"NvidiaSmiLatencyTooLarge", "NvidiaSmiEccError", "NvidiaMemoryLeak", "NvidiaZombieProcess", "GpuUsedByExternalProcess", "GpuUsedByZombieContainer"},
+    }
 
     def __init__(self, prometheus_ip, prometheus_port=9091):
         self.master_ip = prometheus_ip
@@ -112,29 +113,25 @@ class AlertOperator(object):
 
     def get_gpu_alert_nodes(self):
         try:
-            response = requests.get(self.alert_manager_url)
-        except Exception as e:
+            response = requests.get(self.alert_manager_url, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
             logger.exception(e)
             sys.exit(1)
 
-        if response.status_code != requests.codes.ok or response.json()["status"] != "success":
-            logger.error("Response error: {}".format(response.text))
+        if response.json()["status"] != "success":
+            logger.error("Alert response error: {}".format(response.text))
             sys.exit(1)
+
         alerts_info = response.json()["data"]["result"]
         gpu_alert_nodes = {}
         for alert in alerts_info:
             metric = alert["metric"]
-            if metric["alertname"] in self.GPU_alert_name and metric["alertstate"] == "firing":
+            if metric["alertname"] in self.ALERT_TYPE["gpu_related"] and metric["alertstate"] == "firing":
                 node_ip = metric["instance"].split(':')[0]
                 gpu_alert_nodes[node_ip] = metric["alertname"]
 
         return gpu_alert_nodes
-
-
-def get_gpu_alert(args):
-    alert_operator = AlertOperator(args.prometheus_ip, args.prometheus_port)
-    alerting_nodes = alert_operator.get_gpu_alert_nodes()
-    logger.info("Current gpu alerting nodes: {}".format(alerting_nodes))
 
 
 def get_unready_nodes(decommissioned_nodes, current_status):
@@ -147,6 +144,12 @@ def get_unready_nodes(decommissioned_nodes, current_status):
         if state in {"DECOMMISSIONED", "DECOMMISSIONING"} and node not in decommissioned_nodes:
             unready_nodes[node] = state
     return unready_nodes
+
+
+def get_gpu_alert(args):
+    alert_operator = AlertOperator(args.prometheus_ip, args.prometheus_port)
+    alerting_nodes = alert_operator.get_gpu_alert_nodes()
+    logger.info("Current gpu alerting nodes: {}".format(alerting_nodes))
 
 
 def get_decommission_nodes(args):
@@ -200,7 +203,7 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
-        logger.info("Unready nodes: {}. Waiting...".format(unready_nodes))
+        logger.info("Unready nodes: {}. waiting...".format(unready_nodes))
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
@@ -243,7 +246,7 @@ def setup_parser():
     yarn_parser.set_defaults(func=refresh_yarn_nodes)
 
     # prometheus operator parser
-    yarn_parser = sub_parser.add_parser("alerting", help="get current gpu alerting nodes")
+    yarn_parser = sub_parser.add_parser("alerting-nodes", help="get current gpu alerting nodes")
     yarn_parser.set_defaults(func=get_gpu_alert)
 
     return top_parser
