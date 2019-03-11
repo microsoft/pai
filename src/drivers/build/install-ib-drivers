@@ -27,23 +27,24 @@ lspci | grep -qE '(Network|Infiniband) controller.*Mellanox.*ConnectX' ||
 # This script is used for installation of InfiniBand drivers
 KERNEL_FULL_VERSION=`uname -r`
 
-[[ -f /lib/modules/$KERNEL_FULL_VERSION/.modules-prepared ]] || {
-  echo Modules not yet prepared
-  exit 1
-}
-
 HOSTNAME=`hostname`
 # HACK: using last octet of the host's IP
 LAST_OCTET=`host $HOSTNAME | head -n1 | sed 's/^.*\.//'`
-IB_SUBNET=33
-IP_ADDRESS="192.168.$IB_SUBNET.$LAST_OCTET"
+echo POD_IP: ${POD_IP}
+OCT1=33
+echo OCT1: $OCT1
+OCT2=`echo ${POD_IP} | awk -F'.' '{ print $(NF) }'`
+echo OCT1: $OCT2
+IP_ADDRESS="192.168.${OCT1}.${OCT2}"
+
+echo IB_ADRESS: $IP_ADDRESS
 
 CURRENT_DRIVER=/var/drivers/mellanox/current
 
 if [[ ! -f /var/drivers/mellanox/$MLNX_OFED_STRING/mlnxofedinstall ]]; then
     [[ -f /tmp/$MLNX_OFED_STRING-ext.tgz ]] ||
     {
-        ./ /mlnx_add_kernel_support.sh -y -m ./$MLNX_OFED_STRING --make-tgz || exit $?
+        ./$MLNX_OFED_STRING/mlnx_add_kernel_support.sh -y -m ./$MLNX_OFED_STRING --make-tgz || exit $?
     }
     mkdir -p /var/drivers/mellanox/$MLNX_OFED_STRING || exit $?
     tar -xvf /tmp/$MLNX_OFED_STRING-ext.tgz -C /var/drivers/mellanox/$MLNX_OFED_STRING --strip 1 || exit $?
@@ -118,7 +119,7 @@ EOF
 # Installing GPU direct RDMA drivers
 # NOTE: do this here because it takes some time to install GDR drivers
 # and that's enough time for IB devices to come up so we can test them
-/bin/bash install-gdr-drivers || exit $?
+./install-gdr-drivers || exit $?
 
 IB_DEVICES=`ibstat -l | xargs`
 
@@ -144,12 +145,12 @@ do
             GID=$(cat "$port_path/gids/0" | sed "s/://g")
             GID_ADDRESS=${GID: -12}
             IB_INTERFACE=${ADDRESS_MAP[$GID_ADDRESS]}
-            IB_IP_ADDRESS="192.168.$IB_SUBNET.$LAST_OCTET"
+            IB_IP_ADDRESS="192.168.${OCT1}.${OCT2}"
             echo "Assiging ip address $IB_IP_ADDRESS for $IB_INTERFACE interface"
             ifconfig $IB_INTERFACE up $IB_IP_ADDRESS/24 || exit $?
             grep -q "connected" /sys/class/net/$IB_INTERFACE/mode || echo "connected" > /sys/class/net/$IB_INTERFACE/mode || exit $?
             grep -q "65520" /sys/class/net/$IB_INTERFACE/mtu || echo "65520" > /sys/class/net/$IB_INTERFACE/mtu || exit $?
-            IB_SUBNET=$((IB_SUBNET+1))
+            OCT1=$((OCT1+1))
         fi
 
         if grep -q Ethernet "$port_path/link_layer" && grep -qE "LinkUp|Polling" "$port_path/phys_state"; then

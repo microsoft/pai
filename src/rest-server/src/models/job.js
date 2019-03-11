@@ -425,7 +425,8 @@ class Job {
           'frameworkInfoWebhdfsUri': launcherConfig.frameworkInfoWebhdfsPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
-          'inspectFormat': '{{.State.Pid}}',
+          'inspectPidFormat': '{{.State.Pid}}',
+          'inspectOOMKilledFormat': '{{.State.OOMKilled}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
@@ -444,6 +445,8 @@ class Job {
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'paiMachineList': paiConfig.machineList,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
+          'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
+          'debuggingReservationSeconds': paiConfig.debuggingReservationSeconds,
         });
     return dockerContainerScript;
   }

@@ -66,4 +66,4 @@ Here're some configuration file examples, pay attention to the codeDir/dataDir/o
 
 When the job finished and succeeded, you can get the output of the example from HDFS:`hdfs dfs -get hdfs://ip:port/examples/cntk/output`.
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).

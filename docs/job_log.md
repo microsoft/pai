@@ -1,14 +1,15 @@
 
-# How to diagnose job problems through logs  <a name="cluster_configuration"></a>
+# How to diagnose job problems through logs
 
-## Table of Contents
-- [1 Diagnostic job failure reason](#job)
-    - [1.1 View job's launcher AM log](#amlog)
-    - [1.2 View job's each task container log](#tasklog)
-    - [1.3 Job exitStatus Convention](#exit)
-- [2 Diagnostic job retried many times reason](#retry)
+- [How to diagnose job problems through logs](#how-to-diagnose-job-problems-through-logs)
+	- [1 Diagnose job failure reason](#1-diagnose-job-failure-reason)
+		- [1.1 View job launcher AM log](#11-view-job-launcher-am-log)
+		- [1.2 View job each task container log](#12-view-job-each-task-container-log)
+		- [1.3 Job exitStatus Convention](#13-job-exitstatus-convention)
+	- [2 Diagnostic job retried many times reason](#2-diagnostic-job-retried-many-times-reason)
+			- [Note:](#note)
 
-## 1 Diagnose job failure reason  <a name="job"></a>
+## 1 Diagnose job failure reason
 
 OpenPAI job is launched by [famework launcher](../subprojects/frameworklauncher/yarn/README.md), and each task container is managed by launcher application master.
 
@@ -16,7 +17,7 @@ LauncherAM will manage each job's tasks by customized feature requirement. You c
 
  When we diagnose job problems through logs, we shoud pay attention to job launcher AM log (get the main reason) or zoom in job task container log.
 
-### 1.1 View job launcher AM log  <a name="amlog"></a>
+### 1.1 View job launcher AM log
 
 Check the summary, and pay attention to the highlights.
 
@@ -105,16 +106,16 @@ Log example:
 
 Please pay attention to these lines to diagnostic job failure reason
 
-| line head | above example log info | 
-| --- | --- | 
-| [ExitDiagnostics] | ExitStatus undefined in Launcher, maybe UserApplication itself failed.| 
-| [ExitCode] | 134| 
-| Exception message | No such object: cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002. | 
-| Shell output | [DEBUG] EXIT signal received in yarn container, exiting ...[DEBUG] cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002 does not exist.| 
-|ContainerLogHttpAddress| ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/ ```|
-|AppCacheNetworkPath|10.151.40.165:/var/lib/hadoopdata/nm-local-dir/usercache/core/appcache/application_1532412068340_0018|
-|ContainerLogNetworkPath|10.151.40.165:/var/lib/yarn/userlogs/application_1532412068340_0018/container_e9878_1532412068340_0018_01_000002|
-|[ApplicationCompletionReason]| [g2p_train]: FailedTaskCount 1 has reached MinFailedTaskCount 1.|
+| line head                     | above example log info                                                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ExitDiagnostics]             | ExitStatus undefined in Launcher, maybe UserApplication itself failed.                                                                               |
+| [ExitCode]                    | 134                                                                                                                                                  |
+| Exception message             | No such object: cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002.                                                                   |
+| Shell output                  | [DEBUG] EXIT signal received in yarn container, exiting ...[DEBUG] cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002 does not exist. |
+| ContainerLogHttpAddress       | ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/ ```                                               |
+| AppCacheNetworkPath           | 10.151.40.165:/var/lib/hadoopdata/nm-local-dir/usercache/core/appcache/application_1532412068340_0018                                                |
+| ContainerLogNetworkPath       | 10.151.40.165:/var/lib/yarn/userlogs/application_1532412068340_0018/container_e9878_1532412068340_0018_01_000002                                     |
+| [ApplicationCompletionReason] | [g2p_train]: FailedTaskCount 1 has reached MinFailedTaskCount 1.                                                                                     |
 
 we could get information:
 1.  UserApplication itself failed.
@@ -122,7 +123,7 @@ we could get information:
 3.  Then we could visit ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/``` at step 1.2 to detect task failure reason.
 
 
-### 1.2 View job each task container log  <a name="tasklog"></a>
+### 1.2 View job each task container log
 
 - Check the failed task log who triggered the whole attempt failed, i.e. 
 
@@ -134,11 +135,11 @@ ContainerLogHttpAddress:
  
 ![PAI_job_retry](./images/PAI_job_retry.png)
 
-### 1.3 Job exitStatus Convention <a name="exit"></a>
+### 1.3 Job exitStatus Convention
 
 You can check all the defined ExitStatus by: ExitType, ExitDiagnostics from framework launcher [USERMANUAL.md](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ExitStatus_Convention)
 
-## 2 Diagnostic job retried many times reason  <a name="retry"></a>
+## 2 Diagnostic job retried many times reason
 
 If the Framework retried many times, check other attempts by searching the FrameworkName in the YARN Web:
 

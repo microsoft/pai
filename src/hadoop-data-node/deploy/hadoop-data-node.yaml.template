@@ -48,6 +48,8 @@ spec:
           name: host-confg-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /var/log/hadoop
+          name: log-dir
         readinessProbe:
           exec:
             command:
@@ -77,6 +79,11 @@ spec:
           value: datanode-start-service.sh
         - name: HADOOP_DATANODE_DATA_DIR
           value: {{ mount_points|join(",") }}
+        # Rolling File Appender, by default it keeps at most 256M*20=5G logs.
+        - name: HADOOP_ROOT_LOGGER
+          value: INFO,console,RFA
+        - name: HADOOP_LOG_DIR
+          value: /var/log/hadoop
         - name: POD_IP
           valueFrom:
             fieldRef:
@@ -98,6 +105,9 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
+      - name: log-dir
+        hostPath:
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log/data-node
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

@@ -202,6 +202,24 @@ else
   wait $user_command_pid
   user_command_exitcode=$?
   echo "job has finished with exit code $user_command_exitcode"
+{{# isDebug }}
+  if [[ $user_command_exitcode -ne 0 ]]; then
+    echo "============================================================================="
+    echo "======   The job container failed, so it will be reserved for 1 week   ======"
+    echo "======          After debugging, please stop the job manually.         ======"
+    echo "============================================================================="
+
+    sleep_time={{ debuggingReservationSeconds }}
+    sleep_count=0
+
+    while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 30 ] && \
+        [ "$sleep_count" -lt "$sleep_time" ]; do
+        sleep 20
+        sleep_count=$((sleep_count+20))
+    done
+
+  fi
+{{/ isDebug }}
   exit $user_command_exitcode
 fi
 

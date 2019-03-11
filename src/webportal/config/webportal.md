@@ -20,6 +20,8 @@ webportal:
     server-port: new-value
 ```
 
+About config the web portal plugin, see [PLUGINS.md](../../../docs/webportal/PLUGINS.md)
+
 ## Generated Configuration <a name="G_Config"></a>
 
 After parsing, object model looks like:

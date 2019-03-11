@@ -136,5 +136,6 @@ RUN cd $MLNX_OFED_STRING/DEBS && \
     done
 
 COPY build/* $STAGE_DIR/
+RUN chmod a+x enable-nvidia-persistenced-mode.sh install-all-drivers install-gdr-drivers install-ib-drivers install-nvidia-drivers
 
 CMD /bin/bash install-all-drivers
