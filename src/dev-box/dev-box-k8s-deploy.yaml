@@ -15,6 +15,8 @@ spec:
     volumeMounts:
     - mountPath: /var/run/docker.sock
       name: docker-socket
+    - mountPath: /hadoop-binary
+      name: hadoop-binary-path
     name: dev-box
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; do sleep 3000; done;" ]
@@ -22,6 +24,9 @@ spec:
     - name: docker-socket
       hostPath:
         path: /var/run/docker.sock
+    - name: hadoop-binary-path
+      hostPath:
+        path: /hadoop-binary
   hostNetwork: true
   restartPolicy: Always
 
