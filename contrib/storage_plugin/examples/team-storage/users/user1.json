@@ -1,0 +1,6 @@
+{
+  "default": "nfs_teamA.json",
+  "storages": [
+    "nfs_teamA.json"
+  ]
+}
