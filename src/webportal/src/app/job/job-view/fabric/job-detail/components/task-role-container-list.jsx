@@ -70,7 +70,7 @@ export default class TaskRoleContainerList extends React.Component {
       type: '',
     };
 
-    this.showSSHInfo = this.showSSHInfo.bind(this);
+    this.showSshInfo = this.showSshInfo.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.showContainerLog = this.showContainerLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
@@ -153,7 +153,7 @@ export default class TaskRoleContainerList extends React.Component {
     });
   }
 
-  showSSHInfo(id) {
+  showSshInfo(id) {
     const {sshInfo} = this.props;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
@@ -291,7 +291,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'CommandPrompt'}}
               text='View SSH Info'
-              onClick={() => this.showSSHInfo(item.containerId)}
+              onClick={() => this.showSshInfo(item.containerId)}
               disabled={jobStatus !== 'Running'}
             />
             <CommandBarButton

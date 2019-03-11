@@ -27,7 +27,7 @@ import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
 import {SpinnerLoading} from './job-detail/components/loading';
 import TaskRole from './job-detail/components/task-role';
-import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob} from './job-detail/conn';
+import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError} from './job-detail/conn';
 import {getHumanizedJobStateString} from './job-detail/util';
 
 initializeIcons();
@@ -57,12 +57,18 @@ class JobDetail extends React.Component {
     await Promise.all([
       fetchJobInfo().catch(alert),
       fetchJobConfig().catch((err) => {
-        // console.log(err);
-        return null;
+        if (err instanceof NotFoundError) {
+          return null;
+        } else {
+          alert(err);
+        }
       }),
       fetchSshInfo().catch((err) => {
-        // console.log(err);
-        return null;
+        if (err instanceof NotFoundError) {
+          return null;
+        } else {
+          alert(err);
+        }
       }),
     ]).then(([jobInfo, jobConfig, sshInfo]) => {
       this.setState({

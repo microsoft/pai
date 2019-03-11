@@ -23,6 +23,13 @@ const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
 
+export class NotFoundError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = 'NotFoundError';
+  }
+}
+
 export async function fetchJobInfo() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
@@ -51,7 +58,11 @@ export async function fetchJobConfig() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'NoJobSshInfoError') {
+      throw new NotFoundError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 
@@ -64,7 +75,11 @@ export async function fetchSshInfo() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'NoJobConfigError') {
+      throw new NotFoundError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 
@@ -73,7 +88,7 @@ export function getJobMetricsUrl() {
 }
 
 export function getCloneJobUrl(jobConfig) {
-  if ('protocol_version' in jobConfig) { // is yaml
+  if ('protocolVersion' in jobConfig) { // is yaml
     return `/submit-v2.html?op=resubmit&type=job&user=${namespace}&jobname=${jobName}`;
   } else {
     return `/submit.html?op=resubmit&type=job&user=${namespace}&jobname=${jobName}`;
