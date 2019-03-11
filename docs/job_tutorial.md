@@ -117,7 +117,6 @@ Below please find the detailed explanation for each of the parameters in the con
 | `jobEnvs.paiAzRDMA`              | Boolean, optional          | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
 | `jobEnvs.isDebug`                | Boolean, optional          | after this flag is set as ```true```, if user's command exits with a none-zero value, the failed container will be reserved for job debugging.  [More detail](./job_debugging.md)|
 | `extras`                         | Object, optional           | Extra parameters, key-value pairs, save any information that job may use |
-| `extras.submitFrom`              | String, optional           | The plugin id if a job was submitted by plugin |
 
 
 For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
