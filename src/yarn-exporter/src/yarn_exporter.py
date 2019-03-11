@@ -21,6 +21,8 @@ import argparse
 import signal
 import faulthandler
 import gc
+import logging
+import os
 
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from prometheus_client import Histogram
@@ -32,22 +34,86 @@ from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.internet import reactor
 
+logger = logging.getLogger(__name__)
+
 ##### yarn-exporter will generate following metrics
 
-cluster_metrics_histogram = Histogram("yarn_api_cluster_metrics_latency_seconds",
-        "Resource latency for requesting yarn api /ws/v1/cluster/metrics")
+cluster_scheduler_histogram = Histogram("yarn_api_cluster_scheduler_latency_seconds",
+        "Resource latency for requesting yarn api /ws/v1/cluster/scheduler")
 
-def gen_total_gpu_count():
-    return GaugeMetricFamily("yarn_total_gpu_num", "count of total gpu number")
-
-def gen_used_gpu_count():
-    return GaugeMetricFamily("yarn_gpus_used", "count of allocated gpu by yarn")
-
-def gen_total_node_count():
-    return GaugeMetricFamily("yarn_nodes_all", "total node count in yarn")
+cluster_nodes_histogram = Histogram("yarn_api_cluster_nodes_latency_seconds",
+        "Resource latency for requesting yarn api /ws/v1/cluster/nodes")
 
 def gen_active_node_count():
     return GaugeMetricFamily("yarn_nodes_active", "active node count in yarn")
+
+def gen_queue_cpu_available():
+    return GaugeMetricFamily("yarn_queue_cpu_available", "available cpu in queue",
+            labels=["queue"])
+
+def gen_queue_cpu_cap():
+    return GaugeMetricFamily("yarn_queue_cpu_total", "total cpu in queue",
+            labels=["queue"])
+
+def gen_queue_mem_available():
+    return GaugeMetricFamily("yarn_queue_mem_available", "available mem in queue",
+            labels=["queue"])
+
+def gen_queue_mem_cap():
+    return GaugeMetricFamily("yarn_queue_mem_total", "total mem in queue",
+            labels=["queue"])
+
+def gen_queue_gpu_available():
+    return GaugeMetricFamily("yarn_queue_gpu_available", "available gpu in queue",
+            labels=["queue"])
+
+def gen_queue_gpu_cap():
+    return GaugeMetricFamily("yarn_queue_gpu_total", "total gpu in queue",
+            labels=["queue"])
+
+def gen_queue_running_jobs():
+    return GaugeMetricFamily("yarn_queue_running_job", "total running job count in queue",
+            labels=["queue"])
+
+def gen_queue_pending_jobs():
+    return GaugeMetricFamily("yarn_queue_pending_job", "total pending job count in queue",
+            labels=["queue"])
+
+def gen_queue_running_containers():
+    return GaugeMetricFamily("yarn_queue_running_container", "total running container count in queue",
+            labels=["queue"])
+
+def gen_queue_pending_containers():
+    return GaugeMetricFamily("yarn_queue_pending_container", "total pending container count in queue",
+            labels=["queue"])
+
+def gen_node_cpu_total():
+    return GaugeMetricFamily("yarn_node_cpu_total", "total cpu core in node",
+            labels=["node_ip"])
+
+def gen_node_cpu_available():
+    return GaugeMetricFamily("yarn_node_cpu_available", "available cpu core in node",
+            labels=["node_ip"])
+
+def gen_node_mem_total():
+    return GaugeMetricFamily("yarn_node_mem_total", "total mem in node",
+            labels=["node_ip"])
+
+def gen_node_mem_available():
+    return GaugeMetricFamily("yarn_node_mem_available", "available mem in node",
+            labels=["node_ip"])
+
+def gen_node_gpu_total():
+    return GaugeMetricFamily("yarn_node_gpu_total", "total gpu in node",
+            labels=["node_ip"])
+
+def gen_node_gpu_available():
+    return GaugeMetricFamily("yarn_node_gpu_available", "available gpu in node",
+            labels=["node_ip"])
+
+def gen_yarn_exporter_error():
+    return GaugeMetricFamily("yarn_exporter_error_count", "error count yarn exporter encountered",
+            labels=["error"])
 
 ##### yarn-exporter will generate above metrics
 
@@ -55,33 +121,183 @@ def request_with_histogram(url, histogram, *args, **kwargs):
     with histogram.time():
         return requests.get(url, *args, **kwargs)
 
+class ResourceItem(object):
+    def __init__(self, cpu=0, mem=0, gpu=0):
+        self.cpu = cpu
+        self.mem = mem
+        self.gpu = gpu
+
+
+class NodeCount(object):
+    def __init__(self, total=0, active=0):
+        self.total = total
+        self.active = active
+
 
 class YarnCollector(object):
     def __init__(self, yarn_url):
-        self.metric_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/metrics")
+        self.nodes_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/nodes")
+        self.scheduler_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/scheduler")
 
     def collect(self):
-        response = request_with_histogram(self.metric_url, cluster_metrics_histogram,
-                allow_redirects=True)
-        response.raise_for_status()
-        metric = response.json()["clusterMetrics"]
+        error_counter = gen_yarn_exporter_error()
 
-        total_gpu_num = gen_total_gpu_count()
-        total_gpu_num.add_metric([], metric["totalGPUs"])
-        yield total_gpu_num
+        response = None
 
-        gpus_used = gen_used_gpu_count()
-        gpus_used.add_metric([], metric["allocatedGPUs"])
-        yield gpus_used
+        # nodes_url
+        try:
+            response = request_with_histogram(self.nodes_url, cluster_nodes_histogram,
+                    allow_redirects=True)
+        except Exception as e:
+            error_counter.add_metric([str(e)], 1)
+            logger.exception(e)
 
-        nodes_all = gen_total_gpu_count()
-        nodes_all.add_metric([], metric["totalNodes"])
-        yield nodes_all
+        total_resource = ResourceItem()
+        node_count = NodeCount()
+
+        if response is not None:
+            if response.status_code != 200:
+                msg = "requesting %s with code %d" % (self.nodes_url, response.status_code)
+                logger.warning(msg)
+                error_counter.add_metric([msg], 1)
+            else:
+                try:
+                    metrics = YarnCollector.gen_nodes_metrics(response.json(),
+                            total_resource, node_count)
+                    for metric in metrics:
+                        yield metric
+                except Exception as e:
+                    error_counter.add_metric([str(e)], 1)
+                    logger.exception(e)
 
         nodes_active = gen_active_node_count()
-        nodes_active.add_metric([], metric["activeNodes"])
+        nodes_active.add_metric([], node_count.active)
         yield nodes_active
 
+        # scheduler_url
+        response = None
+        try:
+            response = request_with_histogram(self.scheduler_url, cluster_scheduler_histogram,
+                    allow_redirects=True)
+        except Exception as e:
+            error_counter.add_metric([str(e)], 1)
+            logger.exception(e)
+
+        if response is not None:
+            if response.status_code != 200:
+                msg = "requesting %s with code %d" % (self.scheduler_url, response.status_code)
+                logger.warning(msg)
+                error_counter.add_metric([msg], 1)
+            else:
+                try:
+                    metrics = YarnCollector.gen_scheduler_metrics(response.json(),
+                            total_resource)
+                    for metric in metrics:
+                        yield metric
+                except Exception as e:
+                    error_counter.add_metric([str(e)], 1)
+                    logger.exception(e)
+
+        yield error_counter
+
+    @staticmethod
+    def gen_nodes_metrics(obj, total_resource, node_count):
+        if obj["nodes"] is None:
+            return []
+
+        nodes = obj["nodes"]["node"]
+
+        node_total_cpu = gen_node_cpu_total()
+        node_avail_cpu = gen_node_cpu_available()
+        node_total_mem = gen_node_mem_total()
+        node_avail_mem = gen_node_mem_available()
+        node_total_gpu = gen_node_gpu_total()
+        node_avail_gpu = gen_node_gpu_available()
+
+        total_cpu = total_mem = total_gpu = 0
+        avail_cpu = avail_mem = avail_gpu = 0
+        total_node = active_node = 0
+
+        for node in nodes:
+            total_node += 1
+            if node["state"] not in {"RUNNING", "DECOMMISSIONING"}:
+                continue
+            active_node += 1
+
+            total_cpu += node["usedVirtualCores"] + node["availableVirtualCores"]
+            avail_cpu += node["availableVirtualCores"]
+            total_mem += (node["usedMemoryMB"] + node["availMemoryMB"]) * 1024 * 1024
+            avail_mem += node["availMemoryMB"] * 1024 * 1024
+
+            ip = node["nodeHostName"]
+            node_total_cpu.add_metric([ip],
+                    node["usedVirtualCores"] + node["availableVirtualCores"])
+            node_avail_cpu.add_metric([ip], node["availableVirtualCores"])
+            node_total_mem.add_metric([ip],
+                    (node["availMemoryMB"] + node["usedMemoryMB"]) * 1024 * 1024)
+            node_avail_mem.add_metric([ip], node["availMemoryMB"] * 1024 * 1024)
+            if node.get("availableGPUs") is None and node.get("usedGPUs") is None:
+                continue
+
+            total_gpu += node["availableGPUs"] + node["usedGPUs"]
+            avail_gpu += node["availableGPUs"]
+
+            node_total_gpu.add_metric([ip], node["availableGPUs"] + node["usedGPUs"])
+            node_avail_gpu.add_metric([ip], node["availableGPUs"])
+
+        total_resource.cpu = total_cpu
+        total_resource.mem = total_mem
+        total_resource.gpu = total_gpu
+
+        node_count.total = total_node
+        node_count.active = active_node
+
+        return [node_total_cpu, node_avail_cpu,
+                node_total_mem, node_avail_mem,
+                node_total_gpu, node_avail_gpu]
+
+    @staticmethod
+    def gen_scheduler_metrics(obj, total_resource):
+        if obj["scheduler"] is None:
+            return []
+
+        scheduler_info = obj["scheduler"]["schedulerInfo"]
+
+        cpu_cap = gen_queue_cpu_cap()
+        cpu_avail = gen_queue_cpu_available()
+        mem_cap = gen_queue_mem_cap()
+        mem_avail = gen_queue_mem_available()
+        gpu_cap = gen_queue_gpu_cap()
+        gpu_avail = gen_queue_gpu_available()
+
+        running_jobs = gen_queue_running_jobs()
+        pending_jobs = gen_queue_pending_jobs()
+        running_containers = gen_queue_running_containers()
+        pending_containers = gen_queue_pending_containers()
+
+        for queue in scheduler_info["queues"]["queue"]:
+            queue_name = queue["queueName"]
+            cap = queue["absoluteCapacity"] / 100.0
+            avail_cap = cap - queue["absoluteUsedCapacity"] / 100.0
+
+            cpu_cap.add_metric([queue_name], total_resource.cpu * cap)
+            mem_cap.add_metric([queue_name], total_resource.mem * cap)
+            gpu_cap.add_metric([queue_name], total_resource.gpu * cap)
+
+            cpu_avail.add_metric([queue_name], total_resource.cpu * cap - queue["resourcesUsed"]["vCores"])
+            mem_avail.add_metric([queue_name], total_resource.mem * cap - queue["resourcesUsed"]["memory"] * 1024 * 1024)
+            gpu_avail.add_metric([queue_name], total_resource.gpu * cap - queue["resourcesUsed"]["GPUs"])
+
+            running_jobs.add_metric([queue_name], queue["numActiveApplications"])
+            pending_jobs.add_metric([queue_name], queue["numPendingApplications"])
+            running_containers.add_metric([queue_name], queue["numContainers"])
+            pending_containers.add_metric([queue_name], queue["pendingContainers"])
+
+        return [cpu_cap, cpu_avail,
+                mem_cap, mem_avail,
+                gpu_cap, gpu_avail,
+                running_jobs, pending_jobs,
+                running_containers, pending_containers]
 
 class HealthResource(Resource):
     def render_GET(self, request):
@@ -127,5 +343,27 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="Exporter listen port",default="9459")
 
     args = parser.parse_args()
+
+    def get_logging_level():
+        mapping = {
+                "DEBUG": logging.DEBUG,
+                "INFO": logging.INFO,
+                "WARNING": logging.WARNING
+                }
+
+        result = logging.INFO
+
+        if os.environ.get("LOGGING_LEVEL") is not None:
+            level = os.environ["LOGGING_LEVEL"]
+            result = mapping.get(level.upper())
+            if result is None:
+                sys.stderr.write("unknown logging level " + level + \
+                        ", default to INFO\n")
+                result = logging.INFO
+
+        return result
+
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(filename)s:%(lineno)s - %(message)s",
+            level=get_logging_level())
 
     main(args)

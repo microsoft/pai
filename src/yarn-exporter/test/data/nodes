@@ -1,0 +1,36 @@
+{
+  "nodes": {
+    "node": [
+      {
+        "rack": "/default-rack",
+        "state": "RUNNING",
+        "id": "10.151.40.4:8041",
+        "nodeHostName": "10.151.40.4",
+        "nodeHTTPAddress": "10.151.40.4:8042",
+        "lastHealthUpdate": 1551851216991,
+        "version": "2.9.0",
+        "healthReport": "",
+        "numContainers": 2,
+        "usedMemoryMB": 33792,
+        "availMemoryMB": 150528,
+        "usedVirtualCores": 9,
+        "availableVirtualCores": 15,
+        "numRunningOpportContainers": 0,
+        "usedMemoryOpportGB": 0,
+        "usedVirtualCoresOpport": 0,
+        "numQueuedContainers": 0,
+        "usedGPUs": 1,
+        "availableGPUs": 3,
+        "availableGPUAttribute": 14,
+        "resourceUtilization": {
+          "nodePhysicalMemoryMB": 45468,
+          "nodeVirtualMemoryMB": 45468,
+          "nodeCPUUsage": 2.6057980060577393,
+          "aggregatedContainersPhysicalMemoryMB": 437,
+          "aggregatedContainersVirtualMemoryMB": 2938,
+          "containersCPUUsage": 0.003000000026077032
+        }
+      }
+    ]
+  }
+}
