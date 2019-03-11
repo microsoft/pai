@@ -220,7 +220,7 @@ class YarnCollector(object):
 
         for node in nodes:
             total_node += 1
-            if node["state"] != "RUNNING":
+            if node["state"] not in {"RUNNING", "DECOMMISSIONING"}:
                 continue
             active_node += 1
 
