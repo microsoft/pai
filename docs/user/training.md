@@ -74,7 +74,7 @@ Following this section to submit a very simple job like hello-world during learn
 
     ![click submit job](imgs/web_click_submit_job.png)
 
-    **Note**, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
+    Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
 
 5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
 
@@ -148,7 +148,7 @@ After received job configuration, OpenPAI processes it as below steps.
 
 2. Initialize docker container. OpenPAI pulls the docker image, which is specified in configuration, if it doesn't exist locally. After docker container started, OpenPAI executes some initialization and then run user's command(s).
 
-3. Execute user commands. During user command executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. There also are metrics to [monitor workload](../job_profiling.md).
+3. Execute user commands. During user command executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. There also are metrics to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
 
 4. Finalize job running. Once user's command completed. OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resource for next job.
 
