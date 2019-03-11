@@ -97,7 +97,7 @@ const submitJob = (jobConfig) => {
           alert('submit success');
           $('#submitHint').text('submitted successfully!');
         }
-        window.location.replace('/view.html');
+        window.location.replace('/job-list.html');
       },
       error: (xhr, textStatus, error) => {
         loading.hideLoading();

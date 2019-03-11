@@ -78,6 +78,7 @@ export default function Table() {
     minWidth: 0,
     name: 'User',
     fieldName: 'username',
+    isFiltered: filter.users.size > 0,
   });
   const durationColumn = applySortProps({
     key: 'duration',
@@ -92,11 +93,13 @@ export default function Table() {
     minWidth: 0,
     name: 'Virtual Cluster',
     fieldName: 'virtualCluster',
+    isFiltered: filter.virtualClusters.size > 0,
   });
   const statusColumn = applySortProps({
     key: 'status',
     minWidth: 0,
     name: 'Status',
+    isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
       const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle'};

@@ -102,7 +102,6 @@ function FilterBar() {
       },
       onClick() {
         setActive(false);
-        setFilter(new Filter());
       },
     };
   }

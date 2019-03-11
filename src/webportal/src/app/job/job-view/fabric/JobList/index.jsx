@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as querystring from 'querystring';
+
 import React, {useState, useMemo, useCallback, useEffect} from 'react';
 
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
@@ -91,6 +93,11 @@ export default function JobList() {
   }, [allJobs]);
 
   useEffect(function loadJobs() {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (query['vcName']) {
+      const {keyword, users, virtualClusters, statuses} = filter;
+      setFilter(new Filter(keyword, users, virtualClusters.add(query['vcName']), statuses));
+    }
     fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {
