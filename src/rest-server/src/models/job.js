@@ -72,7 +72,7 @@ class Job {
     }
     return jobState;
   }
-  
+
   convertTaskState(taskState, exitCode) {
     switch (taskState) {
       case 'TASK_WAITING':
@@ -84,31 +84,13 @@ class Job {
         return 'RUNNING';
       case 'TASK_COMPLETED':
         if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
-          res = 'SUCCEEDED';
+          return 'SUCCEEDED';
         } else {
-          res = 'FAILED';
+          return 'FAILED';
         }
-        break;
       default:
         return 'UNKNOWN';
     }
-  }
-
-  // 1. transientNormalRetriedCount (System)
-  //    Failed, and it can ensure that it will success within a finite retry times:
-  //    such as dependent components shutdown, machine error, network error,
-  //    configuration error, environment error...
-  // 2. transientConflictRetriedCount (Ignored)
-  //    A special TRANSIENT_NORMAL which indicate the exit due to resource conflict
-  //    and cannot get required resource to run.
-  // 3. unKnownRetriedCount (User)
-  //    Usually caused by user's code.   
-  getSystemRetries(retryPolicyStates) {
-    return retryPolicyStates.transientNormalRetriedCount;
-  }
-
-  getUserRetries(retryPolicyStates) {
-    return retryPolicyStates.unKnownRetriedCount;
   }
 
   getJobList(query, namespace, next) {
@@ -128,15 +110,30 @@ class Job {
             return next(null, createError(res.status, 'UnknownError', res.raw_body));
           }
           let jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
-            const systemRetries = getSystemRetries(frameworkInfo.frameworkRetryPolicyState);
-            const userRetries = getUserRetries(frameworkInfo.frameworkRetryPolicyState);
+            // 1. transientNormalRetriedCount
+            //    Failed, and it can ensure that it will success within a finite retry times:
+            //    such as dependent components shutdown, machine error, network error,
+            //    configuration error, environment error...
+            // 2. transientConflictRetriedCount
+            //    A special TRANSIENT_NORMAL which indicate the exit due to resource conflict
+            //    and cannot get required resource to run.
+            // 3. unKnownRetriedCount
+            //    Usually caused by user's code.
+            const systemRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
+            const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
+            const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
             const job = {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
               executionType: frameworkInfo.executionType,
-              retries: systemRetries + userRetries,
+              retries: systemRetries + resourceRetries + userRetries,
+              retryDetails: {
+                user: userRetries,
+                system: systemRetries,
+                resource: resourceRetries,
+              },
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
@@ -369,16 +366,22 @@ class Job {
       const jobState = this.convertJobState(
         frameworkStatus.frameworkState,
         frameworkStatus.applicationExitCode);
-        
-      const systemRetries = getSystemRetries(frameworkStatus.frameworkRetryPolicyState);
-      const userRetries = getUserRetries(frameworkStatus.frameworkRetryPolicyState);
-      jobDetail.jobStatus = {
+
+        const systemRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
+        const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
+        const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
+        jobDetail.jobStatus = {
         name: framework.name,
         username: 'unknown',
         state: jobState,
         subState: frameworkStatus.frameworkState,
         executionType: framework.summarizedFrameworkInfo.executionType,
-        retries: systemRetries + userRetries,
+        retries: systemRetries + resourceRetries + userRetries,
+        retryDetails: {
+          user: userRetries,
+          system: systemRetries,
+          resource: resourceRetries,
+        },
         createdTime: frameworkStatus.frameworkCreatedTimestamp,
         completedTime: frameworkStatus.frameworkCompletedTimestamp,
         appId: frameworkStatus.applicationId,
