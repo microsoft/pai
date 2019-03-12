@@ -58,7 +58,7 @@ const MonacoModal = ({isOpen, onDismiss, title, monacoProps}) => (
             <MonacoEditor
               width={800}
               height={600}
-              theme='vs-dark'
+              theme='vs'
               language='text'
               options={{
                 wordWrap: 'on',

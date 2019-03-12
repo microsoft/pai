@@ -69,7 +69,7 @@ export default class MonacoCallout extends React.Component {
               <MonacoEditor
                 width={800}
                 height={500}
-                theme='vs-dark'
+                theme='vs'
                 options={{
                   wordWrap: 'on',
                   readOnly: true,

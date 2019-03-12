@@ -39,9 +39,11 @@ class JobDetail extends React.Component {
       jobInfo: null,
       jobConfig: null,
       loading: true,
+      reloading: false,
       sshInfo: null,
     };
     this.stop = this.stop.bind(this);
+    this.reload = this.reload.bind(this);
   }
 
   componentDidMount() {
@@ -54,6 +56,9 @@ class JobDetail extends React.Component {
   }
 
   async reload() {
+    this.setState({
+      reloading: true,
+    });
     await Promise.all([
       fetchJobInfo().catch(alert),
       fetchJobConfig().catch((err) => {
@@ -73,6 +78,7 @@ class JobDetail extends React.Component {
     ]).then(([jobInfo, jobConfig, sshInfo]) => {
       this.setState({
         loading: false,
+        reloading: false,
         jobInfo: jobInfo,
         jobConfig: jobConfig,
         sshInfo: sshInfo,
@@ -81,7 +87,7 @@ class JobDetail extends React.Component {
   }
 
   render() {
-    const {loading, jobConfig, jobInfo, sshInfo} = this.state;
+    const {loading, jobConfig, jobInfo, reloading, sshInfo} = this.state;
     if (loading) {
       return <SpinnerLoading />;
     } else {
@@ -92,7 +98,9 @@ class JobDetail extends React.Component {
             className={t.mt3}
             jobInfo={jobInfo}
             jobConfig={jobConfig}
+            reloading={reloading}
             onStopJob={this.stop}
+            onReload={this.reload}
           />
           {
             jobInfo.taskRoles && Object.keys(jobInfo.taskRoles).map((key) => (

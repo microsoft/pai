@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {ColorClassNames, FontClassNames} from '@uifabric/styling';
+import {ColorClassNames, FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
@@ -65,7 +65,7 @@ export default class Summary extends React.Component {
 
   render() {
     const {modalTitle, monacoProps} = this.state;
-    const {className, jobInfo, jobConfig, onStopJob} = this.props;
+    const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
 
     return (
       <div className={className}>
@@ -73,13 +73,17 @@ export default class Summary extends React.Component {
         <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.pv3)}>
-            <div className={c(t.w50, t.pr6, t.flex, t.justifyBetween, t.itemsCenter)}>
-              <div className={c(t.flexAuto)}>
-                <div className={c(FontClassNames.xLarge, t.truncate)}>
-                  {jobInfo.name}
-                </div>
+            <div className={c(t.w50, t.pr4, t.flex, t.itemsCenter)}>
+              <div
+                className={c(t.truncate)}
+                style={{
+                  fontSize: FontSizes.xLarge,
+                  fontWeight: FontWeights.regular,
+                }}
+              >
+                {jobInfo.name}
               </div>
-              <div className={[c(t.ml4, t.flex, t.itemsCenter, t.justifyEnd)]}>
+              <div className={[c(t.ml5, t.flexAuto, t.flex, t.itemsCenter, t.justifyStart)]}>
                 <div>
                   <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
                 </div>
@@ -88,8 +92,13 @@ export default class Summary extends React.Component {
                 </div>
                 <div>
                   <IconButton
-                    styles={{icon: [ColorClassNames.neutralTertiary]}}
+                    styles={{
+                      icon: [ColorClassNames.neutralTertiary],
+                      iconHovered: [ColorClassNames.themeDark],
+                    }}
                     iconProps={{iconName: 'refresh'}}
+                    onClick={onReload}
+                    disabled={reloading}
                   />
                 </div>
               </div>
@@ -193,5 +202,7 @@ Summary.propTypes = {
   className: PropTypes.string,
   jobInfo: PropTypes.object.isRequired,
   jobConfig: PropTypes.object,
+  reloading: PropTypes.bool.isRequired,
   onStopJob: PropTypes.func.isRequired,
+  onReload: PropTypes.func.isRequired,
 };
