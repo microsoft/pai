@@ -1,6 +1,6 @@
 {
-  "default": "nfs_teamA.json",
-  "storages": [
+  "defaultStroage": "nfs_teamA.json",
+  "externalStorages": [
     "nfs_teamA.json",
     "nfs_teamB.json"
   ]

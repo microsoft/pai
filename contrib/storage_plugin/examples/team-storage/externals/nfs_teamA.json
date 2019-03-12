@@ -1,0 +1,6 @@
+{
+  "type": "nfs",
+  "title": "teamA nfs",
+  "address": "10.0.0.1",
+  "rootPath": "/teamA"
+}
