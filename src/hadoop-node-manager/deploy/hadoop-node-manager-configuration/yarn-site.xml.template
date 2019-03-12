@@ -303,8 +303,6 @@
     <value>true</value>
   </property>
 
-
-
   <property>
     <description>
     The duration (in ms) the YARN client waits for an expected state change
