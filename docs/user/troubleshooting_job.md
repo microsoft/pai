@@ -23,9 +23,9 @@ The failure of job is like other failures in computer system. When failure happe
 
 - [Troubleshoot job](#troubleshoot-job)
   - [Best practice](#best-practice)
-    - [Fix issues at local environment](#fix-issues-at-local-environment)
+    - [Fix issues locally](#fix-issues-locally)
     - [Use log better](#use-log-better)
-    - [Simulate environment locally](#simulate-environment-locally)
+    - [Verify with local simulator](#verify-with-local-simulator)
     - [Aware of resource bottleneck](#aware-of-resource-bottleneck)
   - [Diagnostic issues](#diagnostic-issues)
     - [Job is waiting for hours](#job-is-waiting-for-hours)
@@ -44,13 +44,13 @@ The failure of job is like other failures in computer system. When failure happe
 
 With best practice, many issues could be addressed earlier with low cost, and some tough issues can be found easily also.
 
-### Fix issues at local environment
+### Fix issues locally
 
-Troubleshoot issues remotely is hard, so it's efficient to solve issues locally.
+Troubleshooting issues remotely is hard, so it's efficient to solve them locally.
 
-- If some errors happen in remote environment, try to reproduce it locally, and then try to fix it.
+- If some error happens in remote environment, try to reproduce it locally, and then try to fix it.
 - Some issues may be caused by some different between local and remote, try to narrow down where it happens, and compare difference between local and remote.
-- Minumize code difference between local and remote. That makes it's easy to reproduce problems locally.
+- Minimize code difference between local and remote. That makes it's easy to reproduce problems locally.
 
 ### Use log better
 
@@ -58,23 +58,25 @@ Debug is very useful at local development, but it's hard remote, and most imposs
 
 To use log better,
 
-1. Use more when developing. In development phase, avoid to use debugging, or print one time. The log should be refined, if it's not enough to troubleshoot issues. Some issues may be fixed locally, or happens seldom. Once they happens, log can help exposing them.
-2. Provide more information. More information doesn't mean more content. More content is easy to bury useful information. So if some log repeats or duplicate a lot, it should be merged or disable.
+1. Use more when developing. In development phase, avoid debugging, or print one time. The log should be refined, if it's not enough to troubleshoot issues. Some issue may be fixed locally or happens seldom. Once they happen, log can help exposing them.
+2. Provide more information. More information doesn't mean more content. More content is easy to bury useful information. So, if some log repeats or duplicate a lot, it should be merged or disable.
 3. Let log tell story, not just dump variables. People, who looks log, may never see code, or forget code logic already. Besides dump key variable's value, it needs to explain what it means in business logic also. For example, when some variable is abnormal, log should include why it's considered as abnormal, how it's critical, how to fix it.
-4. Associate with context. In some parallel cases, log are filled by concurrent threads, process, or distributed systems. A context id is necessary to associate log in same context. And time synchronization is needed for distributed system.
+4. Associate with context. In some parallel cases, log is filled by concurrent threads, process, or distributed systems. A context id is necessary to associate log in same context. And time synchronization is needed for distributed system.
 5. What should be logged? The answer of this question is in above points partially. If something is helpful for troubleshooting, or further analyzing, it should be logged. For example, full error trace of abnormal situation, something may be helpful when there is any failure, and so on.
 
-### Simulate environment locally
+### Verify with local simulator
 
-Some bug may happen in specific environment, so that code may run well locally, but failed remotely. If the environment can be simulated locally, more environment issues can be found.
+Some bug may happen in specific environment or configuration, so that code may run well locally, but failed remotely. If the environment can be simulated locally, more environment issues can be found.
 
-OpenPAI VS Code Client can consume OpenPAI job configuration file, and run in Docker container locally. This simulation can find problems that ralated to job configuration files, mismatched docker image with code dependencies, command line errors. It can conver most situations at remote, but still limited, like the requested resource in configuration is ignored, as in most case, local machine is not powerful like a GPU server. So when code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid these kind of issues and reduce training times to disclose more remote problems.
+OpenPAI VS Code Client can consume OpenPAI job configuration file and run in Docker container locally. This simulation can find problems that related to job configuration files, mismatched docker image with code dependencies, command line errors. It can cover most situations at remote, but still limited, like the requested resource in configuration is ignored, as in most case, local machine is not powerful like a GPU server. So when code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid these kind of issues and reduce training times to disclose more remote problems.
 
 The simulator in OpenPAI VS Code Client needs Docker installed. Refer to [here](../../contrib/pai_vscode/VSCodeExt.md) to install and learn how to [simulate Job Running](../../contrib/pai_vscode/README.md#simulate-job-running).
 
+Note, as Docker doesn't support GPU on Windows, so it may need a docker image with CPU package for local simulation.
+
 ### Aware of resource bottleneck
 
-To use OpenPAI, user needs to specify used resources, including CPU, GPU and memory. If requested resource is lower than minimum requirement, the progress may be much slower than expected. So To be aware and understand bottlenect is important for efficiency.
+To use OpenPAI, user needs to specify used resources, including CPU, GPU and memory. If requested resource is lower than minimum requirement, the progress may be much slower than expected. So, to be aware and understand bottleneck is important for efficiency.
 
 OpenPAI provides metrics of CPU, memory, and GPU. Refer to [how to check job metrics](#how-to-check-job-metrics) in this document to learn more.
 
@@ -82,17 +84,17 @@ OpenPAI provides metrics of CPU, memory, and GPU. Refer to [how to check job met
 
 ### Job is waiting for hours
 
-In general, jobs of OpenPAI stays in waiting status about 1 minute. But if there is no enough resource, a job may stay in waiting status longer.
+In general, jobs of OpenPAI stays in waiting status about 1 minute. But if there is not enough resource, a job may stay in waiting status longer.
 
 ![waiting](imgs/web_job_list_waiting.png)
 
 In this case, the job is in queue to wait resource. When some jobs complete, this job will get resource to run. Another way is to reduce requested resource, so this job may get enough resource easier.
 
-Notice, there may have more resources than requrested in dashboard of OpenPAI. But resources are distributed on different servers, there may be no server meet the resources requirement for CPU, memory, and GPU all.
+Notice, there may have more resources than requested in dashboard of OpenPAI. But resources are distributed on different servers, there may be no server meet the resources requirement for CPU, memory, and GPU all.
 
 ### Job is running, but no IP address, ports, and GPU assigned
 
-As the design of OpenPAI, there are two phases to request resources. When job is running, it doesn't mean task instances is running. If there is no IP address assigned for an task instance, it means the task instance is in this situation. If there is enough resource, the task instance can start in seconds. If there is no resource, the task instance keep no IP address in longer time.
+As the design of OpenPAI, there are two phases to request resources. When job is running, it doesn't mean task instances is running. If there is no IP address assigned for a task instance, it means the task instance is in this situation. If there is enough resource, the task instance can start in seconds. If there is no resource, the task instance keeps no IP address in longer time.
 
 ![noiop](imgs/web_job_detail_noip.png)
 
@@ -110,7 +112,7 @@ The running speed of job is subjective sometime, so it needs more fact and data 
 
 1. GPU is not enabled. Some framework, like TensorFlow, needs to install GPU package to enable GPU. In most case, the log of framework shows if GPU or CPU is enabled. Some framework, like PyTorch, code needs to be updated to GPU, and there is API to check if GPU is used. Learn more from [how to check job log](#how-to-check-job-log).
 
-1. Resource bottleneck. Computing resource is not the only potential bottleneck, IO and memory capacity are also bottleneck sometime. When job is running in OpenPAI, metrics can be used to analyze bottlenet. Refer to [how to check job metrics](#how-to-check-job-metrics) for more information.
+2. Resource bottleneck. Computing resource is not the only potential bottleneck, IO and memory capacity are also bottleneck sometime. When job is running in OpenPAI, metrics can be used to analyze bottleneck. Refer to [how to check job metrics](#how-to-check-job-metrics) for more information.
 
 ### Job is failed
 
@@ -122,7 +124,7 @@ Job failure can be caused by many reasons.
 
    ![over requested 1](imgs/web_job_details_over1.png)
 
-   Click *View Application Summary*, there is exception with message like below. it specifies which resource is over than maximum number. In below case, it requests 48 virtual cores, but 24 virtual cores is maximum available number in this cluster.
+   Click *View Application Summary*, there is exception with message like below. it specifies which resource is over than maximum number. In below case, it requests 48 virtual cores, but 24 virtual cores are maximum available number in this cluster.
 
    ![over requested 1](imgs/web_job_details_over2.png)
 
@@ -164,9 +166,9 @@ Note, the UI is implemented by [Grafana](https://grafana.com/), check its web si
 
    ![job link](imgs/web_log_list2.png)
 
-   In both case, it includes 4 files, *DockerContainerDebug.log*, *YarnContainerDebug.log*, *stderr*, and *stdout*. Click *refresh* button of browser can show latest last lines. Click *here* shows the full log.
+   In both cases, it includes 4 files, *DockerContainerDebug.log*, *YarnContainerDebug.log*, *stderr*, and *stdout*. Click *refresh* button of browser can show latest last lines. Click *here* shows the full log.
 
-   *stderr* and *stdout* includes screen output of the task instance. So all content, that user prints to screen, shows in them, and display near real-time. Hints of most errors can be found in the two files. *DockerContainerDebug.log*, *YarnContainerDebug.log* can find some errors like out of memory for GPU, if there is no hint in *stderr* and *stdout*.
+   *stderr* and *stdout* includes screen output of the task instance. So, all content, that user prints to screen, shows in them, and display near real-time. Hints of most errors can be found in the two files. *DockerContainerDebug.log*, *YarnContainerDebug.log* can find some errors like out of memory for GPU, if there is no hint in *stderr* and *stdout*.
 
 Note, if a task instance has no resource assigned, there is no log file.
 
@@ -198,7 +200,7 @@ To reserve failed docker for debugging, it needs to set the following property i
 
 ![webportal_submit_job](../pic/webportal-job-debugging.png)
 
-**Note**, with debugging is enabled, the resource is resolved.To save system resource, this feature should be limited used, and shouldn't be turned on by default. And once debug is completed, the job should be stopped manually.
+**Note**, with debugging is enabled, the resource is reserved for several days. To save system resource, this feature should be limited used, and shouldn't be turned on by default. And once debug is completed, the job should be stopped manually.
 
 ### Ask helps
 
