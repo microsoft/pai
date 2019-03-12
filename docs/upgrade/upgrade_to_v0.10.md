@@ -13,9 +13,32 @@ Table of Contents
 
 ## Prepare
 
+### Setup a dev-box of v0.10
+
+All the commands in the document excuted in dev-box.
+You will need to prepare a dev-box of v0.10 first.
+Run the fellow command to create one and work in it:
+
+```bash
+# create dev-box
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /pathConfiguration:/cluster-configuration  \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=dev-box \
+        docker.io/openpai/dev-box:v0.10.1
+
+# Working in your dev-box
+sudo docker exec -it dev-box /bin/bash
+cd /pai
+```
+
 ### Check PAI cluster version
 
-You can check the cluster configuration file `service-configuration.yaml`.
+You could check version from the cluster configuration file `service-configuration.yaml`.
 
 It looks like:
 
@@ -31,11 +54,13 @@ cluster:
 
 ### Backup PAI cluster configuration
 
-Since v0.9, you could fetch the config from the cluster via paictl: `paictl.py config pull -o path_to_backup_your_config`.
+If you cluster is v0.9 and later, you could fetch the config from the cluster via paictl:
+
+`./paictl.py config pull -o path_to_backup_your_config`.
 
 There should be four files under the `path_to_backup_your_config`:
 
-1. `cluster-configuration.yaml`(cluster version 0.8) / `layout.yaml`(0.9 and later)
+1. `layout.yaml` (or `cluster-configuration.yaml` in version 0.8)
 2. `k8s-role-definition.yaml`
 3. `kubernetes-configuration.yaml`
 4. `services-configuration.yaml`.
@@ -63,13 +88,13 @@ PAI provide an `check` command for validatng configuration, usage as below:
 Notices: the configuration pushed to cluster won't take effect until we restart the PAI Services.
 Use the command like below:
 
-`paictl.py config push -p path_to_output_new_style_config`
+`./paictl.py config push -p path_to_output_new_style_config`
 
 ### Stop PAI Services
 
 Now we can stop all PAI Services:
 
-`paictl.py service stop`
+`./paictl.py service stop`
 
 ### Backup Data
 
