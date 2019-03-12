@@ -70,7 +70,7 @@ export default class Summary extends React.Component {
     return (
       <div className={className}>
         {/* summary */}
-        <Card className={c(t.pv4, t.ph6)}>
+        <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.pv3)}>
             <div className={c(t.w50, t.pr6, t.flex, t.justifyBetween, t.itemsCenter)}>

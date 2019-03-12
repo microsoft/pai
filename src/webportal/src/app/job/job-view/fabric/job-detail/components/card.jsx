@@ -21,8 +21,8 @@ import React from 'react';
 
 import t from '../../tachyons.css';
 
-const Card = ({children, className}) => (
-  <div className={classNames(className, t.bgWhite)}>
+const Card = ({children, className, style}) => (
+  <div className={classNames(className, t.bgWhite)} style={style}>
     {children}
   </div>
 );
@@ -30,6 +30,7 @@ const Card = ({children, className}) => (
 Card.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
+  style: PropTypes.object,
 };
 
 export default Card;

@@ -192,7 +192,7 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'name',
         name: 'Container ID',
         minWidth: 100,
-        maxWidth: 400,
+        maxWidth: 500,
         isResizable: true,
         onRender: (item) => {
           const id = item.containerId;
@@ -206,15 +206,16 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'ip',
         name: 'IP',
-        minWidth: 50,
-        maxWidth: 100,
+        minWidth: 80,
+        maxWidth: 120,
+        isResizable: true,
         fieldName: 'containerIp',
       },
       {
         key: 'ports',
         name: 'Ports',
         minWidth: 120,
-        maxWidth: 200,
+        maxWidth: 160,
         isResizable: true,
         onRender: (item) => {
           const ports = item.containerPorts;
@@ -235,8 +236,8 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'gpus',
         name: 'GPUs',
-        minWidth: 80,
-        maxWidth: 200,
+        minWidth: 60,
+        maxWidth: 100,
         isResizable: true,
         onRender: (item) => {
           const gpuAttr = item.containerGpus;
@@ -259,8 +260,9 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'exitCode',
         name: 'Exit Code',
-        minWidth: mleFlag ? 200 : 50,
-        maxWidth: mleFlag ? 200 : 50,
+        minWidth: mleFlag ? 160 : 50,
+        maxWidth: mleFlag ? 200 : 80,
+        isResizable: true,
         onRender: (item) => {
           const code = item.containerExitCode;
           if (code === 200 || code === 201) {
@@ -280,7 +282,7 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'Actions',
         className: localCss.pa0I,
         minWidth: 300,
-        maxWidth: 300,
+        maxWidth: 340,
         onRender: (item) => (
           <div className={c(t.flex, t.h3)}>
             <CommandBarButton
@@ -305,12 +307,17 @@ export default class TaskRoleContainerList extends React.Component {
               className={FontClassNames.small}
               styles={{
                 root: {backgroundColor: 'transparent'},
-                splitButtonMenuButton: [t.h100, {backgroundColor: 'transparent'}],
               }}
               iconProps={{iconName: 'Error'}}
               text='Stderr'
               onClick={() => this.showContainerLog(item.containerLog, 'stderr', 'Standard Error (Last 4096 bytes)')}
-              split={true}
+            />
+            <CommandBarButton
+              className={FontClassNames.small}
+              styles={{
+                root: {backgroundColor: 'transparent'},
+              }}
+              menuIconProps={{iconName: 'More'}}
               menuProps={{
                 items: [
                   {
@@ -339,9 +346,9 @@ export default class TaskRoleContainerList extends React.Component {
 
   render() {
     const {monacoModalTitle, monacoProps} = this.state;
-    const {className, taskInfo} = this.props;
+    const {className, style, taskInfo} = this.props;
     return (
-      <div className={className} style={{backgroundColor: theme.palette.white}}>
+      <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
         <ThemeProvider theme={theme}>
           <DetailsList
             columns={this.getColumns()}
@@ -366,6 +373,7 @@ export default class TaskRoleContainerList extends React.Component {
 
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
+  style: PropTypes.object,
   taskInfo: PropTypes.object.isRequired,
   jobStatus: PropTypes.string.isRequired,
   sshInfo: PropTypes.object,
