@@ -36,6 +36,17 @@
 </property>
 
     <property>
+        <name>hadoop.http.cross-origin.enabled</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hadoop.http.filter.initializers</name>
+        <value>org.apache.hadoop.security.HttpCrossOriginFilterInitializer</value>
+    </property>
+
+
+    <property>
         <name>ipc.server.max.response.size</name>
         <value>5242880</value>
     </property>

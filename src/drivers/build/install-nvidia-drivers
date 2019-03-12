@@ -80,7 +80,8 @@ mkdir -p $NV_DRIVER/lib $NV_DRIVER/lib64 $NV_DRIVER/bin || exit $?
     --utility-libdir=lib64 \
     --x-library-path=lib64 \
     --compat32-libdir=lib \
-    -s -N
+    --dkms \
+    -a -s -N
 
 echo === Loading NVIDIA UVM module
 modprobe nvidia-uvm || exit $?

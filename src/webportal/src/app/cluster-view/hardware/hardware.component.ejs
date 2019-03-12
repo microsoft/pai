@@ -26,9 +26,9 @@ const idPrefixes = ["cpu", "mem", "gpu", "gpumem", "disk", "eth"];
 <%
         for (let i = 0; i < machineMetaData.data.result.length; i++) {
           const metric = machineMetaData.data.result[i].metric;
-          const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
-          const machineName = metric.nodename;
           const ipAddress = metric.instance.split(":")[0];
+          const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + ipAddress;
+          const machineName = metric.nodename;
           const idSuffix = ":" + ipAddress;
 %>
           <tr>

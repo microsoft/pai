@@ -55,6 +55,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -99,6 +100,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \

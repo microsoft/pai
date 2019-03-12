@@ -176,19 +176,24 @@ class ResourceGauges(object):
 
 class AtomicRef(object):
     """ a thread safe way to store and get object,
-    should not modify data get from this ref """
-    def __init__(self):
+    should not modify data get from this ref,
+    each get and set method should provide a time obj,
+    so this ref decide whether the data is out of date or not,
+    return None on expired """
+    def __init__(self, decay_time):
         self.data = None
+        self.date_in_produced = datetime.datetime.now()
+        self.decay_time = decay_time
         self.lock = threading.RLock()
 
-    def get_and_set(self, new_data):
-        data = None
+    def set(self, data, now):
         with self.lock:
-            data, self.data = self.data, new_data
-        return data
+            self.data, self.date_in_produced = data, now
 
-    def get(self):
+    def get(self, now):
         with self.lock:
+            if self.date_in_produced + self.decay_time < now:
+                return None
             return self.data
 
 
@@ -220,7 +225,7 @@ class Collector(object):
             with self.collector_histogram.time():
                 self.iteration_counter.labels(name=self.name).inc()
                 try:
-                    self.atomic_ref.get_and_set(self.collect_impl())
+                    self.atomic_ref.set(self.collect_impl(), datetime.datetime.now())
                 except Exception as e:
                     logger.exception("%s collector get an exception", self.name)
 
@@ -235,17 +240,17 @@ class Collector(object):
         pass
 
 
-def instantiate_collector(name, sleep_time, collector_class, *args):
+def instantiate_collector(name, sleep_time, decay_time, collector_class, *args):
     """ test cases helper fn to instantiate a collector """
-    atomic_ref = AtomicRef()
+    atomic_ref = AtomicRef(decay_time)
     return atomic_ref, collector_class(name, sleep_time, atomic_ref, iteration_counter, *args)
 
 
-def make_collector(name, sleep_time, collector_class, *args):
+def make_collector(name, sleep_time, decay_time, collector_class, *args):
     """ other module should use this fn to init a collector, this fn start a thread
     to run the collector and return an atomic_ref so outside world can get metrics
     collected by this collector """
-    atomic_ref, instance = instantiate_collector(name, sleep_time, collector_class, *args)
+    atomic_ref, instance = instantiate_collector(name, sleep_time, decay_time, collector_class, *args)
 
     t = threading.Thread(
             target=instance.collect,
@@ -348,30 +353,40 @@ class GpuCollector(Collector):
             if len(info.pids) > 0:
                 pids_use_gpu[minor]= info.pids
 
-        if zombie_info is not None and len(zombie_info) > 0 and len(pids_use_gpu) > 0:
+        logger.debug("pids_use_gpu is %s, zombie_info is %s", pids_use_gpu, zombie_info)
+        if len(pids_use_gpu) > 0:
+            if zombie_info is None:
+                zombie_info = []
+
             for minor, pids in pids_use_gpu.items():
                 for pid in pids:
                     found, z_id = pid_to_cid_fn(pid)
-                    if found and z_id in zombie_info:
-                        # found corresponding container
-                        zombie_container.add_metric([minor, z_id], 1)
+                    logger.debug("pid %s has found %s, z_id %s", pid, found, z_id)
+                    if found:
+                        # NOTE: zombie_info is a set of short docker container id, but
+                        # z_id is full id.
+                        for zombie_id in zombie_info:
+                            if z_id.startswith(zombie_id):
+                                # found corresponding container
+                                zombie_container.add_metric([minor, zombie_id], 1)
                     else:
                         external_process.add_metric([minor, pid], 1)
-            logger.warning("found gpu used by external %s, zombie container %s",
-                    external_process, zombie_container)
+            if len(zombie_container.samples) > 0 or len(external_process.samples) > 0:
+                logger.warning("found gpu used by external %s, zombie container %s",
+                        external_process, zombie_container)
 
         return [core_utils, mem_utils, ecc_errors, mem_leak,
             external_process, zombie_container]
 
     def collect_impl(self):
-        zombie_info = self.zombie_info_ref.get_and_set(None)
-
         gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
                 GpuCollector.cmd_timeout)
 
         logger.debug("get gpu_info %s", gpu_info)
 
-        self.gpu_info_ref.get_and_set(gpu_info)
+        now = datetime.datetime.now()
+        self.gpu_info_ref.set(gpu_info, now)
+        zombie_info = self.zombie_info_ref.get(now)
 
         if gpu_info is not None:
             return GpuCollector.convert_to_metrics(gpu_info, zombie_info,
@@ -418,7 +433,7 @@ class ContainerCollector(Collector):
         "node-exporter",
         "job-exporter",
         "yarn-exporter",
-        "nvidia-drivers", 
+        "nvidia-drivers",
         "docker-cleaner"
         ]))
 
@@ -442,13 +457,12 @@ class ContainerCollector(Collector):
                 ContainerCollector.iftop_histogram,
                 ContainerCollector.iftop_timeout)
 
-        # set it to None so if nvidia-smi hangs till next time we get,
-        # we will get None
-        gpu_infos = self.gpu_info_ref.get_and_set(None)
-
         stats_obj = docker_stats.stats(ContainerCollector.stats_histogram,
                 ContainerCollector.stats_timeout)
-        self.stats_info_ref.get_and_set(stats_obj)
+
+        now = datetime.datetime.now()
+        gpu_infos = self.gpu_info_ref.get(now)
+        self.stats_info_ref.set(stats_obj, now)
 
         logger.debug("all_conns is %s", all_conns)
         logger.debug("gpu_info is %s", gpu_infos)
@@ -711,9 +725,9 @@ class ZombieCollector(Collector):
     def collect_impl(self):
         # set it to None so if docker-stats hangs till next time we get,
         # we will get None
-        stats_info = self.stats_info_ref.get_and_set(None)
+        stats_info = self.stats_info_ref.get(datetime.datetime.now())
         all_zombies = self.update_zombie_count(stats_info)
-        self.zombie_ids_ref.get_and_set(all_zombies)
+        self.zombie_ids_ref.set(all_zombies, datetime.datetime.now())
 
 
 class ProcessCollector(Collector):
