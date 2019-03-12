@@ -98,4 +98,4 @@ During the Service starting up, migrate script will be automatically called:
 
 ## It's Done
 
-Now you have the release v0.10 install, please check the [release notes](../../release-notes.md) for new features.
+Now you have the release v0.10 install, please check the release-notes for new features.
