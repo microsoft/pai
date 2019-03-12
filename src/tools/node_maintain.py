@@ -55,7 +55,7 @@ class KubernetesOperator(object):
         data_dict = {self.configmap_data_key: nodes_str}
         update_configmap(self.kube_config_path, self.configmap_name, data_dict)
 
-class TestKubernetesOperator(unittest.Testcase):
+class TestKubernetesOperator(unittest.TestCase):
     def test_get_multiple_nodes(self):
         pass
 
