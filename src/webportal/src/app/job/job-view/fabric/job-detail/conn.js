@@ -58,7 +58,7 @@ export async function fetchJobConfig() {
   if (res.ok) {
     return json;
   } else {
-    if (json.code === 'NoJobSshInfoError') {
+    if (json.code === 'NoJobConfigError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
@@ -75,7 +75,7 @@ export async function fetchSshInfo() {
   if (res.ok) {
     return json;
   } else {
-    if (json.code === 'NoJobConfigError') {
+    if (json.code === 'NoJobSshInfoError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
