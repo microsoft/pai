@@ -18,46 +18,28 @@ export default class Ordering {
     }
     if (field === 'name') {
       comparator = descending
-        ? (a, b) => (a.name < b.name ? 1 : a.name > b.name ? -1 : 0)
-        : (a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+        ? (a, b) => (String(b.name).localeCompare(a.name))
+        : (a, b) => (String(a.name).localeCompare(b.name));
     } else if (field === 'modified') {
-      comparator = descending ? (a, b) => {
-        const ma = getModified(a);
-        const mb = getModified(b);
-        return ma < mb ? 1 : ma > mb ? -1 : 0;
-      } : (a, b) => {
-        const ma = getModified(a);
-        const mb = getModified(b);
-        return ma > mb ? 1 : ma < mb ? -1 : 0;
-      };
+      comparator = descending
+        ? (a, b) => getModified(b) - getModified(a)
+        : (a, b) => getModified(a) - getModified(b);
     } else if (field === 'user') {
       comparator = descending
-        ? (a, b) => (a.username < b.username ? 1 : a.username > b.username ? -1 : 0)
-        : (a, b) => (a.username > b.username ? 1 : a.username < b.username ? -1 : 0);
+        ? (a, b) => String(b.username).localeCompare(a.username)
+        : (a, b) => String(a.username).localeCompare(b.username);
     } else if (field === 'duration') {
-      comparator = descending ? (a, b) => {
-        const da = getDuration(a);
-        const db = getDuration(b);
-        return da < db ? 1 : da > db ? -1 : 0;
-      } : (a, b) => {
-        const da = getDuration(a);
-        const db = getDuration(b);
-        return da > db ? 1 : da < db ? -1 : 0;
-      };
-    } else if (field === '“virtualCluster”') {
       comparator = descending
-        ? (a, b) => (a.vitualCluster < b.vitualCluster ? 1 : a.vitualCluster > b.vitualCluster ? -1 : 0)
-        : (a, b) => (a.vitualCluster > b.vitualCluster ? 1 : a.vitualCluster < b.vitualCluster ? -1 : 0);
+        ? (a, b) => getDuration(b) - getDuration(a)
+        : (a, b) => getDuration(a) - getDuration(b);
+    } else if (field === 'virtualCluster') {
+      comparator = descending
+        ? (a, b) => String(b.virtualCluster).localeCompare(a.virtualCluster)
+        : (a, b) => String(a.virtualCluster).localeCompare(b.virtualCluster);
     } else if (field === 'status') {
-      comparator = descending ? (a, b) => {
-        const sa = getStatusIndex(a);
-        const sb = getStatusIndex(b);
-        return sa < sb ? 1 : sa > sb ? -1 : 0;
-      }: (a, b) => {
-        const sa = getStatusIndex(a);
-        const sb = getStatusIndex(b);
-        return sa > sb ? 1 : sa < sb ? -1 : 0;
-      };
+      comparator = descending
+        ? (a, b) => getStatusIndex(b) - getStatusIndex(a)
+        : (a, b) => getStatusIndex(a) - getStatusIndex(b);
     }
     return jobs.slice().sort(comparator);
   }
