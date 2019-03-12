@@ -1,6 +1,6 @@
 # Upgrade to v0.10
 
-Now it's able to upgrade from v0.8 and later, we haven't test previously versions.
+We have test upgrading from v0.8 and later.
 
 Table of Contents
 
