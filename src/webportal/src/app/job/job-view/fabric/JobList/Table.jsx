@@ -102,8 +102,7 @@ export default function Table() {
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle'};
-      /** @type {import('@uifabric/styling').IStyle} */
+      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
       const statusText = getStatusText(job);
       /** @type {MessageBarType} */
       const messageBarType = {
