@@ -92,7 +92,6 @@ export default function Table() {
     minWidth: 100,
     name: 'User',
     fieldName: 'username',
-    columnActionsMode: ColumnActionsMode.hasDropdown,
     isResizable: true,
     isFiltered: filter.users.size > 0,
   });
