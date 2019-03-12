@@ -132,7 +132,7 @@ function TopBar() {
       buttonStyles: {root: {backgroundColor: 'transparent'}},
       iconProps: {iconName: 'Filter'},
       onClick() {
-        setActive(true);
+        setActive(!active);
       },
     };
   }
@@ -150,6 +150,7 @@ function TopBar() {
         iconName: 'Cancel',
       },
       onClick() {
+        setFilter(new Filter());
         setActive(false);
       },
     };
