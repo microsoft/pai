@@ -24,11 +24,11 @@
 - [1 Drivers](#gpu_check)
 
     - [1.1 Check Drivers service's log](#drivers_log)
-    
+
     - [2.1 Check Drivers version](#drivers_version)
-    
+
 - [2 Data path check](#datapath_check)
-    
+
 - [3 Admin Account in Webportal](#admin_check)
 
 - [4 Troubleshooting OpenPAI services](#troubleshooting_4)
@@ -182,7 +182,7 @@ As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes p
 Check and refine 4 yaml files:
 
 ```
-    - cluster-configuration.yaml
+    - layout.yaml
     - kubernetes-configuration.yaml
     - k8s-role-definition.yaml
     - serivices-configuration.yaml

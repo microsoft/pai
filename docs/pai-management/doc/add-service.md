@@ -67,7 +67,7 @@ In this tutorial, we have prepared the docker image in the path following.
 
 - At first, according to the service name, you should create a directory under the path [pai/src/](../../../src). In this example, a directory named hbase will be created.
 - Secondly, a directory named ```build``` should be created under "src/hbase/"
-- At last, just put all the source code from the path [example/add-service/hbase/build](example/add-service/hbase/build), and then paste them into the the path ```src/hbase/build```  
+- At last, just put all the source code from the path [example/add-service/hbase/build](example/add-service/hbase/build), and then paste them into the the path ```src/hbase/build```
 
 
 #### Build and push image with pai-build <a name="Image_Build_Push"></a>
@@ -154,7 +154,7 @@ This configuration consists of 7 parts.
     - Not supported yet.
 
 - ```deploy-rules``` parts:
-    - Specify which role(label) of machine will run the service. The role definition of machines is in [cluster-configuration.yaml](https://github.com/Microsoft/pai/blob/7ffc1df7ecd495ec6b476e50fac9f543da2a5c31/examples/cluster-configuration/cluster-configuration.yaml#L93), machines will labeled when you deploy PAI for the first time.  Currently support the following rules:
+    - Specify which role(label) of machine will run the service. The role definition of machines is in [layout.yaml](../../../examples/cluster-configuration/layout.yaml), machines will labeled when you deploy PAI for the first time.  Currently support the following rules:
         "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
 
 #### Some Experience of Kubernetes <a name="Experience"></a>
