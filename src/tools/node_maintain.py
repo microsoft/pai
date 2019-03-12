@@ -162,13 +162,13 @@ def get_unready_nodes(decommissioned_nodes, current_status):
 def get_gpu_alert(args):
     alert_operator = AlertOperator(args.prometheus_ip, args.prometheus_port)
     alerting_nodes = alert_operator.get_gpu_alert_nodes()
-    logger.info("Current gpu alerting nodes: {}".format(alerting_nodes))
+    logger.info("Current gpu alerts: {}".format(alerting_nodes))
 
 
 def get_decommission_nodes(args):
     k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
-    logger.info("Current unhealthy node list: {}".format(','.join(existing_nodes)))
+    logger.info("Current configmap node list: {}".format(','.join(existing_nodes)))
     return existing_nodes
 
 
@@ -180,7 +180,7 @@ def add_decommission_nodes(args):
         nodes = set(nodes.split(','))
     full_list = existing_nodes | nodes
     k8s_operator.set_nodes(full_list)
-    logger.info("Add node: {}".format(args.nodes))
+    logger.info("Add node: {} to configmap".format(args.nodes))
     return full_list
 
 
@@ -192,7 +192,7 @@ def remove_decommission_nodes(args):
         nodes = set(nodes.split(','))
     full_list = existing_nodes - nodes
     k8s_operator.set_nodes(full_list)
-    logger.info("Remove node: {}".format(args.nodes))
+    logger.info("Remove node: {} from configmap".format(args.nodes))
     return full_list
 
 
@@ -202,7 +202,7 @@ def update_decommission_nodes(args):
     if isinstance(nodes, str):
         nodes = set(nodes.split(','))
     k8s_operator.set_nodes(nodes)
-    logger.info("Update node list: {}".format(args.nodes))
+    logger.info("Update configmap node list: {}".format(args.nodes))
     return nodes
 
 
@@ -216,7 +216,7 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
-        logger.info("Unready nodes: {}. waiting...".format(unready_nodes))
+        logger.info("Unready nodes: {}. Waiting...".format(unready_nodes))
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
