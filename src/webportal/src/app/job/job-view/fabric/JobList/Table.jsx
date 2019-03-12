@@ -1,8 +1,8 @@
-import React, {useContext} from 'react';
+import React, {useContext, useMemo} from 'react';
 
 import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 import {Link} from 'office-ui-fabric-react/lib/Link';
-import {ColumnActionsMode} from 'office-ui-fabric-react/lib/DetailsList';
+import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
 
@@ -20,7 +20,18 @@ const zeroPaddingRowFieldStyle = {
 };
 
 export default function Table() {
-  const {allJobs, stopJob, filteredJobs, filter, ordering, setOrdering, pagination} = useContext(Context);
+  const {allJobs, stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination} = useContext(Context);
+
+  /**
+   * @type {import('office-ui-fabric-react').Selection}
+   */
+  const selection = useMemo(() => {
+    return new Selection({
+      onSelectionChanged() {
+        setSelectedJobs(selection.getSelection());
+      },
+    });
+  }, []);
 
   /**
    * @param {React.MouseEvent<HTMLElement>} event
@@ -184,9 +195,11 @@ export default function Table() {
   return (
     <ShimmeredDetailsList
       items={pagination.apply(ordering.apply(filteredJobs || []))}
+      setKey="key"
       columns={columns}
       enableShimmer={allJobs === null}
       shimmerLines={pagination.itemsPerPage}
+      selection={selection}
     />
   );
 }

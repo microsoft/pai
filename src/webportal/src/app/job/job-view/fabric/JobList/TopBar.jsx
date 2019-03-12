@@ -25,9 +25,9 @@ import Context from './Context';
 import Filter from './Filter';
 import {getStatusText} from './utils';
 
-function FilterBar() {
+function TopBar() {
   const [active, setActive] = useState(false);
-  const {allJobs, filter, setFilter} = useContext(Context);
+  const {allJobs, refreshJobs, selectedJobs, stopJob, filter, setFilter} = useContext(Context);
 
   const {users, virtualClusters, statuses} = useMemo(() => {
     const users = Object.create(null);
@@ -44,6 +44,53 @@ function FilterBar() {
 
     return {users, virtualClusters, statuses};
   }, [allJobs]);
+
+  /**
+   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  function getStop() {
+    return {
+      key: 'stop',
+      name: 'Stop',
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      iconProps: {
+        iconName: 'StopSolid',
+      },
+      onClick() {
+        stopJob(...selectedJobs);
+      },
+    };
+  }
+
+  /**
+   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  function getNew() {
+    return {
+      key: 'new',
+      name: 'New',
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      iconProps: {
+        iconName: 'Add',
+      },
+      href: '/submit.html',
+    };
+  }
+
+  /**
+   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  function getRefresh() {
+    return {
+      key: 'refresh',
+      name: 'Refresh',
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      iconProps: {
+        iconName: 'Refresh',
+      },
+      onClick: refreshJobs,
+    };
+  }
 
   function KeywordSearchBox() {
     function onKeywordChange(keyword) {
@@ -306,7 +353,10 @@ function FilterBar() {
     };
   }
 
-  const items = active ? [getKeyword()] : [];
+  const items = active ? [getKeyword()] : [
+    selectedJobs.length ? getStop() : getNew(),
+    getRefresh(),
+  ];
   const farItems = active ? [
     getUser(),
     getVirtualCluster(),
@@ -324,4 +374,4 @@ function FilterBar() {
   );
 }
 
-export default FilterBar;
+export default TopBar;

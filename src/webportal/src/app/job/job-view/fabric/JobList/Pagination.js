@@ -19,6 +19,9 @@ export default class Pagination {
     const {itemsPerPage, pageIndex} = this;
     const start = itemsPerPage * pageIndex;
     const end = itemsPerPage * (pageIndex + 1);
-    return items.slice(start, end);
+    return items.slice(start, end).map((item) => {
+      item.key = `${item.username}~${item.name}`;
+      return item;
+    });
   }
 }

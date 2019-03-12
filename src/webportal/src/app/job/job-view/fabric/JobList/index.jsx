@@ -27,11 +27,11 @@ import {Stack} from 'office-ui-fabric-react/lib/Stack';
 
 import Context from './Context';
 import Filter from './Filter';
-import Filters from './Filters';
 import Ordering from './Ordering';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
 import Table from './Table';
+import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
@@ -50,6 +50,7 @@ function getError(error) {
 
 export default function JobList() {
   const [allJobs, setAllJobs] = useState(null);
+  const [selectedJobs, setSelectedJobs] = useState([]);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(new Filter());
   const [ordering, setOrdering] = useState(new Ordering());
@@ -64,35 +65,38 @@ export default function JobList() {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
   }, [setFilter, setPagination, pagination]);
 
-  const stopJob = useCallback((job) => {
-    const {name, username} = job;
+  const stopJob = useCallback((...jobs) => {
     userAuth.checkToken((token) => {
-      fetch(`${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${name}/executionType`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({value: 'STOP'}),
-      }).then((response) => {
-        if (response.ok) {
-          job.executionType = 'STOPPING';
-          delete job._statusText;
-          delete job._statusIndex;
-          setAllJobs(allJobs.slice());
-        } else {
-          return response.json().then((data) => {
-            throw Error(data.message);
-          });
-        }
-      }).catch((reason) => {
-        setError(reason.message);
-        setTimeout(setError, 1000, null);
+      jobs.forEach((job) => {
+        const {name, username} = job;
+        fetch(`${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${name}/executionType`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({value: 'STOP'}),
+        }).then((response) => {
+          if (response.ok) {
+            job.executionType = 'STOPPING';
+            delete job._statusText;
+            delete job._statusIndex;
+            setAllJobs(allJobs.slice());
+          } else {
+            return response.json().then((data) => {
+              throw Error(data.message);
+            });
+          }
+        }).catch((reason) => {
+          setError(reason.message);
+          setTimeout(setError, 1000, null);
+        });
       });
     });
   }, [allJobs]);
 
-  useEffect(function loadJobs() {
+  const refreshJobs = useCallback(function refreshJobs() {
+    setAllJobs(null);
     const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (query['vcName']) {
       const {keyword, users, virtualClusters, statuses} = filter;
@@ -113,7 +117,9 @@ export default function JobList() {
       });
   }, []);
 
-  const context = {allJobs, filteredJobs, stopJob, filter, setFilter, ordering, setOrdering, pagination, setPagination};
+  useEffect(refreshJobs, []);
+
+  const context = {allJobs, refreshJobs, filteredJobs, selectedJobs, setSelectedJobs, stopJob, filter, setFilter, ordering, setOrdering, pagination, setPagination};
   context.setFilter = setFilterAndResetPagination;
 
   return (
@@ -121,7 +127,7 @@ export default function JobList() {
       <Fabric style={{height: '100%'}}>
         <Stack padding={20} verticalFill styles={{root: {position: 'relative'}}}>
           <Stack.Item>
-            <Filters/>
+            <TopBar/>
           </Stack.Item>
           <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white'}}}>
             <Table/>

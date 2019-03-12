@@ -6,7 +6,14 @@ import Ordering from './Ordering';
 
 export default React.createContext({
   allJobs: null,
+  refreshJobs() {
+    this.allJobs = null;
+  },
   filteredJobs: [],
+  selectedJobs: [],
+  setSelectedJobs(selectedJobs) {
+    this.selectedJobs = selectedJobs;
+  },
 
   stopJob(job) {
     job.executionType = 'STOP';
