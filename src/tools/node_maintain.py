@@ -5,6 +5,7 @@ import sys
 import argparse
 import time
 import subprocess
+import unittest
 
 sys.path.append("../..")
 from deployment.paiLibrary.common.kubernetes_handler import get_configmap, update_configmap
@@ -53,6 +54,18 @@ class KubernetesOperator(object):
         nodes_str = '\n'.join(nodes)
         data_dict = {self.configmap_data_key: nodes_str}
         update_configmap(self.kube_config_path, self.configmap_name, data_dict)
+
+class TestKubernetesOperator(unittest.Testcase):
+    def test_get_multiple_nodes(self):
+        pass
+
+    def test_get_single_node(self):
+        pass
+
+    def test_get_empty_node(self):
+        pass
+
+
 
 
 class YarnOperator(object):
