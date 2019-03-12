@@ -59,9 +59,9 @@ class Job {
         jobState = 'RUNNING';
         break;
       case 'FRAMEWORK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+        if (exitCode === 0) {
           jobState = 'SUCCEEDED';
-        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+        } else if (exitCode === 214) {
           jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
@@ -83,7 +83,7 @@ class Job {
       case 'CONTAINER_RUNNING':
         return 'RUNNING';
       case 'TASK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+        if (exitCode === 0) {
           return 'SUCCEEDED';
         } else {
           return 'FAILED';
