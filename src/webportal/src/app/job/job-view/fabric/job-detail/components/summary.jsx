@@ -29,7 +29,7 @@ import t from '../../tachyons.css';
 import Card from './card';
 import MonacoModal from './monaco-modal';
 import StatusBadge from './status-badge.jsx';
-import {getJobMetricsUrl, getCloneJobUrl} from '../conn';
+import {getJobMetricsUrl, cloneJob} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString} from '../util';
 
 const StoppableStatus = [
@@ -73,17 +73,19 @@ export default class Summary extends React.Component {
         <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.pv3)}>
-            <div className={c(t.w50, t.pr4, t.flex, t.itemsCenter)}>
-              <div
-                className={c(t.truncate)}
-                style={{
-                  fontSize: FontSizes.xLarge,
-                  fontWeight: FontWeights.regular,
-                }}
-              >
-                {jobInfo.name}
+            <div className={c(t.w50, t.pr6, t.flex, t.itemsCenter)}>
+              <div style={{minWidth: 0}}>
+                <div
+                  className={c(t.truncate)}
+                  style={{
+                    fontSize: FontSizes.xLarge,
+                    fontWeight: FontWeights.regular,
+                  }}
+                >
+                  {jobInfo.name}
+                </div>
               </div>
-              <div className={[c(t.ml5, t.flexAuto, t.flex, t.itemsCenter, t.justifyStart)]}>
+              <div className={[c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)]}>
                 <div>
                   <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
                 </div>
@@ -174,7 +176,7 @@ export default class Summary extends React.Component {
             <div>
               <DefaultButton
                 text='Clone'
-                href={jobConfig && getCloneJobUrl(jobConfig)}
+                onClick={() => cloneJob(jobConfig)}
                 disabled={isNil(jobConfig)}
               />
               <DefaultButton

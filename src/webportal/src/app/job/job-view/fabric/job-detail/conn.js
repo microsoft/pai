@@ -16,6 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
+import {get, isNil} from 'lodash';
+import qs from 'querystring';
 
 import config from '../../../../config/webportal.config';
 
@@ -87,11 +89,31 @@ export function getJobMetricsUrl() {
   return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
 }
 
-export function getCloneJobUrl(jobConfig) {
-  if ('protocolVersion' in jobConfig) { // is yaml
-    return `/submit-v2.html?op=resubmit&type=job&user=${namespace}&jobname=${jobName}`;
+export function cloneJob(jobConfig) {
+  const query = {
+    op: 'resubmit',
+    type: 'job',
+    user: namespace,
+    jobname: jobName,
+  };
+
+  // plugin
+  const pluginId = get(jobConfig, 'extras.submitFrom');
+  if (!isNil(pluginId)) {
+    const plugins = window.PAI_PLUGINS;
+    const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
+    if (pluginIndex === -1) {
+      alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    }
+    query.index = pluginIndex;
+    window.open(`/plugin.html?${qs.stringify(query)}`, '_blank');
+  }
+
+  // job v2
+  if (!isNil(jobConfig.protocolVersion)) {
+    window.open(`/submit-v2.html?${qs.stringify(query)}`, '_blank');
   } else {
-    return `/submit.html?op=resubmit&type=job&user=${namespace}&jobname=${jobName}`;
+    window.open(`/submit.html?${qs.stringify(query)}`, '_blank');
   }
 }
 
@@ -111,8 +133,7 @@ export async function stopJob() {
       ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
-    const res = await fetch({
-      url: url,
+    const res = await fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
