@@ -105,6 +105,11 @@ const jobConfigSchema = Joi.object().keys({
         /\w+/,
         Joi.required()
     ),
+  extras: Joi.object()
+    .pattern(
+        /[A-Za-z0-9._]+/,
+        Joi.required()
+    ),
 }).required();
 
 const jobExecutionSchema = Joi.object().keys({
