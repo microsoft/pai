@@ -365,7 +365,7 @@ class Job {
     if (frameworkStatus) {
       const jobState = this.convertJobState(
         frameworkStatus.frameworkState,
-        frameworkStatus.applicationExitCode
+        frameworkStatus.applicationExitCode,
       );
 
       const systemRetries = frameworkStatus.frameworkRetryPolicyState.transientNormalRetriedCount;
