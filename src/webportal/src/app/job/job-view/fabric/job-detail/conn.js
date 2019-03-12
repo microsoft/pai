@@ -105,15 +105,14 @@ export function cloneJob(jobConfig) {
     if (pluginIndex === -1) {
       alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     }
-    query.index = pluginIndex;
-    window.open(`/plugin.html?${qs.stringify(query)}`, '_blank');
+    window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
   }
 
   // job v2
   if (!isNil(jobConfig.protocolVersion)) {
-    window.open(`/submit-v2.html?${qs.stringify(query)}`, '_blank');
+    window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
   } else {
-    window.open(`/submit.html?${qs.stringify(query)}`, '_blank');
+    window.location.href = `/submit.html?${qs.stringify(query)}`;
   }
 }
 
