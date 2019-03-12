@@ -133,5 +133,5 @@ rest-server:
 
 # uncomment following section if you want to customize the threshold of cleaner
 # cleaner:
-#  threshold: 94 
+#  threshold: 90 
 #  interval: 60
