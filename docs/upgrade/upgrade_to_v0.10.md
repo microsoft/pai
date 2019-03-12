@@ -60,7 +60,7 @@ If you cluster is v0.9 and later, you could fetch the config from the cluster vi
 
 There should be four files under the `path_to_backup_your_config`:
 
-1. `layout.yaml` (or `cluster-configuration.yaml` in version 0.8)
+1. `layout.yaml` (or `cluster-configuration.yaml` in version 0.8/0.9)
 2. `k8s-role-definition.yaml`
 3. `kubernetes-configuration.yaml`
 4. `services-configuration.yaml`.
@@ -119,6 +119,7 @@ Install the Kubernetes cluster:
 ## Run Migration Scripts And Start Services
 
 During the Service starting up, migrate script will be automatically called:
+
 `./paictl.py service start`
 
 ## It's Done
