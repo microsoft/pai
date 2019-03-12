@@ -20,7 +20,6 @@ import React, {useContext, useMemo, useState} from 'react';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
 import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
 import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu';
-import {ColorClassNames} from 'office-ui-fabric-react/lib/Styling';
 
 import Context from './Context';
 import Filter from './Filter';
@@ -53,7 +52,7 @@ function FilterBar() {
     }
 
     /** @type {import('office-ui-fabric-react').IStyle} */
-    const rootStyles = [ColorClassNames.neutralLighterBackground, {alignSelf: 'center', width: 220}];
+    const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
     return (
       <SearchBox
         underlined
@@ -83,6 +82,7 @@ function FilterBar() {
     return {
       key: 'filters',
       name: 'Filters',
+      buttonStyles: {root: {backgroundColor: 'transparent'}},
       iconProps: {iconName: 'Filter'},
       onClick() {
         setActive(true);
@@ -97,6 +97,7 @@ function FilterBar() {
     return {
       key: 'clear',
       name: 'Clear',
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
       iconOnly: true,
       iconProps: {
         iconName: 'Cancel',
@@ -154,6 +155,7 @@ function FilterBar() {
     return {
       key: 'user',
       name: 'User',
+      buttonStyles: {root: {backgroundColor: 'transparent'}},
       subMenuProps: {
         items: Object.keys(users).map(getItem).concat([{
             key: 'divider',
@@ -219,6 +221,7 @@ function FilterBar() {
     return {
       key: 'virtualCluster',
       name: 'Virtual Cluster',
+      buttonStyles: {root: {backgroundColor: 'transparent'}},
       subMenuProps: {
         items: Object.keys(virtualClusters).map(getItem).concat([{
             key: 'divider',
@@ -284,6 +287,7 @@ function FilterBar() {
     return {
       key: 'status',
       name: 'Status',
+      buttonStyles: {root: {backgroundColor: 'transparent'}},
       subMenuProps: {
         items: Object.keys(statuses).map(getItem).concat([{
             key: 'divider',
@@ -315,6 +319,7 @@ function FilterBar() {
     <CommandBar
       items={items}
       farItems={farItems}
+      styles={{root: {backgroundColor: 'transparent'}}}
     />
   );
 }

@@ -123,7 +123,7 @@ export default function JobList() {
           <Stack.Item>
             <Filters/>
           </Stack.Item>
-          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto'}}}>
+          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white'}}}>
             <Table/>
           </Stack.Item>
           <Stack.Item>

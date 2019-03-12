@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 
 import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 import {Link} from 'office-ui-fabric-react/lib/Link';
-import {ColumnActionsMode, CheckboxVisibility} from 'office-ui-fabric-react/lib/DetailsList';
+import {ColumnActionsMode} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
 
@@ -51,9 +51,11 @@ export default function Table() {
 
   const nameColumn = applySortProps({
     key: 'name',
-    minWidth: 0,
+    minWidth: 200,
+    name: 'Name',
     fieldName: 'name',
     isRowHeader: true,
+    isResizable: true,
     isFiltered: filter.keyword !== '',
     onRender(job) {
       const {legacy, name, namespace, username} = job;
@@ -65,8 +67,9 @@ export default function Table() {
   });
   const modifiedColumn = applySortProps({
     key: 'modified',
-    minWidth: 200,
+    minWidth: 150,
     name: 'Date Modified',
+    isResizable: true,
     isSorted: ordering.field === 'modified',
     isSortedDescending: !ordering.descending,
     onRender(job) {
@@ -75,30 +78,35 @@ export default function Table() {
   });
   const userColumn = applySortProps({
     key: 'user',
-    minWidth: 0,
+    minWidth: 100,
     name: 'User',
     fieldName: 'username',
+    columnActionsMode: ColumnActionsMode.hasDropdown,
+    isResizable: true,
     isFiltered: filter.users.size > 0,
   });
   const durationColumn = applySortProps({
     key: 'duration',
-    minWidth: 0,
+    minWidth: 50,
     name: 'Duration',
+    isResizable: true,
     onRender(job) {
       return Duration.fromMillis(getDuration(job)).toFormat(`h:mm:ss`);
     },
   });
   const virtualClusterColumn = applySortProps({
     key: 'virtualCluster',
-    minWidth: 0,
+    minWidth: 100,
     name: 'Virtual Cluster',
     fieldName: 'virtualCluster',
+    isResizable: true,
     isFiltered: filter.virtualClusters.size > 0,
   });
   const statusColumn = applySortProps({
     key: 'status',
-    minWidth: 0,
+    minWidth: 100,
     name: 'Status',
+    isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
@@ -135,6 +143,7 @@ export default function Table() {
    */
   const actionsColumn = {
     key: 'actions',
+    minWidth: 100,
     name: 'Actions',
     columnActionsMode: ColumnActionsMode.disabled,
     onRender(job) {
@@ -178,7 +187,6 @@ export default function Table() {
       columns={columns}
       enableShimmer={allJobs === null}
       shimmerLines={pagination.itemsPerPage}
-      checkboxVisibility={CheckboxVisibility.hidden}
     />
   );
 }
