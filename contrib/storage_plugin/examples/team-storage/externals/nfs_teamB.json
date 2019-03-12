@@ -1,6 +1,6 @@
 {
-  "type": "nfs",
-  "title": "teamB nfs",
-  "address": "10.0.0.1",
-  "rootPath": "/teamB"
+    "type": "nfs",
+    "title": "teamB nfs",
+    "address": "10.0.0.1",
+    "rootPath": "/teamB"
 }
