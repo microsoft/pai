@@ -19,14 +19,14 @@
 
 # Troubleshoot job
 
-The failure of job is like other failures in computer system. When failure happens on remote system like OpenPAI, it needs more effort to address root cause. This document helps user troubleshooting more efficient on OpenPAI.
+Like other platforms, the job failures in OpenPAI need more effort to find and fix than local code. This document helps troubleshooting issues on OpenPAI.
 
 - [Troubleshoot job](#troubleshoot-job)
   - [Best practice](#best-practice)
     - [Fix issues locally](#fix-issues-locally)
-    - [Use log better](#use-log-better)
-    - [Verify with local simulator](#verify-with-local-simulator)
-    - [Aware of resource bottleneck](#aware-of-resource-bottleneck)
+    - [Make log clear](#make-log-clear)
+    - [Validate with local simulator](#validate-with-local-simulator)
+    - [Know resource bottleneck well](#know-resource-bottleneck-well)
   - [Diagnostic issues](#diagnostic-issues)
     - [Job is waiting for hours](#job-is-waiting-for-hours)
     - [Job is running, but no IP address, ports, and GPU assigned](#job-is-running-but-no-ip-address-ports-and-gpu-assigned)
@@ -34,7 +34,7 @@ The failure of job is like other failures in computer system. When failure happe
     - [Job runs slowly](#job-runs-slowly)
     - [Job is failed](#job-is-failed)
   - [Guidance](#guidance)
-    - [How to check job metrics](#how-to-check-job-metrics)
+    - [How to view job metrics](#how-to-view-job-metrics)
     - [How to check job log](#how-to-check-job-log)
     - [Connect to running environments with SSH](#connect-to-running-environments-with-ssh)
     - [Reserve failed docker for debugging](#reserve-failed-docker-for-debugging)
@@ -52,29 +52,29 @@ Troubleshooting issues remotely is hard, so it's efficient to solve them locally
 - Some issues may be caused by some different between local and remote, try to narrow down where it happens, and compare difference between local and remote.
 - Minimize code difference between local and remote. That makes it's easy to reproduce problems locally.
 
-### Use log better
+### Make log clear
 
 Debug is very useful at local development, but it's hard remote, and most impossible in production environment. Log provides lots of information and works well in most environments.
 
 To use log better,
 
-1. Use more when developing. In development phase, avoid debugging, or print one time. The log should be refined, if it's not enough to troubleshoot issues. Some issue may be fixed locally or happens seldom. Once they happen, log can help exposing them.
+1. Use more when developing. In development phase, avoid debugging, or print one time. The log should be improved if it's not enough information for understanding issues. Some issue may be fixed locally or happens seldom. Once they happen, log can help exposing them.
 2. Provide more information. More information doesn't mean more content. More content is easy to bury useful information. So, if some log repeats or duplicate a lot, it should be merged or disable.
 3. Let log tell story, not just dump variables. People, who looks log, may never see code, or forget code logic already. Besides dump key variable's value, it needs to explain what it means in business logic also. For example, when some variable is abnormal, log should include why it's considered as abnormal, how it's critical, how to fix it.
 4. Associate with context. In some parallel cases, log is filled by concurrent threads, process, or distributed systems. A context id is necessary to associate log in same context. And time synchronization is needed for distributed system.
 5. What should be logged? The answer of this question is in above points partially. If something is helpful for troubleshooting, or further analyzing, it should be logged. For example, full error trace of abnormal situation, something may be helpful when there is any failure, and so on.
 
-### Verify with local simulator
+### Validate with local simulator
 
-Some bug may happen in specific environment or configuration, so that code may run well locally, but failed remotely. If the environment can be simulated locally, more environment issues can be found.
+Some bugs may happen in specific environment or configuration, so the code may run well at local, but failed remotely. If the environment can be simulated locally, more environment issues can be found.
 
-OpenPAI VS Code Client can consume OpenPAI job configuration file and run in Docker container locally. This simulation can find problems that related to job configuration files, mismatched docker image with code dependencies, command line errors. It can cover most situations at remote, but still limited, like the requested resource in configuration is ignored, as in most case, local machine is not powerful like a GPU server. So when code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid these kind of issues and reduce training times to disclose more remote problems.
+OpenPAI VS Code Client can consume OpenPAI job configuration file and run in Docker container locally. This simulation can find problems that related to job configuration files, mismatched docker image with code dependencies, command line errors. It can cover most situations at remote, but still limited, like the requested resource in configuration is ignored, as in most case, local machine is not powerful like a GPU server. So, when code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid this kind of issues and reduce training times to disclose more remote problems.
 
 The simulator in OpenPAI VS Code Client needs Docker installed. Refer to [here](../../contrib/pai_vscode/VSCodeExt.md) to install and learn how to [simulate Job Running](../../contrib/pai_vscode/README.md#simulate-job-running).
 
 Note, as Docker doesn't support GPU on Windows, so it may need a docker image with CPU package for local simulation.
 
-### Aware of resource bottleneck
+### Know resource bottleneck well
 
 To use OpenPAI, user needs to specify used resources, including CPU, GPU and memory. If requested resource is lower than minimum requirement, the progress may be much slower than expected. So, to be aware and understand bottleneck is important for efficiency.
 
@@ -96,7 +96,7 @@ Notice, there may have more resources than requested in dashboard of OpenPAI. Bu
 
 As the design of OpenPAI, there are two phases to request resources. When job is running, it doesn't mean task instances is running. If there is no IP address assigned for a task instance, it means the task instance is in this situation. If there is enough resource, the task instance can start in seconds. If there is no resource, the task instance keeps no IP address in longer time.
 
-![noiop](imgs/web_job_detail_noip.png)
+![no ip](imgs/web_job_detail_noip.png)
 
 ### Job is running and retried many times
 
@@ -104,7 +104,7 @@ If OpenPAI fails with system reason, OpenPAI retries to run the job again. For e
 
 If it retries many times, and isn't caused by limited resource, administrators of OpenPAI may needs to check what happens.
 
-![noiop](imgs/web_job_detail_retry.png)
+![retry](imgs/web_job_detail_retry.png)
 
 ### Job runs slowly
 
@@ -138,17 +138,21 @@ Job failure can be caused by many reasons.
 
 ## Guidance
 
-### How to check job metrics
+### How to view job metrics
 
 - Click *Go to Job Metrics Page* as below in job details page, if some tasks are assigned IP, and ports.
 
 ![job link](imgs/web_job_details_metrics.png)
 
-- A new page is opened and show metrics of this job. 
+- A new page is opened and show metrics of this job.
 
 ![job link](imgs/web_job_metrics.png)
 
-Note, the UI is implemented by [Grafana](https://grafana.com/), check its web site for how to use.
+- The *memory usage*, *network traffic* and *disk bandwidth* uses absolute value. It's easy to understand.
+- 100 percent of *CPU*, it means 100 percent of one virtual core. So, the value may be more than 100%. For example, 300% means 3 virtual cores are fully used.
+- *GPU Utilization* and *GPU memory* are total value. It's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means 2 GPU cards are fully used.
+
+The UI is implemented by [Grafana](https://grafana.com/), check its web site for more details.
 
 ### How to check job log
 
@@ -204,6 +208,6 @@ To reserve failed docker for debugging, it needs to set the following property i
 
 ### Ask helps
 
-Administrators of the OpenPAI cluster may fix issues, if this guidance doesn't work unfortunately.
+Administrators of the OpenPAI cluster may fix issues if this guidance doesn't work unfortunately.
 
 If it isn't fixed still, you are welcome to [submit issue or ask questions](../../README.md#get-involved) to us.
