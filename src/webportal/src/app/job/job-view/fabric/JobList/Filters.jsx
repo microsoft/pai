@@ -57,6 +57,7 @@ function FilterBar() {
     return (
       <SearchBox
         underlined
+        disableAnimation
         placeholder="Filter by keyword"
         styles={{root: rootStyles}}
         value={filter.keyword}
