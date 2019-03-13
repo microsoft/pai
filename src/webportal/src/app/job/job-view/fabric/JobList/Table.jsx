@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
+import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -131,15 +131,27 @@ export default function Table() {
         Failed: MessageBarType.error,
         Stopped: MessageBarType.blocked,
       }[statusText];
+      const rootStyle = {
+        backgroundColor: {
+          Waiting: '#FCD116',
+          Running: '#0071BC',
+          Stopping: '#FCD116',
+          Succeeded: '#7FBA00',
+          Failed: '#E81123',
+          Stopped: '#E81123',
+        }[statusText],
+      };
       /** @type {import('@uifabric/styling').IStyle} */
       const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
       /** @type {import('@uifabric/styling').IStyle} */
-      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8};
+      const iconStyle = {color: 'white'};
+      /** @type {import('@uifabric/styling').IStyle} */
+      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'white'};
       return (
         <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)}>
           <MessageBar
             messageBarType={messageBarType}
-            styles={{iconContainer: iconContainerStyle, text: textStyle}}
+            styles={{root: rootStyle, iconContainer: iconContainerStyle, icon: iconStyle, text: textStyle}}
           >
             {statusText}
           </MessageBar>
@@ -164,18 +176,20 @@ export default function Table() {
         event.stopPropagation();
         stopJob(job);
       }
+      /** @type {React.CSSProperties} */
+      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
 
       const statusText = getStatusText(job);
       const disabled = statusText !== 'Waiting' && statusText !== 'Running';
       return (
-        <div style={zeroPaddingRowFieldStyle} data-selection-disabled>
-          <ActionButton
+        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)} data-selection-disabled>
+          <DefaultButton
             iconProps={{iconName: 'StopSolid'}}
             disabled={disabled}
             onClick={onClick}
           >
             Stop
-          </ActionButton>
+          </DefaultButton>
         </div>
       );
     },
