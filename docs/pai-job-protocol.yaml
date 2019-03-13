@@ -1,3 +1,7 @@
+%YAML 1.2
+---
+# OpenPAI Job Protocol YAML
+
 protocolVersion: String, required # Protocol version, current version is 2.
 name: String, required
 type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output.
@@ -6,6 +10,7 @@ contributor: String, optional
 description: String, optional
 
 prerequisites: # Optional
+  # Each item is the protocol for data, script, dockerimage, or output type.
   - protocolVersion: String, optional # If omitted, follow the protocolVersion in root.
     name: String, required
     type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job".
@@ -72,8 +77,8 @@ defaults: # optional, default cluster specific settings
   deployment: String, optional # Should reference to deployment defined in deployments
 
 
-
-# Below is an example for distributed tensorflow:
+---
+# OpenPAI Job Protocol YAML Example for a Distributed TensorFlow Job
 
 protocolVersion: 2
 name: tensorflow_cifar10
