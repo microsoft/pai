@@ -5,6 +5,7 @@ import sys
 import argparse
 import time
 import subprocess
+import re
 import unittest
 
 sys.path.append("../..")
@@ -54,19 +55,6 @@ class KubernetesOperator(object):
         nodes_str = '\n'.join(nodes)
         data_dict = {self.configmap_data_key: nodes_str}
         update_configmap(self.kube_config_path, self.configmap_name, data_dict)
-
-class TestKubernetesOperator(unittest.TestCase):
-    def test_get_multiple_nodes(self):
-        pass
-
-    def test_get_single_node(self):
-        pass
-
-    def test_get_empty_node(self):
-        pass
-
-
-
 
 class YarnOperator(object):
     yarn_config_path = "./.hadoop"
@@ -149,7 +137,7 @@ class AlertOperator(object):
 
 def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
-    for node, state in current_status.iteritems():
+    for node, state in current_status.items():
         # should decommission but not
         if state not in {"DECOMMISSIONED"} and node in decommissioned_nodes:
             unready_nodes[node] = state
@@ -158,17 +146,32 @@ def get_unready_nodes(decommissioned_nodes, current_status):
             unready_nodes[node] = state
     return unready_nodes
 
+def validate_string_is_ip(validated_str):
+    ip_pattern = re.compile(r'^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])(\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)){3}$')
+    found = ip_pattern.match(validated_str) is not None
+    return found
+
 
 def get_gpu_alert(args):
     alert_operator = AlertOperator(args.prometheus_ip, args.prometheus_port)
     alerting_nodes = alert_operator.get_gpu_alert_nodes()
-    logger.info("Current gpu alerts: {}".format(alerting_nodes))
+    logger.info("Successfully aggregate gpu alerts.")
+    if len(alerting_nodes) > 0:
+        output_info = '\n'.join([k+': '+v for k, v in alerting_nodes.items()])
+    else:
+        output_info = "No gpu alerting nodes"
+    print(output_info)
 
 
 def get_decommission_nodes(args):
     k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
-    logger.info("Current configmap node list: {}".format(','.join(existing_nodes)))
+    logger.info("Successfully aggregate blacklist info.")
+    if len(existing_nodes) > 0:
+        output_info = ','.join(existing_nodes)
+    else:
+        output_info = "No blacklisted nodes"
+    print(output_info)
     return existing_nodes
 
 
@@ -176,11 +179,12 @@ def add_decommission_nodes(args):
     k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
-    if isinstance(nodes, str):
-        nodes = set(nodes.split(','))
+    inter_list = existing_nodes & nodes
+    if len(inter_list) > 0:
+        logger.warning("Try to add existing blacklist nodes: {}".format(','.join(inter_list)))
     full_list = existing_nodes | nodes
     k8s_operator.set_nodes(full_list)
-    logger.info("Add node: {} to configmap".format(args.nodes))
+    logger.info("Add node: {} to blacklist".format(','.join(args.nodes)))
     return full_list
 
 
@@ -188,21 +192,20 @@ def remove_decommission_nodes(args):
     k8s_operator = KubernetesOperator(args.api_server_ip)
     existing_nodes = k8s_operator.get_nodes()
     nodes = args.nodes
-    if isinstance(nodes, str):
-        nodes = set(nodes.split(','))
+    supplement_list = nodes - existing_nodes
+    if len(supplement_list) > 0:
+        logger.warning("Try to remove non-existing blacklist nodes: {}".format(','.join(supplement_list)))
     full_list = existing_nodes - nodes
     k8s_operator.set_nodes(full_list)
-    logger.info("Remove node: {} from configmap".format(args.nodes))
+    logger.info("Remove node: {} from blacklist".format(','.join(args.nodes)))
     return full_list
 
 
 def update_decommission_nodes(args):
     k8s_operator = KubernetesOperator(args.api_server_ip)
     nodes = args.nodes
-    if isinstance(nodes, str):
-        nodes = set(nodes.split(','))
     k8s_operator.set_nodes(nodes)
-    logger.info("Update configmap node list: {}".format(args.nodes))
+    logger.info("Update blacklist nodes: {}".format(','.join(args.nodes)))
     return nodes
 
 
@@ -221,46 +224,61 @@ def refresh_yarn_nodes(args):
     logger.info("Successfully refresh nodes.")
 
 
+def convert_nodes(nodes_str):
+    if isinstance(nodes_str, str):
+        nodes = set(nodes_str.split(','))
+        for node in nodes:
+            if not validate_string_is_ip(node):
+                raise argparse.ArgumentTypeError("Value has to be a comma-delimited ip list, but found {}".format(node))
+        return nodes
+    return set()
+
+
 def setup_parser():
     top_parser = argparse.ArgumentParser()
-    top_parser.add_argument("master_ip", help="master node ip")
-    top_parser.add_argument("--resource-manager-ip",
-                            help="specify yarn resource manager ip separately, by default it's master node ip")
-    top_parser.add_argument("--api-server-ip",
-                            help="specify kubernetes api-server ip separately, by default it's master node ip")
-    top_parser.add_argument("--prometheus-ip",
-                            help="specify prometheus ip separately, by default it's master node ip")
-    top_parser.add_argument("--prometheus-port", default=9091,
-                            help="specify prometheus port, by default it's 9091")
     sub_parser = top_parser.add_subparsers(dest="subcommands")
 
-    # node list parser
-    nodelist_parser = sub_parser.add_parser("node-list", help="get or edit unhealthy node-list, won't trigger refresh")
-    nodelist_subparsers = nodelist_parser.add_subparsers(dest="action")
-
-    parser_get = nodelist_subparsers.add_parser("get", help="get unhealthy node list")
-    parser_get.set_defaults(func=get_decommission_nodes)
-
-    parser_add = nodelist_subparsers.add_parser("add", help="add unhealthy nodes")
-    parser_add.add_argument("nodes", help='support comma-delimited node list')
-    parser_add.set_defaults(func=add_decommission_nodes)
-
-    parser_remove = nodelist_subparsers.add_parser("remove", help="remove unhealthy nodes")
-    parser_remove.add_argument("nodes", help='support comma-delimited node list')
-    parser_remove.set_defaults(func=remove_decommission_nodes)
-
-    parser_update = nodelist_subparsers.add_parser("update", help="update unhealthy node list")
-    parser_update.add_argument("nodes", help='support comma-delimited node list')
-    parser_update.set_defaults(func=update_decommission_nodes)
-
-    # yarn operator parser
-    yarn_parser = sub_parser.add_parser("refresh", help="enforce service to graceful decommission nodes in node-list,"
-                                                        "will not kill running job")
-    yarn_parser.set_defaults(func=refresh_yarn_nodes)
+    # a parent parser to avoid repeatedly add arguments for all subcommands
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument("-m", "--master", dest="master_ip", help="master node ip", required=True, default="127.0.0.1")
+    parent_parser.add_argument("--resource-manager-ip",
+                            help="specify yarn resource manager ip separately, by default it's master node ip")
+    parent_parser.add_argument("--api-server-ip",
+                            help="specify kubernetes api-server ip separately, by default it's master node ip")
+    parent_parser.add_argument("--prometheus-ip",
+                            help="specify prometheus ip separately, by default it's master node ip")
+    parent_parser.add_argument("--prometheus-port", default=9091,
+                            help="specify prometheus port, by default it's 9091")
 
     # prometheus operator parser
-    yarn_parser = sub_parser.add_parser("alerting-nodes", help="get current gpu alerting nodes")
-    yarn_parser.set_defaults(func=get_gpu_alert)
+    prometheus_parser = sub_parser.add_parser("badgpus", help="query prometheus alerts")
+    prometheus_subparsers = prometheus_parser.add_subparsers(dest="action")
+
+    parser_get = prometheus_subparsers.add_parser("get", parents=[parent_parser], help="print current gpu alerts")
+    parser_get.set_defaults(func=get_gpu_alert)
+
+    # node list parser
+    blacklist_parser = sub_parser.add_parser("blacklist", help="blacklist operation")
+    blacklist_subparsers = blacklist_parser.add_subparsers(dest="action")
+
+    parser_get = blacklist_subparsers.add_parser("get", parents=[parent_parser], help="get blacklisted nodes")
+    parser_get.set_defaults(func=get_decommission_nodes)
+
+    parser_add = blacklist_subparsers.add_parser("add", parents=[parent_parser], help="add nodes to blacklist")
+    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', required=True)
+    parser_add.set_defaults(func=add_decommission_nodes)
+
+    parser_remove = blacklist_subparsers.add_parser("remove", parents=[parent_parser], help="remove nodes from blacklist")
+    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', required=True)
+    parser_remove.set_defaults(func=remove_decommission_nodes)
+
+    parser_update = blacklist_subparsers.add_parser("update", parents=[parent_parser], help="update blacklist")
+    parser_update.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
+    parser_update.set_defaults(func=update_decommission_nodes)
+
+    parser_refresh = blacklist_subparsers.add_parser("refresh", parents=[parent_parser],
+                                                    help="enforce yarn to graceful decommission nodes in blacklist")
+    parser_refresh.set_defaults(func=refresh_yarn_nodes)
 
     return top_parser
 
