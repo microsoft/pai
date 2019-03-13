@@ -123,16 +123,13 @@ def get_storage_config_files(storage_config_name):
 
     return users
 
+# Push data to k8s configmap
+def push_data(args):
+    name = args.name
+    schema = args.schema
 
-def push_user(args):
-    push_data("storage-user", args.conf_path, "schemas/storage_user.schema.json")
-
-def push_external(args):
-    push_data("storage-external", args.conf_path, "schemas/storage_external.schema.json")
-
-def push_data(name, raw_path, schema):
     conf_dict = dict()
-    real_path = os.path.abspath(os.path.expanduser(raw_path))
+    real_path = os.path.abspath(os.path.expanduser(args.conf_path))
 
     with open(os.path.abspath(schema), "r") as jsonFile:
         schema_json = json.load(jsonFile)
@@ -230,19 +227,19 @@ def main():
     nfs_parser = init_subparsers.add_parser("nfs")
     nfs_parser.add_argument("address", metavar="address", help="Nfs remote address")
     nfs_parser.add_argument("root_path", metavar="rootpath", help="Nfs remote root path")
-    nfs_parser.set_defaults(func = init_storage, storage_type = "nfs")
+    nfs_parser.set_defaults(func=init_storage, storage_type="nfs")
     none_parser = init_subparsers.add_parser("none")
-    none_parser.set_defaults(func = init_storage, storage_type = "none")
+    none_parser.set_defaults(func=init_storage, storage_type="none")
    
-    # ./storagectl.py pushexternal ...
-    push_external_parser = subparsers.add_parser("pushexternal", description="Push external storage config to k8s configmap.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    # ./storagectl.py push user|external path
+    push_parser = subparsers.add_parser("push", description="Push storage config to k8s configmap.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    push_subparsers = push_parser.add_subparsers(help="Push user|external")
+    push_external_parser = push_subparsers.add_parser("external")
     push_external_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores external storage config")
-    push_external_parser.set_defaults(func = push_external)
-
-    # ./storagectl.py pushuser ...
-    push_user_parser = subparsers.add_parser("pushuser", description="Push user config to k8s configmap.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    push_external_parser.set_defaults(func=push_data, name="storage-external", schema="schemas/storage_external.schema.json")
+    push_user_parser = push_subparsers.add_parser("user")
     push_user_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores user storage config")
-    push_user_parser.set_defaults(func = push_user)
+    push_user_parser.set_defaults(func=push_data, name="storage-user", schema="schemas/storage_user.schema.json")
 
     args = parser.parse_args()
     args.func(args)
