@@ -4,7 +4,7 @@
 
 protocolVersion: String, required # Protocol version, current version is 2.
 name: String, required
-type: String, required # The type of the component. Must be one of the following: job, data, script, dockerimage, or output.
+type: String, required # Component type, should be "job" here.
 version: String, optional # Component version, default is latest.
 contributor: String, optional
 description: String, optional
