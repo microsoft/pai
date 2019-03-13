@@ -23,12 +23,14 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const markedConfig = require('./marked.config');
 const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
+const TACHYONS_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 
 
 const htmlMinifierOptions = {
@@ -51,7 +53,8 @@ const config = (env, argv) => ({
     changePassword: './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
-    view: './src/app/job/job-view/job-view.component.js',
+    jobList: ['babel-polyfill', './src/app/job/job-view/fabric/job-list.jsx'],
+    jobDetail: ['babel-polyfill', './src/app/job/job-view/fabric/job-detail.jsx'],
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -63,12 +66,6 @@ const config = (env, argv) => ({
     howToConfigGitHubPAT: './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
     plugin: './src/app/plugin/plugin.component.js',
 
-    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker',
-    'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
-    'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
-    'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
-    'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
-
     'plugins/marketplace': './src/plugins/marketplace',
   },
   output: {
@@ -76,7 +73,7 @@ const config = (env, argv) => ({
     filename: 'scripts/[name].bundle.js'
   },
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.jsx', '.json'],
     modules: [helpers.root('node_modules'), helpers.root('src')],
     alias: {
       deepmerge$: path.resolve(helpers.root('node_modules/deepmerge/dist/umd.js')),
@@ -84,6 +81,16 @@ const config = (env, argv) => ({
   },
   module: {
     rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react', '@babel/preset-env']
+          }
+        }
+      },
       {
         test: /\.txt$/,
         loader: 'raw-loader'
@@ -112,7 +119,28 @@ const config = (env, argv) => ({
         loader: 'ejs-loader'
       },
       {
+        test: /\.css$/,
+        include: TACHYONS_DIR,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                url: true,
+                minimize: true,
+                sourceMap: true,
+                modules: true,
+                camelCase: true,
+                localIdentName: '[name]-[local]--[hash:base64:5]',
+              },
+            },
+          ],
+        }),
+      },
+      {
         test: /\.(css|scss)$/,
+        exclude: TACHYONS_DIR,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
@@ -164,6 +192,12 @@ const config = (env, argv) => ({
     ]
   },
   plugins: [
+    new webpack.WatchIgnorePlugin([
+      /css\.d\.ts$/,
+    ]),
+    new MonacoWebpackPlugin({
+      languages: ['json', 'css', 'ts', 'html']
+    }),
     new CopyWebpackPlugin([
       { from: 'src/assets', to: 'assets' }
     ]),
@@ -248,11 +282,20 @@ const config = (env, argv) => ({
     new HtmlWebpackPlugin({
       title: title,
       version: version,
-      filename: 'view.html',
+      filename: 'job-list.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'view']
+      chunks: ['layout', 'jobList']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'job-detail.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'jobDetail']
     }),
     new HtmlWebpackPlugin({
       title: title,
