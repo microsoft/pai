@@ -12,7 +12,7 @@ A: Users can find historical job logs through yarn. Please check [issue-1072](ht
 
 ### Q: How to diagnose job problems
 
-A: Please check [troubleshooting_job.md](./troubleshooting_job.md)'s introduction.
+A: Please check [troubleshooting_job.md](./user/troubleshooting_job.md)'s introduction.
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job
 
