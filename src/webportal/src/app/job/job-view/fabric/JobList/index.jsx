@@ -128,14 +128,14 @@ export default function JobList() {
   return (
     <Context.Provider value={context}>
       <Fabric style={{height: '100%'}}>
-        <Stack padding={20} verticalFill styles={{root: {position: 'relative'}}}>
+        <Stack verticalFill styles={{root: {position: 'relative', padding: '0 20px 20px'}}}>
           <Stack.Item>
             <TopBar/>
           </Stack.Item>
-          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white'}}}>
+          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white', paddingTop: 15}}}>
             <Table/>
           </Stack.Item>
-          <Stack.Item>
+          <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: 15}}}>
             <Paginator/>
           </Stack.Item>
           {error !== null ? getError(error) : null}

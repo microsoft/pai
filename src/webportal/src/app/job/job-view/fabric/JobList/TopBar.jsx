@@ -130,7 +130,7 @@ function TopBar() {
       key: 'filters',
       name: 'Filters',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
-      iconProps: {iconName: 'Filter'},
+      iconProps: {iconName: active ? 'FilterSolid' : 'Filter'},
       onClick() {
         setActive(!active);
       },
@@ -212,9 +212,6 @@ function TopBar() {
           {
             key: 'clear',
             text: 'Clear',
-            iconProps: {
-              iconName: 'Cancel',
-            },
             onClick: onClearClick,
           },
         ]),
@@ -278,9 +275,6 @@ function TopBar() {
           {
             key: 'clear',
             text: 'Clear',
-            iconProps: {
-              iconName: 'Cancel',
-            },
             onClick: onClearClick,
           },
         ]),
@@ -344,9 +338,6 @@ function TopBar() {
           {
             key: 'clear',
             text: 'Clear',
-            iconProps: {
-              iconName: 'Cancel',
-            },
             onClick: onClearClick,
           },
         ]),
@@ -354,24 +345,33 @@ function TopBar() {
     };
   }
 
-  const items = active ? [getKeyword()] : [
+  const topBarItems = [
     selectedJobs.length ? getStop() : getNew(),
     getRefresh(),
   ];
-  const farItems = active ? [
+  const topBarFarItems = [getFilters()];
+
+  const filterBarItems = [getKeyword()];
+  const filterBarFarItems = [
     getUser(),
     getVirtualCluster(),
     getStatus(),
-    getFilters(),
     getClear(),
-  ] : [getFilters()];
+  ];
 
   return (
-    <CommandBar
-      items={items}
-      farItems={farItems}
-      styles={{root: {backgroundColor: 'transparent'}}}
-    />
+    <React.Fragment>
+      <CommandBar
+        items={topBarItems}
+        farItems={topBarFarItems}
+        styles={{root: {backgroundColor: 'transparent'}}}
+      />
+      { active ? <CommandBar
+        items={filterBarItems}
+        farItems={filterBarFarItems}
+        styles={{root: {backgroundColor: 'transparent'}}}
+      /> : null }
+    </React.Fragment>
   );
 }
 
