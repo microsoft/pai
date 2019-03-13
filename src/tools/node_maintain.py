@@ -146,6 +146,7 @@ def get_unready_nodes(decommissioned_nodes, current_status):
             unready_nodes[node] = state
     return unready_nodes
 
+
 def validate_string_is_ip(validated_str):
     ip_pattern = re.compile(r'^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])(\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)){3}$')
     found = ip_pattern.match(validated_str) is not None
@@ -157,7 +158,7 @@ def get_gpu_alert(args):
     alerting_nodes = alert_operator.get_gpu_alert_nodes()
     logger.info("Successfully aggregate gpu alerts.")
     if len(alerting_nodes) > 0:
-        output_info = '\n'.join([k+': '+v for k, v in alerting_nodes.items()])
+        output_info = '\n'.join([node_name+': '+alert_type for node_name, alert_type in alerting_nodes.items()])
     else:
         output_info = "No gpu alerting nodes"
     print(output_info)
@@ -170,7 +171,7 @@ def get_decommission_nodes(args):
     if len(existing_nodes) > 0:
         output_info = ','.join(existing_nodes)
     else:
-        output_info = "No blacklisted nodes"
+        output_info = "No blacklist nodes"
     print(output_info)
     return existing_nodes
 
@@ -219,7 +220,8 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
-        logger.info("Unready nodes: {}. Waiting...".format(unready_nodes))
+        unready_info = ','.join([node_name+' in '+status for node_name, status in unready_nodes.items()])
+        logger.info("Unready nodes: {}. Waiting...".format(unready_info))
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
 
@@ -240,15 +242,16 @@ def setup_parser():
 
     # a parent parser to avoid repeatedly add arguments for all subcommands
     parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument("-m", "--master", dest="master_ip", help="master node ip", required=True, default="127.0.0.1")
+    parent_parser.add_argument("-m", "--master", dest="master_ip",
+                               help="master node ip, by default it's 127.0.0.1", required=True)
     parent_parser.add_argument("--resource-manager-ip",
-                            help="specify yarn resource manager ip separately, by default it's master node ip")
+                               help="specify yarn resource manager ip separately, by default it's master node ip")
     parent_parser.add_argument("--api-server-ip",
-                            help="specify kubernetes api-server ip separately, by default it's master node ip")
+                               help="specify kubernetes api-server ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-ip",
-                            help="specify prometheus ip separately, by default it's master node ip")
+                               help="specify prometheus ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-port", default=9091,
-                            help="specify prometheus port, by default it's 9091")
+                               help="specify prometheus port, by default it's 9091")
 
     # prometheus operator parser
     prometheus_parser = sub_parser.add_parser("badgpus", help="query prometheus alerts")
@@ -261,7 +264,7 @@ def setup_parser():
     blacklist_parser = sub_parser.add_parser("blacklist", help="blacklist operation")
     blacklist_subparsers = blacklist_parser.add_subparsers(dest="action")
 
-    parser_get = blacklist_subparsers.add_parser("get", parents=[parent_parser], help="get blacklisted nodes")
+    parser_get = blacklist_subparsers.add_parser("get", parents=[parent_parser], help="get blacklist nodes")
     parser_get.set_defaults(func=get_decommission_nodes)
 
     parser_add = blacklist_subparsers.add_parser("add", parents=[parent_parser], help="add nodes to blacklist")
@@ -276,8 +279,8 @@ def setup_parser():
     parser_update.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
     parser_update.set_defaults(func=update_decommission_nodes)
 
-    parser_refresh = blacklist_subparsers.add_parser("refresh", parents=[parent_parser],
-                                                    help="enforce yarn to graceful decommission nodes in blacklist")
+    parser_refresh = blacklist_subparsers.add_parser("enforce", parents=[parent_parser],
+                                                    help="enforce yarn to gracefully decommission nodes in blacklist")
     parser_refresh.set_defaults(func=refresh_yarn_nodes)
 
     return top_parser
