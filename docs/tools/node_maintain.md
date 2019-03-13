@@ -2,45 +2,60 @@
 
 ## Overview
 
-Graceful decommissioning could minimize the impact on existing job when removing unhealthy nodes. 
-This is a tool to help you achieve it in OpenPAI. 
+This [tool](../../src/tools/node_maintain.py) help you to gracefully decommission unhealthy nodes in OpenPAI. 
 
-In OpenPAI, an unhealthy node-list records the nodes to be decommissioned. 
-Components could sync the list and decommission them as needed.
-
-**NOTES: For now, only YARN nodes are decommissioned, HDFS doesn't.**
+**NOTES: This tool should be involved in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes.**
 
 ## Commands
 
-Currently, node-list update and component refresh are both manual actions. 
-This tool provides corresponding command for them. 
-The only mandatory argument for all commands is `master_ip`. Usually, components share the same master ip,
-in different case(i.e. load-balance), you could overwrite `master_ip` separately by `--api-server-ip` and `--resource-manager-ip`.
-`api-server-ip` should be the kubernetes load-balance ip in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml).
-`resource-manager-ip` should be the pai-master node ip of machine-list in [layout](../../examples/cluster-configuration/layout.yaml)
-
-So, a common invoking looks like:
+This tool provides commands to query alerting nodes from prometheus and operate blacklist.
+A common invoking looks like:
 ```bash
-python node_maintain.py {master_ip} sub-command sub-command-arguments
+python node_maintain.py {object} {action} {arguments}
 ```
 
-Noticed that execution path should be `{PAI_ROOT_DIR}/src/tools`.
+### Get current unhealthy GPU nodes
 
-### node-list sub-command
+###### 1. Query prometheus by this tool
+```bash
+python node_maintain.py badgpus get -m {prometheus_ip} [--prometheus-port {prometheus-port}]
+```
 
-`node-list` command could get and edit unhealthy node-list, 
-notice that the change will not trigger the real refresh behavior.
+`badgpus` command only includes one action:
+* `badgpus get`: print current unhealthy gpu nodes
 
-* `node-list get`: print current unhealthy node-list
-* `node-list add nodes`: add nodes to current node-list
-* `node-list remove nodes`: remove nodes from current node-list
-* `node-list update nodes`: overwrite current node-list with nodes
+###### 2. Query prometheus alerts by webapp
+By default the alert url is `http://{prometheus_ip}:9091/prometheus/alerts`, all alerts could be found on it.
+
+###### 3. Get notification by alert-manager
+If you configure alert-manager in [services-configuration](../../examples/cluster-configuration/services-configuration.yaml), 
+you will get alert mails when unhealthy GPU found.
 
 
-### refresh sub-command
+### Add unhealthy GPU nodes to blacklist
 
-Enforce the node-list, it's a blocking command and won't exit until all nodes in node-list are decommissioned.
+```bash
+python node_maintain.py blacklist add -n {unhealthy_nodes} -m {api-server-ip}
+```
+You could find your `api-server-ip` in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml).
 
+`blacklist` command provides more operations about blacklist, including following actions.
+
+* `blacklist get`: print current blacklist
+* `blacklist add -n {nodes}`: add nodes to blacklist
+* `blacklist remove -n {nodes}`: remove nodes from blacklist
+* `blacklist update -n {nodes}`: overwrite current blacklist
+* `blacklist enforce`: enforce service to load blacklist
+
+### Enforce services to load latest blacklist
+
+```bash
+python node_maintain.py blacklist enforce -m {master_ip} [--api-server-ip api-server-ip] [--resource-manager-ip resource-manager-ip]
+```
+You could find your `api-server-ip` in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml) and
+`resource-manager-ip` in [layout](../../examples/cluster-configuration/layout.yaml), by default they are both `master_ip`.
+
+Noticed that it's a blocking command and won't exit until all nodes are decommissioned or recommissioned.
 
 ## Scenarios
 
@@ -54,34 +69,34 @@ For convenience, in this section, we assume you have a cluster without load-bala
 
 ### Decommission nodes
 
-At some point, `work-1` and `work-2` encounter hardware issues, need a graceful decommission:
+At some point, `work-1` and `work-2` are alerted, need a graceful decommission:
 
-##### 1. Add unhealthy node to node-list
+##### 1. Add unhealthy node to blacklist
 
 ```bash
 cd src/tools
-python node_maintain.py 10.0.0.10 node-list add 10.0.0.1,10.0.0.2
+python node_maintain.py blacklist add -n 10.0.0.1,10.0.0.2 -m 10.0.0.10 
 ```
 
 ##### 2. Refresh nodes
 
 ```bash
-python node_maintain.py 10.0.0.10 refresh
+python node_maintain.py blacklist enforce -m 10.0.0.10
 ```
 
 ### Recommission nodes
 
 Then if work-1 is repaired, you could recommission it to your cluster:
 
-##### 1. Remove repaired node from node-list
+##### 1. Remove repaired node from blacklist
 
 ```bash
-python node_maintain.py 10.0.0.10 node-list remove 10.0.0.1
+python node_maintain.py blacklist remove -n 10.0.0.1 -m 10.0.0.10 
 ```
 
 ##### 2. Refresh nodes
 
 ```bash
-python node_maintain.py 10.0.0.10 refresh
+python node_maintain.py blacklist enforce -m 10.0.0.10
 ```
 
