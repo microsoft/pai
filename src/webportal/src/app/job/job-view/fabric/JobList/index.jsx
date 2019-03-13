@@ -55,7 +55,7 @@ export default function JobList() {
   const [allJobs, setAllJobs] = useState(null);
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState(new Filter(undefined, admin ? undefined : new Set([username])));
+  const [filter, setFilter] = useState(new Filter(undefined, (username && !admin) ? new Set([username]) : undefined));
   const [ordering, setOrdering] = useState(new Ordering());
   const [pagination, setPagination] = useState(new Pagination());
 
