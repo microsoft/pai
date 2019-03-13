@@ -56,7 +56,7 @@ cluster:
 
 If you cluster is v0.9 and later, you could fetch the config from the cluster via paictl:
 
-`./paictl.py config pull -o path_to_backup_your_config`.
+`./paictl.py config pull -o path_to_backup_your_config`
 
 There should be four files under the `path_to_backup_your_config`:
 
@@ -71,7 +71,7 @@ PAI provide a script tools to convert configuration from old style to the v0.10 
 
 Usage:
 
-`./deployment/tools/configMigration.py path_to_backup_your_config path_to_output_new_style_config`.
+`./deployment/tools/configMigration.py path_to_backup_your_config path_to_output_new_style_config`
 
 Then you could customzie the generate config under the directory `path_to_output_new_style_config` per need.
 
