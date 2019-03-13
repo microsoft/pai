@@ -94,7 +94,7 @@ In general, jobs of OpenPAI stays in waiting status less than 1 minute before ru
 
 As the design of OpenPAI, there are two phases to request resources. In first phase, job is in waiting status. In second phase, job is running, but the task role(s) may be requesting resources yet. When a job is running, it doesn't mean task roles of the job are assigned resource. If there is no IP address displayed, it means the task roles are requesting resource. If there is enough resource, the task container can start in seconds. If there is not enough resource available, the task roles keep like below status.
 
-![no ip](imgs/web_job_detail_noip.png)
+![no IP](imgs/web_job_detail_noip.png)
 
 When some jobs complete, the task roles of waiting jobs have a chance to get resource. One way to start waiting jobs earlier, is to reduce requested resources, so this job may get enough resource easier.
 
@@ -188,11 +188,11 @@ With SSH, any command can be run in an environment, and it provides familiar way
 
 For a running task instance, if it supports SSH connection, Click the link *View SSH Info*.
 
-![job ssh](imgs/web_job_detail_ssh.png)
+![job SSH](imgs/web_job_detail_ssh.png)
 
 It pops up information as below. Follow steps in the dialog, can connect to the running docker container.
 
-![job ssh info](imgs/web_job_details_ssh_info.png)
+![job SSH info](imgs/web_job_details_ssh_info.png)
 
 For distributed jobs, it's easy to connect from one to another container by environment variables. For example, `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` is parsed to `ssh worker-0` in a docker container.
 
