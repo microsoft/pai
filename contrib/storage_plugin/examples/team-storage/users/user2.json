@@ -1,5 +1,5 @@
 {
-    "defaultStroage": "nfs_teamA.json",
+    "defaultStorage": "nfs_teamA.json",
     "externalStorages": [
         "nfs_teamA.json"
     ]
