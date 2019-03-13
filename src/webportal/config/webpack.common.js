@@ -121,26 +121,6 @@ const config = (env, argv) => ({
         loader: 'ejs-loader'
       },
       {
-        test: /\.css$/,
-        include: TACHYONS_DIR,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                url: true,
-                minimize: true,
-                sourceMap: true,
-                modules: true,
-                camelCase: true,
-                localIdentName: '[name]-[local]--[hash:base64:5]',
-              },
-            },
-          ],
-        }),
-      },
-      {
         test: /\.(css|scss)$/,
         include: FABRIC_DIR,
         use: ExtractTextPlugin.extract({
