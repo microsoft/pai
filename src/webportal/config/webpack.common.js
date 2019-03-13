@@ -30,6 +30,7 @@ const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
+const TACHYONS_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 const FABRIC_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 
 
