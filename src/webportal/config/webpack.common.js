@@ -30,7 +30,7 @@ const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
-const TACHYONS_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
+const FABRIC_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 
 
 const htmlMinifierOptions = {
@@ -87,9 +87,10 @@ const config = (env, argv) => ({
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-react', '@babel/preset-env']
-          }
-        }
+            plugins: ['lodash'],
+            presets: ['@babel/preset-react', '@babel/preset-env'],
+          },
+        },
       },
       {
         test: /\.txt$/,
@@ -140,7 +141,28 @@ const config = (env, argv) => ({
       },
       {
         test: /\.(css|scss)$/,
-        exclude: TACHYONS_DIR,
+        include: FABRIC_DIR,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                url: true,
+                minimize: true,
+                sourceMap: true,
+                modules: true,
+                camelCase: true,
+                localIdentName: '[name]-[local]--[hash:base64:5]',
+              },
+            },
+            'sass-loader',
+          ],
+        }),
+      },
+      {
+        test: /\.(css|scss)$/,
+        exclude: FABRIC_DIR,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
