@@ -6,15 +6,15 @@
 
 ## User job related FAQs
 
-### Q: If user find a job to retry multiple times, how to diagnose the cause?
+### Q: If user find a job to retry multiple times, how to diagnose the cause
 
-A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and job log doc's section:[Diagnostic job retried many times reason](./job_log.md#retry) introduction.
+A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and job log doc's section:[Diagnostic job retried many times reason](./user/troubleshooting_job.md#job-is-running-and-retried-many-times) introduction.
 
-### Q: How to diagnose job problems through logs?
+### Q: How to diagnose job problems
 
-A: Please check [job_log.md](./job_log.md)'s introduction.
+A: Please check [troubleshooting_job.md](./user/troubleshooting_job.md)'s introduction.
 
-### Q: How to use private docker registry job image when submitting an OpenPAI job?
+### Q: How to use private docker registry job image when submitting an OpenPAI job
 
 A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at job submit json file:
 
