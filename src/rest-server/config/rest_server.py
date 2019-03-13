@@ -60,6 +60,12 @@ class RestServer:
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')
+        service_object_model['AZ_AAD_TENANT_NAME'] = self.service_configuration['AZ_AAD_TENANT_NAME']
+        service_object_model['AZ_AAD_CLIENT_ID'] = self.service_configuration['AZ_AAD_CLIENT_ID']
+        service_object_model['AZ_AAD_REDIRECT_URL'] = self.service_configuration['AZ_AAD_REDIRECT_URL']
+        service_object_model['AZ_AAD_CLIENT_SECRET'] = self.service_configuration['AZ_AAD_CLIENT_SECRET']
+        service_object_model['AZ_AAD_HOME_URL'] = self.service_configuration['AZ_AAD_HOME_URL']
+
 
         return service_object_model
 

@@ -59,6 +59,16 @@ spec:
           value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
         - name: DEBUGGING_RESERVATION_SECONDS
           value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
+        - name: AZ_AAD_TENANT_NAME
+          value: "{{ cluster_cfg['rest-server']['AZ_AAD_TENANT_NAME']}}"
+        - name: AZ_AAD_CLIENT_ID
+          value: "{{ cluster_cfg['rest-server']['AZ_AAD_CLIENT_ID']}}"
+        - name: AZ_AAD_REDIRECT_URL
+          value: "{{ cluster_cfg['rest-server']['AZ_AAD_REDIRECT_URL']}}"
+        - name: AZ_AAD_CLIENT_SECRET
+          value: "{{ cluster_cfg['rest-server']['AZ_AAD_CLIENT_SECRET']}}"
+        - name: AZ_AAD_HOME_URL
+          value: "{{ cluster_cfg['rest-server']['AZ_AAD_HOME_URL']}}"
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}

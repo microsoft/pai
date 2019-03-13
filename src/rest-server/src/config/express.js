@@ -25,9 +25,82 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const config = require('./index');
 const logger = require('./logger');
+const azureConfig = require('./azure');
 const router = require('../routes/index');
 const routerV2 = require('../routes/indexV2');
 const createError = require('../util/error');
+
+const passport = require('passport');
+const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
+
+
+
+passport.serializeUser(function(user, done) {
+  done(null, user.oid);
+});
+
+passport.deserializeUser(function(oid, done) {
+  findByOid(oid, function (err, user) {
+    done(err, user);
+  });
+});
+
+
+var users = [];
+
+var findByOid = function(oid, fn) {
+  for (var i = 0, len = users.length; i < len; i++) {
+    var user = users[i];
+    log.info('we are using user: ', user);
+    if (user.oid === oid) {
+      return fn(null, user);
+    }
+  }
+  return fn(null, null);
+};
+
+passport.use(new OIDCStrategy({
+      identityMetadata: azureConfig.azAAD.identityMetadata,
+      clientID: azureConfig.azAAD.clientID,
+      responseType: azureConfig.azAAD.responseType,
+      responseMode: azureConfig.azAAD.responseMode,
+      redirectUrl: azureConfig.azAAD.redirectUrl,
+      allowHttpForRedirectUrl: azureConfig.azAAD.allowHttpForRedirectUrl,
+      clientSecret: azureConfig.azAAD.clientSecret,
+      validateIssuer: azureConfig.azAAD.validateIssuer,
+      isB2C: azureConfig.azAAD.isB2C,
+      issuer: azureConfig.azAAD.issuer,
+      passReqToCallback: azureConfig.azAAD.passReqToCallback,
+      scope: azureConfig.azAAD.scope,
+      loggingLevel: azureConfig.azAAD.loggingLevel,
+      nonceLifetime: azureConfig.azAAD.nonceLifetime,
+      nonceMaxAmount: azureConfig.azAAD.nonceMaxAmount,
+      useCookieInsteadOfSession: azureConfig.azAAD.useCookieInsteadOfSession,
+      cookieEncryptionKeys: azureConfig.azAAD.cookieEncryptionKeys,
+      clockSkew: azureConfig.azAAD.clockSkew,
+    },
+    function(iss, sub, profile, accessToken, refreshToken, done) {
+      if (!profile.oid) {
+        return done(new Error("No oid found"), null);
+      }
+      // asynchronous verification, for effect...
+      process.nextTick(function () {
+        findByOid(profile.oid, function(err, user) {
+          if (err) {
+            return done(err);
+          }
+          if (!user) {
+            // "Auto-registration"
+            users.push(profile);
+            return done(null, profile);
+          }
+          return done(null, user);
+        });
+      });
+    }
+));
+
+
 
 const app = express();
 
@@ -38,6 +111,11 @@ app.use(compress());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+app.use(expressSession({ secret: 'keyboard cat', resave: true, saveUninitialized: false }));
+//app.use(bodyParser.urlencoded({ extended : true }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // setup the logger for requests
 app.use(morgan('dev', {'stream': logger.stream}));
