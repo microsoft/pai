@@ -4,7 +4,7 @@
 
 This [tool](../../src/tools/node_maintain.py) help you to gracefully decommission unhealthy nodes in OpenPAI. 
 
-**NOTES: This tool should be involved in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes.**
+**NOTES: This tool should be invoked in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes.**
 
 ## Commands
 
