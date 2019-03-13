@@ -63,7 +63,7 @@ Before start, you need to meet the following requirements:
 
 If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
 
-If you only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following.
+If you only have one machine, and want to deploy pai on it. Please choose ```Single Box deploy``` following.
 
 
 ##### 2.1 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
