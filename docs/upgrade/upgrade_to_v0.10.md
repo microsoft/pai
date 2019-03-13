@@ -92,11 +92,15 @@ Use the command like below:
 
 ### Stop PAI Services
 
-Now we can stop all PAI Services:
+We stop all PAI Services:
 
 `./paictl.py service stop`
 
+Now the PAI is down, won't be able to access the PAI dashboard.
+
 ### Backup Data
+
+Data won't lost during the upgrade, the backup is optional but recommended.
 
 Now please login onto the master node, and backup the data for ETCD, Zookeeper and etc.
 Below is a list of directories should take care (please backup them):
@@ -110,17 +114,23 @@ We will reinstall it with new configuration, destroy it first:
 
 `./paictl.py cluster k8s-clean -p path_to_output_new_style_config`
 
+Now the Kubernetes cluster is down.
+
 ## Install Kubernetes Cluster
 
 Install the Kubernetes cluster:
 
 `./paictl.py cluster k8s-bootup -p path_to_output_new_style_config`
 
+Now the Kubernetes cluster is up, you can check the Kubernetes dashboard.
+
 ## Run Migration Scripts And Start Services
 
 During the Service starting up, migrate script will be automatically called:
 
 `./paictl.py service start`
+
+Now the PAI is up, you can visit the PAI dashboard.
 
 ## It's Done
 
