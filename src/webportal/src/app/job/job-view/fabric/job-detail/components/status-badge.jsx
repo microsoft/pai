@@ -15,15 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames} from '@uifabric/styling';
-import classNames from 'classnames';
+import {FontClassNames, ColorClassNames, mergeStyles} from '@uifabric/styling';
+import c from 'classnames';
+import {isEmpty} from 'lodash';
+import {Icon} from 'office-ui-fabric-react/lib/Icon';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import t from '../../tachyons.css';
 
 export const Badge = ({children, className}) => (
-  <div className={classNames(t.center, FontClassNames.small, t.w4, t.pv1, t.tc, className)}>
+  <div className={c(FontClassNames.medium, mergeStyles({width: '10rem', padding: '0.75rem 1rem'}), className)}>
     {children}
   </div>
 );
@@ -31,74 +33,127 @@ export const Badge = ({children, className}) => (
 Badge.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
+  icons: PropTypes.array,
 };
 
-export const SuccessBadge = ({children}) => (
-  <Badge className={classNames(t.white, t.bgGreen)}>
-    {children}
+export const IconBadge = ({children, className, icons}) => (
+  <Badge className={c(className)}>
+    <div className={c(t.flex)}>
+      {
+        icons && <div className={c(t.relative, t.w1)}>
+        {
+          icons.map((iconName, idx) => (
+            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill)} iconName={iconName} />
+          ))
+        }
+        </div>
+      }
+      <div className={c({[t.ml3]: !isEmpty(icons)})}>{children}</div>
+    </div>
   </Badge>
 );
 
-SuccessBadge.propTypes = {
+IconBadge.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  icons: PropTypes.array,
+};
+
+export const SucceededBadge = ({children}) => (
+  <IconBadge
+    className={c(mergeStyles({backgroundColor: '#7fba00'}), t.white)}
+    icons={['StatusCircleRing', 'StatusCircleCheckmark']}
+  >
+    {children}
+  </IconBadge>
+);
+
+SucceededBadge.propTypes = {
   children: PropTypes.node,
 };
 
 export const PrimaryBadge = ({children}) => (
-  <Badge className={classNames(t.white, t.bgBlue)}>
+  <IconBadge
+    className={c(t.white, ColorClassNames.blueBackground)}
+    icons={['StatusCircleRing', 'StatusCircleCheckmark']}
+  >
     {children}
-  </Badge>
+  </IconBadge>
 );
 
 PrimaryBadge.propTypes = {
   children: PropTypes.node,
 };
 
-export const WarningBadge = ({children}) => (
-  <Badge className={classNames(t.black, t.bgGold)}>
+export const WaitingBadge = ({children}) => (
+  <IconBadge
+    className={c(t.black, ColorClassNames.yellowBackground)}
+    icons={['Clock']}
+  >
     {children}
-  </Badge>
+  </IconBadge>
 );
 
-WarningBadge.propTypes = {
+WaitingBadge.propTypes = {
   children: PropTypes.node,
 };
 
-export const DangerBadge = ({children}) => (
-  <Badge className={classNames(t.white, t.bgDarkRed)}>
+export const FailedBadge = ({children}) => (
+  <IconBadge
+    className={c(t.white, ColorClassNames.redBackground)}
+    icons={['StatusCircleRing', 'StatusCircleErrorX']}
+  >
     {children}
-  </Badge>
+  </IconBadge>
 );
 
-DangerBadge.propTypes = {
+FailedBadge.propTypes = {
   children: PropTypes.node,
 };
 
-export const DefaultBadge = ({children}) => (
-  <Badge className={classNames(t.white, t.bgGray)}>
+export const StoppedBadge = ({children}) => (
+  <IconBadge
+    className={c(t.white, ColorClassNames.redBackground)}
+    icons={['StatusCircleRing', 'StatusCircleBlock2']}
+  >
     {children}
-  </Badge>
+  </IconBadge>
 );
 
-DefaultBadge.propTypes = {
+StoppedBadge.propTypes = {
+  children: PropTypes.node,
+};
+
+export const UnknownBadge = ({children}) => (
+  <IconBadge
+    className={c(t.white, ColorClassNames.neutralSecondaryBackground)}
+    icons={['StatusCircleRing', 'StatusCircleQuestionMark']}
+  >
+    {children}
+  </IconBadge>
+);
+
+UnknownBadge.propTypes = {
   children: PropTypes.node,
 };
 
 export const StatusBadge = ({status}) => {
   switch (status) {
     case 'Running':
-      return <PrimaryBadge>{status}</PrimaryBadge>;
     case 'Stopping':
+      return <PrimaryBadge>{status}</PrimaryBadge>;
     case 'Waiting':
-      return <WarningBadge>{status}</WarningBadge>;
+      return <WaitingBadge>{status}</WaitingBadge>;
     case 'Failed':
-      return <DangerBadge>{status}</DangerBadge>;
+      return <FailedBadge>{status}</FailedBadge>;
     case 'Succeeded':
-      return <SuccessBadge>{status}</SuccessBadge>;
+      return <SucceededBadge>{status}</SucceededBadge>;
     case 'Stopped':
+      return <StoppedBadge>{status}</StoppedBadge>;
     case 'Unknown':
-      return <DefaultBadge>{status}</DefaultBadge>;
+      return <UnknownBadge>{status}</UnknownBadge>;
     default:
-      return <DefaultBadge>{status}</DefaultBadge>;
+      return <UnknownBadge>{status}</UnknownBadge>;
   }
 };
 
