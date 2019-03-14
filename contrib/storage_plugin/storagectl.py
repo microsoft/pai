@@ -224,7 +224,7 @@ def user_set_default(args):
         user_dict["externalStorages"] = [storage_name]
         conf_dict[user_name] = json.dumps(user_dict)
     update_configmap("storage-user", conf_dict, "default")
-
+    create_path(storage_name)
 
 # Push data to k8s configmap
 def push_data(args):
