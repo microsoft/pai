@@ -139,7 +139,7 @@ def create_path(storage_name):
     # Get storage info
     logger.info("Get external storage info from K8s")
     server_data = get_storage_config("storage-external", "default")
-    if server_data.has_key(storage_name) == False:
+    if server_data == None or server_data.has_key(storage_name) == False:
         logger.error("Storage named {0} not exist! Exit".format(storage_name))
         sys.exit(1)
 
@@ -212,7 +212,7 @@ def user_set_default(args):
 
     conf_dict = dict()
     user_data = get_storage_config("storage-user", "default")
-    if user_data.has_key(user_name):
+    if user_data != None and user_data.has_key(user_name):
         user_json = json.loads(user_data[user_name])
         user_json["defaultStorage"] = storage_name
         if storage_name not in user_json["externalStorages"]:
@@ -315,7 +315,8 @@ def get_storage_config(storage_config_name, namespace):
 
     except ApiException as e:
         if e.status == 404:
-            logger.info("No storage user info was created.")
+            logger.info("Couldn't find configmap named {0}. Create a new configmap".format(name))
+            return None
         else:
             logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
             sys.exit(1)
