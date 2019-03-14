@@ -125,9 +125,8 @@ def parse_role(obj):
     min_failed_task_count = obj.get("minFailedTaskCount")
     succeeded_task_count = obj.get("minSucceededTaskCount")
 
-    envs = transform_env(obj.get("env"))
-    envs.extend(gen_role_wide_envs(role_name, task_num, resource,
-        min_failed_task_count, succeeded_task_count))
+    envs = gen_role_wide_envs(role_name, task_num, resource,
+        min_failed_task_count, succeeded_task_count)
 
     return Role(
             role_name,
@@ -212,6 +211,7 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                             "image": image,
                             "command": ["/usr/local/pai/run"],
                             "env": role.envs,
+                            "securityContext": {"privileged": True}, # TODO tmp solution
                             "resources": {"limits": gen_resource(role.resource)},
                             "volumeMounts": [
                                 {"mountPath": "/usr/local/pai", "name": "pai-vol"},
@@ -277,7 +277,7 @@ def gen_job_wide_envs(default_fs_uri, job_name, role_names, roles, data_dir, out
                 for i in xrange(role.task_num):
                     result["PAI_PORT_LIST_%s_%d_%s" % (role.name, i, k)] = v
 
-    return transform_env(result)
+    return result
 
 
 def transform_name(name):
@@ -301,11 +301,12 @@ def transform(obj, k8s_api_server, default_fs_uri):
 
         roles.append(parsed)
 
-    job_wide_envs = gen_job_wide_envs(default_fs_uri, job_name, role_names, roles,
-            data_dir, output_dir, code_dir)
+    job_wide_envs = obj.get("jobEnvs") or {}
+    job_wide_envs.update(gen_job_wide_envs(default_fs_uri, job_name, role_names,
+        roles, data_dir, output_dir, code_dir))
 
     for role in roles:
-        role.envs.extend(job_wide_envs)
+        role.envs.extend(transform_env(job_wide_envs))
 
     return gen_framework_spec(
             job_name,
@@ -359,7 +360,6 @@ def create_job(username, job_name):
             data=framework)
 
     # TODO error handling
-    logger.debug("response from %s is %s", url, result)
 
     return json.dumps({"success":True}), 202, {"ContentType":"application/json"}
 
@@ -418,8 +418,6 @@ def list_jobs():
     response = requests.get(url,
             headers=g_k8s_api_header,
             verify=g_ca_path).json()
-
-    logger.debug("response of get is %s", response)
 
     result = []
 

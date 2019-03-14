@@ -20,7 +20,7 @@ for i in `find $INIT_DIR/ -type f -regex ".*.sh"` ; do
 done
 
 echo "starting main.sh"
-$INIT_DIR/main.sh > ${PAI_LOG_DIR}/main.sh.stdout 2> ${PAI_LOG_DIR}/main.sh.stderr &
+$INIT_DIR/main.sh 2>&1 | tee ${PAI_LOG_DIR}/main.sh.log & # TODO tee may not exist in user's container
 MAIN_PID=$!
 
 echo "wait for main"
