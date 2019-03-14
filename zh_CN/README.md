@@ -2,16 +2,16 @@
 
 [![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai) [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master) [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-[OpenPAI](https://github. com/Microsoft/pai)：作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
+OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
 ## Table of Contents
 
-1. [什么时候考虑用OpenPAI](#when-to-consider-openpai)
-2. [为什么选择 OpenPAI](#why-choose-openpai)
-3. [准备开始](#get-started)
-4. [部署OpenPAI](#deploy-openpai)
+1. [OpenPAI 适用场景](#when-to-consider-openpai)
+2. [OpenPAI 的特点](#why-choose-openpai)
+3. [开始使用](#get-started)
+4. [部署 OpenPAI](#deploy-openpai)
 5. [训练模型](#train-models)
-6. [管理 OpenPAI](#administration)
+6. [管理](#administration)
 7. [参考](#reference)
 8. [参与OpenPAI 的社区工作](#get-involved)
 9. [如何做出贡献](#how-to-contribute)
