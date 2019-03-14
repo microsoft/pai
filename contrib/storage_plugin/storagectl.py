@@ -315,7 +315,7 @@ def get_storage_config(storage_config_name, namespace):
 
     except ApiException as e:
         if e.status == 404:
-            logger.info("Couldn't find configmap named {0}. Create a new configmap".format(name))
+            logger.info("Couldn't find configmap named {0}. Create a new configmap".format(storage_config_name))
             return None
         else:
             logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
