@@ -113,7 +113,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use(expressSession({ secret: 'keyboard cat', resave: true, saveUninitialized: false }));
-//app.use(bodyParser.urlencoded({ extended : true }));
+app.use(bodyParser.urlencoded({ extended : true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
