@@ -35,7 +35,7 @@ router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', vcRouter);
-router.user('/auth', authRouter);
+router.use('/auth', authRouter);
 router.use('/kubernetes', kubernetesProxy);
 
 // module exports
