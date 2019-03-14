@@ -222,7 +222,7 @@ def user_set_default(args):
         user_dict = dict()
         user_dict["defaultStorage"] = storage_name
         user_dict["externalStorages"] = [storage_name]
-        conf_dict[user_file] = json.dumps(user_dict)
+        conf_dict[user_name] = json.dumps(user_dict)
     update_configmap("storage-user", conf_dict, "default")
 
 
