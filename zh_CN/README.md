@@ -21,17 +21,17 @@
 1. 当你的机构需要在团队之间共享强大的 AI 计算资源 (例如，GPU/FPGA 集群 ) 时。
 2. 当你的组织需要共享和重用常见的 AI 资产 (如模型、数据、工作环境等) 时。
 3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
-4. When you want to run a complete training pipeline in one place.
+4. 当你想要在一个安全的环境运行一套完整的 AI 训练流程时。
 
-## Why choose OpenPAI
+## 为什么选择 OpenPAI
 
-The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
+该平台采用了成熟的设计, 这些设计已经在微软的大规模生产环境中运行多年并有良好的质量口碑。
 
-### Support on-premises and easy to deploy
+### 支持完全和顺畅的本地部署（On Premise）。
 
-OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
+OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署、混合部署或公共云部署, 它还支持单盒部署，让用户可以方便地试用OpenPAI。
 
-### Support popular AI frameworks and heterogeneous hardware
+### 支持流行的 AI 框架和异构硬件
 
 Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
 
