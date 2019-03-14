@@ -97,11 +97,11 @@ For administrators of OpenPAI, a successful deployment is first step, the second
 
 ### FAQ
 
-If there is any question during deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
+如果在部署过程中碰到问题， 请首先看 [常见问题](docs/faq.md#deploy-and-maintenance-related-faqs) 文档。
 
-If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
+如果还不能解决问题， 请在 [ 这里 ](#get-involved)提问或者提交问题报告。 
 
-## Train models
+## 训练模型
 
 Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available, and OpenPAI choose some server(s) to run a job. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
