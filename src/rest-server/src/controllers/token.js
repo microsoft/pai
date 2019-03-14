@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const tokenConfig = require('../config/token');
 const tokenModel = require('../models/token');
@@ -74,12 +75,12 @@ const getAAD = (req, res, next) => {
       if (signError) {
         return next(createError.unknown(signError));
       }
-      return res.status(200).json({
+      return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
         user: username,
         token: token,
         admin: admin,
         hasGitHubPAT: hasGitHubPAT,
-      });
+      }));
     });
   });
 };

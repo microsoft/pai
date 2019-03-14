@@ -57,7 +57,8 @@
     "winston": "~2.4.0",
     "xml2js": "~0.4.19",
     "passport": "*",
-    "passport-azure-ad": "^3.0.12"
+    "passport-azure-ad": "^3.0.12",
+    "querystring": "~0.2.0"
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",

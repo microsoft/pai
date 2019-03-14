@@ -61,6 +61,7 @@ class Webportal:
         return {
             'server-port': server_port,
             'uri': uri,
+            'webportal-address': master_ip,
             'plugins': json.dumps([apply_config(plugin) for plugin in plugins]),
         }
 

@@ -69,6 +69,8 @@ spec:
           value: "{{ cluster_cfg['rest-server']['AZ_AAD_CLIENT_SECRET']}}"
         - name: AZ_AAD_HOME_URL
           value: "{{ cluster_cfg['rest-server']['AZ_AAD_HOME_URL']}}"
+        - name: WEBPORTAL_URL
+          value: "{{ cluster_cfg['webportal']['webportal-address']}}"
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
