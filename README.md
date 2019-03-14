@@ -20,7 +20,6 @@ OpenPAI is an open source platform that provides complete AI model training and 
 1. [Reference](#reference)
 1. [Get involved](#get-involved)
 1. [How to contribute](#how-to-contribute)
-1. [How to upgrade](#how-to-upgrade)
 
 ## When to consider OpenPAI
 
@@ -132,6 +131,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 * [Manage cluster with paictl](docs/paictl/paictl-manual.md)
 * [Monitoring](./docs/webportal/README.md)
+* [Upgrade](./docs/upgrade/upgrade_to_v0.10.md)
 
 ## Reference
 
@@ -181,8 +181,3 @@ One key purpose of PAI is to support the highly diversified requirements from ac
 PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
 We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
 Contributions from academia and industry are all highly welcome.
-
-### How to upgrade
-
-PAI officially supports upgrade, since the release v0.10.1.
-Follow the document [Upgrade to v0.10](./docs/upgrade/upgrade_to_v0.10.md) for more details.
