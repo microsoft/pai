@@ -51,7 +51,7 @@ var users = [];
 var findByOid = function(oid, fn) {
   for (var i = 0, len = users.length; i < len; i++) {
     var user = users[i];
-    log.info('we are using user: ', user);
+    logger.info('we are using user: ', user);
     if (user.oid === oid) {
       return fn(null, user);
     }

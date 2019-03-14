@@ -27,5 +27,8 @@ router.route('/')
     /** POST /api/v1/token - Return a token if username and password is correct */
     .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
+router.route('/aad')
+    /** POST /api/v1/token/aad - Return a token if aad auth is successful */
+    .post(tokenController.getAAD)
 // module exports
 module.exports = router;

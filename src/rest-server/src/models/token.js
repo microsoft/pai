@@ -38,4 +38,24 @@ const check = (username, password, callback) => {
   });
 };
 
-module.exports = {check};
+
+const checkAAD = (username, password, callback) => {
+  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));
+  dbGet(username, null, (err, res) => {
+    if (!res) {
+      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
+    }
+    userModel.encrypt(username, password, (err, derivedKey) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null,
+          derivedKey === '123',
+          res[0]['admin'] === 'true',
+          res[0].hasOwnProperty('githubPAT')&&
+          Boolean(res[0]['githubPAT']));
+    });
+  });
+};
+
+module.exports = {check, checkAAD};

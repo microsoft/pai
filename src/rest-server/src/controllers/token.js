@@ -52,5 +52,37 @@ const get = (req, res, next) => {
   });
 };
 
+
+/**
+ * Get the token.
+ */
+const getAAD = (req, res, next) => {
+  const username = req.user.displayName;
+  const password = '123';
+  const expiration = 7 * 24 * 60 * 60;
+  tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
+    if (err) {
+      return next(createError.unknown(err));
+    }
+    if (!state) {
+      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+    }
+    jwt.sign({
+      username: username,
+      admin: admin,
+    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
+      if (signError) {
+        return next(createError.unknown(signError));
+      }
+      return res.status(200).json({
+        user: username,
+        token: token,
+        admin: admin,
+        hasGitHubPAT: hasGitHubPAT,
+      });
+    });
+  });
+};
+
 // module exports
-module.exports = {get};
+module.exports = {get, getAAD};

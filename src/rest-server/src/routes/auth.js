@@ -18,6 +18,8 @@
 // module dependencies
 const express = require('express');
 const azureConfig = require('../config/azure');
+const passport = require('passport');
+const logger = require('../config/logger')
 
 
 const router = new express.Router();
@@ -37,7 +39,7 @@ router.route('/')
         )(req, res, next);
     },
     function(req, res) {
-        log.info('Login was called in the Sample');
+        logger.info('Login was called in the Sample');
         res.redirect('/');
     }
     );
@@ -54,9 +56,9 @@ router.route('/openid/return')
             )(req, res, next);
         },
         function(req, res) {
-            log.info('We received a return from AzureAD.');
+            logger.info('We received a return from AzureAD.');
             //TODO: handle user account
-            res.redirect('/');
+            res.redirect('/api/v1/token/aad');
         }
     )
     /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
@@ -70,9 +72,9 @@ router.route('/openid/return')
             )(req, res, next);
         },
         function(req, res) {
-            log.info('We received a return from AzureAD.');
+            logger.info('We received a return from AzureAD.');
             //TODO: handle user account
-            res.redirect('/');
+            res.redirect('/api/v1/token/aad');
         }
     );
 // module exports
