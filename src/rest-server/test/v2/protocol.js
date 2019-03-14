@@ -20,6 +20,7 @@
 const yaml = require('js-yaml');
 const protocolSchema = require('../../src/config/v2/protocol');
 const protocolMiddleware = require('../../src/middlewares/v2/protocol');
+const expect = require('chai').expect;
 
 
 const validProtocolJSONs = {
@@ -27,7 +28,7 @@ const validProtocolJSONs = {
     'protocolVersion': 2,
     'name': 'caffe_mnist',
     'type': 'job',
-    'version': '1.0.0',
+    'version': '1.0',
     'contributor': 'OpenPAI',
     'prerequisites': {
       'script': {},
@@ -38,7 +39,7 @@ const validProtocolJSONs = {
           'protocolVersion': 2,
           'name': 'caffe_example',
           'type': 'dockerimage',
-          'version': '1.0.0',
+          'version': '1.0',
           'contributor': 'OpenPAI',
           'description': 'caffe',
           'uri': 'openpai/pai.example.caffe',
@@ -135,15 +136,15 @@ const validProtocolYAMLs = {
 protocolVersion: 2
 name: caffe_mnist
 type: job
-version: 1.0.0
+version: !!str 1.0
 contributor: OpenPAI
 
 prerequisites:
   - protocolVersion: 2
     name: caffe_example
     type: dockerimage
-    version: 1.0.0
-    contributor : OpenPAI
+    version: !!str 1.0
+    contributor: OpenPAI
     description: caffe
     uri : openpai/pai.example.caffe
 
@@ -225,9 +226,9 @@ prerequisites:
     name: caffe_example
     type: dockerimage
     version: 1.0.0
-    contributor : OpenPAI
+    contributor: OpenPAI
     description: caffe
-    uri : openpai/pai.example.caffe
+    uri: openpai/pai.example.caffe
 
 taskRoles:
   invalid-name:
@@ -256,6 +257,7 @@ prerequisites:
     version: 1.0.0
     contributor : OpenPAI
     description: caffe
+    uri: openpai/pai.example.caffe
   `,
 };
 

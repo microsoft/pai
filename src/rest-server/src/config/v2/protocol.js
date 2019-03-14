@@ -29,14 +29,14 @@ const baseSchema = {
   'type': 'object',
   'properties': {
     'protocolVersion': {
-      'type': 'number',
-      'enum': [2],
+      'enum': ['2', 2],
     },
     'name': {
       'type': 'string',
+      'pattern': '^[a-zA-Z0-9_.-~]+$',
     },
     'version': {
-      'type': 'string',
+      'type': ['string', 'number'],
     },
     'contributor': {
       'type': 'string',
@@ -45,10 +45,6 @@ const baseSchema = {
       'type': 'string',
     },
   },
-  'required': [
-    'name',
-  ],
-  'additionalProperties': false,
 };
 
 // job protocol schema
@@ -78,100 +74,89 @@ const protocolSchema = {
     'prerequisites': {
       'type': 'array',
       'items': {
-        'prerequisite': {
-          'type': 'object',
-          'oneOf': [
-            {
-              // script or output prerequisite
-              '$merge': {
-                'source': {
-                  '$ref': 'base.json#',
+        'type': 'object',
+        'oneOf': [
+          {
+            // script or output prerequisite
+            '$merge': {
+              'source': {
+                '$ref': 'base.json#',
+              },
+              'with': {
+                'properties': {
+                  'type': {
+                    'type': 'string',
+                    'enum': ['script', 'output'],
+                  },
+                  'uri': {
+                    'type': 'string',
+                  },
                 },
-                'with': {
-                  'properties': {
-                    'type': {
-                      'type': 'string',
-                      'enum': ['script', 'output'],
-                    },
-                    'uri': {
+                'required': ['name', 'type', 'uri'],
+                'additionalProperties': false,
+              },
+            },
+          },
+          {
+            // data prerequisite
+            '$merge': {
+              'source': {
+                '$ref': 'base.json#',
+              },
+              'with': {
+                'properties': {
+                  'type': {
+                    'type': 'string',
+                    'enum': ['data'],
+                  },
+                  'uri': {
+                    'type': 'array',
+                    'items': {
                       'type': 'string',
                     },
                   },
-                  'required': [
-                    'type',
-                    'uri',
-                  ],
-                  'additionalProperties': false,
                 },
+                'required': ['name', 'type', 'uri'],
+                'additionalProperties': false,
               },
             },
-            {
-              // data prerequisite
-              '$merge': {
-                'source': {
-                  '$ref': 'base.json#',
-                },
-                'with': {
-                  'properties': {
-                    'type': {
-                      'type': 'string',
-                      'enum': ['data'],
-                    },
-                    'uri': {
-                      'type': 'array',
-                      'items': {
+          },
+          {
+            // docker image prerequisite
+            '$merge': {
+              'source': {
+                '$ref': 'base.json#',
+              },
+              'with': {
+                'properties': {
+                  'type': {
+                    'type': 'string',
+                    'enum': ['dockerimage'],
+                  },
+                  'auth': {
+                    'type': 'object',
+                    'properties': {
+                      'username': {
+                        'type': 'string',
+                      },
+                      'password': {
+                        'type': 'string',
+                      },
+                      'registryuri': {
                         'type': 'string',
                       },
                     },
                   },
-                  'required': [
-                    'type',
-                    'uri',
-                  ],
-                  'additionalProperties': false,
-                },
-              },
-            },
-            {
-              // docker image prerequisite
-              '$merge': {
-                'source': {
-                  '$ref': 'base.json#',
-                },
-                'with': {
-                  'properties': {
-                    'type': {
-                      'type': 'string',
-                      'enum': ['dockerimage'],
-                    },
-                    'auth': {
-                      'type': 'object',
-                      'properties': {
-                        'username': {
-                          'type': 'string',
-                        },
-                        'password': {
-                          'type': 'string',
-                        },
-                        'registryuri': {
-                          'type': 'string',
-                        },
-                      },
-                    },
-                    'uri': {
-                      'type': 'string',
-                    },
+                  'uri': {
+                    'type': 'string',
                   },
-                  'required': [
-                    'type',
-                    'uri',
-                  ],
-                  'additionalProperties': false,
                 },
+                'required': ['name', 'type', 'uri'],
+                'additionalProperties': false,
               },
             },
-          ],
-        },
+          },
+        ],
       },
       'minItems': 1,
     },
@@ -185,7 +170,7 @@ const protocolSchema = {
     },
     'taskRoles': {
       'patternProperties': {
-        '^[A-Za-z0-9._~]+$': {
+        '^[a-zA-Z_][a-zA-Z0-9_]*$': {
           'type': 'object',
           'properties': {
             'protocolVersion': {
@@ -245,7 +230,7 @@ const protocolSchema = {
                 },
                 'ports': {
                   'patternProperties': {
-                    '^[A-Za-z0-9._~]+$': {
+                    '^[a-zA-Z_][a-zA-Z0-9_]*$': {
                       'type': 'integer',
                     },
                   },
