@@ -22,7 +22,7 @@ const userLogout = () => {
   cookies.remove('admin');
   cookies.remove('hasGitHubPAT');
   cookies.remove('my-jobs');
-  window.location.replace('/login.html');
+  location.href=webportalConfig.restServerUri + '/api/v1/auth/logout' ;
 };
 
 module.exports = {userLogout};

@@ -44,34 +44,22 @@ router.route('/')
             }
         )(req, res, next);
     },
-    function(req, res, next) {
-        const username = req.user.displayName;
-        const password = '123';
-        const expiration = 7 * 24 * 60 * 60;
-        tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
-            if (err) {
-                return next(createError.unknown(err));
-            }
-            if (!state) {
-                return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-            }
-            jwt.sign({
-                username: username,
-                admin: admin,
-            }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-                if (signError) {
-                    return next(createError.unknown(signError));
-                }
-                return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
-                    user: username,
-                    token: token,
-                    admin: admin,
-                    hasGitHubPAT: hasGitHubPAT,
-                }));
-            });
-        });
+    function(req, res) {
+        logger.info('Login was called in the Sample');
+        res.redirect('/');
     }
     );
+
+router.route('/logout')
+/** GET /api/v1/auth/logout - AAD AUTH */
+    .get(
+        function(req, res){
+            req.session.destroy(function(err) {
+                req.logOut();
+                res.redirect(config.destroySessionUrl);
+            });
+        }
+    )
 
 router.route('/openid/return')
     /** GET /api/v1/auth/openid/return - AAD AUTH RETURN */
@@ -85,9 +73,32 @@ router.route('/openid/return')
             )(req, res, next);
         },
         function(req, res) {
-            logger.info('We received a return from AzureAD.');
-            //TODO: handle user account
-            res.redirect('/api/v1/token/aad');
+            var email =  req.user._json.email;
+            const username = email.substring(0, email.lastIndexOf("@"));
+            const password = '123';
+            const expiration = 7 * 24 * 60 * 60;
+            tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
+                if (err) {
+                    return next(createError.unknown(err));
+                }
+                if (!state) {
+                    return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+                }
+                jwt.sign({
+                    username: username,
+                    admin: admin,
+                }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
+                    if (signError) {
+                        return next(createError.unknown(signError));
+                    }
+                    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
+                        user: username,
+                        token: token,
+                        admin: admin,
+                        hasGitHubPAT: hasGitHubPAT,
+                    }));
+                });
+            });
         }
     )
     /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
@@ -100,8 +111,9 @@ router.route('/openid/return')
                 }
             )(req, res, next);
         },
-        function(req, res, next) {
-            const username = req.user.displayName;
+        function(req, res) {
+            var email =  req.user._json.email;
+            const username = email.substring(0, email.lastIndexOf("@"));
             const password = '123';
             const expiration = 7 * 24 * 60 * 60;
             tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
