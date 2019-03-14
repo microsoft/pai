@@ -1,19 +1,27 @@
 #!/usr/bin/env python
 
+import flask
 from flask import Flask
 from flask import request
+from flask_cors import CORS
 from flask import Response
 
 import requests
 
+import logging
 import re
 import collections
 import json
 import random
 import argparse
 import datetime
+import urlparse
+import time
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+logger = logging.getLogger(__name__)
 
 def transform_env(obj):
     envs = []
@@ -196,6 +204,7 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                     "metadata": {"labels": {"type": "kube-launcher-task"}},
                     "spec": {
                         "restartPolicy": "Never",
+                        "imagePullSecrets": [{"name": "isregcred"}], # TODO hard code
                         "serviceAccountName": "frameworkbarrier",
                         "initContainers": gen_init_container(role.command, k8s_api_server),
                         "containers": [{
@@ -332,35 +341,138 @@ def ensure_http_ssh_port(spec):
 
 crd_url = "/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks"
 
-@app.route("/", methods=["GET", "POST"])
-def job():
-    if request.method == "POST":
-        spec = request.form.get("spec")
-        if spec is None:
-            return "should provide spec"
-        try:
-            spec = json.loads(spec)
-        except ValueError:
-            return "spec is not a valid json object %s" % spec
+@app.route("/api/v1/user/<username>/jobs/<job_name>", methods=["PUT"])
+def create_job(username, job_name):
+    # TODO ignore username and job_name argument for now
+    spec = request.get_json()
+    if spec is None:
+        return "should provide job spec" # TODO better error handling
 
-        ensure_http_ssh_port(spec)
+    ensure_http_ssh_port(spec)
 
-        framework = json.dumps(transform(spec, k8s_api_server, default_fs_uri))
-        result = requests.post(k8s_api_server + crd_url,
-                headers=g_k8s_api_header,
-                verify=g_ca_path,
-                data=framework)
-        return result.text
+    url = urlparse.urljoin(k8s_api_server, crd_url)
+
+    framework = json.dumps(transform(spec, k8s_api_server, default_fs_uri))
+    result = requests.post(url,
+            headers=g_k8s_api_header,
+            verify=g_ca_path,
+            data=framework)
+
+    # TODO error handling
+    logger.debug("response from %s is %s", url, result)
+
+    return json.dumps({"success":True}), 202, {"ContentType":"application/json"}
+
+
+def convert_iso_date_to_timestamp(s):
+    if s is None:
+        return None
+
+    d = datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
+    return time.mktime(d.timetuple()) * 1000
+
+def walk_json_field_safe(obj, *fields):
+    """ for example a=[{"a": {"b": 2}}]
+    walk_json_field_safe(a, 0, "a", "b") will get 2
+    walk_json_field_safe(a, 0, "not_exist") will get None
+    """
+    try:
+        for f in fields:
+            obj = obj[f]
+        return obj
+    except:
+        return None
+
+# ref https://github.com/Microsoft/pai/blob/pai-0.9.y/src/webportal/src/app/job/job-view/job-view.component.js#L87-L109
+# https://github.com/Microsoft/frameworkcontroller/blob/8adcef25f6b00f2c903cba9fb85e8c69d3a02d98/pkg/apis/frameworkcontroller/v1/types.go#L413-L480
+def translate_job_state(state, exit_code):
+    """ exit_code may be None """
+    if state == "AttemptCreationPending":
+        return "WAITING"
+    elif state == "AttemptCreationRequested":
+        return "WAITING"
+    elif state == "AttemptPreparing":
+        return "WAITING"
+    elif state == "AttemptRunning":
+        return "RUNNING"
+    elif state == "AttemptDeletionPending":
+        return "WAITING"
+    elif state == "AttemptDeletionRequested":
+        return "WAITING"
+    elif state == "AttemptDeleting":
+        return "WAITING"
+    elif state == "AttemptCompleted":
+        return "WAITING"
+    elif state == "Completed":
+        if exit_code == 0:
+            return "SUCCEEDED"
+        else:
+            return "FAILED"
     else:
-        return """
-        <center>
-            <form action='/' method='post'>
-                <textarea rows='30' cols='120' name='spec'></textarea>
-                <input type='submit'>
-            </form>
-        </center>"""
+        return "UNKNOWN"
+
+@app.route("/api/v1/jobs", methods=["GET"])
+def list_jobs():
+    url = urlparse.urljoin(k8s_api_server, crd_url)
+
+    response = requests.get(url,
+            headers=g_k8s_api_header,
+            verify=g_ca_path).json()
+
+    logger.debug("response of get is %s", response)
+
+    result = []
+
+    for framework in response["items"]:
+        tmp = {}
+        # TODO make sure following fields are filled correctly
+        tmp["name"] = walk_json_field_safe(framework, "metadata", "name")
+        tmp["retries"] = walk_json_field_safe(framework,
+                "status", "retryPolicyStatus", "totalRetriedCount")
+        tmp["createdTime"] = convert_iso_date_to_timestamp(
+                walk_json_field_safe(framework, "status", "startTime"))
+        tmp["username"] = "core" # TODO hardcode
+        tmp["completedTime"] = convert_iso_date_to_timestamp(
+                walk_json_field_safe(framework, "status", "completionTime"))
+        execution_type = walk_json_field_safe(framework, "spec", "executionType")
+        if execution_type is not None:
+            tmp["executionType"] = execution_type.upper()
+        else:
+            tmp["executionType"] = "START" # TODO not sure if this is correct
+
+        exit_code = walk_json_field_safe(framework, "status", "attemptStatus", "completionStatus", "code")
+
+        tmp["state"] = translate_job_state(
+                walk_json_field_safe(framework, "status", "state"), exit_code)
+
+        tmp["subState"] = tmp["state"] # TODO not sure what substate means, but webportal do not use it anyway
+        tmp["appExitCode"] = exit_code
+
+        result.append(tmp)
+
+    return flask.jsonify(result)
+
+#        {
+#        "appExitCode": null
+#        "completedTime": null
+#        "createdTime": 1552536264271
+#        "executionType": "START"
+#        "name": "pytorch-mnist1"
+#        "retries": 0
+#        "state": "RUNNING"
+#        "subState": "APPLICATION_RUNNING"
+#        "username": "admin"
+#        "virtualCluster": "default"
+#        }
+
+@app.route("/", methods=["GET"])
+def index():
+    return """<span>Hello from rest-lite</span>"""
+
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s',
+            level=logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument("--k8s_api", "-k", help="kubernetes api uri eg. http://10.151.40.133:8080", required=True)
     parser.add_argument("--fs_uri", "-u", help="default fs uri", required=True)
