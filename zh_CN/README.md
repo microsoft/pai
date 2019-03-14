@@ -68,12 +68,12 @@ OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容�
 * 确保 SSH 服务已启用, 并共享相同的用户名称/密码, 并具有 sudo 权限。
 * 确保 NTP 服务已启用。
 * 建议不手动安装容器，如果要安装，容器的版本必须高于1.26。
-* OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check [hardware requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for details.
-* Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
+* OpenPAI 会占用内存和 CPU 资源来运行各种服务, 因此请确保有足够的资源来运行机器学习作业。 有关详细信息, 请查看 [ 硬件要求 ](https://github.com/Microsoft/pai/wiki/Resource-Requirement)"。
+* 请指定一个专用服务器运行OpenPAI的服务。 OpenPAI 服务管理服务器的所有 CPU、内存和 GPU 资源。 如果这个服务器上有其他的工作负载, 就可能导致由于资源不足产生的各种问题。
 
-### Deploy
+### 部署
 
-The [Deploy with default configuration](#Deploy-with-default-configuration) part is minimum steps to deploy an OpenPAI cluster, and it's suitable for most small and middle size clusters within 50 servers. Base on the default configuration, the customized deployment can optimize the cluster for different hardware environments and use scenarios.
+对于不超过 50 台的服务器集群，请看这个部署指导： [默认设置下的部署](#Deploy-with-default-configuration)。 在默认配置的基础上, 可以针对不同的硬件环境和使用场景来修改部署方案，达到优化的效果。
 
 #### Deploy with default configuration
 
