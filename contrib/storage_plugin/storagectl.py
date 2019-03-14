@@ -210,15 +210,20 @@ def user_set_default(args):
     user_name = "{0}.json".format(args.user_name)
     storage_name = args.storage_name
 
+    conf_dict = dict()
     user_data = get_storage_config("storage-user", "default")
     if user_data.has_key(user_name):
         user_json = json.loads(user_data[user_name])
         user_json["defaultStorage"] = storage_name
         if storage_name not in user_json["externalStorages"]:
             user_json["externalStorages"].append(storage_name)
-        conf_dict = dict()
         conf_dict[user_name] = json.dumps(user_json)
-        update_configmap("storage-user", conf_dict, "default")
+    else:
+        user_dict = dict()
+        user_dict["defaultStorage"] = storage_name
+        user_dict["externalStorages"] = [storage_name]
+        conf_dict[user_file] = json.dumps(user_dict)
+    update_configmap("storage-user", conf_dict, "default")
 
 
 # Push data to k8s configmap
