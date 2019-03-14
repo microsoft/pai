@@ -33,7 +33,7 @@ OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署
 
 ### 支持流行的 AI 框架和异构硬件
 
-Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
+OpenPAI 提供了预先构建好的主流 AI 框架的坞站（docker）。 Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
 
 ### Most complete solution and easy to extend
 
