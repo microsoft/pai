@@ -29,7 +29,7 @@ const azureConfig = require('./azure');
 const router = require('../routes/index');
 const routerV2 = require('../routes/indexV2');
 const createError = require('../util/error');
-
+const expressSession = require('express-session');
 const passport = require('passport');
 const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
 
