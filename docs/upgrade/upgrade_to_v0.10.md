@@ -1,6 +1,8 @@
 # Upgrade to v0.10
 
-We have test upgrading from v0.8 and later.
+We have test the upgrade process against v0.8 and later.
+It takes hours or more, depends on the number of nodes in the cluster and the internet network speed.
+During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
 
 Table of Contents
 
