@@ -16,6 +16,16 @@
         "rootPath": {
             "type": "string",
             "description": "The root path of external storage"
+        },
+        "sharedFolders": {
+            "type": "array",
+            "description": "Shared folder under root path",
+            "items": { "type": "string" }
+        },
+        "privateFolders": {
+            "type": "array",
+            "description": "The base of user private folder under root path, represent rootPath/$base/$username",
+            "items": { "type": "string" }
         }
     },
     "required": [

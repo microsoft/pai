@@ -27,6 +27,9 @@ import logging
 import logging.config
 import json
 import base64
+import subprocess
+import multiprocessing
+import random,string
 
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
@@ -48,21 +51,28 @@ def init_storage(args):
     else:
         if args.storage_type == "nfs":
             create_storage("default.json", args.storage_type, "default", args.address, args.root_path)
+            create_default_users("default.json")
         elif args.storage_type == "none":
             create_storage("default.json", args.storage_type, "default", "", "")
+            create_default_users("default.json")
+
 
 # Create default.json
-def create_storage(name, type, title, address, root_path):
+def create_storage(name, type, title, address, root_path, shared_folders=None, private_folders=None):
     storage_dict = dict()
     storage_dict["type"] = type
     storage_dict["title"] = title
     storage_dict["address"] = address
     storage_dict["rootPath"] = root_path
+    if len(shared_folders) > 0:
+        storage_dict["sharedFolders"] = shared_folders
+
+    if len(private_folders) > 0:
+        storage_dict["privateFolders"] = private_folders
 
     conf_dict = dict()
     conf_dict[name] = json.dumps(storage_dict)
     update_configmap("storage-external", conf_dict, "default")
-    create_default_users(name)
 
 # Get user name from pai-user, create user data with default
 def create_default_users(default_file):
@@ -122,6 +132,94 @@ def get_storage_config_files(storage_config_name):
             sys.exit(1)
 
     return users
+
+
+def create_path(storage_name):
+    print("")
+    # Get storage info
+    logger.info("Get external storage info from K8s")
+    server_data = get_storage_config("storage-external", "default")
+    if server_data.has_key(storage_name) == False:
+        logger.error("Storage named {0} not exist! Exit".format(storage_name))
+        sys.exit(1)
+
+    server_json = json.loads(server_data[storage_name])
+    address = server_json["address"]
+    root_path = server_json["rootPath"]
+    shared_folders = server_json["sharedFolders"]
+    private_folders = server_json["privateFolders"]
+
+    if len(shared_folders) + len(private_folders) == 0:
+        logger.info("No folder set for {0}! Exit".format(storage_name))
+        sys.exit(1)
+
+    # Get all users that have access to storage
+    users = []
+    if len(private_folders) > 0:
+        logger.info("Get all users related to this external storage")
+        user_data = get_storage_config("storage-user", "default")
+        for key, value in user_data.iteritems():
+            user_json = json.loads(value)
+            if storage_name in user_json["externalStorages"]:
+                users.append(os.path.splitext(key)[0])
+
+    # Mount storage locally and create folders
+    logger.info("Creating folders on server")
+
+    os.system("apt-get -y install nfs-common")
+
+    tmp_folder = ''.join(random.sample(string.ascii_letters + string.digits, 6))
+    subprocess.Popen(["mkdir", tmp_folder], stdout=subprocess.PIPE)
+    mount_cmd = "{0}:{1}".format(address, root_path).replace("//", "/")
+    os.system("mount -t nfs4 {0} {1}".format(mount_cmd, tmp_folder))
+
+    logger.info("mount -t nfs4 {0} {1}".format(mount_cmd, tmp_folder))
+
+    for folder in shared_folders:
+        # Create shared folders
+        cf_cmd = "{0}/{1}".format(tmp_folder, folder).replace("//", "/")
+        subprocess.Popen(["mkdir", "-p", cf_cmd], stdout=subprocess.PIPE)
+    for base in private_folders:
+        for user in users:
+            cf_cmd = "{0}/{1}/{2}".format(tmp_folder, base, user).replace("//", "/")
+            subprocess.Popen(["mkdir", "-p", cf_cmd], stdout=subprocess.PIPE)
+            # Create user folders
+
+    # Umount
+    os.system("umount -l {0}".format(tmp_folder))
+    subprocess.Popen(["rm", "-r", tmp_folder], stdout=subprocess.PIPE)
+    logger.info("Finished creating folders on server")
+
+
+def storage_set(args):
+    if args.storage_type == "nfs":
+        create_storage(args.name, args.storage_type, args.name, args.address, args.root_path, args.shared_folders, args.private_folders)
+        if len(args.shared_folders) + len(args.private_folders) > 0:
+            create_path(args.name)
+    else:
+        logger.error("Unknow storage type")
+
+def storage_list(args):
+    print("")
+
+def storage_create_path(args):
+    create_path(args.name)
+
+
+def user_set_default(args):
+    user_name = args.user_name
+    storage_name = args.storage_name
+
+    user_data = get_storage_config("storage-user", "default")
+    if user_data.has_key(user_name):
+        user_json = json.loads(user_data[user_name])
+        user_json["defaultStorage"] = storage_name
+        if storage_name not in user_json["externalStorages"]:
+            user_json["externalStorages"].append(storage_name)
+        conf_dict = dict()
+        conf_dict[user_name] = json.dumps(user_json)
+        update_configmap("storage-user", conf_dict, "default")
+
 
 # Push data to k8s configmap
 def push_data(args):
@@ -199,6 +297,28 @@ def update_configmap(name, data_dict, namespace):
             logger.error("Exception when calling CoreV1Api->patch_namespaced_config_map: {0}".format(str(e)))
             sys.exit(1)
 
+
+
+
+
+def get_storage_config(storage_config_name, namespace):
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+
+    try:
+        api_response = api_instance.read_namespaced_config_map(storage_config_name, namespace)
+
+    except ApiException as e:
+        if e.status == 404:
+            logger.info("No storage user info was created.")
+        else:
+            logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
+            sys.exit(1)
+
+    return api_response.data
+
+
+
 def setup_logger_config(logger):
     """
     Setup logging configuration.
@@ -231,6 +351,35 @@ def main():
     none_parser = init_subparsers.add_parser("none")
     none_parser.set_defaults(func=init_storage, storage_type="none")
    
+    # ./storagectl.py storage set|createpath 
+    storage_parser = subparsers.add_parser("storage", description="Commands to manage external storages.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    storage_subparsers = storage_parser.add_subparsers(help="Add/modify, list or create path on server for storages")
+    # storage set
+    storage_set_parser = storage_subparsers.add_parser("set")
+    storage_set_parser.add_argument("name")
+    storage_set_subparsers = storage_set_parser.add_subparsers(help="Add/modify storage types, currently contains nfs")
+    storage_set_nfs_parser = storage_set_subparsers.add_parser("nfs")
+    storage_set_nfs_parser.add_argument("address", metavar="address", help="Nfs remote address")
+    storage_set_nfs_parser.add_argument("root_path", metavar="rootpath", help="Nfs remote root path")
+    storage_set_nfs_parser.add_argument("--sharedfolders", dest="shared_folders", nargs="+", help="Shared folders of external storage server")
+    storage_set_nfs_parser.add_argument("--privatefolders", dest="private_folders", nargs="+", help="Base path of private folders of external storage server, the real path is [base]/[username]")
+    storage_set_nfs_parser.set_defaults(func=storage_set, storage_type="nfs")
+    # storage list
+    storage_list_parser = storage_subparsers.add_parser("list")
+    storage_list_parser.set_defaults(func=storage_list)
+    # storage createpath   
+    storage_createpath_parser = storage_subparsers.add_parser("createpath")
+    storage_createpath_parser.add_argument("name", help="Storage name that need to create user folders")
+    storage_createpath_parser.set_defaults(func=storage_create_path)
+
+    # ./storagectl.py user set 
+    user_parser = subparsers.add_parser("user", description="Control user", formatter_class=argparse.RawDescriptionHelpFormatter)
+    user_subparsers = user_parser.add_subparsers(help="Manage user")
+    user_set_default_storage_parser = storage_subparsers.add_parser("setdefault")
+    user_set_default_storage_parser.add_argument("user_name")
+    user_set_default_storage_parser.add_argument("storage_name")
+    user_set_default_storage_parser.set_defaults(func=user_set_default)
+
     # ./storagectl.py push user|external path
     push_parser = subparsers.add_parser("push", description="Push storage config to k8s configmap.", formatter_class=argparse.RawDescriptionHelpFormatter)
     push_subparsers = push_parser.add_subparsers(help="Push user|external")
