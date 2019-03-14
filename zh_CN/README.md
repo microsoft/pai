@@ -33,18 +33,18 @@ OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署
 
 ### 支持流行的 AI 框架和异构硬件
 
-OpenPAI 提供了预先构建好的主流 AI 框架的坞站（docker）。 Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
+OpenPAI 提供了预先构建好的主流 AI 框架的容器（docker）。 很容易增加异构的硬件。 支持分布式训练, 如分布式 TensorFlow。
 
-### Most complete solution and easy to extend
+### 最完整的解决方案，并且易于扩展
 
-OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
+OpenPAI 支持深度学习、支持虚拟集群、兼容 Hadoop/Kubernetes 生态系统。它可以在一个人集群上完成全部的训练流程。 OpenPAI 采用模块化方式构建: 可以根据需要插入不同的模块。
 
-## Related Projects
+## 相关项目
 
-Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) had also released few other open source projects.
+以探索先进技术和开放为目标，[Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) 还发布了一些相关的开源项目。
 
-* [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning. We encourage researchers and students leverage these projects to accelerate the AI development and research.
-* [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
+* [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
+* [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 
 ## Get started
 
