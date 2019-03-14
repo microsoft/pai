@@ -81,6 +81,7 @@ const validProtocolJSONs = {
       'deployment': 'caffe_example',
     },
   },
+
   pytorch_mnist: {
     'protocolVersion': 2,
     'name': 'pytorch_mnist',
@@ -138,7 +139,6 @@ name: caffe_mnist
 type: job
 version: !!str 1.0
 contributor: OpenPAI
-
 prerequisites:
   - protocolVersion: 2
     name: caffe_example
@@ -147,7 +147,6 @@ prerequisites:
     contributor: OpenPAI
     description: caffe
     uri : openpai/pai.example.caffe
-
 taskRoles:
   train:
     instances: 1
@@ -160,7 +159,6 @@ taskRoles:
       gpu: 1
     commands:
       - ./examples/mnist/train_lenet.sh
-
 deployments:
   - name: caffe_example
     taskRoles:
@@ -168,10 +166,10 @@ deployments:
         preCommands:
           - ./data/mnist/get_mnist.sh
           - ./examples/mnist/create_mnist.sh
-
 defaults:
   deployment: caffe_example
   `,
+
   pytorch_mnist: `
 protocolVersion: 2
 name: pytorch_mnist
@@ -179,12 +177,10 @@ type: job
 version: 1.0.0
 contributor: OpenPAI
 description: image classification, mnist dataset, pytorch
-
 parameters:
   epochs: 10
   batchsize: 32
   lr: 0.01
-
 prerequisites:
   - protocolVersion: 2
     name: pytorch_example
@@ -193,7 +189,6 @@ prerequisites:
     contributor : OpenPAI
     description: python3.5, pytorch
     uri : openpai/pai.example.pytorch
-
 taskRoles:
   worker:
     instances: 1
@@ -220,7 +215,6 @@ name: caffe_mnist
 type: job
 version: 1.0.0
 contributor: OpenPAI
-
 prerequisites:
   - protocolVersion: 2
     name: caffe_example
@@ -229,7 +223,35 @@ prerequisites:
     contributor: OpenPAI
     description: caffe
     uri: openpai/pai.example.caffe
+taskRoles:
+  valid_name:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: caffe_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - ./examples/mnist/train_lenet.sh
+additionalProp: value
+  `,
 
+  'should NOT have additional properties': `
+protocolVersion: 2
+name: caffe_mnist
+type: job
+version: 1.0.0
+contributor: OpenPAI
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0.0
+    contributor: OpenPAI
+    description: caffe
+    uri: openpai/pai.example.caffe
 taskRoles:
   invalid-name:
     instances: 1
@@ -243,13 +265,13 @@ taskRoles:
     commands:
       - ./examples/mnist/train_lenet.sh
   `,
+
   'should have required property \'taskRoles\'': `
 protocolVersion: 2
 name: caffe_mnist
 type: job
 version: 1.0.0
 contributor: OpenPAI
-
 prerequisites:
   - protocolVersion: 2
     name: caffe_example
@@ -258,6 +280,101 @@ prerequisites:
     contributor : OpenPAI
     description: caffe
     uri: openpai/pai.example.caffe
+  `,
+
+  'should have required property \'name\'': `
+protocolVersion: 2
+type: job
+version: 1.0.0
+contributor: OpenPAI
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0.0
+    contributor : OpenPAI
+    description: caffe
+    uri: openpai/pai.example.caffe
+taskRoles:
+  valid_name:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: caffe_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - ./examples/mnist/train_lenet.sh
+  `,
+
+  'should have required property \'gpu\'': `
+protocolVersion: 2
+name: caffe_example
+type: job
+version: 1.0.0
+contributor: OpenPAI
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0.0
+    contributor : OpenPAI
+    description: caffe
+    uri: openpai/pai.example.caffe
+taskRoles:
+  valid_name:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: caffe_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+    commands:
+      - ./examples/mnist/train_lenet.sh
+  `,
+
+  'should have required property \'commands\'': `
+protocolVersion: 2
+name: caffe_example
+type: job
+version: 1.0.0
+contributor: OpenPAI
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0.0
+    contributor : OpenPAI
+    description: caffe
+    uri: openpai/pai.example.caffe
+taskRoles:
+  valid_name:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: caffe_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+  `,
+
+  'should be equal to one of the allowed values': `
+protocolVersion: 2
+name: caffe_mnist
+type: job
+version: 1.0.0
+contributor: OpenPAI
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0.0
+    contributor : OpenPAI
+    description: caffe
   `,
 };
 
@@ -302,7 +419,9 @@ describe('API v2 Unit Tests: protocol', () => {
         .catch((err) => {
           expect(err.name).to.equal('BadRequestError');
           const errMessage = JSON.parse(err.message);
-          expect(errMessage).to.have.lengthOf(1);
+          if (invalidMessage !== 'should be equal to one of the allowed values') {
+            expect(errMessage).to.have.lengthOf(1);
+          }
           expect(errMessage[0].message).to.equal(invalidMessage);
         });
     }
