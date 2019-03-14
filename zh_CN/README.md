@@ -75,19 +75,19 @@ OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容�
 
 对于不超过 50 台的服务器集群，请看这个部署指导： [默认设置下的部署](#Deploy-with-default-configuration)。 在默认配置的基础上, 可以针对不同的硬件环境和使用场景来修改部署方案，达到优化的效果。
 
-#### Deploy with default configuration
+#### 使用默认配置进行部署
 
-For a small or medium size cluster, which is less than 50 servers, it's recommended to [deploy with default configuration](docs/pai-management/doc/distributed-deploy.md). if there is only one powerful server, refer to [deploy OpenPAI as a single box](docs/pai-management/doc/single-box.md).
+对于小于50台服务器的中小型群集, 建议 [使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台功能强大的服务器, 请参考 部署OpenPAI到单个机器</0 > 文档。</p> 
 
 For a large size cluster, this section is still needed to generate default configuration, then [customize the deployment](#customize-deployment).
 
-#### Customize deployment
+#### 自定义部署
 
-As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be updated. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
+用户可以根据硬件配置和试用情况，参考 <0> 定制化部署 </0> 的建议来进行之定义部署。 请参考 [ 定制化部署 ](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) 的建议来进行之定义部署。 
 
-### Validate deployment
+### 验证部署是否成功
 
-After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a hello-world job](docs/user/training.md) and check if it works end-to-end.
+在部署后, 建议 [ 验证OpenPAI的关键模块](docs/pai-management/doc/validate-deployment.md) 来确定它们处于良好的运行状况。 验证成功后, 可以 提交一个 hello world 任务</0 >, 来检查全部流程是否正常工作。</p> 
 
 ### Train users before "train models"
 
