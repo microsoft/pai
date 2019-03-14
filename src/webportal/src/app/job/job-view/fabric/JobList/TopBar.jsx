@@ -26,7 +26,7 @@ import Filter from './Filter';
 import {getStatusText} from './utils';
 
 function TopBar() {
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
   const {allJobs, refreshJobs, selectedJobs, stopJob, filter, setFilter} = useContext(Context);
 
   const {users, virtualClusters, statuses} = useMemo(() => {
