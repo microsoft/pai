@@ -13,38 +13,38 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 5. [训练模型](#train-models)
 6. [管理](#administration)
 7. [参考](#reference)
-8. [参与OpenPAI 的社区工作](#get-involved)
+8. [寻求帮助](#get-involved)
 9. [如何做出贡献](#how-to-contribute)
 
-## 什么时候考虑用OpenPAI
+## OpenPAI 适用场景
 
 1. 当你的机构需要在团队之间共享强大的 AI 计算资源 (例如，GPU/FPGA 集群 ) 时。
 2. 当你的组织需要共享和重用常见的 AI 资产 (如模型、数据、工作环境等) 时。
 3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
 4. 当你想要在一个安全的环境运行一套完整的 AI 训练流程时。
 
-## 为什么选择 OpenPAI
+## OpenPAI 的特点
 
 该平台采用了成熟的设计, 这些设计已经在微软的大规模生产环境中运行多年并有良好的质量口碑。
 
-### 支持完全和顺畅的本地部署（On Premise）。
+### 可轻松进行本地部署。
 
-OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署、混合部署或公共云部署, 它还支持单盒部署，让用户可以方便地试用OpenPAI。
+OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署、混合部署或公共云部署，还支持单机部署，让用户可以方便地试用。
 
 ### 支持流行的 AI 框架和异构硬件
 
-OpenPAI 提供了预先构建好的主流 AI 框架的容器（docker）。 很容易增加异构的硬件。 支持分布式训练, 如分布式 TensorFlow。
+OpenPAI 提供了预构建的支持主流 AI 框架的 Docker。 很容易增加异构的硬件。 支持分布式训练, 如分布式 TensorFlow。
 
 ### 最完整的解决方案，并且易于扩展
 
-OpenPAI 支持深度学习、支持虚拟集群、兼容 Hadoop/Kubernetes 生态系统。它可以在一个人集群上完成全部的训练流程。 OpenPAI 采用模块化方式构建: 可以根据需要插入不同的模块。
+OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
 
 ## 相关项目
 
 以探索先进技术和开放为目标，[Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) 还发布了一些相关的开源项目。
 
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
-* [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
+* [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 
 ## Get started
 
