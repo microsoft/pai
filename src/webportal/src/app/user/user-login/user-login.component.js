@@ -28,9 +28,6 @@ const userLoginHtml = userLoginComponent({
   breadcrumb: breadcrumbComponent,
 });
 
-
-$('#content-wrapper').html(userLoginHtml);
-
 const query = url.parse(window.location.href, true).query;
 if (query['token']) {
   cookies.set('user', query.user);

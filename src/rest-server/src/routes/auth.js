@@ -19,7 +19,13 @@
 const express = require('express');
 const azureConfig = require('../config/azure');
 const passport = require('passport');
-const logger = require('../config/logger')
+const logger = require('../config/logger');
+const util = require('util');
+const querystring = require('querystring');
+const jwt = require('jsonwebtoken');
+const tokenConfig = require('../config/token');
+const tokenModel = require('../models/token');
+const createError = require('../util/error');
 
 
 const router = new express.Router();
@@ -38,9 +44,32 @@ router.route('/')
             }
         )(req, res, next);
     },
-    function(req, res) {
-        logger.info('Login was called in the Sample');
-        res.redirect('/');
+    function(req, res, next) {
+        const username = req.user.displayName;
+        const password = '123';
+        const expiration = 7 * 24 * 60 * 60;
+        tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
+            if (err) {
+                return next(createError.unknown(err));
+            }
+            if (!state) {
+                return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+            }
+            jwt.sign({
+                username: username,
+                admin: admin,
+            }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
+                if (signError) {
+                    return next(createError.unknown(signError));
+                }
+                return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
+                    user: username,
+                    token: token,
+                    admin: admin,
+                    hasGitHubPAT: hasGitHubPAT,
+                }));
+            });
+        });
     }
     );
 
@@ -71,10 +100,32 @@ router.route('/openid/return')
                 }
             )(req, res, next);
         },
-        function(req, res) {
-            logger.info('We received a return from AzureAD.');
-            //TODO: handle user account
-            res.redirect('/api/v1/token/aad');
+        function(req, res, next) {
+            const username = req.user.displayName;
+            const password = '123';
+            const expiration = 7 * 24 * 60 * 60;
+            tokenModel.checkAAD(username, password, (err, state, admin, hasGitHubPAT) => {
+                if (err) {
+                    return next(createError.unknown(err));
+                }
+                if (!state) {
+                    return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+                }
+                jwt.sign({
+                    username: username,
+                    admin: admin,
+                }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
+                    if (signError) {
+                        return next(createError.unknown(signError));
+                    }
+                    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
+                        user: username,
+                        token: token,
+                        admin: admin,
+                        hasGitHubPAT: hasGitHubPAT,
+                    }));
+                });
+            });
         }
     );
 // module exports
