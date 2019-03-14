@@ -20,7 +20,6 @@
 const yaml = require('js-yaml');
 const protocolSchema = require('../../src/config/v2/protocol');
 const protocolMiddleware = require('../../src/middlewares/v2/protocol');
-const expect = require('chai').expect;
 
 
 const validProtocolJSONs = {
