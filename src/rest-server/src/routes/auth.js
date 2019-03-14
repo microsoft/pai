@@ -56,7 +56,7 @@ router.route('/logout')
         function(req, res){
             req.session.destroy(function(err) {
                 req.logOut();
-                res.redirect(config.destroySessionUrl);
+                res.redirect(azureConfig.azAAD.destroySessionUrl);
             });
         }
     )
