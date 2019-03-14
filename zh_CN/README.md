@@ -14,7 +14,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 6. [Administration](#administration)
 7. [Reference](#reference)
 8. [Get involved](#get-involved)
-9. [How to contribute](#how-to-contribute)
+9. [如何做出贡献](#how-to-contribute)
 
 ## When to consider OpenPAI
 
