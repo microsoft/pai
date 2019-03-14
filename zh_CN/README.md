@@ -2,25 +2,25 @@
 
 [![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai) [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master) [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+[OpenPAI](https://github. com/Microsoft/pai)：作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
 ## Table of Contents
 
-1. [When to consider OpenPAI](#when-to-consider-openpai)
-2. [Why choose OpenPAI](#why-choose-openpai)
-3. [Get started](#get-started)
-4. [Deploy OpenPAI](#deploy-openpai)
-5. [Train models](#train-models)
-6. [Administration](#administration)
-7. [Reference](#reference)
-8. [Get involved](#get-involved)
+1. [什么时候考虑用OpenPAI](#when-to-consider-openpai)
+2. [为什么选择 OpenPAI](#why-choose-openpai)
+3. [准备开始](#get-started)
+4. [部署OpenPAI](#deploy-openpai)
+5. [训练模型](#train-models)
+6. [管理 OpenPAI](#administration)
+7. [参考](#reference)
+8. [参与OpenPAI 的社区工作](#get-involved)
 9. [如何做出贡献](#how-to-contribute)
 
-## When to consider OpenPAI
+## 什么时候考虑用OpenPAI
 
-1. When your organization needs to share powerful AI computing resources (GPU/FPGA farm, etc.) among teams.
-2. When your organization needs to share and reuse common AI assets like Model, Data, Environment, etc.
-3. When your organization needs an easy IT ops platform for AI.
+1. 当你的机构需要在团队之间共享强大的 AI 计算资源 (例如，GPU/FPGA 集群 ) 时。
+2. 当你的组织需要共享和重用常见的 AI 资产 (如模型、数据、工作环境等) 时。
+3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
 4. When you want to run a complete training pipeline in one place.
 
 ## Why choose OpenPAI
