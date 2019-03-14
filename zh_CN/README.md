@@ -48,22 +48,22 @@ OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态�
 
 ## 准备开始
 
-OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
+OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容器技术让计算硬件与软件分离, 用户可以轻松地运行分布式计算任务、使用一种或多种深度学习框架完成任务。
 
-As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
+因为OpenPAI 是一个平台, 所以准备工作的第一步就是  部署集群 </0 > 。 OpenPAI 还支持部署在一台服务器上。</p> 
 
-If the cluster is ready, learn from [train models](#train-models) about how to use it.
+如果集群已准备就绪, 请参考 [训练模型 ](#train-models) 部分。
 
 ## Deploy OpenPAI
 
-Follow this part to check prerequisites, deploy and validate an OpenPAI cluster. More servers can be added as needed after initial deployed.
+请按照本节内容检查先决条件, 部署和验证 OpenPAI 集群。 在初始部署后, 可以根据需要添加更多的服务器。
 
-It's highly recommended to try OpenPAI on server(s), which has no usage and service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
+It's highly recommended to try OpenPAI on server(s), which has no usage and service. 有关硬件规范, 请参阅 [这里](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
 
-### Prerequisites and preparation
+### 先决条件和准备工作
 
 * Ubuntu 16.04 (18.04 should work, but not fully tested.)
-* Assign each server a static IP address, and make sure servers can communicate each other.
+* 为每台服务器分配一个静态 IP 地址, 并确保服务器可以相互通信。
 * Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images of OpenPAI.
 * SSH service is enabled and share the same username/password and have sudo privilege.
 * NTP service is enabled.
