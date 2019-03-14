@@ -24,7 +24,7 @@ const expect = require('chai').expect;
 
 
 const validProtocolJSONs = {
-  'caffe_mnist': {
+  caffe_mnist: {
     'protocolVersion': 2,
     'name': 'caffe_mnist',
     'type': 'job',
@@ -81,7 +81,7 @@ const validProtocolJSONs = {
       'deployment': 'caffe_example',
     },
   },
-  'pytorch_mnist': {
+  pytorch_mnist: {
     'protocolVersion': 2,
     'name': 'pytorch_mnist',
     'type': 'job',
@@ -132,7 +132,7 @@ const validProtocolJSONs = {
 };
 
 const validProtocolYAMLs = {
-  'caffe_mnist': `
+  caffe_mnist: `
 protocolVersion: 2
 name: caffe_mnist
 type: job
@@ -172,7 +172,7 @@ deployments:
 defaults:
   deployment: caffe_example
   `,
-  'pytorch_mnist': `
+  pytorch_mnist: `
 protocolVersion: 2
 name: pytorch_mnist
 type: job
