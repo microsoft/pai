@@ -207,7 +207,7 @@ def storage_create_path(args):
 
 
 def user_set_default(args):
-    user_name = args.user_name
+    user_name = "{0}.json".format(args.user_name)
     storage_name = args.storage_name
 
     user_data = get_storage_config("storage-user", "default")
@@ -375,7 +375,7 @@ def main():
     # ./storagectl.py user set 
     user_parser = subparsers.add_parser("user", description="Control user", formatter_class=argparse.RawDescriptionHelpFormatter)
     user_subparsers = user_parser.add_subparsers(help="Manage user")
-    user_set_default_storage_parser = storage_subparsers.add_parser("setdefault")
+    user_set_default_storage_parser = user_subparsers.add_parser("setdefault")
     user_set_default_storage_parser.add_argument("user_name")
     user_set_default_storage_parser.add_argument("storage_name")
     user_set_default_storage_parser.set_defaults(func=user_set_default)
