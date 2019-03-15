@@ -15,6 +15,8 @@ if [ -f /usr/sbin/sshd ] ; then
         echo "$PAI_SSH_PUB_KEY" > /root/.ssh/authorized_keys
         chmod 600 /root/.ssh/authorized_keys
 
+        env > /root/.ssh/environment
+        echo "PermitUserEnvironment yes" >> ${CONFIG_DIR}/config
         echo "Port ${PAI_CONTAINER_SSH_PORT}" >> ${CONFIG_DIR}/config
         exec $SSHD_BIN -f ${CONFIG_DIR}/config
     fi

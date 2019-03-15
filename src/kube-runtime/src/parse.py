@@ -44,11 +44,15 @@ def gen_runtime_env(args):
     # key is role_name, value is its PAI_CONTAINER_HOST_PORT_LIST val
     role_ports_map = {}
 
+    cur_task_role_name = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
+
     # key is role_name, value is task count in this role
     role_task_cnt = {}
 
-    for role in framework["spec"]["taskRoles"]:
+    for idx, role in enumerate(framework["spec"]["taskRoles"]):
         role_name = role["name"]
+        if role_name == cur_task_role_name:
+            export("PAI_TASK_ROLE_INDEX", idx) # TODO legacy environment
         cur_port = get_container_port(
                 role["task"]["pod"]["spec"]["containers"][0]["env"],
                 "PAI_CURRENT_CONTAINER_PORT")

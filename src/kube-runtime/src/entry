@@ -31,7 +31,7 @@ echo "parser.py returns $?" >> $LOG_FILE
 
 # prepare main.sh, which is where user command get started
 echo '#!/bin/sh' >> $MAIN_SH
-echo -e "\n. $PAI_DIR/runtime_env.sh\n\n$USER_CMD" >> $MAIN_SH
+echo -e "\n\n$USER_CMD" >> $MAIN_SH
 
 chmod +x $MAIN_SH
 
