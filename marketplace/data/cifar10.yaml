@@ -1,7 +1,28 @@
-protocol_version : v2
-name : cifar10
-type : data
-version : 1.0
-contributor : Alice
-description: cifar10 dataset, image classification
-uri : https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+protocolVersion: 2
+name: cifar10
+type: data
+version: latest
+contributor: OpenPAI
+description: |
+  # The CIFAR10 dataset
+  The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class.
+  There are 50000 training images and 10000 test images.
+
+  ## Dataset Split
+  The dataset is divided into five training batches and one test batch, each with 10000 images.
+  The test batch contains exactly 1000 randomly-selected images from each class.
+  The training batches contain the remaining images in random order, but some training batches may contain more images from one class than another.
+  Between them, the training batches contain exactly 5000 images from each class.
+
+  ## Baseline Results
+  You can find some baseline replicable results on this dataset on the project page for cuda-convnet.
+  These results were obtained with a convolutional neural network.
+  Briefly, they are 18% test error without data augmentation and 11% with.
+  Additionally, Jasper Snoek has a new paper in which he used Bayesian hyperparameter optimization to find nice settings of the weight decay and other hyperparameters,
+  which allowed him to obtain a test error rate of 15% (without data augmentation) using the architecture of the net that got 18%.
+
+  ## Reference
+  1. https://www.cs.toronto.edu/~kriz/cifar.html
+  2. Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009.
+uri:
+  - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
