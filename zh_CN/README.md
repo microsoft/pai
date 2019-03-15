@@ -6,24 +6,24 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 
 ## 目录
 
-1. [OpenPAI 适用场景](#when-to-consider-openpai)
-2. [OpenPAI 的特点](#why-choose-openpai)
-3. [开始使用](#get-started)
-4. [部署 OpenPAI](#deploy-openpai)
+1. [适用场景](#when-to-consider-openpai)
+2. [特点](#why-choose-openpai)
+3. [入门](#get-started)
+4. [部署](#deploy-openpai)
 5. [训练模型](#train-models)
 6. [管理](#administration)
 7. [参考](#reference)
 8. [寻求帮助](#get-involved)
 9. [如何做出贡献](#how-to-contribute)
 
-## OpenPAI 适用场景
+## 适用场景
 
 1. 当你的机构需要在团队之间共享强大的 AI 计算资源 (例如，GPU/FPGA 集群 ) 时。
 2. 当你的组织需要共享和重用常见的 AI 资产 (如模型、数据、工作环境等) 时。
 3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
 4. 当你想要在一个安全的环境运行一套完整的 AI 训练流程时。
 
-## OpenPAI 的特点
+## 特点
 
 该平台采用了成熟的设计, 这些设计已经在微软的大规模生产环境中运行多年并有良好的质量口碑。
 
@@ -54,7 +54,7 @@ OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容�
 
 如果集群已准备就绪, 请参考 [训练模型 ](#train-models) 部分。
 
-## 部署 OpenPAI
+## 部署
 
 请按照本节内容检查先决条件, 部署和验证 OpenPAI 集群。 在初始部署后, 可以根据需要添加更多的服务器。
 
@@ -93,9 +93,9 @@ For a large size cluster, this section is still needed to generate default confi
 
 OpenPAI 的通常用户操作是提交作业请求, 等待作业获得计算资源并执行。 这和在专用服务器执行作业的体验不同。 用户可能会觉得计算资源无法控制, 觉得体验不够好，学习曲线可能高于在专用服务器上运行作业。 但总的来说， OpenPAI 上的共享资源可以显著提高生产效率, 并节省维护环境的成本。
 
-对于 OpenPAI 的管理员来说, 成功部署是第一步, 第二步是让 OpenPAI 的用户了解它好处并知道如何正确使用。 OpenPAI 的用户可以从 [训练模型 ](#train-models) 文档中学习。 But below content is for various scenarios and may be too much to specific users. So, a simplified document based on below content is easier to learn.
+对于 OpenPAI 的管理员来说, 成功部署是第一步, 第二步是让 OpenPAI 的用户了解它好处并知道如何正确使用。 OpenPAI 的用户可以从 [训练模型 ](#train-models) 文档中学习。 下面的内容描述了很多方案, 可能对特定用户来说太多。 因此, 我们可以基于以下简化文档来开始学习。
 
-### FAQ
+### 常见问答<FAQ>
 
 如果在部署过程中碰到问题， 请首先看 [常见问题](docs/faq.md#deploy-and-maintenance-related-faqs) 文档。
 
