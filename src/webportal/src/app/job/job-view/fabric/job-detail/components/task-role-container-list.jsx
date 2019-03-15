@@ -159,12 +159,13 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'number',
         name: 'Number',
+        headerClassName: FontClassNames.medium,
         minWidth: 50,
         maxWidth: 80,
         isResizable: true,
         onRender: (item, idx) => {
           return !isNil(idx) && (
-            <div>
+            <div className={FontClassNames.mediumPlus}>
               {idx}
             </div>
           );
@@ -173,13 +174,14 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'name',
         name: 'Container ID',
+        headerClassName: FontClassNames.medium,
         minWidth: 100,
         maxWidth: 500,
         isResizable: true,
         onRender: (item) => {
           const id = item.containerId;
           return !isNil(id) && (
-            <div className={t.truncate}>
+            <div className={c(t.truncate, FontClassNames.mediumPlus)}>
               {id}
             </div>
           );
@@ -188,6 +190,8 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'ip',
         name: 'IP',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.medium,
         minWidth: 80,
         maxWidth: 140,
         isResizable: true,
@@ -196,6 +200,8 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'ports',
         name: 'Ports',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.medium,
         minWidth: 120,
         maxWidth: 180,
         isResizable: true,
@@ -218,6 +224,8 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'gpus',
         name: 'GPUs',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.medium,
         minWidth: 60,
         maxWidth: 120,
         isResizable: true,
@@ -243,12 +251,13 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'info',
         name: 'Info',
         className: localCss.pa0I,
+        headerClassName: FontClassNames.medium,
         minWidth: 300,
         maxWidth: 340,
         onRender: (item) => (
           <div className={c(t.flex, t.h3)}>
             <CommandBarButton
-              className={c(FontClassNames.small)}
+              className={c(FontClassNames.mediumPlus)}
               styles={{
                 root: {backgroundColor: 'transparent'},
                 rootDisabled: {backgroundColor: 'transparent'},
@@ -259,7 +268,7 @@ export default class TaskRoleContainerList extends React.Component {
               disabled={isNil(item.containerId) || jobStatus !== 'Running'}
             />
             <CommandBarButton
-              className={FontClassNames.small}
+              className={FontClassNames.mediumPlus}
               styles={{
                 root: {backgroundColor: 'transparent'},
                 rootDisabled: {backgroundColor: 'transparent'},
@@ -270,7 +279,7 @@ export default class TaskRoleContainerList extends React.Component {
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
-              className={FontClassNames.small}
+              className={FontClassNames.mediumPlus}
               styles={{
                 root: {backgroundColor: 'transparent'},
                 rootDisabled: {backgroundColor: 'transparent'},
@@ -281,7 +290,7 @@ export default class TaskRoleContainerList extends React.Component {
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
-              className={FontClassNames.small}
+              className={FontClassNames.mediumPlus}
               styles={{
                 root: {backgroundColor: 'transparent'},
                 rootDisabled: {backgroundColor: 'transparent'},

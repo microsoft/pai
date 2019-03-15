@@ -84,7 +84,7 @@ export default class Summary extends React.Component {
             <div
               className={c(t.truncate)}
               style={{
-                fontSize: FontSizes.xLarge,
+                fontSize: FontSizes.xxLarge,
                 fontWeight: FontWeights.regular,
               }}
             >
@@ -92,7 +92,9 @@ export default class Summary extends React.Component {
             </div>
             <div className={c(t.flex, t.itemsCenter)}>
               <Dropdown
-                styles={{title: {border: 0}}}
+                styles={{
+                  title: [FontClassNames.mediumPlus, {border: 0}],
+                }}
                 dropdownWidth={180}
                 selectedKey={autoReloadInterval}
                 onChange={this.onChangeInterval}
@@ -105,6 +107,7 @@ export default class Summary extends React.Component {
               />
               <ActionButton
                 className={t.ml2}
+                styles={{root: [FontClassNames.mediumPlus]}}
                 iconProps={{iconName: 'Refresh'}}
                 disabled={reloading}
                 onClick={onReload}
@@ -114,41 +117,49 @@ export default class Summary extends React.Component {
             </div>
           </div>
           {/* summary-row-2 */}
-          <div className={c(t.mt3, t.flex, t.itemsStart)}>
+          <div className={c(t.mt4, t.flex, t.itemsStart)}>
             <div>
-              <div className={c(t.gray, FontClassNames.small)}>Status</div>
+              <div className={c(t.gray, FontClassNames.medium)}>Status</div>
               <div className={c(t.mt2)}>
                 <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
               </div>
             </div>
             <div className={t.ml5}>
-              <div className={c(t.gray, FontClassNames.small)}>Start Time</div>
-              <div className={c(t.mt2)}>
+              <div className={c(t.gray, FontClassNames.medium)}>Start Time</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
                 {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
               </div>
             </div>
             <div className={t.ml5}>
-              <div className={c(t.gray, FontClassNames.small)}>User</div>
-              <div className={c(t.mt2)}>{jobInfo.jobStatus.username}</div>
+              <div className={c(t.gray, FontClassNames.medium)}>User</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+                {jobInfo.jobStatus.username}
+              </div>
             </div>
             <div className={t.ml5}>
-              <div className={c(t.gray, FontClassNames.small)}>Virtual Cluster</div>
-              <div className={c(t.mt2)}>{jobInfo.jobStatus.virtualCluster}</div>
+              <div className={c(t.gray, FontClassNames.medium)}>Virtual Cluster</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+                {jobInfo.jobStatus.virtualCluster}
+              </div>
             </div>
             <div className={t.ml5}>
-              <div className={c(t.gray, FontClassNames.small)}>Duration</div>
-              <div className={c(t.mt2)}>{getDurationString(jobInfo)}</div>
+              <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+                {getDurationString(jobInfo)}
+              </div>
             </div>
             <div className={t.ml5}>
-              <div className={c(t.gray, FontClassNames.small)}>Retries</div>
-              <div className={c(t.mt2)}>{jobInfo.jobStatus.retries}</div>
+              <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+                {jobInfo.jobStatus.retries}
+              </div>
             </div>
           </div>
           {/* summary-row-3 */}
-          <div className={c(t.mt3, t.flex, t.justifyBetween, t.itemsCenter)}>
+          <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
             <div className={c(t.flex)}>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary]}}
+                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isNil(jobConfig)}
                 onClick={() => {
@@ -162,7 +173,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary]}}
+                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isEmpty(jobInfo.jobStatus.appExitDiagnostics)}
                 onClick={() => {
@@ -176,7 +187,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary]}}
+                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
                 target="_blank"
               >
@@ -184,7 +195,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary]}}
+                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
                 href={getJobMetricsUrl()}
                 target="_blank"
               >
