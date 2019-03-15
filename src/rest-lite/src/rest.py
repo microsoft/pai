@@ -213,12 +213,12 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                             "env": role.envs,
                             "securityContext": {"privileged": True}, # TODO tmp solution
                             "resources": {"limits": gen_resource(role.resource)},
+                            "ports": gen_ports(role.resource.port),
                             "volumeMounts": [
                                 {"mountPath": "/usr/local/pai", "name": "pai-vol"},
                                 {"mountPath": "/usr/local/pai/logs", "name": "host-log"}
                                 ]
                             }],
-                        "ports": gen_ports(role.resource.port),
                         "volumes": [
                             {"name": "pai-vol", "emptyDir": {}},
                             {"name": "host-log", "hostPath":
@@ -450,18 +450,131 @@ def list_jobs():
 
     return flask.jsonify(result)
 
-#        {
-#        "appExitCode": null
-#        "completedTime": null
-#        "createdTime": 1552536264271
-#        "executionType": "START"
-#        "name": "pytorch-mnist1"
-#        "retries": 0
-#        "state": "RUNNING"
-#        "subState": "APPLICATION_RUNNING"
-#        "username": "admin"
-#        "virtualCluster": "default"
-#        }
+
+def translate_task_role_status(job_name, k8s_role_status, gpu_count, port):
+    role_name = walk_json_field_safe(k8s_role_status, "name")
+
+    tasks_status = walk_json_field_safe(k8s_role_status, "taskStatuses")
+    result_status = []
+
+    if tasks_status is not None:
+        for task in tasks_status:
+            status = {}
+            status["taskIndex"] = walk_json_field_safe(task, "index")
+
+            log_url = "http://10.151.40.234:9090/#!/log/default/%s-%s-%s/pod?namespace=default" % (job_name, role_name, status["taskIndex"])
+
+            status["containerId"] = walk_json_field_safe(task, "attemptStatus", "podName")
+            status["containerIp"] = walk_json_field_safe(task, "attemptStatus", "podHostIP")
+            status["containerPorts"] = port
+            status["containerGpus"] = gpu_count
+            status["containerLog"] = log_url
+            status["containerExitCode"] = walk_json_field_safe(task, "attemptStatus", "completionStatus", "code")
+            result_status.append(status)
+
+    return {role_name: {"taskRoleStatus": {"name": role_name}, "taskStatuses": result_status}}
+
+
+def get_task_role_spec(k8s_task_roles, role_name):
+    for role in k8s_task_roles:
+        if role_name == walk_json_field_safe(role, "name"):
+            return role
+    return None
+
+def get_env_value(env_array, key):
+    if env_array is None or key is None:
+        return None
+
+    for env in env_array:
+        if env["name"] == key:
+            return env["value"]
+    return None
+
+@app.route("/api/v1/user/<username>/jobs/<job_name>", methods=["GET"])
+def get_job_detail(username, job_name):
+    url = urlparse.urljoin(k8s_api_server, crd_url + "/" + job_name)
+
+    response = requests.get(url,
+            headers=g_k8s_api_header,
+            verify=g_ca_path)
+
+    if response.status_code != 200:
+        return flask.jsonify({"message": "k8s returns %d" % (response.status_code)})
+
+    framework = response.json()
+    result = {}
+    # TODO make sure following fields are filled correctly
+    job_name = result["name"] = walk_json_field_safe(framework, "metadata", "name")
+
+    job_status = {}
+    result["jobStatus"] = job_status
+
+    job_status["username"] = "core" # TODO hardcode
+    job_status["virtualCluster"] = "default" # TODO hardcode
+
+    execution_type = walk_json_field_safe(framework, "spec", "executionType")
+    if execution_type is not None:
+        job_status["executionType"] = execution_type.upper()
+    else:
+        job_status["executionType"] = "START" # TODO not sure if this is correct
+
+    exit_code = walk_json_field_safe(framework, "status", "attemptStatus", "completionStatus", "code")
+    job_status["state"] = translate_job_state(
+            walk_json_field_safe(framework, "status", "state"), exit_code)
+    job_status["subState"] = job_status["state"]
+
+    job_status["retries"] = walk_json_field_safe(framework,
+            "status", "retryPolicyStatus", "totalRetriedCount")
+    job_status["createdTime"] = job_status["appLaunchedTime"] = \
+            convert_iso_date_to_timestamp(walk_json_field_safe(framework, "status",
+                "startTime"))
+    job_status["completedTime"] = job_status["appCompletedTime"] = \
+            convert_iso_date_to_timestamp(walk_json_field_safe(framework, "status",
+                "completionTime"))
+
+    job_status["appExitCode"] = exit_code
+    job_status["appExitDiagnostics"] = walk_json_field_safe(framework, "status",
+            "attemptStatus", "completionStatus", "diagnostics")
+
+    job_status["appId"] = job_status["appProgress"] = job_status["appExitType"] = \
+            job_status["appTrackingUrl"] = None
+
+    result_task_roles = {}
+    task_roles = walk_json_field_safe(framework, "status", "attemptStatus", "taskRoleStatuses")
+    if task_roles is not None:
+        for task_role in task_roles:
+            role_name = walk_json_field_safe(task_role, "name")
+            gpu_count = 0
+            ports = {}
+
+            if role_name is not None:
+                role_spec = get_task_role_spec(
+                        walk_json_field_safe(framework, "spec", "taskRoles"),
+                        role_name)
+
+                main_container = walk_json_field_safe(role_spec, "task", "pod",
+                        "spec", "containers", 0) # assume only one container in pod
+
+                gpu_count = walk_json_field_safe(main_container,
+                        "resources", "limits", "nvidia.com/gpu")
+                if gpu_count is not None:
+                    gpu_count = int(gpu_count)
+                else:
+                    gpu_count = 0
+
+                port_str = get_env_value(walk_json_field_safe(main_container, "env"),
+                        "PAI_CONTAINER_HOST_PORT_LIST")
+                if port_str is not None:
+                    for s in port_str.split(";"):
+                        k, v = s.split(":")
+                        ports[k] = v
+
+            result_task_roles.update(translate_task_role_status(job_name, task_role, gpu_count, ports))
+
+    return flask.jsonify({
+        "name": job_name,
+        "jobStatus": job_status,
+        "taskRoles": result_task_roles})
 
 @app.route("/", methods=["GET"])
 def index():
