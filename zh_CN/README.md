@@ -134,35 +134,36 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
 
 ## Get involved
 
-* [Stack Overflow](./docs/stackoverflow.md): If you have questions about OpenPAI, please submit question at Stack Overflow under tag: openpai
-* [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in microsoft/pai conversation.
-* [Create an issue or feature request](https://github.com/Microsoft/pai/issues/new/choose): If you have issue/ bug/ new feature, please submit it to GitHub.
-
-## How to contribute
-
-### Contributor License Agreement
-
-This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
-
-### Call for contribution
-
-We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
-
-* PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-* PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
-
-### Who should consider contributing to OpenPAI
-
-* Folks who want to add support for other ML and DL frameworks
-* Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
-* Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
-
-### Contributors
-
-One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
-
-PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team. We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. Contributions from academia and industry are all highly welcome.
+* [Stack Overflow](./docs/stackoverflow.md): 如果您对 OpenPAI 有疑问, 请在 Stack Overflow 网站相应的标签 openpai 下出提交问题。
+* Gitter 聊天 </0 >: 你也可以在Gitter聊天中提问。</li> 
+    
+    * 提交问题或功能请求 </0 >: 如果您有问题，发现了错误，或者有新的功能需求, 请将他们提交到 GitHub 项目页面相应的地方。</li> </ul> 
+        
+        ## 如何做出贡献
+        
+        ### 贡献者许可协议
+        
+        本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议 (CLA)，来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
+        
+        当你提交拉取请求 (Pull Request) 时，CLA机器人会自动检查你是否需要提供CLA，并说明这个拉取请求 （例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 You will only need to do this once across all repos using our CLA.
+        
+        This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
+        
+        ### Call for contribution
+        
+        We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
+        
+        * PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+        * PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+        
+        ### Who should consider contributing to OpenPAI
+        
+        * Folks who want to add support for other ML and DL frameworks
+        * Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
+        * Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
+        
+        ### Contributors
+        
+        One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
+        
+        PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team. We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. Contributions from academia and industry are all highly welcome.
