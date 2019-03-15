@@ -20,8 +20,8 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 
 1. 在团队间共享强大的 AI 计算资源（例如，GPU、FPGA 集群）。
 2. 在组织内共享或重用 AI 资产（如模型、数据、运行环境等) 。
-3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
-4. 当你想要在一个安全的环境运行一套完整的 AI 训练流程时。
+3. 构建易于 IT 运维的 AI 计算平台。
+4. 在一个环境中完成整个模型训练过程。
 
 ## 特点
 
@@ -107,30 +107,30 @@ OpenPAI 的通常用户操作是提交作业请求, 等待作业获得计算资�
 
 请注意, OpenPAI 还支持按需分配资源, 而不是排队作业。 用户可以使用 SSH 或 Jumyter 像在物理服务器上一样进行连接, 如果要了解更多详情， 请参阅 [ 这个文档 ](examples/jupyter/README.md)。 虽然这种方法对资源的利用不是非常高效, 但它也节省了在物理服务器上设置和管理环境的成本。
 
-### Submit training jobs
+### 提交训练作业
 
-Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
+请按照这个例子  提交一个 Hello World 作业 </0 > 了解更多有关 OpenPAI 训练模型的信息。 这是一个非常简单的作业, 帮助用户理解 OpenPAI 作业定义、流程和熟悉 Web 门户。</p> 
 
-### OpenPAI VS Code Client
+### OpenPAI VS Code 的客户端
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code 客户端 ](contrib/pai_vscode/VSCodeExt.md) 是 OpenPAI 的一个友好的、基于 GUI 的客户端工具。 它是 Visual Studio Code 的扩展包。 它可以提交作业、模拟作业在本地运行、管理多个 OpenPAI 环境等。
 
-### Troubleshooting job failure
+### 作业失败后的疑难解答
 
-Web portal and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
+Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过 SSH 登入服务器环境进行调试。
 
-Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure. It's recommended to get code succeeded locally, then submit to OpenPAI. It reduces posibility to troubleshoot remotely.
+有关解决作业故障的详细信息, 请参阅 [ 这里 ](docs/user/troubleshooting_job.md)。 建议在本地成功地运行作业之后，再提交给 OpenPAI 服务器。 这样就降低了远程故障出现的机会。
 
 ## Administration
 
-* [Manage cluster with paictl](docs/paictl/paictl-manual.md)
-* [Monitoring](./docs/webportal/README.md)
+* [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
+* [监测](./docs/webportal/README.md)
 
-## Reference
+## 参考资料
 
-* [Job definition](docs/job_tutorial.md)
+* [作业定义](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
-* Design documents could be found [here](docs).
+* 设计文档可以在 [ 这里 ](docs) 找到。
 
 ## Get involved
 
