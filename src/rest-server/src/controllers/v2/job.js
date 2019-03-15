@@ -23,10 +23,9 @@ const update = async (req, res, next) => {
   const jobName = req.body.protocol.name;
   const userName = req.user.username;
   const job = new Job(jobName, userName, req.body.protocol);
-  await job.put(() => {
-    res.status(202).json({
-      message: `Update job ${jobName} successfully.`,
-    });
+  await job.put();
+  res.status(202).json({
+    message: `Update job ${jobName} successfully.`,
   });
 };
 
