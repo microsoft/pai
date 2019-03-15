@@ -65,7 +65,7 @@ There should be four files under the `path_to_backup_your_config`:
 1. `layout.yaml` (or `cluster-configuration.yaml` in version 0.8/0.9)
 2. `k8s-role-definition.yaml`
 3. `kubernetes-configuration.yaml`
-4. `services-configuration.yaml`.
+4. `services-configuration.yaml`
 
 ### Convert and customize cluster configuration
 
