@@ -40,7 +40,7 @@ app.use(cors());
 app.use(compress());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(bodyParser.text({type: 'text/*',}));
+app.use(bodyParser.text({type: 'text/*'}));
 app.use(cookieParser());
 
 // setup the logger for requests
