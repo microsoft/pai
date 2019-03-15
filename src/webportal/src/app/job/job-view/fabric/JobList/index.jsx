@@ -55,9 +55,18 @@ export default function JobList() {
   const [allJobs, setAllJobs] = useState(null);
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState(new Filter(undefined, (username && !admin) ? new Set([username]) : undefined));
+
+  const initialFilter = useMemo(() => {
+    const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
+    const filter = new Filter(undefined, initialFilterUsers);
+    filter.load();
+    return filter;
+  });
+  const [filter, setFilter] = useState(initialFilter);
   const [ordering, setOrdering] = useState(new Ordering());
   const [pagination, setPagination] = useState(new Pagination());
+
+  useEffect(() => filter.save(), [filter]);
 
   const filteredJobs = useMemo(() => {
     return allJobs !== null ? filter.apply(allJobs || []) : null;

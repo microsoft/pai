@@ -1,5 +1,7 @@
 import {getStatusText} from './utils';
 
+const LOCAL_STORAGE_KEY = 'pai-job-filter';
+
 class Filter {
   /**
    * @param {Set<string>?} users
@@ -18,6 +20,33 @@ class Filter {
     this.statuses = statuses;
 
     this._cachedJob = null;
+  }
+
+  save() {
+    const content = JSON.stringify({
+      users: Array.from(this.users),
+      virtualClusters: Array.from(this.virtualClusters),
+      statuses: Array.from(this.statuses),
+    });
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+  }
+
+  load() {
+    try {
+      const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      const {users, virtualClusters, statuses} = JSON.parse(content);
+      if (Array.isArray(users)) {
+        this.users = new Set(users);
+      }
+      if (Array.isArray(virtualClusters)) {
+        this.virtualClusters = new Set(virtualClusters);
+      }
+      if (Array.isArray(statuses)) {
+        this.statuses = new Set(statuses);
+      }
+    } catch (e) {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
   }
 
   /**
