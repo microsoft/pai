@@ -89,11 +89,11 @@ For a large size cluster, this section is still needed to generate default confi
 
 在部署后, 建议 [ 验证OpenPAI的关键模块](docs/pai-management/doc/validate-deployment.md) 来确定它们处于良好的运行状况。 验证成功后, 可以 提交一个 hello world 任务</0 >, 来检查全部流程是否正常工作。</p> 
 
-### Train users before "train models"
+### 在 "训练模型" 之前培训用户
 
-The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly and save time on maintaining environments.
+OpenPAI 的通常用户操作是提交作业请求, 等待作业获得计算资源并执行。 这和在专用服务器执行作业的体验不同。 用户可能会觉得计算资源无法控制, 觉得体验不够好，学习曲线可能高于在专用服务器上运行作业。 但总的来说， OpenPAI 上的共享资源可以显著提高生产效率, 并节省维护环境的成本。
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users of OpenPAI can learn from [Train models](#train-models). But below content is for various scenarios and may be too much to specific users. So, a simplified document based on below content is easier to learn.
+对于 OpenPAI 的管理员来说, 成功部署是第一步, 第二步是让 OpenPAI 的用户了解它好处并知道如何正确使用。 OpenPAI 的用户可以从 [训练模型 ](#train-models) 文档中学习。 But below content is for various scenarios and may be too much to specific users. So, a simplified document based on below content is easier to learn.
 
 ### FAQ
 
