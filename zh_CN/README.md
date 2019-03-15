@@ -158,12 +158,12 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
         
         ### 谁应该考虑为 OpenPAI 做出贡献
         
-        * Folks who want to add support for other ML and DL frameworks
-        * Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
-        * Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
+        * 希望添加对其他 ML 和 DL 框架的支持的用户
+        * 希望 OpenPAI 成为更丰富的 AI 平台的用户 (例如, 支持更多的机器学习流程、超参数调整，等)
+        * 想写教程和博客文章的人, 可以展示如何使用 OpenPAI 来解决 AI 问题。
         
-        ### Contributors
+        ### 贡献者
         
-        One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
+        OpenPAI 的一个重要目的是支持学术界和工业界高度多样化的需求。 OpenPAI 是完全开放的: 它采用 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法, 其中包括但不限于 [components](./docs/research_education.md)。
         
-        PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team. We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. Contributions from academia and industry are all highly welcome.
+        OpenPAI 采用开放的形式来合作。 它最初是由微软研究院和微软互联网工程院 AI 平台团队联合开发的。 We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. Contributions from academia and industry are all highly welcome.
