@@ -243,7 +243,7 @@ def setup_parser():
     # a parent parser to avoid repeatedly add arguments for all subcommands
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument("-m", "--master", dest="master_ip",
-                               help="master node ip, by default it's 127.0.0.1", required=True)
+                               help="master node ip", required=True)
     parent_parser.add_argument("--resource-manager-ip",
                                help="specify yarn resource manager ip separately, by default it's master node ip")
     parent_parser.add_argument("--api-server-ip",
@@ -260,7 +260,7 @@ def setup_parser():
     parser_get = prometheus_subparsers.add_parser("get", parents=[parent_parser], help="print current gpu alerts")
     parser_get.set_defaults(func=get_gpu_alert)
 
-    # node list parser
+    # blacklist parser
     blacklist_parser = sub_parser.add_parser("blacklist", help="blacklist operation")
     blacklist_subparsers = blacklist_parser.add_subparsers(dest="action")
 
@@ -298,3 +298,4 @@ def main():
 if __name__ == "__main__":
     logger = setup_logger()
     main()
+    
