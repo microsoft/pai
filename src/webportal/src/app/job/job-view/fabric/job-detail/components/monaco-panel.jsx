@@ -88,6 +88,7 @@ export default class MonacoPanel extends React.Component {
                   root: [ColorClassNames.neutralDarkBackground],
                   rootHovered: [ColorClassNames.blackBackground],
                   rootChecked: [ColorClassNames.blackBackground],
+                  rootPressed: [ColorClassNames.blackBackground],
                   label: [ColorClassNames.white],
                 }}
                 onClick={onDismiss}
