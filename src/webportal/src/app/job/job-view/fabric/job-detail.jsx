@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import classNames from 'classnames';
+import {isEmpty, isNil} from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {initializeIcons} from '@uifabric/icons';
@@ -50,11 +51,6 @@ class JobDetail extends React.Component {
     void this.reload();
   }
 
-  async stop() {
-    await stopJob();
-    await this.reload();
-  }
-
   async reload() {
     this.setState({
       reloading: true,
@@ -86,8 +82,41 @@ class JobDetail extends React.Component {
     });
   }
 
+  async stop() {
+    await stopJob();
+    await this.reload();
+  }
+
+  renderTaskRoles() {
+    const {jobConfig, jobInfo, sshInfo} = this.state;
+    if (!isEmpty(jobInfo.taskRoles)) {
+      return Object.keys(jobInfo.taskRoles).map((key) => (
+        <TaskRole
+          key={key}
+          className={t.mt3}
+          taskInfo={jobInfo.taskRoles[key]}
+          jobStatus={getHumanizedJobStateString(jobInfo)}
+          sshInfo={sshInfo}
+          taskConfig={jobConfig && jobConfig.taskRoles.find((x) => x.name === key)}
+        />
+      ));
+    } else if (!isNil(jobConfig)) {
+      return jobConfig.taskRoles.map((config) => (
+        <TaskRole
+          key={config.name}
+          className={t.mt3}
+          jobStatus={getHumanizedJobStateString(jobInfo)}
+          sshInfo={sshInfo}
+          taskConfig={config}
+        />
+      ));
+    } else {
+      return null;
+    }
+  }
+
   render() {
-    const {loading, jobConfig, jobInfo, reloading, sshInfo} = this.state;
+    const {loading, jobConfig, jobInfo, reloading} = this.state;
     if (loading) {
       return <SpinnerLoading />;
     } else {
@@ -102,18 +131,7 @@ class JobDetail extends React.Component {
             onStopJob={this.stop}
             onReload={this.reload}
           />
-          {
-            jobInfo.taskRoles && Object.keys(jobInfo.taskRoles).map((key) => (
-              <TaskRole
-                key={key}
-                className={t.mt3}
-                taskInfo={jobInfo.taskRoles[key]}
-                jobStatus={getHumanizedJobStateString(jobInfo)}
-                sshInfo={sshInfo}
-                taskConfig={jobConfig && jobConfig.taskRoles.find((x) => x.name === key)}
-              />
-            ))
-          }
+          {this.renderTaskRoles()}
         </div>
       );
     }

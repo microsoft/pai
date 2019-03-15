@@ -58,7 +58,7 @@ export function getDurationString(jobInfo) {
 
 
 export function printDateTime(dt) {
-  if (dt > DateTime.local().minus({week: 1})) {
+  if (dt > DateTime.local().minus({week: 1}) && dt < DateTime.local().minus({minute: 1})) {
     return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
   } else {
     return dt.toLocaleString(DateTime.DATETIME_MED);

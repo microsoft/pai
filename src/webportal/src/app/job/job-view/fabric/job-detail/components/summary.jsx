@@ -19,7 +19,8 @@ import {ColorClassNames, FontClassNames, FontWeights, FontSizes} from '@uifabric
 import c from 'classnames';
 import {isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
-import {DefaultButton, IconButton} from 'office-ui-fabric-react/lib/Button';
+import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
+import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -27,8 +28,9 @@ import React from 'react';
 import t from '../../tachyons.css';
 
 import Card from './card';
-import MonacoModal from './monaco-modal';
-import StatusBadge from './status-badge.jsx';
+import MonacoPanel from './monaco-panel';
+import StatusBadge from './status-badge';
+import Timer from './Timer';
 import {getJobMetricsUrl, cloneJob} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString} from '../util';
 
@@ -43,10 +45,12 @@ export default class Summary extends React.Component {
     this.state = {
       monacoProps: null,
       modalTitle: '',
+      autoReloadInterval: 10 * 1000,
     };
 
     this.onDismiss = this.onDismiss.bind(this);
     this.showEditor = this.showEditor.bind(this);
+    this.onChangeInterval = this.onChangeInterval.bind(this);
   }
 
   onDismiss() {
@@ -63,8 +67,12 @@ export default class Summary extends React.Component {
     });
   }
 
+  onChangeInterval(e, item) {
+    this.setState({autoReloadInterval: item.key});
+  }
+
   render() {
-    const {modalTitle, monacoProps} = this.state;
+    const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
 
     return (
@@ -72,61 +80,71 @@ export default class Summary extends React.Component {
         {/* summary */}
         <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
           {/* summary-row-1 */}
-          <div className={c(t.flex, t.pv3)}>
-            <div className={c(t.w50, t.pr6, t.flex, t.itemsCenter)}>
-              <div style={{minWidth: 0}}>
-                <div
-                  className={c(t.truncate)}
-                  style={{
-                    fontSize: FontSizes.xLarge,
-                    fontWeight: FontWeights.regular,
-                  }}
-                >
-                  {jobInfo.name}
-                </div>
-              </div>
-              <div className={[c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)]}>
-                <div>
-                  <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
-                </div>
-                <div className={c(t.mh4, t.nowrap, t.gray)}>
-                  {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
-                </div>
-                <div>
-                  <IconButton
-                    styles={{
-                      icon: [ColorClassNames.neutralTertiary],
-                      iconHovered: [ColorClassNames.themeDark],
-                    }}
-                    iconProps={{iconName: 'refresh'}}
-                    onClick={onReload}
-                    disabled={reloading}
-                  />
-                </div>
-              </div>
+          <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
+            <div
+              className={c(t.truncate)}
+              style={{
+                fontSize: FontSizes.xLarge,
+                fontWeight: FontWeights.regular,
+              }}
+            >
+              {jobInfo.name}
             </div>
-            <div className={c(t.w50, t.bl, t.bBlack10)}>
-              <div className={c(t.mh6, t.flex, t.itemsCenter)}>
-                <div>
-                  <div className={c(t.gray, FontClassNames.small)}>User</div>
-                  <div>{jobInfo.jobStatus.username}</div>
-                </div>
-                <div className={t.ml5}>
-                  <div className={c(t.gray, FontClassNames.small)}>Virtual Cluster</div>
-                  <div>{jobInfo.jobStatus.virtualCluster}</div>
-                </div>
-                <div className={t.ml5}>
-                  <div className={c(t.gray, FontClassNames.small)}>Duration</div>
-                  <div>{getDurationString(jobInfo)}</div>
-                </div>
-                <div className={t.ml5}>
-                  <div className={c(t.gray, FontClassNames.small)}>Retries</div>
-                  <div>{jobInfo.jobStatus.retries}</div>
-                </div>
-              </div>
+            <div className={c(t.flex, t.itemsCenter)}>
+              <Dropdown
+                styles={{title: {border: 0}}}
+                dropdownWidth={180}
+                selectedKey={autoReloadInterval}
+                onChange={this.onChangeInterval}
+                options={[
+                  {key: 0, text: 'Disable Auto Refresh'},
+                  {key: 10000, text: 'Refresh every 10s'},
+                  {key: 30000, text: 'Refresh every 30s'},
+                  {key: 60000, text: 'Refresh every 60s'},
+                ]}
+              />
+              <ActionButton
+                className={t.ml2}
+                iconProps={{iconName: 'Refresh'}}
+                disabled={reloading}
+                onClick={onReload}
+              >
+                Refresh
+              </ActionButton>
             </div>
           </div>
           {/* summary-row-2 */}
+          <div className={c(t.mt3, t.flex, t.itemsStart)}>
+            <div>
+              <div className={c(t.gray, FontClassNames.small)}>Status</div>
+              <div className={c(t.mt2)}>
+                <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
+              </div>
+            </div>
+            <div className={t.ml5}>
+              <div className={c(t.gray, FontClassNames.small)}>Start Time</div>
+              <div className={c(t.mt2)}>
+                {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
+              </div>
+            </div>
+            <div className={t.ml5}>
+              <div className={c(t.gray, FontClassNames.small)}>User</div>
+              <div className={c(t.mt2)}>{jobInfo.jobStatus.username}</div>
+            </div>
+            <div className={t.ml5}>
+              <div className={c(t.gray, FontClassNames.small)}>Virtual Cluster</div>
+              <div className={c(t.mt2)}>{jobInfo.jobStatus.virtualCluster}</div>
+            </div>
+            <div className={t.ml5}>
+              <div className={c(t.gray, FontClassNames.small)}>Duration</div>
+              <div className={c(t.mt2)}>{getDurationString(jobInfo)}</div>
+            </div>
+            <div className={t.ml5}>
+              <div className={c(t.gray, FontClassNames.small)}>Retries</div>
+              <div className={c(t.mt2)}>{jobInfo.jobStatus.retries}</div>
+            </div>
+          </div>
+          {/* summary-row-3 */}
           <div className={c(t.mt3, t.flex, t.justifyBetween, t.itemsCenter)}>
             <div className={c(t.flex)}>
               <Link
@@ -188,12 +206,14 @@ export default class Summary extends React.Component {
             </div>
           </div>
           {/* Monaco Editor Modal */}
-          <MonacoModal
+          <MonacoPanel
             isOpen={!isNil(monacoProps)}
             onDismiss={this.onDismiss}
             title={modalTitle}
             monacoProps={monacoProps}
           />
+          {/* Timer */}
+          <Timer interval={autoReloadInterval === 0 ? null : autoReloadInterval} func={onReload} />
         </Card>
       </div>
     );

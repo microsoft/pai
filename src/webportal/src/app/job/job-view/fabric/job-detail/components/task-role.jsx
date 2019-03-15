@@ -49,6 +49,7 @@ export default class TaskRole extends React.Component {
   render() {
     const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
     const {containerListExpanded} = this.state;
+    const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
     return (
       <div className={className}>
         {/* summary */}
@@ -58,7 +59,7 @@ export default class TaskRole extends React.Component {
             <div className={c(t.flex, t.itemsCenter)}>
               <div className={c(FontClassNames.large)}>
                 <span >Task Role:</span>
-                <span className={t.ml3}>{taskInfo.taskRoleStatus.name}</span>
+                <span className={t.ml3}>{name}</span>
               </div>
               {taskConfig && (
                 <MonacoCallout language='json' value={JSON.stringify(taskConfig, null, 2)}>
@@ -78,6 +79,7 @@ export default class TaskRole extends React.Component {
             <TaskRoleContainerList
               style={{paddingLeft: 32, paddingRight: 32}}
               taskInfo={taskInfo}
+              taskConfig={taskConfig}
               jobStatus={jobStatus}
               sshInfo={sshInfo}
             />
@@ -90,7 +92,7 @@ export default class TaskRole extends React.Component {
 
 TaskRole.propTypes = {
   className: PropTypes.string,
-  taskInfo: PropTypes.object.isRequired,
+  taskInfo: PropTypes.object,
   jobStatus: PropTypes.string.isRequired,
   taskConfig: PropTypes.object,
   sshInfo: PropTypes.object,

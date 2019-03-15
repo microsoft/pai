@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames, mergeStyles} from '@uifabric/styling';
+import {FontClassNames, mergeStyles} from '@uifabric/styling';
 import c from 'classnames';
 import {isEmpty} from 'lodash';
 import {Icon} from 'office-ui-fabric-react/lib/Icon';
@@ -25,7 +25,7 @@ import React from 'react';
 import t from '../../tachyons.css';
 
 export const Badge = ({children, className}) => (
-  <div className={c(FontClassNames.medium, mergeStyles({width: '10rem', padding: '0.75rem 1rem'}), className)}>
+  <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>
     {children}
   </div>
 );
@@ -48,7 +48,7 @@ export const IconBadge = ({children, className, icons}) => (
         }
         </div>
       }
-      <div className={c({[t.ml3]: !isEmpty(icons)})}>{children}</div>
+      <div className={c({[t.ml2]: !isEmpty(icons)})}>{children}</div>
     </div>
   </Badge>
 );
@@ -59,9 +59,15 @@ IconBadge.propTypes = {
   icons: PropTypes.array,
 };
 
+const bgGreen = mergeStyles({backgroundColor: '#7fba00'});
+const bgBlue = mergeStyles({backgroundColor: '#0071bc'});
+const bgRed = mergeStyles({backgroundColor: '#eb1123'});
+const bgGray = mergeStyles({backgroundColor: '#b1b5b8'});
+const bgYellow = mergeStyles({backgroundColor: '#fcd116'});
+
 export const SucceededBadge = ({children}) => (
   <IconBadge
-    className={c(mergeStyles({backgroundColor: '#7fba00'}), t.white)}
+    className={c(bgGreen, t.white)}
     icons={['StatusCircleRing', 'StatusCircleCheckmark']}
   >
     {children}
@@ -74,7 +80,7 @@ SucceededBadge.propTypes = {
 
 export const PrimaryBadge = ({children}) => (
   <IconBadge
-    className={c(t.white, ColorClassNames.blueBackground)}
+    className={c(bgBlue, t.white)}
     icons={['StatusCircleRing', 'StatusCircleCheckmark']}
   >
     {children}
@@ -87,7 +93,7 @@ PrimaryBadge.propTypes = {
 
 export const WaitingBadge = ({children}) => (
   <IconBadge
-    className={c(t.black, ColorClassNames.yellowBackground)}
+    className={c(bgYellow, t.black)}
     icons={['Clock']}
   >
     {children}
@@ -100,7 +106,7 @@ WaitingBadge.propTypes = {
 
 export const FailedBadge = ({children}) => (
   <IconBadge
-    className={c(t.white, ColorClassNames.redBackground)}
+    className={c(bgRed, t.white)}
     icons={['StatusCircleRing', 'StatusCircleErrorX']}
   >
     {children}
@@ -113,7 +119,7 @@ FailedBadge.propTypes = {
 
 export const StoppedBadge = ({children}) => (
   <IconBadge
-    className={c(t.white, ColorClassNames.redBackground)}
+    className={c(bgGray, t.white)}
     icons={['StatusCircleRing', 'StatusCircleBlock2']}
   >
     {children}
@@ -126,7 +132,7 @@ StoppedBadge.propTypes = {
 
 export const UnknownBadge = ({children}) => (
   <IconBadge
-    className={c(t.white, ColorClassNames.neutralSecondaryBackground)}
+    className={c(bgGray, t.white)}
     icons={['StatusCircleRing', 'StatusCircleQuestionMark']}
   >
     {children}
@@ -140,8 +146,8 @@ UnknownBadge.propTypes = {
 export const StatusBadge = ({status}) => {
   switch (status) {
     case 'Running':
-    case 'Stopping':
       return <PrimaryBadge>{status}</PrimaryBadge>;
+    case 'Stopping':
     case 'Waiting':
       return <WaitingBadge>{status}</WaitingBadge>;
     case 'Failed':
