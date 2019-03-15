@@ -90,7 +90,6 @@ class ResourceGauges(object):
         self.task_labels = [
                 "container_env_PAI_TASK_INDEX",
                 "container_label_PAI_CURRENT_TASK_ROLE_NAME",
-                "container_label_PAI_HOSTNAME",
                 "container_label_PAI_JOB_NAME",
                 "container_label_PAI_USER_NAME"
                 ]

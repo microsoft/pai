@@ -40,7 +40,7 @@ class TestContainerCollector(base.TestBase):
     """
 
     def test_parse_from_labels(self):
-        labels = {"container_label_PAI_USER_NAME": "openmindstudio", "container_label_GPU_ID": "0,1,", "container_label_PAI_HOSTNAME": "paigcr-a-gpu-1058", "container_label_PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac", "container_label_PAI_CURRENT_TASK_ROLE_NAME": "tuner"}
+        labels = {"container_label_PAI_USER_NAME": "openmindstudio", "container_label_GPU_ID": "0,1,", "container_label_PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac", "container_label_PAI_CURRENT_TASK_ROLE_NAME": "tuner"}
         gpuIds, otherLabels = ContainerCollector.parse_from_labels(labels)
         self.assertEqual(["0", "1"], gpuIds,)
         copied = copy.deepcopy(labels)
