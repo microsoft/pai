@@ -30,9 +30,9 @@ const validProtocolJSONs = {
     'version': '1.0',
     'contributor': 'OpenPAI',
     'prerequisites': {
-      'script': {},
-      'output': {},
       'data': {},
+      'output': {},
+      'script': {},
       'dockerimage': {
         'caffe_example': {
           'protocolVersion': 2,
@@ -60,7 +60,7 @@ const validProtocolJSONs = {
         'commands': [
           './examples/mnist/train_lenet.sh',
         ],
-        'entrypoint': './examples/mnist/train_lenet.sh',
+        'entrypoint': './data/mnist/get_mnist.sh ; ./examples/mnist/create_mnist.sh ; ./examples/mnist/train_lenet.sh',
       },
     },
     'deployments': {
@@ -94,9 +94,18 @@ const validProtocolJSONs = {
       'lr': 0.01,
     },
     'prerequisites': {
-      'script': {},
-      'output': {},
       'data': {},
+      'output': {},
+      'script': {
+        'pytorch_example': {
+          'protocolVersion': 2,
+          'name': 'pytorch_example',
+          'type': 'script',
+          'version': '1.0.0',
+          'contributor': 'OpenPAI',
+          'uri': 'ftp://pytorch_examples',
+        },
+      },
       'dockerimage': {
         'pytorch_example': {
           'protocolVersion': 2,
@@ -116,15 +125,16 @@ const validProtocolJSONs = {
           'minSucceededTaskCount': 1,
         },
         'dockerImage': 'pytorch_example',
+        'script': 'pytorch_example',
         'resourcePerInstance': {
           'cpu': 4,
           'memoryMB': 8192,
           'gpu': 1,
         },
         'commands': [
-          'python pytorch_examples/mnist/main.py --epochs <% $parameters.epochs %> --lr <% $parameters.lr %> --batch-size <% $parameters.batchsize %>\n',
+          'python <% $script.name %>/mnist/main.py --epochs <% $parameters.epochs %> --lr <% $parameters.lr %> --batch-size <% $parameters.batchsize %>\n',
         ],
-        'entrypoint': 'python pytorch_examples/mnist/main.py --epochs 10 --lr 0.01 --batch-size 32\n',
+        'entrypoint': 'python pytorch_example/mnist/main.py --epochs 10 --lr 0.01 --batch-size 32',
       },
     },
     'deployments': {},
@@ -188,19 +198,26 @@ prerequisites:
     contributor : OpenPAI
     description: python3.5, pytorch
     uri : openpai/pai.example.pytorch
+  - protocolVersion: 2
+    name: pytorch_example
+    type: script
+    version: 1.0.0
+    contributor : OpenPAI
+    uri : ftp://pytorch_examples
 taskRoles:
   worker:
     instances: 1
     completion:
       minSucceededTaskCount: 1
     dockerImage: pytorch_example
+    script: pytorch_example
     resourcePerInstance:
       cpu: 4
       memoryMB: 8192
       gpu: 1
     commands:
       - >
-        python pytorch_examples/mnist/main.py
+        python <% $script.name %>/mnist/main.py
         --epochs <% $parameters.epochs %>
         --lr <% $parameters.lr %>
         --batch-size <% $parameters.batchsize %>
@@ -400,7 +417,9 @@ describe('API v2 Unit Tests: protocol', () => {
     const req = {};
     const res = {};
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
-      req.body = validProtocolYAML;
+      req.body = {
+        protocol: validProtocolYAML,
+      };
       await Promise
         .resolve(protocolMiddleware.validate(req, res, () => {}))
         .catch((err) => {
@@ -412,7 +431,9 @@ describe('API v2 Unit Tests: protocol', () => {
     const req = {};
     const res = {};
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
-      req.body = invalidProtocolYAMLs[invalidMessage];
+      req.body = {
+        protocol: invalidProtocolYAMLs[invalidMessage],
+      };
       await Promise
         .resolve(protocolMiddleware.validate(req, res, () => {}))
         .catch((err) => {
@@ -430,7 +451,9 @@ describe('API v2 Unit Tests: protocol', () => {
     const req = {};
     const res = {};
     for (let pname of Object.keys(validProtocolYAMLs)) {
-      req.body = validProtocolYAMLs[pname];
+      req.body = {
+        protocol: validProtocolYAMLs[pname],
+      };
       await Promise
         .resolve(protocolMiddleware.validate(req, res, () => {}))
         .catch((err) => {
@@ -441,7 +464,7 @@ describe('API v2 Unit Tests: protocol', () => {
         .catch((err) => {
           expect(err).to.be.null;
         });
-      expect(req.body).to.deep.equal(validProtocolJSONs[pname]);
+      expect(req.body).to.deep.equal({protocol: validProtocolJSONs[pname]});
     }
   });
 });
