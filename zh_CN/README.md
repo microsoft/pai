@@ -4,7 +4,7 @@
 
 OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
-## Table of Contents
+## 目录
 
 1. [OpenPAI 适用场景](#when-to-consider-openpai)
 2. [OpenPAI 的特点](#why-choose-openpai)
