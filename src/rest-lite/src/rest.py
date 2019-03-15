@@ -248,8 +248,9 @@ def gen_framework_spec(job_name, image, roles, k8s_api_server):
                 "taskRoles": gen_task_roles(job_name, image, roles, k8s_api_server)
                 }}
 
-def gen_job_wide_envs(default_fs_uri, job_name, role_names, roles, data_dir, output_dir, code_dir):
+def gen_job_wide_envs(username, default_fs_uri, job_name, role_names, roles, data_dir, output_dir, code_dir):
     result = {
+        "PAI_USER_NAME": username,
         "PAI_DEFAULT_FS_URI": default_fs_uri,
         "PAI_JOB_NAME": job_name,
         "PAI_TASK_ROLE_COUNT": len(role_names),
@@ -283,7 +284,7 @@ def gen_job_wide_envs(default_fs_uri, job_name, role_names, roles, data_dir, out
 def transform_name(name):
     return str(re.sub(r"[-_/]", "", name.lower()))
 
-def transform(obj, k8s_api_server, default_fs_uri):
+def transform(username, obj, k8s_api_server, default_fs_uri):
     job_name = transform_name(obj["jobName"])
 
     # following 3 dirs are legacy field, will not support in future version
@@ -302,8 +303,8 @@ def transform(obj, k8s_api_server, default_fs_uri):
         roles.append(parsed)
 
     job_wide_envs = obj.get("jobEnvs") or {}
-    job_wide_envs.update(gen_job_wide_envs(default_fs_uri, job_name, role_names,
-        roles, data_dir, output_dir, code_dir))
+    job_wide_envs.update(gen_job_wide_envs(username, default_fs_uri, job_name,
+        role_names, roles, data_dir, output_dir, code_dir))
 
     for role in roles:
         role.envs.extend(transform_env(job_wide_envs))
@@ -353,7 +354,7 @@ def create_job(username, job_name):
 
     url = urlparse.urljoin(k8s_api_server, crd_url)
 
-    framework = json.dumps(transform(spec, k8s_api_server, default_fs_uri))
+    framework = json.dumps(transform(username, spec, k8s_api_server, default_fs_uri))
     result = requests.post(url,
             headers=g_k8s_api_header,
             verify=g_ca_path,
@@ -429,7 +430,16 @@ def list_jobs():
                 "status", "retryPolicyStatus", "totalRetriedCount")
         tmp["createdTime"] = convert_iso_date_to_timestamp(
                 walk_json_field_safe(framework, "status", "startTime"))
-        tmp["username"] = "core" # TODO hardcode
+
+        env_array = walk_json_field_safe(framework, "spec", "taskRoles", 0, "task",
+                "pod", "spec", "containers", 0, "env")
+
+        username = get_env_value(env_array, "PAI_USER_NAME")
+        if username is not None:
+            tmp["username"] = username
+        else:
+            tmp["username"] = "core" # TODO hardcode
+
         tmp["completedTime"] = convert_iso_date_to_timestamp(
                 walk_json_field_safe(framework, "status", "completionTime"))
         execution_type = walk_json_field_safe(framework, "spec", "executionType")
@@ -509,7 +519,15 @@ def get_job_detail(username, job_name):
     job_status = {}
     result["jobStatus"] = job_status
 
-    job_status["username"] = "core" # TODO hardcode
+    env_array = walk_json_field_safe(framework, "spec", "taskRoles", 0, "task",
+            "pod", "spec", "containers", 0, "env")
+
+    username = get_env_value(env_array, "PAI_USER_NAME")
+    if username is not None:
+        job_status["username"] = username
+    else:
+        job_status["username"] = "core" # TODO hardcode
+
     job_status["virtualCluster"] = "default" # TODO hardcode
 
     execution_type = walk_json_field_safe(framework, "spec", "executionType")
