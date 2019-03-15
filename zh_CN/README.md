@@ -151,12 +151,12 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
         
         ### 欢迎大家的参与
         
-        We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
+        我们正在进行一系列主要功能的改进和重构, 我们鼓励任何熟悉这些功能的人在相应的讨论区中参与设计评审和讨论。
         
-        * PAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-        * PAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+        * PAI 虚拟集群设计。 [Issue 1754 ](https://github.com/Microsoft/pai/issues/1754)
+        * PAI 协议设计。 [ Issue 2007 ](https://github.com/Microsoft/pai/issues/2007)
         
-        ### Who should consider contributing to OpenPAI
+        ### 谁应该考虑为 OpenPAI 做出贡献
         
         * Folks who want to add support for other ML and DL frameworks
         * Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
