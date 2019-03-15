@@ -30,7 +30,7 @@ import t from '../../tachyons.css';
 import Card from './card';
 import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
-import Timer from './Timer';
+import Timer from './timer';
 import {getJobMetricsUrl, cloneJob} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString} from '../util';
 
