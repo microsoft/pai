@@ -4,7 +4,8 @@
 
 This [tool](../../src/tools/node_maintain.py) help you to gracefully decommission unhealthy nodes in OpenPAI. 
 
-**NOTES: This tool should be invoked in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes.**
+**NOTES: This tool should be invoked in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes.
+HDFS decommissioning might be added in the future.**
 
 ## Commands
 
@@ -15,6 +16,8 @@ python node_maintain.py {object} {action} {arguments}
 ```
 
 ### Get current unhealthy GPU nodes
+
+PAI monitors gpu healthiness and aggregate them in prometheus. You could query the bad GPUs from it in some ways:
 
 ###### 1. Query prometheus by this tool
 ```bash

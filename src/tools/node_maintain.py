@@ -298,4 +298,3 @@ def main():
 if __name__ == "__main__":
     logger = setup_logger()
     main()
-    
