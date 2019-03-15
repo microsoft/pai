@@ -252,7 +252,7 @@ def gen_job_wide_envs(username, default_fs_uri, job_name, role_names, roles, dat
     result = {
         "PAI_USER_NAME": username,
         "PAI_DEFAULT_FS_URI": default_fs_uri,
-        "PAI_JOB_NAME": job_name,
+        "PAI_JOB_NAME": "%s~%s" % (username, job_name),
         "PAI_TASK_ROLE_COUNT": len(role_names),
         "PAI_TASK_ROLE_LIST": ",".join(role_names),
 
@@ -438,7 +438,7 @@ def list_jobs():
         if username is not None:
             tmp["username"] = username
         else:
-            tmp["username"] = "core" # TODO hardcode
+            tmp["username"] = "admin" # TODO hardcode
 
         tmp["completedTime"] = convert_iso_date_to_timestamp(
                 walk_json_field_safe(framework, "status", "completionTime"))
@@ -526,7 +526,7 @@ def get_job_detail(username, job_name):
     if username is not None:
         job_status["username"] = username
     else:
-        job_status["username"] = "core" # TODO hardcode
+        job_status["username"] = "admin" # TODO hardcode
 
     job_status["virtualCluster"] = "default" # TODO hardcode
 
