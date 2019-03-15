@@ -145,11 +145,11 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
         
         本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议 (CLA)，来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
         
-        当你提交拉取请求 (Pull Request) 时，CLA机器人会自动检查你是否需要提供CLA，并说明这个拉取请求 （例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 You will only need to do this once across all repos using our CLA.
+        当你提交拉取请求 (Pull Request) 时，CLA机器人会自动检查你是否需要提供CLA，并说明这个拉取请求 （例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA只需要通过一次，就能应用到所有的代码仓库上。
         
-        This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
+        该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅 [ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/) 或联系 <opencode@microsoft.com> 咨询问题或评论。
         
-        ### Call for contribution
+        ### 欢迎大家的参与
         
         We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
         
