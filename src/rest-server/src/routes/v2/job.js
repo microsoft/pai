@@ -28,7 +28,11 @@ const router = new express.Router();
 
 router.route('/')
   /** POST /api/v2/jobs - Update job */
-  .post(asyncHandler(protocol.wrap), token.check, protocol.submit, controller.update);
+  .post(
+    asyncHandler(protocol.wrap),
+    token.check,
+    protocol.submit.map((fn) => asyncHandler(fn)),
+    asyncHandler(controller.update));
 
 // module exports
 module.exports = router;

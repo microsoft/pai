@@ -21,7 +21,6 @@ const yaml = require('js-yaml');
 const mustache = require('mustache');
 const createError = require('../../util/error');
 const protocolSchema = require('../../config/v2/protocol');
-const asyncHandler = require('./asyncHandler');
 
 
 const prerequisiteTypes = [
@@ -147,10 +146,6 @@ const protocolSubmit = [
   protocolValidate,
   protocolRender,
 ];
-
-protocolSubmit.forEach((middleware, idx) => {
-  protocolSubmit[idx] = asyncHandler(middleware);
-});
 
 
 // module exports
