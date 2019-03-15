@@ -252,14 +252,16 @@ const prepareContainerScripts = async (jobName, userName, config) => {
 };
 
 
-const Job = (jobName, userName, config) => {
-  this.jobName = jobName;
-  this.userName = userName;
-  this.frameworkName = this.userName ? `${this.userName}~${this.jobName}` : this.jobName;
-  this.config = config;
-};
+class Job {
+  constructor(jobName, userName, config) {
+    this.jobName = jobName;
+    this.userName = userName;
+    this.frameworkName = this.userName ? `${this.userName}~${this.jobName}` : this.jobName;
+    this.config = config;
+  }
+}
 
-Job.prototype.put = async (next) => {
+Job.prototype.put = async function(next) {
   // check user vc
   const virtualCluster = ('defaults' in this.config && this.config.defaults.virtualCluster != null) ?
     this.config.defaults.virtualCluster : 'default';
