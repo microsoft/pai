@@ -121,7 +121,7 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
 
 有关解决作业故障的详细信息, 请参阅 [ 这里 ](docs/user/troubleshooting_job.md)。 建议在本地成功地运行作业之后，再提交给 OpenPAI 服务器。 这样就降低了远程故障出现的机会。
 
-## Administration
+## 管理
 
 * [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
 * [监测](./docs/webportal/README.md)
@@ -164,6 +164,6 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
         
         ### 贡献者
         
-        OpenPAI 的一个重要目的是支持学术界和工业界高度多样化的需求。 OpenPAI 是完全开放的: 它采用 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法, 其中包括但不限于 [components](./docs/research_education.md)。
+        OpenPAI 的一个重要目的是支持学术界和工业界高度多样化的需求。 OpenPAI 是完全开放的: 它采用 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法, 其中包括但不限于 [ 这些模块 ](./docs/research_education.md)。
         
-        OpenPAI 采用开放的形式来合作。 它最初是由微软研究院和微软互联网工程院 AI 平台团队联合开发的。 We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. Contributions from academia and industry are all highly welcome.
+        OpenPAI 采用开放的形式来合作。 它最初是由微软研究院和微软互联网工程院 AI 平台团队联合开发的。 我们很高兴看到有北大，西安交通大学，浙江大学，中科大等学校加入这个平台的开发。 无论是从学术界还是工业界的贡献都非常欢迎！
