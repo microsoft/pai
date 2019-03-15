@@ -11,8 +11,8 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 3. [入门](#get-started)
 4. [部署](#deploy-openpai)
 5. [训练模型](#train-models)
-6. [管理](#administration)
-7. [参考](#reference)
+6. [运维管理](#administration)
+7. [参考手册](#reference)
 8. [寻求帮助](#get-involved)
 9. [参与贡献](#how-to-contribute)
 
@@ -21,7 +21,7 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 1. 在团队间共享强大的 AI 计算资源（例如，GPU、FPGA 集群）。
 2. 在组织内共享或重用 AI 资产（如模型、数据、运行环境等) 。
 3. 构建易于 IT 运维的 AI 计算平台。
-4. 在一个环境中完成整个模型训练过程。
+4. 在同一个环境中完成模型训练过程。
 
 ## 特点
 
@@ -50,9 +50,9 @@ OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态�
 
 OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 通过 Docker 技术，硬件计算资源与软件相分离。这样，用户能轻松的进行分布式计算，在不同的深度学习框架间切换，也能在完全一致的环境中重复运行作业。
 
-作为平台，OpenPAI 需要[部署](#deploy-a-cluster)后才能使用。 OpenPAI 支持在单机上部署。
+作为平台，OpenPAI 需要[部署](#deploy-a-cluster)后才能使用。 OpenPAI 也支持单机部署。
 
-如果集群已准备就绪, 请参考 [训练模型 ](#train-models) 部分。
+部署完成后，可参考[训练模型](#train-models)。
 
 ## 部署
 
