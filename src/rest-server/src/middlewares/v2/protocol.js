@@ -21,6 +21,8 @@ const yaml = require('js-yaml');
 const mustache = require('mustache');
 const createError = require('../../util/error');
 const protocolSchema = require('../../config/v2/protocol');
+const asyncHandler = require('./asyncHandler');
+
 
 const prerequisiteTypes = [
   'script',
@@ -36,9 +38,17 @@ const prerequisiteFields = [
   'dockerImage',
 ];
 
-const protocolValidate = async (req, res, next) => {
-  // TODO
+const protocolWrap = async (req, res, next) => {
   const protocolYAML = req.body;
+  req.rawBody = protocolYAML;
+  req.body = {
+    protocol: protocolYAML,
+  };
+  await next();
+};
+
+const protocolValidate = async (req, res, next) => {
+  const protocolYAML = req.body.protocol;
   const protocolJSON = yaml.safeLoad(protocolYAML);
   if (!protocolSchema.validate(protocolJSON)) {
     throw createError('Bad Request', 'InvalidProtocolError', protocolSchema.validate.errors);
@@ -61,7 +71,6 @@ const protocolValidate = async (req, res, next) => {
       deployments[item.name] = item;
     }
   }
-  protocolJSON.deployments = deployments;
   // check prerequisites in taskRoles
   for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
     for (let field of prerequisiteFields) {
@@ -76,39 +85,42 @@ const protocolValidate = async (req, res, next) => {
     }
   }
   // check deployment in defaults
-  if ('defaults' in protocolJSON) {
-    if ('deployment' in protocolJSON.defaults &&
-      !(protocolJSON.defaults.deployment in deployments)) {
-        throw createError(
-          'Bad Request',
-          'InvalidProtocolError',
-          `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
-        );
+  let deployment = null;
+  if ('defaults' in protocolJSON && 'deployment' in protocolJSON.defaults) {
+    if (protocolJSON.defaults.deployment in deployments) {
+      deployment = deployments[protocolJSON.defaults.deployment];
+    } else {
+      throw createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
+      );
     }
   }
-  req.body = protocolJSON;
+  protocolJSON.deployments = deployment;
+  req.body.protocol = protocolJSON;
   await next();
 };
 
 const protocolRender = async (req, res, next) => {
-  const protocolJSON = req.body;
+  const protocolJSON = req.body.protocol;
   for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
     let commands = protocolJSON.taskRoles[taskRole].commands;
-    if (taskRole in protocolJSON.deployments) {
-      if ('preCommands' in protocolJSON.deployments[taskRole]) {
-        commands = protocolJSON.deployments[taskRole].preCommands.concat(commands);
+    if (protocolJSON.deployments != null && taskRole in protocolJSON.deployments.taskRoles) {
+      if ('preCommands' in protocolJSON.deployments.taskRoles[taskRole]) {
+        commands = protocolJSON.deployments.taskRoles[taskRole].preCommands.concat(commands);
       }
-      if ('postCommands' in protocolJSON.deployments[taskRole]) {
-        commands = commands.concat(protocolJSON.deployments[taskRole].postCommands);
+      if ('postCommands' in protocolJSON.deployments.taskRoles[taskRole]) {
+        commands = commands.concat(protocolJSON.deployments.taskRoles[taskRole].postCommands);
       }
     }
     let entrypoint = '';
     const tokens = mustache.parse(commands.join(' ; '), ['<%', '%>']);
     const context = new mustache.Context({
       '$parameters': protocolJSON.parameters,
-      '$script': protocolJSON.prerequisites['script'][taskRole],
-      '$output': protocolJSON.prerequisites['output'][taskRole],
-      '$data': protocolJSON.prerequisites['data'][taskRole],
+      '$script': protocolJSON.prerequisites['script'][protocolJSON.taskRoles[taskRole].script],
+      '$output': protocolJSON.prerequisites['output'][protocolJSON.taskRoles[taskRole].output],
+      '$data': protocolJSON.prerequisites['data'][protocolJSON.taskRoles[taskRole].data],
     });
     for (let token of tokens) {
       const symbol = token[0];
@@ -125,18 +137,24 @@ const protocolRender = async (req, res, next) => {
     }
     protocolJSON.taskRoles[taskRole].entrypoint = entrypoint;
   }
-  req.body = protocolJSON;
+  req.body.protocol = protocolJSON;
   await next();
 };
 
-const protocolSubmission = [
+const protocolSubmit = [
   protocolValidate,
   protocolRender,
 ];
 
+protocolSubmit.forEach((middleware, idx) => {
+  protocolSubmit[idx] = asyncHandler(middleware);
+});
+
+
 // module exports
 module.exports = {
+  wrap: protocolWrap,
   validate: protocolValidate,
   render: protocolRender,
-  submission: protocolSubmission,
+  submit: protocolSubmit,
 };
