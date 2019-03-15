@@ -71,6 +71,7 @@ const protocolValidate = async (req, res, next) => {
       deployments[item.name] = item;
     }
   }
+  protocolJSON.deployments = deployments;
   // check prerequisites in taskRoles
   for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
     for (let field of prerequisiteFields) {
@@ -85,33 +86,34 @@ const protocolValidate = async (req, res, next) => {
     }
   }
   // check deployment in defaults
-  let deployment = null;
-  if ('defaults' in protocolJSON && 'deployment' in protocolJSON.defaults) {
-    if (protocolJSON.defaults.deployment in deployments) {
-      deployment = deployments[protocolJSON.defaults.deployment];
-    } else {
-      throw createError(
-        'Bad Request',
-        'InvalidProtocolError',
-        `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
-      );
+  if ('defaults' in protocolJSON) {
+    if ('deployment' in protocolJSON.defaults &&
+      !(protocolJSON.defaults.deployment in deployments)) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
+        );
     }
   }
-  protocolJSON.deployments = deployment;
   req.body.protocol = protocolJSON;
   await next();
 };
 
 const protocolRender = async (req, res, next) => {
   const protocolJSON = req.body.protocol;
+  let deployment = null;
+  if ('defaults' in protocolJSON && 'deployment' in protocolJSON.defaults) {
+    deployment = protocolJSON.deployments[protocolJSON.defaults.deployment];
+  }
   for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
     let commands = protocolJSON.taskRoles[taskRole].commands;
-    if (protocolJSON.deployments != null && taskRole in protocolJSON.deployments.taskRoles) {
-      if ('preCommands' in protocolJSON.deployments.taskRoles[taskRole]) {
-        commands = protocolJSON.deployments.taskRoles[taskRole].preCommands.concat(commands);
+    if (deployment != null && taskRole in deployment.taskRoles) {
+      if ('preCommands' in deployment.taskRoles[taskRole]) {
+        commands = deployment.taskRoles[taskRole].preCommands.concat(commands);
       }
-      if ('postCommands' in protocolJSON.deployments.taskRoles[taskRole]) {
-        commands = commands.concat(protocolJSON.deployments.taskRoles[taskRole].postCommands);
+      if ('postCommands' in deployment.taskRoles[taskRole]) {
+        commands = commands.concat(deployment.taskRoles[taskRole].postCommands);
       }
     }
     let entrypoint = '';
@@ -135,7 +137,7 @@ const protocolRender = async (req, res, next) => {
         }
       }
     }
-    protocolJSON.taskRoles[taskRole].entrypoint = entrypoint;
+    protocolJSON.taskRoles[taskRole].entrypoint = entrypoint.trim();
   }
   req.body.protocol = protocolJSON;
   await next();
