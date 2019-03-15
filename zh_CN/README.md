@@ -1,6 +1,6 @@
 # AI 开放平台（OpenPAI） ![alt text](./pailogo.jpg "OpenPAI")
 
-[![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai) [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master) [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
+[![生成状态](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai) [![代码覆盖状态](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master) [![进入 https://gitter.im/Microsoft/pai 聊天室提问](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![版本](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
 OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
@@ -14,28 +14,28 @@ OpenPAI：作为开源平台，提供了完整的 AI 模型训练和资源管理
 6. [管理](#administration)
 7. [参考](#reference)
 8. [寻求帮助](#get-involved)
-9. [如何做出贡献](#how-to-contribute)
+9. [参与贡献](#how-to-contribute)
 
 ## 适用场景
 
-1. 当你的机构需要在团队之间共享强大的 AI 计算资源 (例如，GPU/FPGA 集群 ) 时。
-2. 当你的组织需要共享和重用常见的 AI 资产 (如模型、数据、工作环境等) 时。
+1. 在团队间共享强大的 AI 计算资源（例如，GPU、FPGA 集群）。
+2. 在组织内共享或重用 AI 资产（如模型、数据、运行环境等) 。
 3. 当您的组织需要一个简单的 IT 服务平台服务于各种 AI 需求时。
 4. 当你想要在一个安全的环境运行一套完整的 AI 训练流程时。
 
 ## 特点
 
-该平台采用了成熟的设计, 这些设计已经在微软的大规模生产环境中运行多年并有良好的质量口碑。
+OpenPAI 采用了成熟的设计，已在微软的大规模生产环境中，通过多年持续运行的验证。
 
-### 可轻松进行本地部署。
+### 易于本地部署
 
-OpenPAI 是一个完整的全栈解决方案。 OpenPAI 不仅支持本地部署、混合部署或公共云部署，还支持单机部署，让用户可以方便地试用。
+OpenPAI 是全栈的解决方案。 OpenPAI 不仅支持本地、公有云及混合云中的部署，还支持单机部署，让用户便于试用。
 
 ### 支持流行的 AI 框架和异构硬件
 
 OpenPAI 提供了预构建的支持主流 AI 框架的 Docker。 很容易增加异构的硬件。 支持分布式训练, 如分布式 TensorFlow。
 
-### 最完整的解决方案，并且易于扩展
+### 全栈解决方案、易于扩展
 
 OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
 
@@ -46,7 +46,7 @@ OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态�
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 
-## 准备开始
+## 入门
 
 OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容器技术让计算硬件与软件分离, 用户可以轻松地运行分布式计算任务、使用一种或多种深度学习框架完成任务。
 
@@ -79,7 +79,7 @@ OpenPAI 管理计算资源并为机器学习的各种任务进行优化。 容�
 
 对于小于50台服务器的中小型群集, 建议 [使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台功能强大的服务器, 请参考 部署OpenPAI到单个机器</0 > 文档。</p> 
 
-For a large size cluster, this section is still needed to generate default configuration, then [customize the deployment](#customize-deployment).
+对于大型集群, 我们仍然需要此部分来生成默认配置, 然后进行 [ 定制部署 ](#customize-deployment)。
 
 #### 自定义部署
 
@@ -103,9 +103,9 @@ OpenPAI 的通常用户操作是提交作业请求, 等待作业获得计算资�
 
 ## 训练模型
 
-Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available, and OpenPAI choose some server(s) to run a job. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+和所有机器学习平台一样, OpenPAI 是一个提高生产力的工具。 为了最大限度地提高利用率, 建议用户只关注于提交训练作业, 并让 OpenPAI 分配资源并运行资源。 如果提交的作业太多, 则某些作业可能会排队, 直到有足够的资源可用, OpenPAI 会选择合适的服务器来运行作业。 这与专用服务器上运行代码的情况不同, 用户需要了解如何在 OpenPAI 上提交培训作业的知识。
 
-Note, OpenPAI also supports to allocate on demand resource besides queuing jobs. Users can use SSH or Jupyter to connect like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
+请注意, OpenPAI 还支持按需分配资源, 而不是排队作业。 用户可以使用 SSH 或 Jumyter 像在物理服务器上一样进行连接, 如果要了解更多详情， 请参阅 [ 这个文档 ](examples/jupyter/README.md)。 虽然这种方法对资源的利用不是非常高效, 但它也节省了在物理服务器上设置和管理环境的成本。
 
 ### Submit training jobs
 
