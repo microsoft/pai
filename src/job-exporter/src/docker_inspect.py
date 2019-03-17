@@ -25,7 +25,7 @@ import utils
 
 logger = logging.getLogger(__name__)
 
-target_label = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
+target_label = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
 target_env = {"PAI_TASK_INDEX"}
 
 
@@ -38,18 +38,24 @@ def parse_docker_inspect(inspect_output):
     if obj_labels is not None:
         for key in obj_labels:
             if key in target_label:
-                label_key = "container_label_{0}".format(key.replace(".", "_"))
+                label_key = "container_label_{0}".format(key)
                 label_val = obj_labels[key]
                 labels[label_key] = label_val
 
     obj_env = utils.walk_json_field_safe(obj, 0, "Config", "Env")
     if obj_env:
         for env in obj_env:
-            env_item = env.split("=")
-            if env_item[0] in target_env:
-                key = "container_env_{0}".format(env_item[0].replace(".", "_"))
-                val = env_item[1]
-                envs[key] = val
+            k, v = env.split("=", 1)
+            if k in target_env:
+                key = "container_env_{0}".format(k)
+                envs[key] = v
+
+            # for kube-launcher tasks
+            if k in target_label:
+                label_key = "container_label_{0}".format(k)
+                labels[label_key] = v
+            if k == "FC_TASK_INDEX":
+                envs["container_env_PAI_TASK_INDEX"] = v
 
     pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
 
