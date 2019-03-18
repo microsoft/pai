@@ -8,12 +8,13 @@ A tool to manage your storage config.
     - [Init with a nfs server as default external storage](#Init_Nfs)
 
 - [ Manage Server Config ](#Server_config)
-    - [Set server config for nfs](#Server_set)
-    - [List server config](#Server_list)
-	- [Create path for server](#Server_createpath)
+    - [ Set server config for nfs ](#Server_set)
+    - [ List server config ](#Server_list)
+	- [ Create path for server ](#Server_createpath)
 
 - [ Manage user config ](#User_config)
-    - [Set user default server](#User_setdefault)
+    - [ Set user default server ](#User_setdefault)
+	- [ List user config ] (#User_list) 
 
 - [ Push storage settings ](#Push)
     - [ Push server settings ](#Push_server)
@@ -73,6 +74,12 @@ python storagectl.py user setdefault USER_NAME SERVER_NAME
 ```
 - Set default server for user
 	- If privatefolders was defined on server, create privae folders for user on ROOT_PATH/PRIVATE_FOLDERS/USER_NAME
+
+### List user config <a name="User_list"></a> 
+```
+python storagectl.py user list
+```
+- List all users
 
 
 ## Push storage settings <a name="Push"></a>
