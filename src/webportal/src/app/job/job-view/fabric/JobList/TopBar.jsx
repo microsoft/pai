@@ -203,7 +203,7 @@ function TopBar() {
     return {
       key: 'user',
       name: 'User',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {root: {backgroundColor: 'transparent'}},
       iconProps: {
         iconName: 'Contact',
       },
