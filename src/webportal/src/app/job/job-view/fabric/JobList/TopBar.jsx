@@ -17,6 +17,7 @@
 
 import React, {useContext, useMemo, useState} from 'react';
 
+import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
 import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
 import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu';
@@ -130,9 +131,21 @@ function TopBar() {
       key: 'filters',
       name: 'Filters',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
-      iconProps: {iconName: active ? 'FilterSolid' : 'Filter'},
+      iconProps: {iconName: 'Filter'},
+      menuIconProps: {iconName: active ? 'ChevronUp' : 'ChevronDown'},
       onClick() {
         setActive(!active);
+      },
+      onRender(item) {
+        return (
+          <CommandBarButton
+            onClick={item.onClick}
+            iconProps={item.iconProps}
+            menuIconProps={item.menuIconProps}
+          >
+            Filter
+          </CommandBarButton>
+        );
       },
     };
   }
