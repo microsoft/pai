@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
@@ -25,6 +25,21 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 import Context from './Context';
 import Filter from './Filter';
 import {getStatusText} from './utils';
+
+/* eslint-disable react/prop-types */
+function FilterButton({defaultRender: Button, ...props}) {
+  const {subMenuProps: {items} } = props;
+  const checkedItems = items.filter((item) => item.checked).map((item) => item.text);
+  const checkedText = checkedItems.length === 0 ? null
+    : checkedItems.length === 1 ? <strong>{checkedItems[0]}</strong>
+    : <strong>{checkedItems[0]}{` (+${checkedItems.length - 1})`}</strong>;
+  return (
+    <Button {...props}>
+      {checkedText}
+    </Button>
+  );
+}
+/* eslint-enable react/prop-types */
 
 function TopBar() {
   const [active, setActive] = useState(true);
@@ -93,7 +108,7 @@ function TopBar() {
     };
   }
 
-  function KeywordSearchBox() {
+  const KeywordSearchBox = useCallback(function KeywordSearchBox() {
     function onKeywordChange(keyword) {
       const {users, virtualClusters, statuses} = filter;
       setFilter(new Filter(keyword, users, virtualClusters, statuses));
@@ -111,7 +126,7 @@ function TopBar() {
         onChange={onKeywordChange}
       />
     );
-  }
+  });
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -237,9 +252,13 @@ function TopBar() {
 
     return {
       key: 'user',
-      name: 'User',
+      text: `User`,
       buttonStyles: {root: {backgroundColor: 'transparent'}},
+      iconProps: {
+        iconName: 'Contact',
+      },
       subMenuProps: {items: subMenuItems},
+      commandBarButtonAs: FilterButton,
     };
   }
 
@@ -291,6 +310,9 @@ function TopBar() {
       key: 'virtualCluster',
       name: 'Virtual Cluster',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
+      iconProps: {
+        iconName: 'CellPhone',
+      },
       subMenuProps: {
         items: Object.keys(virtualClusters).map(getItem).concat([{
             key: 'divider',
@@ -303,6 +325,7 @@ function TopBar() {
           },
         ]),
       },
+      commandBarButtonAs: FilterButton,
     };
   }
 
@@ -354,6 +377,9 @@ function TopBar() {
       key: 'status',
       name: 'Status',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
+      iconProps: {
+        iconName: 'Clock',
+      },
       subMenuProps: {
         items: Object.keys(statuses).map(getItem).concat([{
             key: 'divider',
@@ -366,6 +392,7 @@ function TopBar() {
           },
         ]),
       },
+      commandBarButtonAs: FilterButton,
     };
   }
 
