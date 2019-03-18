@@ -113,7 +113,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### OpenPAI VS Code 客户端
 
-[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt.md) 是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 通过它，能够提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 通过它，能够提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
@@ -128,42 +128,41 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ## 参考手册
 
-* [作业定义](docs/job_tutorial.md)
+* [Job 配置](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
-* 设计文档可以在 [ 这里 ](docs) 找到。
+* 可以在[这里](docs)查看设计文档。
 
 ## 寻求帮助
 
-* [Stack Overflow](./docs/stackoverflow.md): 如果您对 OpenPAI 有疑问, 请在 Stack Overflow 网站相应的标签 openpai 下出提交问题。
-* Gitter 聊天 </0 >: 你也可以在Gitter聊天中提问。</li> 
-    
-    * 提交问题或功能请求 </0 >: 如果您有问题，发现了错误，或者有新的功能需求, 请将他们提交到 GitHub 项目页面相应的地方。</li> </ul> 
-        
-        ## 参与贡献
-        
-        ### 贡献者许可协议
-        
-        本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
-        
-        当你提交拉取请求时，CLA 机器人会自动检查你是否需要提供 CLA，并修饰这个拉取请求（例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA 只需要同意一次，就能应用到所有的代码仓库上。
-        
-        该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅[ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/)或联系 <opencode@microsoft.com> 咨询问题或评论。
-        
-        ### 征集意见建议
-        
-        当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
-        
-        * OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-        * OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
-        
-        ### 谁应该考虑为 OpenPAI 做出贡献
-        
-        * 希望添加对其他 ML 和 DL 框架的支持的用户
-        * 希望 OpenPAI 成为更丰富的 AI 平台的用户 (例如, 支持更多的机器学习流程、超参数调整，等)
-        * 想写教程和博客文章的人, 可以展示如何使用 OpenPAI 来解决 AI 问题。
-        
-        ### 贡献者
-        
-        OpenPAI 的一个重要目的是支持学术界和工业界高度多样化的需求。 OpenPAI 是完全开放的: 它采用 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法, 其中包括但不限于 [ 这些模块 ](./docs/research_education.md)。
-        
-        OpenPAI 采用开放的形式来合作。 它最初是由微软研究院和微软互联网工程院 AI 平台团队联合开发的。 我们很高兴看到有北大，西安交通大学，浙江大学，中科大等学校加入这个平台的开发。 无论是从学术界还是工业界的贡献都非常欢迎！
+* [Stack Overflow](./docs/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
+* [Gitter Chat](https://gitter.im/Microsoft/pai)：也可以在 Gitter 中提问。
+* [提交问题或功能请求](https://github.com/Microsoft/pai/issues/new/choose)：如果发现了错误，或有新功能的需求，可提交到 GitHub。
+
+## 参与贡献
+
+### 贡献者许可协议
+
+本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
+
+当你提交拉取请求时，CLA 机器人会自动检查你是否需要提供 CLA，并修饰这个拉取请求（例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA 只需要同意一次，就能应用到所有的代码仓库上。
+
+该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅[ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/)或联系 <opencode@microsoft.com> 咨询问题或评论。
+
+### 征集意见建议
+
+当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
+
+* OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+* OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+
+### 谁应该考虑为 OpenPAI 做贡献
+
+* 希望添加对其它机器学习或深度学习框架的支持
+* 希望 OpenPAI 成为更强大的 AI 平台（例如，支持更多的机器学习流程，超参调优)
+* 希望写作教程和博客文章，来展示如何使用 OpenPAI 解决 AI 问题
+
+### 贡献者
+
+OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/research_education.md)。
+
+OpenPAI 采用开放的形式来合作。 它最初是由微软研究院和微软互联网工程院 AI 平台团队联合开发的。 我们很高兴看到有北大，西安交通大学，浙江大学，中科大等学校加入这个平台的开发。 无论是从学术界还是工业界的贡献都非常欢迎！
