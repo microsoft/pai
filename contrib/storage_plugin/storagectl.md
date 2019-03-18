@@ -6,14 +6,22 @@ A tool to manage your storage config.
 - [ Init storage settings ](#Init)
     - [Init with no default external storage](#Init_None)
     - [Init with a nfs server as default external storage](#Init_Nfs)
+
+- [ Manage Server Config ](#Server_config)
+    - [Set server config for nfs](#Server_set)
+    - [List server config](#Server_list)
+	- [Create path for server](#Server_createpath)
+
+- [ Manage user config ](#User_config)
+    - [Set user default server](#User_setdefault)
+
 - [ Push storage settings ](#Push)
-    - [ Push external settings ](#Push_External)
-    - [ Push user settings ](#Push_User)
-- [ Appendix: An example storage settings ](#Storage_Example)
+    - [ Push server settings ](#Push_server)
+    - [ Push user settings ](#Push_user)
+
 
 
 ## Init storage settings <a name="Init"></a>
-
 
 ### Init with no default external storage <a name="Init_None"></a>
 
@@ -34,47 +42,53 @@ python storagectl.py init [-f] nfs address rootpath
 	- Create default user storage settings for all PAI users as well
 
 
+## Manage Server Config <a name="Server_config"></a> 
+
+### Set server config for nfs <a name="Server_set"></a> 
+```
+python storagectl.py server set SERVER_NAME nfs ADDRESS ROOT_PATH [--sharedfolders SHARED_FOLDERS [SHARED_FOLDERS ...]] [--privatefolders PRIVATE_FOLDERS [PRIVATE_FOLDERS ...]] 
+```
+- Create or modify server config
+- If '--sharedfolders' is set, create shared folders ROOT_PATH/SHARED_FOLDERS on remote server.
+- If '--privatefolders' is set, create user private folders ROOT_PATH/PRIVATE_FOLDERS/USER_NAME for every user associated with the server on remote server.
+
+### List server config <a name="Server_list"></a> 
+```
+python storagectl.py server list
+```
+- List all servers
+
+### Create path for server <a name="Server_createpath"></a> 
+```
+python storagectl.py server createpath SERVER_NAME
+```
+- Check and create path for server if needed
+
+
+## Manage User Config <a name="User_config"></a> 
+
+### Set user default server <a name="User_setdefault"></a> 
+```
+python storagectl.py user setdefault USER_NAME SERVER_NAME
+```
+- Set default server for user
+	- If privatefolders was defined on server, create privae folders for user on ROOT_PATH/PRIVATE_FOLDERS/USER_NAME
+
+
 ## Push storage settings <a name="Push"></a>
 
-
-### Push external settings <a name="Push_External"></a>
+### Push server settings <a name="Push_server"></a>
 
 ```
-python storagectl.py push external /path/to/external-config/dir/or/file
+python storagectl.py push server /path/to/server-config/dir/or/file
 ```
+- Create or update server config
 
-- Create or update external storage config
 
-
-### Push user settings <a name="Push_User"></a>
+### Push user settings <a name="Push_user"></a>
 
 ```
 python storagectl.py push user /path/to/user-config/dir/or/file
 ```
-
 - Create or update user storage config
 
-
-## Appendix: An example storage settings <a name="Storage_Example"></a>
-
-- External storage config example:
-  default.json
-```json
-{
-    "type": "nfs",
-    "title": "default nfs",
-    "address": "10.0.0.1",
-    "rootPath": "/mnt"
-}
-```
-
-- User storage config example:
-  user1.json
-```json
-{
-    "defaultStorage": "default.json",
-    "externalStorages": [
-        "default.json"
-    ]
-}
-```

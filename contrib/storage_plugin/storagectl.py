@@ -34,6 +34,8 @@ import random,string
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
 
+from utils.storage_util import *
+
 try:
     import jsonschema
 except:
@@ -75,7 +77,7 @@ def create_storage(name, type, title, address, root_path, shared_folders=None, p
     update_configmap("storage-external", conf_dict, "default")
 
 # Get user name from pai-user, create user data with default
-def create_default_users(default_file):
+def create_default_users(default_storage):
     conf_dict = dict()
 
     users = get_pai_users()
@@ -84,58 +86,16 @@ def create_default_users(default_file):
         user_file = "{0}.json".format(user)
         if user_file not in storage_users:
             user_dict = dict()
-            user_dict["defaultStorage"] = default_file
-            user_dict["externalStorages"] = [default_file]
+            user_dict["defaultStorage"] = default_storage
+            user_dict["externalStorages"] = [default_storage]
             conf_dict[user_file] = json.dumps(user_dict)
 
     if len(conf_dict) > 0:
         update_configmap("storage-user", conf_dict, "default")
 
 
-def get_pai_users():
-    # List usernames from pai-user secrets
-    users = []
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    try:
-        api_response = api_instance.list_namespaced_secret("pai-user")
-        for item in api_response.items:
-            users.append(base64.b64decode(item.data["username"]))
-
-    except ApiException as e:
-        if e.status == 404:
-            logger.info("Couldn't find secret in namespace pai-user, exit")
-            sys.exit(1)
-        else:
-            logger.error("Exception when calling CoreV1Api->list_namespaced_secret: {0}".format(str(e)))
-            sys.exit(1)
-
-    return users
-
-def get_storage_config_files(storage_config_name):
-    # List storage users
-    users = []
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    try:
-        api_response = api_instance.read_namespaced_config_map(storage_config_name, "default")
-        for item in api_response.data.keys():
-            users.append(item)
-
-    except ApiException as e:
-        if e.status == 404:
-            logger.info("No storage user info was created.")
-        else:
-            logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
-            sys.exit(1)
-
-    return users
-
-
-def create_path(storage_name):
-    print("")
+# Create path for storage
+def create_path(storage_name, user_name = None):
     # Get storage info
     logger.info("Get external storage info from K8s")
     server_data = get_storage_config("storage-external", "default")
@@ -155,20 +115,29 @@ def create_path(storage_name):
 
     # Get all users that have access to storage
     users = []
-    if len(private_folders) > 0:
-        logger.info("Get all users related to this external storage")
-        user_data = get_storage_config("storage-user", "default")
-        for key, value in user_data.iteritems():
-            user_json = json.loads(value)
-            if storage_name in user_json["externalStorages"]:
-                users.append(os.path.splitext(key)[0])
+    if (user != None):
+        if len(private_folders) > 0:
+            logger.info("Get all users related to this external storage")
+            user_data = get_storage_config("storage-user", "default")
+            for key, value in user_data.iteritems():
+                user_json = json.loads(value)
+                if storage_name in user_json["externalStorages"]:
+                    users.append(os.path.splitext(key)[0])
+    else:
+        users.append(user_name)
 
+    if (server_json["type"] == "nfs"):
+        create_path_nfs(address, root_path, shared_folders, private_folders, users)
+    else:
+        logger.error("Unsupprt fs type: {0}".format(server_json["type"]))
+
+def create_path_nfs(address, root_path, shared_folders, private_folders, users):
     # Mount storage locally and create folders
-    logger.info("Creating folders on server")
+    logger.info("Creating folders on nfs server")
 
     os.system("apt-get -y install nfs-common")
 
-    tmp_folder = ''.join(random.sample(string.ascii_letters + string.digits, 6))
+    tmp_folder = "tmp{0}".format(''.join(random.sample(string.ascii_letters + string.digits, 6)))
     subprocess.Popen(["mkdir", tmp_folder], stdout=subprocess.PIPE)
     mount_cmd = "{0}:{1}".format(address, root_path).replace("//", "/")
     os.system("mount -t nfs4 {0} {1}".format(mount_cmd, tmp_folder))
@@ -200,7 +169,10 @@ def storage_set(args):
         logger.error("Unknow storage type")
 
 def storage_list(args):
-    print("")
+    storage_data = get_storage_config("storage-external", "default")
+    for key, value in storage_data.iteritems():
+        print(key)
+        print(value)
 
 def storage_create_path(args):
     create_path(args.name)
@@ -208,7 +180,7 @@ def storage_create_path(args):
 
 def user_set_default(args):
     user_name = "{0}.json".format(args.user_name)
-    storage_name = args.storage_name
+    storage_name = args.server_name
 
     conf_dict = dict()
     user_data = get_storage_config("storage-user", "default")
@@ -224,7 +196,7 @@ def user_set_default(args):
         user_dict["externalStorages"] = [storage_name]
         conf_dict[user_name] = json.dumps(user_dict)
     update_configmap("storage-user", conf_dict, "default")
-    create_path(storage_name)
+    create_path(storage_name, args.user_name)
 
 # Push data to k8s configmap
 def push_data(args):
@@ -275,55 +247,6 @@ def validate_json(file_json, schema_json):
     except jsonschema.ValidationError as e:
         return False
 
-def update_configmap(name, data_dict, namespace):
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    meta_data = client.V1ObjectMeta()
-    meta_data.namespace = namespace
-    meta_data.name = name
-    body = client.V1ConfigMap(
-                metadata = meta_data,
-                data = data_dict)
-
-    try:
-        api_response = api_instance.patch_namespaced_config_map(name, namespace, body)
-        logger.info("configmap named {0} is updated.".format(name))
-    except ApiException as e:
-        if e.status == 404:
-            try:
-                logger.info("Couldn't find configmap named {0}. Create a new configmap".format(name))
-                api_response = api_instance.create_namespaced_config_map(namespace, body)
-                logger.info("Configmap named {0} is created".format(name))
-            except ApiException as ie:
-                logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(e)))
-                sys.exit(1)
-        else:
-            logger.error("Exception when calling CoreV1Api->patch_namespaced_config_map: {0}".format(str(e)))
-            sys.exit(1)
-
-
-
-
-
-def get_storage_config(storage_config_name, namespace):
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    try:
-        api_response = api_instance.read_namespaced_config_map(storage_config_name, namespace)
-
-    except ApiException as e:
-        if e.status == 404:
-            logger.info("Couldn't find configmap named {0}. Create a new configmap".format(storage_config_name))
-            return None
-        else:
-            logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
-            sys.exit(1)
-
-    return api_response.data
-
-
 
 def setup_logger_config(logger):
     """
@@ -357,9 +280,9 @@ def main():
     none_parser = init_subparsers.add_parser("none")
     none_parser.set_defaults(func=init_storage, storage_type="none")
    
-    # ./storagectl.py storage set|createpath 
-    storage_parser = subparsers.add_parser("storage", description="Commands to manage external storages.", formatter_class=argparse.RawDescriptionHelpFormatter)
-    storage_subparsers = storage_parser.add_subparsers(help="Add/modify, list or create path on server for storages")
+    # ./storagectl.py server set|list|createpath 
+    storage_parser = subparsers.add_parser("server", description="Commands to manage servers.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    storage_subparsers = storage_parser.add_subparsers(help="Add/modify, list or create path on servers")
     # storage set
     storage_set_parser = storage_subparsers.add_parser("set")
     storage_set_parser.add_argument("name")
@@ -383,17 +306,17 @@ def main():
     user_subparsers = user_parser.add_subparsers(help="Manage user")
     user_set_default_storage_parser = user_subparsers.add_parser("setdefault")
     user_set_default_storage_parser.add_argument("user_name")
-    user_set_default_storage_parser.add_argument("storage_name")
+    user_set_default_storage_parser.add_argument("server_name")
     user_set_default_storage_parser.set_defaults(func=user_set_default)
 
     # ./storagectl.py push user|external path
     push_parser = subparsers.add_parser("push", description="Push storage config to k8s configmap.", formatter_class=argparse.RawDescriptionHelpFormatter)
-    push_subparsers = push_parser.add_subparsers(help="Push user|external")
-    push_external_parser = push_subparsers.add_parser("external")
-    push_external_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores external storage config")
-    push_external_parser.set_defaults(func=push_data, name="storage-external", schema="schemas/storage_external.schema.json")
+    push_subparsers = push_parser.add_subparsers(help="Push user|server")
+    push_server_parser = push_subparsers.add_parser("servre")
+    push_server_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores server config")
+    push_server_parser.set_defaults(func=push_data, name="storage-external", schema="schemas/storage_server.schema.json")
     push_user_parser = push_subparsers.add_parser("user")
-    push_user_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores user storage config")
+    push_user_parser.add_argument("conf_path", metavar="path", help="The path of directory or file which stores user config")
     push_user_parser.set_defaults(func=push_data, name="storage-user", schema="schemas/storage_user.schema.json")
 
     args = parser.parse_args()
