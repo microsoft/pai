@@ -294,12 +294,17 @@ docker run --name $docker_name \
   --privileged=false \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
+  --cap-add=DAC_READ_SEARCH \
   --network=host \
   --cpus={{ taskData.cpuNumber }} \
   --memory={{ taskData.memoryMB }}m \
   --shm-size={{ taskData.shmMB }}m \
   $nvidia_devices \
   --device=/dev/fuse \
+{{# isDebug }}
+  --cap-add=SYS_PTRACE \
+  --security-opt seccomp:unconfined \
+{{/ isDebug }}
   --security-opt apparmor:unconfined \
 {{# reqAzRDMA }}
 {{# azRDMA }}

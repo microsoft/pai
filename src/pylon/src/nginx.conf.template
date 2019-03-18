@@ -39,6 +39,19 @@ http {
     ~*/static "gzip";
   }
 
+  # Add proxy etag to upstream etag
+  map $http_if_none_match $request_if_none_match {
+    volatile;
+
+    ~^(W/)?"(.+)\|{{PYLON_CONF_ETAG}}"$ $1"$2";
+  }
+
+  map $upstream_http_etag $response_etag {
+    volatile;
+
+    ~^(W/)?"(.+)"$ $1"$2|{{PYLON_CONF_ETAG}}";
+  }
+
   server {
     listen      80;
     server_name localhost;
@@ -94,6 +107,9 @@ http {
         \"privateKeyDirectDownloadLink\":\"http://([^/]*):5070/([^\"]*)\"
         \"privateKeyDirectDownloadLink\":\"$scheme://$http_host/a/$1:5070/$2\"
         r;
+
+      proxy_set_header    If-None-Match    $request_if_none_match;
+      add_header          Etag             $response_etag;
     }
 
     # Kubernetes API server.
@@ -318,6 +334,9 @@ http {
       sub_filter
         '{{GRAFANA_URI}}'
         '/grafana';
+
+      proxy_set_header    If-None-Match    $request_if_none_match;
+      add_header          Etag             $response_etag;
     }
   }
 

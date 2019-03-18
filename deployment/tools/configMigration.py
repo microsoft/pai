@@ -62,5 +62,7 @@ shutil.copy2(os.path.join(input_dir, "k8s-role-definition.yaml"), output_dir)
 # convert service-configuration.yaml
 old_service_configuration = yaml.load(open(os.path.join(input_dir, "services-configuration.yaml")))
 service_configuration, updated = forward_compatibility.service_configuration_convert(old_service_configuration)
+# upgrade image tag version to v0.10.1
+service_configuration["cluster"]["docker-registry"]["tag"] = "v0.10.1"
 with open(os.path.join(output_dir, "services-configuration.yaml"), 'w') as outfile:
     yaml.dump(service_configuration, outfile, default_flow_style=False)

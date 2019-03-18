@@ -34,8 +34,14 @@ class TestNvidia(base.TestBase):
         with open(sample_path, "r") as f:
             nvidia_smi_result = f.read()
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
-        target_smi_info = {"1": nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError()),
-                "0": nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError())}
+
+        zero = nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError(),
+                "0", "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b")
+        one = nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError(),
+                "1", "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6")
+
+        target_smi_info = {"1": one, "0": zero, "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b": zero, "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6": one}
+
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
     def test_exporter_will_not_report_unsupported_gpu(self):
@@ -43,6 +49,7 @@ class TestNvidia(base.TestBase):
         with open(sample_path, "r") as f:
             nvidia_smi_result = f.read()
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+
         self.assertEqual({}, nvidia_smi_parse_result)
 
 
