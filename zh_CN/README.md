@@ -75,15 +75,15 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 对于小于 50 台服务器的中小型集群，参考[使用默认设置部署](#Deploy-with-default-configuration)，用最简单的方式来部署 OpoenPAI。 在默认配置的基础上，可针对不同的硬件环境和使用场景来定制优化部署方案。
 
-#### 使用默认配置进行部署
+#### 使用默认配置部署
 
-对于小于50台服务器的中小型群集, 建议 [使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
+对于小于 50 台服务器的中小型群集, 建议[使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
 
-对于大型集群, 仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#customize-deployment)。
+对于大型集群，仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#customize-deployment)。
 
 #### 自定义部署
 
-用户可以根据硬件配置和试用情况，参考 <0> 定制化部署 </0> 的建议来进行之定义部署。 请参考 [ 定制化部署 ](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) 的建议来进行之定义部署。 
+由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来进行优化。 请参考 [ 定制化部署 ](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) 的建议来进行之定义部署。 
 
 ### 验证部署是否成功
 
