@@ -83,13 +83,13 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 #### 自定义部署
 
-由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来进行优化。 请参考 [ 定制化部署 ](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) 的建议来进行之定义部署。 
+由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来进行优化。 参考[自定义部署](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
 
-### 验证部署是否成功
+### 验证部署
 
-在部署后, 建议 [ 验证OpenPAI的关键模块](docs/pai-management/doc/validate-deployment.md) 来确定它们处于良好的运行状况。 验证成功后, 可以 提交一个 hello world 任务</0 >, 来检查全部流程是否正常工作。</p> 
+部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/user/training.md) 进行端到端的验证。
 
-### 在 "训练模型" 之前培训用户
+### 培训用户
 
 OpenPAI 的通常用户操作是提交作业请求, 等待作业获得计算资源并执行。 这和在专用服务器执行作业的体验不同。 用户可能会觉得计算资源无法控制, 觉得体验不够好，学习曲线可能高于在专用服务器上运行作业。 但总的来说， OpenPAI 上的共享资源可以显著提高生产效率, 并节省维护环境的成本。
 
