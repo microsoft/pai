@@ -70,24 +70,29 @@ class NvidiaGpuStatus(object):
         gpu_mem_util the gpu memory usage/total of this gpu, float number, range 0~100
         pids an array of pid numbers that uses this card
         ecc_errors instance of EccError class """
-    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors):
+    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors, minor, uuid):
         self.gpu_util = gpu_util # float
         self.gpu_mem_util = gpu_mem_util # float
         self.pids = pids # list of int
-        self.ecc_errors = ecc_errors # TODO
+        self.ecc_errors = ecc_errors # list of EccError
+        self.minor = minor
+        self.uuid = uuid # str
 
     def __repr__(self):
-        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s" % \
-                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors)
+        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s" % \
+                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid)
 
     def __eq__(self, o):
         return self.gpu_util == o.gpu_util and \
                 self.gpu_mem_util == o.gpu_mem_util and \
                 self.pids == o.pids and \
-                self.ecc_errors == o.ecc_errors
+                self.ecc_errors == o.ecc_errors and \
+                self.minor == o.minor and \
+                self.uuid == o.uuid
 
 
 def parse_smi_xml_result(smi):
+    """ return a map, key is minor_number and gpu uuid, value is NvidiaGpuStatus """
     xmldoc = minidom.parseString(smi)
     gpus = xmldoc.getElementsByTagName("gpu")
 
@@ -135,11 +140,17 @@ def parse_smi_xml_result(smi):
                 if double != "N/A":
                     ecc_double = int(double)
 
-        result[str(minor)] = NvidiaGpuStatus(
+        uuid = gpu.getElementsByTagName("uuid")[0].childNodes[0].data
+
+        status = NvidiaGpuStatus(
                 float(gpu_util),
                 float(gpu_mem_util),
                 pids,
-                EccError(single=ecc_single, double=ecc_double))
+                EccError(single=ecc_single, double=ecc_double),
+                str(minor),
+                uuid)
+
+        result[str(minor)] = result[uuid] = status
 
     return result
 
@@ -161,3 +172,12 @@ def nvidia_smi(histogram, timeout):
         logger.exception("exec nvidia-smi error")
 
     return None
+
+def construct_gpu_info(statuses):
+    """ util for unit test case """
+    m = {}
+    for status in statuses:
+        m[status.minor] = status
+        m[status.uuid] = status
+
+    return m

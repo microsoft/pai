@@ -38,7 +38,7 @@ PAI configuration consists of 4 YAML files:
 - [`k8s-role-definition.yaml`](../../../examples/cluster-configuration/k8s-role-definition.yaml) - Kubernetes-level configurations. This file contains the mappings of Kubernetes roles and machine labels. It will be deprecated in the future.
 - [`serivices-configuration.yaml`](../../../examples/cluster-configuration/services-configuration.yaml) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
-### Step a. How to write cluster-configuration.yaml  <a name="step_a"></a>
+### Step a. How to write layout.yaml  <a name="step_a"></a>
 
 [A Guide of customize layout.yaml](./how-to-configure-layout.md)
 

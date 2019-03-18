@@ -85,7 +85,7 @@ class service_management_refresh:
                 if 'in' in rule:
                     # If service not runnning on labeled node, start the service
                     if rule['in'] not in label_map:
-                        self.logger.error("Label defined error, " + rule['in'] + " isn't supported in cluster-configuration.yaml machinelist.")
+                        self.logger.error("Label defined error, " + rule['in'] + " isn't supported in layout.yaml machinelist.")
                     nodes = self.label_map[rule['in']]
                     for nodename in nodes:
                         cmd_checkservice = "kubectl get po -o wide | grep " + nodename + " | grep -q " + service_name
@@ -114,7 +114,7 @@ class service_management_refresh:
                 # for 'notin' rule, it's Daemonset, needn't do anything
                 if 'notin' in rule:
                     if rule['notin'] not in label_map:
-                        self.logger.error("Label defined error, " + rule['notin'] + " isn't defined in cluster-configuration.yaml machinelist.")
+                        self.logger.error("Label defined error, " + rule['notin'] + " isn't defined in layout.yaml machinelist.")
 
         refresh_script = "src/{0}/deploy/{1}".format(service_name, service_conf["refresh-script"])
         cmd = "/bin/bash {0}".format(refresh_script)

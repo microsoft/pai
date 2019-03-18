@@ -131,6 +131,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 * [Manage cluster with paictl](docs/paictl/paictl-manual.md)
 * [Monitoring](./docs/webportal/README.md)
+* [Upgrade](./docs/upgrade/upgrade_to_v0.10.md)
 
 ## Reference
 

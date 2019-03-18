@@ -31,8 +31,8 @@ class ServiceConfigUpdate:
 
 
     def run(self):
-        overwirte_service_configuration = file_handler.load_yaml_config( "{0}/services-configuration.yaml".format(self.config_path))
-        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
+        service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.config_path))
+        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(service_configuration)
 
         if updated is True:
             self.logger.warning("=======================================================================")
