@@ -125,20 +125,20 @@ export default function Table() {
       /** @type {MessageBarType} */
       const messageBarType = {
         Waiting: MessageBarType.warning,
-        Running: MessageBarType.info,
+        Running: MessageBarType.success,
         Stopping: MessageBarType.severeWarning,
         Succeeded: MessageBarType.success,
-        Failed: MessageBarType.error,
+        Failed: MessageBarType.remove,
         Stopped: MessageBarType.blocked,
       }[statusText];
       const rootStyle = {
         backgroundColor: {
           Waiting: '#FCD116',
           Running: '#0071BC',
-          Stopping: '#FCD116',
+          Stopping: '#0071BC',
           Succeeded: '#7FBA00',
           Failed: '#E81123',
-          Stopped: '#E81123',
+          Stopped: '#B1B5B8',
         }[statusText],
       };
       /** @type {import('@uifabric/styling').IStyle} */

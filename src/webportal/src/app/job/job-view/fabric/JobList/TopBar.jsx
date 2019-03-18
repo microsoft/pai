@@ -203,7 +203,10 @@ function TopBar() {
     return {
       key: 'user',
       name: 'User',
-      buttonStyles: {root: {backgroundColor: 'transparent'}},
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      iconProps: {
+        iconName: 'Contact',
+      },
       subMenuProps: {
         items: Object.keys(users).map(getItem).concat([{
             key: 'divider',
@@ -267,6 +270,9 @@ function TopBar() {
       key: 'virtualCluster',
       name: 'Virtual Cluster',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
+      iconProps: {
+        iconName: 'CellPhone',
+      },
       subMenuProps: {
         items: Object.keys(virtualClusters).map(getItem).concat([{
             key: 'divider',
@@ -330,6 +336,9 @@ function TopBar() {
       key: 'status',
       name: 'Status',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
+      iconProps: {
+        iconName: 'Clock',
+      },
       subMenuProps: {
         items: Object.keys(statuses).map(getItem).concat([{
             key: 'divider',
