@@ -84,7 +84,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "{{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -160,7 +160,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "{{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -236,14 +236,14 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "Net In {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "Net In {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "A"
             },
             {
               "expr": "task_net_out_byte{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Net Out {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "Net Out {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "B"
             }
           ],
@@ -319,14 +319,14 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "Read {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "Read {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "A"
             },
             {
               "expr": "irate(task_block_out_byte{instance=~\"$node(:[0-9]*)?$\"}[300s])",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Write {{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}}",
+              "legendFormat": "Write {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "B"
             }
           ],
@@ -402,7 +402,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
+              "legendFormat": "{{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -478,7 +478,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{'}}container_label_PAI_JOB_NAME{{'}}'}}-{{'{{'}}container_label_PAI_CURRENT_TASK_ROLE_NAME{{'}}'}}-{{'{{'}}container_env_PAI_TASK_INDEX{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
+              "legendFormat": "{{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}} On GPU {{'{{'}}minor_number{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -655,7 +655,7 @@
               "link": true,
               "linkTooltip": "Click to view each task's usage",
               "linkUrl": "{{url}}/dashboard/db/tasklevelmetrics?var-job=$__cell_4",
-              "pattern": "container_env_PAI_TASK_INDEX",
+              "pattern": "task_index",
               "thresholds": [],
               "type": "number",
               "unit": "short"
@@ -673,7 +673,7 @@
               "link": true,
               "linkTooltip": "Click to view each task role's usage",
               "linkUrl": "{{url}}/dashboard/db/taskrolelevelmetrics?var-job=$__cell_4",
-              "pattern": "container_label_PAI_CURRENT_TASK_ROLE_NAME",
+              "pattern": "role_name",
               "thresholds": [],
               "type": "number",
               "unit": "short"
@@ -691,7 +691,7 @@
               "link": true,
               "linkTooltip": "Click to view job's usage",
               "linkUrl": "{{url}}/dashboard/db/joblevelmetrics?var-job=$__cell_4",
-              "pattern": "container_label_PAI_JOB_NAME",
+              "pattern": "job_name",
               "thresholds": [],
               "type": "number",
               "unit": "short"
@@ -706,7 +706,7 @@
               ],
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
               "decimals": 2,
-              "pattern": "container_label_PAI_USER_NAME",
+              "pattern": "username",
               "thresholds": [],
               "type": "number",
               "unit": "short"
