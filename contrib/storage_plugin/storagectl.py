@@ -60,7 +60,7 @@ def init_storage(args):
 
 
 # Create default.json
-def create_storage(name, type, title, address, root_path, shared_folders=None, private_folders=None):
+def create_storage(name, type, title, address, root_path, shared_folders = None, private_folders = None):
     storage_dict = dict()
     storage_dict["type"] = type
     storage_dict["title"] = title
@@ -99,7 +99,7 @@ def create_path(server_name, user_name = None):
     # Get storage info
     logger.info("Get external storage info from K8s")
     server_data = get_storage_config("storage-external", "default")
-    if server_data == None or server_data.has_key(server_name) == False:
+    if server_data is None or server_data.has_key(server_name) == False:
         logger.error("Storage named {0} not exist! Exit".format(server_name))
         sys.exit(1)
 
@@ -115,7 +115,7 @@ def create_path(server_name, user_name = None):
 
     # Get all users that have access to storage
     users = []
-    if (user_name != None):
+    if (user_name is None):
         if len(private_folders) > 0:
             logger.info("Get all users related to this external storage")
             user_data = get_storage_config("storage-user", "default")
@@ -184,7 +184,7 @@ def user_set_default(args):
 
     conf_dict = dict()
     user_data = get_storage_config("storage-user", "default")
-    if user_data != None and user_data.has_key(user_name):
+    if user_data is not None and user_data.has_key(user_name):
         user_json = json.loads(user_data[user_name])
         user_json["defaultStorage"] = server_name
         if server_name not in user_json["externalStorages"]:
