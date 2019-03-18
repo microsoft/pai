@@ -117,7 +117,7 @@ const protocolRender = async (req, res, next) => {
       }
     }
     let entrypoint = '';
-    const tokens = mustache.parse(commands.join(' ; '), ['<%', '%>']);
+    const tokens = mustache.parse(commands.join(' && '), ['<%', '%>']);
     const context = new mustache.Context({
       '$parameters': protocolJSON.parameters,
       '$script': protocolJSON.prerequisites['script'][protocolJSON.taskRoles[taskRole].script],
