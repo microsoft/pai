@@ -56,24 +56,24 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 ## 部署
 
-根据以下内容来检查先决条件，部署并验证 OpenPAI 集群。 在初始部署后, 可以根据需要添加更多的服务器。
+根据以下内容来检查先决条件，部署并验证 OpenPAI 集群。 初次部署完成后，还可以根据需要添加新的服务器。
 
-强烈建议在空闲的服务器上试用 OpenPAI。 有关硬件规范, 请参阅 [这里](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
+强烈建议在空闲的服务器上安装 OpenPAI。 有关硬件规范，参考[这里](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
 
 ### 先决条件和准备工作
 
-* ubuntu 16.04 (18.04 应该能工作, 但没有经过充分测试）。
-* 为每台服务器分配一个静态 IP 地址, 并确保服务器可以相互通信。
-* 确保服务器可以访问互联网, 尤其需要访问容器注册服务 （docker hub registry）或其镜像。 在部署过程中，我们需要从 OpenPAI 服务器上下载容器 （docker）文件。
-* 确保 SSH 服务已启用, 并共享相同的用户名称/密码, 并具有 sudo 权限。
+* Ubuntu 16.04 (18.04 未经完整测试，或许没问题）。
+* 每台服务器都有静态 IP 地址，并确保服务器可以相互通信。
+* 确保服务器可以访问互联网，特别是 Docker Hub 或其镜像服务器。 在部署过程中需要拉取 OpenPAI 的 Docker 映像。
+* 确保 SSH 服务已启用，所有服务器使用相同的用户名、密码，并启用 sudo 权限。
 * 确保 NTP 服务已启用。
-* 建议不手动安装容器，如果要安装，容器的版本必须高于1.26。
-* OpenPAI 会占用内存和 CPU 资源来运行各种服务, 因此请确保有足够的资源来运行机器学习作业。 有关详细信息, 请查看 [ 硬件要求 ](https://github.com/Microsoft/pai/wiki/Resource-Requirement)"。
-* 请指定一个专用服务器运行OpenPAI的服务。 OpenPAI 服务管理服务器的所有 CPU、内存和 GPU 资源。 如果这个服务器上有其他的工作负载, 就可能导致由于资源不足产生的各种问题。
+* 建议不提前安装 Docker 组件，如果已安装，确保 Docker 版本高于 1.26。
+* OpenPAI 会保留部分内存和 CPU 资源来运行服务，须确保服务器有足够的资源来运行机器学习作业。 详情参考[硬件要求](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
+* OpenPAI 的服务器不能提供其它服务。 OpenPAI 会管理服务器的所有 CPU、内存和 GPU 资源。 如果服务器上有其它的服务负载，可能导致资源不足而产生各种问题。
 
 ### 部署
 
-对于不超过 50 台的服务器集群，请看这个部署指导： [默认设置下的部署](#Deploy-with-default-configuration)。 在默认配置的基础上, 可以针对不同的硬件环境和使用场景来修改部署方案，达到优化的效果。
+对于小于 50 台服务器的中小型集群，参考[使用默认设置部署](#Deploy-with-default-configuration)，用最简单的方式来部署 OpoenPAI。 在默认配置的基础上，可针对不同的硬件环境和使用场景来定制优化部署方案。
 
 #### 使用默认配置进行部署
 
