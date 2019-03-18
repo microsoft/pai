@@ -171,7 +171,7 @@ As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes p
 
 Check and refine 4 yaml files:
 
-        - cluster-configuration.yaml
+        - layout.yaml
         - kubernetes-configuration.yaml
         - k8s-role-definition.yaml
         - serivices-configuration.yaml
