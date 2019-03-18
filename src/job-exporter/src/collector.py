@@ -320,10 +320,17 @@ class GpuCollector(Collector):
 
         for line in content.split("\n"):
             line = line.strip()
-            if "pids" in line and "/docker/" in line:
-                parts = line.split("/docker/")
-                if len(parts) == 2 and re.match(u"[0-9a-f]+", parts[1]):
-                    return True, parts[1]
+            if "pids" in line:
+                if "/docker/" in line:
+                    parts = line.split("/docker/")
+                    if len(parts) == 2 and re.match(u"[0-9a-f]+", parts[1]):
+                        return True, parts[1]
+                elif "/kubepods/" in line:
+                    parts = line.split("/kubepods/")
+                    if len(parts) == 2 and re.match(u"pod[0-9a-f-]+", parts[1]):
+                        return True, parts[1]
+                else:
+                    logger.info("unknown format in pid cgroup %s", line)
 
         return False, ""
 
