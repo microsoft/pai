@@ -77,9 +77,9 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 #### 使用默认配置进行部署
 
-对于小于50台服务器的中小型群集, 建议 [使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台功能强大的服务器, 请参考 部署OpenPAI到单个机器</0 > 文档。</p> 
+对于小于50台服务器的中小型群集, 建议 [使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
 
-对于大型集群, 我们仍然需要此部分来生成默认配置, 然后进行 [ 定制部署 ](#customize-deployment)。
+对于大型集群, 仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#customize-deployment)。
 
 #### 自定义部署
 
