@@ -75,6 +75,8 @@ RUN wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.
 
 COPY docker-executor.patch /
 
+COPY hadoop-ai-fix.patch /
+
 COPY build.sh /
 
 RUN chmod u+x build.sh
