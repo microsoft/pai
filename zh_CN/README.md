@@ -103,15 +103,15 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ## 训练模型
 
-和所有机器学习平台一样，OpenPAI 是一个提高生产力的工具。 为了提高资源利用率，建议用户提交训练 Job，并让 OpenPAI 来分配资源并运行 Job。 如果提交的作业太多, 则某些作业可能会排队, 直到有足够的资源可用, OpenPAI 会选择合适的服务器来运行作业。 这与专用服务器上运行代码的情况不同, 用户需要了解如何在 OpenPAI 上提交培训作业的知识。
+和所有机器学习平台一样，OpenPAI 是一个提高生产力的工具。 为了提高资源利用率，建议用户提交训练 Job，并让 OpenPAI 来分配资源并运行 Job。 如果 Job 太多，一些 Job 会排队并等待可用的资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
 
-请注意, OpenPAI 还支持按需分配资源, 而不是排队作业。 用户可以使用 SSH 或 Jumyter 像在物理服务器上一样进行连接, 如果要了解更多详情， 请参阅 [ 这个文档 ](examples/jupyter/README.md)。 虽然这种方法对资源的利用不是非常高效, 但它也节省了在物理服务器上设置和管理环境的成本。
+另外，除了 Job 队列，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter 来连接并使用计算资源。参考[这里](examples/jupyter/README.md)来了解详情。 虽然这样对资源的利用不会高效，但也节省了在物理服务器上配置管理环境的投入。
 
 ### 提交训练作业
 
-请按照这个例子  提交一个 Hello World 作业 </0 > 了解更多有关 OpenPAI 训练模型的信息。 这是一个非常简单的作业, 帮助用户理解 OpenPAI 作业定义、流程和熟悉 Web 门户。</p> 
+参考[提交 hello-world Job](docs/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
 
-### OpenPAI VS Code 的客户端
+### OpenPAI VS Code 客户端
 
 [OpenPAI VS Code 客户端 ](contrib/pai_vscode/VSCodeExt.md) 是 OpenPAI 的一个友好的、基于 GUI 的客户端工具。 它是 Visual Studio Code 的扩展包。 它可以提交作业、模拟作业在本地运行、管理多个 OpenPAI 环境等。
 
