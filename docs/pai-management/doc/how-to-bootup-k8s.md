@@ -23,7 +23,7 @@
 
 #### Prerequires
 
-Before deploying kubernete with OpenPAI, please be sure that your hardware and os meet the requirement in the [link](../../../README.md#prerequisites) 
+Before deploying kubernete with OpenPAI, please be sure that your hardware and os meet the requirement in the [link](../../../README.md#prerequisites)
 
 
 #### Command
@@ -39,7 +39,7 @@ The `paictl` tool does the following things:
 
 - Install `kubectl` command in the current machine (or the dev-box).
 
-- Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`, `kubernetes-configuration.yaml` and `k8s-role-definition.yaml`.
+- Generate Kubernetes-related configuration files based on `layout.yaml`, `kubernetes-configuration.yaml` and `k8s-role-definition.yaml`.
 
 - Use `kubectl` to boot up Kubernetes on target machines.
 
