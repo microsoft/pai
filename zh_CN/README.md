@@ -77,7 +77,7 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 #### 使用默认配置部署
 
-对于小于 50 台服务器的中小型群集, 建议[使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
+对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
 
 对于大型集群，仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#customize-deployment)。
 
@@ -113,13 +113,13 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### OpenPAI VS Code 客户端
 
-[OpenPAI VS Code 客户端 ](contrib/pai_vscode/VSCodeExt.md) 是 OpenPAI 的一个友好的、基于 GUI 的客户端工具。 它是 Visual Studio Code 的扩展包。 它可以提交作业、模拟作业在本地运行、管理多个 OpenPAI 环境等。
+[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt.md) 是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 通过它，能够提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
-### 作业失败后的疑难解答
+### 调研 Job 错误
 
-Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过 SSH 登入服务器环境进行调试。
+Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
 
-有关解决作业故障的详细信息, 请参阅 [ 这里 ](docs/user/troubleshooting_job.md)。 建议在本地成功地运行作业之后，再提交给 OpenPAI 服务器。 这样就降低了远程故障出现的机会。
+有关调研 Job 错误的详细信息参考[这里](docs/user/troubleshooting_job.md)。 建议在本地能正常运行代码之后，再提交到 OpenPAI。 这样能减少远程调试的可能性。
 
 ## 运维管理
 
@@ -143,18 +143,18 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
         
         ### 贡献者许可协议
         
-        本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议 (CLA)，来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
+        本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
         
-        当你提交拉取请求 (Pull Request) 时，CLA机器人会自动检查你是否需要提供CLA，并说明这个拉取请求 （例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA只需要通过一次，就能应用到所有的代码仓库上。
+        当你提交拉取请求时，CLA 机器人会自动检查你是否需要提供 CLA，并修饰这个拉取请求（例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA 只需要同意一次，就能应用到所有的代码仓库上。
         
-        该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅 [ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/) 或联系 <opencode@microsoft.com> 咨询问题或评论。
+        该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅[ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/)或联系 <opencode@microsoft.com> 咨询问题或评论。
         
-        ### 欢迎大家的参与
+        ### 征集意见建议
         
-        我们正在进行一系列主要功能的改进和重构, 我们鼓励任何熟悉这些功能的人在相应的讨论区中参与设计评审和讨论。
+        当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
         
-        * PAI 虚拟集群设计。 [Issue 1754 ](https://github.com/Microsoft/pai/issues/1754)
-        * PAI 协议设计。 [ Issue 2007 ](https://github.com/Microsoft/pai/issues/2007)
+        * OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+        * OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
         
         ### 谁应该考虑为 OpenPAI 做出贡献
         
