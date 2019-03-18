@@ -19,13 +19,13 @@
 const Job = require('../../models/v2/job');
 
 
-const update = async (req, res, next) => {
+const update = async (req, res) => {
   const jobName = req.body.protocol.name;
   const userName = req.user.username;
-  const job = new Job(jobName, userName, req.body.protocol);
-  await job.put();
+  const job = new Job(jobName, userName);
+  await job.put(req.body.protocol, req.rawBody);
   res.status(202).json({
-    message: `Update job ${jobName} successfully.`,
+    message: `Update job ${jobName} for user ${userName} successfully.`,
   });
 };
 

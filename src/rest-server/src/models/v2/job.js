@@ -32,7 +32,7 @@ const yarnContainerScriptTemplate = require('../../templates/yarnContainerScript
 const dockerContainerScriptTemplate = require('../../templates/dockerContainerScript');
 
 
-const generateFrameworkDescription = (jobName, userName, config) => {
+const generateFrameworkDescription = (frameworkName, userName, config) => {
   const frameworkDescription = {
     version: 10,
     user: {
@@ -76,7 +76,7 @@ const generateFrameworkDescription = (jobName, userName, config) => {
       taskService: {
         version: 0,
         entryPoint: `source YarnContainerScripts/${taskRole}.sh`,
-        sourceLocations: [`/Container/${userName}/${jobName}/YarnContainerScripts`],
+        sourceLocations: [`/Container/${userName}/${frameworkName}/YarnContainerScripts`],
         resource: {
           cpuNumber: config.taskRoles[taskRole].resourcePerInstance.cpu,
           memoryMB: config.taskRoles[taskRole].resourcePerInstance.memoryMB,
@@ -107,7 +107,7 @@ const generateFrameworkDescription = (jobName, userName, config) => {
 };
 
 // backward compatible generation for yarn container script template in api v1
-const generateYarnContainerScript = (jobName, userName, config, frameworkDescription, taskRole) => {
+const generateYarnContainerScript = (frameworkName, userName, config, frameworkDescription, taskRole) => {
   let tasksNumber = 0;
   for (let i of Object.keys(frameworkDescription.taskRoles)) {
     tasksNumber += frameworkDescription.taskRoles[i].taskNumber;
@@ -115,7 +115,7 @@ const generateYarnContainerScript = (jobName, userName, config, frameworkDescrip
   const yarnContainerScript = mustache.render(yarnContainerScriptTemplate, {
     idx: taskRole,
     jobData: {
-      jobName: jobName,
+      jobName: frameworkName,
       userName: userName,
       image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
       authFile: null,
@@ -136,8 +136,8 @@ const generateYarnContainerScript = (jobName, userName, config, frameworkDescrip
     taskRolesNumber: Object.keys(frameworkDescription.taskRoles).length,
     jobEnvs: null,
     hdfsUri: launcherConfig.hdfsUri,
-    aggregatedStatusUri: launcherConfig.frameworkAggregatedStatusPath(jobName),
-    frameworkInfoWebhdfsUri: launcherConfig.frameworkInfoWebhdfsPath(jobName),
+    aggregatedStatusUri: launcherConfig.frameworkAggregatedStatusPath(frameworkName),
+    frameworkInfoWebhdfsUri: launcherConfig.frameworkInfoWebhdfsPath(frameworkName),
     azRDMA: azureEnv.azRDMA === 'true' ? true : false,
     reqAzRDMA: false,
     inspectPidFormat: '{{.State.Pid}}',
@@ -147,15 +147,15 @@ const generateYarnContainerScript = (jobName, userName, config, frameworkDescrip
 };
 
 // backward compatible generation for docker container script template in api v1
-const generateDockerContainerScript = (jobName, userName, config, taskRole) => {
+const generateDockerContainerScript = (frameworkName, userName, config, taskRole) => {
   const dockerContainerScript = mustache.render(dockerContainerScriptTemplate, {
     idx: taskRole,
     jobData: {
-      jobName: jobName,
+      jobName: frameworkName,
       userName: userName,
     },
     taskData: {
-      command: config.taskRoles[taskRole].entryPoint,
+      command: config.taskRoles[taskRole].entrypoint,
     },
     hdfsUri: launcherConfig.hdfsUri,
     webHdfsUri: launcherConfig.webhdfsUri,
@@ -166,11 +166,11 @@ const generateDockerContainerScript = (jobName, userName, config, taskRole) => {
   return dockerContainerScript;
 };
 
-const generateSSHKeys = (jobName) => {
+const generateSSHKeys = (frameworkName) => {
   return new Promise((resolve) => {
     keygen({
-      location: jobName,
-      comment: `ssh key for ${jobName}`,
+      location: frameworkName,
+      comment: `ssh key for ${frameworkName}`,
       read: true,
       destroy: true,
     }, (err, out) => {
@@ -180,16 +180,16 @@ const generateSSHKeys = (jobName) => {
       } else {
         const keys = {};
         // private key
-        keys[jobName] = out.key;
+        keys[frameworkName] = out.key;
         // public key
-        keys[`${jobName}.pub`] = out.pubKey;
+        keys[`${frameworkName}.pub`] = out.pubKey;
         resolve(keys);
       }
     });
   });
 };
 
-const prepareContainerScripts = async (jobName, userName, config) => {
+const prepareContainerScripts = async (frameworkName, userName, config, rawConfig) => {
   // hdfs operations
   const hdfs = new HDFS(launcherConfig.webhdfsUri);
   // async mkdir on hdfs
@@ -220,26 +220,30 @@ const prepareContainerScripts = async (jobName, userName, config) => {
   };
 
   // generate framework description
-  const frameworkDescription = generateFrameworkDescription(jobName, userName, config);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, userName, config);
 
   // prepare scripts on hdfs
-  const pathPrefix = `/Container/${userName}/${jobName}`;
+  const pathPrefix = `/Container/${userName}/${frameworkName}`;
   await mkdir('/Container', 'root', '777');
   for (let path of ['log', 'tmp']) {
     await mkdir(`${pathPrefix}/${path}`, userName, '755');
   }
   for (let taskRole of Object.keys(config.taskRoles)) {
     await upload(`${pathPrefix}/YarnContainerScripts/${taskRole}.sh`,
-      generateYarnContainerScript(jobName, userName, config, frameworkDescription, taskRole), userName, '644');
+      generateYarnContainerScript(frameworkName, userName, config, frameworkDescription, taskRole), userName, '644');
     await upload(`${pathPrefix}/DockerContainerScripts/${taskRole}.sh`,
-      generateDockerContainerScript(jobName, userName, config, taskRole), userName, '644');
+      generateDockerContainerScript(frameworkName, userName, config, taskRole), userName, '644');
   }
+  // upload framework description file to hdfs
   await upload(`${pathPrefix}/${launcherConfig.frameworkDescriptionFilename}`,
     JSON.stringify(frameworkDescription, null, 2), userName, '644');
+  // upload original config file to hdfs
+  await upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
+    rawConfig, userName, '644');
 
   // generate ssh key
   if (process.platform.toUpperCase() === 'LINUX') {
-    const keys = await generateSSHKeys(jobName);
+    const keys = await generateSSHKeys(frameworkName);
     if (keys) {
       for (let keyname of Object.keys(keys)) {
         await upload(`${pathPrefix}/ssh/keyFiles/${keyname}`, keys[keyname], userName, '755');
@@ -253,18 +257,17 @@ const prepareContainerScripts = async (jobName, userName, config) => {
 
 
 class Job {
-  constructor(jobName, userName, config) {
+  constructor(jobName, userName, ) {
     this.jobName = jobName;
     this.userName = userName;
     this.frameworkName = this.userName ? `${this.userName}~${this.jobName}` : this.jobName;
-    this.config = config;
   }
 }
 
-Job.prototype.put = async function(next) {
+Job.prototype.put = async function(config, rawConfig) {
   // check user vc
-  const virtualCluster = ('defaults' in this.config && this.config.defaults.virtualCluster != null) ?
-    this.config.defaults.virtualCluster : 'default';
+  const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
+    config.defaults.virtualCluster : 'default';
   await new Promise((resolve) => {
     userModel.checkUserVc(this.userName, virtualCluster, (err, result) => {
       if (err) {
@@ -276,7 +279,7 @@ Job.prototype.put = async function(next) {
   });
 
   // generate framework description and prepare container scripts on hdfs
-  const frameworkDescription = await prepareContainerScripts(this.jobName, this.userName, this.config);
+  const frameworkDescription = await prepareContainerScripts(this.frameworkName, this.userName, config, rawConfig);
 
   // send request to framework launcher
   const response = await axios({
@@ -287,8 +290,6 @@ Job.prototype.put = async function(next) {
   });
   if (response.status !== status('Accepted')) {
     throw createError(response.status, 'UnknownError', response.data.raw_body);
-  } else {
-    await next();
   }
 };
 
