@@ -485,13 +485,26 @@ class ContainerCollector(Collector):
         if inspect_info.gpu_ids:
             ids = inspect_info.gpu_ids.replace("\"", "").split(",")
             for id in ids:
+                # If the container was scheduled by yarn, we get its GPU usage
+                # info from label GPU_ID, value of the label is minor_number, and
+                # will be digits.
+                # If the container was scheduled by kube launcher, we get its GPU
+                # usage info from environment NVIDIA_VISIBLE_DEVICES, the value
+                # is like GPU-dc0671b0-61a4-443e-f456-f8fa6359b788. The mapping
+                # from uuid to minor_number is get via nvidia-smi, and gpu_infos
+                # should have key of this uuid.
                 if id.isdigit():
                     gpu_ids.append(id)
                 elif id and gpu_infos is not None:
                     # id is in form of UUID like
-                    # GPU-dc0671b0-61a4-443e-f456-f8fa6359b788
                     if gpu_infos.get(id) is not None:
                         gpu_ids.append(gpu_infos[id].minor)
+                    else:
+                        logger.warning("gpu uuid %s can not be found in map %s",
+                                id, gpu_infos.keys())
+                else:
+                    logger.warning("unknown gpu id %s, gpu_infos is %s",
+                            id, gpu_infos.keys())
 
         return gpu_ids, result_labels
 
