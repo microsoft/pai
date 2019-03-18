@@ -7,19 +7,21 @@
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
+[简体中文](zh_CN)
+
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
 ## Table of Contents
 
 1. [When to consider OpenPAI](#when-to-consider-openpai)
-1. [Why choose OpenPAI](#why-choose-openpai)
-1. [Get started](#get-started)
-1. [Deploy OpenPAI](#deploy-openpai)
-1. [Train models](#train-models)
-1. [Administration](#administration)
-1. [Reference](#reference)
-1. [Get involved](#get-involved)
-1. [How to contribute](#how-to-contribute)
+2. [Why choose OpenPAI](#why-choose-openpai)
+3. [Get started](#get-started)
+4. [Deploy OpenPAI](#deploy-openpai)
+5. [Train models](#train-models)
+6. [Administration](#administration)
+7. [Reference](#reference)
+8. [Get involved](#get-involved)
+9. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
 
