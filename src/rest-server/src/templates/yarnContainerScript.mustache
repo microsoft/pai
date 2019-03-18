@@ -301,6 +301,10 @@ docker run --name $docker_name \
   --shm-size={{ taskData.shmMB }}m \
   $nvidia_devices \
   --device=/dev/fuse \
+{{# isDebug }}
+  --cap-add=SYS_PTRACE \
+  --security-opt seccomp:unconfined \
+{{/ isDebug }}
   --security-opt apparmor:unconfined \
 {{# reqAzRDMA }}
 {{# azRDMA }}

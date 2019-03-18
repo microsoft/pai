@@ -429,6 +429,7 @@ class Job {
           'inspectOOMKilledFormat': '{{.State.OOMKilled}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
+          'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
         });
     return yarnContainerScript;
