@@ -131,7 +131,7 @@ export default function JobList() {
 
   useEffect(refreshJobs, []);
 
-  const context = {allJobs, refreshJobs, filteredJobs, selectedJobs, setSelectedJobs, stopJob, filter, setFilter, ordering, setOrdering, pagination, setPagination};
+  const context = {allJobs, refreshJobs, filteredJobs, selectedJobs, setSelectedJobs, stopJob, username, filter, setFilter, ordering, setOrdering, pagination, setPagination};
   context.setFilter = setFilterAndResetPagination;
 
   return (

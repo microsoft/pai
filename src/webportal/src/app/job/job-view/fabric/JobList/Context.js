@@ -19,6 +19,8 @@ export default React.createContext({
     job.executionType = 'STOP';
   },
 
+  username: '',
+
   filter: new Filter(),
   setFilter(filter) {
     this.filter = filter;

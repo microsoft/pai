@@ -27,7 +27,7 @@ import {getStatusText} from './utils';
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allJobs, refreshJobs, selectedJobs, stopJob, filter, setFilter} = useContext(Context);
+  const {allJobs, refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
   const {users, virtualClusters, statuses} = useMemo(() => {
     const users = Object.create(null);
@@ -200,22 +200,33 @@ function TopBar() {
       };
     }
 
+    /** @type {import('office-ui-fabric-react').IContextualMenuItem[]} */
+    const subMenuItems = [];
+    if (username !== undefined) {
+      subMenuItems.push({
+        key: username,
+        text: '@Me',
+        canCheck: true,
+        checked: filter.users.has(username),
+        onClick: onClick,
+      });
+    }
+    subMenuItems.push(...Object.keys(users)
+      .filter((user) => user !== username).map(getItem));
+    subMenuItems.push({
+      key: 'divider',
+      itemType: ContextualMenuItemType.Divider,
+    }, {
+      key: '$clear',
+      text: 'Clear',
+      onClick: onClearClick,
+    });
+
     return {
       key: 'user',
       name: 'User',
       buttonStyles: {root: {backgroundColor: 'transparent'}},
-      subMenuProps: {
-        items: Object.keys(users).map(getItem).concat([{
-            key: 'divider',
-            itemType: ContextualMenuItemType.Divider,
-          },
-          {
-            key: 'clear',
-            text: 'Clear',
-            onClick: onClearClick,
-          },
-        ]),
-      },
+      subMenuProps: {items: subMenuItems},
     };
   }
 
