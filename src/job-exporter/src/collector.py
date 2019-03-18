@@ -501,10 +501,10 @@ class ContainerCollector(Collector):
                         gpu_ids.append(gpu_infos[id].minor)
                     else:
                         logger.warning("gpu uuid %s can not be found in map %s",
-                                id, gpu_infos.keys())
+                                id, gpu_infos)
                 else:
                     logger.warning("unknown gpu id %s, gpu_infos is %s",
-                            id, gpu_infos.keys())
+                            id, gpu_infos)
 
         return gpu_ids, result_labels
 
