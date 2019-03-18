@@ -35,7 +35,7 @@ python paictl.py service start \
 
 If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
 
-- Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`.
+- Generate Kubernetes-related configuration files based on `layout.yaml`.
 
 - Use `kubectl` to set up config maps and create pods on Kubernetes.
 
