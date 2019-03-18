@@ -56,7 +56,7 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 ## 部署
 
-请按照本节内容检查先决条件, 部署和验证 OpenPAI 集群。 在初始部署后, 可以根据需要添加更多的服务器。
+根据以下内容来检查先决条件，部署并验证 OpenPAI 集群。 在初始部署后, 可以根据需要添加更多的服务器。
 
 强烈建议在空闲的服务器上试用 OpenPAI。 有关硬件规范, 请参阅 [这里](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
 
@@ -121,25 +121,25 @@ Web 门户和作业日志有助于分析作业失败, OpenPAI 支持用户通过
 
 有关解决作业故障的详细信息, 请参阅 [ 这里 ](docs/user/troubleshooting_job.md)。 建议在本地成功地运行作业之后，再提交给 OpenPAI 服务器。 这样就降低了远程故障出现的机会。
 
-## 管理
+## 运维管理
 
 * [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
 * [监测](./docs/webportal/README.md)
 
-## 参考资料
+## 参考手册
 
 * [作业定义](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
 * 设计文档可以在 [ 这里 ](docs) 找到。
 
-## Get involved
+## 寻求帮助
 
 * [Stack Overflow](./docs/stackoverflow.md): 如果您对 OpenPAI 有疑问, 请在 Stack Overflow 网站相应的标签 openpai 下出提交问题。
 * Gitter 聊天 </0 >: 你也可以在Gitter聊天中提问。</li> 
     
     * 提交问题或功能请求 </0 >: 如果您有问题，发现了错误，或者有新的功能需求, 请将他们提交到 GitHub 项目页面相应的地方。</li> </ul> 
         
-        ## 如何做出贡献
+        ## 参与贡献
         
         ### 贡献者许可协议
         
