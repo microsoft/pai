@@ -27,10 +27,10 @@ groups:
           summary: "Free space in {{$labels.device}} from {{$labels.instance}} is less than 20% (current value is: {{ $value }})"
 
       - alert: NodeMemoryUsage
-        expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes )) / node_memory_MemTotal_bytes * 100 > 80
+        expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes )) / node_memory_MemTotal_bytes * 100 > 95
         for: 5m
         annotations:
-          summary: "Memory usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
+          summary: "Memory usage in {{$labels.instance}} is above 95% (current value is: {{ $value }})"
 
       - alert: NodeCPUUsage
         expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 98
