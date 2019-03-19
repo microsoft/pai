@@ -28,7 +28,7 @@
 
 ### Example <a name="example"></a>
 
-An example layout.yaml is available [here](../../../examples/cluster-configuration/layout.yaml). In the following we explain the fields in the yaml file one by one.
+样例 layout.yaml 文件在[这里](../../../../examples/cluster-configuration/layout.yaml)。 In the following we explain the fields in the yaml file one by one.
 
 ### Field 1. kubernetes <a name="kubernetes"></a>
 
