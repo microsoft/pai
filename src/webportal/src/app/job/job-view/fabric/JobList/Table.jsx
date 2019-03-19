@@ -5,6 +5,7 @@ import {Link} from 'office-ui-fabric-react/lib/Link';
 import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
+import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
 
 import {DateTime, Duration} from 'luxon';
 
@@ -65,7 +66,8 @@ export default function Table() {
     minWidth: 200,
     name: 'Name',
     fieldName: 'name',
-    isRowHeader: true,
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.keyword !== '',
     onRender(job) {
@@ -80,6 +82,8 @@ export default function Table() {
     key: 'modified',
     minWidth: 150,
     name: 'Date Modified',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     isSorted: ordering.field === 'modified',
     isSortedDescending: !ordering.descending,
@@ -92,13 +96,17 @@ export default function Table() {
     minWidth: 100,
     name: 'User',
     fieldName: 'username',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.users.size > 0,
   });
   const durationColumn = applySortProps({
     key: 'duration',
-    minWidth: 50,
+    minWidth: 60,
     name: 'Duration',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
       return Duration.fromMillis(getDuration(job)).toFormat(`h:mm:ss`);
@@ -109,6 +117,8 @@ export default function Table() {
     minWidth: 100,
     name: 'Virtual Cluster',
     fieldName: 'virtualCluster',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.virtualClusters.size > 0,
   });
@@ -116,6 +126,7 @@ export default function Table() {
     key: 'status',
     minWidth: 100,
     name: 'Status',
+    headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
@@ -167,6 +178,7 @@ export default function Table() {
     key: 'actions',
     minWidth: 100,
     name: 'Actions',
+    headerClassName: FontClassNames.medium,
     columnActionsMode: ColumnActionsMode.disabled,
     onRender(job) {
       /**
@@ -213,6 +225,7 @@ export default function Table() {
       enableShimmer={allJobs === null}
       shimmerLines={pagination.itemsPerPage}
       selection={selection}
+      styles={{contentWrapper: {fontSize: 20}}}
     />
   );
 }
