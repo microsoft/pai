@@ -68,7 +68,7 @@ Please communicate with your cluster owner to reboot the rdma machines after the
 
 ######     5. Open the switch configuration for az-rdma whose default value is false
 
-In the [services-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration field ```cluster.common.az-rdma``` and set its value as ```"true""```.
+In the [services-configuration.yaml](../../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration field ```cluster.common.az-rdma``` and set its value as ```"true""```.
 
 For example, you should modify it as following.
 
