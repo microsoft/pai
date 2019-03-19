@@ -44,7 +44,7 @@ function exit_handler()
 {
   rc=$?
   printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
-  if [ $rc -eq 125]; then
+  if [ $rc -eq 125 ]; then
     printf "[DEBUG] Exit code 125, it may be docker daemon error, convert it to a transient error\n"
     rc=205
   fi
