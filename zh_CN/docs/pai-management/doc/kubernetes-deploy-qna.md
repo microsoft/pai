@@ -9,7 +9,7 @@
     - Prepare kubelet environment accoding to node role
     - [The Python Module To Deploy PAI](../../../deployment/k8sPaiLibrary/maintainlib/deploy.py)
     - [The Environment Preparation Script Link](../../../deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh)
-    - [The Starting Script Link](../../../deployment/k8sPaiLibrary/template/kubelet.sh.template)
+    - [The Starting Script Link](../../../../deployment/k8sPaiLibrary/template/kubelet.sh.template)
 
 #### Kubernetes Disk Pressure Status
 
