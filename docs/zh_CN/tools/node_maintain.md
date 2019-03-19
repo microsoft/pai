@@ -58,7 +58,7 @@ You could find your `api-server-ip` in [kubernetes-configuration](../../examples
 python node_maintain.py blacklist enforce -m {master_ip} [--api-server-ip api-server-ip] [--resource-manager-ip resource-manager-ip]
 ```
 
-可在 [layout](../../examples/cluster-configuration/layout.yaml) 文件的 [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml) 和 `resource-manager-ip` 找到 `api-server-ip`，默认情况下，都与 `master_ip` 一致。
+可在 [layout](../../../examples/cluster-configuration/layout.yaml) 文件的 [kubernetes-configuration](../../../examples/cluster-configuration/kubernetes-configuration.yaml) 和 `resource-manager-ip` 找到 `api-server-ip`，默认情况下，都与 `master_ip` 一致。
 
 Noticed that it's a blocking command and won't exit until all nodes are decommissioned or recommissioned.
 
