@@ -13,7 +13,7 @@
 
 All configurations in this section is optional. If you wanna customized these value, you can configure it in service-configuration.yaml.
 
-For example, if you wanna reconfigure ```drivers.set-nvidia-runtme``` with a new value. You should configure it in [service-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml) with the yaml style as following.
+For example, if you wanna reconfigure ```drivers.set-nvidia-runtme``` with a new value. You should configure it in [service-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml) with the yaml style as following.
 
 ```yaml
 drivers:
