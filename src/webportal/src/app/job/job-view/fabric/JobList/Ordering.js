@@ -2,7 +2,7 @@ import {getModified, getDuration, getStatusIndex} from './utils';
 
 export default class Ordering {
   /**
-   * @param {"name" | "modified" | "user" | "duration" | “virtualCluster” | "status" | undefined} field
+   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster"| "status" | undefined} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending=false) {
