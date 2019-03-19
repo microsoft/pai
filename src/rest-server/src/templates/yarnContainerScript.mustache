@@ -31,13 +31,6 @@ function sigterm_handler()
 {
   printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
 
-  pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
-  if [ $pid -gt 0 ]; then
-    # This is a best effort kill, so we only use SIGTERM(15)
-    kill -15 $pid &&\
-      printf "[DEBUG] Docker container $docker_name killed successfully." ||\
-      printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
-  fi
   exit 143
 }
 
@@ -45,28 +38,29 @@ function sigterm_handler()
 function exit_handler()
 {
   rc=$?
-  printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
-  if [ $rc -eq 125 ]; then
+  printf "[DEBUG] Performing clean up action...\n"
+  if [[ $rc -eq 125 ]]; then
     # We assume 125 is a docker error, and retry it without burning user's retry count
     printf "[DEBUG] Exit code 125, it may be docker error, convert it to a transient error\n"
     rc=205
   fi
 
-  pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
-  if [ $pid -eq 0 ]; then
-    printf "[DEBUG] Docker container $docker_name has already exited"
-    is_oom=$(docker inspect --format={{{ inspectOOMKilledFormat }}} $docker_name 2>/dev/null)
-    if [ "$is_oom" = "true" ]; then
-      printf "[DEBUG] docker container $docker_name is exited by OOM."
-      rc=55
-    fi
+  if [[ $rc -eq 137 || $rc -eq 143 ]]; then
+    printf "[DEBUG] Exit code $rc, it may be critical system errors or OOM\n"
+    rc=55
   fi
 
   printf "[DEBUG] Write exit code $rc to file /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode.\n"
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
 
-  # Any time-consuming operations please put here, otherwise NM couldn't get exitcode as restart
-  docker container rm $docker_name
+  # After all necessary steps, do a best effort kill here
+  pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
+  if [ $pid -gt 0 ]; then
+    kill -15 $pid &&\
+      printf "[DEBUG] Docker container $docker_name killed successfully." ||\
+      printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
+  fi
+
   exit $rc
 }
 
@@ -300,6 +294,7 @@ docker pull {{ jobData.image }} \
 docker run --name $docker_name \
   --init \
   --tty \
+  --rm \
   --privileged=false \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
