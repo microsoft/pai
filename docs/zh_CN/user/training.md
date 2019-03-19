@@ -98,7 +98,7 @@ The **job configuration** is a JSON file, which is posted to OpenPAI. Here uses 
 
 The JSON file of job has two levels entries. The top level includes shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and the corresponding running environment.
 
-以下是 Job 配置的必需字段，参考 [Job 配置手册](../job_tutorial.md)。
+以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
 - **jobName** is the unique name of current job, displays in web also. A meaningful name helps managing jobs well.
 
