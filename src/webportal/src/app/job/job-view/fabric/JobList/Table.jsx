@@ -225,7 +225,6 @@ export default function Table() {
       enableShimmer={allJobs === null}
       shimmerLines={pagination.itemsPerPage}
       selection={selection}
-      styles={{contentWrapper: {fontSize: 20}}}
     />
   );
 }
