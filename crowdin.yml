@@ -1,9 +1,10 @@
 files:
   - source: '/**/*.[mM][dD]'
     ignore:
-      - /%locale_with_underscore%
+      - '%locale_with_underscore%'
       - /.github/**/*
-    translation: /%locale_with_underscore%/%original_path%/%original_file_name%
+      - /docs
+    translation: '%original_path%/%file_name%_%locale_with_underscore%.%file_extension%'
   - source: '/**/*.[pP][nN][gG]'
     ignore:
       - /%locale_with_underscore%
@@ -16,3 +17,7 @@ files:
     ignore:
       - /%locale_with_underscore%
     translation: /%locale_with_underscore%/%original_path%/%original_file_name%
+  - source: /docs/**/*
+    ignore:
+      - '%locale_with_underscore%'
+    translation: /docs/%locale_with_underscore%/**/%original_file_name%
