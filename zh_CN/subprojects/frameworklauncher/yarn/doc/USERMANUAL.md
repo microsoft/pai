@@ -245,11 +245,11 @@ Recipes:
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                  | Description                                                                                                                                                        |
-|:----------------------- |:----------------------------------------------------------------------------------------------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| OK(200)                 | [FrameworkStatus](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkStatus.java) |                                                                                                                                                                    |
-| NotFound(404)           | ExceptionMessage                                                                                      | Specified Framework has not been Requested yet. So, Client is expected to not retry for this non-transient failure and then PUT the corresponding Framework first. |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                      | Same as [PUT Framework](#PUT_Framework)                                                                                                                            |
+| HttpStatusCode          | Body                                                                                                     | Description                                                                                                                                                        |
+|:----------------------- |:-------------------------------------------------------------------------------------------------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| OK(200)                 | [FrameworkStatus](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkStatus.java) |                                                                                                                                                                    |
+| NotFound(404)           | ExceptionMessage                                                                                         | Specified Framework has not been Requested yet. So, Client is expected to not retry for this non-transient failure and then PUT the corresponding Framework first. |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                         | Same as [PUT Framework](#PUT_Framework)                                                                                                                            |
 
 #### <a name="PUT_TaskNumber">PUT TaskNumber</a>
 
@@ -381,11 +381,11 @@ FrameworkInfo = SummarizedFrameworkInfo + AggregatedFrameworkRequest + Aggregate
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                              | Description                                         |
-|:----------------------- |:------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
-| OK(200)                 | [FrameworkInfo](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkInfo.java) |                                                     |
-| NotFound(404)           | ExceptionMessage                                                                                  | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                  | Same as [PUT Framework](#PUT_Framework)             |
+| HttpStatusCode          | Body                                                                                                 | Description                                         |
+|:----------------------- |:---------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
+| OK(200)                 | [FrameworkInfo](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkInfo.java) |                                                     |
+| NotFound(404)           | ExceptionMessage                                                                                     | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                     | Same as [PUT Framework](#PUT_Framework)             |
 
 #### <a name="GET_Frameworks">GET Frameworks</a>
 
@@ -406,12 +406,12 @@ A Framework's SummarizedFrameworkInfo consists selected fields from its Status a
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                                    | Description                             |
-|:----------------------- |:----------------------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
-| OK(200)                 | [SummarizedFrameworkInfos](../src/main/java/com/microsoft/frameworklauncher/common/model/SummarizedFrameworkInfos.java) |                                         |
-| BadRequest(400)         | ExceptionMessage                                                                                                        | Same as [PUT Framework](#PUT_Framework) |
-| Forbidden(403)          | ExceptionMessage                                                                                                        | Same as [PUT Framework](#PUT_Framework) |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                                        | Same as [PUT Framework](#PUT_Framework) |
+| HttpStatusCode          | Body                                                                                                                       | Description                             |
+|:----------------------- |:-------------------------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
+| OK(200)                 | [SummarizedFrameworkInfos](../../src/main/java/com/microsoft/frameworklauncher/common/model/SummarizedFrameworkInfos.java) |                                         |
+| BadRequest(400)         | ExceptionMessage                                                                                                           | Same as [PUT Framework](#PUT_Framework) |
+| Forbidden(403)          | ExceptionMessage                                                                                                           | Same as [PUT Framework](#PUT_Framework) |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                                           | Same as [PUT Framework](#PUT_Framework) |
 
 #### <a name="GET_AggregatedFrameworkStatus">GET AggregatedFrameworkStatus</a>
 
@@ -435,11 +435,11 @@ TaskStatuses Recipes:
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                                      | Description                                         |
-|:----------------------- |:------------------------------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
-| OK(200)                 | [AggregatedFrameworkStatus](../src/main/java/com/microsoft/frameworklauncher/common/model/AggregatedFrameworkStatus.java) |                                                     |
-| NotFound(404)           | ExceptionMessage                                                                                                          | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                                          | Same as [PUT Framework](#PUT_Framework)             |
+| HttpStatusCode          | Body                                                                                                                         | Description                                         |
+|:----------------------- |:---------------------------------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
+| OK(200)                 | [AggregatedFrameworkStatus](../../src/main/java/com/microsoft/frameworklauncher/common/model/AggregatedFrameworkStatus.java) |                                                     |
+| NotFound(404)           | ExceptionMessage                                                                                                             | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                                             | Same as [PUT Framework](#PUT_Framework)             |
 
 #### <a name="GET_FrameworkRequest">GET FrameworkRequest</a>
 
@@ -456,11 +456,11 @@ Current [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/c
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                    | Description                                         |
-|:----------------------- |:------------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
-| OK(200)                 | [FrameworkRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkRequest.java) |                                                     |
-| NotFound(404)           | ExceptionMessage                                                                                        | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                        | Same as [PUT Framework](#PUT_Framework)             |
+| HttpStatusCode          | Body                                                                                                       | Description                                         |
+|:----------------------- |:---------------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
+| OK(200)                 | [FrameworkRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkRequest.java) |                                                     |
+| NotFound(404)           | ExceptionMessage                                                                                           | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                           | Same as [PUT Framework](#PUT_Framework)             |
 
 #### <a name="GET_AggregatedFrameworkRequest">GET AggregatedFrameworkRequest</a>
 
@@ -477,11 +477,11 @@ AggregatedFrameworkRequest = FrameworkRequest + all other feedback Request
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                                        | Description                                         |
-|:----------------------- |:--------------------------------------------------------------------------------------------------------------------------- |:--------------------------------------------------- |
-| OK(200)                 | [AggregatedFrameworkRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/AggregatedFrameworkRequest.java) |                                                     |
-| NotFound(404)           | ExceptionMessage                                                                                                            | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                                            | Same as [PUT Framework](#PUT_Framework)             |
+| HttpStatusCode          | Body                                                                                                                           | Description                                         |
+|:----------------------- |:------------------------------------------------------------------------------------------------------------------------------ |:--------------------------------------------------- |
+| OK(200)                 | [AggregatedFrameworkRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/AggregatedFrameworkRequest.java) |                                                     |
+| NotFound(404)           | ExceptionMessage                                                                                                               | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                                               | Same as [PUT Framework](#PUT_Framework)             |
 
 #### <a name="GET_LauncherRequest">GET LauncherRequest</a>
 
@@ -496,10 +496,10 @@ Get the LauncherRequest
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                  | Description                             |
-|:----------------------- |:----------------------------------------------------------------------------------------------------- |:--------------------------------------- |
-| OK(200)                 | [LauncherRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherRequest.java) |                                         |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                      | Same as [PUT Framework](#PUT_Framework) |
+| HttpStatusCode          | Body                                                                                                     | Description                             |
+|:----------------------- |:-------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
+| OK(200)                 | [LauncherRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherRequest.java) |                                         |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                         | Same as [PUT Framework](#PUT_Framework) |
 
 #### <a name="GET_LauncherStatus">GET LauncherStatus</a>
 
@@ -516,10 +516,10 @@ Current [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                | Description                             |
-|:----------------------- |:--------------------------------------------------------------------------------------------------- |:--------------------------------------- |
-| OK(200)                 | [LauncherStatus](../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherStatus.java) |                                         |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                    | Same as [PUT Framework](#PUT_Framework) |
+| HttpStatusCode          | Body                                                                                                   | Description                             |
+|:----------------------- |:------------------------------------------------------------------------------------------------------ |:--------------------------------------- |
+| OK(200)                 | [LauncherStatus](../../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherStatus.java) |                                         |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                       | Same as [PUT Framework](#PUT_Framework) |
 
 #### <a name="PUT_ClusterConfiguration">PUT ClusterConfiguration</a>
 
@@ -562,10 +562,10 @@ Get the ClusterConfiguration
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                            | Description                             |
-|:----------------------- |:--------------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
-| OK(200)                 | [ClusterConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java) |                                         |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                                | Same as [PUT Framework](#PUT_Framework) |
+| HttpStatusCode          | Body                                                                                                               | Description                             |
+|:----------------------- |:------------------------------------------------------------------------------------------------------------------ |:--------------------------------------- |
+| OK(200)                 | [ClusterConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java) |                                         |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                                   | Same as [PUT Framework](#PUT_Framework) |
 
 #### <a name="PUT_AclConfiguration">PUT AclConfiguration</a>
 
@@ -606,10 +606,10 @@ Get the AclConfiguration
 
 **Response**
 
-| HttpStatusCode          | Body                                                                                                    | Description                             |
-|:----------------------- |:------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
-| OK(200)                 | [AclConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/AclConfiguration.java) |                                         |
-| ServiceUnavailable(503) | ExceptionMessage                                                                                        | Same as [PUT Framework](#PUT_Framework) |
+| HttpStatusCode          | Body                                                                                                       | Description                             |
+|:----------------------- |:---------------------------------------------------------------------------------------------------------- |:--------------------------------------- |
+| OK(200)                 | [AclConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/AclConfiguration.java) |                                         |
+| ServiceUnavailable(503) | ExceptionMessage                                                                                           | Same as [PUT Framework](#PUT_Framework) |
 
 ## <a name="DataModel_and_FeatureUsage">DataModel and FeatureUsage</a>
 
