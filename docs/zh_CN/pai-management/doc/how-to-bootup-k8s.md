@@ -21,7 +21,7 @@
 
 #### Prerequires
 
-Before deploying kubernete with OpenPAI, please be sure that your hardware and os meet the requirement in the [link](../../../README.md#prerequisites)
+Before deploying kubernete with OpenPAI, please be sure that your hardware and os meet the requirement in the [link](../../../../README.md#prerequisites)
 
 #### Command
 
