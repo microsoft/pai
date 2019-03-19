@@ -2,7 +2,7 @@ Building on top of [Prometheus Alertmanager](https://prometheus.io/docs/alerting
 
 # Configuration
 
-To enable Alert Manager, please follow instruction [here](../../src/alert-manager/config/alert-manager.md)
+To enable Alert Manager, please follow instruction [here](../../../src/alert-manager/config/alert-manager.md)
 
 参考样例 [`layout`](../../../examples/cluster-configuration/layout.yaml) 和 [`service-configuration`](../../../examples/cluster-configuration/services-configuration.yaml) 了解细节。
 
