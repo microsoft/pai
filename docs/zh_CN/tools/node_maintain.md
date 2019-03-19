@@ -42,7 +42,7 @@ If you configure alert-manager in [services-configuration](../../examples/cluste
 python node_maintain.py blacklist add -n {unhealthy_nodes} -m {api-server-ip}
 ```
 
-You could find your `api-server-ip` in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml).
+You could find your `api-server-ip` in [kubernetes-configuration](../../../examples/cluster-configuration/kubernetes-configuration.yaml).
 
 `blacklist` command provides more operations about blacklist, including following actions.
 
