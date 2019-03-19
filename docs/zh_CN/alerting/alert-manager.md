@@ -4,7 +4,7 @@ Building on top of [Prometheus Alertmanager](https://prometheus.io/docs/alerting
 
 To enable Alert Manager, please follow instruction [here](../../src/alert-manager/config/alert-manager.md)
 
-Refer to example [`layout`](../../examples/cluster-configuration/layout.yaml) and [`service-configuration`](../../examples/cluster-configuration/services-configuration.yaml) for more information.
+参考样例 [`layout`](../../../examples/cluster-configuration/layout.yaml) 和 [`service-configuration`](../../../examples/cluster-configuration/services-configuration.yaml) 了解细节。
 
 `alert-manager` fields has following subfield:
 
