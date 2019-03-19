@@ -77,17 +77,17 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 #### 使用默认配置部署
 
-对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
+对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/zh_CN/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/zh_CN/pai-management/doc/single-box.md)。
 
 对于大型集群，仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#customize-deployment)。
 
 #### 自定义部署
 
-由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来进行优化。 参考[自定义部署](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
+由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来进行优化。 参考[自定义部署](docs/zh_CN/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
 
 ### 验证部署
 
-部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/user/training.md) 进行端到端的验证。
+部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/zh_CN/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/zh_CN/user/training.md) 进行端到端的验证。
 
 ### 培训用户
 
@@ -97,7 +97,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 常见问答
 
-如果在部署过程中遇到问题，先查看[这里](docs/faq.md#deploy-and-maintenance-related-faqs)。
+如果在部署过程中遇到问题，先查看[这里](docs/zh_CN/faq.md#deploy-and-maintenance-related-faqs)。
 
 如果还不能解决问题，通过[这里](#get-involved)来讨论或者提交问题。
 
