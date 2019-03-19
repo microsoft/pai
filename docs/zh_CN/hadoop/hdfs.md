@@ -19,7 +19,7 @@ Data on HDFS can be accessed by various ways. Users can choose the proper way ac
 
 ## WebHDFS <a name="WebHDFS"></a>
 
-WebHDFS provides a set of REST APIs and this is our recommended way to access data. [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs. In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node. So the rest server URI will be http://master-node-address/webhdfs. The *master-node-address* is the address of the machine with *pai-master* label *true* in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml). Following are two simple examples to show how the APIs can be used to create and delete a file.
+WebHDFS provides a set of REST APIs and this is our recommended way to access data. [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs. In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node. So the rest server URI will be http://master-node-address/webhdfs. 配置文件 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 中的 *master-node-address* 是 *pai-master* 标签为 *true* 的地址。 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File  
     Suppose to create file *test_file* under directory */test*. First step is submit a request without redirection and data with command:
@@ -77,11 +77,11 @@ Please refer [HDFS Command Guide](http://hadoop.apache.org/docs/stable/hadoop-pr
 
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*. Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address.
 
-Note: *hdfs-name-node-address* It is the address of the machine with *pai-master* label *true* in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml). If you don't know where this file is, please contact the cluster administrator.
+注意：配置文件 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 中的 *hdfs-name-node-address* 是 *pai-master* 标签为 *true* 的地址。 If you don't know where this file is, please contact the cluster administrator.
 
 ## Web Portal <a name="Web_Portal"></a>
 
-Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true* in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml). From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
+Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready. 配置文件 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 中的 *hdfs-name-node-address* 是 *pai-master* 标签为 *true* 的地址。 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
 
 ## API <a name="API"></a>
 
