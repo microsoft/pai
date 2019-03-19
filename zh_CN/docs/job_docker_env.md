@@ -2,7 +2,7 @@
 
 The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance. The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
 
-To build a base Docker image, for example [Dockerfile.build.base](../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
+要构建像 [Dockerfile.build.base](../../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) 一样的 Docker 映像，运行：
 
 ```sh
 docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
