@@ -7,10 +7,10 @@ A tool to manage external storage in PAI.
     - [ Server data structure ](#Server_data)
     - [ User data structure ](#User_data)
 - [ Team wise storage usages ](#Useages)
-    - [Setup NFS server ](#Useages_nfs)
-    - [Create server config in PAI storage plugin ](#Useages_server)
-    - [Create user config in PAI storage plugin ](#Useages_user)
-    - [Use Storage info in job container ](#Useages_job)
+    - [ Setup NFS server ](#Useages_nfs)
+    - [ Create server config in PAI storage plugin ](#Useages_server)
+    - [ Create user config in PAI storage plugin ](#Useages_user)
+    - [ Use Storage info in job container ](#Useages_job)
 
 
 ## Team wise storage data structures <a name="Data_structure"></a>
@@ -92,8 +92,20 @@ A tool to manage external storage in PAI.
 
 
 ### Use Storage info in job container <a name="Usages_job"></a>
-	Use RestAPI to get user infomation 
-
-
-
-
+	On webportal, we can get all server info and user info through URL:
+	```TypeScript
+	storageExternalUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/configmaps/storage-external`;
+	storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/configmaps/storage-user`;
+	
+	fetch(storageExternalUrl).then(responseToData);
+	fetch(storageUserUrl).then(responseToData);
+	```
+	
+	Then we can get user's default storage config through user name, and get the server detail.
+	```TypeScript
+	const content = storageUserData[`${user}.json`];
+    const { defaultStorage } = JSON.parse(content);
+	storageKey = defaultStorage;
+    const storageContent = storageExternalData[storageKey];
+    const { type, address, rootPath } = JSON.parse(storageContent);
+	```
