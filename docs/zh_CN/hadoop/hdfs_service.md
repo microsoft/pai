@@ -50,7 +50,7 @@ HDFS name node and data node both have it configuration files. They are located 
 
 ## Storage Path <a name="Storage_Path"></a>
 
-By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in file [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml). For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, which supports a comma-delimited list of directories to configure multiple disks.
+By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in file [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml). For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, which supports a comma-delimited list of directories to configure multiple disks.
 
 ### Name Node <a name="Name_Node"></a>
 
