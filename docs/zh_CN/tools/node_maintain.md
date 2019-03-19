@@ -34,7 +34,7 @@ By default the alert url is `http://{prometheus_ip}:9091/prometheus/alerts`, all
 
 ###### 3. Get notification by alert-manager
 
-If you configure alert-manager in [services-configuration](../../examples/cluster-configuration/services-configuration.yaml), you will get alert mails when unhealthy GPU found.
+If you configure alert-manager in [services-configuration](../../../examples/cluster-configuration/services-configuration.yaml), you will get alert mails when unhealthy GPU found.
 
 ### Add unhealthy GPU nodes to blacklist
 
