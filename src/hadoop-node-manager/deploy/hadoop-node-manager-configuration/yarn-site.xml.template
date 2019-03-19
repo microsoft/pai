@@ -309,6 +309,12 @@
   </property>
 
   <property>
+    <name>yarn.nodemanager.sleep-delay-before-sigkill.ms</name>
+    <value>10000</value>
+  </property>
+
+
+  <property>
     <description>
     The duration (in ms) the YARN client waits for an expected state change
     to occur.  -1 means unlimited wait time.
