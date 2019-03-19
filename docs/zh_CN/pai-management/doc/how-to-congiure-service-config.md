@@ -27,7 +27,7 @@
 
 ### Configuration Example <a name="example"></a>
 
-An example service-configuration.yaml file is available [here](../../../examples/cluster-configuration/services-configuration.yaml). The yaml file includes the following fields.
+An example service-configuration.yaml file is available [here](../../../../examples/cluster-configuration/services-configuration.yaml). The yaml file includes the following fields.
 
 ### Necessary Configuration - Minimal configuration to setup OpenPAI <a name="necessary"></a>
 
