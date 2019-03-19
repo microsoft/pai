@@ -105,21 +105,21 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 和所有机器学习平台一样，OpenPAI 是一个提高生产力的工具。 为了提高资源利用率，建议用户提交训练 Job，并让 OpenPAI 来分配资源并运行 Job。 如果 Job 太多，一些 Job 会排队并等待可用的资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
 
-另外，除了 Job 队列，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter 来连接并使用计算资源。参考[这里](examples/jupyter/README.md)来了解详情。 虽然这样对资源的利用不会高效，但也节省了在物理服务器上配置管理环境的投入。
+另外，除了 Job 队列，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter 来连接并使用计算资源。参考[这里](examples/jupyter/README_zh_CN.md)了解详情。 虽然这样对资源的利用不会高效，但也节省了在物理服务器上配置管理环境的投入。
 
 ### 提交训练作业
 
-参考[提交 hello-world Job](docs/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
+参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
 
 ### OpenPAI VS Code 客户端
 
-[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 通过它，能够提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 通过它，能够提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
 Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
 
-有关调研 Job 错误的详细信息参考[这里](docs/user/troubleshooting_job.md)。 建议在本地能正常运行代码之后，再提交到 OpenPAI。 这样能减少远程调试的可能性。
+有关调研 Job 错误的详细信息参考[这里](docs/zh_CN/user/troubleshooting_job.md)。 建议在本地能正常运行代码之后，再提交到 OpenPAI。 这样能减少远程调试的可能性。
 
 ## 运维管理
 
@@ -135,7 +135,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ## 寻求帮助
 
-* [Stack Overflow](./docs/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
+* [Stack Overflow](./docs/zh_CN/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
 * [Gitter Chat](https://gitter.im/Microsoft/pai)：也可以在 Gitter 中提问。
 * [提交问题或功能请求](https://github.com/Microsoft/pai/issues/new/choose)：如果发现了错误，或有新功能的需求，可提交到 GitHub。
 
@@ -164,6 +164,6 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 贡献者
 
-OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/research_education.md)。
+OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
 
 OpenPAI 采用开放的形式来合作。 它最初由微软研究院和微软互联网工程院 AI 平台团队联合开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。
