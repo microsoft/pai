@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {ColorClassNames, FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
+import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
@@ -159,7 +159,7 @@ export default class Summary extends React.Component {
           <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
             <div className={c(t.flex)}>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
+                styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isNil(jobConfig)}
                 onClick={() => {
@@ -173,7 +173,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
+                styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isEmpty(jobInfo.jobStatus.appExitDiagnostics)}
                 onClick={() => {
@@ -187,7 +187,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
+                styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
                 target="_blank"
               >
@@ -195,7 +195,7 @@ export default class Summary extends React.Component {
               </Link>
               <div className={c(t.bl, t.mh3)}></div>
               <Link
-                styles={{root: [ColorClassNames.neutralTertiary, FontClassNames.mediumPlus]}}
+                styles={{root: [FontClassNames.mediumPlus]}}
                 href={getJobMetricsUrl()}
                 target="_blank"
               >
