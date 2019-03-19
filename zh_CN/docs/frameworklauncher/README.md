@@ -19,4 +19,4 @@
 
 # Microsoft FrameworkLauncher
 
-See FrameworkLauncher docs in [FrameworkLauncher](../../subprojects/frameworklauncher/README.md).
+参考 [FrameworkLauncher](../../../subprojects/frameworklauncher/README.md) 文档。
