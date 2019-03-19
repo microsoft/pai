@@ -28,7 +28,7 @@ output folder and layout.yaml file are at /cluster-configuration.
 
 - Step 2.2 customize configuration 
 
-copy or prepare a [service-configuration.yaml](../../../deployment/quick-start/services-configuration.yaml.template) under /cluster-configuration. Please fill in the docker docker-registry content.
+copy or prepare a [service-configuration.yaml](../../../../deployment/quick-start/services-configuration.yaml.template) under /cluster-configuration. Please fill in the docker docker-registry content.
 
     cluster:
       docker-registry:
