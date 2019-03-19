@@ -14,7 +14,7 @@ A tool to manage your storage config.
 
 - [ Manage user config ](#User_config)
     - [ Set user default server ](#User_setdefault)
-	- [ List user config ] (#User_list) 
+    - [ List user config ](#User_list) 
 
 - [ Push storage settings ](#Push)
     - [ Push server settings ](#Push_server)
