@@ -167,5 +167,5 @@ When job is submitted to OpenPAI, user can see job's status changing from waitin
 ## Reference
 
 - [Full spec of job configuration](../job_tutorial.md)
-- [Examples](../../examples)
+- [Examples](../../../examples)
 - [Troubleshooting job failure](troubleshooting_job.md)
