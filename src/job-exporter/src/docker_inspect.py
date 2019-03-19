@@ -25,33 +25,66 @@ import utils
 
 logger = logging.getLogger(__name__)
 
-target_label = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
-target_env = {"PAI_TASK_INDEX"}
+class InspectResult(object):
+    """ Represents a task meta data, parsed from docker inspect result """
+    def __init__(self, username, job_name, role_name, task_index, gpu_ids, pid):
+        self.username = username
+        self.job_name = job_name
+        self.role_name = role_name
+        self.task_index = task_index
+        self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
+        self.pid = pid
+
+    def __repr__(self):
+        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, pid %s" % \
+                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.pid)
+
+    def __eq__(self, o):
+        return self.username == o.username and \
+                self.job_name == o.job_name and \
+                self.role_name == o.role_name and \
+                self.task_index == o.task_index and \
+                self.gpu_ids == o.gpu_ids and \
+                self.pid == o.pid
+
+
+keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
+        "PAI_TASK_INDEX"}
 
 
 def parse_docker_inspect(inspect_output):
     obj = json.loads(inspect_output)
-    labels = {}
-    envs = {}
+
+    m = {}
 
     obj_labels = utils.walk_json_field_safe(obj, 0, "Config", "Labels")
     if obj_labels is not None:
-        for key in obj_labels:
-            if key in target_label:
-                label_key = "container_label_{0}".format(key.replace(".", "_"))
-                label_val = obj_labels[key]
-                labels[label_key] = label_val
+        for k, v in obj_labels.items():
+            if k in keys:
+                m[k] = v
 
     obj_env = utils.walk_json_field_safe(obj, 0, "Config", "Env")
     if obj_env:
         for env in obj_env:
-            env_item = env.split("=")
-            if env_item[0] in target_env:
-                key = "container_env_{0}".format(env_item[0].replace(".", "_"))
-                val = env_item[1]
-                envs[key] = val
+            k, v = env.split("=", 1)
+            if k in keys:
+                m[k] = v
+
+            # for kube-launcher tasks
+            if k == "FC_TASK_INDEX":
+                m["PAI_TASK_INDEX"] = v
+            elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all":
+                m["GPU_ID"] = v
 
     pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
+
+    return InspectResult(
+            m.get("PAI_USER_NAME"),
+            m.get("PAI_JOB_NAME"),
+            m.get("PAI_CURRENT_TASK_ROLE_NAME"),
+            m.get("PAI_TASK_INDEX"),
+            m.get("GPU_ID"),
+            pid)
 
     return {"env": envs, "labels": labels, "pid": pid}
 

@@ -19,23 +19,6 @@ require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/tooltip.js');
 
 const monaco = require('monaco-editor');
-self.MonacoEnvironment = {
-  getWorkerUrl: function(moduleId, label) {
-    if (label === 'json') {
-      return './scripts/json.worker.bundle.js';
-    }
-    if (label === 'css') {
-      return './scripts/css.worker.bundle.js';
-    }
-    if (label === 'html') {
-      return './scripts/html.worker.bundle.js';
-    }
-    if (label === 'typescript' || label === 'javascript') {
-      return './scripts/ts.worker.bundle.js';
-    }
-    return './scripts/editor.worker.bundle.js';
-  },
-};
 
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');

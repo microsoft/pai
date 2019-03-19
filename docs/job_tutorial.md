@@ -77,6 +77,11 @@ A json file describe detailed configuration required for a job submission. The d
     "foo", Integer,
     "key", String,
     ...
+  },
+  "extras": {
+    "foo", Integer,
+    "key", String,
+    ...
   }
 }
 ```
@@ -109,10 +114,11 @@ Below please find the detailed explanation for each of the parameters in the con
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `jobEnvs`                        | Object, optional           | Job env parameters, key-value pairs, available in job container and **no substitution allowed** |
-| `jobEnvs.paiAzRDMA`                        | Boolean, optional           | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
-| `jobEnvs.isDebug`                        | Boolean, optional           | after this flag is set as ```true```, if user's command exits with a none-zero value, the failed container will be reserved for job debugging.  [More detail](./job_debugging.md)|
+| `jobEnvs.paiAzRDMA`              | Boolean, optional          | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
+| `jobEnvs.isDebug`                | Boolean, optional          | after this flag is set as ```true```, if user's command exits with a none-zero value, the failed container will be reserved for job debugging.  [More detail](user/troubleshooting_job.md#reserve-failed-docker-for-debugging)|
+| `extras`                         | Object, optional           | Extra parameters, key-value pairs, save any information that job may use |
 
-For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
+For more details on explanation, please refer to [frameworklauncher user manual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
 please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
@@ -225,6 +231,8 @@ A distributed TensorFlow job is listed below as an example:
   "jobEnvs": {
     "batch_size": 32,
     "job_model": "resnet20"
+  },
+  "extras": {
   }
 }
 ```

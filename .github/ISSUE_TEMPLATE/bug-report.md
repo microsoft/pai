@@ -23,7 +23,7 @@ Please fill this for deployment related issues:
 
 <!--User job related issues
 GitHub is not the right place for support requests.
-If you're looking for help, check [Stack Overflow](https://stackoverflow.com/questions/tagged/openpai) and the [troubleshooting guide](https://github.com/Microsoft/pai/blob/master/docs/job_log.md and https://github.com/Microsoft/pai/blob/master/docs/job_tutorial.md#how-to-debug-a-job).
+If you're looking for help, check [Stack Overflow](https://stackoverflow.com/questions/tagged/openpai) and the [troubleshooting guide](https://github.com/Microsoft/pai/blob/master/docs/user/troubleshooting_job.md and https://github.com/Microsoft/pai/blob/master/docs/job_tutorial.md#how-to-debug-a-job).
 -->
 
 **How to reproduce it**:

@@ -25,7 +25,7 @@ cleaner:
 After parsing, object model looks like:
 ```yaml
 cleaner:
-    threshold: 94
+    threshold: 90
     interval: 60
 ```
 

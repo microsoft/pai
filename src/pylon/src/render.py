@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+from hashlib import md5
 from jinja2 import Template
 
 env = {}
@@ -23,5 +24,8 @@ for key in os.environ:
     env[key] = os.environ[key]
 
 templateString = open('nginx.conf.template', 'r').read()
+
+env.setdefault('PYLON_CONF_ETAG', md5(templateString).hexdigest())
+
 renderedString = Template(templateString).render(env)
 open('nginx.conf', 'w').write(renderedString)

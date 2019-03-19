@@ -243,6 +243,13 @@ const jobSchema = {
       additionalProperties: true,
       description: 'Job env parameters, which are available in job containers',
     },
+    extras: {
+      type: 'object',
+      format: 'grid',
+      propertyOrder: 201,
+      additionalProperties: true,
+      description: 'Extra parameters, store any information that job may use',
+    },
   },
   required: [
     'jobName',

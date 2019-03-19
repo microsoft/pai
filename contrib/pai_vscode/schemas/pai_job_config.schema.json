@@ -133,6 +133,10 @@
         "jobEnvs": {
             "type": "object",
             "description": "Job env parameters, key-value pairs, available in job container and no substitution allowed"
+        },
+        "extras": {
+            "type": "object",
+            "description": "Extra parameters, key-value pairs, save any information that job may use"
         }
     },
     "required": [

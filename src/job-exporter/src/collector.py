@@ -88,11 +88,10 @@ def gen_gpu_used_by_zombie_container_counter():
 class ResourceGauges(object):
     def __init__(self):
         self.task_labels = [
-                "container_env_PAI_TASK_INDEX",
-                "container_label_PAI_CURRENT_TASK_ROLE_NAME",
-                "container_label_PAI_HOSTNAME",
-                "container_label_PAI_JOB_NAME",
-                "container_label_PAI_USER_NAME"
+                "username",
+                "job_name",
+                "role_name",
+                "task_index"
                 ]
         self.service_labels = ["name"]
 
@@ -321,10 +320,17 @@ class GpuCollector(Collector):
 
         for line in content.split("\n"):
             line = line.strip()
-            if "pids" in line and "/docker/" in line:
-                parts = line.split("/docker/")
-                if len(parts) == 2 and re.match(u"[0-9a-f]+", parts[1]):
-                    return True, parts[1]
+            if "pids" in line:
+                if "/docker/" in line:
+                    parts = line.split("/docker/")
+                    if len(parts) == 2 and re.match(u"[0-9a-f]+", parts[1]):
+                        return True, parts[1]
+                elif "/kubepods/" in line:
+                    parts = line.split("/kubepods/")
+                    if len(parts) == 2 and re.match(u"pod[0-9a-f-]+", parts[1]):
+                        return True, parts[1]
+                else:
+                    logger.info("unknown format in pid cgroup %s", line)
 
         return False, ""
 
@@ -342,6 +348,9 @@ class GpuCollector(Collector):
         pids_use_gpu = {} # key is gpu minor, value is an array of pid
 
         for minor, info in gpu_info.items():
+            if not minor.isdigit():
+                continue # ignore UUID
+
             core_utils.add_metric([minor], info.gpu_util)
             mem_utils.add_metric([minor], info.gpu_mem_util)
             ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
@@ -370,7 +379,7 @@ class GpuCollector(Collector):
                                 # found corresponding container
                                 zombie_container.add_metric([minor, zombie_id], 1)
                     else:
-                        external_process.add_metric([minor, pid], 1)
+                        external_process.add_metric([minor, str(pid)], 1)
             if len(zombie_container.samples) > 0 or len(external_process.samples) > 0:
                 logger.warning("found gpu used by external %s, zombie container %s",
                         external_process, zombie_container)
@@ -471,20 +480,40 @@ class ContainerCollector(Collector):
         return self.collect_container_metrics(stats_obj, gpu_infos, all_conns)
 
     @staticmethod
-    def parse_from_labels(labels):
+    def parse_from_labels(inspect_info, gpu_infos):
         gpu_ids = []
-        other_labels = {}
+        result_labels = {}
 
-        for key, val in labels.items():
-            if "container_label_GPU_ID" == key:
-                s2 = val.replace("\"", "").split(",")
-                for id in s2:
-                    if id:
-                        gpu_ids.append(id)
-            else:
-                other_labels[key] = val
+        result_labels["username"] = inspect_info.username or "unknown"
+        result_labels["job_name"] = inspect_info.job_name or "unknown"
+        result_labels["role_name"] = inspect_info.role_name or "unknown"
+        result_labels["task_index"] = inspect_info.task_index or "unknown"
 
-        return gpu_ids, other_labels
+        if inspect_info.gpu_ids:
+            ids = inspect_info.gpu_ids.replace("\"", "").split(",")
+            for id in ids:
+                # If the container was scheduled by yarn, we get its GPU usage
+                # info from label GPU_ID, value of the label is minor_number, and
+                # will be digits.
+                # If the container was scheduled by kube launcher, we get its GPU
+                # usage info from environment NVIDIA_VISIBLE_DEVICES, the value
+                # is like GPU-dc0671b0-61a4-443e-f456-f8fa6359b788. The mapping
+                # from uuid to minor_number is get via nvidia-smi, and gpu_infos
+                # should have key of this uuid.
+                if id.isdigit():
+                    gpu_ids.append(id)
+                elif id and gpu_infos is not None:
+                    # id is in form of UUID like
+                    if gpu_infos.get(id) is not None:
+                        gpu_ids.append(gpu_infos[id].minor)
+                    else:
+                        logger.warning("gpu uuid %s can not be found in map %s",
+                                id, gpu_infos)
+                else:
+                    logger.warning("unknown gpu id %s, gpu_infos is %s",
+                            id, gpu_infos)
+
+        return gpu_ids, result_labels
 
     @classmethod
     def infer_service_name(cls, container_name):
@@ -509,13 +538,13 @@ class ContainerCollector(Collector):
                 ContainerCollector.inspect_histogram,
                 ContainerCollector.inspect_timeout)
 
-        pid = utils.walk_json_field_safe(inspect_info, "pid")
-        inspect_labels = utils.walk_json_field_safe(inspect_info, "labels")
+        pid = inspect_info.pid
+        job_name = inspect_info.job_name
 
-        logger.debug("%s has pid %s, labels %s, service_name %s",
-                container_name, pid, inspect_labels, pai_service_name)
+        logger.debug("%s has inspect result %s, service_name %s",
+                container_name, inspect_info, pai_service_name)
 
-        if not inspect_labels and pai_service_name is None:
+        if job_name is None and pai_service_name is None:
             logger.debug("%s is ignored", container_name)
             return # other container, maybe kubelet or api-server
 
@@ -537,8 +566,7 @@ class ContainerCollector(Collector):
                     pid, debug_info.strip(), lsof_result, net_in, net_out)
 
         if pai_service_name is None:
-            gpu_ids, container_labels = ContainerCollector.parse_from_labels(inspect_info["labels"])
-            container_labels.update(inspect_info["env"])
+            gpu_ids, container_labels = ContainerCollector.parse_from_labels(inspect_info, gpu_infos)
 
             if gpu_infos:
                 for id in gpu_ids:
