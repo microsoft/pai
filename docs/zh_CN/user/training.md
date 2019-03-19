@@ -29,7 +29,7 @@
 
 This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#deploy-openpai)进行部署。
+It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 ## Submit a hello-world job
 
