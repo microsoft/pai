@@ -30,7 +30,7 @@ BASH_XTRACEFD=13
 function sigterm_handler()
 {
   printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
-
+  killed_by_yarn=true
   exit 143
 }
 
@@ -45,7 +45,7 @@ function exit_handler()
     rc=205
   fi
 
-  if [[ $rc -eq 137 || $rc -eq 143 ]]; then
+  if [[ $rc -eq 137 || $rc -eq 143 && ${killed_by_yarn} != true ]]; then
     printf "[DEBUG] Exit code $rc, it may be critical system errors or OOM\n"
     rc=55
   fi
