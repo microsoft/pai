@@ -170,12 +170,12 @@ This configuration consists of 7 parts.
     - DaemonSet can ensure there will be one and only one service pod on the target nodes. Hadoop and other similar service could benefits from this object a lot.
     - Take advantage of node-label and daemonSet, we can deploy hadoop easily.
 - Example 
-    - [Hadoop data node's yaml file](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
+    - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
 
 [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
 - example 
-    - [prometheus](../../../src/prometheus/deploy/prometheus-deployment.yaml.template)
+    - [prometheus](../../../../src/prometheus/deploy/prometheus-deployment.yaml.template)
 
 [Job](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/)
 
@@ -196,7 +196,7 @@ This configuration consists of 7 parts.
 
 - Example
     
-    - [Hadoop data node's yaml file](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
+    - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
     - [Hadoop service's configmap](../../../src/hadoop-data-node/deploy/hadoop-data-node-configuration)
 
 [readness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
@@ -207,7 +207,7 @@ This configuration consists of 7 parts.
 
 - Examples
     
-    - [Hadoop data node's yaml file](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
+    - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
     - [Hadoop service's start script](../../../src/hadoop-data-node/deploy/start.sh)
     - [The status checking tool](../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
