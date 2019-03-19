@@ -291,6 +291,7 @@ docker pull {{ jobData.image }} \
 docker run --name $docker_name \
   --init \
   --tty \
+  --runtime=runc \
   --privileged=false \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
