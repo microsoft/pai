@@ -1,0 +1,262 @@
+import React, { useEffect, useState } from "react";
+
+import { useNumericValue, useValue } from "./hooks";
+import Job from "./Job";
+import MountDirectories, { IMountDirectoriesObject, MountDirectoriesForm } from "./MountDirectories";
+import { getProp } from "./utils";
+
+const CPU_PER_GPU = 5;
+const MEMORY_PER_GPU = 50 * 1024;
+
+interface ITensorflowDistributedJobObject {
+  readonly type: "tensorflow-distributed";
+  readonly psNumber: number;
+  readonly psGpuNumber: number;
+  readonly psCommand: string;
+  readonly workerNumber: number;
+  readonly workerGpuNumber: number;
+  readonly workerCommand: string;
+  readonly mountDirectories: IMountDirectoriesObject | null;
+}
+
+export default class TensorflowDistributedJob extends Job {
+  public constructor(
+    private readonly name: string,
+    private readonly psNumber: number,
+    private readonly psGpuNumber: number,
+    private readonly psCommand: string,
+    private readonly workerNumber: number,
+    private readonly workerGpuNumber: number,
+    private readonly workerCommand: string,
+    public readonly mountDirectories: MountDirectories | null,
+  ) {
+    super();
+  }
+
+  public convert() {
+    const paiPsTaskRole = Object.create(null);
+    paiPsTaskRole.name = "ps_server";
+    paiPsTaskRole.taskNumber = this.psNumber;
+    paiPsTaskRole.cpuNumber = this.psGpuNumber * CPU_PER_GPU;
+    paiPsTaskRole.memoryMB = this.psGpuNumber * MEMORY_PER_GPU;
+    paiPsTaskRole.gpuNumber = this.psGpuNumber;
+    paiPsTaskRole.command = this.getPaiCommand(this.psCommand);
+
+    const paiWorkerTaskRole = Object.create(null);
+    paiWorkerTaskRole.name = "worker";
+    paiWorkerTaskRole.taskNumber = this.workerNumber;
+    paiWorkerTaskRole.cpuNumber = this.workerGpuNumber * CPU_PER_GPU;
+    paiWorkerTaskRole.memoryMB = this.workerGpuNumber * MEMORY_PER_GPU;
+    paiWorkerTaskRole.gpuNumber = this.workerGpuNumber;
+    paiWorkerTaskRole.command = this.getPaiCommand(this.workerCommand);
+
+    const paiJob = Object.create(null);
+    paiJob.jobName = this.name;
+    paiJob.image = "openpai/pai.example.tensorflow:stable";
+    paiJob.virtualCluster = "default";
+    paiJob.taskRoles = [paiPsTaskRole, paiWorkerTaskRole];
+    paiJob.retryCount = 0;
+
+    return paiJob;
+  }
+
+  public toJSON(): ITensorflowDistributedJobObject {
+    const {
+      psNumber,
+      psGpuNumber,
+      psCommand,
+      workerNumber,
+      workerGpuNumber,
+      workerCommand,
+      mountDirectories,
+    } = this;
+
+    return {
+      type: "tensorflow-distributed",
+      psNumber,
+      psGpuNumber,
+      psCommand,
+      workerNumber,
+      workerGpuNumber,
+      workerCommand,
+      mountDirectories: mountDirectories !== null ? mountDirectories.toJSON() : null,
+    };
+  }
+
+  private getPaiCommand(command: string) {
+    const commands: string[] = [];
+
+    if (this.mountDirectories !== null) {
+      commands.push(this.mountDirectories.getPaiCommand());
+    }
+
+    commands.push(command.split("\n").join(" && "));
+
+    return commands.join(" && ");
+  }
+}
+
+interface IProps {
+  name: string;
+  defaultValue: ITensorflowDistributedJobObject | null;
+  onChange(job: TensorflowDistributedJob): void;
+}
+
+export function TensorflowDistributedJobForm({ name, defaultValue, onChange }: IProps) {
+  const [psNumber, onPsNumberChanged] = useNumericValue(getProp(defaultValue, "psNumber", 1));
+  const [psGpuNumber, onPsGpuNumberChanged] = useNumericValue(getProp(defaultValue, "psGpuNumber", 1));
+  // tslint:disable:max-line-length
+  const [psCommand, onPsCommandChanged] = useValue(getProp(defaultValue, "psCommand", `
+echo "This is a parameter server."
+echo "All parameter servers are: $PAI_TASK_ROLE_ps_server_HOST_LIST"
+echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
+  `.trim()));
+  // tslint:enable:max-line-length
+
+  const [workerNumber, onWorkerNumberChanged] = useNumericValue(getProp(defaultValue, "workerNumber", 1));
+  const [workerGpuNumber, onWorkerGpuNumberChanged] = useNumericValue(getProp(defaultValue, "workerGpuNumber", 1));
+  // tslint:disable:max-line-length
+  const [workerCommand, onWorkerCommandChanged] = useValue(getProp(defaultValue, "workerCommand", `
+echo "This is a worker."
+echo "All parameter servers are: $PAI_TASK_ROLE_ps_server_HOST_LIST"
+echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
+  `.trim()));
+  // tslint:enable:max-line-length
+
+  const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
+
+  useEffect(() => {
+    onChange(new TensorflowDistributedJob(
+      name,
+      psNumber,
+      psGpuNumber,
+      psCommand,
+      workerNumber,
+      workerGpuNumber,
+      workerCommand,
+      mountDirectories,
+    ));
+  }, [
+    name,
+    psNumber,
+    psGpuNumber,
+    psCommand,
+    workerNumber,
+    workerGpuNumber,
+    workerCommand,
+    mountDirectories,
+  ]);
+
+  return (
+    <>
+      <h3><span className="text-danger">*</span> Parameter Servers</h3>
+        <div className="container-fluid">
+          <div className="row">&nbsp;</div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> Server Number
+            </div>
+            <div className="col-sm-1">
+              <input
+                type="number"
+                className="form-control"
+                id="ps-number"
+                min="1"
+                value={psNumber}
+                onChange={onPsNumberChanged}
+              />
+            </div>
+          </div>
+          <div className="row">&nbsp;</div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> GPU Number Per Server
+            </div>
+            <div className="col-sm-1">
+              <input
+                type="number"
+                className="form-control"
+                id="ps-gpu-number"
+                min="1"
+                value={psGpuNumber}
+                onChange={onPsGpuNumberChanged}
+              />
+            </div>
+          </div>
+          <div className="row">&nbsp;</div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> Server Command
+            </div>
+            <div className="col-sm-4">
+            <textarea
+              className="form-control"
+              id="command"
+              rows={10}
+              value={psCommand}
+              onChange={onPsCommandChanged}
+            />
+            </div>
+          </div>
+        </div>
+      <hr/>
+
+      <h3><span className="text-danger">*</span> Workers</h3>
+      <div className="container-fluid">
+        <div className="row">&nbsp;</div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> Worker Number
+            </div>
+            <div className="col-sm-1">
+              <input
+                type="number"
+                className="form-control"
+                id="worker-number"
+                min="1"
+                value={workerNumber}
+                onChange={onWorkerNumberChanged}
+              />
+            </div>
+          </div>
+          <div className="row">&nbsp;</div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> GPU Number Per Worker
+            </div>
+            <div className="col-sm-1">
+              <input
+                type="number"
+                className="form-control"
+                id="ps-gpu-number"
+                min="1"
+                value={workerGpuNumber}
+                onChange={onWorkerGpuNumberChanged}
+              />
+            </div>
+          </div>
+          <div className="row">&nbsp; </div>
+          <div className="row">
+            <div className="col-sm-2">
+              <span className="text-danger">*</span> Server Command
+            </div>
+            <div className="col-sm-4">
+            <textarea
+              className="form-control"
+              id="command"
+              rows={10}
+              value={workerCommand}
+              onChange={onWorkerCommandChanged}
+            />
+            </div>
+          </div>
+        </div>
+      <hr/>
+      <MountDirectoriesForm
+        jobName={name}
+        defaultValue={getProp(defaultValue, "mountDirectories", null)}
+        onChange={setMountDirectories}
+      />
+    </>
+  );
+}

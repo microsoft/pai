@@ -1,0 +1,34 @@
+{
+  "name": "dlworkspace-plugin",
+  "version": "1.0.0",
+  "description": "PAI web portal plugin for submit DLWorkspace jobs.",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development",
+    "prebuild": "tslint --project .",
+    "build": "webpack --mode=production"
+  },
+  "repository": "openpai@vs-ssh.visualstudio.com:v3/openpai/OpenPAI/DLWorkspace-Plugin",
+  "author": "Microsoft (https://microsoft.com/)",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.7",
+    "@types/react-dom": "^16.8.2",
+    "@types/webpack": "^4.4.25",
+    "@types/webpack-dev-server": "^3.1.4",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.13.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}
