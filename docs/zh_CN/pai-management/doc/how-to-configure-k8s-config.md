@@ -24,7 +24,7 @@
 
 ### Configuration Example <a name="example"></a>
 
-An example kubernetes-configuration.yaml file is available [here](../../../examples/cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
+An example kubernetes-configuration.yaml file is available [here](../../../../examples/cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
 ### Field 1. kubernetes <a name="kubernetes"></a>
 
