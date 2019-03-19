@@ -80,7 +80,7 @@ const submitJob = (jobConfig) => {
     const user = cookies.get('user');
     loading.showLoading();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/user/${user}/jobs/${jobConfig.jobName}`,
+      url: `http://10.151.40.234:5000/api/v1/user/${user}/jobs/${jobConfig.jobName}`,
       data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,

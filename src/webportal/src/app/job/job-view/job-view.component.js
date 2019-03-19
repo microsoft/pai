@@ -186,19 +186,7 @@ const getStateOrder = (jobInfo) => {
 };
 
 const convertGpu = (gpuAttribute) => {
-  const bitmap = (+gpuAttribute).toString(2);
-  const gpuList = [];
-  for (let i = 0; i < bitmap.length; i++) {
-    if (bitmap[i] === '1') {
-      gpuList.push('#' + (bitmap.length - i - 1).toString());
-    }
-  }
-  if (gpuList.length > 0) {
-    gpuList.reverse();
-    return gpuList.join(',');
-  } else {
-    return 'None';
-  }
+  return gpuAttribute.toString()
 };
 
 const loadJobs = (specifiedVc) => {
@@ -224,7 +212,7 @@ const loadJobs = (specifiedVc) => {
 
   table = $table.dataTable({
     'ajax': {
-      url: `${webportalConfig.restServerUri}/api/v1/jobs`,
+      url: `http://10.151.40.234:5000/api/v1/jobs`,
       type: 'GET',
       dataSrc: (data) => {
         if (data.error) {
@@ -443,7 +431,7 @@ const loadJobDetail = (namespace, jobName) => {
   configInfo = null;
   sshInfo = null;
   const url = namespace
-    ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    ? `http://10.151.40.234:5000/api/v1/user/${namespace}/jobs/${jobName}`
     : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
   $.ajax({
     url: url,
