@@ -45,7 +45,7 @@ function exit_handler()
     rc=205
   fi
 
-  if [[ ${killed_by_yarn} != true && $rc -eq 137 || $rc -eq 143 ]]; then
+  if [[ ${killed_by_yarn} != true && $rc -eq 143 || $rc -eq 137 ]]; then
     printf "[DEBUG] Exit code $rc, it may be critical system errors or OOM\n"
     rc=55
   fi
