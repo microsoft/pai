@@ -152,7 +152,7 @@ This configuration consists of 7 parts.
 
 -     deploy-rules parts:
     
-    - Specify which role(label) of machine will run the service. The role definition of machines is in [layout.yaml](../../../examples/cluster-configuration/layout.yaml), machines will labeled when you deploy PAI for the first time. Currently support the following rules: "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
+    - Specify which role(label) of machine will run the service. 角色定义在配置文件 [layout.yaml](../../../../examples/cluster-configuration/layout.yaml) 中，会在首次部署 OpenPAI 时加上标签。 Currently support the following rules: "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
 
 #### Some Experience of Kubernetes <a name="Experience"></a>
 
