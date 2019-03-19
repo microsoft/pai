@@ -29,7 +29,7 @@
 
 This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#deploy-openpai)进行部署。
 
 ## Submit a hello-world job
 
@@ -147,7 +147,7 @@ It's better to check with administrator of the OpenPAI cluster, since there may 
 
 ### Job workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, the recommended way is to use [Visual Studio Code extension for OpenPAI](../../contrib/pai_vscode/VSCodeExt.md). Both web UI and extension through [RESTful API of OpenPAI](../rest-server/API.md) to manage jobs. So, it's possible to implement your own script or tool.
+Once job configuration is ready, next step is to submit it to OpenPAI. 推荐使用 [Visual Studio Code OpenPAI 扩展](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md)来提交 Job。 Both web UI and extension through [RESTful API of OpenPAI](../rest-server/API.md) to manage jobs. So, it's possible to implement your own script or tool.
 
 After received job configuration, OpenPAI processes it as below steps.
 
