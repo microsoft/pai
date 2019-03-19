@@ -26,12 +26,14 @@ export PAI_DEFAULT_FS_URI={{ hdfsUri }}
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
+# YARN kill container will send SIGTERM(15) and SIGKILL(9)
 function sigterm_handler()
 {
   printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
 
   pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
   if [ $pid -gt 0 ]; then
+    # This is a best effort kill, so we only use SIGTERM(15)
     kill -15 $pid &&\
       printf "[DEBUG] Docker container $docker_name killed successfully." ||\
       printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
@@ -45,7 +47,8 @@ function exit_handler()
   rc=$?
   printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
   if [ $rc -eq 125 ]; then
-    printf "[DEBUG] Exit code 125, it may be docker daemon error, convert it to a transient error\n"
+    # We assume 125 is a docker error, and retry it without burning user's retry count
+    printf "[DEBUG] Exit code 125, it may be docker error, convert it to a transient error\n"
     rc=205
   fi
 
@@ -62,6 +65,7 @@ function exit_handler()
   printf "[DEBUG] Write exit code $rc to file /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode.\n"
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
 
+  # Any time-consuming operations please put here, otherwise NM couldn't get exitcode as restart
   docker container rm $docker_name
   exit $rc
 }
