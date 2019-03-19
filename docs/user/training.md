@@ -23,7 +23,7 @@
   - [Submit a hello-world job](#submit-a-hello-world-job)
   - [Understand job](#understand-job)
     - [Learn hello-world job](#learn-hello-world-job)
-    - [Exchange data](#exchange-data)
+    - [Transfer files](#transfer-files)
     - [Job workflow](#job-workflow)
   - [Reference](#reference)
 
@@ -94,7 +94,7 @@ The **job configuration** is a JSON file, which is posted to OpenPAI. Here uses 
 
 The JSON file of job has two levels entries. The top level includes shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and the corresponding running environment.
 
-Below is key part of all fields and [full spec of job configuration](../job_tutorial.md) is here.
+Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
 
 - **jobName** is the unique name of current job, displays in web also. A meaningful name helps managing jobs well.
 
@@ -126,13 +126,13 @@ Below is key part of all fields and [full spec of job configuration](../job_tuto
 
     Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
 
-### Exchange data
+### Transfer files
 
-The data here doesn't only mean *dataset* of machine learning, also includes all files and information, like code, scripts, trained model, and so on. Most model training and other kinds of jobs need to exchange data between docker container and outside.
+Most model training and other kinds of jobs need to transfer files between docker container and outside on OpenPAI. The files include dataset, code, scripts, trained model, and so on.
 
-OpenPAI creates a clean docker container. Some data can be built into docker image directly if it's changed rarely.
+OpenPAI creates a clean docker container each running. Some files can be built into docker image directly if they are changed rarely.
 
-If it needs to exchange data on runtime, the command, which passes to docker in job configuration, needs to initiate the data exchange progress. For example, use `git`, `wget`, `scp`, `sftp` or other commands to copy data in and out. If some command is not built in docker, it can be installed in the command by `apt install` or `python -m pip install`.
+If it needs to transfer files at runtime, the command field, which passes to docker in job configuration, is used to initiate the files transferring progress. For example, use `git`, `wget`, `scp`, `sftp`, other commands, code or scripts to copy files in and out. If some commands are not built in docker, it can be installed in the command field by `apt install ...` or `python -m pip install ...`.
 
 It's better to check with administrator of the OpenPAI cluster, since there may be suggested approaches and examples already.
 
