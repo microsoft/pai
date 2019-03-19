@@ -17,7 +17,7 @@ storage-backend: etcd3
 etcd-version: 3.2.17
 ```
 
-ETCD 节点可通过在文件 [layout.yaml](../../examples/cluster-configuration/layout.yaml) 中增加 `etcdid` 标签来配置。
+ETCD 节点可通过在文件 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 中增加 `etcdid` 标签来配置。
 
 ## Deployment
 
