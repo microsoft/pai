@@ -296,6 +296,7 @@ docker run --name $docker_name \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --cap-add=DAC_READ_SEARCH \
+  --cap-drop=MKNOD \
   --network=host \
   --cpus={{ taskData.cpuNumber }} \
   --memory={{ taskData.memoryMB }}m \
