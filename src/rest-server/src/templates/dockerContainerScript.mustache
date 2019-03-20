@@ -45,11 +45,12 @@ trap kill_handler 10
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
 
-
 export PAI_WORK_DIR="$(pwd)"
 PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
+# Make all GPUs allocated to the container accessible
+export NVIDIA_VISIBLE_DEVICES=all
 
 task_role_no={{ idx }}
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
