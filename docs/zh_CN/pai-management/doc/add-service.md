@@ -57,7 +57,7 @@ In this tutorial, we have prepared the docker image in the path following.
 
 #### Place the Image Directory into PAI <a name="Image_Place"></a>
 
-- At first, according to the service name, you should create a directory under the path [pai/src/](../../../src). In this example, a directory named hbase will be created.
+- At first, according to the service name, you should create a directory under the path [pai/src/](../../../../src). In this example, a directory named hbase will be created.
 - Secondly, a directory named ```build``` should be created under "src/hbase/"
 - At last, just put all the source code from the path <example/add-service/hbase/build>, and then paste them into the the path ```src/hbase/build```
 
@@ -209,11 +209,11 @@ This configuration consists of 7 parts.
     
     - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
     - [Hadoop service's start script](../../../src/hadoop-data-node/deploy/start.sh)
-    - [The status checking tool](../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
+    - [The status checking tool](../../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 #### Place the Module into PAI <a name="Service_Place"></a>
 
-- Firstly, create a directory named ```hbase``` in the path [pai/src/](../../../src).
+- Firstly, create a directory named ```hbase``` in the path [pai/src/](../../../../src).
 - Secondly, create a directory named ```deploy``` in the path ```pai/src/hbase/```
 - At last, Copy all the source code of service in the [path](example/add-service/hbase/deploy)
 
