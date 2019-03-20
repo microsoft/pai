@@ -75,7 +75,7 @@ Following this section to submit a very simple job like hello-world during learn
   
       ![click submit job](imgs/web_click_submit_job.png)
       
-      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
+      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) is recommended to work with OpenPAI.
       
 
 5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
