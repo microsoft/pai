@@ -17,42 +17,28 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-
-# How to Run a Deep Learning Job
+# Job reference
 
 OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc.
 It also supports other type of job through a customized docker image.
 Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
-## Table of Contents:
+- [Job reference](#job-reference)
+  - [Quick start: submit a hello-world job](#quick-start-submit-a-hello-world-job)
+  - [Job configuration](#job-configuration)
+    - [Specification](#specification)
+    - [Environment variables](#environment-variables)
+    - [A complete example](#a-complete-example)
+  - [Learn more job examples](#learn-more-job-examples)
 
-- [Quick start: how to write and submit a CIFAR-10 job](#quickstart)
-- [Write a customized job](#writejob)
-  - [Prerequisites](#prerequisites)
-  - [Use docker to package the job environment dependencies](#docker)
-  - [Write a job json configuration file](#jobjson)
-  - [Job runtime environmental variable](#envvar)
-  - [A deep learning job example](#example)
-  - [Job submission steps](#submission)
-- [How to debug Job](#debug)
-- [Learn more job examples](#moreexample)
+## Quick start: submit a hello-world job
 
-## Quick start: how to write and submit a CIFAR-10 job <a name="quickstart"></a>
+Refer to [submit a hello-world job](user/training.md#submit-a-hello-world-job) firstly. It's a good start for beginners.
 
-Please refer to this [document](../examples/README.md#quickstart) for how to write and submit a CIFAR-10 job.
+## Job configuration
 
-## Write a customized job  <a name="writejob"></a>
-
-### Prerequisites <a name="prerequisites"></a>
-
-This guide assumes the system has already been deployed properly and a docker registry is available to store docker images.
-
-### Use docker to package the job environment dependencies <a name="docker"></a>
-
-OpenPAI packaged the docker env required by the job for user to use. User could refer to [job_docker_env.md](./job_docker_env.md) to customize example's docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image in following example `"image": "your_docker_registry/pai.run.tensorflow"` with your own. OpenPAI has many pre-built images for different frameworks. In [Learn more job examples](#moreexample) section, each example folder will contain a pre-build docker env.
-
-### Write a job json configuration file <a name="jobjson"></a>
+### Specification
 
 A json file describe detailed configuration required for a job submission. The detailed format is shown as below:
 
@@ -124,13 +110,14 @@ Below please find the detailed explanation for each of the parameters in the con
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `jobEnvs`                        | Object, optional           | Job env parameters, key-value pairs, available in job container and **no substitution allowed** |
 | `jobEnvs.paiAzRDMA`                        | Boolean, optional           | If you cluster is azure rdma capable, you could specify the parameter to make your container azure rdma capable. How to use azure rdma? Please follow this [job example](../examples/azure-rdma-inte-mpi-benchmark-with-horovod-image) |
+| `jobEnvs.isDebug`                        | Boolean, optional           | after this flag is set as ```true```, if user's command exits with a none-zero value, the failed container will be reserved for job debugging.  [More detail](./job_debugging.md)|
 
 For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
 please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
 
-```
+```text
 docker_registry_server
 username
 password
@@ -142,7 +129,7 @@ password
 
 - Only **codeDir** will created to your job container local environment and could be accessed inner job container. dataDir & outputDir are environmental variable (For example, the file link url of hdfs) which will be used by your job inner training code to read data from the storage link.
 
-### Job runtime environmental variable <a name="envvar"></a>
+### Environment variables
 
 Each task in a job runs in one Docker container.
 For a multi-task job, one task might communicate with others.
@@ -153,24 +140,23 @@ Those environment variables can also be used in the job config file.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
-| Category          | Environment Variable Name                 | Description                                                 |
-| :---------------- | :---------------------------------------- | :---------------------------------------------------------- |
-| Job level         | PAI_JOB_NAME                              | `jobName` in config file                                    |
-|                   | PAI_USER_NAME                             | User who submit the job                                     |
-|                   | PAI_DEFAULT_FS_URI                        | Default file system uri in PAI                              |
-| Task role level   | PAI_TASK_ROLE_COUNT                       | Total task roles' number in config file                     |
-|                   | PAI_TASK_ROLE_LIST                        | Comma separated all task role names in config file          |
-|                   | PAI_TASK_ROLE_TASK_COUNT\_`$taskRole`     | Task count of the task role                                 |
-|                   | PAI_HOST_IP\_`$taskRole`\_`$taskIndex`    | The host IP for `taskIndex` task in `taskRole`              |
-|                   | PAI_PORT_LIST\_`$taskRole`\_`$taskIndex`\_`$portType` | The `$portType` port list for `taskIndex` task in `taskRole`     |
-|                   | PAI_RESOURCE\_`$taskRole`                 | Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format |
-|                   | PAI_MIN_FAILED_TASK_COUNT\_`$taskRole`    | `taskRole.minFailedTaskCount` of the task role              |
-|                   | PAI_MIN_SUCCEEDED_TASK_COUNT\_`$taskRole` | `taskRole.minSucceededTaskCount` of the task role           |
-| Current task role | PAI_CURRENT_TASK_ROLE_NAME                | `taskRole.name` of current task role                        |
-| Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX  | Index of current task in current task role, starting from 0 |
+| Category          | Environment Variable Name                             | Description                                                                        |
+| :---------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| Job level         | PAI_JOB_NAME                                          | `jobName` in config file                                                           |
+|                   | PAI_USER_NAME                                         | User who submit the job                                                            |
+|                   | PAI_DEFAULT_FS_URI                                    | Default file system uri in PAI                                                     |
+| Task role level   | PAI_TASK_ROLE_COUNT                                   | Total task roles' number in config file                                            |
+|                   | PAI_TASK_ROLE_LIST                                    | Comma separated all task role names in config file                                 |
+|                   | PAI_TASK_ROLE_TASK_COUNT\_`$taskRole`                 | Task count of the task role                                                        |
+|                   | PAI_HOST_IP\_`$taskRole`\_`$taskIndex`                | The host IP for `taskIndex` task in `taskRole`                                     |
+|                   | PAI_PORT_LIST\_`$taskRole`\_`$taskIndex`\_`$portType` | The `$portType` port list for `taskIndex` task in `taskRole`                       |
+|                   | PAI_RESOURCE\_`$taskRole`                             | Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format |
+|                   | PAI_MIN_FAILED_TASK_COUNT\_`$taskRole`                | `taskRole.minFailedTaskCount` of the task role                                     |
+|                   | PAI_MIN_SUCCEEDED_TASK_COUNT\_`$taskRole`             | `taskRole.minSucceededTaskCount` of the task role                                  |
+| Current task role | PAI_CURRENT_TASK_ROLE_NAME                            | `taskRole.name` of current task role                                               |
+| Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX              | Index of current task in current task role, starting from 0                        |
 
-
-### A deep learning job example <a name="example"></a>
+### A complete example
 
 A distributed TensorFlow job is listed below as an example:
 
@@ -243,63 +229,6 @@ A distributed TensorFlow job is listed below as an example:
 }
 ```
 
-### Job submission steps <a name="submission"></a>
-
-1. Put the code and data on [HDFS](../docs/hadoop/hdfs.md)
-
-- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS-) to upload your code and data to HDFS on the system.
-- Option-2: Use [HDFS cmd](../docs/hadoop/hdfs.md#hdfs-command-) to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
-    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
-
-2. Prepare a job config file
-
-    Prepare the [config file](#jobjson) for your job.
-
-3. [Submit the job through web portal](submit_from_webportal.md)
-
-    Open web portal in a browser, click "Submit Job" and upload your config file.
-
-    Note: For other job submission methods. Please refer [doc](../README.md#how-to-train-jobs)
-
-## How to debug the job <a name="debug"></a>
-
-### (1) From OpenPAI web page to debug job
-
-Please refer doc [How to diagnose job problems through logs](job_log.md)
-
-### (2) SSH to job container and debug job
-You can ssh connect to a specified container either from outside or inside container.
-
-#### SSH connect from outside
-
-1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
-
-2. Open a Bash shell terminal.
-
-3. Download the corresponding private key from HDFS.
-   For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
-   ```sh
-   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/userName~jobName?op=OPEN -O userName~jobName
-   ```
-4. Use `chmod` command to set correct permission for the key file.
-   ```sh
-   chmod 400 userName~jobName
-   ```
-5. Use `ssh` command to connect into container. for example
-   ```sh
-   ssh -i userName~jobName -p ssh_port root@container_ip
-   ```
-#### SSH connect inside containers
-
-You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
-```sh
-ssh worker-0
-```
-
-### (3) Job Profiling
-
-Users can view the resource cost and bottlenecks of various metrics of the job by following the [job profiling doc](job_profiling.md).
-
-## Learn more job examples <a name="moreexample"></a>
+## Learn more job examples
 
 For more examples, please refer to [job examples directory](../examples).

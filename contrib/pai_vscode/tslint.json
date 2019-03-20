@@ -141,7 +141,7 @@
     "no-inferrable-types": false,
     "no-multiline-string": true,
     "no-null-keyword": false,
-    "no-parameter-properties": false,
+    "no-parameter-properties": true,
     "no-relative-imports": false,
     "no-require-imports": true,
     "no-shadowed-variable": true,
@@ -158,7 +158,13 @@
     "object-literal-sort-keys": false,
     "one-variable-per-declaration": true,
     "only-arrow-functions": false,
-    "ordered-imports": true,
+    "ordered-imports": [
+      true,
+      {
+        "named-imports-order": "lowercase-first",
+        "grouped-imports": true
+      }
+    ],
     "prefer-array-literal": false,
     "prefer-const": true,
     "prefer-for-of": true,
@@ -201,7 +207,8 @@
     "import-spacing": true,
     "indent": [
       true,
-      "spaces"
+      "spaces",
+      4
     ],
     "linebreak-style": true,
     "newline-before-return": false,

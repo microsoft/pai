@@ -26,8 +26,13 @@ The following contents show some basic scikit-learn examples, other customized s
 
 ## Contents
 
-1. [scikit-learn MNIST digit recognition example](#scikit-learn-mnist-digit-recognition-example)
-2. [scikit-learn text-vectorizers example](#scikit-learn-text-vectorizers-example)
+- [scikit-learn on OpenPAI](#scikit-learn-on-openpai)
+  - [Contents](#contents)
+  - [scikit-learn MNIST digit recognition example](#scikit-learn-mnist-digit-recognition-example)
+    - [mnist](#mnist)
+  - [scikit-learn text-vectorizers example](#scikit-learn-text-vectorizers-example)
+    - [text-vectorizers](#text-vectorizers)
+    - [Note:](#note)
 
 ## scikit-learn MNIST digit recognition example
 
@@ -75,7 +80,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).
 
 ### Note:
 

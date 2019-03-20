@@ -8,6 +8,7 @@ import threading
 import signal
 import faulthandler
 import gc
+import datetime
 
 import prometheus_client
 from prometheus_client import Gauge
@@ -34,10 +35,10 @@ class CustomCollector(object):
     def collect(self):
         data = []
 
+        now = datetime.datetime.now()
+
         for ref in self.atomic_refs:
-            # set None to achieve
-            # https://github.com/Microsoft/pai/issues/1764#issuecomment-442733098
-            d = ref.get_and_set(None)
+            d = ref.get(now)
             if d is not None:
                 data.extend(d)
 
@@ -129,11 +130,16 @@ def main(args):
 
     configured_gpu_counter.set(get_gpu_count("/gpu-config/gpu-configuration.json"))
 
+    decay_time = datetime.timedelta(seconds=args.interval * 2)
+
     # used to exchange gpu info between GpuCollector and ContainerCollector
-    gpu_info_ref = collector.AtomicRef()
+    gpu_info_ref = collector.AtomicRef(decay_time)
 
     # used to exchange docker stats info between ContainerCollector and ZombieCollector
-    stats_info_ref = collector.AtomicRef()
+    stats_info_ref = collector.AtomicRef(decay_time)
+
+    # used to exchange zombie info between GpuCollector and ZombieCollector
+    zombie_info_ref = collector.AtomicRef(decay_time)
 
     interval = args.interval
     # Because all collector except container_collector will spent little time in calling
@@ -141,11 +147,12 @@ def main(args):
     # scrape interval. The 99th latency of container_collector loop is around 20s, so it
     # should only sleep 10s to adapt to scrape interval
     collector_args = [
-            ("docker_daemon_collector", interval, collector.DockerCollector),
-            ("gpu_collector", interval / 2, collector.GpuCollector, gpu_info_ref),
-            ("container_collector", interval - 18, collector.ContainerCollector,
+            ("docker_daemon_collector", interval, decay_time, collector.DockerCollector),
+            ("gpu_collector", interval, decay_time, collector.GpuCollector, gpu_info_ref, zombie_info_ref, args.threshold),
+            ("container_collector", max(0, interval - 18), decay_time, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
-            ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
+            ("zombie_collector", interval, decay_time, collector.ZombieCollector, stats_info_ref, zombie_info_ref),
+            ("process_collector", interval, decay_time, collector.ProcessCollector),
             ]
 
     refs = list(map(lambda x: collector.make_collector(*x), collector_args))
@@ -164,8 +171,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9102")
-    parser.add_argument("--interval", "-i", help="prometheus scrape interval", type=int, default=30)
+    parser.add_argument("--interval", "-i", help="prometheus scrape interval second", type=int, default=30)
     parser.add_argument("--interface", "-n", help="network interface for job-exporter to listen on", required=True)
+    parser.add_argument("--threshold", "-t", help="memory threshold to consider gpu memory leak", type=int, default=20 * 1024 * 1024)
     args = parser.parse_args()
 
     def get_logging_level():

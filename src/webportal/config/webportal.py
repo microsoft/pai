@@ -16,6 +16,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json
+import urllib
+import urlparse
 
 
 class Webportal:
@@ -40,6 +42,17 @@ class Webportal:
     def run(self):
         # parse your service object model here, and return a generated dictionary
 
+        def apply_config(plugin):
+            uri = plugin['uri']
+            if 'config' in plugin:
+                # Python 2 only uses urlquote_plus in urlencode
+                config_query = urllib.urlencode(plugin['config'], True).replace('+', '%20')
+                uri = urlparse.urljoin(uri, '?' + config_query)
+            return {
+                'title': plugin['title'],
+                'uri': uri,
+            }
+
         machine_list = self.cluster_configuration['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         server_port = self.service_configuration['server-port']
@@ -48,7 +61,7 @@ class Webportal:
         return {
             'server-port': server_port,
             'uri': uri,
-            'plugins': json.dumps(plugins),
+            'plugins': json.dumps([apply_config(plugin) for plugin in plugins]),
         }
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

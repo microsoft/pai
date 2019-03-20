@@ -1,0 +1,223 @@
+{
+  "scheduler": {
+    "schedulerInfo": {
+      "type": "capacityScheduler",
+      "capacity": 100,
+      "usedCapacity": 37.5,
+      "maxCapacity": 100,
+      "queueName": "root",
+      "queues": {
+        "queue": [
+          {
+            "type": "capacitySchedulerLeafQueueInfo",
+            "capacity": 100,
+            "usedCapacity": 37.5,
+            "maxCapacity": 100,
+            "absoluteCapacity": 100,
+            "absoluteMaxCapacity": 100,
+            "absoluteUsedCapacity": 37.5,
+            "numApplications": 1,
+            "queueName": "default",
+            "state": "RUNNING",
+            "resourcesUsed": {
+              "memory": 33792,
+              "vCores": 9,
+              "GPUs": 1
+            },
+            "hideReservationQueues": false,
+            "nodeLabels": [
+              "*"
+            ],
+            "allocatedContainers": 2,
+            "reservedContainers": 0,
+            "pendingContainers": 0,
+            "capacities": {
+              "queueCapacitiesByPartition": [
+                {
+                  "partitionName": "",
+                  "capacity": 100,
+                  "usedCapacity": 37.5,
+                  "maxCapacity": 100,
+                  "absoluteCapacity": 100,
+                  "absoluteUsedCapacity": 37.5,
+                  "absoluteMaxCapacity": 100,
+                  "maxAMLimitPercentage": 100
+                }
+              ]
+            },
+            "resources": {
+              "resourceUsagesByPartition": [
+                {
+                  "partitionName": "",
+                  "used": {
+                    "memory": 33792,
+                    "vCores": 9,
+                    "GPUs": 1
+                  },
+                  "reserved": {
+                    "memory": 0,
+                    "vCores": 0,
+                    "GPUs": 0
+                  },
+                  "pending": {
+                    "memory": 0,
+                    "vCores": 0,
+                    "GPUs": 0
+                  },
+                  "amUsed": {
+                    "memory": 1024,
+                    "vCores": 1,
+                    "GPUs": 0
+                  },
+                  "amLimit": {
+                    "memory": 184320,
+                    "vCores": 24,
+                    "GPUs": 4
+                  }
+                }
+              ]
+            },
+            "numActiveApplications": 1,
+            "numPendingApplications": 0,
+            "numContainers": 2,
+            "maxApplications": 10000,
+            "maxApplicationsPerUser": 10000,
+            "userLimit": 100,
+            "users": {
+              "user": [
+                {
+                  "username": "admin",
+                  "resourcesUsed": {
+                    "memory": 33792,
+                    "vCores": 9,
+                    "GPUs": 1
+                  },
+                  "numPendingApplications": 0,
+                  "numActiveApplications": 1,
+                  "AMResourceUsed": {
+                    "memory": 1024,
+                    "vCores": 1,
+                    "GPUs": 0
+                  },
+                  "userResourceLimit": {
+                    "memory": 184320,
+                    "vCores": 24,
+                    "GPUs": 4
+                  },
+                  "resources": {
+                    "resourceUsagesByPartition": [
+                      {
+                        "partitionName": "",
+                        "used": {
+                          "memory": 33792,
+                          "vCores": 9,
+                          "GPUs": 1
+                        },
+                        "reserved": {
+                          "memory": 0,
+                          "vCores": 0,
+                          "GPUs": 0
+                        },
+                        "pending": {
+                          "memory": 0,
+                          "vCores": 0,
+                          "GPUs": 0
+                        },
+                        "amUsed": {
+                          "memory": 1024,
+                          "vCores": 1,
+                          "GPUs": 0
+                        },
+                        "amLimit": {
+                          "memory": 184320,
+                          "vCores": 24,
+                          "GPUs": 4
+                        }
+                      }
+                    ]
+                  },
+                  "userWeight": 1,
+                  "isActive": false
+                }
+              ]
+            },
+            "userLimitFactor": 100,
+            "AMResourceLimit": {
+              "memory": 184320,
+              "vCores": 24,
+              "GPUs": 4
+            },
+            "usedAMResource": {
+              "memory": 1024,
+              "vCores": 1,
+              "GPUs": 0
+            },
+            "userAMResourceLimit": {
+              "memory": 184320,
+              "vCores": 24,
+              "GPUs": 4
+            },
+            "preemptionDisabled": false,
+            "defaultPriority": 0
+          }
+        ]
+      },
+      "capacities": {
+        "queueCapacitiesByPartition": [
+          {
+            "partitionName": "",
+            "capacity": 100,
+            "usedCapacity": 37.5,
+            "maxCapacity": 100,
+            "absoluteCapacity": 100,
+            "absoluteUsedCapacity": 37.5,
+            "absoluteMaxCapacity": 100,
+            "maxAMLimitPercentage": 0
+          }
+        ]
+      },
+      "health": {
+        "lastrun": 1551851174745,
+        "operationsInfo": {
+          "entry": {
+            "key": "last-release",
+            "value": {
+              "nodeId": "10.151.40.4:8041",
+              "containerId": "container_e22_1551430067422_0465_01_000001",
+              "queue": "root.default"
+            }
+          }
+        },
+        "lastRunDetails": [
+          {
+            "operation": "releases",
+            "count": 0,
+            "resources": {
+              "memory": 0,
+              "vCores": 0,
+              "GPUs": 0
+            }
+          },
+          {
+            "operation": "allocations",
+            "count": 0,
+            "resources": {
+              "memory": 0,
+              "vCores": 0,
+              "GPUs": 0
+            }
+          },
+          {
+            "operation": "reservations",
+            "count": 0,
+            "resources": {
+              "memory": 0,
+              "vCores": 0,
+              "GPUs": 0
+            }
+          }
+        ]
+      }
+    }
+  }
+}

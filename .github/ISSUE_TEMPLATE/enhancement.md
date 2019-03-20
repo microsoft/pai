@@ -10,6 +10,6 @@ about: Suggest an enhancement to the OpenPAI project
 
 **Why is this needed**:
 
-**Without this feature, how does the current module work**：
+**Without this feature, how does the current module work**:
 
 **Components that may involve changes**:
