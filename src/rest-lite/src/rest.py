@@ -200,7 +200,9 @@ def gen_task_role(job_name, image, role, k8s_api_server):
             , "task": {
                 "retryPolicy": {"fancyRetryPolicy": False},
                 "pod": {
-                    "metadata": {"labels": {"type": "kube-launcher-task"}},
+                    "metadata": {
+                        "labels": {"type": "kube-launcher-task"},
+                        "annotations": {"container.apparmor.security.beta.kubernetes.io/main": "unconfined"}}, # ref https://github.com/Microsoft/pai/issues/2227 and https://kubernetes.io/docs/tutorials/clusters/apparmor/#securing-a-pod
                     "spec": {
                         "restartPolicy": "Never",
                         "imagePullSecrets": [{"name": "isregcred"}], # TODO hard code
@@ -211,7 +213,8 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                             "image": image,
                             "command": ["/usr/local/pai/run"],
                             "env": role.envs,
-                            "securityContext": {"privileged": True}, # TODO tmp solution
+                            "securityContext": {
+                                "capabilities": {"add": ["SYS_ADMIN", "DAC_READ_SEARCH ", "DAC_OVERRIDE"]}}, # ref https://github.com/Microsoft/pai/issues/2227
                             "resources": {"limits": gen_resource(role.resource)},
                             "ports": gen_ports(role.resource.port),
                             "volumeMounts": [
