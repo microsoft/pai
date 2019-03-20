@@ -72,7 +72,7 @@ OpenPAI VS Code Client can consume OpenPAI job configuration file and run in Doc
 
 OpenPAI VS Code Client covers most situations at remote, but still limited, like the resource specification in configuration is ignored, as in most case, the local workstation is not powerful as a GPU server. When code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid this kind of issues and reduce training times at local to disclose more remote issues.
 
-Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to [here](../../contrib/pai_vscode/VSCodeExt.md) to install and learn how to [simulate Job Running](../../contrib/pai_vscode/README.md#simulate-job-running).
+Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to [here](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) to install and learn how to [simulate Job Running](../../../contrib/pai_vscode/README_zh_CN.md#simulate-job-running).
 
 Note, as Docker on Windows doesn't support GPU, so TensorFlow may need a docker image with CPU package for local simulation.
 
