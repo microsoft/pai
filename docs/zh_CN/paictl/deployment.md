@@ -87,7 +87,7 @@ deploy-rules:
 
 The last section mentioned that by setting "deploy-rules" in `service.yaml`, the service will be scheduled onto the specific node with the configured label. This section will introduce the service schedule policy.
 
-To schedule the service onto the specific node, all you only need to do is configuring the `service.yaml` "deploy-rules" field, then PAI will automatically add [NodeAffinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to the service's deployment yaml file when start the service, such as [grafana.yaml.template](../../src/grafana/deploy/grafana.yaml.template) and complete the schedule process.
+To schedule the service onto the specific node, all you only need to do is configuring the `service.yaml` "deploy-rules" field, then PAI will automatically add [NodeAffinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to the service's deployment yaml file when start the service, such as [grafana.yaml.template](../../../src/grafana/deploy/grafana.yaml.template) and complete the schedule process.
 
 "deploy-rules" is an array composed of several component rules. We support multiple rules. A item of rule includes two parts: operator and label. Currently support two kinds of operators: "in" and "notin", the operater decide the service will be deploy on the node "has" or "not has" the label. 服务器的标签配置在 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 文件中。 Machines will be labeled automatically when you deploy PAI for the first time. Label config in `service.yaml` should keep the consistent with it in `layout.yaml`, otherwise it will throw an error.
 
