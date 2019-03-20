@@ -440,10 +440,16 @@ Status: 200
     createdTime: "createdTimestamp",
     completedTime: "completedTimestamp",
     executionType: "executionType",
-    // Sum of succeededRetriedCount, transientNormalRetriedCount,
-    // transientConflictRetriedCount, nonTransientRetriedCount,
-    // and unKnownRetriedCount
-    retries: retriedCount,
+    // sum of retries
+    retries: retries,
+    retryDetails: {
+      // Failed caused by user's code
+      user: userRetries,
+      // System failed, and it can ensure that it will success within a finite retry times
+      system: systemRetries,
+      // System cannot get required resource to run.
+      resource: resourceRetries,
+    },
     appId: "applicationId",
     appProgress: "applicationProgress",
     appTrackingUrl: "applicationTrackingUrl",
@@ -461,6 +467,7 @@ Status: 200
       },
       taskStatuses: {
         taskIndex: taskIndex,
+        taskState: taskState,
         containerId: "containerId",
         containerIp: "containerIp",
         containerPorts: {
