@@ -1,17 +1,23 @@
 {
-  "name": "dlworkspace-plugin",
+  "name": "simple-nfs-job",
   "version": "1.0.0",
-  "description": "PAI web portal plugin for submit DLWorkspace jobs.",
+  "description": "A web portal plugin to submit job with data on NFS.",
   "main": "src/index.ts",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
     "prebuild": "tslint --project .",
     "build": "webpack --mode=production"
   },
-  "repository": "openpai@vs-ssh.visualstudio.com:v3/openpai/OpenPAI/DLWorkspace-Plugin",
-  "author": "Microsoft (https://microsoft.com/)",
-  "license": "UNLICENSED",
-  "private": true,
+  "author": "Microsoft Corporation (https://microsoft.com/)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
+  "homepage": "https://github.com/Microsoft/pai#readme",
+  "license": "MIT",
   "dependencies": {
     "react": "^16.8.4",
     "react-dom": "^16.8.4",

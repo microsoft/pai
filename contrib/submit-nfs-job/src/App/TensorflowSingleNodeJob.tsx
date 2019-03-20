@@ -1,3 +1,27 @@
+/*!
+ * Copyright (c) Microsoft Corporation
+ * All rights reserved.
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 import React, { useEffect, useState } from "react";
 
 import { useNumericValue, useValue } from "./hooks";
@@ -8,14 +32,14 @@ import { getProp } from "./utils";
 const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
 
-interface ISimpleNFSJobObject {
-  readonly type: "simple-nfs";
+interface ITensorflowSingleNodeJobObject {
+  readonly type: "tensorflow-single-node";
   readonly gpuNumber: number;
   readonly command: string;
-  readonly mountDirectories: IMountDirectoriesObject | null;
+  readonly mountDirectories: IMountDirectoriesObject;
 }
 
-export default class SimpleNFSJob extends Job {
+export default class TensorflowSingleNodeJob extends Job {
   public constructor(
     private readonly name: string,
     private readonly gpuNumber: number,
@@ -27,7 +51,7 @@ export default class SimpleNFSJob extends Job {
 
   public convert() {
     const paiTaskRole = Object.create(null);
-    paiTaskRole.name = "master";
+    paiTaskRole.name = "train";
     paiTaskRole.taskNumber = 1;
     paiTaskRole.cpuNumber = this.gpuNumber * CPU_PER_GPU;
     paiTaskRole.memoryMB = this.gpuNumber * MEMORY_PER_GPU;
@@ -35,22 +59,22 @@ export default class SimpleNFSJob extends Job {
     paiTaskRole.command = this.getPaiCommand();
 
     const paiJob = Object.create(null);
-    paiJob.jobName = this.name;
-    paiJob.image = "openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04";
+    paiJob.name = this.name;
+    paiJob.image = "openpai/pai.example.tensorflow:stable";
     paiJob.virtualCluster = "default";
     paiJob.taskRoles = [paiTaskRole];
 
     return paiJob;
   }
 
-  public toJSON(): ISimpleNFSJobObject {
-    const { gpuNumber, command, mountDirectories } = this;
+  public toJSON() {
+    const {gpuNumber, command, mountDirectories} = this;
     return {
-      type: "simple-nfs",
+      type: "tensorflow-single-node",
       gpuNumber,
       command,
       mountDirectories: mountDirectories !== null ? mountDirectories.toJSON() : null,
-    };
+    } as ITensorflowSingleNodeJobObject;
   }
 
   private getPaiCommand() {
@@ -68,17 +92,24 @@ export default class SimpleNFSJob extends Job {
 
 interface IProps {
   name: string;
-  defaultValue: ISimpleNFSJobObject | null;
-  onChange(job: SimpleNFSJob): void;
+  defaultValue: ITensorflowSingleNodeJobObject | null;
+  onChange(job: TensorflowSingleNodeJob): void;
 }
 
-export function SimpleNFSJobForm({ name, defaultValue, onChange }: IProps) {
+export function TensorflowSingleNodeJobForm({ name, defaultValue, onChange }: IProps) {
   const [gpuNumber, onGpuNumberChanged] = useNumericValue(getProp(defaultValue, "gpuNumber", 1));
-  const [command, onCommandChanged] = useValue(getProp(defaultValue, "command", "echo \"Hello OpenPAI!\""));
+  // tslint:disable:max-line-length
+  const [command, onCommandChanged] = useValue(getProp(defaultValue, "command", `
+git clone https://github.com/tensorflow/models
+cd models/research/slim
+python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/data
+python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=/data --train_dir=/work
+  `.trim()));
+  // tslint:enable:max-line-length
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {
-    onChange(new SimpleNFSJob(name, gpuNumber, command, mountDirectories));
+    onChange(new TensorflowSingleNodeJob(name, gpuNumber, command, mountDirectories));
   }, [name, gpuNumber, command, mountDirectories]);
 
   return (
@@ -105,19 +136,12 @@ export function SimpleNFSJobForm({ name, defaultValue, onChange }: IProps) {
         <label htmlFor="command">
           <span className="text-danger">*</span> Command &amp; Parameter
         </label>
-        <textarea
-          className="form-control"
-          id="command"
-          rows={10}
-          value={command}
-          onChange={onCommandChanged}
-          required={true}
-        />
+        <textarea className="form-control" id="command" rows={10} value={command} onChange={onCommandChanged}/>
       </div>
       <hr/>
       <MountDirectoriesForm
         jobName={name}
-        defaultValue={getProp(defaultValue, "mountDirectories", null)}
+        defaultValue={getProp(defaultValue, "mountDirectories", null) || null}
         onChange={setMountDirectories}
       />
     </>
