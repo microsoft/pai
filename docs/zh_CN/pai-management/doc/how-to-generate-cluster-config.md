@@ -27,7 +27,7 @@
 
 ### Step 1. Write Quick start <a name="Generate"></a>
 
-There is a example file in the [link](./../../../deployment/quick-start/quick-start-example.yaml) .
+There is a example file in the [link](../../../../deployment/quick-start/quick-start-example.yaml) .
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
