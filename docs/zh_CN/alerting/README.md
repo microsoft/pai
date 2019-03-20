@@ -24,7 +24,7 @@ More metrics are listed [here](./watchdog-metrics.md).
 
 # Metrics used
 
-The most important usage of metrics is for alerting, checkout [rule directory](../../src/prometheus/deploy/alerting) to see metrics we already used for alerting.
+The most important usage of metrics is for alerting, checkout [rule directory](../../../src/prometheus/deploy/alerting) to see metrics we already used for alerting.
 
 Other pai component also used some metrics for display, they are:
 
