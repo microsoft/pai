@@ -58,7 +58,7 @@
     
     ## Root URI
     
-    Configure the rest server port in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
+    Configure the rest server port in [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml).
     
     ## API Details
     
