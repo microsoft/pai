@@ -20,10 +20,21 @@ data:
       group_interval: 5m
       repeat_interval: 4h
       group_by: [alertname]
+      routes:
+      - receiver: task_user
+        group_by: [alertname, user_mail]
+        match_re:
+          type: user_job
     receivers:
     - name: "pai-alert"
       email_configs:
         - to: {{ alert_info["receiver"] }}
+          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
+          headers:
+            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
+    - name: "task_user"
+      email_configs:
+        - to: '{{ "{{" }} .GroupLabels.user_mail {{ "}}" }}'
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'

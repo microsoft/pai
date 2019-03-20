@@ -25,3 +25,13 @@ groups:
         for: 1h # only when it exceed 1 hour
         annotations:
           summary: "zombie container in {{$labels.instance}} detected"
+
+    - name: low-resource-usage
+      rules:
+      - alert: low-cpu-usage
+        expr: task_cpu_usage < 200
+        for: 1m
+        labels:
+            type: user_job
+        annotations:
+          summary: "cpu usage less than 200 in {{$labels.instance}} with user {{$labels.user_mail}} detected"
