@@ -132,7 +132,7 @@
 
 ## <a name="Configuration">Configuration</a>
 
-Launcher Service can be configured by [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherConfiguration.java). You can check the Type, Specification and FeatureUsage inside it.
+Launcher Service can be configured by [LauncherConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherConfiguration.java). You can check the Type, Specification and FeatureUsage inside it.
 
 And we also provide a default configuration for you to refer: [Default LauncherConfiguration File](../conf/frameworklauncher.yml).
 
@@ -173,7 +173,7 @@ Configure it as webServerAddress inside [LauncherConfiguration File](../conf/fra
 
 Type: application/json
 
-Body: [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java)
+Body: [FrameworkDescriptor](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java)
 
 **Description**
 
@@ -260,7 +260,7 @@ Recipes:
 
 Type: application/json
 
-Body: [UpdateTaskNumberRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateTaskNumberRequest.java)
+Body: [UpdateTaskNumberRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateTaskNumberRequest.java)
 
 **Description**
 
@@ -286,7 +286,7 @@ Update TaskNumber for a Requested Framework
 
 Type: application/json
 
-Body: [UpdateExecutionTypeRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateExecutionTypeRequest.java)
+Body: [UpdateExecutionTypeRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateExecutionTypeRequest.java)
 
 **Description**
 
@@ -315,7 +315,7 @@ Notes:
 
 Type: application/json
 
-Body: [MigrateTaskRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/MigrateTaskRequest.java)
+Body: [MigrateTaskRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/MigrateTaskRequest.java)
 
 **Description**
 
@@ -345,7 +345,7 @@ Notes:
 
 Type: application/json
 
-Body: [OverrideApplicationProgressRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/OverrideApplicationProgressRequest.java)
+Body: [OverrideApplicationProgressRequest](../../src/main/java/com/microsoft/frameworklauncher/common/model/OverrideApplicationProgressRequest.java)
 
 **Description**
 
@@ -452,7 +452,7 @@ TaskStatuses Recipes:
 
 Get the FrameworkRequest of a Requested Framework
 
-Current [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java) for the Framework is included in FrameworkRequest and it can reflect latest updates.
+Current [FrameworkDescriptor](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java) for the Framework is included in FrameworkRequest and it can reflect latest updates.
 
 **Response**
 
@@ -512,7 +512,7 @@ Get the LauncherRequest
 
 Get the LauncherStatus
 
-Current [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherConfiguration.java) is included in LauncherStatus and it can reflect latest updates.
+Current [LauncherConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherConfiguration.java) is included in LauncherStatus and it can reflect latest updates.
 
 **Response**
 
@@ -530,7 +530,7 @@ Current [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher
 
 Type: application/json
 
-Body: [ClusterConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java)
+Body: [ClusterConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java)
 
 **Description**
 
@@ -576,7 +576,7 @@ Get the ClusterConfiguration
 
 Type: application/json
 
-Body: [AclConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/AclConfiguration.java)
+Body: [AclConfiguration](../../src/main/java/com/microsoft/frameworklauncher/common/model/AclConfiguration.java)
 
 **Description**
 
@@ -613,11 +613,11 @@ Get the AclConfiguration
 
 ## <a name="DataModel_and_FeatureUsage">DataModel and FeatureUsage</a>
 
-You can check the Type, Specification and FeatureUsage inside [Launcher Data Model](../src/main/java/com/microsoft/frameworklauncher/common/model).
+You can check the Type, Specification and FeatureUsage inside [Launcher Data Model](../../src/main/java/com/microsoft/frameworklauncher/common/model).
 
 For example:
 
-A Framework is Defined and Requested by FrameworkDescriptor data structure. To find the FeatureUsage inside FrameworkDescriptor, you can refer the comments inside [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java).
+A Framework is Defined and Requested by FrameworkDescriptor data structure. To find the FeatureUsage inside FrameworkDescriptor, you can refer the comments inside [FrameworkDescriptor](../../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java).
 
 ## <a name="EnvironmentVariables">EnvironmentVariables</a>
 
@@ -695,7 +695,7 @@ Notes:
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>
 
-You can check all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
+You can check all the defined ExitStatus by: [ExitType](../../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [ExitDiagnostics](../../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
 
 Recipes:
 
@@ -718,7 +718,7 @@ RetryPolicy can be configured for the whole Framework and each TaskRole to contr
 
 ### <a name="RetryPolicy_Usage">Usage</a>
 
-For details, please check: [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java).
+For details, please check: [RetryPolicyDescriptor](../../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java).
 
 ### <a name="RetryPolicy_Examples">Examples</a>
 
@@ -796,7 +796,7 @@ ApplicationCompletionPolicy can be configured for each TaskRole to control:
 
 ### <a name="ApplicationCompletionPolicy_Usage">Usage</a>
 
-For details, please check: [TaskRoleApplicationCompletionPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/TaskRoleApplicationCompletionPolicyDescriptor.java).
+For details, please check: [TaskRoleApplicationCompletionPolicyDescriptor](../../src/main/java/com/microsoft/frameworklauncher/common/model/TaskRoleApplicationCompletionPolicyDescriptor.java).
 
 ### <a name="ApplicationCompletionPolicy_Examples">Examples</a>
 
