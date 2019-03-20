@@ -365,12 +365,13 @@ class Job {
     if (frameworkStatus) {
       const jobState = this.convertJobState(
         frameworkStatus.frameworkState,
-        frameworkStatus.applicationExitCode);
+        frameworkStatus.applicationExitCode,
+      );
 
-        const systemRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
-        const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
-        const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
-        jobDetail.jobStatus = {
+      const systemRetries = frameworkStatus.frameworkRetryPolicyState.transientNormalRetriedCount;
+      const resourceRetries = frameworkStatus.frameworkRetryPolicyState.transientConflictRetriedCount;
+      const userRetries = frameworkStatus.frameworkRetryPolicyState.unKnownRetriedCount;
+      jobDetail.jobStatus = {
         name: framework.name,
         username: 'unknown',
         state: jobState,
