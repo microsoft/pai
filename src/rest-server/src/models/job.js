@@ -426,7 +426,6 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectPidFormat': '{{.State.Pid}}',
-          'inspectOOMKilledFormat': '{{.State.OOMKilled}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,

@@ -106,6 +106,7 @@ export function cloneJob(jobConfig) {
       alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     }
     window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
+    return;
   }
 
   // job v2

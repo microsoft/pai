@@ -58,7 +58,7 @@ const config = (env, argv) => ({
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
     'submit': './src/app/job/job-submit/job-submit.component.js',
-    'jobList': './src/app/job/job-view/job-view.component.js',
+    'jobList': ['babel-polyfill', './src/app/job/job-view/fabric/job-list.jsx'],
     'jobDetail': ['babel-polyfill', './src/app/job/job-view/fabric/job-detail.jsx'],
     'virtualClusters': './src/app/vc/vc.component.js',
     'services': './src/app/cluster-view/services/services.component.js',
@@ -70,7 +70,6 @@ const config = (env, argv) => ({
     'changeGitHubPAT': './src/app/user/change-github-pat/change-github-pat.component.js',
     'howToConfigGitHubPAT': './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
     'plugin': './src/app/plugin/plugin.component.js',
-
     'plugins/marketplace': './src/plugins/marketplace',
   },
   output: {
@@ -239,7 +238,7 @@ const config = (env, argv) => ({
       chunks: ['layout', 'submit'],
     }),
     generateHtml({
-      filename: 'view.html',
+      filename: 'job-list.html',
       chunks: ['layout', 'jobList'],
     }),
     generateHtml({
