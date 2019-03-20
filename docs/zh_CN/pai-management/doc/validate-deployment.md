@@ -179,13 +179,13 @@ Check and refine 4 yaml files:
 
 - Customize config for specific service
 
-If user want to customize single service, you could find service config file at [src](../../../src) and find image dockerfile at [src](../../../src).
+If user want to customize single service, you could find service config file at [src](../../../../src) and find image dockerfile at [src](../../../src).
 
 - Update Code & Image
     
     - Customize image dockerfile or code
 
-User could find service's image dockerfile at [src](../../../src) and customize them.
+User could find service's image dockerfile at [src](../../../../src) and customize them.
 
 - Rebuild image
 
