@@ -21,7 +21,7 @@ More advanced configurations for alert manager is not supported in pai, see offi
 
 # Alerting rule
 
-To facilitate the OpenPAI usage, we had predefined few alerting rules for OpenPAI. Checkout [rule directory](../../src/prometheus/deploy/alerting) to see rules we defined.
+To facilitate the OpenPAI usage, we had predefined few alerting rules for OpenPAI. Checkout [rule directory](../../../src/prometheus/deploy/alerting) to see rules we defined.
 
 Following are these rule's triggering condition:
 
