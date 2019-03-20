@@ -230,4 +230,4 @@ A distributed TensorFlow job is listed below as an example:
 
 ## Learn more job examples
 
-For more examples, please refer to [job examples directory](../examples).
+For more examples, please refer to [job examples directory](../../examples).
