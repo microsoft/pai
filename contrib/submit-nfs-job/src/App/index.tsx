@@ -32,7 +32,7 @@ import { SimpleNFSJobForm } from "./SimpleNFSJob";
 import { TensorflowDistributedJobForm } from "./TensorflowDistributedJob";
 import { TensorflowSingleNodeJobForm } from "./TensorflowSingleNodeJob";
 
-const EXTRAS_ID = "com.microsoft.DLWorkspace-Plugin";
+const EXTRAS_ID = "com.microsoft.submit-nfs-job-plugin";
 
 const TYPES = [{
   key: "simple-nfs",
