@@ -24,10 +24,11 @@
  */
 import React, { useEffect, useState } from "react";
 
+import get from "lodash.get";
+
 import { useNumericValue, useValue } from "./hooks";
 import Job from "./Job";
 import MountDirectories, { IMountDirectoriesObject, MountDirectoriesForm } from "./MountDirectories";
-import { getProp } from "./utils";
 
 const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
@@ -127,20 +128,20 @@ interface IProps {
 }
 
 export function TensorflowDistributedJobForm({ name, defaultValue, onChange }: IProps) {
-  const [psNumber, onPsNumberChanged] = useNumericValue(getProp(defaultValue, "psNumber", 1));
-  const [psGpuNumber, onPsGpuNumberChanged] = useNumericValue(getProp(defaultValue, "psGpuNumber", 1));
+  const [psNumber, onPsNumberChanged] = useNumericValue(get(defaultValue, "psNumber", 1));
+  const [psGpuNumber, onPsGpuNumberChanged] = useNumericValue(get(defaultValue, "psGpuNumber", 1));
   // tslint:disable:max-line-length
-  const [psCommand, onPsCommandChanged] = useValue(getProp(defaultValue, "psCommand", `
+  const [psCommand, onPsCommandChanged] = useValue(get(defaultValue, "psCommand", `
 echo "This is a parameter server."
 echo "All parameter servers are: $PAI_TASK_ROLE_ps_server_HOST_LIST"
 echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
   `.trim()));
   // tslint:enable:max-line-length
 
-  const [workerNumber, onWorkerNumberChanged] = useNumericValue(getProp(defaultValue, "workerNumber", 1));
-  const [workerGpuNumber, onWorkerGpuNumberChanged] = useNumericValue(getProp(defaultValue, "workerGpuNumber", 1));
+  const [workerNumber, onWorkerNumberChanged] = useNumericValue(get(defaultValue, "workerNumber", 1));
+  const [workerGpuNumber, onWorkerGpuNumberChanged] = useNumericValue(get(defaultValue, "workerGpuNumber", 1));
   // tslint:disable:max-line-length
-  const [workerCommand, onWorkerCommandChanged] = useValue(getProp(defaultValue, "workerCommand", `
+  const [workerCommand, onWorkerCommandChanged] = useValue(get(defaultValue, "workerCommand", `
 echo "This is a worker."
 echo "All parameter servers are: $PAI_TASK_ROLE_ps_server_HOST_LIST"
 echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
@@ -278,7 +279,7 @@ echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
       <hr/>
       <MountDirectoriesForm
         jobName={name}
-        defaultValue={getProp(defaultValue, "mountDirectories", null)}
+        defaultValue={get(defaultValue, "mountDirectories", null)}
         onChange={setMountDirectories}
       />
     </>

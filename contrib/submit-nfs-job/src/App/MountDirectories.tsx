@@ -24,11 +24,11 @@
  */
 import React, { useContext, useEffect, useMemo } from "react";
 
+import get from "lodash.get";
 import { join } from "path";
 
 import Context from "./Context";
 import { usePromise, useValue } from "./hooks";
-import { getProp } from "./utils";
 
 export interface IMountDirectoriesObject {
   readonly workPath: string;
@@ -107,9 +107,9 @@ export function MountDirectoriesForm({
   defaultValue,
   onChange,
 }: IProps) {
-  const [workPath, onWorkPathChanged] = useValue(getProp(defaultValue, "workPath", "work"));
-  const [dataPath, onDataPathChanged] = useValue(getProp(defaultValue, "dataPath", ""));
-  const [jobPath, onJobPathChanged] = useValue(getProp(defaultValue, "jobPath", "jobs"));
+  const [workPath, onWorkPathChanged] = useValue(get(defaultValue, "workPath", "work"));
+  const [dataPath, onDataPathChanged] = useValue(get(defaultValue, "dataPath", ""));
+  const [jobPath, onJobPathChanged] = useValue(get(defaultValue, "jobPath", "jobs"));
 
   const { api, user } = useContext(Context);
 

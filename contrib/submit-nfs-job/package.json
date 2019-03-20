@@ -19,11 +19,13 @@
   "homepage": "https://github.com/Microsoft/pai#readme",
   "license": "MIT",
   "dependencies": {
+    "lodash.get": "^4.4.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
+    "@types/lodash.get": "^4.4.6",
     "@types/react": "^16.8.7",
     "@types/react-dom": "^16.8.2",
     "@types/webpack": "^4.4.25",

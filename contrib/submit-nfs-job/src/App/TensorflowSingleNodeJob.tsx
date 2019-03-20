@@ -24,10 +24,11 @@
  */
 import React, { useEffect, useState } from "react";
 
+import get from "lodash.get";
+
 import { useNumericValue, useValue } from "./hooks";
 import Job from "./Job";
 import MountDirectories, { IMountDirectoriesObject, MountDirectoriesForm } from "./MountDirectories";
-import { getProp } from "./utils";
 
 const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
@@ -97,9 +98,9 @@ interface IProps {
 }
 
 export function TensorflowSingleNodeJobForm({ name, defaultValue, onChange }: IProps) {
-  const [gpuNumber, onGpuNumberChanged] = useNumericValue(getProp(defaultValue, "gpuNumber", 1));
+  const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 1));
   // tslint:disable:max-line-length
-  const [command, onCommandChanged] = useValue(getProp(defaultValue, "command", `
+  const [command, onCommandChanged] = useValue(get(defaultValue, "command", `
 git clone https://github.com/tensorflow/models
 cd models/research/slim
 python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/data
@@ -141,7 +142,7 @@ python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dat
       <hr/>
       <MountDirectoriesForm
         jobName={name}
-        defaultValue={getProp(defaultValue, "mountDirectories", null) || null}
+        defaultValue={get(defaultValue, "mountDirectories", null) || null}
         onChange={setMountDirectories}
       />
     </>

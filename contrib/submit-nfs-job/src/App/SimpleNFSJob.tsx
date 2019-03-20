@@ -24,10 +24,11 @@
  */
 import React, { useEffect, useState } from "react";
 
+import get from "lodash.get";
+
 import { useNumericValue, useValue } from "./hooks";
 import Job from "./Job";
 import MountDirectories, { IMountDirectoriesObject, MountDirectoriesForm } from "./MountDirectories";
-import { getProp } from "./utils";
 
 const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
@@ -97,8 +98,8 @@ interface IProps {
 }
 
 export function SimpleNFSJobForm({ name, defaultValue, onChange }: IProps) {
-  const [gpuNumber, onGpuNumberChanged] = useNumericValue(getProp(defaultValue, "gpuNumber", 1));
-  const [command, onCommandChanged] = useValue(getProp(defaultValue, "command", "echo \"Hello OpenPAI!\""));
+  const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 1));
+  const [command, onCommandChanged] = useValue(get(defaultValue, "command", "echo \"Hello OpenPAI!\""));
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {
@@ -141,7 +142,7 @@ export function SimpleNFSJobForm({ name, defaultValue, onChange }: IProps) {
       <hr/>
       <MountDirectoriesForm
         jobName={name}
-        defaultValue={getProp(defaultValue, "mountDirectories", null)}
+        defaultValue={get(defaultValue, "mountDirectories", null)}
         onChange={setMountDirectories}
       />
     </>
