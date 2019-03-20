@@ -218,4 +218,4 @@ Refer to [here](../job_tutorial.md) to enable isDebug in job configuration file.
 
 Administrators of the OpenPAI cluster may be able to fix issues if this guidance doesn't work unfortunately.
 
-If it isn't fixed by administrators, or you are administrator, you are welcome to [ask questions or submit issues](../../README.md#get-involved) to us.
+If it isn't fixed by administrators, or you are administrator, you are welcome to [ask questions or submit issues](../../../README_zh_CN.md#get-involved) to us.
