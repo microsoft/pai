@@ -131,3 +131,9 @@ matrix:
       before_install: cd contrib/submit-simple-job
       install: npm install
       script: npm test
+
+    - language: node_js
+      node_js: node
+      before_install: cd contrib/submit-nfs-job
+      install: yarn --frozen-lockfiles
+      script: yarn build
