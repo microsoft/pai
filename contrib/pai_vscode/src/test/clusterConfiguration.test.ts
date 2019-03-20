@@ -5,6 +5,7 @@
  */
 // tslint:disable:align
 import * as assert from 'assert';
+
 import { getSingleton } from '../common/singleton';
 import { ClusterManager } from '../pai/clusterManager';
 
