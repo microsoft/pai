@@ -1,4 +1,4 @@
-# Upgrade to v0.10
+# Upgrade to v0.11
 
 We have test the upgrade process against v0.8 and later.
 It takes hours or more, depends on the number of nodes in the cluster and the internet network speed.
@@ -15,10 +15,10 @@ Table of Contents
 
 ## Prepare
 
-### Setup a dev-box of v0.10
+### Setup a dev-box of v0.11
 
 All the commands in the document excuted in dev-box.
-You will need to prepare a dev-box of v0.10 first.
+You will need to prepare a dev-box of v0.11 first.
 Run the fellow command to create one and work in it:
 
 ```bash
@@ -31,7 +31,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box:v0.10.1
+        docker.io/openpai/dev-box:v0.11.0
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
@@ -69,7 +69,7 @@ There should be four files under the `path_to_backup_your_config`:
 
 ### Convert and customize cluster configuration
 
-PAI provide a script tools to convert configuration from old style to the v0.10 release.
+PAI provide a script tools to convert configuration from old style to the v0.11 release.
 
 Usage:
 
@@ -85,7 +85,7 @@ PAI provide an `check` command for validatng configuration, usage as below:
 
 ## Stop Services and Backup Data
 
-### Push The Converted v0.10 Configuration To Cluster
+### Push The Converted v0.11 Configuration To Cluster
 
 Notices: the configuration pushed to cluster won't take effect until we restart the PAI Services.
 Use the command like below:
@@ -136,4 +136,4 @@ Now the PAI is up, you can visit the PAI dashboard.
 
 ## It's Done
 
-Now you have the release v0.10 install, please check the release-notes for new features.
+Now you have the release v0.11 install, please check the release-notes for new features.
