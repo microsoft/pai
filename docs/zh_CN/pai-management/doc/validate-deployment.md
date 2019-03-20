@@ -179,13 +179,13 @@ Check and refine 4 yaml files:
 
 - Customize config for specific service
 
-If user want to customize single service, you could find service config file at [src](../../../src) and find image dockerfile at [src](../../../src).
+If user want to customize single service, you could find service config file at [src](../../../../src) and find image dockerfile at [src](../../../../src).
 
 - Update Code & Image
     
     - Customize image dockerfile or code
 
-User could find service's image dockerfile at [src](../../../src) and customize them.
+User could find service's image dockerfile at [src](../../../../src) and customize them.
 
 - Rebuild image
 
@@ -227,5 +227,5 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 
 ### 6 Getting help <a name="troubleshooting_6"></a>
 
-- [StackOverflow:](../../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
+- [StackOverflow:](../../stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github

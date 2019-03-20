@@ -42,7 +42,7 @@ Run `yarn install` to install dependencies.
 
 ## Configuration
 
-If REST Server is deployed by [pai management tool](../pai-management), configuration is located in `restserver` block of [service configuration](../../examples/cluster-configuration/services-configuration.yaml) file, including:
+If REST Server is deployed by [pai management tool](../pai-management), configuration is located in `restserver` block of [service configuration](../../../examples/cluster-configuration/services-configuration.yaml) file, including:
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9186.
 * `jwt-secret`: A random secret token for user authorization, keep it secret to users.
@@ -111,7 +111,7 @@ Read [API document](./API.md) for the details of REST API.
 
 > Q: What is the default username and password?
 > 
-> A: Default username and password is configured in - `DEFAULT_PAI_ADMIN_USERNAME` and `DEFAULT_PAI_ADMIN_PASSWORD` environment variables if service is deployed manually. - `restserver.default-pai-admin-username` and `restserver.default-pai-admin-password` field in [service configuration file](../../examples/cluster-configuration/services-configuration.yaml) if service is deployed by [pai management tool](../pai-management).
+> A: Default username and password is configured in - `DEFAULT_PAI_ADMIN_USERNAME` and `DEFAULT_PAI_ADMIN_PASSWORD` environment variables if service is deployed manually. - `restserver.default-pai-admin-username` and `restserver.default-pai-admin-password` field in [service configuration file](../../../examples/cluster-configuration/services-configuration.yaml) if service is deployed by [pai management tool](../pai-management).
 > 
 > Q: Why can't I login with default username and password?
 > 

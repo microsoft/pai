@@ -2,7 +2,7 @@
 
 ## Overview
 
-This [tool](../../src/tools/node_maintain.py) help you to gracefully decommission unhealthy nodes in OpenPAI.
+This [tool](../../../src/tools/node_maintain.py) help you to gracefully decommission unhealthy nodes in OpenPAI.
 
 **NOTES: This tool should be invoked in the dev-box, under `{PAI_ROOT_DIR}/src/tools`. For now, it only supports decommissioning YARN nodes. HDFS decommissioning might be added in the future.**
 
@@ -34,7 +34,7 @@ By default the alert url is `http://{prometheus_ip}:9091/prometheus/alerts`, all
 
 ###### 3. Get notification by alert-manager
 
-If you configure alert-manager in [services-configuration](../../examples/cluster-configuration/services-configuration.yaml), you will get alert mails when unhealthy GPU found.
+If you configure alert-manager in [services-configuration](../../../examples/cluster-configuration/services-configuration.yaml), you will get alert mails when unhealthy GPU found.
 
 ### Add unhealthy GPU nodes to blacklist
 
@@ -42,7 +42,7 @@ If you configure alert-manager in [services-configuration](../../examples/cluste
 python node_maintain.py blacklist add -n {unhealthy_nodes} -m {api-server-ip}
 ```
 
-You could find your `api-server-ip` in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml).
+You could find your `api-server-ip` in [kubernetes-configuration](../../../examples/cluster-configuration/kubernetes-configuration.yaml).
 
 `blacklist` command provides more operations about blacklist, including following actions.
 
@@ -58,7 +58,7 @@ You could find your `api-server-ip` in [kubernetes-configuration](../../examples
 python node_maintain.py blacklist enforce -m {master_ip} [--api-server-ip api-server-ip] [--resource-manager-ip resource-manager-ip]
 ```
 
-You could find your `api-server-ip` in [kubernetes-configuration](../../examples/cluster-configuration/kubernetes-configuration.yaml) and `resource-manager-ip` in [layout](../../examples/cluster-configuration/layout.yaml), by default they are both `master_ip`.
+可在 [layout](../../../examples/cluster-configuration/layout.yaml) 文件的 [kubernetes-configuration](../../../examples/cluster-configuration/kubernetes-configuration.yaml) 和 `resource-manager-ip` 找到 `api-server-ip`，默认情况下，都与 `master_ip` 一致。
 
 Noticed that it's a blocking command and won't exit until all nodes are decommissioned or recommissioned.
 

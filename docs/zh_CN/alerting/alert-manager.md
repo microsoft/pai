@@ -2,9 +2,9 @@ Building on top of [Prometheus Alertmanager](https://prometheus.io/docs/alerting
 
 # Configuration
 
-To enable Alert Manager, please follow instruction [here](../../src/alert-manager/config/alert-manager.md)
+To enable Alert Manager, please follow instruction [here](../../../src/alert-manager/config/alert-manager.md)
 
-Refer to example [`layout`](../../examples/cluster-configuration/layout.yaml) and [`service-configuration`](../../examples/cluster-configuration/services-configuration.yaml) for more information.
+参考样例 [`layout`](../../../examples/cluster-configuration/layout.yaml) 和 [`service-configuration`](../../../examples/cluster-configuration/services-configuration.yaml) 了解细节。
 
 `alert-manager` fields has following subfield:
 
@@ -21,7 +21,7 @@ More advanced configurations for alert manager is not supported in pai, see offi
 
 # Alerting rule
 
-To facilitate the OpenPAI usage, we had predefined few alerting rules for OpenPAI. Checkout [rule directory](../../src/prometheus/deploy/alerting) to see rules we defined.
+To facilitate the OpenPAI usage, we had predefined few alerting rules for OpenPAI. Checkout [rule directory](../../../src/prometheus/deploy/alerting) to see rules we defined.
 
 Following are these rule's triggering condition:
 

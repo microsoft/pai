@@ -34,7 +34,7 @@ python pai_build.py push -c /path/to/configuration/ -i hadoop-run
 
 Most service configuration are the same as official hadoop, except GPU and port related items, for these extra items, please refer to [hadoop-ai](../hadoop-ai/README.md).
 
-YARN configuration files([RM](../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)) will be generated according to [setting](../../deployment/quick-start) and hardware when service starts. Advanced users can modify related scripts under these folder to customize cluster.
+YARN configuration files([RM](../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)) will be generated according to [setting](../../../deployment/quick-start) and hardware when service starts. Advanced users can modify related scripts under these folder to customize cluster.
 
 ### Deployment
 

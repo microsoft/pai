@@ -22,29 +22,29 @@ OpenPAI consists of multiple services, user could customize each service.
 
 ## Configure Kubernetes <a name="kubernetes"></a>
 
-User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder / file](../../../deployment/k8sPaiLibrary/template)
+User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder / file](../../../../deployment/k8sPaiLibrary/template)
 
 ## Configure Webportal <a name="webportal"></a>
 
 User could customize Webportal at OpenPAI's [folder / file](../../webportal/README.md#Configuration)
 
-User could customize Webportal startup configuration at OpenPAI's [folder / file](../../../src/webportal/deploy/webportal.yaml.template)
+User could customize Webportal startup configuration at OpenPAI's [folder / file](../../../../src/webportal/deploy/webportal.yaml.template)
 
 ## Configure Pylon <a name="pylon"></a>
 
 User could customize Pylon at OpenPAI's [folder / file](../../pylon/README.md#Configuration)
 
-User could customize Pylon startup configuration at OpenPAI's [folder / file](../../../src/pylon/deploy/pylon.yaml.template)
+User could customize Pylon startup configuration at OpenPAI's [folder / file](../../../../src/pylon/deploy/pylon.yaml.template)
 
 ## Configure FrameworkLauncher <a name="frameworklauncher"></a>
 
-用户可以自定义 FrameworkLauncher [folder / file](../../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Configuration)
+用户可以自定义 FrameworkLauncher [folder / file](../../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL_zh_CN.md#Configuration)
 
-User could customize FrameworkLauncher startup configuration at OpenPAI's [folder / file](../../../src/yarn-frameworklauncher/deploy/yarn-frameworklauncher.yaml.template)
+User could customize FrameworkLauncher startup configuration at OpenPAI's [folder / file](../../../../src/yarn-frameworklauncher/deploy/yarn-frameworklauncher.yaml.template)
 
 ## Configure Rest-server <a name="restserver"></a>
 
-User could customize rest server at OpenPAI's [folder / file](../../../src/rest-server/deploy/rest-server.yaml.template)
+User could customize rest server at OpenPAI's [folder / file](../../../../src/rest-server/deploy/rest-server.yaml.template)
 
 User could customize rest server startup configuration at OpenPAI's [folder / file](../../../src)
 

@@ -58,7 +58,7 @@ service-a-key4:
 
 ###### Update example/cluster-configuration
 
-You should add the overwrite section in [example/service-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml)
+You should add the overwrite section in [example/service-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml)
 
 Add the overwrite section of ```${service_name}``` like the following. Note, you could omit the default value which exists in default configuraiton.
 
@@ -85,7 +85,7 @@ ${service_name}:
 
 ###### Update deployment/quick-start/services-configuration.yaml.template
 
-You should add the overwrite section in [deployment/quick-start/services-configuration.yaml.template](../../../deployment/quick-start/services-configuration.yaml.template)
+You should add the overwrite section in [deployment/quick-start/services-configuration.yaml.template](../../../../deployment/quick-start/services-configuration.yaml.template)
 
 Add the overwrite section of ```${service_name}``` like the following. Please omit the default value, and only left the mandatory value.
 

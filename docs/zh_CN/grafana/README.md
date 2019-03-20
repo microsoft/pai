@@ -8,7 +8,7 @@ Prometheus scrapes metrics through exporters. It stores all scraped samples loca
 
 # Dependencies
 
-The Grafana can start up independently, but to show the monitoring data, it depends on the following service: [Prometheus](../../src/prometheus)
+The Grafana can start up independently, but to show the monitoring data, it depends on the following service: [Prometheus](../../../src/prometheus)
 
 # Build
 
@@ -20,7 +20,7 @@ python paictl.py image build -p /path/to/cluster-configuration/dir -n grafana
 
 # Configuration / Reconfiguration
 
-You can change the following configuration of Grafana in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
+You can change the following configuration of Grafana in [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml) file:
 
     grafana-port: 3000        # port for grafana
     
@@ -45,7 +45,7 @@ For more details, please refer to [Maintain your service](../paictl/paictl-manua
 
 # Upgrading
 
-System will automatically pull the latest Grafana image, there is no need to upgrade. If you want to use the specific version of Grafana, you can change the version configuration at the [grafana.yaml.template](../../src/grafana/deploy/grafana.yaml.template#L44) and then redeploy it.
+System will automatically pull the latest Grafana image, there is no need to upgrade. If you want to use the specific version of Grafana, you can change the version configuration at the [grafana.yaml.template](../../../src/grafana/deploy/grafana.yaml.template#L44) and then redeploy it.
 
 # Service Metrics
 

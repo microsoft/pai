@@ -26,7 +26,7 @@ Single master mode does not have high availability.
 
 ###     Kubernetes with High Availability: The `proxy` Role
 
-There are 3 roles in [k8s-role-definition](../../../examples/cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In layout.yaml,
+There are 3 roles in [k8s-role-definition](../../../../examples/cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In layout.yaml,
 
 - One or more than one nodes are labeled with ```k8s-role: master```
 - One node should be labeled with ```k8s-role: proxy```

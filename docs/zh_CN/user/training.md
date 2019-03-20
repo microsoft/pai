@@ -29,7 +29,7 @@
 
 This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 ## Submit a hello-world job
 
@@ -39,10 +39,9 @@ Following this section to submit a very simple job like hello-world during learn
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
   
-      After that, OpenPAI will show dashboard as below.
-      
-      ![dashboard](imgs/web_dashboard.png)
-      
+  After that, OpenPAI will show dashboard as below.
+  
+  ![dashboard](imgs/web_dashboard.png)
 
 2. Click **Submit Job** on the left pane and reach this page.
   
@@ -51,25 +50,24 @@ Following this section to submit a very simple job like hello-world during learn
 
 3. Click **JSON** button. Clear existing content and paste below content in the popped text box, then click save.
   
-      The content is introduced in next sections.
-      
-      ```json
-      {
-      "jobName": "tensorflow-cifar10",
-      "image": "ufoym/deepo:tensorflow-py36-cu90",
-      "taskRoles": [
-          {
-          "name": "default",
-          "taskNumber": 1,
-          "cpuNumber": 4,
-          "memoryMB": 8192,
-          "gpuNumber": 1,
-          "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-          }
-      ]
-      }
-      ```
-      
+  The content is introduced in next sections.
+  
+      json
+       {
+       "jobName": "tensorflow-cifar10",
+       "image": "ufoym/deepo:tensorflow-py36-cu90",
+       "taskRoles": [
+           {
+           "name": "default",
+           "taskNumber": 1,
+           "cpuNumber": 4,
+           "memoryMB": 8192,
+           "gpuNumber": 1,
+           "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+           }
+       ]
+       }
+  
       ![paste job](imgs/web_paste_json.png)
       
 
@@ -77,7 +75,7 @@ Following this section to submit a very simple job like hello-world during learn
   
       ![click submit job](imgs/web_click_submit_job.png)
       
-      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
+      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) is recommended to work with OpenPAI.
       
 
 5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
@@ -100,7 +98,7 @@ The **job configuration** is a JSON file, which is posted to OpenPAI. Here uses 
 
 The JSON file of job has two levels entries. The top level includes shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and the corresponding running environment.
 
-Below is key part of all fields and [full spec of job configuration](../job_tutorial.md) is here.
+以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
 - **jobName** is the unique name of current job, displays in web also. A meaningful name helps managing jobs well.
 
@@ -147,7 +145,7 @@ It's better to check with administrator of the OpenPAI cluster, since there may 
 
 ### Job workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, the recommended way is to use [Visual Studio Code extension for OpenPAI](../../contrib/pai_vscode/VSCodeExt.md). Both web UI and extension through [RESTful API of OpenPAI](../rest-server/API.md) to manage jobs. So, it's possible to implement your own script or tool.
+Once job configuration is ready, next step is to submit it to OpenPAI. 推荐使用 [Visual Studio Code OpenPAI 扩展](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md)来提交 Job。 Both web UI and extension through [RESTful API of OpenPAI](../rest-server/API.md) to manage jobs. So, it's possible to implement your own script or tool.
 
 After received job configuration, OpenPAI processes it as below steps.
 

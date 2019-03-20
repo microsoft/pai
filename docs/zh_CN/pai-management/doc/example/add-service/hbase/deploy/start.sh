@@ -39,7 +39,7 @@ kubectl create -f hbase-master.yaml
 
 
 # A tool to wait until the service is ready.
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-master
+PYTHONPATH="../../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-master
 
 
 # hbase master
@@ -47,7 +47,7 @@ kubectl create -f hbase-regionserver.yaml
 
 
 # A tool to wait until the service is ready.
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver
+PYTHONPATH="../../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver
 
 
 popd > /dev/null

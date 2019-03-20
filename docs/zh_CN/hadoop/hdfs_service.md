@@ -46,11 +46,11 @@ python pai_build.py push -c /path/to/configuration/ -i hadoop-run
 
 ## Properties Configuration <a name="Properties_Configuration"></a>
 
-HDFS name node and data node both have it configuration files. They are located in [name node configuration](../../src/hadoop-name-node/deploy/hadoop-name-node-configuration) and [data node configuration](../../src/hadoop-data-node/deploy/hadoop-data-node-configuration) respectively. All the HDFS related properties are in file *core-site.xml* and *hdfs-site.xml*. Please refer [core-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/core-default.xml) and [hdfs-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml) for the detailed property descriptions.
+HDFS name node and data node both have it configuration files. They are located in [name node configuration](../../../src/hadoop-name-node/deploy/hadoop-name-node-configuration) and [data node configuration](../../../src/hadoop-data-node/deploy/hadoop-data-node-configuration) respectively. All the HDFS related properties are in file *core-site.xml* and *hdfs-site.xml*. Please refer [core-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/core-default.xml) and [hdfs-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml) for the detailed property descriptions.
 
 ## Storage Path <a name="Storage_Path"></a>
 
-By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in file [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml). For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, which supports a comma-delimited list of directories to configure multiple disks.
+By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in file [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml). For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, which supports a comma-delimited list of directories to configure multiple disks.
 
 ### Name Node <a name="Name_Node"></a>
 
@@ -74,7 +74,7 @@ HDFS support configure multipath. If just need to expand current storage, you co
 ```bash
     python paictl.py service stop -n hadoop-data-node
     ```
-2. Append new path in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) 
+2. Append new path in [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml) 
     *${hadoop-data-node.storage_path}*, such as "*${cluster.common.data-path}/hdfs/data*,*/path/to/new/disk*". 
     Then [push to configmap](../pai-management/doc/push-cfg-and-set-id.md).
 3. Start hadoop data node.
@@ -85,7 +85,7 @@ HDFS support configure multipath. If just need to expand current storage, you co
 Data migration is only necessary when discard old path. 
 Please follow these steps to achieve it without data loss:
 
-1. Confirm HDFS path in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml), 
+1. Confirm HDFS path in [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml), 
     it will be *${hadoop-data-node.storage_path}* if specified, 
     or *${cluster.common.data-path}/hdfs/data*. Assume current cluster HDFS path is *path1*, 
     new path is *path2*.
@@ -94,7 +94,7 @@ Please follow these steps to achieve it without data loss:
     python paictl.py service stop -n hadoop-data-node
     ```
 3. On every data node, manually copy data from *path1* to *path2*.
-4. Edit [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) *${hadoop-data-node.storage_path}* to *path2*, 
+4. Edit [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml) *${hadoop-data-node.storage_path}* to *path2*, 
     and [push to configmap](../pai-management/doc/push-cfg-and-set-id.md).
 5. Start hadoop data node.
     ```bash

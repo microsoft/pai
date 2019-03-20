@@ -31,7 +31,7 @@ The network topology considerations(Important): https://docs.microsoft.com/en-us
 
 ######     1. Mark the RDMA capable machines with label
 
-Based on [the knowledge section](#knowledge), you should mark your RDMA-capable machine with a specify label in [layout.yaml](../../../../examples/cluster-configuration/layout.yaml). Of course, you could customize the label as what you like.
+根据[相关知识章节](#knowledge)，要在 [layout.yaml](../../../../../examples/cluster-configuration/layout.yaml) 文件中为 RDMA-capable 的服务器加上特殊标签。 Of course, you could customize the label as what you like.
 
 For example, in this tutorial, the following label will be used.
 
@@ -68,7 +68,7 @@ Please communicate with your cluster owner to reboot the rdma machines after the
 
 ######     5. Open the switch configuration for az-rdma whose default value is false
 
-In the [services-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration field ```cluster.common.az-rdma``` and set its value as ```"true""```.
+In the [services-configuration.yaml](../../../../../examples/cluster-configuration/services-configuration.yaml), please uncomment the configuration field ```cluster.common.az-rdma``` and set its value as ```"true""```.
 
 For example, you should modify it as following.
 

@@ -10,14 +10,14 @@ OpenPAI doesn't directly build etcd service. The service's image is pulled from 
 
 ## Configuration
 
-Configuration file [kubernetes-configuration.yaml](../../examples/cluster-configuration/kubernetes-configuration.yaml) defines etcd as kubernetes storage and specifies the version.
+Configuration file [kubernetes-configuration.yaml](../../../examples/cluster-configuration/kubernetes-configuration.yaml) defines etcd as kubernetes storage and specifies the version.
 
 ```yaml
 storage-backend: etcd3
 etcd-version: 3.2.17
 ```
 
-The etcd node can be configured in file [layout.yaml](../../examples/cluster-configuration/layout.yaml) by adding a `etcdid` label on the machine.
+ETCD 节点可通过在文件 [layout.yaml](../../../examples/cluster-configuration/layout.yaml) 中增加 `etcdid` 标签来配置。
 
 ## Deployment
 

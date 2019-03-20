@@ -251,9 +251,9 @@ const loadJobs = (specifiedVc) => {
       {title: 'Job', data: null, responsivePriority: 1, render({legacy, name, namespace, username}, type) {
         if (type !== 'display') return name;
         if (legacy) {
-          return `<span class="label label-warning">legacy</span> <a href="view.html?jobName=${name}"><div class="table-job-name">${name}</div></a>`;
+          return `<span class="label label-warning">legacy</span> <a href="job-detail.html?jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         } else {
-          return `<a class="table-job-name" href="view.html?username=${namespace || username}&jobName=${name}"><div class="table-job-name">${name}</div></a>`;
+          return `<a class="table-job-name" href="job-detail.html?username=${namespace || username}&jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         }
       }},
       {title: 'User', name: 'user', data: 'username', responsivePriority: 2},

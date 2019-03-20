@@ -57,7 +57,7 @@ In this tutorial, we have prepared the docker image in the path following.
 
 #### Place the Image Directory into PAI <a name="Image_Place"></a>
 
-- At first, according to the service name, you should create a directory under the path [pai/src/](../../../src). In this example, a directory named hbase will be created.
+- At first, according to the service name, you should create a directory under the path [pai/src/](../../../../src). In this example, a directory named hbase will be created.
 - Secondly, a directory named ```build``` should be created under "src/hbase/"
 - At last, just put all the source code from the path <example/add-service/hbase/build>, and then paste them into the the path ```src/hbase/build```
 
@@ -152,7 +152,7 @@ This configuration consists of 7 parts.
 
 -     deploy-rules parts:
     
-    - Specify which role(label) of machine will run the service. The role definition of machines is in [layout.yaml](../../../examples/cluster-configuration/layout.yaml), machines will labeled when you deploy PAI for the first time. Currently support the following rules: "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
+    - Specify which role(label) of machine will run the service. 角色定义在配置文件 [layout.yaml](../../../../examples/cluster-configuration/layout.yaml) 中，会在首次部署 OpenPAI 时加上标签。 Currently support the following rules: "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
 
 #### Some Experience of Kubernetes <a name="Experience"></a>
 
@@ -209,11 +209,11 @@ This configuration consists of 7 parts.
     
     - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
     - [Hadoop service's start script](../../../src/hadoop-data-node/deploy/start.sh)
-    - [The status checking tool](../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
+    - [The status checking tool](../../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 #### Place the Module into PAI <a name="Service_Place"></a>
 
-- Firstly, create a directory named ```hbase``` in the path [pai/src/](../../../src).
+- Firstly, create a directory named ```hbase``` in the path [pai/src/](../../../../src).
 - Secondly, create a directory named ```deploy``` in the path ```pai/src/hbase/```
 - At last, Copy all the source code of service in the [path](example/add-service/hbase/deploy)
 

@@ -22,11 +22,11 @@ Cluster-configuration.
 
 * Manual build
 
-refer to [dockerfile](../../src/zookeeper/build/zookeeper.dockerfile).
+refer to [dockerfile](../../../src/zookeeper/build/zookeeper.dockerfile).
 
 ### Configuration
 
-Configuration file is [here](../../src/zookeeper/deploy/zk-configuration/zoo.cfg), you can keep it in most cases.
+Configuration file is [here](../../../src/zookeeper/deploy/zk-configuration/zoo.cfg), you can keep it in most cases.
 
 ### Deployment
 

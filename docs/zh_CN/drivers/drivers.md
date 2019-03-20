@@ -7,7 +7,7 @@
     "384.111"  (Default Value)
     
 
-In the [path](../../src/drivers/build), you can find the available version in the following format. And you can choose one as the drivers version in your cluster.
+In the [path](../../../src/drivers/build), you can find the available version in the following format. And you can choose one as the drivers version in your cluster.
 
     drivers-${version}.dockerfile
     
