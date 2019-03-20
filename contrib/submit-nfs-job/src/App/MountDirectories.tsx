@@ -183,7 +183,7 @@ export function MountDirectoriesForm({
           <tr>
             <th/>
             <th>Path inside container</th>
-            <th>Path storage server</th>
+            <th>Path on storage server</th>
           </tr>
         </thead>
         <tbody>
