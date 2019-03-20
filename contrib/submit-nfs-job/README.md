@@ -31,6 +31,10 @@ webportal:
     uri: # URL of the deployed plugin file.
 ```
 
+## Storage Preparation
+
+See <https://github.com/Microsoft/pai/wiki/Simplified-Job-Submission-for-OpenPAI-with-NFS-deployment>
+
 ## Develop
 
 ```bash
