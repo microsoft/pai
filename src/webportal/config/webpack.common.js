@@ -53,7 +53,7 @@ const config = (env, argv) => ({
     changePassword: './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
-    jobList: './src/app/job/job-view/job-view.component.js',
+    jobList: ['babel-polyfill', './src/app/job/job-view/fabric/job-list.jsx'],
     jobDetail: ['babel-polyfill', './src/app/job/job-view/fabric/job-detail.jsx'],
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
@@ -284,7 +284,7 @@ const config = (env, argv) => ({
     new HtmlWebpackPlugin({
       title: title,
       version: version,
-      filename: 'view.html',
+      filename: 'job-list.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
