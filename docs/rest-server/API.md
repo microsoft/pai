@@ -443,11 +443,11 @@ Status: 200
     // sum of retries
     retries: retries,
     retryDetails: {
-      // Job cannot get required resource to run within timeout
+      // Job failed due to user or unknown error
       user: userRetries,
       // Job failed due to system/plaform error
       system: systemRetries,
-      // Job failed due to user or unknown error
+      // Job cannot get required resource to run within timeout
       resource: resourceRetries,
     },
     appId: "applicationId",
