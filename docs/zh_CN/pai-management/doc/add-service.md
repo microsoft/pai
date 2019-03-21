@@ -185,7 +185,7 @@ This configuration consists of 7 parts.
 
 - Example
     
-    - [A batch job to set hdfs permission](../../../src/hadoop-batch-job/deploy)
+    - [A batch job to set hdfs permission](../../../../src/hadoop-batch-job/deploy)
 
 [Configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
 
@@ -197,7 +197,7 @@ This configuration consists of 7 parts.
 - Example
     
     - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
-    - [Hadoop service's configmap](../../../src/hadoop-data-node/deploy/hadoop-data-node-configuration)
+    - [Hadoop service's configmap](../../../../src/hadoop-data-node/deploy/hadoop-data-node-configuration)
 
 [readness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
 
@@ -208,7 +208,7 @@ This configuration consists of 7 parts.
 - Examples
     
     - [Hadoop data node's yaml file](../../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
-    - [Hadoop service's start script](../../../src/hadoop-data-node/deploy/start.sh)
+    - [Hadoop service's start script](../../../../src/hadoop-data-node/deploy/start.sh)
     - [The status checking tool](../../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 #### Place the Module into PAI <a name="Service_Place"></a>
