@@ -77,7 +77,7 @@ COPY docker-executor.patch /
 
 COPY hadoop-ai-fix.patch /
 
-COPY 12944563.patch /
+COPY YARN-8896-2.9.0.patch /
 
 COPY build.sh /
 
