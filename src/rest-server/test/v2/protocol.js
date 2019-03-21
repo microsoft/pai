@@ -22,7 +22,7 @@ const protocolSchema = require('../../src/config/v2/protocol');
 const protocolMiddleware = require('../../src/middlewares/v2/protocol');
 
 
-const validProtocolJSONs = {
+const validprotocolObjs = {
   caffe_mnist: {
     'protocolVersion': 2,
     'name': 'caffe_mnist',
@@ -399,15 +399,15 @@ describe('API v2 Unit Tests: protocol', () => {
   // protocol schema test
   it('test protocol schema for valid protocol', (done) => {
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
-      const validProtocolJSON = yaml.safeLoad(validProtocolYAML);
-      expect(protocolSchema.validate(validProtocolJSON)).to.be.true;
+      const validprotocolObj = yaml.safeLoad(validProtocolYAML);
+      expect(protocolSchema.validate(validprotocolObj)).to.be.true;
     }
     done();
   });
   it('test protocol schema for invalid protocol', (done) => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
-      const invalidProtocolJSON = yaml.safeLoad(invalidProtocolYAMLs[invalidMessage]);
-      expect(protocolSchema.validate(invalidProtocolJSON)).to.be.false;
+      const invalidprotocolObj = yaml.safeLoad(invalidProtocolYAMLs[invalidMessage]);
+      expect(protocolSchema.validate(invalidprotocolObj)).to.be.false;
       expect(protocolSchema.validate.errors[0].message).to.equal(invalidMessage);
     }
     done();
@@ -464,7 +464,7 @@ describe('API v2 Unit Tests: protocol', () => {
         .catch((err) => {
           expect(err).to.be.null;
         });
-      expect(req.body).to.deep.equal({protocol: validProtocolJSONs[pname]});
+      expect(req.body).to.deep.equal({protocol: validprotocolObjs[pname]});
     }
   });
 });

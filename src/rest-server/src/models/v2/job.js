@@ -242,7 +242,7 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
     rawConfig, userName, '644');
 
   // generate ssh key
-  if (process.platform.toUpperCase() === 'LINUX') {
+  if (process.platform === 'linux') {
     const keys = await generateSSHKeys(frameworkName);
     if (keys) {
       for (let keyname of Object.keys(keys)) {
@@ -260,7 +260,7 @@ class Job {
   constructor(jobName, userName) {
     this.jobName = jobName;
     this.userName = userName;
-    this.frameworkName = this.userName ? `${this.userName}~${this.jobName}` : this.jobName;
+    this.frameworkName = `${this.userName}~${this.jobName}`;
   }
 }
 
