@@ -46,36 +46,36 @@ User could customize FrameworkLauncher startup configuration at OpenPAI's [folde
 
 User could customize rest server at OpenPAI's [folder / file](../../../../src/rest-server/deploy/rest-server.yaml.template)
 
-User could customize rest server startup configuration at OpenPAI's [folder / file](../../../src)
+User could customize rest server startup configuration at OpenPAI's [folder / file](../../../../src)
 
 ## Configure YARN / HDFS <a name="hadoop"></a>
 
-User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)).
+User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../../../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)).
 
-User could customize Hadoop startup configuration at OpenPAI's [folder / file](../../../src)
+User could customize Hadoop startup configuration at OpenPAI's [folder / file](../../../../src)
 
 ## Configure Zookeeper <a name="zookeeper"></a>
 
-User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zk-configuration/zoo.cfg)
+User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../../../../src/zookeeper/deploy/zk-configuration/zoo.cfg)
 
-User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zookeeper.yaml.template)
+User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../../../../src/zookeeper/deploy/zookeeper.yaml.template)
 
 ## Configure Prometheus / Exporter <a name="prometheus"></a>
 
-User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/prometheus-configmap.yaml.template)
+User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) at OpenPAI's [folder / file](../../../../src/prometheus/deploy/prometheus-configmap.yaml.template)
 
-User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) startup configuration at OpenPAI's [folder / file](../../../src/prometheus/deploy/prometheus-deployment.yaml.template)
+User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) startup configuration at OpenPAI's [folder / file](../../../../src/prometheus/deploy/prometheus-deployment.yaml.template)
 
-User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../../../src/node-exporter/deploy/node-exporter.yaml.template)
+User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../../../../src/node-exporter/deploy/node-exporter.yaml.template)
 
 ## Configure Alert Manager <a name="alertmanager"></a>
 
-User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../../../src/alert-manager/deploy/alert-configmap.yaml.template). Please refer to [doc](../../alerting/alert-manager.md#configuration) for more info.
+User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../../../../src/alert-manager/deploy/alert-configmap.yaml.template). Please refer to [doc](../../alerting/alert-manager.md#configuration) for more info.
 
-User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting)
+User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../../src/prometheus/deploy/alerting)
 
 ## Configure Grafana <a name="grafana"></a>
 
-User could customize [grafana](http://docs.grafana.org/installation/configuration/) config file at OpenPAI's [folder / file](../../../src/grafana/deploy/grafana-configuration)
+User could customize [grafana](http://docs.grafana.org/installation/configuration/) config file at OpenPAI's [folder / file](../../../../src/grafana/deploy/grafana-configuration)
 
-User could customize [grafana](http://docs.grafana.org/installation/configuration/) startup configuration at OpenPAI's [folder / file](../../../src/grafana/src/run-grafana.sh)
+User could customize [grafana](http://docs.grafana.org/installation/configuration/) startup configuration at OpenPAI's [folder / file](../../../../src/grafana/src/run-grafana.sh)
