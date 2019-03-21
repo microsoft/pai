@@ -1,0 +1,8 @@
+{
+    "type": "nfs",
+    "title": "nfs_example",
+    "address": "10.0.0.1",
+    "rootPath": "/share/nfs",
+    "sharedFolders": ["data"],
+    "privateFolders": ["users"]
+    }

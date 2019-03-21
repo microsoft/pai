@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "defaultStorage": {
+            "type": "string",
+            "description": "User default external storage"
+        },
+        "externalStorages": {
+            "type": "array",
+            "description": "All external storages that the user has permission to access",
+            "items": { "type": "string" }
+        }
+    },
+    "required": [
+        "defaultStorage",
+        "externalStorages"
+    ]
+}

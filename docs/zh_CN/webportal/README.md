@@ -15,7 +15,7 @@ Since [job toturial](../job_tutorial.md) is included in the document tab, make s
 To run web portal, the following services should be started, and url of services should be correctly configured:
 
 * [REST Server](../rest-server)
-* [Prometheus](../../src/prometheus)
+* [Prometheus](../../../src/prometheus)
 * [Grafana](../grafana)
 * YARN
 * Kubernetes
