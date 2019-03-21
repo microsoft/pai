@@ -133,7 +133,7 @@ export class PAIJobManager extends Singleton {
                     parent = fileFolders[0].uri.fsPath;
                 }
             }
-            defaultSaveDir = path.join(parent, `${name}.pai.json`);
+            defaultSaveDir = path.join(parent, `${name}.pai.jsonc`);
             config = {
                 jobName: '<job name>',
                 image: 'aiplatform/pai.build.base',
@@ -161,7 +161,7 @@ export class PAIJobManager extends Singleton {
             }
             script = path.relative(parent, script);
             const jobName: string = path.basename(script, path.extname(script));
-            defaultSaveDir = path.join(parent, `${jobName}.pai.json`);
+            defaultSaveDir = path.join(parent, `${jobName}.pai.jsonc`);
             config = {
                 jobName,
                 image: 'aiplatform/pai.build.base',
@@ -182,10 +182,17 @@ export class PAIJobManager extends Singleton {
         }
 
         const saveDir: vscode.Uri | undefined = await vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(defaultSaveDir)
+            defaultUri: vscode.Uri.file(defaultSaveDir),
+            filters: {
+                JSON: ['json', 'jsonc']
+            }
         });
         if (saveDir) {
-            await fs.writeJSON(saveDir.fsPath, config, { spaces: 4 });
+            if (saveDir.fsPath.endsWith('.jsonc')) {
+                await fs.writeFile(saveDir.fsPath, await Util.generateCommentedJSON(config, 'pai_job_config.schema.json'));
+            } else {
+                await fs.writeJSON(saveDir.fsPath, config, { spaces: 4 });
+            }
             await vscode.window.showTextDocument(saveDir);
         }
     }
