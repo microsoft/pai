@@ -257,7 +257,7 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
 
 
 class Job {
-  constructor(jobName, userName, ) {
+  constructor(jobName, userName) {
     this.jobName = jobName;
     this.userName = userName;
     this.frameworkName = this.userName ? `${this.userName}~${this.jobName}` : this.jobName;

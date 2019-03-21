@@ -60,7 +60,7 @@ const validProtocolJSONs = {
         'commands': [
           './examples/mnist/train_lenet.sh',
         ],
-        'entrypoint': './data/mnist/get_mnist.sh ; ./examples/mnist/create_mnist.sh ; ./examples/mnist/train_lenet.sh',
+        'entrypoint': './data/mnist/get_mnist.sh && ./examples/mnist/create_mnist.sh && ./examples/mnist/train_lenet.sh',
       },
     },
     'deployments': {

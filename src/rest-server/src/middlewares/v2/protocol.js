@@ -116,7 +116,7 @@ const protocolRender = async (req, res, next) => {
       }
     }
     let entrypoint = '';
-    commands = commands.map((command) => command.trim()).join(' ; ');
+    commands = commands.map((command) => command.trim()).join(' && ');
     const tokens = mustache.parse(commands, ['<%', '%>']);
     const context = new mustache.Context({
       '$parameters': protocolJSON.parameters,
