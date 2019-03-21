@@ -149,7 +149,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 当你提交拉取请求时，CLA 机器人会自动检查你是否需要提供 CLA，并修饰这个拉取请求（例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA 只需要同意一次，就能应用到所有的代码仓库上。
 
-该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息,请参阅[ 行为守则常见问题解答 ](https://opensource.microsoft.com/codeofconduct/faq/)或联系 <opencode@microsoft.com> 咨询问题或评论。
+该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息，请参阅[行为守则常见问题解答](https://opensource.microsoft.com/codeofconduct/faq/)或联系 <opencode@microsoft.com> 咨询问题或评论。
 
 ### 征集意见建议
 
