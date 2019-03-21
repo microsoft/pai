@@ -30,7 +30,6 @@ export const COMMAND_CONTAINER_JOBLIST_MORE = 'paiext.container.joblist.more';
 
 export const VIEW_CONFIGURATION_TREE = 'PAIExplorer';
 export const CONTEXT_CONFIGURATION_ITEM = 'PAIConfiguration';
-export const CONTEXT_CONFIGURATION_ITEM_WEBPAGE = 'PAIWebpage';
 
 export const VIEW_CONTAINER_HDFS = 'PAIContainerHDFS';
 export const CONTEXT_HDFS_FILE = 'PAIHdfsFile';
