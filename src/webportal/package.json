@@ -68,6 +68,7 @@
     "markdown-loader": "~2.0.1",
     "marked": "~0.3.9",
     "mini-css-extract-plugin": "^0.5.0",
+    "mkdirp": "^0.5.1",
     "monaco-editor": "~0.16.1",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "morgan": "~1.9.0",
@@ -97,8 +98,8 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --config webpack.config.js --progress --profile -p",
-    "build:dev": "yarn prestart && webpack-dev-server",
-    "prestart": "envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
+    "dev": "yarn prebuild && yarn prestart && webpack-dev-server",
+    "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
   }
 }
