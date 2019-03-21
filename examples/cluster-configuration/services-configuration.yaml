@@ -82,10 +82,12 @@ rest-server:
   default-pai-admin-username: your_default_pai_admin_username
   # database admin password
   default-pai-admin-password: your_default_pai_admin_password
-   # rest server would achieve marketplace template from below configed github repository
+  # rest server would achieve marketplace template from below configed github repository
   #github-owner: Microsoft
   #github-repository: pai
   #github-path: marketplace
+  # Job Debugging Reservation Seconds.
+  #debugging-reservation-seconds: 604800
 
 # uncomment following section if you want to customize the port of web portal
 # webportal:
@@ -128,3 +130,8 @@ rest-server:
 # uncomment following section if you want to customize the port of pylon
 # pylon:
 #  port: 80
+
+# uncomment following section if you want to customize the threshold of cleaner
+# cleaner:
+#  threshold: 94 
+#  interval: 60

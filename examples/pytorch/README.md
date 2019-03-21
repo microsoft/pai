@@ -26,8 +26,13 @@ The following contents show some basic PyTorch examples, other customized PyTorc
 
 ## Contents
 
-1. [PyTorch MNIST digit recognition](#pytorch-mnist-digit-recognition-examples)
-2. [PyTorch regression examples](#pytorch-regression-examples)
+- [PyTorch on OpenPAI](#pytorch-on-openpai)
+  - [Contents](#contents)
+  - [PyTorch MNIST digit recognition examples](#pytorch-mnist-digit-recognition-examples)
+    - [mnist](#mnist)
+  - [PyTorch regression examples](#pytorch-regression-examples)
+    - [regression](#regression)
+  - [Note:](#note)
 
 ## PyTorch MNIST digit recognition examples
 
@@ -75,7 +80,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).
 
 ## Note:
 

@@ -26,6 +26,26 @@
   "rows": [
     {
       "collapse": false,
+      "height": "30px",
+      "panels": [
+        {
+          "content": "[All Tasks in This Node]({{url}}/dashboard/db/tasks-in-node?var-node=$node) ",
+          "id": 24,
+          "mode": "markdown",
+          "span": 12,
+          "title": "",
+          "type": "text"
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
       "height": 266,
       "panels": [
         {
@@ -221,7 +241,7 @@
               "label": "GB",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
@@ -641,7 +661,7 @@
               "decimals": 0,
               "link": true,
               "linkTooltip": "Click to view usage of each GPU",
-              "linkUrl": "{{url}}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkUrl": "{{url}}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_6",
               "pattern": "instance",
               "preserveFormat": false,
               "sanitize": false,
@@ -712,6 +732,36 @@
               "sanitize": false,
               "thresholds": [],
               "type": "number",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "scraped_from",
+              "thresholds": [],
+              "type": "hidden",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "pai_service_name",
+              "thresholds": [],
+              "type": "hidden",
               "unit": "short"
             }
           ],

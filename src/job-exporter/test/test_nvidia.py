@@ -34,8 +34,8 @@ class TestNvidia(base.TestBase):
         with open(sample_path, "r") as f:
             nvidia_smi_result = f.read()
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
-        target_smi_info = {'1': {'gpu_util': 98, 'gpu_mem_util': 97},
-                '0': {'gpu_util': 100, 'gpu_mem_util': 99}}
+        target_smi_info = {"1": nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError()),
+                "0": nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError())}
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
     def test_exporter_will_not_report_unsupported_gpu(self):

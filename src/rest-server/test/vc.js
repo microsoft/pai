@@ -775,6 +775,45 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       });
   });
 
+  it('[Positive] should update vc a with max capacity', (done) => {
+    nock(yarnUri)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200);
+
+    chai.request(server)
+      .put('/api/v1/virtual-clusters/a')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        'vcCapacity': 40,
+        'vcMaxCapacity': 40
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(201);
+        done();
+      });
+  });
+
+  it('[Negative] shouldn\'t update vc when maxCapacity less than capacity', (done) => {
+    nock(yarnUri)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200);
+
+    chai.request(server)
+      .put('/api/v1/virtual-clusters/a')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        'vcCapacity': 40,
+        'vcMaxCapacity': 30
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(400);
+        expect(res.body).to.have.property('code', 'InvalidParametersError');
+        done();
+      });
+  });
+
+
+
 
   it('[Negative] should not update vc default', (done) => {
     chai.request(server)
@@ -847,6 +886,25 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res.body).to.have.property('code', 'NoVirtualClusterError');
+        done();
+      });
+  });
+
+  it('[Negative] should not update vc if  vcname contains illegal character', (done) => {
+    nock.cleanAll();
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnErrorResponse);
+
+    chai.request(server)
+      .put('/api/v1/virtual-clusters/aaa%20bbb')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        'vcCapacity': 80
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(400);
+        expect(res.body).to.have.property('code', 'InvalidParametersError');
         done();
       });
   });

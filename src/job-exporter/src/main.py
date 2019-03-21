@@ -5,10 +5,19 @@ import logging
 import os
 import json
 import threading
+import signal
+import faulthandler
+import gc
+import datetime
 
-from wsgiref.simple_server import make_server
-from prometheus_client import make_wsgi_app, Gauge
+import prometheus_client
+from prometheus_client import Gauge
 from prometheus_client.core import REGISTRY
+from prometheus_client.twisted import MetricsResource
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 import collector
 
@@ -26,10 +35,10 @@ class CustomCollector(object):
     def collect(self):
         data = []
 
+        now = datetime.datetime.now()
+
         for ref in self.atomic_refs:
-            # set None to achieve
-            # https://github.com/Microsoft/pai/issues/1764#issuecomment-442733098
-            d = ref.get_and_set(None)
+            d = ref.get(now)
             if d is not None:
                 data.extend(d)
 
@@ -85,7 +94,33 @@ def get_gpu_count(path):
         return 0
 
 
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
+
+
+# https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
+
+    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                prometheus_client.REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
+
+
 def main(args):
+    register_stack_trace_dump()
+    burninate_gc_collector()
     config_environ()
     try_remove_old_prom_file(args.log + "/gpu_exporter.prom")
     try_remove_old_prom_file(args.log + "/job_exporter.prom")
@@ -95,11 +130,16 @@ def main(args):
 
     configured_gpu_counter.set(get_gpu_count("/gpu-config/gpu-configuration.json"))
 
+    decay_time = datetime.timedelta(seconds=args.interval * 2)
+
     # used to exchange gpu info between GpuCollector and ContainerCollector
-    gpu_info_ref = collector.AtomicRef()
+    gpu_info_ref = collector.AtomicRef(decay_time)
 
     # used to exchange docker stats info between ContainerCollector and ZombieCollector
-    stats_info_ref = collector.AtomicRef()
+    stats_info_ref = collector.AtomicRef(decay_time)
+
+    # used to exchange zombie info between GpuCollector and ZombieCollector
+    zombie_info_ref = collector.AtomicRef(decay_time)
 
     interval = args.interval
     # Because all collector except container_collector will spent little time in calling
@@ -107,28 +147,33 @@ def main(args):
     # scrape interval. The 99th latency of container_collector loop is around 20s, so it
     # should only sleep 10s to adapt to scrape interval
     collector_args = [
-            ("docker_daemon_collector", interval, collector.DockerCollector),
-            ("gpu_collector", interval, collector.GpuCollector, gpu_info_ref),
-            ("container_collector", interval - 18, collector.ContainerCollector,
+            ("docker_daemon_collector", interval, decay_time, collector.DockerCollector),
+            ("gpu_collector", interval, decay_time, collector.GpuCollector, gpu_info_ref, zombie_info_ref, args.threshold),
+            ("container_collector", max(0, interval - 18), decay_time, collector.ContainerCollector,
                 gpu_info_ref, stats_info_ref, args.interface),
-            ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
+            ("zombie_collector", interval, decay_time, collector.ZombieCollector, stats_info_ref, zombie_info_ref),
+            ("process_collector", interval, decay_time, collector.ProcessCollector),
             ]
 
     refs = list(map(lambda x: collector.make_collector(*x), collector_args))
 
     REGISTRY.register(CustomCollector(refs))
 
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server("", int(args.port), app)
-    httpd.serve_forever()
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9102")
-    parser.add_argument("--interval", "-i", help="prometheus scrape interval", type=int, default=30)
+    parser.add_argument("--interval", "-i", help="prometheus scrape interval second", type=int, default=30)
     parser.add_argument("--interface", "-n", help="network interface for job-exporter to listen on", required=True)
+    parser.add_argument("--threshold", "-t", help="memory threshold to consider gpu memory leak", type=int, default=20 * 1024 * 1024)
     args = parser.parse_args()
 
     def get_logging_level():

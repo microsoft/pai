@@ -83,7 +83,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "100 * sum(yarn_gpus_used) / sum(configured_gpu_count)",
+              "expr": "100 * (sum(yarn_node_gpu_total) - sum(yarn_node_gpu_available)) / sum(yarn_node_gpu_total)",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -321,7 +321,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "avg(yarn_gpus_used)",
+              "expr": "sum(yarn_node_gpu_total) - sum(yarn_node_gpu_available)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -400,7 +400,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(yarn_total_gpu_num)-sum(yarn_gpus_used)",
+              "expr": "sum(yarn_node_gpu_available)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,

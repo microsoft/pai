@@ -27,6 +27,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 const url = require('url');
+const stripJsonComments = require('strip-json-comments');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -138,7 +139,7 @@ $(document).ready(() => {
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const jobConfig = event.target.result;
+        const jobConfig = stripJsonComments(event.target.result);
         if (isValidJson(jobConfig)) {
           editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
         }
@@ -159,31 +160,41 @@ $(document).ready(() => {
       resize();
     };
     const query = url.parse(window.location.href, true).query;
+    const op = query.op;
     const type = query.type;
     const username = query.user;
     const jobname = query.jobname;
-    if (type != null && username != null && jobname != null) {
-      const url = username==''
-        ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
-        : `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
-      $.ajax({
-        url: url,
-        type: 'GET',
-        success: (data) => {
-          let jobConfigObj = JSON.parse(data);
-          let timestamp = Date.now();
-          jobConfigObj.jobName += `_${timestamp}`;
-          editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
-        },
-        error: (xhr, textStatus, error) => {
-          const res = JSON.parse(xhr.responseText);
-          if (res.message === 'ConfigFileNotFound') {
-            alert('This job\'s config file has not been stored.');
-          } else {
-            alert('Error: ' + res.message);
-          }
-        },
-      });
+    if (op === 'resubmit') {
+      if (type != null && username != null && jobname != null) {
+        const url = username==''
+          ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
+          : `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+        $.ajax({
+          url: url,
+          type: 'GET',
+          success: (data) => {
+            let jobConfigObj = JSON.parse(data);
+            let timestamp = Date.now();
+            jobConfigObj.jobName += `_${timestamp}`;
+            editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
+          },
+          error: (xhr, textStatus, error) => {
+            const res = JSON.parse(xhr.responseText);
+            if (res.message === 'ConfigFileNotFound') {
+              alert('This job\'s config file has not been stored.');
+            } else {
+              alert('Error: ' + res.message);
+            }
+          },
+        });
+      }
+    } else if (op === 'init') {
+      try {
+        const jobConfigObj = JSON.parse(window.sessionStorage.getItem('init-job'));
+        editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
+      } finally {
+        window.sessionStorage.removeItem('init-job');
+      }
     }
   });
 });

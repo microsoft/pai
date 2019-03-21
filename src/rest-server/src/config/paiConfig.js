@@ -23,21 +23,23 @@ const logger = require('./logger');
 
 let paiMachineList = [];
 try {
-    paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/cluster-configuration.yaml', 'utf8'))['machine-list'];
+    paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/layout.yaml', 'utf8'))['machine-list'];
 } catch (err) {
     paiMachineList = [];
-    logger.info('Unable to load machine list from cluster-configuration.');
-    logger.info(err.stack);
+    logger.warn('Unable to load machine list from cluster-configuration.');
+    logger.warn('The machine list will be initialized as an empty list.');
 }
 
 let paiConfigData = {
     machineList: paiMachineList,
+    debuggingReservationSeconds: Number(process.env.DEBUGGING_RESERVATION_SECONDS || '604800'),
 };
 
 
 // define the schema for pai configuration
 const paiConfigSchema = Joi.object().keys({
     machineList: Joi.array(),
+    debuggingReservationSeconds: Joi.number().integer().positive(),
 }).required();
 
 

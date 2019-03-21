@@ -40,7 +40,7 @@ Dev-Box is a docker container which contains necessary dependent software for pa
 ### Use prebuild dev-box image <a name="c-step-1.1"></a>
 
 Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn't run on any PAI cluster node.
-***Choose a release branch. For example: v0.x.y***
+**replace below v0.x.y to latest release, which can be found [here](https://github.com/Microsoft/pai/releases). For example: v0.9.5**
 
 ```bash
 
@@ -55,6 +55,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -73,10 +74,12 @@ cd /pai
 
 #### Build dev-box on the latest code
 
+**Notice**, replace v0.x.y as above, if you are trying to deploy OpenPAI. You can also remove -b parameter, if you are contributing to latest OpenPAI, but it's unstable.
+
 ```bash
 
-# clone our repo first.
-git clone https://github.com/Microsoft/pai.git
+# if you are trying to install latest release, replace v0.x.y like to v0.9.5. If you are trying to contribute on OpenPAI, you can remove -b parameter and clone to default branch.
+git clone -b v0.x.y https://github.com/Microsoft/pai.git
 
 # Go into the workdir.
 cd pai/src/dev-box/build
@@ -97,6 +100,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \

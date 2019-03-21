@@ -25,6 +25,11 @@ const vcPutInputSchema = Joi.object().keys({
     .min(0)
     .max(100)
     .required(),
+  vcMaxCapacity: Joi.number()
+    .integer()
+    .min(Joi.ref('vcCapacity'))
+    .max(100)
+    .optional(),
 }).required();
 
 // define the input schema for the 'put vc status' api

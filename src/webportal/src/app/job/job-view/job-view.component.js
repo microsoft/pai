@@ -256,7 +256,7 @@ const loadJobs = (specifiedVc) => {
           return `<a class="table-job-name" href="view.html?username=${namespace || username}&jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         }
       }},
-      {title: 'User', data: 'username', responsivePriority: 2},
+      {title: 'User', name: 'user', data: 'username', responsivePriority: 2},
       {title: 'Virtual Cluster', data: 'virtualCluster', responsivePriority: 3, render(virtualCluster) {
         let vcName = virtualCluster || 'default';
         return '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>';
@@ -298,6 +298,46 @@ const loadJobs = (specifiedVc) => {
       '<\'row\'<\'col-sm-5\'i><\'col-sm-7\'p>>',
     'buttons': [
       {
+        // Show my jobs
+        text: 'My jobs',
+        enabled: (function() {
+          let token;
+          userAuth.checkToken(function(t) {
+            token = t;
+          }, false);
+          return Boolean(token);
+        }()),
+        init(dt, node) {
+          if (cookies.get('my-jobs')) {
+            if (!cookies.get('user')) {
+              cookies.remove('my-jobs');
+            } else {
+              dt.button(node).active(true);
+              dt.column('user:name').search(cookies.get('user'));
+              setTimeout(function() {
+                dt.draw();
+              }, 0);
+            }
+          }
+        },
+        action(e, dt, node) {
+          const button = dt.button(node);
+          if (button.active()) {
+            cookies.remove('my-jobs');
+            button.active(false);
+            dt.column('user:name').search('');
+          } else {
+            cookies.set('my-jobs', '1');
+            button.active(true);
+            dt.column('user:name').search(cookies.get('user'));
+          }
+          setTimeout(function() {
+            dt.draw();
+          }, 0);
+        },
+      },
+      'pageLength',
+      {
         text: 'Select displayed jobs',
         action: function(e, dt) {
           dt.rows({page: 'current'}).select();
@@ -320,7 +360,6 @@ const loadJobs = (specifiedVc) => {
           }
         },
       },
-      'pageLength',
     ],
     'select': {
       style: 'multi',

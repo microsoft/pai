@@ -27,8 +27,15 @@ The following contents show some basic Open MPI examples, other customized MPI c
 
 ## Contents
 
-1. [Open MPI TensorFlow CIFAR-10 example](#open-mpi-tensorflow-cifar-10-example)
-2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
+- [Note](#note)
+- [MPI on OpenPAI](#mpi-on-openpai)
+  - [Contents](#contents)
+- [Open MPI TensorFlow / CNTK CIFAR-10 example](#open-mpi-tensorflow--cntk-cifar-10-example)
+    - [Prepare work](#prepare-work)
+  - [Open MPI TensorFlow CIFAR-10 example](#open-mpi-tensorflow-cifar-10-example)
+    - [TensorFlow cifar10 benchmark](#tensorflow-cifar10-benchmark)
+  - [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
+    - [CNTK G2P example](#cntk-g2p-example)
 
 
 # Open MPI TensorFlow / CNTK CIFAR-10 example
@@ -129,4 +136,4 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/user/training.md).

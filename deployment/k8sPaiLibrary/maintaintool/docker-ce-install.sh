@@ -43,7 +43,7 @@ else
                ca-certificates \
                curl \
                software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
     apt-key fingerprint 0EBFCD88
 
     # Suppose your host is amd64.
@@ -69,6 +69,12 @@ fi
 if command -v nvidia-container-runtime >/dev/null 2>&1; then
     echo nvidia container runtime has been installed. Skip this.
 else
+    # ref https://nvidia.github.io/nvidia-container-runtime/
+    curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | apt-key add -
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+    curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.list | \
+        tee /etc/apt/sources.list.d/nvidia-container-runtime.list
+    apt-get update
     apt-get -y install nvidia-container-runtime
 fi
 
@@ -77,11 +83,16 @@ fi
     mkdir -p /etc/docker
 }
 
-[[ ! -f "/etc/docker/daemon.json" ]] &&
-{
+if [ ! -f "/etc/docker/daemon.json" ]; then
     cp $scriptPath/docker-daemon.json /etc/docker/daemon.json
-}
+    systemctl restart docker
+    echo Update Docker Daemon Configuraiton. Restart Docker Daemon
+else
+    if python $scriptPath/docker-config-update.py -s $scriptPath/docker-daemon.json -d /etc/docker/daemon.json ; then
+        systemctl restart docker
+        echo Update Docker Daemon Configuraiton. Restart Docker Daemon
+    else
+        echo There is no docker daemon configuration updated. Skip the process of restart docker daemon.
+    fi
+fi
 
-python $scriptPath/docker-config-update.py -s $scriptPath/docker-daemon.json -d /etc/docker/daemon.json
-
-systemctl restart docker

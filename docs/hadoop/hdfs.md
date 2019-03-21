@@ -6,8 +6,7 @@ This guidance provides users instructions to access the HDFS data in OpenPAI.
 - [ Access HDFS Data ](#Access_HDFS_Data)
     - [ WebHDFS ](#WebHDFS)
     - [ HDFS Command ](#HDFS_Command)
-    - [ Web Portal ](#Web_Portal)
-    - [ Mountable HDFS ](#Mountable_HDFS)
+    - [ Web Portal ](#Web_Portal)    
     - [ API ](#API)
         - [ Java API ](#Java_API)
         - [ C API ](#C_API)
@@ -15,7 +14,7 @@ This guidance provides users instructions to access the HDFS data in OpenPAI.
 
 # Access HDFS Data <a name="Access_HDFS_Data"></a>
 
-Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs.
+Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs. For shell access, user can use [WebHDFS](#WebHDFS) and [HDFS Command](#HDFS_Command) to access HDFS data. User can also user web browser to view HDFS data through the [web portal](#Web_Portal). For accessing data from a deep learning framework, please use [HDFS API](#API) and avoid using other means for best performance as well as robustness. Note that some deep learning framework has built-in support to HDFS. For example, to traini on large data, TensorFlow usually serializes the data into several big files like [TF Record](https://www.tensorflow.org/tutorials/load_data/tf_records) and it supports HDFS [natively](https://www.tensorflow.org/deploy/hadoop#hdfs). For PyTorch, it recommended to use [HDFS Python library](#Python_API) to access HDFS data during the training.
 
 ## WebHDFS <a name="WebHDFS"></a>
 
@@ -23,7 +22,7 @@ WebHDFS provides a set of REST APIs and this is our recommended way to access da
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
 In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node.
 So the rest server URI will be http://master-node-address/webhdfs. The *master-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
@@ -62,12 +61,12 @@ tar -zxvf hadoop-package-name
 ```
 
 All commands are located in *bin* directory.
-    
+
 **Method 2 (docker container env):**
 
 We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
     Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
-    
+
 All commands are located in *bin* directory.
 
 - How to use cmd:
@@ -77,34 +76,18 @@ Please refer [HDFS Command Guide](http://hadoop.apache.org/docs/stable/hadoop-pr
 - Where to get the HDFS entrypoint:
 
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
-Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address. 
+Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address.
 
 Note: *hdfs-name-node-address* It is the address of the machine with *pai-master* label *true* in configuration
-file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 If you don't know where this file is, please contact the cluster administrator.
 
 ## Web Portal <a name="Web_Portal"></a>
 
 Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready.
 The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+in configuration file [layout.yaml](../../examples/cluster-configuration/layout.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
-
-## Mountable HDFS <a name="Mountable_HDFS"></a>
-
-The *hadoop-hdfs-fuse* tool can mount HDFS on local file system and users can access the data with Linux commands.
-The tool can be installed with following commands on Ubuntu system:
-```bash
-# add the CDH5 repository
-wget http://archive.cloudera.com/cdh5/one-click-install/trusty/amd64/cdh5-repository_1.0_all.deb
-sudo dpkg -i cdh5-repository_1.0_all.deb
-# install the hadoop-dfs-fuse tool
-sudo apt-get update
-sudo apt-get install hadoop-hdfs-fuse
-# mount to local system
-mkdir -p your-mount-directory
-sudo hadoop-fuse-dfs dfs://hdfs-name-node-address:9000 your-mount-directory
-```
 
 ## API <a name="API"></a>
 

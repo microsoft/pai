@@ -17,7 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import argparse
-import urlparse
+import urllib.parse
 import os
 import json
 import sys
@@ -25,12 +25,19 @@ import requests
 import logging
 import time
 import threading
+import signal
+import faulthandler
+import gc
 
-import paramiko
 import yaml
-from wsgiref.simple_server import make_server
-from prometheus_client import make_wsgi_app, Counter, Summary, Histogram
+import prometheus_client
+from prometheus_client import Counter, Summary, Histogram
 from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, Summary, REGISTRY
+from prometheus_client.twisted import MetricsResource
+
+from twisted.web.server import Site
+from twisted.web.resource import Resource
+from twisted.internet import reactor
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +50,8 @@ error_counter = Counter("process_error_log_total", "total count of error log", [
 api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
         "Response latency for requesting k8s api healthz (seconds)")
 
-# use `histogram_quantile(0.95, sum(rate(k8s_etcd_resp_latency_seconds_bucket[5m])) by (le))`
+# use `histogram_quantile(0.95, sum(rate(k8s_api_list_pods_latency_seconds_bucket[5m])) by (le))`
 # to get 95 percentile latency in past 5 miniute.
-etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
-        "Response latency for requesting etcd healthz (seconds)")
-
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
 
@@ -67,9 +71,9 @@ def gen_pai_node_gauge():
     return GaugeMetricFamily("pai_node_count", "count of pai node",
             labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready"])
 
-def gen_k8s_component_gauge():
-    return GaugeMetricFamily("k8s_component_count", "count of k8s component",
-            labels=["service_name", "error", "host_ip"])
+def gen_k8s_api_gauge():
+    return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
+            labels=["error", "host_ip"])
 
 ##### watchdog will generate above metrics
 
@@ -124,7 +128,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
 
     pod_name = pod["metadata"]["name"]
     labels = pod["metadata"].get("labels")
-    if labels is None or "app" not in labels.keys():
+    if labels is None or "app" not in labels:
         logger.warning("unkown pod %s", pod["metadata"]["name"])
         return None
 
@@ -182,7 +186,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
                     logger.error("unexpected state %s in container %s",
                             json.dumps(state), container_name)
                 else:
-                    container_state = state.keys()[0].lower()
+                    container_state = list(state.keys())[0].lower()
 
             pai_container_gauge.add_metric([service_name, pod_name, container_name,
                 container_state, host_ip, str(ready).lower()], 1)
@@ -197,28 +201,25 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
                 None,
                 pai_pod_gauge, pai_container_gauge, item)
 
-    map(_map_fn, podsJsonObject["items"])
+    list(map(_map_fn, podsJsonObject["items"]))
 
 
-def collect_healthz(gauge, histogram, service_name, address, port, url):
+def collect_healthz(gauge, histogram, scheme, address, port, url, ca_path, headers):
     with histogram.time():
         error = "ok"
         try:
-            error = requests.get("http://{}:{}{}".format(address, port, url)).text
+            error = requests.get("{}://{}:{}{}".format(scheme, address, port, url), headers = headers, verify = ca_path).text
         except Exception as e:
             error_counter.labels(type="healthz").inc()
             error = str(e)
             logger.exception("requesting %s:%d%s failed", address, port, url)
 
-        gauge.add_metric([service_name, error, address], 1)
+        gauge.add_metric([error, address], 1)
 
 
-def collect_k8s_component(k8s_gauge, api_server_ip, api_server_port):
+def collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
     collect_healthz(k8s_gauge, api_healthz_histogram,
-            "k8s_api_server", api_server_ip, api_server_port, "/healthz")
-    collect_healthz(k8s_gauge, etcd_healthz_histogram,
-            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd")
-
+            api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
 
 def parse_node_item(pai_node_gauge, node):
     name = node["metadata"]["name"]
@@ -261,7 +262,7 @@ def process_nodes_status(pai_node_gauge, nodesJsonObject):
                 None,
                 pai_node_gauge, item)
 
-    map(_map_fn, nodesJsonObject["items"])
+    list(map(_map_fn, nodesJsonObject["items"]))
 
 
 def load_machine_list(configFilePath):
@@ -269,9 +270,9 @@ def load_machine_list(configFilePath):
         return yaml.load(f)["hosts"]
 
 
-def request_with_histogram(url, histogram):
+def request_with_histogram(url, histogram, ca_path, headers):
     with histogram.time():
-        return requests.get(url).json()
+        return requests.get(url, headers = headers, verify = ca_path).json()
 
 
 def try_remove_old_prom_file(path):
@@ -281,49 +282,97 @@ def try_remove_old_prom_file(path):
         try:
             os.unlink(path)
         except Exception as e:
-            log.warning("can not remove old prom file %s", path)
+            logger.warning("can not remove old prom file %s", path)
+
+def register_stack_trace_dump():
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
+
+ # https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
+def burninate_gc_collector():
+    for callback in gc.callbacks[:]:
+        if callback.__qualname__.startswith("GCCollector."):
+            gc.callbacks.remove(callback)
+
+    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
+        if name.startswith("python_gc_"):
+            try:
+                prometheus_client.REGISTRY.unregister(collector)
+            except KeyError:  # probably gone already
+                pass
+
+class HealthResource(Resource):
+    def render_GET(self, request):
+        request.setHeader("Content-Type", "text/html; charset=utf-8")
+        return "<html>Ok</html>".encode("utf-8")
+
 
 def main(args):
-    logDir = args.log
+    register_stack_trace_dump()
+    burninate_gc_collector()
+    log_dir = args.log
 
-    try_remove_old_prom_file(logDir + "/watchdog.prom")
-
-    address = args.k8s_api
-    parse_result = urlparse.urlparse(address)
-    api_server_ip = parse_result.hostname
-    api_server_port = parse_result.port or 80
-
-    list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
-    list_nodes_url = "{}/api/v1/nodes/".format(address)
+    try_remove_old_prom_file(log_dir + "/watchdog.prom")
 
     atomic_ref = AtomicRef()
 
-    REGISTRY.register(CustomCollector(atomic_ref))
-
-    app = make_wsgi_app(REGISTRY)
-    httpd = make_server("", int(args.port), app)
-    t = threading.Thread(target=httpd.serve_forever)
+    t = threading.Thread(target=loop, name="loop", args=(args, atomic_ref))
     t.daemon = True
     t.start()
+
+    REGISTRY.register(CustomCollector(atomic_ref))
+
+    root = Resource()
+    root.putChild(b"metrics", MetricsResource())
+    root.putChild(b"healthz", HealthResource())
+
+    factory = Site(root)
+    reactor.listenTCP(int(args.port), factory)
+    reactor.run()
+
+
+def loop(args, atomic_ref):
+    address = args.k8s_api
+    parse_result = urllib.parse.urlparse(address)
+    api_server_scheme = parse_result.scheme
+    api_server_ip = parse_result.hostname
+    api_server_port = parse_result.port or 80
+
+    ca_path = args.ca
+    bearer_path = args.bearer
+    if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
+        logger.warning("please provide bearer_path and ca_path at the same time or not")
+
+    headers = None
+    if not os.path.isfile(ca_path):
+        ca_path = None
+    if not os.path.isfile(bearer_path):
+        bearer_path = None
+    if bearer_path is not None:
+        with open(bearer_path, 'r') as bearer_file:
+           bearer = bearer_file.read()
+           headers = {'Authorization': "Bearer {}".format(bearer)}
+
+    list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
+    list_nodes_url = "{}/api/v1/nodes/".format(address)
 
     while True:
         # these gauge is generate on each iteration
         pai_pod_gauge = gen_pai_pod_gauge()
         pai_container_gauge = gen_pai_container_gauge()
         pai_node_gauge = gen_pai_node_gauge()
-        k8s_gauge = gen_k8s_component_gauge()
+        k8s_gauge = gen_k8s_api_gauge()
 
         try:
             # 1. check service level status
-            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram)
+            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram, ca_path, headers)
             process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram)
+            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers) 
             process_nodes_status(pai_node_gauge, nodes_status)
 
             # 3. check k8s level status
-            collect_k8s_component(k8s_gauge, api_server_ip, api_server_port)
+            collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
@@ -359,6 +408,8 @@ if __name__ == "__main__":
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
+    parser.add_argument("--ca", "-c", help="ca file path")
+    parser.add_argument("--bearer", "-b", help="bearer token file path")
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",

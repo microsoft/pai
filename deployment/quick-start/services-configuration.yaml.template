@@ -128,3 +128,8 @@ rest-server:
 # uncomment following section if you want to customize the port of pylon
 # pylon:
 #  port: 80
+
+# uncomment following section if you want to customize the threshold of cleaner
+# cleaner:
+#  threshold: 94
+#  interval: 60

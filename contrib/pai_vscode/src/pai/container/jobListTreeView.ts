@@ -302,7 +302,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         }
     }
 
-    public revealLatestJob(clusterIndex: number, jobName: string): void {
+    public async revealLatestJob(clusterIndex: number, jobName: string): Promise<void> {
         const job: IPAIJobInfo | undefined = this.clusters[clusterIndex].jobs.find(j => j.name === jobName);
         if (job) {
             /**
@@ -310,7 +310,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
              * traverse to ancestors (upwards) until a expanded node has been found,
              * then go back down and expand nodes via getChildren() on demand
              */
-            this.treeView.reveal(
+            await this.treeView.reveal(
                 {
                     type: TreeDataType.Job,
                     job: job,

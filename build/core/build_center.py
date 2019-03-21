@@ -122,7 +122,8 @@ class BuildCenter:
                     build_worker.build_single_component(self.graph.services[item])
             self.logger.info("Build all components succeed")
 
-        except:
+        except Exception as e:
+            self.logger.error(str(e))
             self.logger.error("Build all components failed")
             sys.exit(1)
 
@@ -156,7 +157,3 @@ class BuildCenter:
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.logger.info("Push image:{0} successfully".format(image))
-
-
-
-

@@ -1,0 +1,38 @@
+{
+  "name": "submit-simple-job",
+  "version": "1.0.0",
+  "description": "PAI web portal plugin for submit simple job",
+  "main": "index.tsx",
+  "scripts": {
+    "watch": "webpack --env development",
+    "prebuild": "npm test",
+    "build": "webpack",
+    "test": "tslint --project ."
+  },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "fetch": "^1.1.0",
+    "hashids": "1.2.2",
+    "qs": "^6.6.0",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.7",
+    "@types/hashids": "^1.0.30",
+    "@types/qs": "^6.5.1",
+    "@types/react": "^16.7.20",
+    "@types/react-dom": "^16.0.11",
+    "@types/webpack": "^4.4.24",
+    "@types/whatwg-fetch": "0.0.33",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
+  }
+}

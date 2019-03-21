@@ -19,7 +19,7 @@ import time
 import argparse
 import os
 from datetime import timedelta
-from cleaner.scripts import clean_docker_cache, check_deleted_files
+from cleaner.scripts.clean_docker import DockerCleaner
 from cleaner.worker import Worker
 from cleaner.utils.logger import LoggerMixin
 from cleaner.utils import common
@@ -76,33 +76,21 @@ class Cleaner(LoggerMixin):
             time.sleep(1)
 
 
-def get_worker(arg):
-    if arg == "docker_cache":
-        worker = Worker(clean_docker_cache.check_and_clean, 50, timeout=timedelta(minutes=10), cool_down_time=1800)
-    elif arg == "deleted_files":
-        worker = Worker(check_deleted_files.list_and_check_files, None, timeout=timedelta(minutes=10), cool_down_time=1800)
-    else:
-        raise ValueError("arguments %s is not supported.", arg)
-    return worker
-
-
-liveness_files = {
-    "docker_cache": "docker-cache-cleaner-healthy",
-    "deleted_files": "deleted-files-cleaner-healthy"
-}
+def get_worker(threshold):
+    worker = Worker(clean_docker.check_and_clean, threshold, timeout=timedelta(minutes=10), cool_down_time=60)
+    return worker;
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("option", help="the functions currently supported: [docker_cache | deleted_files]")
+    parser.add_argument("-t", "--threshold", help="the disk usage precent to start cleaner")
+    parser.add_argument("-i", "--interval", help="the base interval to check disk usage")
     args = parser.parse_args()
 
     common.setup_logging()
 
-    cleaner = Cleaner(liveness_files[args.option])
-    cleaner.add_worker(args.option, get_worker(args.option))
-    cleaner.start()
-    cleaner.sync()
+    cleaner = DockerCleaner(args.threshold, args.interval, timedelta(minutes=10))
+    cleaner.run()
 
 
 if __name__ == "__main__":

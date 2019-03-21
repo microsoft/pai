@@ -1,0 +1,10 @@
+version: '3'
+services:
+  pylon:
+    build:
+      context: .
+      dockerfile: build/pylon.dockerfile
+    env_file: .env 
+    ports:
+      - "8080:80"
+      - "50070:50070"

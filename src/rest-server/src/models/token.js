@@ -31,7 +31,7 @@ const check = (username, password, callback) => {
       }
       callback(null,
         derivedKey === res[0]['password'],
-        res[0]['admin'],
+        res[0]['admin'] === 'true',
         res[0].hasOwnProperty('githubPAT')&&
         Boolean(res[0]['githubPAT']));
     });

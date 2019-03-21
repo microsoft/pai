@@ -2,7 +2,7 @@
 
 1. Job config file
 
-    Prepare a job config file as described in [examples/README.md](../job_tutorial.md#json-config-file-for-job-submission), for example, `exampleJob.json`.
+    Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
 
 2. Authentication
 
@@ -508,7 +508,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 *Parameters*
 
-[job config json](../job_tutorial.md#json-config-file-for-job-submission)
+[job config json](../job_tutorial.md)
 
 *Response if succeeded*
 ```
@@ -812,7 +812,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Parameters*
 ```
 {
-  "vcCapacity": new capacity
+  "vcCapacity": new capacity,
+  "vcMaxCapacity": new max capacity, range of [vcCapacity, 100]
 }
 ```
 

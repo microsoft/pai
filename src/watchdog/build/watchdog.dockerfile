@@ -15,8 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:2.7
+FROM python:3.7
 
-RUN pip install PyYAML requests paramiko prometheus_client
+RUN pip3 install PyYAML requests prometheus_client twisted
 
 COPY src/watchdog.py /
