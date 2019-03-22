@@ -26,7 +26,7 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
-const url = require('url');
+const querystring = require('querystring');
 const stripJsonComments = require('strip-json-comments');
 
 const jobSubmitHtml = jobSubmitComponent({
@@ -159,7 +159,7 @@ $(document).ready(() => {
     window.onresize = function() {
       resize();
     };
-    const query = url.parse(window.location.href, true).query;
+    const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
     const op = query.op;
     const type = query.type;
     const username = query.user;
