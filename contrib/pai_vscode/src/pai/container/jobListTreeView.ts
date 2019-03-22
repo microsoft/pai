@@ -206,12 +206,12 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             }));
             this.onDidChangeTreeDataEmitter.fire();
             if (reload) {
-                await this.reloadJobs();
+                void this.reloadJobs();
             }
         } else {
             this.onDidChangeTreeDataEmitter.fire(this.clusters[index]);
             if (reload) {
-                await this.reloadJobs(index);
+                void this.reloadJobs(index);
             }
         }
     }
