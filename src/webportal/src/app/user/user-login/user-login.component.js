@@ -17,7 +17,7 @@
 
 
 // module dependencies
-const url = require('url');
+const querystring = require('querystring');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const userLoginComponent = require('./user-login.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
@@ -54,7 +54,7 @@ $(document).ready(() => {
           cookies.set('token', data.token, {expires: expiration});
           cookies.set('admin', data.admin, {expires: expiration});
           cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
-          const query = url.parse(window.location.href, true).query;
+          const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
           window.location.replace(query.origin ? query.origin : '/');
         }
       },

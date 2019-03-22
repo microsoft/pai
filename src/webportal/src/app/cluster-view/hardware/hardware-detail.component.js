@@ -20,7 +20,7 @@
 const hardwareDetailComponent = require('./hardware-detail.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
-const url = require('url');
+const querystring = require('querystring');
 
 //
 
@@ -35,7 +35,7 @@ $(document).ready(() => {
   $('#sidebar-menu--cluster-view').addClass('active');
   $('#sidebar-menu--cluster-view--hardware').addClass('active');
   let instance = '';
-  const query = url.parse(window.location.href, true).query;
+  const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
   if (query['instance']) {
     instance = query['instance'];
   } else {
