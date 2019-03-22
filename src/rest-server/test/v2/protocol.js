@@ -397,20 +397,18 @@ prerequisites:
 // unit tests for protocol in API v2
 describe('API v2 Unit Tests: protocol', () => {
   // protocol schema test
-  it('test protocol schema for valid protocol', (done) => {
+  it('test protocol schema for valid protocol', () => {
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
       const validprotocolObj = yaml.safeLoad(validProtocolYAML);
       expect(protocolSchema.validate(validprotocolObj)).to.be.true;
     }
-    done();
   });
-  it('test protocol schema for invalid protocol', (done) => {
+  it('test protocol schema for invalid protocol', () => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
       const invalidprotocolObj = yaml.safeLoad(invalidProtocolYAMLs[invalidMessage]);
       expect(protocolSchema.validate(invalidprotocolObj)).to.be.false;
       expect(protocolSchema.validate.errors[0].message).to.equal(invalidMessage);
     }
-    done();
   });
   // protocol validation test
   it('test protocol validation for valid protocol', async () => {
