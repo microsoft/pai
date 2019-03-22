@@ -38,17 +38,7 @@ const prerequisiteFields = [
   'dockerImage',
 ];
 
-const protocolWrap = async (req, res, next) => {
-  const protocolYAML = req.body;
-  req.rawBody = protocolYAML;
-  req.body = {
-    protocol: protocolYAML,
-  };
-  await next();
-};
-
-const protocolValidate = async (req, res, next) => {
-  const protocolYAML = req.body.protocol;
+const protocolValidate = (protocolYAML) => {
   const protocolObj = yaml.safeLoad(protocolYAML);
   if (!protocolSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', protocolSchema.validate.errors);
@@ -96,12 +86,10 @@ const protocolValidate = async (req, res, next) => {
         );
     }
   }
-  req.body.protocol = protocolObj;
-  await next();
+  return protocolObj;
 };
 
-const protocolRender = async (req, res, next) => {
-  const protocolObj = req.body.protocol;
+const protocolRender = (protocolObj) => {
   let deployment = null;
   if ('defaults' in protocolObj && 'deployment' in protocolObj.defaults) {
     deployment = protocolObj.deployments[protocolObj.defaults.deployment];
@@ -140,20 +128,36 @@ const protocolRender = async (req, res, next) => {
     }
     protocolObj.taskRoles[taskRole].entrypoint = entrypoint.trim();
   }
-  req.body.protocol = protocolObj;
+  return protocolObj;
+};
+
+
+const protocolWrapMiddleware = async (req, res, next) => {
+  const protocolYAML = req.body;
+  req.rawBody = protocolYAML;
+  req.body = {
+    protocol: protocolYAML,
+  };
   await next();
 };
 
-const protocolSubmit = [
-  util.promisify(protocolValidate),
-  util.promisify(protocolRender),
+const protocolSubmitMiddleware = [
+  async (req, res, next) => {
+    req.body.protocol = protocolValidate(req.body.protocol);
+    await next();
+  },
+  async (req, res, next) => {
+    req.body.protocol = protocolRender(req.body.protocol);
+    await next();
+  },
 ];
-
 
 // module exports
 module.exports = {
-  wrap: util.promisify(protocolWrap),
   validate: protocolValidate,
   render: protocolRender,
-  submit: protocolSubmit,
+  middlewares: {
+    wrap: util.promisify(protocolWrapMiddleware),
+    submit: protocolSubmitMiddleware.map((fn) => util.promisify(fn)),
+  },
 };

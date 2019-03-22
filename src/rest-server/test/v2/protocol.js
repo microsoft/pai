@@ -411,58 +411,40 @@ describe('API v2 Unit Tests: protocol', () => {
     }
   });
   // protocol validation test
-  it('test protocol validation for valid protocol', async () => {
-    const req = {};
-    const res = {};
+  it('test protocol validation for valid protocol', () => {
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
-      req.body = {
-        protocol: validProtocolYAML,
-      };
-      await Promise
-        .resolve(protocolMiddleware.validate(req, res, () => {}))
-        .catch((err) => {
-          expect(err).to.be.null;
-        });
+      try {
+        protocolMiddleware.validate(validProtocolYAML);
+      } catch(err) {
+        expect(err).to.be.null;
+      }
     }
   });
-  it('test protocol validation for invalid protocol', async () => {
-    const req = {};
-    const res = {};
+  it('test protocol validation for invalid protocol', () => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
-      req.body = {
-        protocol: invalidProtocolYAMLs[invalidMessage],
-      };
-      await Promise
-        .resolve(protocolMiddleware.validate(req, res, () => {}))
-        .catch((err) => {
-          expect(err.name).to.equal('BadRequestError');
-          const errMessage = JSON.parse(err.message);
-          if (invalidMessage !== 'should be equal to one of the allowed values') {
-            expect(errMessage).to.have.lengthOf(1);
-          }
-          expect(errMessage[0].message).to.equal(invalidMessage);
-        });
+      try {
+        protocolMiddleware.validate(invalidProtocolYAMLs[invalidMessage]);
+      } catch(err) {
+        expect(err.name).to.equal('BadRequestError');
+        const errMessage = JSON.parse(err.message);
+        if (invalidMessage !== 'should be equal to one of the allowed values') {
+          expect(errMessage).to.have.lengthOf(1);
+        }
+        expect(errMessage[0].message).to.equal(invalidMessage);
+      }
     }
   });
   // protocol renderer test
   it('test protocol renderer for valid protocol', async () => {
-    const req = {};
-    const res = {};
     for (let pname of Object.keys(validProtocolYAMLs)) {
-      req.body = {
-        protocol: validProtocolYAMLs[pname],
-      };
-      await Promise
-        .resolve(protocolMiddleware.validate(req, res, () => {}))
-        .catch((err) => {
-          expect(err).to.be.null;
-        });
-      await Promise
-        .resolve(protocolMiddleware.render(req, res, () => {}))
-        .catch((err) => {
-          expect(err).to.be.null;
-        });
-      expect(req.body).to.deep.equal({protocol: validprotocolObjs[pname]});
+      let protocolObj = validProtocolYAMLs[pname]
+      try {
+        protocolObj = protocolMiddleware.validate(protocolObj);
+        protocolObj = protocolMiddleware.render(protocolObj);
+      } catch(err) {
+        expect(err).to.be.null;
+      }
+      expect(protocolObj).to.deep.equal(validprotocolObjs[pname]);
     }
   });
 });
