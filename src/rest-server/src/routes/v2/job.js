@@ -20,7 +20,6 @@
 const express = require('express');
 const token = require('../../middlewares/token');
 const protocol = require('../../middlewares/v2/protocol');
-const asyncHandler = require('../../middlewares/v2/asyncHandler');
 const controller = require('../../controllers/v2/job');
 
 
@@ -29,10 +28,10 @@ const router = new express.Router();
 router.route('/')
   /** POST /api/v2/jobs - Update job */
   .post(
-    asyncHandler(protocol.wrap),
+    protocol.wrap,
     token.check,
-    protocol.submit.map((fn) => asyncHandler(fn)),
-    asyncHandler(controller.update));
+    protocol.submit,
+    controller.update);
 
 // module exports
 module.exports = router;

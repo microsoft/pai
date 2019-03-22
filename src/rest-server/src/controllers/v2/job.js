@@ -15,7 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
+const util = require('util');
 const Job = require('../../models/v2/job');
 
 
@@ -31,5 +33,5 @@ const update = async (req, res) => {
 
 // module exports
 module.exports = {
-  update,
+  update: util.promisify(update),
 };
