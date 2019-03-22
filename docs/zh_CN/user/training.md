@@ -39,9 +39,10 @@ Following this section to submit a very simple job like hello-world during learn
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
   
-  After that, OpenPAI will show dashboard as below.
-  
-  ![dashboard](imgs/web_dashboard.png)
+      After that, OpenPAI will show dashboard as below.
+      
+      ![dashboard](imgs/web_dashboard.png)
+      
 
 2. Click **Submit Job** on the left pane and reach this page.
   
@@ -50,24 +51,25 @@ Following this section to submit a very simple job like hello-world during learn
 
 3. Click **JSON** button. Clear existing content and paste below content in the popped text box, then click save.
   
-  The content is introduced in next sections.
-  
-      json
-       {
-       "jobName": "tensorflow-cifar10",
-       "image": "ufoym/deepo:tensorflow-py36-cu90",
-       "taskRoles": [
-           {
-           "name": "default",
-           "taskNumber": 1,
-           "cpuNumber": 4,
-           "memoryMB": 8192,
-           "gpuNumber": 1,
-           "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-           }
-       ]
-       }
-  
+      The content is introduced in next sections.
+      
+      ```json
+      {
+      "jobName": "tensorflow-cifar10",
+      "image": "ufoym/deepo:tensorflow-py36-cu90",
+      "taskRoles": [
+          {
+          "name": "default",
+          "taskNumber": 1,
+          "cpuNumber": 4,
+          "memoryMB": 8192,
+          "gpuNumber": 1,
+          "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+          }
+      ]
+      }
+      ```
+      
       ![paste job](imgs/web_paste_json.png)
       
 
