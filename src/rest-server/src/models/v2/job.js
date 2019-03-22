@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const util = require('util');
 const axios = require('axios');
 const status = require('statuses');
 const keygen = require('ssh-keygen');
@@ -167,25 +168,21 @@ const generateDockerContainerScript = (frameworkName, userName, config, taskRole
 };
 
 const generateSSHKeys = (frameworkName) => {
-  return new Promise((resolve) => {
-    keygen({
-      location: frameworkName,
-      comment: `ssh key for ${frameworkName}`,
-      read: true,
-      destroy: true,
-    }, (err, out) => {
-      if (err) {
-        logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
-        resolve(null);
-      } else {
-        const keys = {};
-        // private key
-        keys[frameworkName] = out.key;
-        // public key
-        keys[`${frameworkName}.pub`] = out.pubKey;
-        resolve(keys);
-      }
-    });
+  util.promisify(keygen)({
+    location: frameworkName,
+    comment: `ssh key for ${frameworkName}`,
+    read: true,
+    destroy: true,
+  }).then((out) => {
+    const keys = {};
+    // private key
+    keys[frameworkName] = out.key;
+    // public key
+    keys[`${frameworkName}.pub`] = out.pubKey;
+    return keys;
+  }).catch((err) => {
+    logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
+    return null;
   });
 };
 
@@ -195,28 +192,12 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   // async mkdir on hdfs
   const mkdir = async (path, user, mode) => {
     const options = {'user.name': user, 'permission': mode};
-    return new Promise((resolve) => {
-      hdfs.createFolder(path, options, (err, result) => {
-        if (err) {
-          throw err;
-        } else {
-          resolve(result);
-        }
-      });
-    });
+    return util.promisify(hdfs.createFolder)(path, options);
   };
   // async upload file on hdfs
   const upload = async (path, data, user, mode) => {
     const options = {'user.name': user, 'permission': mode, 'overwrite': 'true'};
-    return new Promise((resolve) => {
-      hdfs.createFile(path, data, options, (err, result) => {
-        if (err) {
-          throw err;
-        } else {
-          resolve(result);
-        }
-      });
-    });
+    return util.promisify(hdfs.createFile)(path, data, options);
   };
 
   // generate framework description
@@ -268,15 +249,7 @@ Job.prototype.put = async function(config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  await new Promise((resolve) => {
-    userModel.checkUserVc(this.userName, virtualCluster, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        resolve(result);
-      }
-    });
-  });
+  await util.promisify(userModel.checkUserVc)(this.userName, virtualCluster);
 
   // generate framework description and prepare container scripts on hdfs
   const frameworkDescription = await prepareContainerScripts(this.frameworkName, this.userName, config, rawConfig);
