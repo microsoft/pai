@@ -8,7 +8,7 @@ import * as fs from 'fs-extra';
 import * as globby from 'globby';
 import { injectable } from 'inversify';
 import * as JSONC from 'jsonc-parser';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNil } from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
 import * as request from 'request-promise-native';
@@ -28,7 +28,7 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
-import { ConfigurationNode } from './configurationTreeDataProvider';
+import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
 import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
 
@@ -85,7 +85,7 @@ export class PAIJobManager extends Singleton {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 COMMAND_CREATE_JOB_CONFIG,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await PAIJobManager.generateJobConfig(input.fsPath);
                     } else {
@@ -95,10 +95,10 @@ export class PAIJobManager extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_SIMULATE_JOB,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await this.simulate({ jobConfigPath: input.fsPath });
-                    } else if (input instanceof ConfigurationNode) {
+                    } else if (input instanceof ClusterExplorerChildNode) {
                         await this.simulate({ clusterIndex: input.index });
                     } else {
                         await this.simulate();
@@ -107,10 +107,10 @@ export class PAIJobManager extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_SUBMIT_JOB,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await this.submitJob({ jobConfigPath: input.fsPath });
-                    } else if (input instanceof ConfigurationNode) {
+                    } else if (input instanceof ClusterExplorerChildNode) {
                         await this.submitJob({ clusterIndex: input.index });
                     } else {
                         await this.submitJob();
@@ -548,6 +548,9 @@ export class PAIJobManager extends Singleton {
             jobConfigPath = jobConfigUrl![0].fsPath;
         }
         const config: IPAIJobConfig = JSONC.parse(await fs.readFile(jobConfigPath, 'utf8'));
+        if (isNil(config)) {
+            Util.err('job.prepare.config.invalid');
+        }
         const error: string | undefined = await Util.validateJSON(config, SCHEMA_JOB_CONFIG);
         if (error) {
             throw new Error(error);
@@ -614,9 +617,15 @@ export class PAIJobManager extends Singleton {
             });
             const fsProvider: HDFSFileSystemProvider = (await getSingleton(HDFS)).provider!;
             let codeDir: string = param.config.codeDir;
-            if (codeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
-                codeDir = codeDir.substring('$PAI_DEFAULT_FS_URI'.length);
+            if (codeDir.startsWith('hdfs://') || codeDir.startsWith('webhdfs://')) {
+                throw new Error(__('job.upload.invalid-code-dir'));
+            } else {
+                if (codeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
+                    codeDir = codeDir.substring('$PAI_DEFAULT_FS_URI'.length);
+                }
+                codeDir = path.posix.resolve('/', codeDir);
             }
+
             const codeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${codeDir}`);
 
             const total: number = projectFiles.length;
@@ -650,7 +659,7 @@ export class PAIJobManager extends Singleton {
 
             return true;
         } catch (e) {
-            Util.err('job.upload.error', [e]);
+            Util.err('job.upload.error', [e.message]);
             return false;
         }
     }

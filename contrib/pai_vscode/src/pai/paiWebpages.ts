@@ -15,7 +15,7 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { getClusterName, ClusterManager } from './clusterManager';
-import { ConfigurationNode } from './configurationTreeDataProvider';
+import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { ClusterNode } from './container/jobListTreeView';
 import { IPAICluster, IPAIJobInfo } from './paiInterface';
 import { PAIWebPortalUri } from './paiUri';
@@ -41,11 +41,11 @@ export class PAIWebpages extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_TREEVIEW_OPEN_PORTAL,
-                (node: ConfigurationNode) => this.openDashboardFromTreeView(node.index)
+                (node: ClusterExplorerChildNode) => this.openDashboardFromTreeView(node.index)
             ),
             vscode.commands.registerCommand(
                 COMMAND_LIST_JOB,
-                (node: ConfigurationNode | ClusterNode) => this.listJobs(node.index)
+                (node: ClusterExplorerChildNode | ClusterNode) => this.listJobs(node.index)
             ),
             vscode.commands.registerCommand(
                 COMMAND_VIEW_JOB,

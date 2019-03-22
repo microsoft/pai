@@ -23,7 +23,7 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { ClusterManager } from './clusterManager';
-import { ConfigurationNode } from './configurationTreeDataProvider';
+import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { HDFSTreeDataProvider } from './container/hdfsTreeView';
 import { IPAICluster } from './paiInterface';
 import { createWebHDFSClient, IHDFSClient, IHDFSStatResult } from './webhdfs-workaround';
@@ -97,8 +97,13 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
             statResult = await this.stat(uri);
             if (statResult.type !== vscode.FileType.Directory) {
                 throw vscode.FileSystemError.FileExists(uri);
+            } else {
+                // pass
             }
-        } catch {
+        } catch (e) {
+            if (uri.path === '/') {
+                throw e;
+            }
             await this.createDirectory(Util.uriPathPop(uri));
             try {
                 await (await this.getClient(uri)).mkdir(path.join('/', uri.path));
@@ -483,7 +488,7 @@ export class HDFS extends Singleton {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 COMMAND_OPEN_HDFS,
-                async (node?: ConfigurationNode | IPAICluster) => {
+                async (node?: ClusterExplorerChildNode | IPAICluster) => {
                     if (!node) {
                         const manager: ClusterManager = await getSingleton(ClusterManager);
                         const index: number | undefined = await manager.pick();
@@ -491,7 +496,7 @@ export class HDFS extends Singleton {
                             return;
                         }
                         await this.open(manager.allConfigurations[index]);
-                    } else if (node instanceof ConfigurationNode) {
+                    } else if (node instanceof ClusterExplorerChildNode) {
                         await this.open((await getSingleton(ClusterManager)).allConfigurations[node.index]);
                     } else {
                         await this.open(node);
