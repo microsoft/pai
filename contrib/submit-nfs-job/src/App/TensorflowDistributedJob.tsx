@@ -74,6 +74,7 @@ export default class TensorflowDistributedJob extends Job {
     paiWorkerTaskRole.memoryMB = this.workerGpuNumber * MEMORY_PER_GPU;
     paiWorkerTaskRole.gpuNumber = this.workerGpuNumber;
     paiWorkerTaskRole.command = this.getPaiCommand(this.workerCommand);
+    paiWorkerTaskRole.minSucceededTaskCount = this.workerNumber;
 
     const paiJob = Object.create(null);
     paiJob.jobName = this.name;
@@ -263,7 +264,7 @@ echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
           <div className="row">&nbsp; </div>
           <div className="row">
             <div className="col-sm-2">
-              <span className="text-danger">*</span> Server Command
+              <span className="text-danger">*</span> Worker Command
             </div>
             <div className="col-sm-4">
             <textarea
