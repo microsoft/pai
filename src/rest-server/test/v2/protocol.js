@@ -435,9 +435,9 @@ describe('API v2 Unit Tests: protocol', () => {
     }
   });
   // protocol renderer test
-  it('test protocol renderer for valid protocol', async () => {
+  it('test protocol renderer for valid protocol', () => {
     for (let pname of Object.keys(validProtocolYAMLs)) {
-      let protocolObj = validProtocolYAMLs[pname]
+      let protocolObj = validProtocolYAMLs[pname];
       try {
         protocolObj = protocolMiddleware.validate(protocolObj);
         protocolObj = protocolMiddleware.render(protocolObj);
