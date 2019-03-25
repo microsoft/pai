@@ -23,14 +23,14 @@
 exec 17>/pai/log/DockerContainerDebug.log
 BASH_XTRACEFD=17
 
-function exit_handler()
+function exit_handler_basic()
 {
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
 }
 
 # The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
-function kill_handler()
+function out_of_disk_kill_handler()
 {
   printf "%s %s\n" \
     "[INFO]" "Docker container killed by cleaner due to disk pressure."
@@ -39,8 +39,8 @@ function kill_handler()
 
 set -x
 PS4="+[\t] "
-trap exit_handler EXIT
-trap kill_handler 10
+trap exit_handler_basic EXIT
+trap out_of_disk_kill_handler USR1
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
@@ -50,6 +50,10 @@ PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 
 # Make all GPUs allocated to the container accessible
 export NVIDIA_VISIBLE_DEVICES=all
+export PAI_OOM_KILLED_SIGNAL="${PAI_OOM_KILLED_SIGNAL:-INT}"
+
+export PAI_GRACEFUL_EXIT_SIGNAL="${PAI_GRACEFUL_EXIT_SIGNAL:-TERM}"
+export PAI_GRACEFUL_EXIT_TIMEOUT="${PAI_GRACEFUL_EXIT_TIMEOUT:-30}"
 
 task_role_no={{ idx }}
 
@@ -252,6 +256,30 @@ function write_user_command()
 
   # By default, exit on the first error
   echo 'set -e' >> "${PAI_USER_COMMAND_PATH}"
+
+  # Sending a signal to Bash makes it to exit *immediately*,
+  # if the signal has the default (trap - SIG) handler
+  # (as opposed to non-default handlers,
+  # which wait for the current command to finish),
+  # so the signal should be catched in the user command script.
+  #
+  # By default, user command script does nothing on the signals PAI sends.
+  #
+  # We could leave the handlers empty ("") or set the default (- or nothing)
+  # handlers, however, doing this incurs an issue in a subprocess
+  # (e.g. if user command runs a script) -
+  # it can not change the default handler to anything else (reference below).
+  # Thus, we have to set any non-empty (not "") handler. This way it works.
+  #
+  # References:
+  # > POSIX 2 / https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html:
+  # > Signals ignored upon entry to the shell cannot be trapped or reset.
+  # > Trapped signals that are not being ignored are reset to their original
+  # >   values in a subshell or subshell environment when one is created.
+  #
+  echo "trap ' ' ${PAI_GRACEFUL_EXIT_SIGNAL}" >> "${PAI_USER_COMMAND_PATH}"
+  echo "trap ' ' ${PAI_OOM_KILLED_SIGNAL}" >> "${PAI_USER_COMMAND_PATH}"
+
   # Enable logging for the user command
   echo 'set -x' >> "${PAI_USER_COMMAND_PATH}"
 
@@ -272,22 +300,115 @@ write_user_command
 run_user_command &
 user_command_pid=$!
 
+
+container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
+
+function check_oom_killer()
+{
+  container_id="$1"
+  [ -e "$container_id" ] && return 1
+  dmesg | grep -i kill | grep "/docker/$container_id" | tail -n 1 | sed -r "s@\\[(.*)\\.(.*)\\].*@\\1\\2@g" -
+}
+
+function notify_user_command()
+{
+  local signal="${1-INT}"
+
+  # We have to send the signal to all the user command children.
+  # However, the 'su' command should not be signaled as it will forward
+  # the signal, but also finish the execution, while the user command
+  # may not expect this. Instead, we signal the user command directly.
+  # The user command, executed with 'su', obtains a new session
+  # and a process group. So, to notify all the child processes
+  # we can send the signal to the group.
+  #
+  # WARNING: when changing this, check the run_user_command() implementation.
+  #
+  local pid=$user_command_pid # for bash subprocess
+  local pid="$(ps --ppid $pid -o pid h | tr -d ' ')" # for su command
+  local pid="$(ps --ppid $pid -o pid h | tr -d ' ')" # for su command child
+  local pid="$(ps -p $pid -o pgid h | tr -d ' ')" # get process group id
+  if [[ -n "$signal" && -n "$pid" ]]; then
+    kill -"$signal" -"$pid"
+  fi
+}
+
+is_exiting=0
+function exit_gracefully()
+{
+  if [ "1" == "$is_exiting" ] || \
+       ! kill -0 $user_command_pid 2>/dev/null; then
+    return
+  fi
+
+  is_exiting=1
+
+  notify_user_command "${PAI_GRACEFUL_EXIT_SIGNAL}" 2>/dev/null
+
+  local timeout="${PAI_GRACEFUL_EXIT_TIMEOUT:-30}"
+  local start_time=$(date +%s)
+  while [ $(( $(date +%s) - $start_time )) -lt $timeout ] && \
+          kill -0 $user_command_pid 2>/dev/null; do
+    sleep 5
+  done
+
+  if kill -0 $user_command_pid 2>/dev/null; then
+    notify_user_command KILL 2>/dev/null
+  fi
+}
+
+function term_handler()
+{
+  echo "[DEBUG] Docker container has catched TERM signal. Finishing the work..."
+  exit_gracefully
+}
+
+function exit_handler_extended()
+{
+  exit_gracefully
+  exit_handler_basic
+}
+
+trap term_handler TERM
+trap exit_handler_extended EXIT
+
+
+last_oom_killed=$(check_oom_killer "$container_id")
+last_oom_killed=${last_oom_killed:-0}
+
 while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 30 ] && \
+      [ "1" != "$is_exiting" ] && \
         kill -0 $user_command_pid 2>/dev/null; do
   sleep 20
+
+  current_oom_killed=$(check_oom_killer "$container_id")
+  current_oom_killed=${current_oom_killed:-0}
+  if [ "$current_oom_killed" -gt "$last_oom_killed" ]; then
+    last_oom_killed=$current_oom_killed
+    echo "[WARNING]" "One of the child processes has been killed by the OOM killer." \
+      "Notifying the others with the '${PAI_OOM_KILLED_SIGNAL}' signal"
+    # User can ignore these failures if they are expected,
+    # thus we should not fail immediately or expect the user code to fail.
+    notify_user_command "${PAI_OOM_KILLED_SIGNAL}" 2>/dev/null
+  fi
 done
 
 if kill -0 $user_command_pid 2>/dev/null; then
   echo "[INFO] The job has been killed, Docker container exiting"
   exit 0
 else
+  if [ "$last_oom_killed" -gt "0" ]; then
+    echo "[WARNING]" "During the work there were some out-of-memory conditions." \
+      "Check the task logs for additional info."
+  fi
+
   wait $user_command_pid
   user_command_exitcode=$?
 
 {{# isDebug }}
-  if [[ $user_command_exitcode -ne 0 ]]; then
+  if [[ $user_command_exitcode -ne 0 && "0" == "$is_exiting" ]]; then
     echo "============================================================================="
-    echo "======   The job container failed, so it will be reserved for 1 week   ======"
+    echo "======   The job container failed, so it will be reserved for a while  ======"
     echo "======          After debugging, please stop the job manually.         ======"
     echo "============================================================================="
 
