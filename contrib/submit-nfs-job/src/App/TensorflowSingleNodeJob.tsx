@@ -60,7 +60,7 @@ export default class TensorflowSingleNodeJob extends Job {
     paiTaskRole.command = this.getPaiCommand();
 
     const paiJob = Object.create(null);
-    paiJob.name = this.name;
+    paiJob.jobName = this.name;
     paiJob.image = "openpai/pai.example.tensorflow:stable";
     paiJob.virtualCluster = "default";
     paiJob.taskRoles = [paiTaskRole];
