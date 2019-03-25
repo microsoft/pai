@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation
-// All rights reserved. 
+// All rights reserved.
 //
 // MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
@@ -53,6 +53,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.log4j.Level;
+import org.apache.hadoop.util.ShutdownHookManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -172,6 +173,11 @@ public class ApplicationMaster extends AbstractService {
     frameworkInfoPublisher = new FrameworkInfoPublisher(this, conf, zkStore, hdfsStore, statusManager, requestManager);
     selectionManager = new SelectionManager(this, conf, statusManager, requestManager);
     rmResyncHandler = new RMResyncHandler(this, conf);
+
+    ShutdownHookManager.get().addShutdownHook(() -> {
+      LOGGER.logInfo("Catched termination signal, shutting down.");
+      this.onShutdownRequest();
+    }, 1);
   }
 
   @Override
@@ -201,7 +207,19 @@ public class ApplicationMaster extends AbstractService {
     AggregateException ae = new AggregateException();
 
     // Stop AM's SubServices
+
     // No need to stop nmClient, since it may be time consuming to stop all Containers, leave it for RM.
+    try {
+      if (stopStatus.getNeedUnregister()) {
+        if (nmClient != null) {
+          LOGGER.logInfo("Trying to perform graceful shutdown and stop all the containers");
+          nmClient.stop();
+        }
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
     // Since here is Best Effort, leave the GC work of zkStore and hdfsStore to LauncherService.
     try {
       if (yarnClient != null) {
@@ -346,6 +364,14 @@ public class ApplicationMaster extends AbstractService {
 
     // Do not unregister to treat it conservatively.
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), false, diagnostics));
+  }
+
+  private void stopForApplicationStopRequest(String customizedDiagnostics) {
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
+        ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED, customizedDiagnostics);
+
+    // Do not unregister to treat it conservatively.
+    stop(new StopStatus(ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED.toInt(), true, diagnostics));
   }
 
   // Principle to setup ContainerRequest for a Task:
@@ -1361,8 +1387,21 @@ public class ApplicationMaster extends AbstractService {
   }
 
   public void onShutdownRequest() {
-    stopForInternalTransientNormalError(
-        "onShutdownRequest called into AM from RM, maybe this Attempt does not exist in RM.");
+    Boolean isApplicationStopped = false;
+    try {
+      isApplicationStopped = statusManager.getFrameworkExecutionType() == ExecutionType.STOP;
+    } catch (Throwable e) {
+      LOGGER.logWarning(e, "Failed to check framework execution type, AM will not unregister");
+    }
+
+    if (isApplicationStopped) {
+      // Application has been stopped by a user
+      stopForApplicationStopRequest("onShutdownRequest received");
+    } else {
+      // Unknown exit for any reason
+      stopForInternalTransientNormalError(
+          "onShutdownRequest called into AM from RM, maybe this Attempt does not exist in RM.");
+    }
   }
 
   public float getProgress() {
