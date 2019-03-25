@@ -31,8 +31,6 @@ const title = 'Platform for AI';
 const version = require('../package.json').version;
 const FABRIC_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
 
-const devMode = process.env.NODE_ENV !== 'production';
-
 function generateHtml(opt) {
   return new HtmlWebpackPlugin(Object.assign({
     title: title,
@@ -124,7 +122,7 @@ const config = (env, argv) => ({
         test: /\.(css|scss)$/,
         include: FABRIC_DIR,
         use: [
-          devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
             options: {
@@ -143,7 +141,7 @@ const config = (env, argv) => ({
         test: /\.(css|scss)$/,
         exclude: FABRIC_DIR,
         use: [
-          devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
             options: {
