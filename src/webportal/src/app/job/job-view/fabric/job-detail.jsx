@@ -139,3 +139,5 @@ class JobDetail extends React.Component {
 }
 
 ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'));
+
+document.getElementById('sidebar-menu--job-view').classList.add('active');
