@@ -24,6 +24,8 @@ const contentWrapper = document.getElementById('content-wrapper');
 
 ReactDOM.render(<JobList />, contentWrapper);
 
+document.getElementById('sidebar-menu--job-view').classList.add('active');
+
 function layout() {
   setTimeout(function() {
     contentWrapper.style.height = contentWrapper.style.minHeight;
