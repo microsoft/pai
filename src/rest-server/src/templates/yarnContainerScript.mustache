@@ -26,31 +26,55 @@ export PAI_DEFAULT_FS_URI={{ hdfsUri }}
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
-# YARN kill container will send SIGTERM(15) and SIGKILL(9)
-function sigterm_handler()
+
+function get_docker_container_id()
 {
-  printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
-  killed_by_yarn=true
-  exit 143
+  {{=<% %>=}}
+  docker inspect --format {{.Id}} $1
+  <%={{ }}=%>
 }
 
+function check_docker_oom_killed()
+{
+  {{=<% %>=}}
+  docker inspect --format {{.State.OOMKilled}} $1
+  <%={{ }}=%>
+}
+
+function check_kernel_oom_killer()
+{
+  container_id="$1"
+  [ -e "$container_id" ] && return 1
+  dmesg | grep -i "kill" | grep "/docker/$container_id"
+}
 
 function exit_handler()
 {
-  rc=$?
-  printf "[DEBUG] Performing clean up action...\n"
+  local rc=$?
+  local finish_time="$(date +'%s')"
+
   if [[ $rc -eq 125 ]]; then
     # We assume 125 is a docker error, and retry it without burning user's retry count
-    printf "[DEBUG] Exit code 125, it may be docker error, convert it to a transient error\n"
+    printf "[DEBUG] Exit code 125, it may be Docker error, convert it to a transient error\n"
     rc=205
   fi
 
-  if [[ ${killed_by_yarn} != true && $rc -eq 143 || $rc -eq 137 ]]; then
-    printf "[DEBUG] Exit code $rc, it may be due to out of memory (OOM) or other critical errors.\n"
-    rc=55
+  printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
+
+  docker stop --time="${PAI_GRACEFUL_EXIT_TIMEOUT:-65}" $docker_name >/dev/null
+
+  # 137, 143 - not handled KILL and TERM signals
+  if [[ "$rc" = "137" || "$rc" = "143" || "$(check_docker_oom_killed $docker_name)" ]]; then
+    if [ "$(check_docker_oom_killed $docker_name)" = "true" ] || \
+         check_kernel_oom_killer $(get_docker_container_id $docker_name) >/dev/null; then
+      echo "[ERROR] One of the container processes has been killed by the OOM killer recently"
+      rc=55 # Some undefined erroneous exit code
+    fi
   fi
 
-  printf "[DEBUG] Write exit code $rc to file /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode.\n"
+  docker logs --since "$finish_time" $docker_name
+  docker rm -f $docker_name >/dev/null
+
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
 
   # After all necessary steps, do a best effort kill here
@@ -239,9 +263,13 @@ echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_P
 
 export $(grep -v '^#' $ENV_LIST | xargs)
 # put it after the 'export', so we won't source it into yarn container.
-# we want job environment parameters to be available only in job contianer.
+# we want job environment parameters to be available only in job contianer
+# PAI defaults can be overridden this way.
 {{# jobEnvs }}
 PAI_TEMP={{ key }}={{ value }} && echo $PAI_TEMP >> $ENV_LIST
+if [ "{{ key }}" = "PAI_GRACEFUL_EXIT_TIMEOUT" ]; then
+  PAI_GRACEFUL_EXIT_TIMEOUT="{{ value }}"
+fi
 {{/ jobEnvs }}
 
 # Prepare docker bootstrap script
@@ -264,7 +292,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
       || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
   elif [ $code_dir_size -eq 0]; then
     # pass when code_dir_size is 0
-    : 
+    :
   elif [ $code_dir_size -lt 0 ]; then
     echo "$PAI_CODE_DIR is less than 0MB, exit."
     exit 1
@@ -299,6 +327,7 @@ docker pull {{ jobData.image }} \
 ## network consumption
 docker run --name $docker_name \
   --init \
+  --detach \
   --tty \
   --rm \
   --runtime=runc \
@@ -347,3 +376,6 @@ docker run --name $docker_name \
   --user "root" \
    {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
+
+docker attach --no-stdin $docker_name
+
