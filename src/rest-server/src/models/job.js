@@ -119,7 +119,7 @@ class Job {
             //    and cannot get required resource to run.
             // 3. unKnownRetriedCount
             //    Usually caused by user's code.
-            const systemRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
+            const platformRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
             const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
             const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
             const job = {
@@ -128,10 +128,10 @@ class Job {
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
               executionType: frameworkInfo.executionType,
-              retries: systemRetries + resourceRetries + userRetries,
+              retries: platformRetries + resourceRetries + userRetries,
               retryDetails: {
                 user: userRetries,
-                system: systemRetries,
+                platform: platformRetries,
                 resource: resourceRetries,
               },
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
@@ -368,7 +368,7 @@ class Job {
         frameworkStatus.applicationExitCode,
       );
 
-      const systemRetries = frameworkStatus.frameworkRetryPolicyState.transientNormalRetriedCount;
+      const platformRetries = frameworkStatus.frameworkRetryPolicyState.transientNormalRetriedCount;
       const resourceRetries = frameworkStatus.frameworkRetryPolicyState.transientConflictRetriedCount;
       const userRetries = frameworkStatus.frameworkRetryPolicyState.unKnownRetriedCount;
       jobDetail.jobStatus = {
@@ -377,10 +377,10 @@ class Job {
         state: jobState,
         subState: frameworkStatus.frameworkState,
         executionType: framework.summarizedFrameworkInfo.executionType,
-        retries: systemRetries + resourceRetries + userRetries,
+        retries: platformRetries + resourceRetries + userRetries,
         retryDetails: {
           user: userRetries,
-          system: systemRetries,
+          platform: platformRetries,
           resource: resourceRetries,
         },
         createdTime: frameworkStatus.frameworkCreatedTimestamp,

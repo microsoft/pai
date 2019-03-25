@@ -445,8 +445,8 @@ Status: 200
     retryDetails: {
       // Job failed due to user or unknown error
       user: userRetries,
-      // Job failed due to system/plaform error
-      system: systemRetries,
+      // Job failed due to platform error
+      platform: platformRetries,
       // Job cannot get required resource to run within timeout
       resource: resourceRetries,
     },
