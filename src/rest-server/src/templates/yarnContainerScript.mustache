@@ -344,5 +344,6 @@ docker run --name $docker_name \
   --env NVIDIA_VISIBLE_DEVICES=void \
   --env-file $ENV_LIST \
   --entrypoint="" \
+  --user "root" \
    {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'

@@ -180,6 +180,63 @@ azure_rdma_preparation
 {{/ azRDMA }}
 {{/ reqAzRDMA }}
 
+function set_up_user()
+{
+  PAI_CONTAINER_USER_NAME="${PAI_CONTAINER_USER_NAME:-$PAI_USER_NAME}"
+  PAI_CONTAINER_USER_NAME="${PAI_CONTAINER_USER_NAME:-root}" # fallback
+  PAI_CONTAINER_USER_UID="${PAI_CONTAINER_USER_UID:-$PAI_USER_UID}"
+  PAI_CONTAINER_USER_GID="${PAI_CONTAINER_USER_GID:-$PAI_USER_GID}"
+  PAI_CONTAINER_USER_GROUPS="${PAI_CONTAINER_USER_GROUPS:-$PAI_USER_GROUPS}"
+
+  if [[ "${PAI_CONTAINER_USER_NAME}" = "root" ]]; then
+    printf "%s %s\n" \
+      "[INFO]" "Running as user '${PAI_CONTAINER_USER_NAME}'"
+    return
+  fi
+
+  if [[ -n "${PAI_CONTAINER_USER_NAME}" ]]; then
+    for gid in ${PAI_CONTAINER_USER_GID} ${PAI_CONTAINER_USER_GROUPS}; do
+      groupadd -g "${gid}" "${gid}"
+    done
+
+    if [[ -n "${PAI_CONTAINER_USER_UID}" ]]; then
+      local userid="-u ${PAI_CONTAINER_USER_UID}"
+    fi
+    if [[ -n "${PAI_CONTAINER_USER_GID}" ]]; then
+      local usergid="-g ${PAI_CONTAINER_USER_GID}"
+    fi
+    if [[ -n "${PAI_CONTAINER_USER_GROUPS}" ]]; then
+      local usergroups="-G $(echo "${PAI_CONTAINER_USER_GROUPS}" | sed "s@ @,@g" -)"
+    fi
+
+    # avoid Docker sparse files problem: https://github.com/moby/moby/issues/5419
+    useradd $userid $usergid $usergroups \
+      --create-home --home-dir "/home/${PAI_CONTAINER_USER_NAME}" \
+      --no-log-init \
+      --shell /bin/bash --password "" \
+      "${PAI_CONTAINER_USER_NAME}"
+    if [[ "$?" -ne "0" ]]; then
+      printf "%s %s\n" \
+        "[ERROR]" "Failed to create the requested user"
+      return
+    fi
+
+    # Enable passwordless login via SSH
+    cp -r /root/.ssh /home/${PAI_CONTAINER_USER_NAME}/
+
+    # Enable sudo invocation if possible
+    if sudo -V >/dev/null 2>&1; then
+      echo "${PAI_CONTAINER_USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    else
+      printf "%s %s\n" \
+        "[WARNING]" "Failed to find sudo, root access will be unavailable"
+    fi
+  fi
+}
+
+set_up_user
+
+
 function write_user_command()
 {
   PAI_USER_COMMAND_DIR="/pai/taskData"
@@ -206,7 +263,7 @@ function write_user_command()
 function run_user_command()
 {
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
-  exec "${PAI_USER_COMMAND_PATH}" || exit $?
+  su "${PAI_CONTAINER_USER_NAME}" "${PAI_USER_COMMAND_PATH}" || exit $?
   printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END" # job_exporter relay on this exact output, if you are going to change this, remember to change job_exporter also
   exit 0
 }
