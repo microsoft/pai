@@ -27,9 +27,9 @@
 ### Service ###
 
 * Webportal: 
-    - New job list page:
+    - New job list page look and feel. [#302](https://github.com/Microsoft/pai/pull/302)
 ![](./docs/release_note/images/job_list.png)   
-    - New job detail page: 
+    - New job detail page: [#2211](https://github.com/Microsoft/pai/pull/2211)
 ![](./docs/release_note/images/job_detail.png)
 
 * Alert-manager: 
