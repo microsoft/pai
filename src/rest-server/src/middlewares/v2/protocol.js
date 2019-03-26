@@ -134,19 +134,16 @@ const protocolRender = (protocolObj) => {
 const protocolWrapMiddleware = (req, res, next) => {
   const protocolYAML = req.body;
   req.rawBody = protocolYAML;
-  req.body = {
-    protocol: protocolYAML,
-  };
   next();
 };
 
 const protocolSubmitMiddleware = [
   (req, res, next) => {
-    req.body.protocol = protocolValidate(req.body.protocol);
+    req.body = protocolValidate(req.body);
     next();
   },
   (req, res, next) => {
-    req.body.protocol = protocolRender(req.body.protocol);
+    req.body = protocolRender(req.body);
     next();
   },
 ];
