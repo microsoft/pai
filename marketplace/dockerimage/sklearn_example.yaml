@@ -1,8 +1,0 @@
-protocolVersion: 2
-name: sklearn_example
-type: dockerimage
-version: 1.0
-contributor : OpenPAI
-description: |
-  This is an [example scikit-learn Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/scikit-learn).
-uri : openpai/pai.example.sklearn
