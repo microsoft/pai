@@ -3,19 +3,24 @@
 ## New Features ##
 
 * Support team wise NFS storage, including:
-    * A NFS configuration plug-in and a commandline operation tools [#2346](https://github.com/Microsoft/pai/pull/2346)
-    * A simple NFS-job submit plug-in [#2358](https://github.com/Microsoft/pai/pull/2358)
-* New alerts for unhealthy GPUs, now admin could receive following gpu alerts [#2209](https://github.com/Microsoft/pai/pull/2209): 
+    - A NFS configuration plug-in and a commandline tool. [#2346](https://github.com/Microsoft/pai/pull/2346)
+    - A simple NFS-job submit plug-in. [#2358](https://github.com/Microsoft/pai/pull/2358)
+    
+* New alerts for unhealthy GPUs, currently including following alerts [#2209](https://github.com/Microsoft/pai/pull/2209): 
     - gpu used by zombie container
     - gpu used by external process
     - gpu ecc error
     - gpu hangs
     - gpu memory leak
   
-* Admin could know all running jobs in a node. [#2197](https://github.com/Microsoft/pai/pull/2197)
+* Admin could know all running jobs on a node. [#2197](https://github.com/Microsoft/pai/pull/2197)
+
 ![](./docs/release_note/images/node_tasks.png)
+
 * User could filter jobs with more accurate labels.
+
 ![](./docs/release_note/images/filter.png)
+
 * Basic supports for debugging, user could reserve environments after job completion. [#2272](https://github.com/Microsoft/pai/pull/2272)
 
 
@@ -26,9 +31,13 @@
 ### Service ###
 
 * Webportal: 
-New job list page:
+
+    - New job list page:
+
 ![](./docs/release_note/images/job_list.png)
-New job detail page: 
+    
+    - New job detail page: 
+
 ![](./docs/release_note/images/job_detail.png)
 
 * Alert-manager: 
@@ -52,7 +61,7 @@ Support samba shares in container. [#2318](https://github.com/Microsoft/pai/pull
 
 ### Others ###
 
-* Operation tools:
+* Operations:
 Add a commandline tool to query unhealthy gpu information from prometheus. [#2319](https://github.com/Microsoft/pai/pull/2365)
 
 ## Notable fixes ##
