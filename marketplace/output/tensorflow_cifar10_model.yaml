@@ -1,8 +1,0 @@
-protocolVersion: 2
-name: tensorflow_cifar10_model
-type: output
-version: 1.0
-contributor: OpenPAI
-description: |
-  Output directory for CIFAR10 training on HDFS, contains pre-trained models.
-uri: hdfs://192.168.0.1:9000/core/cifar10_model

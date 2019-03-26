@@ -1,7 +1,7 @@
 protocol_version : v2
-name : caffe_example
+name : cntk
 type : dockerimage
 version : 1.0.0
 contributor : Yanli
-description: caffe
-uri : openpai/pai.example.caffe
+description: cntk
+uri : openpai/pai.example.cntk
