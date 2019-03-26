@@ -38,7 +38,7 @@
 Increase node memory and CPU threshold to reduce false alerts. [#2345](https://github.com/Microsoft/pai/pull/2345), [#2296](https://github.com/Microsoft/pai/pull/2296)
 
 * Hadoop:
-Persistent service log to host. [#2244](https://github.com/Microsoft/pai/pull/2244)
+Persist yarn and hdfs service log to host. [#2244](https://github.com/Microsoft/pai/pull/2244)
 
 * Runtime:
 Support samba shares in container. [#2318](https://github.com/Microsoft/pai/pull/2318)
