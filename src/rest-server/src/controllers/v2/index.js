@@ -16,8 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+// module dependencies
+const status = require('statuses');
+
 const index = (req, res) => {
-  return res.send('<pre>PAI RESTful API v2 (beta version)</pre>');
+  return res.status(status('OK')).send(
+    '<pre>PAI RESTful API v2 (beta version)</pre>'
+  );
 };
 
 // module exports

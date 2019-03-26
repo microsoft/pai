@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const status = require('statuses');
 const asyncHandler = require('../../middlewares/v2/asyncHandler');
 const Job = require('../../models/v2/job');
 
@@ -26,7 +27,8 @@ const update = asyncHandler(async (req, res) => {
   const userName = req.user.username;
   const job = new Job(jobName, userName);
   await job.put(req.protocol, req.body);
-  res.status(202).json({
+  res.status(status('Accepted')).json({
+    status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
   });
 });
