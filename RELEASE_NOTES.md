@@ -19,9 +19,7 @@
 * Filter supports in Job List View. [#302](https://github.com/Microsoft/pai/pull/302)
     ![](./docs/release_note/images/filter.png)
 
-* Basic supports for debugging, user could reserve environments after job completion. [#2272](https://github.com/Microsoft/pai/pull/2272)
-
-
+* Hold the Env for failed jobs which are casued by user error. [#2272](https://github.com/Microsoft/pai/pull/2272)
 
 
 ## Improvements ##
