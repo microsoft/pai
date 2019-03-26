@@ -36,7 +36,7 @@ class Layout:
         # validate unique hostname
         host_list = [host["hostname"] for host in self.layout_configuration["machine-list"]]
         duplicate_host_list = set([host for host in host_list if host_list.count(host) > 1])
-        if not duplicate_host_list:
+        if duplicate_host_list:
             return False, "duplicate hostname [{}] in kubernetes-configuration".format(", ".join(duplicate_host_list))
 
         return True, None
