@@ -32,6 +32,15 @@ class Layout:
 
     def validation_pre(self):
         # TODO
+
+        # validate unique hostname
+        host_list = []
+        for role in ["master", "worker", "proxy"]:
+            host_list += self.layout_configuration["kubernetes"]["{}-list".format(role)]
+        duplicate_host_list = set([host for host in host_list if host_list.count(host) > 1])
+        if not duplicate_host_list:
+            return False, "duplicate hostname [{}] in kubernetes-configuration".format(", ".join(duplicate_host_list))
+
         return True, None
 
 
