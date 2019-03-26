@@ -17,7 +17,6 @@
 
 
 // module dependencies
-const util = require('util');
 const yaml = require('js-yaml');
 const mustache = require('mustache');
 const createError = require('../../util/error');
@@ -157,7 +156,7 @@ module.exports = {
   validate: protocolValidate,
   render: protocolRender,
   middlewares: {
-    wrap: util.promisify(protocolWrapMiddleware),
-    submit: protocolSubmitMiddleware.map((fn) => util.promisify(fn)),
+    wrap: protocolWrapMiddleware,
+    submit: protocolSubmitMiddleware,
   },
 };

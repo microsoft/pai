@@ -16,22 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const asyncHandler = require('../../middlewares/v2/asyncHandler');
-const Job = require('../../models/v2/job');
-
-
-const update = asyncHandler(async (req, res) => {
-  const jobName = req.body.protocol.name;
-  const userName = req.user.username;
-  const job = new Job(jobName, userName);
-  await job.put(req.body.protocol, req.rawBody);
-  res.status(202).json({
-    message: `Update job ${jobName} for user ${userName} successfully.`,
-  });
-});
+const asyncHandler = (middleware) => {
+  return (req, res, next) => {
+    Promise
+      .resolve(middleware(req, res, next))
+      .catch(next);
+  };
+};
 
 // module exports
-module.exports = {
-  update,
-};
+module.exports = asyncHandler;
