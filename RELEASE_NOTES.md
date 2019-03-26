@@ -14,12 +14,10 @@
     - gpu memory leak
   
 * Admin could know all running jobs on a node. [#2197](https://github.com/Microsoft/pai/pull/2197)
-
-![](./docs/release_note/images/node_tasks.png)
+    ![](./docs/release_note/images/node_tasks.png)
 
 * Users could filter jobs with more accurate labels.
-
-![](./docs/release_note/images/filter.png)
+    ![](./docs/release_note/images/filter.png)
 
 * Basic supports for debugging, user could reserve environments after job completion. [#2272](https://github.com/Microsoft/pai/pull/2272)
 
