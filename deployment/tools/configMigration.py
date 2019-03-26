@@ -17,10 +17,10 @@ print("Input directory: {}".format(input_dir))
 print("Output directory: {}".format(output_dir))
 
 # generate layout.yaml
-print("Migrating layout.yaml...")
 old_cluster_config_file = os.path.join(input_dir, "cluster-configuration.yaml")
 if os.path.isfile(old_cluster_config_file):
     # Configuration before v0.9
+    print("Migrating layout.yaml...")
     old_cluster_config = yaml.load(open(old_cluster_config_file))
     default_properties = old_cluster_config["default-machine-properties"]
     layout = {"machine-list": []}
