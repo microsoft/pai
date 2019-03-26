@@ -16,7 +16,7 @@
 * Admin could know all running jobs on a node. [#2197](https://github.com/Microsoft/pai/pull/2197)
     ![](./docs/release_note/images/node_tasks.png)
 
-* Filter supports in Job List View. 
+* Filter supports in Job List View. [#302](https://github.com/Microsoft/pai/pull/302)
     ![](./docs/release_note/images/filter.png)
 
 * Basic supports for debugging, user could reserve environments after job completion. [#2272](https://github.com/Microsoft/pai/pull/2272)
