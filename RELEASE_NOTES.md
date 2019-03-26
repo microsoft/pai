@@ -17,7 +17,7 @@
 
 ![](./docs/release_note/images/node_tasks.png)
 
-* User could filter jobs with more accurate labels.
+* Users could filter jobs with more accurate labels.
 
 ![](./docs/release_note/images/filter.png)
 
@@ -31,13 +31,9 @@
 ### Service ###
 
 * Webportal: 
-
     - New job list page:
-
-![](./docs/release_note/images/job_list.png)
-    
+![](./docs/release_note/images/job_list.png)   
     - New job detail page: 
-
 ![](./docs/release_note/images/job_detail.png)
 
 * Alert-manager: 
