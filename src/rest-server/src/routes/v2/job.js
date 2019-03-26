@@ -20,7 +20,7 @@
 const express = require('express');
 const token = require('../../middlewares/token');
 const controller = require('../../controllers/v2/job');
-const protocol = require('../../middlewares/v2/protocol').middlewares;
+const protocol = require('../../middlewares/v2/protocol');
 
 
 const router = new express.Router();
@@ -28,10 +28,10 @@ const router = new express.Router();
 router.route('/')
   /** POST /api/v2/jobs - Update job */
   .post(
-    protocol.wrap,
     token.check,
     protocol.submit,
-    controller.update);
+    controller.update
+  );
 
 // module exports
 module.exports = router;
