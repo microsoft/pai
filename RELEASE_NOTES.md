@@ -1,6 +1,6 @@
-# Release v0.11.0 #
+# Release v0.11.0 
 
-## New Features ##
+## New Features 
 
 * Support team wise NFS storage, including:
     - An NFS configuration plug-in and a commandline tool. [#2346](https://github.com/Microsoft/pai/pull/2346)
@@ -22,9 +22,9 @@
 * Hold the Env for failed jobs which are casued by user error. [#2272](https://github.com/Microsoft/pai/pull/2272)
 
 
-## Improvements ##
+## Improvements 
 
-### Service ###
+### Service 
 
 * Webportal: 
     - New job list page look and feel. [#302](https://github.com/Microsoft/pai/pull/302)
@@ -42,21 +42,21 @@ Persist yarn and hdfs service log to host. [#2244](https://github.com/Microsoft/
 Support samba shares in container. [#2318](https://github.com/Microsoft/pai/pull/2318)
 
 
-### Documentation ###
+### Documentation 
 
 * Add troubleshooting guide for jobs. [#2305](https://github.com/Microsoft/pai/pull/2305)
 * Refine document for new user to submit job. [#2278](https://github.com/Microsoft/pai/pull/2278)
 
-### Examples ###
+### Examples 
 
 * Remove TensorFlow mpi example which cannot be run currently. [#2337](https://github.com/Microsoft/pai/pull/2337)
 
-### Others ###
+### Others 
 
 * Operations:
 Add a commandline tool to query unhealthy gpu information from prometheus. [#2319](https://github.com/Microsoft/pai/pull/2365)
 
-## Notable fixes ##
+## Notable fixes 
 
 * Hadoop: Scheduler may get stuck in a indefinite loop. [#2365](https://github.com/Microsoft/pai/pull/2365)
 * Hadoop: Sometimes, hadoop-ai can't detect ecc error. [#2343](https://github.com/Microsoft/pai/pull/2343)
@@ -64,6 +64,6 @@ Add a commandline tool to query unhealthy gpu information from prometheus. [#231
 * Runtime: Jobs might get a free retry when using exceed memory. [#1108](https://github.com/Microsoft/pai/pull/1108)
 * Drivers: Fix IB installation bugs. [#2278](https://github.com/Microsoft/pai/pull/2278), [#2271](https://github.com/Microsoft/pai/pull/2271), [#2269](https://github.com/Microsoft/pai/pull/2269)
 
-## Upgrading from Earlier Release ##
+## Upgrading from Earlier Release 
 
 Please follow the [Upgrading to v0.11](./docs/upgrade/upgrade_to_v0.11.md) for detailed instructions.
