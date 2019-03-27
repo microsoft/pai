@@ -122,6 +122,15 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.virtualClusters.size > 0,
   });
+  const retriesColumn = applySortProps({
+    key: 'retries',
+    minWidth: 60,
+    name: 'Retries',
+    fieldName: 'retries',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+  });
   const statusColumn = applySortProps({
     key: 'status',
     minWidth: 100,
@@ -213,6 +222,7 @@ export default function Table() {
     userColumn,
     durationColumn,
     virtualClusterColumn,
+    retriesColumn,
     statusColumn,
     actionsColumn,
   ];
