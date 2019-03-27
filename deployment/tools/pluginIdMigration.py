@@ -30,8 +30,7 @@ if "webportal" in services_config and "plugins" in services_config["webportal"]:
         if "id" not in plugin:
             plugin["id"] = slugify(plugin["title"])
 else:
-    print "No webportal plugins to convert, exit..."
-    sys.exit(-1)
+    print "No webportal plugins to convert"
 
 
 # write out the file
