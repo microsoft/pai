@@ -190,6 +190,7 @@ const config = (env, argv) => ({
     }),
     new CopyWebpackPlugin([
       {from: 'src/assets', to: 'assets'},
+      {from: 'src/assets/img/favicon.ico', to: 'favicon.ico'},
     ]),
     new MiniCssExtractPlugin({
       filename: 'styles/[name].bundle.css',
@@ -286,6 +287,7 @@ const config = (env, argv) => ({
   ],
   devServer: {
     contentBase: path.resolve(__dirname, '..', 'dist'),
+    port: 9286,
   },
   optimization: {
     minimizer: [
