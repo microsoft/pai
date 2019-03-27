@@ -29,7 +29,7 @@ import t from '../../tachyons.css';
 
 import MonacoPanel from './monaco-panel';
 import Timer from './timer';
-import {getContainerLog} from '../conn';
+import {getContainerLog, getFullLogLink} from '../conn';
 import {parseGpuAttr} from '../util';
 
 const theme = createTheme({
@@ -69,7 +69,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      logType: '',
+      fullLogUrl: null,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -80,8 +80,8 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const {logUrl, logType} = this.state;
-    void getContainerLog(logUrl, logType).then((res) => {
+    const {logUrl} = this.state;
+    void getContainerLog(logUrl).then((res) => {
       const {logUrl: currentLogUrl} = this.state;
       if (logUrl === currentLogUrl) {
         this.setState({monacoProps: {value: res}});
@@ -100,23 +100,27 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      type: '',
     });
   }
 
-  showContainerLog(logUrl, logType, title) {
-    this.setState({
-      monacoProps: {value: 'Loading...'},
-      monacoTitle: title,
+  showContainerLog(logUrl, title) {
+    // get full log link
+    getFullLogLink(logUrl).then((res) => logUrl === this.state.logUrl && this.setState({
+      fullLogUrl: res,
       monacoFooterButton: (
         <PrimaryButton
           text='View Full Log'
           target='_blank'
-          href={`${logUrl}${logType}`}
+          href={res}
         />
       ),
+    }));
+
+    // show monaco editor
+    this.setState({
+      monacoProps: {value: 'Loading...'},
+      monacoTitle: title,
       logUrl,
-      logType,
     }, () => {
       this.logAutoRefresh(); // start immediately
     });
@@ -275,7 +279,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'TextDocument'}}
               text='Stdout'
-              onClick={() => this.showContainerLog(item.containerLog, 'stdout', 'Standard Output (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}stdout`, 'Standard Output (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
@@ -286,7 +290,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'Error'}}
               text='Stderr'
-              onClick={() => this.showContainerLog(item.containerLog, 'stderr', 'Standard Error (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}stderr`, 'Standard Error (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
