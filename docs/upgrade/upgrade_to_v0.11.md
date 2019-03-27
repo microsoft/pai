@@ -37,6 +37,10 @@ sudo docker run -itd \
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
 cd /pai
+
+# setup kubernetes environments
+./paictl.py cluster k8s-set-env
+# then input master node ip
 ```
 
 ### Check PAI cluster version
@@ -113,7 +117,7 @@ Now please login onto the master node, and backup the data for ETCD, Zookeeper a
 Below is a list of directories should take care (please backup them):
 
 1. PAI common data path, check the `service-configuration.yaml`, there is a config `cluster.common.data-path`. Please don't change it unless you know excatly what you are doing.
-2. Etcd data path, check the `kubernetes-configuration.yaml.yaml`, there is a config `kubernetes.ectd-data-path`.
+2. Etcd data path, check the `kubernetes-configuration.yaml`, there is a config `kubernetes.ectd-data-path`.
 
 ## Destroy Kubernetes Cluster
 
