@@ -36,11 +36,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// setup favicon
-app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
-
 // setup the logger for requests
 app.use(morgan('dev', {'stream': logger.stream}));
+
+// setup favicon
+app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
 
 // setup the root path
 app.use(express.static(path.join(appRoot.path, 'dist')));
