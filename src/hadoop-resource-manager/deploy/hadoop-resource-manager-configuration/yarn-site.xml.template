@@ -298,11 +298,5 @@
     <name>yarn.nodemanager.sleep-delay-before-sigkill.ms</name>
     <value>65000</value>
   </property>
-
-  <property>
-    <name>yarn.nodemanager.process-kill-wait.ms</name>
-    <value>60000</value>
-  </property>
-
 </configuration>
 
