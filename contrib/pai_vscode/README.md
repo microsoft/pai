@@ -41,6 +41,18 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 
 ![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
+## Sidebar
+HDFS Explorer and Job List view will be shown in the extension's view container (sidebar).
+
+### HDFS Explorer
+1. Connected to a PAI cluster's hdfs by double click the corresponding tree node.
+2. The cluster's directory structure will be shown in the tree view. Right click the folder/file node and perform selected file system operations.
+
+### Job List
+PAI cluster's latest jobs and jobs recently submitted by this extension will be shown in the job list tree view.
+
+- The job list will be auto refreshed every 10 seconds by default. 
+- You can double click job's node to open PAI's job detail page in external browser.
 
 ## Commands
 ### Command Pallete
@@ -61,7 +73,7 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 |Submit Job...|Submit job to selected cluster|
 |Simulate Job Running...|Generate Dockerfile to simulate PAI job running|
 |Edit Configuration...|Edit cluster configuration|
-|Open HDFS...|Open selected cluster's HDFS as a VS Code workspace folder|
+|Open HDFS...|Open HDFS explorer of selected cluster|
 
 ## Settings
 |ID|Description|
@@ -70,6 +82,10 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 |pai.job.upload.exclude|Glob pattern for excluding files and folders|
 |pai.job.upload.include|Glob pattern for including files and folders|
 |pai.job.generateJobName.enabled|Controls whether the extension will add a random suffix to your job name when submitting job|
+|pai.job.jobList.recentJobsLength|Controls the number of recently submitted jobs to keep in history for each PAI cluster|
+|pai.job.jobList.allJobsPageSize|Controls the page size of list when listing jobs for each PAI cluster|
+|pai.job.jobList.refreshInterval|Controls the refresh interval of job list (in seconds)|
+|pai.hdfs.location|Location where hdfs explorer will be shown|
 
 ## Requirements
 PAI Cluster Version >= 0.8.0
