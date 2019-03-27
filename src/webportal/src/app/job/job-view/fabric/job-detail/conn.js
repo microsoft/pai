@@ -152,7 +152,11 @@ export async function stopJob() {
   }
 }
 
-export async function getFullLogLink(logUrl) {
+export async function getContainerLog(logUrl) {
+  const ret = {
+    fullLogLink: logUrl,
+    text: null,
+  };
   const res = await fetch(logUrl);
   const text = await res.text();
   if (!res.ok) {
@@ -163,34 +167,15 @@ export async function getFullLogLink(logUrl) {
     const doc = parser.parseFromString(text, 'text/html');
     const content = doc.getElementsByClassName('content')[0];
     const pre = content.getElementsByTagName('pre')[0];
+    ret.text = pre.innerText;
+    // fetch full log link
     if (pre.previousElementSibling) {
       const link = pre.previousElementSibling.getElementsByTagName('a');
       if (link.length === 1) {
-        return link[0].href;
+        ret.fullLogLink = link[0].href;
       }
     }
-
-    return logUrl;
-  } catch (e) {
-    throw new Error(`Log not available`);
-  }
-}
-
-export async function getContainerLog(logUrl, fullLog = false) {
-  if (fullLog) {
-    logUrl = await getFullLogLink(logUrl);
-  }
-  const res = await fetch(logUrl);
-  const text = await res.text();
-  if (!res.ok) {
-    throw new Error(res.statusText);
-  }
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const content = doc.getElementsByClassName('content')[0];
-    const pre = content.getElementsByTagName('pre')[0];
-    return pre.innerText;
+    return ret;
   } catch (e) {
     throw new Error(`Log not available`);
   }

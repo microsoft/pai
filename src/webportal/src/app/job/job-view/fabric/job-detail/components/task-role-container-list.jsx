@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, FontClassNames} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
@@ -29,7 +29,7 @@ import t from '../../tachyons.css';
 
 import MonacoPanel from './monaco-panel';
 import Timer from './timer';
-import {getContainerLog, getFullLogLink} from '../conn';
+import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
 
 const theme = createTheme({
@@ -80,23 +80,22 @@ export default class TaskRoleContainerList extends React.Component {
 
   logAutoRefresh() {
     const {logUrl} = this.state;
-    void getContainerLog(logUrl).then((res) => this.setState(
-      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: res}}
-    )).catch((err) => this.setState(
-      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: err.message}}
-    ));
-    void getFullLogLink(logUrl).then((res) => this.setState(
+    void getContainerLog(logUrl).then(({text, fullLogLink}) => this.setState(
       (prevState) => prevState.logUrl === logUrl && {
+        monacoProps: {value: text},
         monacoFooterButton: (
           <PrimaryButton
             text='View Full Log'
             target='_blank'
-            href={res}
+            styles={{
+              rootFocused: [ColorClassNames.white],
+            }}
+            href={fullLogLink}
           />
         ),
       }
     )).catch((err) => this.setState(
-      (prevState) => prevState.logUrl === logUrl && {monacoFooterButton: null}
+      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: err.message}}
     ));
   }
 
