@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import classNames from 'classnames';
-import {isEmpty, isNil} from 'lodash';
+import {isEmpty} from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {initializeIcons} from '@uifabric/icons';
@@ -97,10 +97,10 @@ class JobDetail extends React.Component {
           taskInfo={jobInfo.taskRoles[key]}
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
-          taskConfig={jobConfig && jobConfig.taskRoles.find((x) => x.name === key)}
+          taskConfig={jobConfig && jobConfig.taskRoles && jobConfig.taskRoles.find((x) => x.name === key)}
         />
       ));
-    } else if (!isNil(jobConfig)) {
+    } else if (jobConfig && jobConfig.taskRoles) {
       return jobConfig.taskRoles.map((config) => (
         <TaskRole
           key={config.name}

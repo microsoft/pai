@@ -18,7 +18,7 @@
 import {ThemeProvider} from '@uifabric/foundation';
 import {createTheme, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
-import {isNil} from 'lodash';
+import {isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
@@ -69,7 +69,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      type: '',
+      logType: '',
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -80,8 +80,8 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const {logUrl, type} = this.state;
-    void getContainerLog(logUrl, type).then((res) => {
+    const {logUrl, logType} = this.state;
+    void getContainerLog(logUrl, logType).then((res) => {
       const {logUrl: currentLogUrl} = this.state;
       if (logUrl === currentLogUrl) {
         this.setState({monacoProps: {value: res}});
@@ -104,7 +104,7 @@ export default class TaskRoleContainerList extends React.Component {
     });
   }
 
-  showContainerLog(logUrl, type, title) {
+  showContainerLog(logUrl, logType, title) {
     this.setState({
       monacoProps: {value: 'Loading...'},
       monacoTitle: title,
@@ -112,11 +112,11 @@ export default class TaskRoleContainerList extends React.Component {
         <PrimaryButton
           text='View Full Log'
           target='_blank'
-          href={`${logUrl}${type}`}
+          href={`${logUrl}${logType}`}
         />
       ),
       logUrl,
-      type,
+      logType,
     }, () => {
       this.logAutoRefresh(); // start immediately
     });
@@ -138,7 +138,7 @@ export default class TaskRoleContainerList extends React.Component {
       res.push('# Step 3: Set correct permission for the key file:');
       res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
       res.push('# Step 4: Connect to the container:');
-      res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} ${containerSshInfo.sshIp}`);
+      res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
       res.push('');
       this.setState({
         monacoProps: {
@@ -334,7 +334,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   render() {
-    const {monacoTitle, monacoProps, monacoFooterButton} = this.state;
+    const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
     const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
     return (
@@ -350,7 +350,7 @@ export default class TaskRoleContainerList extends React.Component {
           />
         </ThemeProvider>
         {/* Timer */}
-        <Timer interval={isNil(monacoProps) ? null : interval} func={this.logAutoRefresh} />
+        <Timer interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval} func={this.logAutoRefresh} />
         {/* Monaco Editor Panel */}
         <MonacoPanel
           isOpen={!isNil(monacoProps)}
