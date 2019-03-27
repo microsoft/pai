@@ -27,6 +27,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -79,11 +80,15 @@ Usage:
 
 `./deployment/tools/configMigration.py path_to_backup_your_config path_to_output_new_style_config`
 
-Then you could customzie the generate config under the directory `path_to_output_new_style_config` per need.
+Then you could customize the generate config under the directory `path_to_output_new_style_config` per need.
 
-### Validata Cluster Configuration
+If you are using webportal plug-in before v0.11 (confirmed that if `webportal.plugins` in `services-configuration.yaml`), 
+you need to run an extra script after above command:  
+`./deployment/tools/pluginIdMigration.py path_to_output_new_style_config path_to_output_new_style_config`
 
-PAI provide an `check` command for validatng configuration, usage as below:
+### Validate Cluster Configuration
+
+PAI provide an `check` command for validating configuration, usage as below:
 
 `./paictl.py check -p path_to_output_new_style_config`
 
