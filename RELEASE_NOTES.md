@@ -3,7 +3,7 @@
 ## New Features ##
 
 * Support team wise NFS storage, including:
-    - A NFS configuration plug-in and a commandline tool. [#2346](https://github.com/Microsoft/pai/pull/2346)
+    - An NFS configuration plug-in and a commandline tool. [#2346](https://github.com/Microsoft/pai/pull/2346)
     - A simple NFS-job submit plug-in. [#2358](https://github.com/Microsoft/pai/pull/2358)
     
 * New alerts for unhealthy GPUs, currently including following alerts [#2209](https://github.com/Microsoft/pai/pull/2209): 
