@@ -55,3 +55,9 @@ groups:
         for: 5m
         annotations:
           summary: "{{$labels.instance}} is not ready"
+
+      - alert: AzureAgentConsumeTooMuchMem
+        expr: process_mem_usage_byte{cmd=~".*om[is]agent.*"} > 1073741824 # 1G
+        for: 5m
+        annotations:
+          summary: "{{$labels.cmd}} with pid {{$labels.pid}} in {{$labels.instance}} consume more than 1G of memory"
