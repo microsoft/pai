@@ -795,12 +795,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return outstandingTaskAppearedRound;
   }
 
-  public synchronized ExecutionType getFrameworkExecutionType() throws Exception {
-    final FrameworkRequest frameworkRequest =
-        zkStore.getFrameworkRequest(conf.getFrameworkName());
-    return frameworkRequest.getFrameworkDescriptor().getExecutionType();
-  }
-
   /**
    * REGION ModifyInterface
    * Note to avoid update partially modified Status on ZK

@@ -303,7 +303,6 @@ public class Service extends AbstractService {
 
     // SetupEntryPoint
     Vector<CharSequence> vargs = new Vector<>(30);
-    vargs.add("trap ' ' TERM;"); // prevents intermediate "bash -c" interpreter from immediate exit after receiving TERM signal
     vargs.add(ApplicationConstants.Environment.JAVA_HOME.$$() + "/bin/java");
     vargs.add("-D" + GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR + "=" + GlobalConstants.REF_ENV_VAR_LAUNCHER_LOG_DIR);
     vargs.add("-Xmx" + amResource.getMemory() + "m");
