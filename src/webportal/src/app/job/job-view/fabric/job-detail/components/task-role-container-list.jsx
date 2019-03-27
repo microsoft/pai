@@ -69,7 +69,6 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      fullLogUrl: null,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -81,17 +80,24 @@ export default class TaskRoleContainerList extends React.Component {
 
   logAutoRefresh() {
     const {logUrl} = this.state;
-    void getContainerLog(logUrl).then((res) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: res}});
+    void getContainerLog(logUrl).then((res) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: res}}
+    )).catch((err) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: err.message}}
+    ));
+    void getFullLogLink(logUrl).then((res) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {
+        monacoFooterButton: (
+          <PrimaryButton
+            text='View Full Log'
+            target='_blank'
+            href={res}
+          />
+        ),
       }
-    }).catch((err) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: err.message}});
-      }
-    });
+    )).catch((err) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {monacoFooterButton: null}
+    ));
   }
 
   onDismiss() {
@@ -104,19 +110,6 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   showContainerLog(logUrl, title) {
-    // get full log link
-    getFullLogLink(logUrl).then((res) => logUrl === this.state.logUrl && this.setState({
-      fullLogUrl: res,
-      monacoFooterButton: (
-        <PrimaryButton
-          text='View Full Log'
-          target='_blank'
-          href={res}
-        />
-      ),
-    }));
-
-    // show monaco editor
     this.setState({
       monacoProps: {value: 'Loading...'},
       monacoTitle: title,
