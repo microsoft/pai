@@ -2,7 +2,7 @@ import {getModified, getDuration, getStatusIndex} from './utils';
 
 export default class Ordering {
   /**
-   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster"| "status" | undefined} field
+   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | undefined} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending=false) {
@@ -36,6 +36,10 @@ export default class Ordering {
       comparator = descending
         ? (a, b) => String(b.virtualCluster).localeCompare(a.virtualCluster)
         : (a, b) => String(a.virtualCluster).localeCompare(b.virtualCluster);
+    } else if (field === 'retries') {
+      comparator = descending
+        ? (a, b) => b.retries - a.retries
+        : (a, b) => a.retries - b.retries;
     } else if (field === 'status') {
       comparator = descending
         ? (a, b) => getStatusIndex(b) - getStatusIndex(a)
