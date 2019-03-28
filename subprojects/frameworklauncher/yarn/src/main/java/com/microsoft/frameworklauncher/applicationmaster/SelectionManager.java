@@ -254,7 +254,7 @@ public class SelectionManager { // THREAD SAFE
     filterNodesByNodeLabel(requestNodeLabel);
     filterNodesByGpuType(configuredNodes, requestNodeGpuType);
     if (!conf.getAmAllowNoneGpuJobOnGpuNode()) {
-      int jobTotalRequestGpu = requestManager.getTotalGpuCount();
+      int jobTotalRequestGpu = requestManager.getTotalGpuNumber();
       filterNodesForNoneGpuJob(jobTotalRequestGpu);
     }
 

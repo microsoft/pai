@@ -83,4 +83,8 @@ public class FrameworkRequest implements Serializable {
   public void setLastRequestTimestamp(Long lastRequestTimestamp) {
     this.lastRequestTimestamp = lastRequestTimestamp;
   }
+
+  public int calcTotalTaskNumber() {
+    return frameworkDescriptor.calcTotalTaskNumber();
+  }
 }
