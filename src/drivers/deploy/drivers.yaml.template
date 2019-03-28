@@ -61,7 +61,7 @@ spec:
           value: /var/drivers/nvidia
         - name: PRE_INSTALLED_NV_DRIVER_PATH
           value: /usr/local/nvidia # the path user has pre-installed nvidia driver
-		- name: POD_IP
+        - name: POD_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
