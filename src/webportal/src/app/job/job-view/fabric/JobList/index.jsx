@@ -72,10 +72,9 @@ export default function JobList() {
     return allJobs !== null ? filter.apply(allJobs || []) : null;
   }, [allJobs, filter]);
 
-  const setFilterAndResetPagination = useCallback((filter) => {
-    setFilter(filter);
+  useEffect(() => {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
-  }, [setFilter, setPagination, pagination]);
+  }, [filteredJobs]);
 
   const stopJob = useCallback((...jobs) => {
     userAuth.checkToken((token) => {
@@ -131,8 +130,21 @@ export default function JobList() {
 
   useEffect(refreshJobs, []);
 
-  const context = {allJobs, refreshJobs, filteredJobs, selectedJobs, setSelectedJobs, stopJob, username, filter, setFilter, ordering, setOrdering, pagination, setPagination};
-  context.setFilter = setFilterAndResetPagination;
+  const context = {
+    allJobs,
+    refreshJobs,
+    filteredJobs,
+    selectedJobs,
+    setSelectedJobs,
+    stopJob,
+    username,
+    filter,
+    setFilter,
+    ordering,
+    setOrdering,
+    pagination,
+    setPagination,
+  };
 
   return (
     <Context.Provider value={context}>
