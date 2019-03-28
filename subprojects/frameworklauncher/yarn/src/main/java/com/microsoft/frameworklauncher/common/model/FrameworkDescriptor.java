@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class FrameworkDescriptor implements Serializable {
   @Valid
-  @Size(max = 512)
+  @Size(max = 1024)
   private String description;
 
   @Valid
