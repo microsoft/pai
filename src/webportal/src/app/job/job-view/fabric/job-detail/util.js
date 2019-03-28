@@ -49,8 +49,17 @@ export function getHumanizedJobStateString(jobInfo) {
 export function getDurationString(jobInfo) {
   const dt0 = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
   const dt1 = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
-  if (dt0 && dt1) {
-    return Interval.fromDateTimes(dt0, dt1).toDuration(['hours', 'minutes', 'seconds']).toFormat('h:mm:ss');
+  if (dt0) {
+    const dur = Interval.fromDateTimes(dt0, dt1 || DateTime.local()).toDuration(['days', 'hours', 'minutes', 'seconds']);
+    if (dur.days > 0) {
+      return dur.toFormat(`d'd' h'h' m'm' s's'`);
+    } else if (dur.hours > 0) {
+      return dur.toFormat(`h'h' m'm' s's'`);
+    } else if (dur.minutes > 0) {
+      return dur.toFormat(`m'm' s's'`);
+    } else {
+      return dur.toFormat(`s's'`);
+    }
   } else {
     return 'N/A';
   }
