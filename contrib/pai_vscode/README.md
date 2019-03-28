@@ -45,14 +45,17 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 HDFS Explorer and Job List view will be shown in the extension's view container (sidebar).
 
 ### HDFS Explorer
-1. Connected to a PAI cluster's hdfs by double click the corresponding tree node.
-2. The cluster's directory structure will be shown in the tree view. Right click the folder/file node and perform selected file system operations.
+1. You are able to connect to an OpenPAI cluster's HDFS by double click its corresponding tree node.
+2. The HDFS directory structure will be expended in the tree view. 
+3. Right click the folder or file node to perform file system operations.
 
 ### Job List
-PAI cluster's latest jobs and jobs recently submitted by this extension will be shown in the job list tree view.
+1. Browse latest jobs in the OpenPAI cluster in job list tree view.
+2. Browse recent submitted jobs by local (extension) in job list tree view.
+3. Job list will auto refresh every 10 seconds.
+4. Double click job node to browse Job details in external browser.
 
-- The job list will be auto refreshed every 10 seconds by default. 
-- You can double click job's node to open PAI's job detail page in external browser.
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
 
 ## Commands
 ### Command Pallete
