@@ -132,7 +132,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     if (aggFrameworkRequests.containsKey(frameworkName)) {
       AggregatedFrameworkRequest aggFrameworkRequest = aggFrameworkRequests.get(frameworkName);
       int oldTotalTaskNumber = totalTaskNumber;
-      int frameworkTaskNumber = getFrameworkTaskNumber(aggFrameworkRequest.getFrameworkRequest());
+      int frameworkTaskNumber = aggFrameworkRequest.calcTotalTaskNumber();
       totalTaskNumber -= frameworkTaskNumber;
 
       LOGGER.logDebug(
@@ -266,19 +266,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
   }
 
-  private int getFrameworkTaskNumber(FrameworkRequest frameworkRequest) {
-    int frameworkTaskNumber = 0;
-    for (TaskRoleDescriptor taskRole : frameworkRequest.getFrameworkDescriptor().getTaskRoles().values()) {
-      frameworkTaskNumber += taskRole.getTaskNumber();
-    }
-    return frameworkTaskNumber;
-  }
-
   private int getTotalTaskNumber() {
     int totalTaskNumber = 0;
     for (AggregatedFrameworkRequest aggFrameworkRequest : aggFrameworkRequests.values()) {
-      FrameworkRequest frameworkRequest = aggFrameworkRequest.getFrameworkRequest();
-      totalTaskNumber += getFrameworkTaskNumber(frameworkRequest);
+      totalTaskNumber += aggFrameworkRequest.calcTotalTaskNumber();
     }
     return totalTaskNumber;
   }
@@ -369,11 +360,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
 
       Long currentTimestamp = System.currentTimeMillis();
-      int frameworkTaskNumber = getFrameworkTaskNumber(frameworkRequest);
+      int frameworkTaskNumber = frameworkRequest.calcTotalTaskNumber();
       int newTotalTaskNumber = totalTaskNumber + frameworkTaskNumber;
       if (aggFrameworkRequests.containsKey(frameworkName)) {
         FrameworkRequest oldFrameworkRequest = aggFrameworkRequests.get(frameworkName).getFrameworkRequest();
-        newTotalTaskNumber -= getFrameworkTaskNumber(oldFrameworkRequest);
+        newTotalTaskNumber -= oldFrameworkRequest.calcTotalTaskNumber();
         frameworkRequest.setFirstRequestTimestamp(oldFrameworkRequest.getFirstRequestTimestamp());
       } else {
         frameworkRequest.setFirstRequestTimestamp(currentTimestamp);

@@ -49,5 +49,9 @@ public class AggregatedFrameworkRequest implements Serializable {
   public void setMigrateTaskRequests(Map<String, MigrateTaskRequest> migrateTaskRequests) {
     this.migrateTaskRequests = migrateTaskRequests;
   }
+
+  public int calcTotalTaskNumber() {
+    return frameworkRequest.calcTotalTaskNumber();
+  }
 }
 
