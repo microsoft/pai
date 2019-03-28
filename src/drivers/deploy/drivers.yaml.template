@@ -32,7 +32,7 @@ spec:
       hostPID: true
       containers:
       - name: nvidia-drivers
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}drivers-{{ cluster_cfg["drivers"]["version"] }}:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}drivers-{{ cluster_cfg["drivers"]["version"] }}:ibfix
         imagePullPolicy: Always
         securityContext:
           privileged: true
@@ -61,6 +61,10 @@ spec:
           value: /var/drivers/nvidia
         - name: PRE_INSTALLED_NV_DRIVER_PATH
           value: /usr/local/nvidia # the path user has pre-installed nvidia driver
+		- name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         readinessProbe:
           exec:
             command:
