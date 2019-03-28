@@ -364,8 +364,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return frameworkDescriptor.getPlatformSpecificParameters();
   }
 
-  public int getTotalGpuCount() {
-    return frameworkDescriptor.calcTotalGpuCount();
+  public int getTotalGpuNumber() {
+    return frameworkDescriptor.calcTotalGpuNumber();
   }
 
   public TaskRoleDescriptor getTaskRole(String taskRoleName) {
