@@ -17,7 +17,8 @@
 
 import * as querystring from 'querystring';
 
-import React, {useState, useMemo, useCallback, useEffect} from 'react';
+import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
+import {debounce} from 'lodash';
 
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
@@ -65,12 +66,17 @@ export default function JobList() {
   const [filter, setFilter] = useState(initialFilter);
   const [ordering, setOrdering] = useState(new Ordering());
   const [pagination, setPagination] = useState(new Pagination());
+  const [filteredJobs, setFilteredJobs] = useState(null);
 
   useEffect(() => filter.save(), [filter]);
 
-  const filteredJobs = useMemo(() => {
-    return allJobs !== null ? filter.apply(allJobs || []) : null;
-  }, [allJobs, filter]);
+  const {current: applyFilter} = useRef(debounce((allJobs, /** @type {Filter} */filter) => {
+    setFilteredJobs(filter.apply(allJobs || []));
+  }, 200));
+
+  useEffect(() => {
+    applyFilter(allJobs, filter);
+  }, [applyFilter, allJobs, filter]);
 
   useEffect(() => {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
