@@ -138,7 +138,11 @@ $(document).ready(() => {
     if (type != null && username != null && jobname != null) {
       const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
       $.get(url, (data) => {
-        userTemplate.updatePageFromYaml(data);
+        if (typeof data === 'string') {
+          userTemplate.updatePageFromYaml(data);
+        } else {
+          userTemplate.updatePageFromJson(data);
+        }
         $('#submitJob').attr('disabled', false);
       });
     }

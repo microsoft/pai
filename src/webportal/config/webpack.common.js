@@ -302,6 +302,7 @@ const config = (env, argv) => ({
     fs: 'empty',
     process: true,
     module: false,
+    Buffer: true,
   },
 });
 
