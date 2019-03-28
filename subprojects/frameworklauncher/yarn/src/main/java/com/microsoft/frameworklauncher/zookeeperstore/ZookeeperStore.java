@@ -49,10 +49,6 @@ public class ZookeeperStore {
     this.zkStruct = zkStruct;
   }
 
-  public void stop() {
-    zkClient.stop();
-  }
-
   // Setup Basic ZookeeperStoreStructure
   private void setupZKStructure() throws Exception {
     if (!zkClient.exists(zkStruct.getLauncherRootPath())) {

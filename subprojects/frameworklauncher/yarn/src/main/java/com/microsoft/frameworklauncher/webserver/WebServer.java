@@ -111,14 +111,6 @@ public class WebServer extends AbstractService {
     AggregateException ae = new AggregateException();
 
     // Stop WebServer's SubServices
-    try {
-      if (zkStore != null) {
-        zkStore.stop();
-      }
-    } catch (Exception e) {
-      ae.addException(e);
-    }
-
     if (ae.getExceptions().size() > 0) {
       LOGGER.logWarning(ae, "Failed to stop %s gracefully", serviceName);
     }
