@@ -50,7 +50,7 @@ export function getDurationString(jobInfo) {
   const dt0 = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
   const dt1 = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
   if (dt0) {
-    const dur = Interval.fromDateTimes(dt0, dt1 || DateTime.local()).toDuration(['days', 'hours', 'minutes', 'seconds']);
+    const dur = Interval.fromDateTimes(dt0, dt1 || DateTime.utc()).toDuration(['days', 'hours', 'minutes', 'seconds']);
     if (dur.days > 0) {
       return dur.toFormat(`d'd' h'h' m'm' s's'`);
     } else if (dur.hours > 0) {
@@ -67,7 +67,7 @@ export function getDurationString(jobInfo) {
 
 
 export function printDateTime(dt) {
-  if (dt > DateTime.local().minus({week: 1}) && dt < DateTime.local().minus({minute: 1})) {
+  if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {
     return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
   } else {
     return dt.toLocaleString(DateTime.DATETIME_MED);
