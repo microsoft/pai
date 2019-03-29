@@ -281,9 +281,11 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
         done();
@@ -297,9 +299,11 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job_in_vc1');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job_in_vc1 successfully');
         done();
@@ -311,9 +315,11 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     global.chai.request(global.server)
       .put('/api/v1/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
         done();
@@ -532,9 +538,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/job1');
         done();
       });
   });
@@ -545,9 +553,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .put('/api/v1/jobs/job2')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/job2');
         done();
       });
   });
