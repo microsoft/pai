@@ -5,6 +5,7 @@
  */
 
 import * as querystring from 'querystring';
+import * as request from 'request-promise-native';
 
 import { Util } from '../common/util';
 
@@ -44,19 +45,26 @@ export namespace PAIWebPortalUri {
         return conf.web_portal_uri || conf.rest_server_uri.split(':')[0];
     }
 
-    export function jobDetail(cluster: IPAICluster, username: string, jobName: string): string {
-        return `${getClusterWebPortalUri(cluster)}/view.html?${querystring.stringify({
+    export async function isOldJobLinkAvailable(cluster: IPAICluster): Promise<boolean> {
+        const link: string = `${getClusterWebPortalUri(cluster)}/view.html`;
+        try {
+            await request.get(link);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    export async function jobDetail(cluster: IPAICluster, username: string, jobName: string): Promise<string> {
+        const oldLink: boolean = await isOldJobLinkAvailable(cluster);
+        return `${getClusterWebPortalUri(cluster)}/${oldLink ? 'view' : 'job-detail'}.html?${querystring.stringify({
             username,
             jobName
         })}`;
     }
 
-    export function jobs(cluster: IPAICluster, username?: string): string {
-        if (username) {
-            return `${getClusterWebPortalUri(cluster)}/view.html?${querystring.stringify({
-                username
-            })}`;
-        }
-        return `${getClusterWebPortalUri(cluster)}/view.html`;
+    export async function jobs(cluster: IPAICluster): Promise<string> {
+        const oldLink: boolean = await isOldJobLinkAvailable(cluster);
+        return `${getClusterWebPortalUri(cluster)}/${oldLink ? 'view' : 'job-list'}.html`;
     }
 }

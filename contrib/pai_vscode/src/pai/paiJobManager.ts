@@ -345,7 +345,7 @@ export class PAIJobManager extends Singleton {
                     __('job.submission.success'),
                     open
                 ).then(async res => {
-                    const url: string = PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username, param.config.jobName);
+                    const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username, param.config.jobName);
                     if (res === open) {
                         await Util.openExternally(url);
                     }

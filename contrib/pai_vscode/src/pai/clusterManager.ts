@@ -133,7 +133,7 @@ export class ClusterManager extends Singleton {
             cluster.rest_server_uri = `${host}/rest-server`;
             cluster.k8s_dashboard_uri = `${host}/kubernetes-dashboard`;
             cluster.grafana_uri = `${host}/grafana`;
-            cluster.web_portal_uri = `${host}/`;
+            cluster.web_portal_uri = `${host}`;
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
         } catch {

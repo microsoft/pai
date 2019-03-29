@@ -96,12 +96,12 @@ export class PAIWebpages extends Singleton {
 
     public async listJobs(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
-        const url: string = PAIWebPortalUri.jobs(config);
+        const url: string = await PAIWebPortalUri.jobs(config);
         await Util.openExternally(url);
     }
 
     public async viewJob(jobInfo: IPAIJobInfo, config: IPAICluster): Promise<void> {
-        const url: string = PAIWebPortalUri.jobDetail(config, jobInfo.username, jobInfo.name);
+        const url: string = await PAIWebPortalUri.jobDetail(config, jobInfo.username, jobInfo.name);
         await Util.openExternally(url);
     }
 }
