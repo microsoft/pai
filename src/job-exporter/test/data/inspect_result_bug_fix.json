@@ -1,0 +1,389 @@
+[
+    {
+        "Id": "88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91",
+        "Created": "2019-03-27T10:40:54.5756461Z",
+        "Path": "/bin/bash",
+        "Args": [
+            "/pai/bootstrap/docker_bootstrap.sh"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 30332,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2019-03-27T10:40:54.8350858Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:13274e0882455dbf3d0e8921269619a7edd333ef9899ecd8b6dde0a763a3c1c9",
+        "ResolvConfPath": "/mnt/docker/containers/88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91/resolv.conf",
+        "HostnamePath": "/mnt/docker/containers/88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91/hostname",
+        "HostsPath": "/mnt/docker/containers/88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91/hosts",
+        "LogPath": "/mnt/docker/containers/88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91/88cdc1302aa7ea6c3853ef16985498fc22e0edc19d4915f4a8ccec0163b3fe91-json.log",
+        "Name": "/sokoya-train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv-container_e47_1553664769226_0080_01_000025",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "unconfined",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/alive:/alive",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/alive/yarn_container_e47_1553664769226_0080_01_000025:/alive/yarn_container_e47_1553664769226_0080_01_000025:ro",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/log:/pai/log",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/bootstrap:/pai/bootstrap:ro",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/code:/pai/code:ro",
+                "/var/drivers/nvidia/current:/usr/local/nvidia:ro",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/hadoop_config:/etc/hadoop",
+                "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/ssh_config:/pai/ssh_config/:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {
+                    "max-file": "10",
+                    "max-size": "100m"
+                }
+            },
+            "NetworkMode": "host",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": [
+                "SYS_ADMIN",
+                "DAC_READ_SEARCH"
+            ],
+            "CapDrop": [
+                "MKNOD"
+            ],
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "shareable",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 1000,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "apparmor:unconfined"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 50331648000,
+            "NanoCpus": 16000000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [
+                {
+                    "PathOnHost": "/dev/nvidiactl",
+                    "PathInContainer": "/dev/nvidiactl",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/nvidia-uvm",
+                    "PathInContainer": "/dev/nvidia-uvm",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/nvidia3",
+                    "PathInContainer": "/dev/nvidia3",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/nvidia2",
+                    "PathInContainer": "/dev/nvidia2",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/nvidia1",
+                    "PathInContainer": "/dev/nvidia1",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/nvidia0",
+                    "PathInContainer": "/dev/nvidia0",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/fuse",
+                    "PathInContainer": "/dev/fuse",
+                    "CgroupPermissions": "rwm"
+                }
+            ],
+            "DeviceCgroupRules": null,
+            "DiskQuota": 0,
+            "KernelMemory": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": -1,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": 0,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "Init": true
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/mnt/docker/overlay2/3511bc702562c9cac6ceb27a0568405d68cb1ee0bd68ca228e3ef237212cd907-init/diff:/mnt/docker/overlay2/41c8e0edfb035cda9f8ee6a68fd89e4904eb63bbe862b1341c91cbc664c05e8c/diff:/mnt/docker/overlay2/b463cb846888e94e0572331e99422fa7cc4a43cf52e77c0714f470036637f4e0/diff:/mnt/docker/overlay2/7bf76e282d88091de2c8bc00e4f2e6c2bb1fefe80ead7966705adc95379d77b4/diff:/mnt/docker/overlay2/25cec4cfe74637927c9a94cebd15959fde972b56217df6114f9fac7253d0e617/diff:/mnt/docker/overlay2/b1e47834002f4398ad9ad829421927dd5950310a0269971e2bb05a928f1dad86/diff:/mnt/docker/overlay2/191ff32122db24d48602c2f3ed92125286146dc5ddf704ef14b9e3e1b1e6bd39/diff:/mnt/docker/overlay2/510f15d5f7e36da2110265f43fc2e730e117f9e6b7a4cc12e20b6c3eac42058d/diff:/mnt/docker/overlay2/1cb99b5fbd3d09e9aee12b4c8b5d94acd0f1cb6aa31f41a65105edb6103f3f62/diff:/mnt/docker/overlay2/1089f5cf15de9c8eecdcbdb75f75f0bdc97aee3b877220629b36bff814e0333e/diff:/mnt/docker/overlay2/ca4f2f10d346779f78e1dcde5e1585fe1148be694f74e72949f6606a34e24bf2/diff:/mnt/docker/overlay2/b45251adfc1507d06ae083c9bf68b3e3f56504e6b5a9793d6bc59d32c4fb590f/diff:/mnt/docker/overlay2/9e81fafd1d0410420b528c10916271354ddf26be7a31788d34d294ba8f539ed5/diff:/mnt/docker/overlay2/52b275bc3ddc84c759103ea15ecca9cf46410203ff2b41cc7fe6ac302718fb61/diff:/mnt/docker/overlay2/ec6f020c44707db39e071b3d1316e7770b887ae0f66e5797076a5154194297a7/diff:/mnt/docker/overlay2/28a188399840e489e6f4553bfe88abc4114fdda06bf784959b8c01b6a64583b7/diff:/mnt/docker/overlay2/bf5d291d491d56ad4f19596e9169bb394e902806385cb62880661b9798d7ded3/diff:/mnt/docker/overlay2/df40ce0f9aecd0dc807dc01854117feced1bfb92382bb729d347961deecb9f48/diff:/mnt/docker/overlay2/301ba01cf67dd4d5b7105b97ce72c0a711f68febf5f82e9cbaef8a06f1930a6d/diff:/mnt/docker/overlay2/67cd9fd45d2b69f08252d6f30cc6a2710fd5339de65a77921d3644fb4cab99d6/diff:/mnt/docker/overlay2/bb905096b08bda51acf84c0f611609de4785248dce7db6bec4e962c60d5c64c5/diff:/mnt/docker/overlay2/048211cf6304008583490032f78d1a366fc672a50e5a83eb251f95111fc32069/diff:/mnt/docker/overlay2/55943ba44dcc96971b3b147636c0f8e6952834f13d4f540ae7b9f1cd396cf505/diff:/mnt/docker/overlay2/7e0c3f55006739625e28dbeb5252a6080908f4f430fc8cbec880a01aa4d43123/diff:/mnt/docker/overlay2/0d6c24a0425a6203059953e32b28218c2029541f4d7747d58d9ca54e02ef105e/diff:/mnt/docker/overlay2/83b6914e00bf315648878ff67395a8ffe4137ba5e95c992a6f1323f8cc40ba52/diff:/mnt/docker/overlay2/3ecc30d41f4d647b217a2e5ac93519761b79d21578b4b30047f46bc2321bddd1/diff:/mnt/docker/overlay2/3fcfc4730218b2838101be9bb4b162dc5e66b76d79a4c7cdbfe149bce6df54b2/diff:/mnt/docker/overlay2/dc33fa7caf05d779f10ef09253c1cab02e0ea44493d7c876c2762c5fd181c0bd/diff:/mnt/docker/overlay2/9bf47bc24bd5c5f694539f359834573c2497eb38748b10b2c483838ecee42afc/diff",
+                "MergedDir": "/mnt/docker/overlay2/3511bc702562c9cac6ceb27a0568405d68cb1ee0bd68ca228e3ef237212cd907/merged",
+                "UpperDir": "/mnt/docker/overlay2/3511bc702562c9cac6ceb27a0568405d68cb1ee0bd68ca228e3ef237212cd907/diff",
+                "WorkDir": "/mnt/docker/overlay2/3511bc702562c9cac6ceb27a0568405d68cb1ee0bd68ca228e3ef237212cd907/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/var/drivers/nvidia/current",
+                "Destination": "/usr/local/nvidia",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/hadoop_config",
+                "Destination": "/etc/hadoop",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/ssh_config",
+                "Destination": "/pai/ssh_config",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/alive",
+                "Destination": "/alive",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/alive/yarn_container_e47_1553664769226_0080_01_000025",
+                "Destination": "/alive/yarn_container_e47_1553664769226_0080_01_000025",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/log",
+                "Destination": "/pai/log",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/bootstrap",
+                "Destination": "/pai/bootstrap",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/datastorage/hadooptmp/nodemanager/nm-local-dir/usercache/sokoya/appcache/application_1553664769226_0080/container_e47_1553664769226_0080_01_000025/tmp/pai-root/code",
+                "Destination": "/pai/code",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "paigcr-a-gpu-1070",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "APP_ID=application_1553664769226_0080",
+                "FRAMEWORK_NAME=sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+                "HADOOP_USER_NAME=sokoya",
+                "PAI_TASK_INDEX=0",
+                "PAI_CONTAINER_HOST_IP=10.151.40.211",
+                "PAI_CONTAINER_HOST_PORT_LIST=tensorboard:15452;http:15453;ssh:15454;",
+                "PAI_CONTAINER_ID=container_e47_1553664769226_0080_01_000025",
+                "PAI_JOB_NAME=sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+                "PAI_USER_NAME=sokoya",
+                "PAI_DEFAULT_FS_URI=hdfs://10.151.40.179:9000",
+                "PAI_TASK_ROLE_COUNT=1",
+                "PAI_TASK_ROLE_LIST=train",
+                "PAI_RESOURCE=4,16,48000,64",
+                "PAI_MIN_FAILED_TASK_COUNT_train=1",
+                "PAI_MIN_SUCCEEDED_TASK_COUNT_train=",
+                "PAI_CURRENT_TASK_ROLE_NAME=train",
+                "PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=0",
+                "PAI_CONTAINER_HOST_tensorboard_PORT_LIST=15452",
+                "PAI_CONTAINER_HOST_http_PORT_LIST=15453",
+                "PAI_CONTAINER_HOST_ssh_PORT_LIST=15454",
+                "PAI_CONTAINER_HOST_PORT=15453",
+                "PAI_CONTAINER_SSH_PORT=15454",
+                "PAI_HOST_IP_train_0=10.151.40.211",
+                "PAI_PORT_LIST_train_0_tensorboard=15452",
+                "PAI_train_0_tensorboard_PORT=15452",
+                "PAI_PORT_LIST_train_0_http=15453",
+                "PAI_train_0_http_PORT=15453",
+                "PAI_PORT_LIST_train_0_ssh=15454",
+                "PAI_train_0_ssh_PORT=15454",
+                "PAI_TASK_ROLE_TASK_COUNT_train=1",
+                "PAI_TASK_ROLE_train_HOST_LIST=10.151.40.211:15453",
+                "PAI_CURRENT_CONTAINER_IP=10.151.40.211",
+                "PAI_TASK_ROLE_INDEX=0",
+                "PAI_USERNAME=sokoya",
+                "PAI_DATA_DIR=",
+                "PAI_OUTPUT_DIR=hdfs://10.151.40.179:9000/Output/sokoya/train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+                "PAI_CODE_DIR=",
+                "PAI_TASK_ROLE_NAME=train",
+                "PAI_TASK_ROLE_NUM=1",
+                "PAI_CURRENT_TASK_ROLE_TASK_COUNT=1",
+                "PAI_TASK_CPU_NUM=16",
+                "PAI_CURRENT_TASK_ROLE_CPU_COUNT=16",
+                "PAI_TASK_MEM_MB=48000",
+                "PAI_CURRENT_TASK_ROLE_MEM_MB=48000",
+                "PAI_TASK_GPU_NUM=4",
+                "PAI_CURRENT_TASK_ROLE_GPU_COUNT=4",
+                "PAI_CURRENT_TASK_ROLE_SHM_MB=64",
+                "PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT=1",
+                "PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT=",
+                "PAI_TASKS_NUM=1",
+                "PAI_JOB_TASK_COUNT=1",
+                "PAI_TASK_ROLES_NUM=1",
+                "PAI_JOB_TASK_ROLE_COUNT=1",
+                "PAI_TASK_ROLE_LIST=train",
+                "PAI_JOB_TASK_ROLE_LIST=train",
+                "PAI_CURRENT_CONTAINER_PORT=15453",
+                "NVIDIA_VISIBLE_DEVICES=void",
+                "PATH=/opt/conda/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin",
+                "CUDA_VERSION=9.0.176",
+                "CUDA_PKG_VERSION=9-0=9.0.176-1",
+                "LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/targets/x86_64-linux/lib/stubs:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server",
+                "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+                "NVIDIA_REQUIRE_CUDA=cuda>=9.0",
+                "NCCL_VERSION=2.2.12",
+                "LIBRARY_PATH=/usr/local/cuda/lib64/stubs:",
+                "CUDNN_VERSION=7.1.4.18",
+                "HADOOP_VERSION=2.7.2",
+                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                "HADOOP_INSTALL=/usr/local/hadoop",
+                "HADOOP_PREFIX=/usr/local/hadoop",
+                "HADOOP_BIN_DIR=/usr/local/hadoop/bin",
+                "HADOOP_SBIN_DIR=/usr/local/hadoop/sbin",
+                "HADOOP_HDFS_HOME=/usr/local/hadoop",
+                "HADOOP_COMMON_LIB_NATIVE_DIR=/usr/local/hadoop/lib/native",
+                "HADOOP_OPTS=-Djava.library.path=/usr/local/hadoop/lib/native",
+                "LC_ALL=C.UTF-8",
+                "LANG=C.UTF-8"
+            ],
+            "Cmd": [
+                "/bin/bash",
+                "/pai/bootstrap/docker_bootstrap.sh"
+            ],
+            "Image": "sotetsuk/mj3:v0.0.9",
+            "Volumes": null,
+            "WorkingDir": "/workspace",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "GPU_ID": "3,2,1,0",
+                "HADOOP_VERSION": "2.7.2",
+                "PAI_CURRENT_TASK_ROLE_NAME": "train",
+                "PAI_HOSTNAME": "paigcr-a-gpu-1070",
+                "PAI_JOB_NAME": "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+                "PAI_JOB_VC_NAME": "ml",
+                "PAI_USER_NAME": "sokoya",
+                "com.nvidia.build.id": "72692819",
+                "com.nvidia.build.ref": "cfd53576ae08fab120bc1b28fbdd51624c52fb2e",
+                "com.nvidia.cuda.version": "9.0.176",
+                "com.nvidia.cudnn.version": "7.1.4.18",
+                "com.nvidia.volumes.needed": "nvidia_driver",
+                "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "cc4ce589a4ff6b93cbb803ef467c145a54f8f341c9820e604fa173104ae18351",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/default",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "host": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "b890ee7a73e9c2a0768900e7c1975f21899ea19452f900429dca295836fcdcb5",
+                    "EndpointID": "cb689c80c089f4d6cb77ec5c3261a9f2bd5ea303c471a62678405c3adbfc9679",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
