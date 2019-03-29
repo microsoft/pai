@@ -73,7 +73,7 @@ def parse_docker_inspect(inspect_output):
             # for kube-launcher tasks
             if k == "FC_TASK_INDEX":
                 m["PAI_TASK_INDEX"] = v
-            elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all":
+            elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all" and v != "void":
                 m["GPU_ID"] = v
 
     pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
