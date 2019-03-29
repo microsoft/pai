@@ -41,11 +41,11 @@ let jobDefaultConfig;
 const getChecksum = (str) => {
   const buffer = Buffer.from(str);
   let res = 0;
-  buffer.forEach(x => {
+  buffer.forEach((x) => {
     res = res ^ x;
   });
   return res.toString(16);
-}
+};
 
 const isValidJson = (str) => {
   let valid = true;
@@ -188,11 +188,11 @@ $(document).ready(() => {
               jobConfigObj = JSON.parse(data);
             }
             let name = jobConfigObj.jobName;
-            if (!/\w{8}$/.test(name) || getChecksum(name.slice(0, -2)) !== name.slice(-2)) {
-              // add suffix
-              name = `${name}_${uuid.substr(0, 6)}`;
-              name = name + getChecksum(name);
+            if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
+              name = name.slice(0, -9);
             }
+            name = `${name}_${uuid().substr(0, 6)}`;
+            name = name + getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
           },
