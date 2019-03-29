@@ -61,5 +61,20 @@ class TestDockerInspect(base.TestBase):
                 23774)
         self.assertEqual(target_inspect_info, inspect_info)
 
+    def test_parse_docker_inspect_BUGFIX(self):
+        sample_path = "data/inspect_result_bug_fix.json"
+        with open(sample_path, "r") as f:
+            docker_inspect = f.read()
+
+        inspect_info = parse_docker_inspect(docker_inspect)
+        target_inspect_info = InspectResult(
+                "sokoya",
+                "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+                "train",
+                "0",
+                "3,2,1,0",
+                30332)
+        self.assertEqual(target_inspect_info, inspect_info)
+
 if __name__ == '__main__':
     unittest.main()
