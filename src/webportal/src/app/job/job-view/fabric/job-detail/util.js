@@ -47,10 +47,19 @@ export function getHumanizedJobStateString(jobInfo) {
 }
 
 export function getDurationString(jobInfo) {
-  const dt0 = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
-  const dt1 = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
-  if (dt0 && dt1) {
-    return Interval.fromDateTimes(dt0, dt1).toDuration(['hours', 'minutes', 'seconds']).toFormat('h:mm:ss');
+  const start = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
+  const end = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
+  if (start) {
+    const dur = Interval.fromDateTimes(start, end || DateTime.utc()).toDuration(['days', 'hours', 'minutes', 'seconds']);
+    if (dur.days > 0) {
+      return dur.toFormat(`d'd' h'h' m'm' s's'`);
+    } else if (dur.hours > 0) {
+      return dur.toFormat(`h'h' m'm' s's'`);
+    } else if (dur.minutes > 0) {
+      return dur.toFormat(`m'm' s's'`);
+    } else {
+      return dur.toFormat(`s's'`);
+    }
   } else {
     return 'N/A';
   }
@@ -58,7 +67,7 @@ export function getDurationString(jobInfo) {
 
 
 export function printDateTime(dt) {
-  if (dt > DateTime.local().minus({week: 1}) && dt < DateTime.local().minus({minute: 1})) {
+  if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {
     return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
   } else {
     return dt.toLocaleString(DateTime.DATETIME_MED);
