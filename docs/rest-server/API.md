@@ -440,10 +440,16 @@ Status: 200
     createdTime: "createdTimestamp",
     completedTime: "completedTimestamp",
     executionType: "executionType",
-    // Sum of succeededRetriedCount, transientNormalRetriedCount,
-    // transientConflictRetriedCount, nonTransientRetriedCount,
-    // and unKnownRetriedCount
-    retries: retriedCount,
+    // sum of retries
+    retries: retries,
+    retryDetails: {
+      // Job failed due to user or unknown error
+      user: userRetries,
+      // Job failed due to platform error
+      platform: platformRetries,
+      // Job cannot get required resource to run within timeout
+      resource: resourceRetries,
+    },
     appId: "applicationId",
     appProgress: "applicationProgress",
     appTrackingUrl: "applicationTrackingUrl",
@@ -461,6 +467,7 @@ Status: 200
       },
       taskStatuses: {
         taskIndex: taskIndex,
+        taskState: taskState,
         containerId: "containerId",
         containerIp: "containerIp",
         containerPorts: {
