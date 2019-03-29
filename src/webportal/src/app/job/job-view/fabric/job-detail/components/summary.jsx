@@ -17,7 +17,7 @@
 
 import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
-import {isEmpty, isNil} from 'lodash';
+import {get, isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
 import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
@@ -48,9 +48,15 @@ export default class Summary extends React.Component {
       autoReloadInterval: 10 * 1000,
     };
 
-    this.onDismiss = this.onDismiss.bind(this);
-    this.showEditor = this.showEditor.bind(this);
     this.onChangeInterval = this.onChangeInterval.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+    this.showApplicationSummary = this.showApplicationSummary.bind(this);
+    this.showEditor = this.showEditor.bind(this);
+    this.showJobConfig = this.showJobConfig.bind(this);
+  }
+
+  onChangeInterval(e, item) {
+    this.setState({autoReloadInterval: item.key});
   }
 
   onDismiss() {
@@ -67,13 +73,73 @@ export default class Summary extends React.Component {
     });
   }
 
-  onChangeInterval(e, item) {
-    this.setState({autoReloadInterval: item.key});
+  showApplicationSummary() {
+    const {jobInfo} = this.props;
+    this.showEditor('Application Summary', {
+      language: 'text',
+      value: jobInfo.jobStatus.appExitDiagnostics || '',
+    });
+  }
+
+  showJobConfig() {
+    const {jobConfig} = this.props;
+    this.showEditor('Job Config', {
+      language: 'json',
+      value: JSON.stringify(jobConfig, null, 2),
+    });
+  }
+
+  renderHintMessage() {
+    const {jobInfo} = this.props;
+    if (!jobInfo) {
+      return;
+    }
+
+    const state = getHumanizedJobStateString(jobInfo);
+    if (state === 'Failed') {
+      const diag = jobInfo.jobStatus.appExitDiagnostics;
+      const code = jobInfo.jobStatus.appExitCode;
+      if (code === 177) {
+        // user code error
+        let userExitCode;
+        if (diag) {
+          let match = diag.match(/<Raw>\[ExitCode\]: (\d+)/);
+          if (match) {
+            userExitCode = parseInt(match[1], 10);
+          }
+        }
+        if (!isNil(userExitCode)) {
+          return `Failed due to user error. Exit Code: ${userExitCode}. Please check stderr and stdout for more information.`;
+        } else {
+          return `Failed due to user error. Please check container's stderr and stdout for more information.`;
+        }
+      } else {
+        return (
+          <div>
+            <span>Failed due to platform error. Please send the </span>
+            <Link onClick={this.showApplicationSummary}>application summary</Link>
+            <span> to your admin</span>
+          </div>
+        );
+      }
+    } else if (state === 'Waiting') {
+      const resourceRetries = get(jobInfo, 'jobStatus.retryDetails.resource');
+      if (resourceRetries >= 3) {
+        return (
+          <div>
+            <span>Resource allocation failed more than 3 times. Please check the resource requirement in your</span>
+            <Link onClick={this.showApplicationSummary}>job config</Link>
+            <span>.</span>
+          </div>
+        );
+      }
+    }
   }
 
   render() {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
+    const hintMessage = this.renderHintMessage();
 
     return (
       <div className={className}>
@@ -155,6 +221,15 @@ export default class Summary extends React.Component {
               </div>
             </div>
           </div>
+          {/* summary-row-2.5 */}
+          {hintMessage && (
+            <div className={t.mt4}>
+              <div className={c(t.gray, FontClassNames.medium)}>Info</div>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+                {hintMessage}
+              </div>
+            </div>
+          )}
           {/* summary-row-3 */}
           <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
             <div className={c(t.flex)}>
@@ -162,12 +237,7 @@ export default class Summary extends React.Component {
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isNil(jobConfig)}
-                onClick={() => {
-                  this.showEditor('Job Config', {
-                    language: 'json',
-                    value: JSON.stringify(jobConfig, null, 2),
-                  });
-                }}
+                onClick={this.showJobConfig}
               >
                 View Job Config
               </Link>
@@ -176,12 +246,7 @@ export default class Summary extends React.Component {
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isEmpty(jobInfo.jobStatus.appExitDiagnostics)}
-                onClick={() => {
-                  this.showEditor('Application Summary', {
-                    language: 'text',
-                    value: jobInfo.jobStatus.appExitDiagnostics || '',
-                  });
-                }}
+                onClick={this.showApplicationSummary}
               >
                 View Application Summary
               </Link>
