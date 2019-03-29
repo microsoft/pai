@@ -48,7 +48,7 @@ export namespace PAIWebPortalUri {
     export async function isOldJobLinkAvailable(cluster: IPAICluster): Promise<boolean> {
         const link: string = `${getClusterWebPortalUri(cluster)}/view.html`;
         try {
-            await request.get(link);
+            await request.get(Util.fixURL(link));
             return true;
         } catch {
             return false;
