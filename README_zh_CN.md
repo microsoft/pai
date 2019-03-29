@@ -85,7 +85,7 @@ For a large size cluster, this section is still needed to generate default confi
 
 #### 自定义部署
 
-As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be updated. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
+As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be optimized. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
 
 ### 验证部署
 
@@ -93,9 +93,9 @@ After deployment, it's recommended to [validate key components of OpenPAI](docs/
 
 ### 培训用户
 
-The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve productivity significantly and save time on maintaining environments.
+The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users of OpenPAI can learn from [Train models](#train-models). But below content is for various scenarios and may be too much to specific users. So, a simplified document based on below content is easier to learn.
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users can learn from [Train models](#train-models). But below part of training models is for various scenarios and maybe users doesn't need all of them. So, administrators can create simplified documents as users' actual scenarios.
 
 ### 常见问答
 
@@ -105,13 +105,13 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## 训练模型
 
-Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available, and OpenPAI choose some server(s) to run a job. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization of resources, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
 
-Note, OpenPAI also supports to allocate on demand resource besides queuing jobs. Users can use SSH or Jupyter to connect like on a physical server, refer to [here](examples/jupyter/README.md) about how to use OpenPAI like this way. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
+Note, OpenPAI also supports to allocate dedicated resource besides queuing jobs. Users can use SSH or Jupyter to connect and use like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### 提交训练作业
 
-Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job definition and familiar with Web portal.
+Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job configuration and familiar with Web UI.
 
 ### OpenPAI VS Code 客户端
 
@@ -119,9 +119,9 @@ Follow [submitting a hello-world job](docs/user/training.md), and learn more abo
 
 ### 调研 Job 错误
 
-Web portal and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
+Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
 
-Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure. It's recommended to get code succeeded locally, then submit to OpenPAI. It reduces posibility to troubleshoot remotely.
+Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure.
 
 ## 运维管理
 
@@ -131,7 +131,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 ## 参考手册
 
-* [Job 配置](docs/job_tutorial.md)
+* [Job configuration](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
 * 可以在[这里](docs)查看设计文档。
 
@@ -155,8 +155,8 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
 
-* OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-* OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+* OpenPAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
+* OpenPAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
 ### 谁应该考虑为 OpenPAI 做贡献
 
