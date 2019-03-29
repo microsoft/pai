@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const yaml = require('js-yaml');
 const Job = require('../models/job');
 const createError = require('../util/error');
 const logger = require('../config/logger');
@@ -149,8 +150,10 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
-        // result maybe json or yaml, depends on the job type user submitted.
-        return typeof(result) == 'string' ? res.status(200).json(result) : res.status(200).send(result).type('yaml');
+        const data = yaml.safeLoad(result);
+        const type = req.accepts(['json', 'yaml']) || 'json';
+        const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
+        return res.status(200).type(type).send(body);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`));
       } else {

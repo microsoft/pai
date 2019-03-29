@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
@@ -37,6 +37,26 @@ function FilterButton({defaultRender: Button, ...props}) {
     <Button {...props}>
       {checkedText}
     </Button>
+  );
+}
+
+function KeywordSearchBox() {
+  const {filter, setFilter} = useContext(Context);
+  function onKeywordChange(keyword) {
+    const {users, virtualClusters, statuses} = filter;
+    setFilter(new Filter(keyword, users, virtualClusters, statuses));
+  }
+
+  /** @type {import('office-ui-fabric-react').IStyle} */
+  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
+  return (
+    <SearchBox
+      underlined
+      placeholder="Filter by keyword"
+      styles={{root: rootStyles}}
+      value={filter.keyword}
+      onChange={onKeywordChange}
+    />
   );
 }
 /* eslint-enable react/prop-types */
@@ -107,26 +127,6 @@ function TopBar() {
       onClick: refreshJobs,
     };
   }
-
-  const KeywordSearchBox = useCallback(function KeywordSearchBox() {
-    function onKeywordChange(keyword) {
-      const {users, virtualClusters, statuses} = filter;
-      setFilter(new Filter(keyword, users, virtualClusters, statuses));
-    }
-
-    /** @type {import('office-ui-fabric-react').IStyle} */
-    const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
-    return (
-      <SearchBox
-        underlined
-        disableAnimation
-        placeholder="Filter by keyword"
-        styles={{root: rootStyles}}
-        value={filter.keyword}
-        onChange={onKeywordChange}
-      />
-    );
-  });
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
