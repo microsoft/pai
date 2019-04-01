@@ -44,17 +44,17 @@ taskRoles:
     dockerImage: String, required # Should reference to a dockerimage defined in prerequisites.
     # Scope of the reference `$data`, '$output', `$script`: the reference is only valid inside this task role.
     # User cannot reference them from another task role. Reference for `$parameters` is global and shared among task roles.
-    data: String, optional # Should reference to data defined in prerequisites, the whole data object in this task role can be referenced as `$data`.
-    output: String, optional # Should reference to output defined in prerequisites, the whole output object in this task role can be referenced as `$output`.
-    script: String, optional # Should reference to script defined in prerequisites, the whole script object in this task role can be referenced as `$script`.
+    data: String, optional # Select data defined in prerequisites, target can be referenced as `$data` in this task role.
+    output: String, optional # Select output defined in prerequisites, target can be referenced as `$output` in this task role.
+    script: String, optional # Select script defined in prerequisites, target can be referenced as `$script` in this task role.
     extraContainerOptions:
       shmMB: Integer, optional # Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.
     resourcePerInstance:
-      cpu: Integer, required
-      memoryMB: Integer, required
-      gpu: Integer, required
-      ports:
-        <portLabel>: Integer, required, default is 0 # Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
+      cpu: Integer, required # CPU number, unit is CPU vcore
+      memoryMB: Integer, required # Memory number, unit is MB
+      gpu: Integer, required # GPU number, unit is GPU card
+      ports: # Optional
+        <portLabel>: Integer, required # Port number for the port label. Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
     commands:
       - String, required
 
