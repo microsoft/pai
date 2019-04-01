@@ -1,0 +1,58 @@
+protocolVersion: 2
+name: caffe_mnist
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # Caffe MNIST Example
+  This example shows how to train LeNet on MNIST with Caffe on OpenPAI.
+
+  ## Dataset
+  The MNIST dataset is downloaded from MNIST website and converted into caffe format.
+
+  ## LeNet
+  This example will use the LeNet network, which is known to work well on digit classification tasks.
+  It will use a slightly different version from the original LeNet implementation,
+  replacing the sigmoid activations with Rectified Linear Unit (ReLU) activations for the neurons.
+
+  The design of LeNet contains the essence of CNNs that are still used in larger models such as the ones in ImageNet.
+  In general, it consists of a convolutional layer followed by a pooling layer, another convolution layer followed by a pooling layer,
+  and then two fully connected layers similar to the conventional multilayer perceptrons.
+  The layers are defined in `$CAFFE_ROOT/examples/mnist/lenet_train_test.prototxt`.
+
+  ## Reference
+  http://caffe.berkeleyvision.org/gathered/examples/mnist.html
+
+prerequisites:
+  - protocolVersion: 2
+    name: caffe_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example caffe Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/caffe).
+    uri : openpai/pai.example.caffe
+
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: caffe_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - ./examples/mnist/train_lenet.sh
+
+deployments:
+  - name: caffe_example
+    taskRoles:
+      train:
+        preCommands:
+          - ./data/mnist/get_mnist.sh
+          - ./examples/mnist/create_mnist.sh
+
+defaults:
+  deployment: caffe_example
