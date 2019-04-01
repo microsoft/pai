@@ -20,8 +20,8 @@
 const status = require('statuses');
 
 const index = (req, res) => {
-  return res.status(status('OK')).type('html').send(
-    '<pre>PAI RESTful API v2 (beta version)</pre>'
+  return res.status(status('OK')).type('text').send(
+    'PAI RESTful API v2 (beta version)'
   );
 };
 
