@@ -133,15 +133,15 @@ const protocolRender = (protocolObj) => {
 
 const protocolSubmitMiddleware = [
   (req, res, next) => {
-    req.locals.protocol = req.body;
+    res.locals.protocol = req.body;
     next();
   },
   (req, res, next) => {
-    req.locals.protocol = protocolValidate(req.locals.protocol);
+    res.locals.protocol = protocolValidate(res.locals.protocol);
     next();
   },
   (req, res, next) => {
-    req.locals.protocol = protocolRender(req.locals.protocol);
+    res.locals.protocol = protocolRender(res.locals.protocol);
     next();
   },
 ];
