@@ -54,7 +54,7 @@ taskRoles:
       memoryMB: Integer, required # Memory number, unit is MB
       gpu: Integer, required # GPU number, unit is GPU card
       ports: # Optional
-        <portLabel>: Integer, required # Port number for the port label. Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
+        <portLabel>: Integer, required, minimum number is 1 # Port number for the port label. Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
     commands:
       - String, required
 

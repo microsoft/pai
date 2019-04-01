@@ -51,7 +51,15 @@ const protocolValidate = (protocolYAML) => {
   }
   if ('prerequisites' in protocolObj) {
     for (let item of protocolObj.prerequisites) {
-      prerequisites[item.type][item.name] = item;
+      if (prerequisites[item.type].hasOwnProperty(item.name)) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Duplicate ${item.type} prerequisites ${item.name}.`
+        );
+      } else {
+        prerequisites[item.type][item.name] = item;
+      }
     }
   }
   protocolObj.prerequisites = prerequisites;
@@ -59,7 +67,15 @@ const protocolValidate = (protocolYAML) => {
   const deployments = {};
   if ('deployments' in protocolObj) {
     for (let item of protocolObj.deployments) {
-      deployments[item.name] = item;
+      if (deployments.hasOwnProperty(item.name)) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Duplicate deployments ${item.name}.`
+        );
+      } else {
+        deployments[item.name] = item;
+      }
     }
   }
   protocolObj.deployments = deployments;
