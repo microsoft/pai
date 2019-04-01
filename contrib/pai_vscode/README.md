@@ -41,6 +41,21 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 
 ![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
+## Sidebar
+HDFS Explorer and Job List view will be shown in the extension's view container (sidebar).
+
+### HDFS Explorer
+1. You are able to connect to an OpenPAI cluster's HDFS by double click its corresponding tree node.
+2. The HDFS directory structure will be expended in the tree view. 
+3. Right click the folder or file node to perform file system operations.
+
+### Job List
+1. Browse latest jobs in the OpenPAI cluster in job list tree view.
+2. Browse recent submitted jobs by local (extension) in job list tree view.
+3. Job list will auto refresh every 10 seconds.
+4. Double click job node to browse Job details in external browser.
+
+![](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
 
 ## Commands
 ### Command Pallete
@@ -61,7 +76,7 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 |Submit Job...|Submit job to selected cluster|
 |Simulate Job Running...|Generate Dockerfile to simulate PAI job running|
 |Edit Configuration...|Edit cluster configuration|
-|Open HDFS...|Open selected cluster's HDFS as a VS Code workspace folder|
+|Open HDFS...|Open HDFS explorer of selected cluster|
 
 ## Settings
 |ID|Description|
@@ -70,6 +85,10 @@ The extension has a useful feature called "Simulate Job Running". It enables the
 |pai.job.upload.exclude|Glob pattern for excluding files and folders|
 |pai.job.upload.include|Glob pattern for including files and folders|
 |pai.job.generateJobName.enabled|Controls whether the extension will add a random suffix to your job name when submitting job|
+|pai.job.jobList.recentJobsLength|Controls the number of recently submitted jobs to keep in history for each PAI cluster|
+|pai.job.jobList.allJobsPageSize|Controls the page size of list when listing jobs for each PAI cluster|
+|pai.job.jobList.refreshInterval|Controls the refresh interval of job list (in seconds)|
+|pai.hdfs.location|Location where hdfs explorer will be shown|
 
 ## Requirements
 PAI Cluster Version >= 0.8.0
