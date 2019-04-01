@@ -17,6 +17,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { parse } from "querystring";
 
 import App from "./App";
 
@@ -32,7 +33,19 @@ class ProtocolPluginElement extends HTMLElement {
       window.location.href = "/login.html";
       return;
     }
-    ReactDOM.render(React.createElement(App, {api, user, token}), this);
+
+    const query = parse(window.location.search.replace(/^\?/, ""));
+    const source = Object(null);
+    if (query.op === "resubmit") {
+      const jobName = query.jobname as String || "";
+      const user = query.user as String || "";
+      if (jobName && user) {
+        source.jobName = jobName;
+        source.user = user;
+      }
+    }
+
+    ReactDOM.render(React.createElement(App, {api, user, token, source}), this);
   }
 
   public disconnectedCallback() {

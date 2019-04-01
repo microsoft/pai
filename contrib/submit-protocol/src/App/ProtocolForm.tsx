@@ -22,6 +22,7 @@ import { Label } from "office-ui-fabric-react/lib/Label";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
+import crypto from "crypto";
 import MonacoEditor from "react-monaco-editor";
 import jsyaml from "js-yaml";
 
@@ -29,6 +30,10 @@ interface IProtocolProps {
   api: string;
   user: string;
   token: string;
+  source ?: {
+    jobName: string;
+    user: string;
+  };
 }
 
 interface IProtocolState {
@@ -42,12 +47,28 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   constructor(props: IProtocolProps) {
     super(props);
     initializeIcons();
+
     this.state = {
       jobName: "",
       protocol: Object.create(null),
       protocolYAML: "",
       showEditor: false,
     };
+
+    const source = this.props.source;
+    if (source && source.jobName && source.user) {
+      window.fetch(
+        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`
+      ).then((res) => {
+        return res.json();
+      }).then((body) => {
+        const protocol = jsyaml.safeLoad(body);
+        this.setState({ protocol });
+        this.setJobName(`${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`);
+      }).catch((err) => {
+        window.alert(err.message);
+      });
+    }
   }
 
   public render() {
@@ -140,7 +161,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         this.setState({ protocol });
         this.setState({ protocolYAML: text });
       } catch (err) {
-        alert(err.message);
+        window.alert(err.message);
       }
     });
     fileReader.readAsText(files[0]);
@@ -168,7 +189,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       this.setState({ protocol });
       this.setState({ showEditor: false });
     } catch (err) {
-      alert(err.message);
+      window.alert(err.message);
     }
   }
 
@@ -199,8 +220,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
-    }).catch((error) => {
-      window.alert(error.message);
+    }).catch((err) => {
+      window.alert(err.message);
     });
   }
 }
