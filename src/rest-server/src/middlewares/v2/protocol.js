@@ -105,7 +105,8 @@ const protocolRender = (protocolObj) => {
     }
     let entrypoint = '';
     commands = commands.map((command) => command.trim()).join(' && ');
-    const tokens = mustache.parse(commands, ['<%', '%>']);
+    const writer = new mustache.Writer();
+    const tokens = writer.parse(commands, ['<%', '%>']);
     const context = new mustache.Context({
       '$parameters': protocolObj.parameters,
       '$script': protocolObj.prerequisites['script'][protocolObj.taskRoles[taskRole].script],
@@ -125,6 +126,7 @@ const protocolRender = (protocolObj) => {
         }
       }
     }
+    writer.clearCache();
     protocolObj.taskRoles[taskRole].entrypoint = entrypoint.trim();
   }
   return protocolObj;
