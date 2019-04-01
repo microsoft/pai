@@ -15,7 +15,7 @@ import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
-import { ClusterExplorerChildNode, ConfigurationTreeDataProvider } from './configurationTreeDataProvider';
+import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } from './configurationTreeDataProvider';
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
@@ -72,8 +72,20 @@ export class ClusterManager extends Singleton {
     public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(COMMAND_ADD_CLUSTER, () => this.add()),
-            vscode.commands.registerCommand(COMMAND_EDIT_CLUSTER, (node: ClusterExplorerChildNode) => this.edit(node.index)),
-            vscode.commands.registerCommand(COMMAND_DELETE_CLUSTER, (node: ClusterExplorerChildNode) => this.delete(node.index))
+            vscode.commands.registerCommand(COMMAND_EDIT_CLUSTER, async (node: ClusterExplorerChildNode | ITreeData) => {
+                if (node instanceof ClusterExplorerChildNode) {
+                    await this.edit(node.index);
+                } else {
+                    await this.edit(node.clusterIndex);
+                }
+            }),
+            vscode.commands.registerCommand(COMMAND_DELETE_CLUSTER, async (node: ClusterExplorerChildNode | ITreeData) => {
+                if (node instanceof ClusterExplorerChildNode) {
+                    await this.delete(node.index);
+                } else {
+                    await this.delete(node.clusterIndex);
+                }
+            })
         );
         this.configuration = this.context.globalState.get<IConfiguration>(ClusterManager.CONF_KEY) || ClusterManager.default;
         try {

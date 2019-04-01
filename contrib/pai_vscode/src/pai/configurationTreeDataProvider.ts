@@ -71,7 +71,7 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
     }
 ];
 
-interface ITreeData {
+export interface ITreeData {
     clusterIndex: number;
     childDef?: IChildNodeDefinition;
 }
