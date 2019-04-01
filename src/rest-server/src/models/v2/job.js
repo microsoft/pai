@@ -23,7 +23,6 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const userModel = require('../user');
-const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
 const logger = require('../../config/logger');
 const azureEnv = require('../../config/azure');
@@ -188,17 +187,29 @@ const generateSSHKeys = async (frameworkName) => {
 };
 
 const prepareContainerScripts = async (frameworkName, userName, config, rawConfig) => {
-  // hdfs operations
-  const hdfs = new HDFS(launcherConfig.webhdfsUri);
   // async mkdir on hdfs
   const mkdir = async (path, user, mode) => {
-    const options = {'user.name': user, 'permission': mode};
-    return util.promisify(hdfs.createFolder)(path, options);
+    const response = await axios({
+      method: 'put',
+      url: `${launcherConfig.webhdfsUri}/webhdfs/v1${path}?op=MKDIRS&user.name=${user}&permission=${mode}`,
+    });
+    if (response.status !== status('OK')) {
+      throw createError(response.status, 'WebHDFSError', response.body);
+    }
   };
+
   // async upload file on hdfs
   const upload = async (path, data, user, mode) => {
-    const options = {'user.name': user, 'permission': mode, 'overwrite': 'true'};
-    return util.promisify(hdfs.createFile)(path, data, options);
+    const response = await axios({
+      method: 'put',
+      url: `${launcherConfig.webhdfsUri}/webhdfs/v1${path}?op=CREATE&user.name=${user}&permission=${mode}&overwrite=true`,
+      data,
+    });
+    if (response.status === status('Temporary Redirect')) {
+      await upload(response.headers['location'], data, user, mode);
+    } else if (response.status !== status('Created')) {
+      throw createError(response.status, 'WebHDFSError', response.body);
+    }
   };
 
   // generate framework description
