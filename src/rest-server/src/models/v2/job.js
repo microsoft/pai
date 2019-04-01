@@ -181,7 +181,7 @@ const generateSSHKeys = async (frameworkName) => {
     // public key
     keys[`${frameworkName}.pub`] = out.pubKey;
     return keys;
-  } catch(err) {
+  } catch (err) {
     logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
     return null;
   }

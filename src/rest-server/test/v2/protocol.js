@@ -415,7 +415,7 @@ describe('API v2 Unit Tests: protocol', () => {
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
       try {
         protocolMiddleware.validate(validProtocolYAML);
-      } catch(err) {
+      } catch (err) {
         expect(err).to.be.null;
       }
     }
@@ -424,7 +424,8 @@ describe('API v2 Unit Tests: protocol', () => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
       try {
         protocolMiddleware.validate(invalidProtocolYAMLs[invalidMessage]);
-      } catch(err) {
+        throw new Error('Failed test.');
+      } catch (err) {
         expect(err.name).to.equal('BadRequestError');
         const errMessage = JSON.parse(err.message);
         if (invalidMessage !== 'should be equal to one of the allowed values') {
@@ -441,7 +442,7 @@ describe('API v2 Unit Tests: protocol', () => {
       try {
         protocolObj = protocolMiddleware.validate(protocolObj);
         protocolObj = protocolMiddleware.render(protocolObj);
-      } catch(err) {
+      } catch (err) {
         expect(err).to.be.null;
       }
       expect(protocolObj).to.deep.equal(validprotocolObjs[pname]);
