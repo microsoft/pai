@@ -1,0 +1,8 @@
+protocolVersion: 2
+name: mxnet_example
+type: dockerimage
+version: 1.0
+contributor : OpenPAI
+description: |
+  This is an [example MXNet Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/mxnet).
+uri : openpai/pai.example.mxnet

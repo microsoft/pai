@@ -21,7 +21,6 @@ const yaml = require('js-yaml');
 const mustache = require('mustache');
 const createError = require('../../util/error');
 const protocolSchema = require('../../config/v2/protocol');
-const asyncHandler = require('./asyncHandler');
 
 
 const prerequisiteTypes = [
@@ -38,19 +37,9 @@ const prerequisiteFields = [
   'dockerImage',
 ];
 
-const protocolWrap = async (req, res, next) => {
-  const protocolYAML = req.body;
-  req.rawBody = protocolYAML;
-  req.body = {
-    protocol: protocolYAML,
-  };
-  await next();
-};
-
-const protocolValidate = async (req, res, next) => {
-  const protocolYAML = req.body.protocol;
-  const protocolJSON = yaml.safeLoad(protocolYAML);
-  if (!protocolSchema.validate(protocolJSON)) {
+const protocolValidate = (protocolYAML) => {
+  const protocolObj = yaml.safeLoad(protocolYAML);
+  if (!protocolSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', protocolSchema.validate.errors);
   }
   // convert prerequisites list to dict
@@ -58,56 +47,54 @@ const protocolValidate = async (req, res, next) => {
   for (let type of prerequisiteTypes) {
     prerequisites[type] = {};
   }
-  if ('prerequisites' in protocolJSON) {
-    for (let item of protocolJSON.prerequisites) {
+  if ('prerequisites' in protocolObj) {
+    for (let item of protocolObj.prerequisites) {
       prerequisites[item.type][item.name] = item;
     }
   }
-  protocolJSON.prerequisites = prerequisites;
+  protocolObj.prerequisites = prerequisites;
   // convert deployments list to dict
   const deployments = {};
-  if ('deployments' in protocolJSON) {
-    for (let item of protocolJSON.deployments) {
+  if ('deployments' in protocolObj) {
+    for (let item of protocolObj.deployments) {
       deployments[item.name] = item;
     }
   }
-  protocolJSON.deployments = deployments;
+  protocolObj.deployments = deployments;
   // check prerequisites in taskRoles
-  for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
+  for (let taskRole of Object.keys(protocolObj.taskRoles)) {
     for (let field of prerequisiteFields) {
-      if (field in protocolJSON.taskRoles[taskRole] &&
-        !(protocolJSON.taskRoles[taskRole][field] in prerequisites[field.toLowerCase()])) {
+      if (field in protocolObj.taskRoles[taskRole] &&
+        !(protocolObj.taskRoles[taskRole][field] in prerequisites[field.toLowerCase()])) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Prerequisite ${protocolJSON.taskRoles[taskRole][field]} does not exist.`
+          `Prerequisite ${protocolObj.taskRoles[taskRole][field]} does not exist.`
         );
       }
     }
   }
   // check deployment in defaults
-  if ('defaults' in protocolJSON) {
-    if ('deployment' in protocolJSON.defaults &&
-      !(protocolJSON.defaults.deployment in deployments)) {
+  if ('defaults' in protocolObj) {
+    if ('deployment' in protocolObj.defaults &&
+      !(protocolObj.defaults.deployment in deployments)) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Default deployment ${protocolJSON.defaults.deployment} does not exist.`
+          `Default deployment ${protocolObj.defaults.deployment} does not exist.`
         );
     }
   }
-  req.body.protocol = protocolJSON;
-  await next();
+  return protocolObj;
 };
 
-const protocolRender = async (req, res, next) => {
-  const protocolJSON = req.body.protocol;
+const protocolRender = (protocolObj) => {
   let deployment = null;
-  if ('defaults' in protocolJSON && 'deployment' in protocolJSON.defaults) {
-    deployment = protocolJSON.deployments[protocolJSON.defaults.deployment];
+  if ('defaults' in protocolObj && 'deployment' in protocolObj.defaults) {
+    deployment = protocolObj.deployments[protocolObj.defaults.deployment];
   }
-  for (let taskRole of Object.keys(protocolJSON.taskRoles)) {
-    let commands = protocolJSON.taskRoles[taskRole].commands;
+  for (let taskRole of Object.keys(protocolObj.taskRoles)) {
+    let commands = protocolObj.taskRoles[taskRole].commands;
     if (deployment != null && taskRole in deployment.taskRoles) {
       if ('preCommands' in deployment.taskRoles[taskRole]) {
         commands = deployment.taskRoles[taskRole].preCommands.concat(commands);
@@ -117,12 +104,13 @@ const protocolRender = async (req, res, next) => {
       }
     }
     let entrypoint = '';
-    const tokens = mustache.parse(commands.join(' && '), ['<%', '%>']);
+    commands = commands.map((command) => command.trim()).join(' && ');
+    const tokens = mustache.parse(commands, ['<%', '%>']);
     const context = new mustache.Context({
-      '$parameters': protocolJSON.parameters,
-      '$script': protocolJSON.prerequisites['script'][protocolJSON.taskRoles[taskRole].script],
-      '$output': protocolJSON.prerequisites['output'][protocolJSON.taskRoles[taskRole].output],
-      '$data': protocolJSON.prerequisites['data'][protocolJSON.taskRoles[taskRole].data],
+      '$parameters': protocolObj.parameters,
+      '$script': protocolObj.prerequisites['script'][protocolObj.taskRoles[taskRole].script],
+      '$output': protocolObj.prerequisites['output'][protocolObj.taskRoles[taskRole].output],
+      '$data': protocolObj.prerequisites['data'][protocolObj.taskRoles[taskRole].data],
     });
     for (let token of tokens) {
       const symbol = token[0];
@@ -137,26 +125,30 @@ const protocolRender = async (req, res, next) => {
         }
       }
     }
-    protocolJSON.taskRoles[taskRole].entrypoint = entrypoint.trim();
+    protocolObj.taskRoles[taskRole].entrypoint = entrypoint.trim();
   }
-  req.body.protocol = protocolJSON;
-  await next();
+  return protocolObj;
 };
 
-const protocolSubmit = [
-  protocolValidate,
-  protocolRender,
+
+const protocolSubmitMiddleware = [
+  (req, res, next) => {
+    res.locals.protocol = req.body;
+    next();
+  },
+  (req, res, next) => {
+    res.locals.protocol = protocolValidate(res.locals.protocol);
+    next();
+  },
+  (req, res, next) => {
+    res.locals.protocol = protocolRender(res.locals.protocol);
+    next();
+  },
 ];
-
-protocolSubmit.forEach((middleware, idx) => {
-  protocolSubmit[idx] = asyncHandler(middleware);
-});
-
 
 // module exports
 module.exports = {
-  wrap: protocolWrap,
   validate: protocolValidate,
   render: protocolRender,
-  submit: protocolSubmit,
+  submit: protocolSubmitMiddleware,
 };
