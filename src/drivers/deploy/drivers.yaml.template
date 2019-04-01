@@ -32,7 +32,7 @@ spec:
       hostPID: true
       containers:
       - name: nvidia-drivers
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}drivers-{{ cluster_cfg["drivers"]["version"] }}:ibfix
+        image: openpai/drivers-{{ cluster_cfg["drivers"]["version"] }}:ibfix
         imagePullPolicy: Always
         securityContext:
           privileged: true
