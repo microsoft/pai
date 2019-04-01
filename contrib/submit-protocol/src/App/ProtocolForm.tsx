@@ -25,6 +25,12 @@ import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button"
 import MonacoEditor from "react-monaco-editor";
 import jsyaml from "js-yaml";
 
+interface IProtocolProps {
+  api: string;
+  user: string;
+  token: string;
+}
+
 interface IProtocolState {
   jobName: string;
   protocol: {[key: string]: string | object};
@@ -32,8 +38,8 @@ interface IProtocolState {
   showEditor: boolean;
 }
 
-export default class ProtocolForm extends React.Component<{}, IProtocolState> {
-  constructor(props: {}) {
+export default class ProtocolForm extends React.Component<IProtocolProps, IProtocolState> {
+  constructor(props: IProtocolProps) {
     super(props);
     initializeIcons();
     this.state = {
@@ -101,7 +107,7 @@ export default class ProtocolForm extends React.Component<{}, IProtocolState> {
                   </div>
                 </div>
                 <div className="modal-footer" style={{ marginTop: "256px" }}>
-                  <PrimaryButton text="Submit Job" onClick={this.submit} />
+                  <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
                 </div>
               </div>
             </form>
@@ -173,8 +179,28 @@ export default class ProtocolForm extends React.Component<{}, IProtocolState> {
     this.setState({ showEditor: false });
   }
 
-  private submit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  private submitProtocol = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    alert(this.state.protocolYAML);
+    if (this.state.protocolYAML == null) {
+      return;
+    }
+    window.fetch(`${this.props.api}/api/v2/jobs`, {
+      body: this.state.protocolYAML,
+      headers: {
+        "Authorization": `Bearer ${this.props.token}`,
+        "Content-Type": "text/yaml",
+      },
+      method: "POST",
+    }).then((res) => {
+      return res.json();
+    }).then((body) => {
+      if (parseInt(body.status) >= 400) {
+        window.alert(body.message);
+      } else {
+        window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
+      }
+    }).catch((error) => {
+      window.alert(error.message);
+    });
   }
 }

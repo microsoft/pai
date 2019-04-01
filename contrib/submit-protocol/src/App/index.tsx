@@ -25,5 +25,11 @@ interface IProps {
 }
 
 export default function App({api, user, token}: IProps) {
-  return <ProtocolForm />;
+  return (
+    <ProtocolForm
+      api={api}
+      user={user}
+      token={token}
+    />
+  );
 }
