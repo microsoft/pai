@@ -243,11 +243,6 @@ function write_user_command()
   PAI_USER_COMMAND_PATH="${PAI_USER_COMMAND_DIR}/command.sh"
   mkdir -p "${PAI_USER_COMMAND_DIR}"
 
-  # Read an escaped string to an array and unescape
-  local lines=$'{{ taskData.command }}'
-  readarray -n 50 -t lines <<< "${lines}"
-  read -n 1000 -a lines <<< "${lines[@]}"
-
   echo "#!/bin/bash" > "${PAI_USER_COMMAND_PATH}"
 
   # By default, exit on the first error
@@ -255,7 +250,9 @@ function write_user_command()
   # Enable logging for the user command
   echo 'set -x' >> "${PAI_USER_COMMAND_PATH}"
 
-  printf '%s\n' "${lines[@]}" >> "${PAI_USER_COMMAND_PATH}"
+  cat <<EOF >> "${PAI_USER_COMMAND_PATH}"
+{{{ taskData.command }}}
+EOF
 
   chmod a+x "${PAI_USER_COMMAND_PATH}"
 }
