@@ -61,4 +61,4 @@ def get_process_info(histogram, timeout):
     except Exception:
         logger.exception("exec ps ax error")
 
-    return None
+    return []
