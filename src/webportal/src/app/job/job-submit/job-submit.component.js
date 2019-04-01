@@ -37,6 +37,14 @@ const jobSubmitHtml = jobSubmitComponent({
 let editor;
 let jobDefaultConfig;
 
+const getChecksum = (str) => {
+  let res = 0;
+  for (const c of str) {
+    res^= c.charCodeAt(0) & 0xff;
+  }
+  return res.toString(16);
+};
+
 const isValidJson = (str) => {
   let valid = true;
   let errors = null;
@@ -173,9 +181,17 @@ $(document).ready(() => {
           url: url,
           type: 'GET',
           success: (data) => {
-            let jobConfigObj = JSON.parse(data);
-            let timestamp = Date.now();
-            jobConfigObj.jobName += `_${timestamp}`;
+            let jobConfigObj = data;
+            if (typeof(jobConfigObj) === 'string') {
+              jobConfigObj = JSON.parse(data);
+            }
+            let name = jobConfigObj.jobName;
+            if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
+              name = name.slice(0, -9);
+            }
+            name = `${name}_${Date.now().toString(16).substr(0, 6)}`;
+            name = name + getChecksum(name);
+            jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
           },
           error: (xhr, textStatus, error) => {
