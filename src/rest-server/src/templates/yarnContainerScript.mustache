@@ -248,7 +248,7 @@ PAI_TEMP={{ key }}={{ value }} && echo $PAI_TEMP >> $ENV_LIST
 bootstrap_dir="tmp/pai-root/bootstrap"
 mkdir -p $bootstrap_dir
 hdfs dfs -get {{ hdfsUri }}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{ idx }}.sh $bootstrap_dir/docker_bootstrap.sh \
-  || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
+  || { echo "Can not get script from HDFS."; exit 1; }
 
 # Prepare user code
 code_dir="tmp/pai-root/code"
@@ -261,7 +261,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
   # TODO: Make the threshold configurable
   if [ $code_dir_size -gt 0 ] && [ $code_dir_size -le 200000000 ]; then
     hdfs dfs -get $PAI_CODE_DIR $code_dir \
-      || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
+      || { echo "Can not get code from HDFS."; exit 1; }
   elif [ $code_dir_size -eq 0]; then
     # pass when code_dir_size is 0
     :
