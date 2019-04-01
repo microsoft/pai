@@ -167,23 +167,24 @@ const generateDockerContainerScript = (frameworkName, userName, config, taskRole
   return dockerContainerScript;
 };
 
-const generateSSHKeys = (frameworkName) => {
-  util.promisify(keygen)({
-    location: frameworkName,
-    comment: `ssh key for ${frameworkName}`,
-    read: true,
-    destroy: true,
-  }).then((out) => {
+const generateSSHKeys = async (frameworkName) => {
+  try {
+    const out = await util.promisify(keygen)({
+      location: frameworkName,
+      comment: `ssh key for ${frameworkName}`,
+      read: true,
+      destroy: true,
+    });
     const keys = {};
     // private key
     keys[frameworkName] = out.key;
     // public key
     keys[`${frameworkName}.pub`] = out.pubKey;
     return keys;
-  }).catch((err) => {
+  } catch(err) {
     logger.warn('Generating ssh key files failed! Will skip generating ssh info.');
     return null;
-  });
+  }
 };
 
 const prepareContainerScripts = async (frameworkName, userName, config, rawConfig) => {
