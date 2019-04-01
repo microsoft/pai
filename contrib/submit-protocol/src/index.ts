@@ -20,8 +20,8 @@ import ReactDOM from "react-dom";
 
 import App from "./App";
 
-// declare let __webpack_public_path__: string;
-// __webpack_public_path__ = (window.document.currentScript as HTMLScriptElement).src;
+declare let __webpack_public_path__: string;
+__webpack_public_path__ = (window.document.currentScript as HTMLScriptElement).src;
 
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
