@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, FontClassNames} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {capitalize, isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
@@ -70,7 +70,6 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      logType: '',
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -81,18 +80,24 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const {logUrl, logType} = this.state;
-    void getContainerLog(logUrl, logType).then((res) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: res}});
+    const {logUrl} = this.state;
+    void getContainerLog(logUrl).then(({text, fullLogLink}) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {
+        monacoProps: {value: text},
+        monacoFooterButton: (
+          <PrimaryButton
+            text='View Full Log'
+            target='_blank'
+            styles={{
+              rootFocused: [ColorClassNames.white],
+            }}
+            href={fullLogLink}
+          />
+        ),
       }
-    }).catch((err) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: err.message}});
-      }
-    });
+    )).catch((err) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: err.message}}
+    ));
   }
 
   onDismiss() {
@@ -101,23 +106,14 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      type: '',
     });
   }
 
-  showContainerLog(logUrl, logType, title) {
+  showContainerLog(logUrl, title) {
     this.setState({
       monacoProps: {value: 'Loading...'},
       monacoTitle: title,
-      monacoFooterButton: (
-        <PrimaryButton
-          text='View Full Log'
-          target='_blank'
-          href={`${logUrl}${logType}`}
-        />
-      ),
       logUrl,
-      logType,
     }, () => {
       this.logAutoRefresh(); // start immediately
     });
@@ -277,7 +273,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'TextDocument'}}
               text='Stdout'
-              onClick={() => this.showContainerLog(item.containerLog, 'stdout', 'Standard Output (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}stdout`, 'Standard Output (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
@@ -288,7 +284,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'Error'}}
               text='Stderr'
-              onClick={() => this.showContainerLog(item.containerLog, 'stderr', 'Standard Error (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}stderr`, 'Standard Error (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
