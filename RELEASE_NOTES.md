@@ -56,13 +56,17 @@ Support samba shares in container. [#2318](https://github.com/Microsoft/pai/pull
 * Operations:
 Add a commandline tool to query unhealthy gpu information from prometheus. [#2319](https://github.com/Microsoft/pai/pull/2365)
 
-## Notable fixes
+## Notable Fixes
 
 * Hadoop: Scheduler may get stuck in a indefinite loop. [#2365](https://github.com/Microsoft/pai/pull/2365)
 * Hadoop: Sometimes, hadoop-ai can't detect ecc error. [#2343](https://github.com/Microsoft/pai/pull/2343)
 * Runtime: Users might see unallocated gpus. [#2352](https://github.com/Microsoft/pai/pull/2352)
 * Runtime: Jobs might get a free retry when using exceed memory. [#1108](https://github.com/Microsoft/pai/pull/1108)
 * Drivers: Fix IB installation bugs. [#2278](https://github.com/Microsoft/pai/pull/2278), [#2271](https://github.com/Microsoft/pai/pull/2271), [#2269](https://github.com/Microsoft/pai/pull/2269)
+
+## Known Issues
+
+* There might be a mismatch between linux kernel and driver. [#2446](https://github.com/Microsoft/pai/pull/2446)
 
 ## Upgrading from Earlier Release
 
