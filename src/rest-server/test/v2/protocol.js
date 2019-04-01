@@ -413,11 +413,7 @@ describe('API v2 Unit Tests: protocol', () => {
   // protocol validation test
   it('test protocol validation for valid protocol', () => {
     for (let validProtocolYAML of Object.values(validProtocolYAMLs)) {
-      try {
-        protocolMiddleware.validate(validProtocolYAML);
-      } catch (err) {
-        expect(err).to.be.null;
-      }
+      protocolMiddleware.validate(validProtocolYAML);
     }
   });
   it('test protocol validation for invalid protocol', () => {
@@ -439,12 +435,8 @@ describe('API v2 Unit Tests: protocol', () => {
   it('test protocol renderer for valid protocol', () => {
     for (let pname of Object.keys(validProtocolYAMLs)) {
       let protocolObj = validProtocolYAMLs[pname];
-      try {
-        protocolObj = protocolMiddleware.validate(protocolObj);
-        protocolObj = protocolMiddleware.render(protocolObj);
-      } catch (err) {
-        expect(err).to.be.null;
-      }
+      protocolObj = protocolMiddleware.validate(protocolObj);
+      protocolObj = protocolMiddleware.render(protocolObj);
       expect(protocolObj).to.deep.equal(validprotocolObjs[pname]);
     }
   });
