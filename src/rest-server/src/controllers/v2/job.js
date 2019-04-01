@@ -23,10 +23,10 @@ const Job = require('../../models/v2/job');
 
 
 const update = asyncHandler(async (req, res) => {
-  const jobName = req.locals.protocol.name;
+  const jobName = res.locals.protocol.name;
   const userName = req.user.username;
   const job = new Job(jobName, userName);
-  await job.put(req.locals.protocol, req.body);
+  await job.put(res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
