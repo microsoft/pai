@@ -59,6 +59,6 @@ def get_process_info(histogram, timeout):
     except subprocess.TimeoutExpired:
         logger.warning("ps ax timeout")
     except Exception:
-        logger.exception("exec ps aux error")
+        logger.exception("exec ps ax error")
 
     return None
