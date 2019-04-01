@@ -28,7 +28,6 @@ const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 const querystring = require('querystring');
 const stripJsonComments = require('strip-json-comments');
-const uuid = require('uuid');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -39,11 +38,10 @@ let editor;
 let jobDefaultConfig;
 
 const getChecksum = (str) => {
-  const buffer = Buffer.from(str);
   let res = 0;
-  buffer.forEach((x) => {
-    res = res ^ x;
-  });
+  for (const c of str) {
+    res^= c.charCodeAt(0) & 0xff;
+  }
   return res.toString(16);
 };
 
@@ -191,7 +189,7 @@ $(document).ready(() => {
             if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
               name = name.slice(0, -9);
             }
-            name = `${name}_${uuid().substr(0, 6)}`;
+            name = `${name}_${Date.now().toString(16).substr(0, 6)}`;
             name = name + getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
