@@ -84,3 +84,11 @@ export function parseGpuAttr(attr) {
 
   return res;
 }
+
+export const statusColorMapping = {
+  waiting: '#fcd116',
+  failed: '#eb1123',
+  running: '#0071bc',
+  succeeded: '#7fba00',
+  unknown: '#b1b5b8',
+};

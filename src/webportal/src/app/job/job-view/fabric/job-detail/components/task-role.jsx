@@ -25,6 +25,7 @@ import t from '../../tachyons.css';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
+import {statusColorMapping} from '../util';
 import TaskRoleContainerList from './task-role-container-list';
 
 export default class TaskRole extends React.Component {
@@ -46,10 +47,57 @@ export default class TaskRole extends React.Component {
     this.setState({containerListExpanded: false});
   }
 
+  renderTaskRoleCount() {
+    const {taskInfo, taskConfig} = this.props;
+    const count = {
+      running: 0,
+      succeeded: 0,
+      failed: 0,
+      unknown: 0,
+    };
+    if (taskInfo && taskInfo.taskStatuses) {
+      for (const item of taskInfo.taskStatuses) {
+        switch (item.taskState) {
+          case 'RUNNING':
+          case 'WAITING':
+            count.running += 1;
+            break;
+          case 'SUCCEEDED':
+            count.succeeded += 1;
+            break;
+          case 'FAILED':
+            count.failed += 1;
+            break;
+          default:
+            count.unknown += 1;
+            break;
+        }
+      }
+    } else if (taskConfig && taskConfig.taskNumber) {
+      count.unknown = taskConfig.taskNumber;
+    } else {
+      // task status info not available
+      return;
+    }
+
+    return (
+      <div className={c(t.flex, t.itemsCenter)}>
+        {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
+          <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
+            <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColorMapping[x]}}>
+            </div>
+            <div className={c(t.ml2)}>{count[x]}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   render() {
     const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
     const {containerListExpanded} = this.state;
     const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
+
     return (
       <div className={className}>
         {/* summary */}
@@ -66,6 +114,12 @@ export default class TaskRole extends React.Component {
                   <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}} />
                 </MonacoCallout>
               )}
+              {/* status */}
+              <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)}>
+                <div className={c(t.ml3)}>
+                  {this.renderTaskRoleCount()}
+                </div>
+              </div>
             </div>
             {/* right */}
             <div>

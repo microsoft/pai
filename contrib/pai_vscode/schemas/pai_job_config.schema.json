@@ -1,6 +1,6 @@
 {
     "type": "object",
-    "description": "PAI job config",
+    "description": "PAI job config\nThis file can be submitted directly on PAI web portal.",
     "properties": {
         "jobName": {
             "type": "string",

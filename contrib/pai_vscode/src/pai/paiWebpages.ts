@@ -8,14 +8,17 @@ import { injectable } from 'inversify';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_LIST_JOB, COMMAND_OPEN_DASHBOARD, COMMAND_TREEVIEW_OPEN_PORTAL
+    COMMAND_LIST_JOB, COMMAND_OPEN_DASHBOARD, COMMAND_TREEVIEW_OPEN_PORTAL, COMMAND_VIEW_JOB
 } from '../common/constants';
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterName, getClusterWebPortalUri } from './clusterManager';
-import { ConfigurationNode } from './configurationTreeDataProvider';
-import { IPAICluster } from './paiInterface';
+
+import { getClusterName, ClusterManager } from './clusterManager';
+import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
+import { ClusterNode } from './container/jobListTreeView';
+import { IPAICluster, IPAIJobInfo } from './paiInterface';
+import { PAIWebPortalUri } from './paiUri';
 
 const paiDashboardPropertyLabelMapping: { [propertyName: string]: string } = {
     grafana_uri: 'Grafana',
@@ -38,11 +41,15 @@ export class PAIWebpages extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_TREEVIEW_OPEN_PORTAL,
-                (node: ConfigurationNode) => this.openDashboardFromTreeView(node.index)
+                (node: ClusterExplorerChildNode) => this.openDashboardFromTreeView(node.index)
             ),
             vscode.commands.registerCommand(
                 COMMAND_LIST_JOB,
-                (node: ConfigurationNode) => this.listJobs(node.index)
+                (node: ClusterExplorerChildNode | ClusterNode) => this.listJobs(node.index)
+            ),
+            vscode.commands.registerCommand(
+                COMMAND_VIEW_JOB,
+                this.viewJob.bind(this)
             )
         );
     }
@@ -55,7 +62,7 @@ export class PAIWebpages extends Singleton {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
 
         const options: vscode.QuickPickItem[] = [];
-        const paiUrl: string = getClusterWebPortalUri(config);
+        const paiUrl: string = PAIWebPortalUri.getClusterWebPortalUri(config);
         options.push({
             label: __('webpage.dashboard.webportal', [getClusterName(config)]),
             detail: paiUrl
@@ -83,13 +90,18 @@ export class PAIWebpages extends Singleton {
 
     public async openDashboardFromTreeView(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
-        const url: string = getClusterWebPortalUri(config);
+        const url: string = PAIWebPortalUri.getClusterWebPortalUri(config);
         await Util.openExternally(url);
     }
 
     public async listJobs(index: number): Promise<void> {
         const config: IPAICluster = (await getSingleton(ClusterManager)).allConfigurations![index];
-        const url: string = getClusterWebPortalUri(config) + '/view.html';
+        const url: string = await PAIWebPortalUri.jobs(config);
+        await Util.openExternally(url);
+    }
+
+    public async viewJob(jobInfo: IPAIJobInfo, config: IPAICluster): Promise<void> {
+        const url: string = await PAIWebPortalUri.jobDetail(config, jobInfo.username, jobInfo.name);
         await Util.openExternally(url);
     }
 }

@@ -34,3 +34,16 @@ export interface IPAIJobConfig {
     outputDir: string;
     taskRoles: IPAITaskRole[];
 }
+
+export interface IPAIJobInfo {
+    name: string;
+    username: string;
+    state: 'SUCCEEDED' | 'FAILED' | 'WAITING' | 'STOPPED' | 'RUNNING' | 'UNKNOWN';
+    subState: 'FRAMEWORK_COMPLETED' | 'FRAMEWORK_WAITING';
+    executionType: 'START' | 'STOP';
+    retries: number;
+    createdTime: number;
+    completedTime: number;
+    appExitCode: number;
+    virtualCluster: string;
+}
