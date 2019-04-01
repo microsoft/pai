@@ -8,10 +8,9 @@ import * as fs from 'fs-extra';
 import * as globby from 'globby';
 import { injectable } from 'inversify';
 import * as JSONC from 'jsonc-parser';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNil } from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
-import * as querystring from 'querystring';
 import * as request from 'request-promise-native';
 import * as uuid from 'uuid';
 import * as vscode from 'vscode';
@@ -27,13 +26,16 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
-import { ClusterManager, getClusterIdentifier, getClusterWebPortalUri } from './clusterManager';
-import { ConfigurationNode } from './configurationTreeDataProvider';
+
+import { getClusterIdentifier, ClusterManager } from './clusterManager';
+import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
 import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
 
 import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
+import { PAIRestUri, PAIWebPortalUri } from './paiUri';
+import { RecentJobManager } from './recentJobManager';
 interface ITokenItem {
     token: string;
     expireTime: number;
@@ -60,7 +62,6 @@ interface IJobInput {
  */
 @injectable()
 export class PAIJobManager extends Singleton {
-    private static readonly API_PREFIX: string = 'api/v1';
     private static readonly TIMEOUT: number = 60 * 1000;
     private static readonly SIMULATION_DOCKERFILE_FOLDER: string = '.pai_simulator';
     private static readonly propertiesToBeReplaced: (keyof IPAIJobConfig)[] = [
@@ -84,7 +85,7 @@ export class PAIJobManager extends Singleton {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 COMMAND_CREATE_JOB_CONFIG,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await PAIJobManager.generateJobConfig(input.fsPath);
                     } else {
@@ -94,10 +95,10 @@ export class PAIJobManager extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_SIMULATE_JOB,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await this.simulate({ jobConfigPath: input.fsPath });
-                    } else if (input instanceof ConfigurationNode) {
+                    } else if (input instanceof ClusterExplorerChildNode) {
                         await this.simulate({ clusterIndex: input.index });
                     } else {
                         await this.simulate();
@@ -106,10 +107,10 @@ export class PAIJobManager extends Singleton {
             ),
             vscode.commands.registerCommand(
                 COMMAND_SUBMIT_JOB,
-                async (input?: ConfigurationNode | vscode.Uri) => {
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
                         await this.submitJob({ jobConfigPath: input.fsPath });
-                    } else if (input instanceof ConfigurationNode) {
+                    } else if (input instanceof ClusterExplorerChildNode) {
                         await this.submitJob({ clusterIndex: input.index });
                     } else {
                         await this.submitJob();
@@ -132,7 +133,7 @@ export class PAIJobManager extends Singleton {
                     parent = fileFolders[0].uri.fsPath;
                 }
             }
-            defaultSaveDir = path.join(parent, `${name}.pai.json`);
+            defaultSaveDir = path.join(parent, `${name}.pai.jsonc`);
             config = {
                 jobName: '<job name>',
                 image: 'aiplatform/pai.build.base',
@@ -160,7 +161,7 @@ export class PAIJobManager extends Singleton {
             }
             script = path.relative(parent, script);
             const jobName: string = path.basename(script, path.extname(script));
-            defaultSaveDir = path.join(parent, `${jobName}.pai.json`);
+            defaultSaveDir = path.join(parent, `${jobName}.pai.jsonc`);
             config = {
                 jobName,
                 image: 'aiplatform/pai.build.base',
@@ -181,10 +182,17 @@ export class PAIJobManager extends Singleton {
         }
 
         const saveDir: vscode.Uri | undefined = await vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(defaultSaveDir)
+            defaultUri: vscode.Uri.file(defaultSaveDir),
+            filters: {
+                JSON: ['json', 'jsonc']
+            }
         });
         if (saveDir) {
-            await fs.writeJSON(saveDir.fsPath, config, { spaces: 4 });
+            if (saveDir.fsPath.endsWith('.jsonc')) {
+                await fs.writeFile(saveDir.fsPath, await Util.generateCommentedJSON(config, 'pai_job_config.schema.json'));
+            } else {
+                await fs.writeJSON(saveDir.fsPath, config, { spaces: 4 });
+            }
             await vscode.window.showTextDocument(saveDir);
         }
     }
@@ -282,7 +290,7 @@ export class PAIJobManager extends Singleton {
                 param.config.jobName = `${param.config.jobName}_${uuid().substring(0, 8)}`;
             } else {
                 try {
-                    await request.get(`${this.getRestUrl(param.cluster)}/user/${param.cluster.username}/jobs/${param.config.jobName}`, {
+                    await request.get(PAIRestUri.jobDetail(param.cluster, param.cluster.username, param.config.jobName), {
                         headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
                         timeout: PAIJobManager.TIMEOUT,
                         json: true
@@ -325,21 +333,19 @@ export class PAIJobManager extends Singleton {
             // send job submission request
             statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
             try {
-                await request.post(`${this.getRestUrl(param.cluster)}/user/${param.cluster.username}/jobs`, {
+                await request.post(PAIRestUri.jobs(param.cluster, param.cluster.username), {
                     headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
                     form: param.config,
                     timeout: PAIJobManager.TIMEOUT,
                     json: true
                 });
+                void (await getSingleton(RecentJobManager)).enqueueRecentJobs(param.cluster, param.config.jobName);
                 const open: string = __('job.submission.success.open');
                 void vscode.window.showInformationMessage(
                     __('job.submission.success'),
                     open
                 ).then(async res => {
-                    const url: string = `${getClusterWebPortalUri(param.cluster!)}/view.html?${querystring.stringify({
-                        username: param.cluster!.username,
-                        jobName: param.config.jobName
-                    })}`;
+                    const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username, param.config.jobName);
                     if (res === open) {
                         await Util.openExternally(url);
                     }
@@ -542,6 +548,9 @@ export class PAIJobManager extends Singleton {
             jobConfigPath = jobConfigUrl![0].fsPath;
         }
         const config: IPAIJobConfig = JSONC.parse(await fs.readFile(jobConfigPath, 'utf8'));
+        if (isNil(config)) {
+            Util.err('job.prepare.config.invalid');
+        }
         const error: string | undefined = await Util.validateJSON(config, SCHEMA_JOB_CONFIG);
         if (error) {
             throw new Error(error);
@@ -571,21 +580,11 @@ export class PAIJobManager extends Singleton {
         return <IJobParam>result;
     }
 
-    private getRestUrl(cluster: IPAICluster): string {
-        let url: string = cluster.rest_server_uri;
-        if (!url.endsWith('/')) {
-            url += '/';
-        }
-        url += PAIJobManager.API_PREFIX;
-
-        return Util.fixURL(url);
-    }
-
     private async getToken(cluster: IPAICluster): Promise<string> {
         const id: string = getClusterIdentifier(cluster);
         let item: ITokenItem | undefined = this.cachedTokens.get(id);
         if (!item || Date.now() > item.expireTime) {
-            const result: any = await request.post(`${this.getRestUrl(cluster)}/token`, {
+            const result: any = await request.post(PAIRestUri.token(cluster), {
                 form: {
                     username: cluster.username,
                     password: cluster.password,
@@ -618,9 +617,15 @@ export class PAIJobManager extends Singleton {
             });
             const fsProvider: HDFSFileSystemProvider = (await getSingleton(HDFS)).provider!;
             let codeDir: string = param.config.codeDir;
-            if (codeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
-                codeDir = codeDir.substring('$PAI_DEFAULT_FS_URI'.length);
+            if (codeDir.startsWith('hdfs://') || codeDir.startsWith('webhdfs://')) {
+                throw new Error(__('job.upload.invalid-code-dir'));
+            } else {
+                if (codeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
+                    codeDir = codeDir.substring('$PAI_DEFAULT_FS_URI'.length);
+                }
+                codeDir = path.posix.resolve('/', codeDir);
             }
+
             const codeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${codeDir}`);
 
             const total: number = projectFiles.length;
@@ -654,7 +659,7 @@ export class PAIJobManager extends Singleton {
 
             return true;
         } catch (e) {
-            Util.err('job.upload.error', [e]);
+            Util.err('job.upload.error', [e.message]);
             return false;
         }
     }
