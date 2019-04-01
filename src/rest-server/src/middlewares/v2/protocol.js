@@ -23,6 +23,8 @@ const createError = require('../../util/error');
 const protocolSchema = require('../../config/v2/protocol');
 
 
+const mustacheWriter = new mustache.Writer();
+
 const prerequisiteTypes = [
   'script',
   'output',
@@ -105,8 +107,7 @@ const protocolRender = (protocolObj) => {
     }
     let entrypoint = '';
     commands = commands.map((command) => command.trim()).join(' && ');
-    const writer = new mustache.Writer();
-    const tokens = writer.parse(commands, ['<%', '%>']);
+    const tokens = mustacheWriter.parse(commands, ['<%', '%>']);
     const context = new mustache.Context({
       '$parameters': protocolObj.parameters,
       '$script': protocolObj.prerequisites['script'][protocolObj.taskRoles[taskRole].script],
@@ -126,7 +127,6 @@ const protocolRender = (protocolObj) => {
         }
       }
     }
-    writer.clearCache();
     protocolObj.taskRoles[taskRole].entrypoint = entrypoint.trim();
   }
   return protocolObj;
