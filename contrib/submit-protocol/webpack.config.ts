@@ -48,16 +48,18 @@ const configuration: Configuration = {
   },
   plugins: [
     new MonacoWebpackPlugin({
-      languages: [],
+      languages: ["yaml"],
       features: [],
     }),
   ],
   devServer: {
     host: "0.0.0.0",
+    port: 9290,
     contentBase: false,
     watchOptions: {
       ignored: /node_modules/,
     },
+    disableHostCheck: true,
   },
 };
 
