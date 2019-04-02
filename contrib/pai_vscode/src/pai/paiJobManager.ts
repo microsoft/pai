@@ -448,7 +448,6 @@ export class PAIJobManager extends Singleton {
                 dockerfile.push(`COPY ${param.config.jobName} /pai/${param.config.jobName}`);
                 dockerfile.push('');
                 // 4. env var
-
                 dockerfile.push('ENV PAI_WORK_DIR="/pai" \\');
                 if (!param.cluster) {
                     dockerfile.push(`    PAI_JOB_NAME=${JSON.stringify(param.config.jobName)}`);
