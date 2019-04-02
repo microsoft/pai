@@ -58,13 +58,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const source = this.props.source;
     if (source && source.jobName && source.user) {
       window.fetch(
-        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`
+        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
       ).then((res) => {
         return res.json();
       }).then((body) => {
         const protocol = jsyaml.safeLoad(body);
-        this.setState({ protocol });
-        this.setJobName(`${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`);
+        this.setState(
+          { protocol },
+          () => this.setJobName(
+            `${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`,
+          ),
+        );
       }).catch((err) => {
         window.alert(err.message);
       });
@@ -141,9 +145,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private setJobName = (jobName: string) => {
     const protocol = this.state.protocol;
     protocol.name = jobName;
-    this.setState({ jobName });
-    this.setState({ protocol });
-    this.setState({ protocolYAML: jsyaml.safeDump(protocol) });
+    this.setState({
+      jobName,
+      protocol,
+      protocolYAML: jsyaml.safeDump(protocol),
+    });
   }
 
   private importFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,9 +163,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       const text = fileReader.result as string;
       try {
         const protocol = jsyaml.safeLoad(text);
-        this.setState({ jobName: protocol.name || "" });
-        this.setState({ protocol });
-        this.setState({ protocolYAML: text });
+        this.setState({
+          jobName: protocol.name || "",
+          protocol,
+          protocolYAML: text,
+        });
       } catch (err) {
         window.alert(err.message);
       }
@@ -185,9 +193,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const text = this.state.protocolYAML;
     try {
       const protocol = jsyaml.safeLoad(text);
-      this.setState({ jobName: protocol.name || "" });
-      this.setState({ protocol });
-      this.setState({ showEditor: false });
+      this.setState({
+        jobName: protocol.name || "",
+        protocol,
+        showEditor: false,
+      });
     } catch (err) {
       window.alert(err.message);
     }
@@ -196,8 +206,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private discardEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     const protocol = this.state.protocol;
-    this.setState({ protocolYAML: jsyaml.safeDump(protocol) });
-    this.setState({ showEditor: false });
+    this.setState({
+      protocolYAML: jsyaml.safeDump(protocol),
+      showEditor: false,
+    });
   }
 
   private submitProtocol = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -215,7 +227,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }).then((res) => {
       return res.json();
     }).then((body) => {
-      if (parseInt(body.status) >= 400) {
+      if (Number(body.status) >= 400) {
         window.alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;

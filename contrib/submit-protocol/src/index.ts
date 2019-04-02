@@ -18,7 +18,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { resolve } from "url";
-import { parse } from "querystring";
 
 import App from "./App";
 
@@ -44,14 +43,14 @@ class ProtocolPluginElement extends HTMLElement {
       return;
     }
 
-    const query = parse(window.location.search.replace(/^\?/, ""));
+    const params = new URLSearchParams(window.location.search);
     const source = Object(null);
-    if (query.op === "resubmit") {
-      const jobName = query.jobname as String || "";
-      const user = query.user as String || "";
-      if (jobName && user) {
-        source.jobName = jobName;
-        source.user = user;
+    if (params.get("op") === "resubmit") {
+      const sourceJobName = params.get("jobName") || "";
+      const sourceUser = params.get("user") || "";
+      if (sourceJobName && sourceUser) {
+        source.jobName = sourceJobName;
+        source.user = sourceUser;
       }
     }
 
