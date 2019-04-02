@@ -448,14 +448,18 @@ export class PAIJobManager extends Singleton {
                 dockerfile.push(`COPY ${param.config.jobName} /pai/${param.config.jobName}`);
                 dockerfile.push('');
                 // 4. env var
-                dockerfile.push('ENV PAI_WORK_DIR /pai');
-                dockerfile.push(`ENV PAI_JOB_NAME ${param.config.jobName}`);
-                if (param.cluster) {
-                    dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
-                    dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
-                    dockerfile.push(`ENV PAI_DATA_DIR ${param.config.dataDir}`);
-                    dockerfile.push(`ENV PAI_CODE_DIR ${param.config.codeDir}`);
-                    dockerfile.push(`ENV PAI_OUTPUT_DIR ${param.config.outputDir}`);
+
+                dockerfile.push('ENV PAI_WORK_DIR="/pai" \\');
+                
+                if (!param.cluster) {
+                    dockerfile.push(`    PAI_JOB_NAME=${JSON.stringify(param.config.jobName)}`);
+                } else {
+                    dockerfile.push(`    PAI_JOB_NAME=${JSON.stringify(param.config.jobName)} \\`);
+                    dockerfile.push(`    PAI_DEFAULT_FS_URI=${JSON.stringify(param.cluster.hdfs_uri)} \\`);
+                    dockerfile.push(`    PAI_USER_NAME=${JSON.stringify(param.cluster.username)} \\`);
+                    dockerfile.push(`    PAI_DATA_DIR=${JSON.stringify(param.config.dataDir)} \\`);
+                    dockerfile.push(`    PAI_CODE_DIR=${JSON.stringify(param.config.codeDir)} \\`);
+                    dockerfile.push(`    PAI_OUTPUT_DIR=${JSON.stringify(param.config.outputDir)}`);
                 }
                 dockerfile.push('');
                 // check unsupported env variables
