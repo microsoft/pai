@@ -23,8 +23,9 @@ import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import crypto from "crypto";
-import MonacoEditor from "react-monaco-editor";
+import update from "immutability-helper";
 import jsyaml from "js-yaml";
+import MonacoEditor from "react-monaco-editor";
 
 interface IProtocolProps {
   api: string;
@@ -143,8 +144,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private setJobName = (jobName: string) => {
-    const protocol = this.state.protocol;
-    protocol.name = jobName;
+    const protocol = update(this.state.protocol, {
+      name: { $set: jobName },
+    });
     this.setState({
       jobName,
       protocol,
@@ -205,9 +207,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private discardEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    const protocol = this.state.protocol;
+    const text = jsyaml.safeDump(this.state.protocol);
     this.setState({
-      protocolYAML: jsyaml.safeDump(protocol),
+      protocolYAML: text,
       showEditor: false,
     });
   }
