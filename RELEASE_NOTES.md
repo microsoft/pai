@@ -67,6 +67,7 @@ Add a commandline tool to query unhealthy gpu information from prometheus. [#231
 ## Known Issues
 
 * There might be a mismatch between linux kernel and driver. [#2446](https://github.com/Microsoft/pai/pull/2446)
+* Retry link of new job details page is missing. [#2466](https://github.com/Microsoft/pai/pull/2466)
 
 ## Upgrading from Earlier Release
 
