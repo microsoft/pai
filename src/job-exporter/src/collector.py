@@ -24,6 +24,7 @@ import subprocess
 import time
 import copy
 import os
+import collections
 
 from prometheus_client import make_wsgi_app, Counter, Gauge, Histogram
 from prometheus_client.core import GaugeMetricFamily
@@ -84,6 +85,10 @@ def gen_gpu_used_by_zombie_container_counter():
             "count of gpu used by zombie container",
             labels=["minor_number", "container_id"])
 
+def gen_process_mem_usage_gauge():
+    return GaugeMetricFamily("process_mem_usage_byte",
+            "memory usage of process, to save space in prometheus, we only expose those who consume more than 500Mb of memory",
+            labels=["pid", "cmd"])
 
 class ResourceGauges(object):
     def __init__(self):
@@ -768,15 +773,31 @@ class ProcessCollector(Collector):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
 
     def collect_impl(self):
-        process = ps.get_zombie_process(ProcessCollector.cmd_histogram,
+        process_info = ps.get_process_info(ProcessCollector.cmd_histogram,
                 ProcessCollector.cmd_timeout)
 
-        if len(process) > 0:
+        if len(process_info) > 0:
             zombie_metrics = gen_zombie_process_counter()
+            process_mem_metrics = gen_process_mem_usage_gauge()
+            zombie_count = collections.defaultdict(lambda : 0)
 
-            for cmd, count in process.items():
+            for info in process_info:
+                if info.state == "D":
+                    if "nvidia-smi" in info.cmd:
+                        # override command name to make alert rule easier
+                        zombie_count["nvidia-smi"] += 1
+                    else:
+                        cmd = info.cmd.split()[0] # remove args
+                        zombie_count[cmd] += 1
+
+                if info.rss > 500 * 1024 * 1024:
+                    # only record large memory consumption to save space in prometheus
+                    cmd = info.cmd.split()[0] # remove args
+                    process_mem_metrics.add_metric([str(info.pid), cmd], info.rss)
+
+            for cmd, count in zombie_count.items():
                 zombie_metrics.add_metric([cmd], count)
 
-            return [zombie_metrics]
+            return [zombie_metrics, process_mem_metrics]
 
         return None
