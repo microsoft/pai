@@ -25,7 +25,7 @@ alert-manager:
 
 In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True`, to make url from alert email public available.
 
-Also you can control the interval of sending same alert email if problem unsolved, the default interval is 4h, you can shorten it to 30m or enlarge it to 24h, by adding `repeat-interval: 30m` or `repeat-interval: 24h` undert alert-manager config.
+Also you can control the interval of sending same alert email if problem unsolved, the default interval is 24h, you can shorten it to 30m, by adding `repeat-interval: 30m` undert alert-manager config.
 
 #### Generated Configuration <a name="G_Config"></a>
 
@@ -42,7 +42,7 @@ alert-manager:
     host: master_ip
     url: "http://master_ip:9093"
     use-pylon: False
-    repeat-interval: 4h
+    repeat-interval: 24h
 ```
 
 if you didn't configured alert-manager, it will be like:
@@ -53,5 +53,5 @@ alert-manager:
     host: master_ip
     url: "http://master_ip:9093"
     use-pylon: False
-    repeat-interval: 4h
+    repeat-interval: 24h
 ```
