@@ -17,12 +17,15 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { resolve } from "url";
 import { parse } from "querystring";
 
 import App from "./App";
 
 declare let __webpack_public_path__: string;
-__webpack_public_path__ = (window.document.currentScript as HTMLScriptElement).src;
+(window as any).__webpack_public_path__
+  = __webpack_public_path__
+  = resolve((window.document.currentScript as HTMLScriptElement).src, "./");
 
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {

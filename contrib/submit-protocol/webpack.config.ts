@@ -22,13 +22,13 @@ import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 const configuration: Configuration = {
   context: resolve(__dirname, "src"),
   entry: {
-    "plugin": "./index.ts",
-    "editor.worker": "monaco-editor/esm/vs/editor/editor.worker.js",
+    plugin: "./index.ts",
   },
   output: {
     path: resolve(__dirname, "dist"),
-    filename: "[name].bundle.js",
-    globalObject: "self",
+    filename: "[name].js",
+    chunkFilename: "[id].chunk.js",
+    globalObject: "this",
   },
   module: {
     rules: [
