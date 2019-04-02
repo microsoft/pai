@@ -58,6 +58,19 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         202,
         {}
       );
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${namespace}~${jobName}`)
+      .reply(
+        200,
+        global.mustache.render(
+          global.frameworkDetailTemplate,
+          {
+            'frameworkName': `${namespace}~${jobName}`,
+            'username': namespace,
+            'applicationId': 'app1',
+          }
+        )
+      );
     global.nock(global.webhdfsUri)
       .put(/op=MKDIR/)
       .times(5)
@@ -90,6 +103,50 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   const prepareNockForCaseP02 = prepareNockForCaseP01;
 
   const prepareNockForCaseP03 = prepareNockForCaseP01;
+
+  const prepareNockForCaseP04 = (namespace, jobName) => {
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${namespace}~${jobName}`)
+      .twice()
+      .reply(
+        404,
+        {}
+      );
+    global.nock(global.launcherWebserviceUri)
+      .put(`/v1/Frameworks/${namespace}~${jobName}`)
+      .matchHeader('UserName', namespace)
+      .reply(
+        202,
+        {}
+      );
+    global.nock(global.webhdfsUri)
+      .put(/op=MKDIR/)
+      .times(5)
+      .reply(
+        200,
+        {}
+      );
+
+    // Add OS platform check
+    // Since ssh-keygen package only works for Linux
+    if (process.platform.toUpperCase() === 'LINUX') {
+      global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(6)
+      .reply(
+        201,
+        {}
+      );
+    } else {
+      global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(4)
+      .reply(
+        201,
+        {}
+      );
+    }
+  };
 
   const prepareNockForCaseN03 = () => {
     global.nock(global.launcherWebserviceUri)
@@ -284,10 +341,10 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        global.chai.expect(res.body.name, 'response job name').equal('new_job');
         done();
       });
   });
@@ -302,16 +359,32 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job_in_vc1');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job_in_vc1 successfully');
+        global.chai.expect(res.body.name, 'response job name').equal('new_job_in_vc1');
         done();
       });
   });
 
   it('[P-03] Submit a job using PUT method', (done) => {
     prepareNockForCaseP03('user1', 'new_job');
+    global.chai.request(global.server)
+      .put('/api/v1/user/user1/jobs/new_job')
+      .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.name, 'response job name').equal('new_job');
+        done();
+      });
+  });
+
+  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+    prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
       .put('/api/v1/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
@@ -497,6 +570,19 @@ describe('Submit job: POST /api/v1/jobs', () => {
         202,
         {}
       );
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${jobName}`)
+      .reply(
+        200,
+        global.mustache.render(
+          global.frameworkDetailTemplate,
+          {
+            'frameworkName': `${jobName}`,
+            'username': 'user1',
+            'applicationId': 'app1',
+          }
+        )
+      );
     global.nock(global.webhdfsUri)
       .put(/op=MKDIR/)
       .times(5)
@@ -541,8 +627,10 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/job1');
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.name, 'response job name').equal('job1');
         done();
       });
   });
@@ -556,8 +644,10 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/job2');
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.name, 'response job name').equal('job2');
         done();
       });
   });
