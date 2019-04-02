@@ -19,6 +19,7 @@ import yaml from 'js-yaml';
 import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
+import {isJobV2} from './util';
 import config from '../../../../config/webportal.config';
 
 const params = new URLSearchParams(window.location.search);
@@ -110,7 +111,7 @@ export function cloneJob(jobConfig) {
   }
 
   // job v2
-  if (!isNil(jobConfig.protocolVersion)) {
+  if (isJobV2(jobConfig)) {
     window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
   } else {
     window.location.href = `/submit.html?${qs.stringify(query)}`;
@@ -179,4 +180,13 @@ export async function getContainerLog(logUrl) {
   } catch (e) {
     throw new Error(`Log not available`);
   }
+}
+
+export function openJobAttemptsPage(retryCount) {
+  const search = namespace ? namespace + '~' + jobName : jobName;
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(config.yarnWebPortalUri);
 }

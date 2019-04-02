@@ -18,33 +18,38 @@
 
 import subprocess
 import logging
-import collections
 
 import utils
 
 logger = logging.getLogger(__name__)
 
+class ProcessInfo(object):
+    def __init__(self, pid, state, rss, cmd):
+        """ pid is string type, rss is a number in byte """
+        self.pid = pid
+        self.state = state
+        self.rss = rss
+        self.cmd = cmd
+
 def parse_result(ps):
-    result = collections.defaultdict(lambda : 0)
+    result = []
 
     for line in ps.split("\n"):
         line = line.strip()
         if len(line) == 0:
             continue
-        state = line[0]
-        cmd = line[2:]
-        if state == "D":
-            if "nvidia-smi" in cmd:
-                result["nvidia-smi"] += 1 # override command name to make alert rule easier
-            else:
-                cmd = cmd.split()[0] # remove args
-                result[cmd] += 1
+        parts = line.split()
+        state = parts[0]
+        rss = int(parts[1]) * 1024
+        pid = parts[2]
+        cmd = " ".join(parts[3:])
+        result.append(ProcessInfo(pid, state, rss, cmd))
 
     return result
 
-def get_zombie_process(histogram, timeout):
+def get_process_info(histogram, timeout):
     try:
-        ps_output = utils.exec_cmd(["ps", "ax", "--no-headers", "--format", "state,cmd"],
+        ps_output = utils.exec_cmd(["ps", "ax", "--no-headers", "--format", "state,rss,pid,cmd"],
                 histogram=histogram, timeout=timeout)
 
         return parse_result(ps_output)
@@ -52,8 +57,8 @@ def get_zombie_process(histogram, timeout):
         logger.exception("command '%s' return with error (code %d): %s",
                 e.cmd, e.returncode, e.output)
     except subprocess.TimeoutExpired:
-        logger.warning("ps aux timeout")
+        logger.warning("ps ax timeout")
     except Exception:
-        logger.exception("exec ps aux error")
+        logger.exception("exec ps ax error")
 
-    return None
+    return []
