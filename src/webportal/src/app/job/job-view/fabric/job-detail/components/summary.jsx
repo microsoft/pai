@@ -31,7 +31,7 @@ import Card from './card';
 import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
-import {getJobMetricsUrl, cloneJob} from '../conn';
+import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString} from '../util';
 
 const StoppableStatus = [
@@ -150,9 +150,13 @@ export default class Summary extends React.Component {
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <Link
+                className={c(t.mt2, FontClassNames.mediumPlus)}
+                onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
+                disabled={isNil(jobInfo.jobStatus.retries)}
+              >
                 {jobInfo.jobStatus.retries}
-              </div>
+              </Link>
             </div>
           </div>
           {/* summary-row-3 */}

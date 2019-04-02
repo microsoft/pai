@@ -181,3 +181,12 @@ export async function getContainerLog(logUrl) {
     throw new Error(`Log not available`);
   }
 }
+
+export function openJobAttemptsPage(retryCount) {
+  const search = namespace ? namespace + '~' + jobName : jobName;
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(config.yarnWebPortalUri);
+}
