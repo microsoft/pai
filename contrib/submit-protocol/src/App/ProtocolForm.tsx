@@ -27,6 +27,8 @@ import update from "immutability-helper";
 import jsyaml from "js-yaml";
 import MonacoEditor from "react-monaco-editor";
 
+initializeIcons();
+
 interface IProtocolProps {
   api: string;
   user: string;
@@ -47,7 +49,6 @@ interface IProtocolState {
 export default class ProtocolForm extends React.Component<IProtocolProps, IProtocolState> {
   constructor(props: IProtocolProps) {
     super(props);
-    initializeIcons();
 
     this.state = {
       jobName: "",
@@ -74,6 +75,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         window.alert(err.message);
       });
     }
+  }
+
+  componentDidMount() {
+    this.submitProtocol;
   }
 
   public render() {
