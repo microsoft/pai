@@ -1,7 +1,7 @@
 protocol_version : v2
-name : caffe_example
+name : sklearn
 type : dockerimage
 version : 1.0.0
 contributor : Yanli
-description: caffe
-uri : openpai/pai.example.caffe
+description: sklearn
+uri : openpai/pai.example.sklearn
