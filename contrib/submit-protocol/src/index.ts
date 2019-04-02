@@ -23,9 +23,16 @@ import { parse } from "querystring";
 import App from "./App";
 
 declare let __webpack_public_path__: string;
-(window as any).__webpack_public_path__
-  = __webpack_public_path__
-  = resolve((window.document.currentScript as HTMLScriptElement).src, "./");
+const publicPath = __webpack_public_path__ = resolve((window.document.currentScript as HTMLScriptElement).src, "./");
+
+(window as any).MonacoEnvironment = {
+  getWorkerUrl() {
+    const code = `
+    self.MonacoEnvironment = { baseUrl: '${publicPath}' };
+    importScripts('${resolve(publicPath, "editor.worker.js")}');`;
+    return `data:application/javascript;charset=utf-8,${encodeURIComponent(code)}`;
+  },
+};
 
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
