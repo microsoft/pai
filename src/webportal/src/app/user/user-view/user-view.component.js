@@ -114,7 +114,7 @@ const loadUsers = (limit, specifiedVc) => {
               vcName: (data[i].admin === 'true') ? 'All virtual clusters' : data[i].virtualCluster,
               githubPAT: data[i].githubPAT,
               edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
-                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].hasGithubPAT + '\')">Edit</button>',
+                '\',\'' + data[i].admin + '\',\'' + data[i].virtualCluster + '\',\'' + data[i].hasGithubPAT + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
           }
@@ -215,8 +215,8 @@ const updateUserAccount = (username) => {
         if (data.error) {
           alert(data.message);
         } else {
-            alert('Update user basic information successfully');
-            window.location.href = '/user-view.html';
+          alert('Update user basic information successfully');
+          window.location.href = '/user-view.html';
         }
       },
       error: (xhr, textStatus, error) => {
@@ -265,10 +265,10 @@ const downloadTemplate = () => {
     [columnAdmin]: false,
     [columnVC]: 'default',
     [columnGithubPAT]: '',
-  }])
-  let universalBOM = "\uFEFF";
+  }]);
+  let universalBOM = '\uFEFF';
   let filename = 'userinfo.csv';
-  let file = new Blob([universalBOM + csvString], { type: 'text/csv;charset=utf-8' });
+  let file = new Blob([universalBOM + csvString], {type: 'text/csv;charset=utf-8'});
   if (window.navigator.msSaveOrOpenBlob) { // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
   } else { // Others
@@ -278,7 +278,7 @@ const downloadTemplate = () => {
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    setTimeout(function () {
+    setTimeout(function() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, 0);
@@ -287,12 +287,12 @@ const downloadTemplate = () => {
 
 const toBool = (val) => {
   return (val + '').toLowerCase() === 'true';
-}
+};
 
 const addUser = (username, password, admin, vc, githubPAT) => {
-  let deferredObject = $.Deferred();
+  let deferredObject = new $.Deferred();
   userAuth.checkToken((token) => {
-    createUserRequest = $.ajax({
+    $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/user`,
       data: {
         username,
@@ -317,7 +317,7 @@ const addUser = (username, password, admin, vc, githubPAT) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-            dataType: 'json'
+            dataType: 'json',
           });
           reqs.push(req);
         }
@@ -332,7 +332,7 @@ const addUser = (username, password, admin, vc, githubPAT) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-            dataType: 'json'
+            dataType: 'json',
           });
           reqs.push(req);
         }
@@ -344,7 +344,7 @@ const addUser = (username, password, admin, vc, githubPAT) => {
             const res = JSON.parse(xhr.responseText);
             deferredObject.resolve(`User ${username} created successfully but failed when update other info: ${res.message}`);
           }
-        )
+        );
       },
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
@@ -353,7 +353,7 @@ const addUser = (username, password, admin, vc, githubPAT) => {
     });
   });
   return deferredObject.promise();
-}
+};
 
 const addUserRecursively = (userInfos, index, results) => {
   if (index == 0) {
@@ -373,9 +373,9 @@ const addUserRecursively = (userInfos, index, results) => {
       .then((result) => {
         results.push(result);
         addUserRecursively(userInfos, ++index, results);
-      })
+      });
   }
-}
+};
 
 const checkUserInfoCSVFormat = (csvResult) => {
   let fields = csvResult.meta.fields;
@@ -392,34 +392,34 @@ const checkUserInfoCSVFormat = (csvResult) => {
     return false;
   }
   if (csvResult.data.length == 0) {
-    alert("Empty CSV file");
+    alert('Empty CSV file');
     return false;
   }
   return true;
-}
+};
 
 const importFromCSV = () => {
-  readFile = function (e) {
+  let readFile = function(e) {
     let file = e.target.files[0];
     if (!file) {
       return;
     }
     let reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function(e) {
       let contents = e.target.result;
       let csvResult = csvParser.parse(stripBom(contents), {
         header: true,
-        skipEmptyLines: true
-      })
+        skipEmptyLines: true,
+      });
       if (checkUserInfoCSVFormat(csvResult)) {
         let results = [];
         addUserRecursively(csvResult.data, 0, results);
       }
       document.body.removeChild(fileInput);
-    }
+    };
     reader.readAsText(file);
-  }
-  var fileInput = document.createElement("input");
+  };
+  let fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.style.display = 'none';
   fileInput.onchange = readFile;
