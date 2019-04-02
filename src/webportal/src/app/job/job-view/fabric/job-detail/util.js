@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import {isNil} from 'lodash';
 import {DateTime, Interval} from 'luxon';
 
 export function getHumanizedJobStateString(jobInfo) {
@@ -83,6 +84,18 @@ export function parseGpuAttr(attr) {
   }
 
   return res;
+}
+
+export function isJobV2(jobConfig) {
+  return !isNil(jobConfig.protocolVersion);
+}
+
+export function getTaskConfig(jobConfig, name) {
+  if (isJobV2(jobConfig)) {
+    return jobConfig && jobConfig.taskRoles && jobConfig.taskRoles[name];
+  } else {
+    return jobConfig && jobConfig.taskRoles && jobConfig.taskRoles.find((x) => x.name === name);
+  }
 }
 
 export const statusColorMapping = {
