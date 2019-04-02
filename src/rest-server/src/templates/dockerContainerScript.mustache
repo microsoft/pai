@@ -191,7 +191,7 @@ function run_user_command()
 run_user_command &
 user_command_pid=$!
 
-while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 60 ] && \
+while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
         kill -0 $user_command_pid 2>/dev/null; do
   sleep 20
 done
