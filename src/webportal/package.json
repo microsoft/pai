@@ -84,7 +84,7 @@
     "sass-loader": "~6.0.6",
     "serve-favicon": "~2.5.0",
     "slick-carousel": "~1.8.1",
-    "strip-bom": "^3.0.0",
+    "strip-bom-string": "^1.0.0",
     "strip-json-comments": "^2.0.1",
     "style-loader": "~0.19.0",
     "terser-webpack-plugin": "^1.2.3",

@@ -36,7 +36,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../user-auth/user-auth.component');
 
 const csvParser = require('papaparse');
-const stripBom = require('strip-bom');
+const stripBom = require('strip-bom-string');
 const columnUsername = 'username';
 const columnPassword = 'password';
 const columnAdmin = 'admin';
@@ -379,11 +379,11 @@ const addUserRecursively = (userInfos, index, results) => {
 
 const checkUserInfoCSVFormat = (csvResult) => {
   let fields = csvResult.meta.fields;
-  if (!fields.includes(columnUsername)) {
+  if (fields.indexOf(columnUsername) === -1) {
     alert('Missing column of username in the CSV file!');
     return false;
   }
-  if (!fields.includes(columnPassword)) {
+  if (fields.indexOf(columnPassword) === -1) {
     alert('Missing column of password in the CSV file!');
     return false;
   }
