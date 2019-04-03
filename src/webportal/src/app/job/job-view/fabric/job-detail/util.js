@@ -91,10 +91,14 @@ export function isJobV2(jobConfig) {
 }
 
 export function getTaskConfig(jobConfig, name) {
-  if (isJobV2(jobConfig)) {
-    return jobConfig && jobConfig.taskRoles && jobConfig.taskRoles[name];
+  if (jobConfig && jobConfig.taskRoles) {
+    if (isJobV2(jobConfig)) {
+      return jobConfig.taskRoles[name];
+    } else {
+      return jobConfig.taskRoles.find((x) => x.name === name);
+    }
   } else {
-    return jobConfig && jobConfig.taskRoles && jobConfig.taskRoles.find((x) => x.name === name);
+    return null;
   }
 }
 

@@ -2,7 +2,7 @@ import {getModified, getDuration, getStatusIndex} from './utils';
 
 export default class Ordering {
   /**
-   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | undefined} field
+   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending=false) {
@@ -44,6 +44,14 @@ export default class Ordering {
       comparator = descending
         ? (a, b) => getStatusIndex(b) - getStatusIndex(a)
         : (a, b) => getStatusIndex(a) - getStatusIndex(b);
+    } else if (field === 'taskCount') {
+      comparator = descending
+        ? (a, b) => b.totalTaskNumber - a.totalTaskNumber
+        : (a, b) => a.totalTaskNumber - b.totalTaskNumber;
+    } else if (field === 'gpuCount') {
+      comparator = descending
+        ? (a, b) => b.totalGpuNumber - a.totalGpuNumber
+        : (a, b) => a.totalGpuNumber - b.totalGpuNumber;
     }
     return jobs.slice().sort(comparator);
   }

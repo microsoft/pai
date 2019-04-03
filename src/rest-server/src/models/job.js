@@ -138,6 +138,9 @@ class Job {
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
               virtualCluster: frameworkInfo.queue,
+              totalGpuNumber: frameworkInfo.totalGpuNumber,
+              totalTaskNumber: frameworkInfo.totalTaskNumber,
+              totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
             const tildeIndex = job.name.indexOf('~');

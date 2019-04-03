@@ -131,6 +131,24 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
   });
+  const taskCountColumn = applySortProps({
+    key: 'taskCount',
+    minWidth: 60,
+    name: 'Tasks',
+    fieldName: 'totalTaskNumber',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+  });
+  const gpuCountColumn = applySortProps({
+    key: 'gpuCount',
+    minWidth: 60,
+    name: 'GPUs',
+    fieldName: 'totalGpuNumber',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+  });
   const statusColumn = applySortProps({
     key: 'status',
     minWidth: 100,
@@ -223,6 +241,8 @@ export default function Table() {
     durationColumn,
     virtualClusterColumn,
     retriesColumn,
+    taskCountColumn,
+    gpuCountColumn,
     statusColumn,
     actionsColumn,
   ];
