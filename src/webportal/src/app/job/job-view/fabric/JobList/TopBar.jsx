@@ -145,7 +145,6 @@ function TopBar() {
     return {
       key: 'filters',
       name: 'Filters',
-      buttonStyles: {root: {backgroundColor: 'transparent'}},
       iconProps: {iconName: 'Filter'},
       menuIconProps: {iconName: active ? 'ChevronUp' : 'ChevronDown'},
       onClick() {
@@ -157,6 +156,7 @@ function TopBar() {
             onClick={item.onClick}
             iconProps={item.iconProps}
             menuIconProps={item.menuIconProps}
+            styles={{root: {backgroundColor: 'transparent'}}}
           >
             Filter
           </CommandBarButton>
