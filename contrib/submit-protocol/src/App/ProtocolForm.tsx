@@ -56,29 +56,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocolYAML: "",
       showEditor: false,
     };
-
-    const source = this.props.source;
-    if (source && source.jobName && source.user) {
-      window.fetch(
-        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-      ).then((res) => {
-        return res.json();
-      }).then((body) => {
-        const protocol = jsyaml.safeLoad(body);
-        this.setState(
-          { protocol },
-          () => this.setJobName(
-            `${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`,
-          ),
-        );
-      }).catch((err) => {
-        window.alert(err.message);
-      });
-    }
   }
 
-  componentDidMount() {
-    this.submitProtocol;
+  public componentDidMount() {
+    this.fetchConfig();
   }
 
   public render() {
@@ -146,6 +127,27 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         </Fabric>
       </>
     );
+  }
+
+  private fetchConfig = () => {
+    const source = this.props.source;
+    if (source && source.jobName && source.user) {
+      window.fetch(
+        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
+      ).then((res) => {
+        return res.json();
+      }).then((body) => {
+        const protocol = jsyaml.safeLoad(body);
+        this.setState(
+          { protocol },
+          () => this.setJobName(
+            `${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`,
+          ),
+        );
+      }).catch((err) => {
+        window.alert(err.message);
+      });
+    }
   }
 
   private setJobName = (jobName: string) => {
