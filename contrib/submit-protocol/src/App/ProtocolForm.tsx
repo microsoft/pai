@@ -107,7 +107,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                   <div className="form-group col-md-8">
                     <Label>Protocol YAML Operation</Label>
                       <label className="col-md-3" style={{padding: 0}}>
-                        <a type="button" className="btn btn-default">Import</a>
+                        <a type="button" className="btn btn-success">Import</a>
                         <input
                           type="file"
                           className="sr-only"

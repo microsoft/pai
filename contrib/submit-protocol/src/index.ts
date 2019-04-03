@@ -18,6 +18,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { resolve } from "url";
+import "bootstrap/dist/css/bootstrap.css";
 
 import App from "./App";
 

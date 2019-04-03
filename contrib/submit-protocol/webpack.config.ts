@@ -41,6 +41,10 @@ const configuration: Configuration = {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.(eot|woff2?|svg|ttf)([\?]?.*)$/,
+        use: "file-loader",
+      },
     ],
   },
   resolve: {
