@@ -17,6 +17,7 @@
 
 // module dependencies
 const yaml = require('js-yaml');
+const url = require('url');
 const Job = require('../models/job');
 const createError = require('../util/error');
 const logger = require('../config/logger');
@@ -98,11 +99,24 @@ const update = (req, res, next) => {
   Job.prototype.putJob(name, req.params.username, data, (err) => {
     if (err) {
       return next(createError.unknown(err));
-    } else {
-      return res.status(202).json({
-        message: `update job ${name} successfully`,
-      });
     }
+    let location = url.format({
+      protocol: req.protocol,
+      host: req.get('Host'),
+      pathname: req.baseUrl + '/' + name,
+    });
+    new Job(name, req.params.username, (job, err) => {
+      if (err) {
+        if (err.code === 'NoJobError') {
+          return res.status(202).location(location).json({
+            message: `update job ${name} successfully`,
+          });
+        } else {
+          return next(createError.unknown(err));
+        }
+      }
+      return res.status(201).location(location).json(job);
+    });
   });
 };
 
