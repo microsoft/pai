@@ -1,0 +1,122 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+kubernetes:
+  api-servers-url: http://10.0.0.1:8080
+  dashboard-host: 10.0.0.1
+
+# If corresponding values aren't be set in the machine list, the default value will be filled in.
+default-machine-properties:
+  # Account with root permission
+  username: username
+  password: password
+  sshport: 22
+
+
+machine-sku:
+
+  NC24R:
+    mem: 224
+    gpu:
+    # type: gpu{type}
+      type: teslak80
+      count: 4
+    cpu:
+      vcore: 24
+    #dataFolder: "/mnt"
+    #Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
+    os: ubuntu16.04
+
+  D8SV3:
+    mem: 32
+    cpu:
+      vcore: 8
+    #dataFolder: "/mnt"
+    #Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    os: ubuntu16.04
+
+
+
+machine-list:
+
+    - hostname: hostname1 (echo `hostname`)
+      hostip: 10.0.0.1
+      machine-type: D8SV3
+      etcdid: etcdid1
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: master
+      dashboard: "true"
+      zkid: "1"
+      pai-master: "true"
+
+
+    - hostname: hostname2
+      hostip: 10.0.0.2
+      machine-type: D8SV3
+      etcdid: etcdid2
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: master
+
+
+    - hostname: hostname3
+      hostip: 10.0.0.3
+      machine-type: D8SV3
+      etcdid: etcdid3
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: master
+
+
+    - hostname: hostname2
+      hostip: 10.0.0.4
+      machine-type: NC24R
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: worker
+      pai-worker: "true"
+
+
+    - hostname: hostname5
+      hostip: 10.0.0.5
+      machine-type: NC24R
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: worker
+      pai-worker: "true"
+
+
+    - hostname: hostname3
+      hostip: 10.0.0.6
+      machine-type: NC24R
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: worker
+      pai-worker: "true"
+
+
+
+
+
+
