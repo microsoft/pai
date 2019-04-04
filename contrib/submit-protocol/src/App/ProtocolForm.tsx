@@ -22,6 +22,7 @@ import { Label } from "office-ui-fabric-react/lib/Label";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
+import { Badge, Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import crypto from "crypto";
 import update from "immutability-helper";
 import jsyaml from "js-yaml";
@@ -68,6 +69,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     return (
       <>
         <Fabric>
+
           <Panel
             isOpen={this.state.showEditor}
             isLightDismiss={true}
@@ -91,43 +93,55 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               <DefaultButton text="Discard" onClick={this.discardEditor} />
             </div>
           </Panel>
-          <div className="content">
-            <form className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h3 className="Header">
-                    Submit Protocol <small style={{ margin: "10px" }}>PREVIEW</small>
-                  </h3>
-                </div>
-                <div className="modal-body row">
-                  <div className="form-group col-md-8">
-                    <TextField
-                      label="Job Name "
-                      value={this.state.jobName}
-                      onChanged={this.setJobName}
-                      required={true}
-                    />
-                  </div>
-                  <div className="form-group col-md-8">
-                    <Label>Protocol YAML Operation</Label>
-                      <label className="col-md-3" style={{padding: 0}}>
-                        <a className="btn btn-success">Import</a>
-                        <input
-                          type="file"
-                          className="sr-only"
-                          accept=".yml,.yaml"
-                          onChange={this.importFile}
-                        />
-                      </label>
-                      <DefaultButton text="View/Edit" onClick={this.openEditor} />
-                  </div>
-                </div>
-                <div className="modal-footer" style={{ marginTop: "256px" }}>
-                  <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
-                </div>
-              </div>
-            </form>
-          </div>
+
+          <Container>
+            <Modal.Dialog>
+              <Modal.Header>
+                <h3>Submit Protocol <Badge variant="secondary">PREVIEW</Badge></h3>
+              </Modal.Header>
+              <Modal.Body>
+                <Form.Group>
+                  <Row>
+                    <Col md={8}>
+                      <TextField
+                        label="Job Name "
+                        value={this.state.jobName}
+                        onChanged={this.setJobName}
+                        required={true}
+                      />
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group>
+                  <Row>
+                    <Col md={8}>
+                      <Label>Protocol YAML Operation</Label>
+                        <Row>
+                          <Col md={3}>
+                            <label>
+                              <Button as="a" variant="success">Import</Button>
+                              <input
+                                type="file"
+                                className="sr-only"
+                                accept=".yml,.yaml"
+                                onChange={this.importFile}
+                              />
+                            </label>
+                          </Col>
+                          <Col md={3}>
+                            <DefaultButton text="View/Edit" onClick={this.openEditor} />
+                          </Col>
+                        </Row>
+                    </Col>
+                  </Row>
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer style={{ marginTop: "150px" }}>
+                <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+              </Modal.Footer>
+            </Modal.Dialog>
+          </Container>
+
         </Fabric>
       </>
     );
