@@ -23,6 +23,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathConfiguration:/cluster-configuration  \
+        -v /hadoop-binary:/hadoop-binary  \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -32,6 +33,10 @@ sudo docker run -itd \
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
 cd /pai
+
+# setup kubernetes environments
+./paictl.py cluster k8s-set-env
+# then input master node ip
 ```
 
 ### Check PAI cluster version
@@ -71,11 +76,14 @@ Usage:
 
 `./deployment/tools/configMigration.py path_to_backup_your_config path_to_output_new_style_config`
 
-Then you could customzie the generate config under the directory `path_to_output_new_style_config` per need.
+Then you could customize the generate config under the directory `path_to_output_new_style_config` per need.
 
-### Validata Cluster Configuration
+If you are using webportal plug-in before v0.11 (confirmed that if `webportal.plugins` in `services-configuration.yaml`), you need to run an extra script after above command:  
+`./deployment/tools/pluginIdMigration.py path_to_output_new_style_config path_to_output_new_style_config`
 
-PAI provide an `check` command for validatng configuration, usage as below:
+### Validate Cluster Configuration
+
+PAI provide an `check` command for validating configuration, usage as below:
 
 `./paictl.py check -p path_to_output_new_style_config`
 
@@ -102,7 +110,7 @@ Data won't lost during the upgrade, the backup is optional but recommended.
 Now please login onto the master node, and backup the data for ETCD, Zookeeper and etc. Below is a list of directories should take care (please backup them):
 
 1. PAI common data path, check the `service-configuration.yaml`, there is a config `cluster.common.data-path`. Please don't change it unless you know excatly what you are doing.
-2. Etcd data path, check the `kubernetes-configuration.yaml.yaml`, there is a config `kubernetes.ectd-data-path`.
+2. Etcd data path, check the `kubernetes-configuration.yaml`, there is a config `kubernetes.ectd-data-path`.
 
 ## Destroy Kubernetes Cluster
 
