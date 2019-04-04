@@ -75,10 +75,10 @@ class MachineCmd():
         etcd_parser.set_defaults(handler=self.etcd_fix)
 
         # ./paictl.py machine update ...
-        update_parser = machine_parser.add_parser("update")
-        update_parser.add_argument("-p", "--config-path", dest="config_path", default=None, help="the path of directory which stores the cluster configuration.")
-        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
-        update_parser.set_defaults(handler=self.machine_update)
+        #update_parser = machine_parser.add_parser("update")
+        #update_parser.add_argument("-p", "--config-path", dest="config_path", default=None, help="the path of directory which stores the cluster configuration.")
+        #update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+        #update_parser.set_defaults(handler=self.machine_update)
 
         def add_arguments(parser):
             parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="The path of your configuration directory.")
