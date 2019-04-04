@@ -13,7 +13,6 @@ A tool to manage your pai cluster.
 - [ Maintain machines ](#Machine) 
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
-    - [ Add new machine, remove old machine ](#Machine_Update)
     - [ Fix crashed etcd node](#etcd_fix)
 - [ Maintain your service ](#Service) 
     - [ Start service(s) ](#Service_Start)
@@ -125,17 +124,6 @@ paictl.py config get-id [-c kube-config]
     
 
 - See an example of the machine list [here](#Machine_Nodelist_Example).
-
-### Add new machine, remove old machine <a name=#Machine_Update></a>
-
-- Step1: update your machinelist in the cluster configuration 
-    - Remove the machine you wanna remove in the list.
-    - Add the machine into the machine list.
-    - Update cluster configuration with the this [command](#Config_Push).
-- Step2: Execute the machine update command following.
-
-    python paictl.py machine update [-c /path/to/kubeconfig]
-    
 
 ### Fix crashed etcd node <a name="etcd_fix"></a>
 
