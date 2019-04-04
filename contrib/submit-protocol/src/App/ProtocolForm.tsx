@@ -21,7 +21,7 @@ import { Fabric } from "office-ui-fabric-react/lib/Fabric";
 import { Label } from "office-ui-fabric-react/lib/Label";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Badge, Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import crypto from "crypto";
