@@ -286,7 +286,7 @@ const downloadTemplate = () => {
 };
 
 const toBool = (val) => {
-  return (val + '').toLowerCase() === 'true';
+  return (String(val)).toLowerCase() === 'true';
 };
 
 const addUser = (username, password, admin, vc, githubPAT) => {
@@ -361,7 +361,7 @@ const addUserRecursively = (userInfos, index, results) => {
   }
   if (index >= userInfos.length) {
     loading.hideLoading();
-    alert(results.join('\r\n'));
+    alert(results.join('\n'));
     window.location.reload();
   } else {
     let userInfo = userInfos[index];
@@ -407,13 +407,15 @@ const importFromCSV = () => {
     let reader = new FileReader();
     reader.onload = function(e) {
       let contents = e.target.result;
-      let csvResult = csvParser.parse(stripBom(contents), {
-        header: true,
-        skipEmptyLines: true,
-      });
-      if (checkUserInfoCSVFormat(csvResult)) {
-        let results = [];
-        addUserRecursively(csvResult.data, 0, results);
+      if (contents) {
+        let csvResult = csvParser.parse(stripBom(contents), {
+          header: true,
+          skipEmptyLines: true,
+        });
+        if (checkUserInfoCSVFormat(csvResult)) {
+          let results = [];
+          addUserRecursively(csvResult.data, 0, results);
+        }
       }
       document.body.removeChild(fileInput);
     };
