@@ -38,8 +38,27 @@ const configuration: Configuration = {
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        test: /\.(css|scss)$/,
+        include: resolve(__dirname, "src"),
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              url: true,
+              modules: true,
+              sourceMap: true,
+              camelCase: true,
+              localIdentName: "[name]-[local]--[hash:base64:5]",
+            },
+          },
+          "sass-loader",
+        ],
+      },
+      {
+        test: /\.(css|scss)$/,
+        exclude: resolve(__dirname, "src"),
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
         test: /\.(eot|woff2?|svg|ttf)([\?]?.*)$/,

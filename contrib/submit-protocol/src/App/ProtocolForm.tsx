@@ -27,6 +27,8 @@ import update from "immutability-helper";
 import jsyaml from "js-yaml";
 import MonacoEditor from "react-monaco-editor";
 
+import monacoStyles from "./monaco.scss";
+
 initializeIcons();
 
 interface IProtocolProps {
@@ -73,15 +75,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             type={PanelType.largeFixed}
             headerText="Protocol YAML Editor"
           >
-            <MonacoEditor
-              width={800}
-              height={800}
-              value={this.state.protocolYAML}
-              onChange={this.editProtocol}
-              language="yaml"
-              theme="vs-dark"
-              options={{ wordWrap: "on", readOnly: false }}
-            />
+            <div className={monacoStyles.monacoHack}>
+              <MonacoEditor
+                width={800}
+                height={800}
+                value={this.state.protocolYAML}
+                onChange={this.editProtocol}
+                language="yaml"
+                theme="vs-dark"
+                options={{ wordWrap: "on", readOnly: false }}
+              />
+            </div>
             <div style={{ marginTop: "15px" }}>
               <PrimaryButton text="Save" onClick={this.saveEditor} style={{ marginRight: "10px" }}/>
               <DefaultButton text="Discard" onClick={this.discardEditor} />
@@ -107,7 +111,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                   <div className="form-group col-md-8">
                     <Label>Protocol YAML Operation</Label>
                       <label className="col-md-3" style={{padding: 0}}>
-                        <a type="button" className="btn btn-success">Import</a>
+                        <a className="btn btn-success">Import</a>
                         <input
                           type="file"
                           className="sr-only"
