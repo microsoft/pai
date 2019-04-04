@@ -21,6 +21,7 @@ import { Fabric } from "office-ui-fabric-react/lib/Fabric";
 import { Label } from "office-ui-fabric-react/lib/Label";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Badge, Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import crypto from "crypto";
@@ -46,6 +47,7 @@ interface IProtocolState {
   jobName: string;
   protocol: {[key: string]: string | object};
   protocolYAML: string;
+  loading: boolean;
   showEditor: boolean;
 }
 
@@ -57,6 +59,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       jobName: "",
       protocol: Object.create(null),
       protocolYAML: "",
+      loading: true,
       showEditor: false,
     };
   }
@@ -66,6 +69,24 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   public render() {
+    if (this.state.loading) {
+      return (
+        <>
+          <Fabric>
+            <Container>
+              <Modal.Dialog>
+                <Modal.Header>
+                  <h3>Submit Protocol <Badge variant="secondary">PREVIEW</Badge></h3>
+                </Modal.Header>
+                <Modal.Body>
+                  <Spinner size={SpinnerSize.large} />
+                </Modal.Body>
+              </Modal.Dialog>
+            </Container>
+          </Fabric>
+        </>
+      );
+    }
     return (
       <>
         <Fabric>
@@ -164,7 +185,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         );
       }).catch((err) => {
         window.alert(err.message);
+      }).finally(() => {
+        this.setState({ loading: false });
       });
+    } else {
+      this.setState({ loading: false });
     }
   }
 
