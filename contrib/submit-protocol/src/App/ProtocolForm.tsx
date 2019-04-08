@@ -23,12 +23,12 @@ import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
-import { Badge, Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import crypto from "crypto";
 import update from "immutability-helper";
 import jsyaml from "js-yaml";
 import MonacoEditor from "react-monaco-editor";
 
+import bootstrapStyles from "bootstrap/dist/css/bootstrap.css";
 import monacoStyles from "./monaco.scss";
 
 initializeIcons();
@@ -73,16 +73,20 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return (
         <>
           <Fabric>
-            <Container>
-              <Modal.Dialog>
-                <Modal.Header>
-                  <h3>Submit Protocol <Badge variant="secondary">PREVIEW</Badge></h3>
-                </Modal.Header>
-                <Modal.Body>
-                  <Spinner size={SpinnerSize.large} />
-                </Modal.Body>
-              </Modal.Dialog>
-            </Container>
+            <div className={bootstrapStyles["container"]}>
+              <div className={bootstrapStyles["modal-dialog"]}>
+                <div className={bootstrapStyles["modal-content"]}>
+                  <div className={bootstrapStyles["modal-header"]}>
+                    <h3 className={bootstrapStyles["modal-title"]}>
+                      Submit Protocol <small>PREVIEW</small>
+                    </h3>
+                  </div>
+                  <div className={`${bootstrapStyles["modal-body"]} ${bootstrapStyles["row"]}`}>
+                    <Spinner size={SpinnerSize.large} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </Fabric>
         </>
       );
@@ -115,53 +119,43 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             </div>
           </Panel>
 
-          <Container>
-            <Modal.Dialog>
-              <Modal.Header>
-                <h3>Submit Protocol <Badge variant="secondary">PREVIEW</Badge></h3>
-              </Modal.Header>
-              <Modal.Body>
-                <Form.Group>
-                  <Row>
-                    <Col md={8}>
-                      <TextField
-                        label="Job Name "
-                        value={this.state.jobName}
-                        onChanged={this.setJobName}
-                        required={true}
-                      />
-                    </Col>
-                  </Row>
-                </Form.Group>
-                <Form.Group>
-                  <Row>
-                    <Col md={8}>
-                      <Label>Protocol YAML Operation</Label>
-                        <Row>
-                          <Col md={3}>
-                            <label>
-                              <Button as="a" variant="success">Import</Button>
-                              <input
-                                type="file"
-                                className="sr-only"
-                                accept=".yml,.yaml"
-                                onChange={this.importFile}
-                              />
-                            </label>
-                          </Col>
-                          <Col md={3}>
-                            <DefaultButton text="View/Edit" onClick={this.openEditor} />
-                          </Col>
-                        </Row>
-                    </Col>
-                  </Row>
-                </Form.Group>
-              </Modal.Body>
-              <Modal.Footer style={{ marginTop: "150px" }}>
-                <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Container>
+          <div className={bootstrapStyles["container"]}>
+            <div className={bootstrapStyles["modal-dialog"]}>
+              <div className={bootstrapStyles["modal-content"]}>
+                <div className={bootstrapStyles["modal-header"]}>
+                  <h3 className={bootstrapStyles["modal-title"]}>
+                    Submit Protocol <small>PREVIEW</small>
+                  </h3>
+                </div>
+                <div className={`${bootstrapStyles["modal-body"]} ${bootstrapStyles["row"]}`}>
+                  <div className={`${bootstrapStyles["form-group"]} ${bootstrapStyles["col-md-8"]}`}>
+                    <TextField
+                      label="Job Name "
+                      value={this.state.jobName}
+                      onChanged={this.setJobName}
+                      required={true}
+                    />
+                  </div>
+                  <div className={`${bootstrapStyles["form-group"]} ${bootstrapStyles["col-md-8"]}`}>
+                    <Label>Protocol YAML Operation</Label>
+                      <label className={bootstrapStyles["col-md-3"]} style={{padding: 0}}>
+                        <a className={`${bootstrapStyles["btn"]} ${bootstrapStyles["btn-success"]}`}>Import</a>
+                        <input
+                          type="file"
+                          className={bootstrapStyles["sr-only"]}
+                          accept=".yml,.yaml"
+                          onChange={this.importFile}
+                        />
+                      </label>
+                      <DefaultButton text="View/Edit" onClick={this.openEditor} />
+                  </div>
+                </div>
+                <div className={bootstrapStyles["modal-footer"]} style={{ marginTop: "150px" }}>
+                  <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+                </div>
+              </div>
+            </div>
+          </div>
 
         </Fabric>
       </>

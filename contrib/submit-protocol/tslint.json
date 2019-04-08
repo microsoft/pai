@@ -8,6 +8,7 @@
   "rules": {
     "ordered-imports": false,
     "object-literal-sort-keys": false,
+    "no-string-literal": false,
     "max-line-length": [
       true,
       {

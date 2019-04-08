@@ -19,13 +19,20 @@ import { resolve } from "path";
 import { Configuration } from "webpack";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 
+const SRC_PATH = resolve(__dirname, "src");
+const OUTPUT_PATH = resolve(__dirname, "dist");
+const CSS_MODULES_PATH = [
+  SRC_PATH,
+  resolve(__dirname, "node_modules/bootstrap"),
+];
+
 const configuration: Configuration = {
-  context: resolve(__dirname, "src"),
+  context: SRC_PATH,
   entry: {
     plugin: "./index.ts",
   },
   output: {
-    path: resolve(__dirname, "dist"),
+    path: OUTPUT_PATH,
     filename: "[name].js",
     chunkFilename: "[id].chunk.js",
     globalObject: "this",
@@ -39,7 +46,7 @@ const configuration: Configuration = {
       },
       {
         test: /\.(css|scss)$/,
-        include: resolve(__dirname, "src"),
+        include: CSS_MODULES_PATH,
         use: [
           "style-loader",
           {
@@ -49,7 +56,7 @@ const configuration: Configuration = {
               modules: true,
               sourceMap: true,
               camelCase: true,
-              localIdentName: "[name]-[local]--[hash:base64:5]",
+              localIdentName: "[name]-[local]--[hash:base64:6]",
             },
           },
           "sass-loader",
@@ -57,7 +64,7 @@ const configuration: Configuration = {
       },
       {
         test: /\.(css|scss)$/,
-        exclude: resolve(__dirname, "src"),
+        exclude: CSS_MODULES_PATH,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
