@@ -60,7 +60,6 @@ const isValidJson = (str) => {
     valid = false;
   }
   if (!valid) {
-    // alert('Please upload a valid json file: ' + errors);
     alert('Please fix the invalid parameters: ' + errors);
   }
   return valid;
@@ -153,7 +152,7 @@ $(document).ready(() => {
       oldSave.parentNode.replaceChild(newSave, oldSave);
 
       // add new click listener
-      $(newSave).on('click', ()=>{
+      $(newSave).on('click', () => {
         let curConfig = editor.root.editjson_textarea.value;
         if (isValidJson(curConfig)) {
           editor.root.setValue(JSON.parse(curConfig));
