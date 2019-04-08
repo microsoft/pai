@@ -35,14 +35,14 @@ import monacoStyles from "./monaco.scss";
 
 initializeIcons();
 
-type IParameterObj = {
+interface IParameterObj {
   [key: string]: string;
-};
+}
 
-type IParameterItem = {
+interface IParameterItem {
   key: string;
   value: string;
-};
+}
 
 interface IProtocolProps {
   api: string;
@@ -152,18 +152,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                   <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
                     <Toggle
                       label="Job Parameters "
-                      inlineLabel
                       checked={this.state.showParameters}
                       onChange={this.toggleParameters}
+                      inlineLabel={true}
                     />
-                    {this.state.showParameters ? (
-                      this.state.protocol.parameters &&
-                      <List
-                        items={this.getParameterItems()}
-                        onRenderCell={this.renderParameterItems}
-                      /> ||
-                      <Label>There is no parameter to show.</Label>
-                    ) : (null)}
+                    {this.renderParameters()}
                   </div>
                   <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
                     <Label>Protocol YAML Operation</Label>
@@ -254,11 +247,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private getParameterItems = () => {
-    let pairs: IParameterItem[] = [];
+    const pairs: IParameterItem[] = [];
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({key, value})
+        ([key, value]) => pairs.push({key, value}),
       );
     }
     return pairs;
@@ -266,23 +259,23 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private renderParameterItems = (item?: IParameterItem) => {
     if (item !== undefined) {
+      const setParameter = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
+        if (value !== undefined) {
+          const protocol = this.state.protocol;
+          (protocol.parameters as IParameterObj)[item.key] = value;
+          this.setState({
+            protocol,
+            protocolYAML: jsyaml.safeDump(protocol),
+          });
+        }
+      };
+
       return (
         <TextField
           label={`${item.key}: `}
-          underlined
           defaultValue={item.value}
-          onChange={
-            (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
-              if (value !== undefined) {
-                const protocol = this.state.protocol;
-                (protocol.parameters as IParameterObj)[item.key] = value;
-                this.setState({
-                  protocol,
-                  protocolYAML: jsyaml.safeDump(protocol),
-                });
-              }
-            }
-          }
+          onChange={setParameter}
+          underlined={true}
         />
       );
     } else {
@@ -293,6 +286,26 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private toggleParameters = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
     if (checked !== undefined) {
       this.setState({ showParameters: checked });
+    }
+  }
+
+  private renderParameters = () => {
+    if (this.state.showParameters) {
+      const items = this.getParameterItems();
+      if (items.length > 0) {
+        return (
+          <List
+            items={this.getParameterItems()}
+            onRenderCell={this.renderParameterItems}
+          />
+        );
+      } else {
+        return (
+          <Label>There is no parameter to show.</Label>
+        );
+      }
+    } else {
+      return (null);
     }
   }
 
