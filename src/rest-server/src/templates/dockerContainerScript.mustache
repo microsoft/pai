@@ -27,32 +27,45 @@ RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
 RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
 USER_LOG=/pai/log/user.pai.log
 USER_ERROR_LOG=/pai/log/user.pai.error
+DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 
 # create runtime docker log here. Since multi shell IO block will write to the files,
 # we just append lines to the log file to avoid flush exits contents.
 touch RUNTIME_DOCKER_ERR_LOG
 touch RUNTIME_DOCKER_LOG
 
+# This function is duplicate between dockerContainerScript and yarnContainerScript\
+# Need to remove one if we discard the shell scirpt
+function log_runtime_error()
+{
+  local level=$1
+  local message_type=$2
+  local error_message=$3
+  local timestamp=$(date +%s)
+
+  printf "%s\n" "$timestamp $level $message_type $error_message" >> $RUNTIME_DOCKER_ERR_LOG
+}
+
+
 function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
+    exit 0
+  fi
+
+  log_runtime_error "ERROR" "REASON" "\"Exiting because of user error, exit code: $rc\""
+  exit $rc
 } 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
-# The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
-function kill_handler()
-{
-  printf "%s %s\n" \
-    "[INFO]" "Docker container killed by cleaner due to disk pressure."
-  exit 1
-} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
 {
 
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
-trap kill_handler 10
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
@@ -207,8 +220,34 @@ run_user_command > >(tee $USER_LOG) 2> >(tee $USER_ERROR_LOG >&2) &
 {
 user_command_pid=$!
 
+function grep_kill_command_from_file()
+{
+  local file_name=$1
+  local rc=0
+
+  if [[ -f $file_name ]]; then
+    grep "ACTION \"KILL\"" $file_name 2>&1 > /dev/null
+    rc=$?
+  fi
+  return $rc
+}
+
+function handle_exit_command()
+{
+  if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
+    grep_kill_command_from_file $DISK_CLEANER_ERROR_FILE
+    if [[ $? -eq 0 ]]; then
+      printf "[INFO] Docker container killed by cleaner due to disk pressure.\n"
+      log_runtime_error "ERROR" "REASON" "\"docker container killed by disk cleaner\""
+      exit 1
+    fi
+  fi
+}
+
+
 while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
         kill -0 $user_command_pid 2>/dev/null; do
+  handle_exit_command
   sleep 20
 done
 
@@ -219,6 +258,7 @@ else
   wait $user_command_pid
   user_command_exitcode=$?
   echo "job has finished with exit code $user_command_exitcode"
+
 {{# isDebug }}
   if [[ $user_command_exitcode -ne 0 ]]; then
     echo "============================================================================="
