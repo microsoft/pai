@@ -19,6 +19,8 @@ import React from "react";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import { Fabric } from "office-ui-fabric-react/lib/Fabric";
 import { Label } from "office-ui-fabric-react/lib/Label";
+import { List } from "office-ui-fabric-react/lib/List";
+import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
@@ -32,6 +34,15 @@ import bootstrapStyles from "bootstrap/dist/css/bootstrap.css";
 import monacoStyles from "./monaco.scss";
 
 initializeIcons();
+
+type IParameterObj = {
+  [key: string]: string;
+};
+
+type IParameterItem = {
+  key: string;
+  value: string;
+};
 
 interface IProtocolProps {
   api: string;
@@ -48,6 +59,7 @@ interface IProtocolState {
   protocol: {[key: string]: string | object};
   protocolYAML: string;
   loading: boolean;
+  showParameters: boolean;
   showEditor: boolean;
 }
 
@@ -60,6 +72,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocol: Object.create(null),
       protocolYAML: "",
       loading: true,
+      showParameters: false,
       showEditor: false,
     };
   }
@@ -78,7 +91,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 <div className={bootstrapStyles.modalContent}>
                   <div className={bootstrapStyles.modalHeader}>
                     <h3 className={bootstrapStyles.modalTitle}>
-                      Submit Protocol <small>PREVIEW</small>
+                      Submit Job v2 <small>Protocol Preview</small>
                     </h3>
                   </div>
                   <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
@@ -124,7 +137,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               <div className={bootstrapStyles.modalContent}>
                 <div className={bootstrapStyles.modalHeader}>
                   <h3 className={bootstrapStyles.modalTitle}>
-                    Submit Protocol <small>PREVIEW</small>
+                    Submit Job v2 <small>Protocol Preview</small>
                   </h3>
                 </div>
                 <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
@@ -132,22 +145,38 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                     <TextField
                       label="Job Name "
                       value={this.state.jobName}
-                      onChanged={this.setJobName}
+                      onChange={this.setJobName}
                       required={true}
                     />
                   </div>
                   <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
+                    <Toggle
+                      label="Job Parameters "
+                      inlineLabel
+                      checked={this.state.showParameters}
+                      onChange={this.toggleParameters}
+                    />
+                    {this.state.showParameters ? (
+                      this.state.protocol.parameters &&
+                      <List
+                        items={this.getParameterItems()}
+                        onRenderCell={this.renderParameterItems}
+                      /> ||
+                      <Label>There is no parameter to show.</Label>
+                    ) : (null)}
+                  </div>
+                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
                     <Label>Protocol YAML Operation</Label>
-                      <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
-                        <a className={`${bootstrapStyles.btn} ${bootstrapStyles.btnSuccess}`}>Import</a>
-                        <input
-                          type="file"
-                          className={bootstrapStyles.srOnly}
-                          accept=".yml,.yaml"
-                          onChange={this.importFile}
-                        />
-                      </label>
-                      <DefaultButton text="View/Edit" onClick={this.openEditor} />
+                    <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
+                      <a className={`${bootstrapStyles.btn} ${bootstrapStyles.btnSuccess}`}>Import</a>
+                      <input
+                        type="file"
+                        className={bootstrapStyles.srOnly}
+                        accept=".yml,.yaml"
+                        onChange={this.importFile}
+                      />
+                    </label>
+                    <DefaultButton text="View/Edit" onClick={this.openEditor} />
                   </div>
                 </div>
                 <div className={bootstrapStyles.modalFooter} style={{ marginTop: "150px" }}>
@@ -174,6 +203,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         this.setState(
           { protocol },
           () => this.setJobName(
+            null as any,
             `${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`,
           ),
         );
@@ -187,15 +217,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
   }
 
-  private setJobName = (jobName: string) => {
-    const protocol = update(this.state.protocol, {
-      name: { $set: jobName },
-    });
-    this.setState({
-      jobName,
-      protocol,
-      protocolYAML: jsyaml.safeDump(protocol),
-    });
+  private setJobName = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, jobName?: string) => {
+    if (jobName !== undefined) {
+      const protocol = update(this.state.protocol, {
+        name: { $set: jobName },
+      });
+      this.setState({
+        jobName,
+        protocol,
+        protocolYAML: jsyaml.safeDump(protocol),
+      });
+    }
   }
 
   private importFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,6 +251,49 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       }
     });
     fileReader.readAsText(files[0]);
+  }
+
+  private getParameterItems = () => {
+    let pairs: IParameterItem[] = [];
+    const parameters = this.state.protocol.parameters as object;
+    if (parameters) {
+      Object.entries(parameters).forEach(
+        ([key, value]) => pairs.push({key, value})
+      );
+    }
+    return pairs;
+  }
+
+  private renderParameterItems = (item?: IParameterItem) => {
+    if (item !== undefined) {
+      return (
+        <TextField
+          label={`${item.key}: `}
+          underlined
+          defaultValue={item.value}
+          onChange={
+            (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
+              if (value !== undefined) {
+                const protocol = this.state.protocol;
+                (protocol.parameters as IParameterObj)[item.key] = value;
+                this.setState({
+                  protocol,
+                  protocolYAML: jsyaml.safeDump(protocol),
+                });
+              }
+            }
+          }
+        />
+      );
+    } else {
+      return (null);
+    }
+  }
+
+  private toggleParameters = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
+    if (checked !== undefined) {
+      this.setState({ showParameters: checked });
+    }
   }
 
   private editProtocol = (text: string) => {
