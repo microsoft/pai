@@ -60,7 +60,7 @@ const isValidJson = (str) => {
     valid = false;
   }
   if (!valid) {
-    alert('Please upload a valid json file: ' + errors);
+    alert('Please fix the invalid parameters: ' + errors);
   }
   return valid;
 };
@@ -143,6 +143,23 @@ $(document).ready(() => {
     editor.on('change', () => {
       $('#submitJob').prop('disabled', (editor.validate().length != 0));
     });
+
+    // choose the first edit json box
+    $('[title="Edit JSON"]').filter(':first').one('click', () => {
+      // disable old save button to avoid saving automatically
+      let oldSave = $('[title="Edit JSON"]').filter(':first').next('div').children('[title=Save]')[0];
+      let newSave = oldSave.cloneNode(true);
+      oldSave.parentNode.replaceChild(newSave, oldSave);
+
+      // add new click listener
+      $(newSave).on('click', () => {
+        let curConfig = editor.root.editjson_textarea.value;
+        if (isValidJson(curConfig)) {
+          editor.root.setValue(JSON.parse(curConfig));
+          editor.root.hideEditJSON();
+        }
+      });
+  });
 
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
