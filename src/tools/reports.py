@@ -87,16 +87,12 @@ def walk_json_field_safe(obj, *fields):
 
 def request_with_error_handling(url):
     try:
-        response = requests.get(url, allow_redirects=True)
+        response = requests.get(url, allow_redirects=True, timeout=15)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         logger.exception(e)
         return None
-
-    if response.status_code != 200:
-        logger.warning("requesting %s with code %d", url, response.status_code)
-        return None
-
-    return response.json()
 
 
 class VcUsage(object):
