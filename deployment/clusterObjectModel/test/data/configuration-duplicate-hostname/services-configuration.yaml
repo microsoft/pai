@@ -16,16 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-set-nvidia-runtime: false
+rest-server:
+  default-pai-admin-username: your_default_pai_admin_username
+  default-pai-admin-password: your_default_pai_admin_password
 
-# You can set drivers version here. If this value is miss, default value will be 384.111
-# Current supported version list
-# 384.111
-# 390.25
-# 410.73
-version: "384.111"
-
-pre-installed-nvidia-path: /usr/local/nvidia
-
-
-skip-ib-installation: false
