@@ -344,7 +344,7 @@ export default class Summary extends React.Component {
                 disabled={isNil(jobConfig)}
               />
               <DefaultButton
-                className={c(t.ml4)}
+                className={c(t.ml3)}
                 text='Stop'
                 onClick={onStopJob}
                 disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}
