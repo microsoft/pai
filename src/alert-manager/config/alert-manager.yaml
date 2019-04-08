@@ -1,2 +1,3 @@
 port: 9093
 use-pylon: False
+repeat-interval: '24h'
