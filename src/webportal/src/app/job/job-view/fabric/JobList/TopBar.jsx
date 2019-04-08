@@ -420,7 +420,7 @@ function TopBar() {
       { active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {backgroundColor: '#ECECEC'}}}
       /> : null }
     </React.Fragment>
   );
