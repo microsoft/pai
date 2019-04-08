@@ -86,7 +86,7 @@ machine-list:
       k8s-role: master
 
 
-    - hostname: hostname4
+    - hostname: hostname2
       hostip: 10.0.0.4
       machine-type: NC24R
       #sshport: PORT (Optional)
@@ -106,7 +106,7 @@ machine-list:
       pai-worker: "true"
 
 
-    - hostname: hostname6
+    - hostname: hostname3
       hostip: 10.0.0.6
       machine-type: NC24R
       #sshport: PORT (Optional)

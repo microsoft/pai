@@ -68,12 +68,10 @@ class TestClusterObjectModel(unittest.TestCase):
         com_handler.kubernetes_config()
 
 
+    def test_cluster_object_model_cfg_duplicate_hostname(self):
 
-
-
-
-
-
-
-
-
+        duplicate_hostname_path = "data/configuration-duplicate-hostname/"
+        com_handler = cluster_object_model.cluster_object_model(duplicate_hostname_path)
+        with self.assertRaises(SystemExit) as cm:
+            com_handler.kubernetes_config()
+        self.assertEqual(cm.exception.code, 1)
