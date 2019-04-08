@@ -73,15 +73,15 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return (
         <>
           <Fabric>
-            <div className={bootstrapStyles["container"]}>
-              <div className={bootstrapStyles["modal-dialog"]}>
-                <div className={bootstrapStyles["modal-content"]}>
-                  <div className={bootstrapStyles["modal-header"]}>
-                    <h3 className={bootstrapStyles["modal-title"]}>
+            <div className={bootstrapStyles.container}>
+              <div className={bootstrapStyles.modalDialog}>
+                <div className={bootstrapStyles.modalContent}>
+                  <div className={bootstrapStyles.modalHeader}>
+                    <h3 className={bootstrapStyles.modalTitle}>
                       Submit Protocol <small>PREVIEW</small>
                     </h3>
                   </div>
-                  <div className={`${bootstrapStyles["modal-body"]} ${bootstrapStyles["row"]}`}>
+                  <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
                     <Spinner size={SpinnerSize.large} />
                   </div>
                 </div>
@@ -119,16 +119,16 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             </div>
           </Panel>
 
-          <div className={bootstrapStyles["container"]}>
-            <div className={bootstrapStyles["modal-dialog"]}>
-              <div className={bootstrapStyles["modal-content"]}>
-                <div className={bootstrapStyles["modal-header"]}>
-                  <h3 className={bootstrapStyles["modal-title"]}>
+          <div className={bootstrapStyles.container}>
+            <div className={bootstrapStyles.modalDialog}>
+              <div className={bootstrapStyles.modalContent}>
+                <div className={bootstrapStyles.modalHeader}>
+                  <h3 className={bootstrapStyles.modalTitle}>
                     Submit Protocol <small>PREVIEW</small>
                   </h3>
                 </div>
-                <div className={`${bootstrapStyles["modal-body"]} ${bootstrapStyles["row"]}`}>
-                  <div className={`${bootstrapStyles["form-group"]} ${bootstrapStyles["col-md-8"]}`}>
+                <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
+                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
                     <TextField
                       label="Job Name "
                       value={this.state.jobName}
@@ -136,13 +136,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                       required={true}
                     />
                   </div>
-                  <div className={`${bootstrapStyles["form-group"]} ${bootstrapStyles["col-md-8"]}`}>
+                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
                     <Label>Protocol YAML Operation</Label>
-                      <label className={bootstrapStyles["col-md-3"]} style={{padding: 0}}>
-                        <a className={`${bootstrapStyles["btn"]} ${bootstrapStyles["btn-success"]}`}>Import</a>
+                      <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
+                        <a className={`${bootstrapStyles.btn} ${bootstrapStyles.btnSuccess}`}>Import</a>
                         <input
                           type="file"
-                          className={bootstrapStyles["sr-only"]}
+                          className={bootstrapStyles.srOnly}
                           accept=".yml,.yaml"
                           onChange={this.importFile}
                         />
@@ -150,7 +150,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                       <DefaultButton text="View/Edit" onClick={this.openEditor} />
                   </div>
                 </div>
-                <div className={bootstrapStyles["modal-footer"]} style={{ marginTop: "150px" }}>
+                <div className={bootstrapStyles.modalFooter} style={{ marginTop: "150px" }}>
                   <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
                 </div>
               </div>
