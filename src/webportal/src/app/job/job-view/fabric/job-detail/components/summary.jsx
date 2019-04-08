@@ -22,6 +22,7 @@ import {DateTime} from 'luxon';
 import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
+import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -108,29 +109,101 @@ export default class Summary extends React.Component {
             userExitCode = parseInt(match[1], 10);
           }
         }
-        if (!isNil(userExitCode)) {
-          return `Failed due to user error. Exit Code: ${userExitCode}. Please check stderr and stdout for more information.`;
-        } else {
-          return `Failed due to user error. Please check container's stderr and stdout for more information.`;
+        // container id
+        let containerId;
+        if (diag) {
+          let match = diag.match(/^\s*"containerId"\s*:\s*"(.*?)",?\s*$/m);
+          if (match) {
+            containerId = match[1];
+          }
         }
+
+        return (
+          <MessageBar messageBarType={MessageBarType.error}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span>User Error</span>
+              </div>
+              {containerId && (
+                <div>
+                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                    Container ID:
+                  </span>
+                  <span>{containerId}</span>
+                </div>
+              )}
+              {userExitCode && (
+                <div>
+                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                    Exit Code:
+                  </span>
+                  <span>{userExitCode}</span>
+                </div>
+              )}
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span>{`Please check container's Stdout and Stderr for more information.`}</span>
+              </div>
+            </div>
+          </MessageBar>
+        );
       } else {
         return (
-          <div>
-            <span>Failed due to platform error. Please send the </span>
-            <Link onClick={this.showApplicationSummary}>application summary</Link>
-            <span> to your admin</span>
-          </div>
+          <MessageBar messageBarType={MessageBarType.error}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span>System Error</span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span>Please send the <Link onClick={this.showApplicationSummary}>application summary</Link> to your administrator for further investigation.</span>
+              </div>
+            </div>
+          </MessageBar>
         );
       }
     } else if (state === 'Waiting') {
       const resourceRetries = get(jobInfo, 'jobStatus.retryDetails.resource');
       if (resourceRetries >= 3) {
         return (
-          <div>
-            <span>Resource allocation failed more than 3 times. Please check the resource requirement in your</span>
-            <Link onClick={this.showApplicationSummary}>job config</Link>
-            <span>.</span>
-          </div>
+          <MessageBar messageBarType={MessageBarType.warning}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span className={c(t.ml2)}>
+                  Resource Conflicts
+                </span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Conflict Count:
+                </span>
+                <span className={c(t.ml2)}>
+                  {resourceRetries}
+                </span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span className={c(t.ml2)}>
+                  Please adjust the resource requirement in your <Link onClick={this.showJobConfig}>job config</Link>, or wait till other jobs release more resources back to the system.
+                </span>
+              </div>
+            </div>
+          </MessageBar>
         );
       }
     }
@@ -221,13 +294,10 @@ export default class Summary extends React.Component {
               </div>
             </div>
           </div>
-          {/* summary-row-2.5 */}
+          {/* summary-row-2.5 error info */}
           {hintMessage && (
             <div className={t.mt4}>
-              <div className={c(t.gray, FontClassNames.medium)}>Info</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
-                {hintMessage}
-              </div>
+              {hintMessage}
             </div>
           )}
           {/* summary-row-3 */}
