@@ -13,7 +13,7 @@ def validate_config(config_path):
     layout_file = os.path.join(config_path, "layout.yaml")
     old_cluster_config_file = os.path.join(config_path, "cluster-configuration.yaml")
     if(os.path.exists(old_cluster_config_file) and not os.path.exists(layout_file)):
-        logger.error("[Error], please upgrade config files!")
+        logger.error("[Error] - Please upgrade config files!")
         exit(-1)
 
     # kubernetes config
@@ -44,7 +44,7 @@ def validata_node_os(config_path):
             host_not_match.append(host["hostip"])
 
     if len(host_not_match) > 0:
-        logger.error("The nodes be listed are not ubunut 16.04: %s", host_not_match)
+        logger.error("[Error - unsupported OS] - OpenPAI only supports ubuntu 16.04, the following node(s) are not ubuntu 16.04: %s", host_not_match)
         exit(-1)
 
 
