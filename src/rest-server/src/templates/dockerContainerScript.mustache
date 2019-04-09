@@ -182,37 +182,38 @@ azure_rdma_preparation
 
 function write_user_command()
 {
-  PAI_USER_COMMAND_DIR="/pai/taskData"
-  PAI_USER_COMMAND_PATH="${PAI_USER_COMMAND_DIR}/command.sh"
-  mkdir -p "${PAI_USER_COMMAND_DIR}"
+  local scriptPath="$1"
 
   # Read an escaped string to an array and unescape
   local lines=$'{{ taskData.command }}'
   readarray -n 50 -t lines <<< "${lines}"
   read -n 1000 -a lines <<< "${lines[@]}"
 
-  echo "#!/bin/bash" > "${PAI_USER_COMMAND_PATH}"
+  echo "#!/bin/bash" > "${scriptPath}"
 
   # By default, exit on the first error
-  echo 'set -e' >> "${PAI_USER_COMMAND_PATH}"
+  echo 'set -e' >> "${scriptPath}"
   # Enable logging for the user command
-  echo 'set -x' >> "${PAI_USER_COMMAND_PATH}"
+  echo 'set -x' >> "${scriptPath}"
 
-  printf '%s\n' "${lines[@]}" >> "${PAI_USER_COMMAND_PATH}"
+  printf '%s\n' "${lines[@]}" >> "${scriptPath}"
 
-  chmod a+x "${PAI_USER_COMMAND_PATH}"
+  chmod a+x "${scriptPath}"
 }
 
 function run_user_command()
 {
+  local scriptPath="$1"
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
-  exec "${PAI_USER_COMMAND_PATH}" || exit $?
+  exec "${scriptPath}" || exit $?
   printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END" # job_exporter relay on this exact output, if you are going to change this, remember to change job_exporter also
   exit 0
 }
 
-write_user_command
-run_user_command &
+PAI_USER_COMMAND_PATH="/pai/command.sh"
+write_user_command "${PAI_USER_COMMAND_PATH}"
+
+run_user_command "${PAI_USER_COMMAND_PATH}" &
 user_command_pid=$!
 
 while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
