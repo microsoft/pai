@@ -197,11 +197,12 @@ class DB(object):
     CREATE_FRAMEWORKS_TABLE = """CREATE TABLE IF NOT EXISTS frameworks (
                             cluster text NOT NULL,
                             name text NOT NULL,
+                            start_time integer NOT NULL,
                             finished_time integer NOT NULL,
                             content text NOT NULL
                             )"""
     CREATE_FRAMEWORK_NAME_INDEX = """CREATE INDEX IF NOT EXISTS framework_name_index ON frameworks (cluster, name);"""
-    CREATE_FRAMEWORK_TIME_INDEX = """CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (cluster, finished_time);"""
+    CREATE_FRAMEWORK_TIME_INDEX = """CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (cluster, start_time, finished_time);"""
 
     CREATE_VC_USAGE_TABLE = """CREATE TABLE IF NOT EXISTS vc_usage (
                             cluster text NOT NULL,
@@ -304,9 +305,12 @@ def get_frameworks(launcher_url, cluster):
 
         finished_time = walk_json_field_safe(framework, "frameworkCompletedTimestamp") or 0
         finished_time = int(finished_time / 1000) # yarn's time is in millisecond
+        start_time = walk_json_field_safe(framework, "firstRequestTimestamp") or 0
+        start_time = int(start_time / 1000) # yarn's time is in millisecond
         content = json.dumps(framework)
         result.append({"cluster": cluster, "name": name,
-            "finished_time": finished_time, "content": content})
+            "start_time": start_time, "finished_time": finished_time,
+            "content": content})
 
     return result
 
@@ -368,25 +372,25 @@ def refresh_cache(yarn_url, launcher_url, cluster):
                                 WHERE cluster=? AND name=?""",
                                 (framework["finished_time"], framework["content"], framework["cluster"], framework["name"]))
             else:
-                cursor.execute("""INSERT INTO frameworks(cluster,name,finished_time,content)
-                                VALUES(?,?,?,?)""",
-                                (framework["cluster"], framework["name"], framework["finished_time"], framework["content"]))
+                cursor.execute("""INSERT INTO frameworks(cluster,name,start_time,finished_time,content)
+                                VALUES(?,?,?,?,?)""",
+                                (framework["cluster"],
+                                    framework["name"],
+                                    framework["start_time"],
+                                    framework["finished_time"],
+                                    framework["content"]))
 
         db.conn.commit()
 
 
-def get_vc_report(days, cluster):
+def get_vc_report(cluster, since, until):
     db = DB()
-    now = datetime.datetime.now()
-    delta = datetime.timedelta(days=days)
-
-    one_month_ago = int(datetime.datetime.timestamp(now - delta))
 
     with db.conn:
         cursor = db.conn.cursor()
         cursor.execute("""SELECT username,vc,cpu,mem,gpu FROM vc_usage
-                        WHERE cluster=? AND time>?""",
-                        (cluster, one_month_ago))
+                        WHERE cluster=? AND time>? AND time<?""",
+                        (cluster, since, until))
         result = cursor.fetchall()
 
     logger.info("get %d vc usage entries", len(result))
@@ -431,26 +435,27 @@ def convert_job_state(framework_state, exit_code):
     return "UNKNOWN"
 
 
-def get_job_report(days, cluster):
+def get_job_report(cluster, since, until):
     db = DB()
-    now = datetime.datetime.now()
-    delta = datetime.timedelta(days=days)
-
-    ago = int(datetime.datetime.timestamp(now - delta))
-    print(ago)
 
     with db.conn:
         cursor = db.conn.cursor()
         cursor.execute("""SELECT content FROM apps
-                        WHERE cluster=? AND (finished_time>? OR finished_time=0)""",
-                        (cluster, ago))
+                        WHERE cluster=? AND
+                          ((finished_time>? AND finished_time<?)
+                            OR finished_time=0)""",
+                        (cluster, since, until))
         apps = cursor.fetchall()
 
         logger.info("get %d apps entries", len(apps))
 
         cursor.execute("""SELECT content FROM frameworks
-                        WHERE cluster=? AND (finished_time>? OR finished_time=0)""",
-                        (cluster, ago))
+                        WHERE cluster=? AND
+                          ((start_time>? AND start_time<?)
+                            OR start_time=0) AND
+                          ((finished_time>? AND finished_time<?)
+                            OR finished_time=0)""",
+                        (cluster, since, until, since, until))
         frameworks = cursor.fetchall()
 
         logger.info("get %d frameworks entries", len(frameworks))
@@ -524,17 +529,11 @@ def get_job_report(days, cluster):
     return result
 
 
-def get_alerts(prometheus_url, days, cluster):
-    now = datetime.datetime.now()
-    delta = datetime.timedelta(days=days)
-
-    ago = datetime.datetime.timestamp(now - delta)
-    now = datetime.datetime.timestamp(now)
-
+def get_alerts(prometheus_url, cluster, since, until):
     args = urllib.parse.urlencode({
         "query": "ALERTS{alertstate=\"firing\"}",
-        "start": str(ago),
-        "end": str(now),
+        "start": str(since),
+        "end": str(until),
         "step": "5m",
         })
 
@@ -595,33 +594,33 @@ def delete_old_data(days):
     now = datetime.datetime.now()
     delta = datetime.timedelta(days=days)
 
-    one_month_ago = int(datetime.datetime.timestamp(now - delta))
+    ago = int(datetime.datetime.timestamp(now - delta))
 
     with db.conn:
         cursor = db.conn.cursor()
         cursor.execute("""DELETE FROM vc_usage WHERE time<?""",
-                        (one_month_ago,))
+                        (ago,))
 
         # should not delete entries if finished_time is 0, they are running apps
         cursor.execute("""DELETE FROM apps WHERE finished_time<? AND finished_time!=0""",
-                        (one_month_ago,))
+                        (ago,))
 
         # should not delete entries if finished_time is 0, they are running jobs
         cursor.execute("""DELETE FROM frameworks WHERE finished_time<? AND finished_time!=0""",
-                        (one_month_ago,))
+                        (ago,))
 
         db.conn.commit()
 
 
-def gen_report(prometheus_url, path, day, cluster):
-    vc_report = get_vc_report(day, cluster)
+def gen_report(prometheus_url, path, since, until, cluster):
+    vc_report = get_vc_report(cluster, since, until)
     vc_file = "%s_vc.csv" % path
     with open(vc_file, "w") as f:
         f.write("cluster,user,vc,cpu,mem,gpu\n")
         for r in vc_report:
             f.write("%s,%s,%s,%d,%d,%d\n" % (r.cluster, r.user, r.vc, r.cpu, r.mem, r.gpu))
 
-    job_report = get_job_report(day, cluster)
+    job_report = get_job_report(cluster, since, until)
     job_file = "%s_job.csv" % path
     with open(job_file, "w") as f:
         f.write("cluster,user,vc," +
@@ -633,7 +632,7 @@ def gen_report(prometheus_url, path, day, cluster):
         for r in job_report:
             f.write("%s\n" % r)
 
-    alert_report = get_alerts(prometheus_url, day, cluster)
+    alert_report = get_alerts(prometheus_url, cluster, since, until)
     alert_file = "%s_alert.csv" % path
     with open(alert_file, "w") as f:
         f.write("cluster,alert_name,instance,start,durtion\n")
@@ -648,9 +647,9 @@ def main(args):
         delete_old_data(args.retain)
         refresh_cache(args.yarn_url, args.launcher_url, args.cluster)
     elif args.action == "report":
-        gen_report(args.prometheus_url, args.file, args.day, args.cluster)
+        gen_report(args.prometheus_url, args.file, args.since, args.until, args.cluster)
     else:
-        print("unknown action %s" % (args.action))
+        sys.stderr.write("unknown action %s\n" % (args.action))
         sys.exit(1)
 
 
@@ -666,15 +665,24 @@ if __name__ == "__main__":
             help="Prometheus url, eg: http://127.0.0.1:9091")
     parser.add_argument("--launcher_url", "-l", required=True,
             help="Framework launcher url, eg: http://127.0.0.1:9086")
+
     parser.add_argument("--retain", "-r", type=int, default=6*31,
             help="How many days to retain cache")
-    parser.add_argument("--day", "-d", type=int, default=31,
-            help="how many day's data need to queried")
     parser.add_argument("--cluster", "-c", required=True,
             help="what cluster name is in fresh and select what cluster when report")
     parser.add_argument("--file", "-f", required=False,
             help="Output file prefix, required argument when action is report",
             default="cluster_report")
+
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(days=31)
+    one_month_ago = int(datetime.datetime.timestamp(now - delta))
+    now = int(datetime.datetime.timestamp(now))
+
+    parser.add_argument("--since", "-s", type=int, default=one_month_ago,
+            help="start time for generating report")
+    parser.add_argument("--until", "-u", type=int, default=now,
+            help="end time for generating report")
 
     args = parser.parse_args()
 
