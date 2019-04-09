@@ -22,6 +22,9 @@ import qs from 'querystring';
 import {isJobV2} from './util';
 import config from '../../../../config/webportal.config';
 
+import 'url-search-params-polyfill';
+import 'whatwg-fetch';
+
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
@@ -37,7 +40,7 @@ export async function fetchJobInfo() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
-  const res = await fetch(url);
+  const res = await window.fetch(url);
   const json = await res.json();
   if (res.ok) {
     return json;
@@ -50,7 +53,7 @@ export async function fetchJobConfig() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
-  const res = await fetch(url);
+  const res = await window.fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
   if (typeof(json) == 'string') {
@@ -73,7 +76,7 @@ export async function fetchSshInfo() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
-  const res = await fetch(url);
+  const res = await window.fetch(url);
   const json = await res.json();
   if (res.ok) {
     return json;
@@ -134,7 +137,7 @@ export async function stopJob() {
       ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
-    const res = await fetch(url, {
+    const res = await window.fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -158,7 +161,7 @@ export async function getContainerLog(logUrl) {
     fullLogLink: logUrl,
     text: null,
   };
-  const res = await fetch(logUrl);
+  const res = await window.fetch(logUrl);
   const text = await res.text();
   if (!res.ok) {
     throw new Error(res.statusText);
