@@ -553,9 +553,15 @@ def get_alerts(prometheus_url, cluster, since, until):
 
     metrics = walk_json_field_safe(obj, "data", "result")
 
+    alert_instance_mapping = {
+            "NodeNotReady": "name",
+            "PaiServicePodNotReady": "name",
+            }
+
     for metric in metrics:
         alert_name = walk_json_field_safe(metric, "metric", "alertname") or "unknown"
-        instance = walk_json_field_safe(metric, "metric", "instance") or "unknown"
+        instance_label_name = alert_instance_mapping.get(alert_name) or "instance"
+        instance = walk_json_field_safe(metric, "metric", instance_label_name) or "unknown"
 
         values = walk_json_field_safe(metric, "values")
         if values is not None and len(values) > 0:
