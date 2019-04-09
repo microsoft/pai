@@ -23,6 +23,7 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const userModel = require('../user');
+const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
 const logger = require('../../config/logger');
 const azureEnv = require('../../config/azure');
@@ -187,62 +188,69 @@ const generateSSHKeys = async (frameworkName) => {
 };
 
 const prepareContainerScripts = async (frameworkName, userName, config, rawConfig) => {
+  // hdfs operations
+  const hdfs = new HDFS(launcherConfig.webhdfsUri);
   // async mkdir on hdfs
   const mkdir = async (path, user, mode) => {
-    const response = await axios({
-      method: 'put',
-      url: `${launcherConfig.webhdfsUri}/webhdfs/v1${path}?op=MKDIRS&user.name=${user}&permission=${mode}`,
-    });
-    if (response.status !== status('OK')) {
-      throw createError(response.status, 'WebHDFSError', response.body);
-    }
+    const options = {'user.name': user, 'permission': mode};
+    return util.promisify(hdfs.createFolder.bind(hdfs))(path, options);
   };
 
   // async upload file on hdfs
   const upload = async (path, data, user, mode) => {
-    const response = await axios({
-      method: 'put',
-      url: `${launcherConfig.webhdfsUri}/webhdfs/v1${path}?op=CREATE&user.name=${user}&permission=${mode}&overwrite=true`,
-      data,
-    });
-    if (response.status === status('Temporary Redirect')) {
-      await upload(response.headers['location'], data, user, mode);
-    } else if (response.status !== status('Created')) {
-      throw createError(response.status, 'WebHDFSError', response.body);
-    }
+    const options = {'user.name': user, 'permission': mode, 'overwrite': 'true'};
+    return util.promisify(hdfs.createFile.bind(hdfs))(path, data, options);
   };
 
   // generate framework description
   const frameworkDescription = generateFrameworkDescription(frameworkName, userName, config);
 
   // prepare scripts on hdfs
+  const hdfsPromises = [];
   const pathPrefix = `/Container/${userName}/${frameworkName}`;
-  await mkdir('/Container', 'root', '777');
+  hdfsPromises.push(
+    mkdir('/Container', 'root', '777')
+  );
   for (let path of ['log', 'tmp']) {
-    await mkdir(`${pathPrefix}/${path}`, userName, '755');
+    hdfsPromises.push(
+      mkdir(`${pathPrefix}/${path}`, userName, '755')
+    );
   }
   for (let taskRole of Object.keys(config.taskRoles)) {
-    await upload(`${pathPrefix}/YarnContainerScripts/${taskRole}.sh`,
-      generateYarnContainerScript(frameworkName, userName, config, frameworkDescription, taskRole), userName, '644');
-    await upload(`${pathPrefix}/DockerContainerScripts/${taskRole}.sh`,
-      generateDockerContainerScript(frameworkName, userName, config, taskRole), userName, '644');
+    hdfsPromises.push(
+      upload(`${pathPrefix}/YarnContainerScripts/${taskRole}.sh`,
+      generateYarnContainerScript(frameworkName, userName, config, frameworkDescription, taskRole), userName, '644')
+    );
+    hdfsPromises.push(
+      upload(`${pathPrefix}/DockerContainerScripts/${taskRole}.sh`,
+      generateDockerContainerScript(frameworkName, userName, config, taskRole), userName, '644')
+    );
   }
   // upload framework description file to hdfs
-  await upload(`${pathPrefix}/${launcherConfig.frameworkDescriptionFilename}`,
-    JSON.stringify(frameworkDescription, null, 2), userName, '644');
+  hdfsPromises.push(
+    upload(`${pathPrefix}/${launcherConfig.frameworkDescriptionFilename}`,
+    JSON.stringify(frameworkDescription, null, 2), userName, '644')
+  );
   // upload original config file to hdfs
-  await upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
-    rawConfig, userName, '644');
+  hdfsPromises.push(
+    upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
+    rawConfig, userName, '644')
+  );
 
   // generate ssh key
   if (process.platform === 'linux') {
     const keys = await generateSSHKeys(frameworkName);
     if (keys) {
       for (let keyname of Object.keys(keys)) {
-        await upload(`${pathPrefix}/ssh/keyFiles/${keyname}`, keys[keyname], userName, '755');
+        hdfsPromises.push(
+          upload(`${pathPrefix}/ssh/keyFiles/${keyname}`, keys[keyname], userName, '755')
+        );
       }
     }
   }
+
+  // wait all hdfs promises
+  await Promise.all(hdfsPromises);
 
   // return framework description
   return frameworkDescription;
