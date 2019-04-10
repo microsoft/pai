@@ -26,13 +26,12 @@ import logging
 import logging.config
 
 from . import conf_storage_util
-
+from ..utility import pai_version
 
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 
 class download_configuration:
-
 
     def __init__(self, config_output_path, kube_config_path):
 
@@ -44,8 +43,6 @@ class download_configuration:
             self.config_path = config_output_path
         else:
             self.config_path = "."
-
-
 
     def check_cluster_id(self):
 
@@ -66,7 +63,13 @@ class download_configuration:
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
 
-
+    def check_cluster_version(self):
+        cluster_version = pai_version.cluster_version()
+        paictl_version = pai_version.paictl_version()
+        self.logger.info("Cluster version: %s, paictl version: %s", cluster_version, paictl_version)
+        if paictl_version != cluster_version:
+            # TODO, now we only print a warning info
+            self.logger.warn("!!! Paictl version is different from the cluster version: %s != %s", cluster_version, paictl_version)
 
     def download_cluster_configuration(self, local_path):
 
@@ -81,9 +84,8 @@ class download_configuration:
         for key in configuration_dict:
             conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}".format(local_path, key))
 
-
-
     def run(self):
 
         self.check_cluster_id()
+        self.check_cluster_version()
         self.download_cluster_configuration(self.config_path)
