@@ -63,17 +63,9 @@ class download_configuration:
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
 
-    def check_cluster_version(self):
-        cluster_version = pai_version.cluster_version()
-        paictl_version = pai_version.paictl_version()
-        self.logger.info("Cluster version: %s, paictl version: %s", cluster_version, paictl_version)
-        if paictl_version != cluster_version:
-            # TODO, now we only print a warning info
-            self.logger.warn("!!! Paictl version is different from the cluster version: %s != %s", cluster_version, paictl_version)
-
     def download_cluster_configuration(self, local_path):
 
-        #cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
+        # cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
         configuration_dict = conf_storage_util.get_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
         if configuration_dict is None:
@@ -87,5 +79,5 @@ class download_configuration:
     def run(self):
 
         self.check_cluster_id()
-        self.check_cluster_version()
+        pai_version.check_cluster_version()
         self.download_cluster_configuration(self.config_path)
