@@ -80,6 +80,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-monaco-editor": "^0.25.1",
+    "regenerator-runtime": "^0.13.2",
     "rimraf": "~2.6.2",
     "sass-loader": "~6.0.6",
     "serve-favicon": "~2.5.0",
