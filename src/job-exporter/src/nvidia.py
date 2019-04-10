@@ -131,8 +131,13 @@ def parse_smi_xml_result(smi):
             volatile = ecc_errors[0].getElementsByTagName("volatile")
             if len(volatile) > 0:
                 volatile = volatile[0]
-                single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
-                double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
+                try:
+                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
+                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
+                except:
+                    retired_pages = gpu.getElementsByTagName("retired_pages")
+                    single = retired_pages.getElementsByTagName("multiple_single_bit_retirement")[0].getElementsByTagName("retired_count")[0]
+                    double = retired_pages.getElementsByTagName("multiple_double_bit_retirement")[0].getElementsByTagName("retired_count")[0]
                 single = single.childNodes[0].data
                 double = double.childNodes[0].data
                 if single != "N/A":
