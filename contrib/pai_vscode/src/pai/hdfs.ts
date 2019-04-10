@@ -7,6 +7,7 @@
 import * as fs from 'fs-extra';
 import { injectable } from 'inversify';
 import * as path from 'path';
+import * as bytes from 'bytes';
 import { Request } from 'request';
 import { Transform } from 'stream';
 import * as streamifier from 'streamifier';
@@ -187,7 +188,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
                 readAmount += chunk.byteLength;
                 progress.report({
                     message: __('hdfs.progress', [
-                        (readAmount / fileStat.length * 100).toFixed(), readAmount, fileStat.length
+                        (readAmount / fileStat.length * 100).toFixed(), bytes(readAmount), bytes(fileStat.length)
                     ]),
                     increment: chunk.byteLength / fileStat.length * 100
                 });
@@ -286,7 +287,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
                         writeAmount += chunk.length;
                         progress.report({
                             message: __('hdfs.progress', [
-                                (writeAmount / content.length * 100).toFixed(0), writeAmount, content.length
+                                (writeAmount / content.length * 100).toFixed(0), bytes(writeAmount), bytes(content.length)
                             ]),
                             increment: chunk.length / content.length * 100
                         });
@@ -397,7 +398,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
                     writeAmount += chunk.length;
                     progress.report({
                         message: __('hdfs.progress', [
-                            (writeAmount / sourceSize * 100).toFixed(), writeAmount, sourceSize
+                            (writeAmount / sourceSize * 100).toFixed(), bytes(writeAmount), bytes(sourceSize)
                         ]),
                         increment: chunk.length / sourceSize * 100
                     });

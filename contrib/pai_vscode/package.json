@@ -403,6 +403,7 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "@types/bytes": "^3.0.0",
         "@types/fs-extra": "^5.0.4",
         "@types/globalize": "^0.0.34",
         "@types/globby": "^8.0.0",
@@ -425,6 +426,7 @@
     },
     "dependencies": {
         "ajv": "^6.5.4",
+        "bytes": "^3.1.0",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
