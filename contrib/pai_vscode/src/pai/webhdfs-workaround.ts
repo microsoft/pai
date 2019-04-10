@@ -42,7 +42,7 @@ export interface IHDFSClient {
 }
 
 export function createWebHDFSClient({ host, port = '50070', user, path = '/webhdfs/v1' }: IWebHDFSOptions,
-                                    { timeout = 300 * 1000 }: IWebHDFSOptions2): IHDFSClient {
+                                    { timeout = 60 * 1000 }: IWebHDFSOptions2): IHDFSClient {
     const client: IHDFSClient = webhdfs.createClient(
         { host, port, user, path },
         { timeout, pool: {maxSockets: Infinity} }
