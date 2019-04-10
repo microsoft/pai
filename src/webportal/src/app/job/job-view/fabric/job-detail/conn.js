@@ -22,12 +22,23 @@ import qs from 'querystring';
 import {isJobV2} from './util';
 import config from '../../../../config/webportal.config';
 
-import 'url-search-params-polyfill';
 import 'whatwg-fetch';
 
-const params = new URLSearchParams(window.location.search);
-const namespace = params.get('username');
-const jobName = params.get('jobName');
+$.urlParam = function(name) {
+  let results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.search);
+  if (results==null) {
+     return null;
+  } else {
+     return decodeURI(results[1]) || 0;
+  }
+};
+
+const namespace = $.urlParam('username');
+const jobName = $.urlParam('jobName');
+
+// const params = new URLSearchParams(window.location.search);
+// const namespace = params.get('username');
+// const jobName = params.get('jobName');
 
 export class NotFoundError extends Error {
   constructor(msg) {

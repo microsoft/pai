@@ -94,7 +94,7 @@
     "webpack-dev-server": "^3.2.1",
     "winston": "~2.4.0",
     "whatwg-fetch": "^3.0.0",
-    "url-search-params-polyfill":"^5.1.0"
+    "whatwg-url": "7.0.0"
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx src",
