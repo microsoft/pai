@@ -89,7 +89,6 @@ const config = (env, argv) => ({
             plugins: ['lodash'],
             presets: ['@babel/preset-react',
               ['@babel/preset-env', {
-                debug: true,
                 useBuiltIns: 'entry',
                 corejs: 3,
               }],
