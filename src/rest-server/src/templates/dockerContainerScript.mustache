@@ -23,11 +23,21 @@
 exec 17>/pai/log/DockerContainerDebug.log
 BASH_XTRACEFD=17
 
+RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
+RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
+USER_LOG=/pai/log/user.pai.log
+USER_ERROR_LOG=/pai/log/user.pai.error
+
+# create runtime docker log here. Since multi shell IO block will write to the files,
+# we just append lines to the log file to avoid flush exits contents.
+touch RUNTIME_DOCKER_ERR_LOG
+touch RUNTIME_DOCKER_LOG
+
 function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
-}
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
 # The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
 function kill_handler()
@@ -35,7 +45,9 @@ function kill_handler()
   printf "%s %s\n" \
     "[INFO]" "Docker container killed by cleaner due to disk pressure."
   exit 1
-}
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+
+{
 
 set -x
 PS4="+[\t] "
@@ -180,6 +192,8 @@ azure_rdma_preparation
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+
 function run_user_command()
 {
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
@@ -188,7 +202,9 @@ function run_user_command()
   exit 0
 }
 
-run_user_command &
+run_user_command > >(tee $USER_LOG) 2> >(tee $USER_ERROR_LOG >&2) &
+
+{
 user_command_pid=$!
 
 while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
@@ -223,4 +239,4 @@ else
 {{/ isDebug }}
   exit $user_command_exitcode
 fi
-
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG

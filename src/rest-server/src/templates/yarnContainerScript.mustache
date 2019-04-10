@@ -26,14 +26,19 @@ export PAI_DEFAULT_FS_URI={{ hdfsUri }}
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
+RUNTIME_YARN_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.error
+RUNTIME_YARN_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.log
+
+touch RUNTIME_YARN_ERR_LOG
+touch RUNTIME_YARN_LOG
+
 # YARN kill container will send SIGTERM(15) and SIGKILL(9)
 function sigterm_handler()
 {
   printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
   killed_by_yarn=true
   exit 143
-}
-
+} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
 
 function exit_handler()
 {
@@ -62,8 +67,9 @@ function exit_handler()
   fi
 
   exit $rc
-}
+} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
 
+{
 set -x
 PS4="+[\t] "
 trap sigterm_handler SIGTERM
@@ -278,6 +284,11 @@ fi
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.user.pai.error $LAUNCHER_LOG_DIR/runtime.user.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.user.pai.log $LAUNCHER_LOG_DIR/runtime.user.pai.log
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.error $LAUNCHER_LOG_DIR/user.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.log $LAUNCHER_LOG_DIR/user.pai.log
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error $LAUNCHER_LOG_DIR/diskCleaner.pai.error
 
 # copy the hadoop configuration file
 hadoop_config_dir="hadoop_config"
@@ -295,6 +306,7 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/
 docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
 
+} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
 ## network consumption
 docker run --name $docker_name \
