@@ -25,7 +25,7 @@ import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
-import crypto from "crypto";
+import classNames from "classnames";
 import update from "immutability-helper";
 import jsyaml from "js-yaml";
 import MonacoEditor from "react-monaco-editor";
@@ -56,7 +56,7 @@ interface IProtocolProps {
 
 interface IProtocolState {
   jobName: string;
-  protocol: {[key: string]: string | object};
+  protocol: {[key: string]: any};
   protocolYAML: string;
   loading: boolean;
   showParameters: boolean;
@@ -64,17 +64,17 @@ interface IProtocolState {
 }
 
 export default class ProtocolForm extends React.Component<IProtocolProps, IProtocolState> {
+  public state = {
+    jobName: "",
+    protocol: Object.create(null),
+    protocolYAML: "",
+    loading: true,
+    showParameters: false,
+    showEditor: false,
+  };
+
   constructor(props: IProtocolProps) {
     super(props);
-
-    this.state = {
-      jobName: "",
-      protocol: Object.create(null),
-      protocolYAML: "",
-      loading: true,
-      showParameters: false,
-      showEditor: false,
-    };
   }
 
   public componentDidMount() {
@@ -84,54 +84,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   public render() {
     if (this.state.loading) {
       return (
-        <>
-          <Fabric>
-            <div className={bootstrapStyles.container}>
-              <div className={bootstrapStyles.modalDialog}>
-                <div className={bootstrapStyles.modalContent}>
-                  <div className={bootstrapStyles.modalHeader}>
-                    <h3 className={bootstrapStyles.modalTitle}>
-                      Submit Job v2 <small>Protocol Preview</small>
-                    </h3>
-                  </div>
-                  <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
-                    <Spinner size={SpinnerSize.large} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Fabric>
-        </>
-      );
-    }
-    return (
-      <>
         <Fabric>
-
-          <Panel
-            isOpen={this.state.showEditor}
-            isLightDismiss={true}
-            onDismiss={this.closeEditor}
-            type={PanelType.largeFixed}
-            headerText="Protocol YAML Editor"
-          >
-            <div className={monacoStyles.monacoHack}>
-              <MonacoEditor
-                width={800}
-                height={800}
-                value={this.state.protocolYAML}
-                onChange={this.editProtocol}
-                language="yaml"
-                theme="vs-dark"
-                options={{ wordWrap: "on", readOnly: false }}
-              />
-            </div>
-            <div style={{ marginTop: "15px" }}>
-              <PrimaryButton text="Save" onClick={this.saveEditor} style={{ marginRight: "10px" }}/>
-              <DefaultButton text="Discard" onClick={this.discardEditor} />
-            </div>
-          </Panel>
-
           <div className={bootstrapStyles.container}>
             <div className={bootstrapStyles.modalDialog}>
               <div className={bootstrapStyles.modalContent}>
@@ -140,47 +93,88 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                     Submit Job v2 <small>Protocol Preview</small>
                   </h3>
                 </div>
-                <div className={`${bootstrapStyles.modalBody} ${bootstrapStyles.row}`}>
-                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
-                    <TextField
-                      label="Job Name "
-                      value={this.state.jobName}
-                      onChange={this.setJobName}
-                      required={true}
-                    />
-                  </div>
-                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
-                    <Toggle
-                      label="Job Parameters "
-                      checked={this.state.showParameters}
-                      onChange={this.toggleParameters}
-                      inlineLabel={true}
-                    />
-                    {this.renderParameters()}
-                  </div>
-                  <div className={`${bootstrapStyles.formGroup} ${bootstrapStyles.colMd8}`}>
-                    <Label>Protocol YAML Operation</Label>
-                    <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
-                      <a className={`${bootstrapStyles.btn} ${bootstrapStyles.btnSuccess}`}>Import</a>
-                      <input
-                        type="file"
-                        className={bootstrapStyles.srOnly}
-                        accept=".yml,.yaml"
-                        onChange={this.importFile}
-                      />
-                    </label>
-                    <DefaultButton text="View/Edit" onClick={this.openEditor} />
-                  </div>
-                </div>
-                <div className={bootstrapStyles.modalFooter} style={{ marginTop: "150px" }}>
-                  <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+                <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
+                  <Spinner size={SpinnerSize.large} />
                 </div>
               </div>
             </div>
           </div>
-
         </Fabric>
-      </>
+      );
+    }
+    return (
+      <Fabric>
+        <Panel
+          isOpen={this.state.showEditor}
+          isLightDismiss={true}
+          onDismiss={this.closeEditor}
+          type={PanelType.largeFixed}
+          headerText="Protocol YAML Editor"
+        >
+          <div className={monacoStyles.monacoHack}>
+            <MonacoEditor
+              width={800}
+              height={800}
+              value={this.state.protocolYAML}
+              onChange={this.editProtocol}
+              language="yaml"
+              theme="vs-dark"
+              options={{ wordWrap: "on", readOnly: false }}
+            />
+          </div>
+          <div style={{ marginTop: "15px" }}>
+            <PrimaryButton text="Save" onClick={this.saveEditor} style={{ marginRight: "10px" }}/>
+            <DefaultButton text="Discard" onClick={this.discardEditor} />
+          </div>
+        </Panel>
+
+        <div className={bootstrapStyles.container}>
+          <div className={bootstrapStyles.modalDialog}>
+            <div className={bootstrapStyles.modalContent}>
+              <div className={bootstrapStyles.modalHeader}>
+                <h3 className={bootstrapStyles.modalTitle}>
+                  Submit Job v2 <small>Protocol Preview</small>
+                </h3>
+              </div>
+              <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
+                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
+                  <TextField
+                    label="Job Name "
+                    value={this.state.jobName}
+                    onChange={this.setJobName}
+                    required={true}
+                  />
+                </div>
+                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
+                  <Toggle
+                    label="Job Parameters "
+                    checked={this.state.showParameters}
+                    onChange={this.toggleParameters}
+                    inlineLabel={true}
+                  />
+                  {this.renderParameters()}
+                </div>
+                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
+                  <Label>Protocol YAML Operation</Label>
+                  <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
+                    <a className={classNames(bootstrapStyles.btn, bootstrapStyles.btnSuccess)}>Import</a>
+                    <input
+                      type="file"
+                      className={bootstrapStyles.srOnly}
+                      accept=".yml,.yaml"
+                      onChange={this.importFile}
+                    />
+                  </label>
+                  <DefaultButton text="View/Edit" onClick={this.openEditor} />
+                </div>
+              </div>
+              <div className={bootstrapStyles.modalFooter} style={{ marginTop: "150px" }}>
+                <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Fabric>
     );
   }
 
@@ -197,7 +191,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           { protocol },
           () => this.setJobName(
             null as any,
-            `${source.jobName}_clone_${crypto.randomBytes(4).toString("hex")}`,
+            `${source.jobName}_clone_${Math.random().toString(36).slice(2, 10)}`,
           ),
         );
       }).catch((err) => {
