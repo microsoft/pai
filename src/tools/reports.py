@@ -65,6 +65,7 @@ import json
 import collections
 import re
 import sys
+import math
 
 import sqlite3
 import requests
@@ -96,12 +97,11 @@ def request_with_error_handling(url):
 
 
 class VcUsage(object):
-    def __init__(self, cluster, user, vc, cpu, mem, gpu, time=None):
-        """ cluster/user/vc is string, cpu/mem/gpu is int
+    def __init__(self, user, vc, cpu, mem, gpu, time=None):
+        """ user/vc is string, cpu/mem/gpu is int
         cpu is virtual core in hadoop,
         mem is in byte,
         gpu is the number of gpu card """
-        self.cluster = cluster
         self.user = user
         self.vc = vc
         self.cpu = cpu
@@ -156,9 +156,8 @@ class JobInfo(object):
 
 
 class JobReportEntries(object):
-    def __init__(self, cluster, username, vc, total_job_info, success_job_info,
+    def __init__(self, username, vc, total_job_info, success_job_info,
             failed_job_info, stopped_job_info, running_job_info):
-        self.cluster = cluster
         self.username = username
         self.vc = vc
         self.total_job_info = total_job_info
@@ -169,8 +168,7 @@ class JobReportEntries(object):
 
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%s,%s,%s,%s,%s,%s,%s,%s" % (
-                self.cluster,
+        return "%s,%s,%s,%s,%s,%s,%s" % (
                 self.username,
                 self.vc,
                 self.total_job_info,
@@ -181,10 +179,9 @@ class JobReportEntries(object):
 
 
 class Alert(object):
-    def __init__(self, cluster, alert_name, instance, start, durtion):
+    def __init__(self, alert_name, instance, start, durtion):
         """ alert_name/instance are derived from labels, start/durtion is timestamp
         value """
-        self.cluster = cluster
         self.alert_name = alert_name
         self.instance = instance
         self.start = start
@@ -192,33 +189,30 @@ class Alert(object):
 
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%s,%s,%s,%s,%s" % (self.cluster, self.alert_name, self.instance, self.start, self.durtion)
+        return "%s,%s,%s,%s" % (self.alert_name, self.instance, self.start, self.durtion)
 
 
 class DB(object):
     # If app is running, the finished_time is 0, should not delete it in delete_old_data
     CREATE_APPS_TABLE = """CREATE TABLE IF NOT EXISTS apps (
-                            cluster text NOT NULL,
                             app_id text NOT NULL,
                             finished_time integer NOT NULL,
                             content text NOT NULL
                             )"""
-    CREATE_APP_ID_INDEX = """CREATE INDEX IF NOT EXISTS app_id_index ON apps (cluster, app_id);"""
-    CREATE_APP_TIME_INDEX = """CREATE INDEX IF NOT EXISTS app_time_index ON apps (cluster, finished_time);"""
+    CREATE_APP_ID_INDEX = "CREATE INDEX IF NOT EXISTS app_id_index ON apps (app_id);"
+    CREATE_APP_TIME_INDEX = "CREATE INDEX IF NOT EXISTS app_time_index ON apps (finished_time);"
 
     # If job is running, the finished_time is 0, should not delete it in delete_old_data
     CREATE_FRAMEWORKS_TABLE = """CREATE TABLE IF NOT EXISTS frameworks (
-                            cluster text NOT NULL,
                             name text NOT NULL,
                             start_time integer NOT NULL,
                             finished_time integer NOT NULL,
                             content text NOT NULL
                             )"""
-    CREATE_FRAMEWORK_NAME_INDEX = """CREATE INDEX IF NOT EXISTS framework_name_index ON frameworks (cluster, name);"""
-    CREATE_FRAMEWORK_TIME_INDEX = """CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (cluster, start_time, finished_time);"""
+    CREATE_FRAMEWORK_NAME_INDEX = "CREATE INDEX IF NOT EXISTS framework_name_index ON frameworks (name);"
+    CREATE_FRAMEWORK_TIME_INDEX = "CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (start_time, finished_time);"
 
     CREATE_VC_USAGE_TABLE = """CREATE TABLE IF NOT EXISTS vc_usage (
-                            cluster text NOT NULL,
                             username text NOT NULL,
                             vc text NOT NULL,
                             cpu integer NOT NULL,
@@ -226,9 +220,9 @@ class DB(object):
                             gpu integer NOT NULL,
                             time integer NOT NULL
                             )"""
-    CREATE_VC_TIME_INDEX = """CREATE INDEX IF NOT EXISTS vc_time_index ON vc_usage (cluster, time);"""
+    CREATE_VC_TIME_INDEX = "CREATE INDEX IF NOT EXISTS vc_time_index ON vc_usage (time);"
 
-    def __init__(self, db_path="pai_report.sqlite"):
+    def __init__(self, db_path):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
         cursor = self.conn.cursor()
@@ -243,7 +237,7 @@ class DB(object):
         self.conn.commit()
 
 
-def get_vc_usage(yarn_url, cluster):
+def get_vc_usage(yarn_url):
     scheduler_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/scheduler")
     result = []
 
@@ -272,12 +266,12 @@ def get_vc_usage(yarn_url, cluster):
                     mem += user["AMResourceUsed"].get("memory", 0) * 1024 * 1024
                     gpu += user["AMResourceUsed"].get("GPUs", 0)
 
-                result.append(VcUsage(cluster, username, queue_name, cpu, mem, gpu))
+                result.append(VcUsage(username, queue_name, cpu, mem, gpu))
 
     return result
 
 
-def get_yarn_apps(yarn_url, cluster):
+def get_yarn_apps(yarn_url):
     apps_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/apps")
     result = []
 
@@ -295,13 +289,13 @@ def get_yarn_apps(yarn_url, cluster):
         finished_time = walk_json_field_safe(app, "finishedTime") or 0
         finished_time = int(finished_time / 1000) # yarn's time is in millisecond
         content = json.dumps(app)
-        result.append({"cluster": cluster, "app_id": app_id,
+        result.append({"app_id": app_id,
             "finished_time": finished_time, "content": content})
 
     return result
 
 
-def get_frameworks(launcher_url, cluster):
+def get_frameworks(launcher_url):
     launcher_url = urllib.parse.urljoin(launcher_url, "/v1/Frameworks")
     result = []
 
@@ -321,31 +315,30 @@ def get_frameworks(launcher_url, cluster):
         start_time = walk_json_field_safe(framework, "firstRequestTimestamp") or 0
         start_time = int(start_time / 1000) # yarn's time is in millisecond
         content = json.dumps(framework)
-        result.append({"cluster": cluster, "name": name,
-            "start_time": start_time, "finished_time": finished_time,
-            "content": content})
+        result.append({"name": name, "start_time": start_time,
+            "finished_time": finished_time, "content": content})
 
     return result
 
 
-def refresh_cache(yarn_url, launcher_url, cluster):
-    db = DB()
+def refresh_cache(database, yarn_url, launcher_url):
+    db = DB(database)
 
-    vc_usages = get_vc_usage(yarn_url, cluster)
+    vc_usages = get_vc_usage(yarn_url)
     logger.info("get %d of usage from yarn", len(vc_usages))
 
     with db.conn:
         cursor = db.conn.cursor()
 
         for usage in vc_usages:
-            cursor.execute("""INSERT INTO vc_usage(cluster,username,vc,cpu,mem,gpu,time)
-                            VALUES(?,?,?,?,?,?,?)""",
-                            (usage.cluster, usage.user, usage.vc, usage.cpu,
+            cursor.execute("""INSERT INTO vc_usage(username,vc,cpu,mem,gpu,time)
+                            VALUES(?,?,?,?,?,?)""",
+                            (usage.user, usage.vc, usage.cpu,
                                 usage.mem, usage.gpu, usage.time))
 
         db.conn.commit()
 
-    apps = get_yarn_apps(yarn_url, cluster)
+    apps = get_yarn_apps(yarn_url)
     logger.info("get %d of apps from yarn", len(apps))
 
     with db.conn:
@@ -353,22 +346,22 @@ def refresh_cache(yarn_url, launcher_url, cluster):
 
         for app in apps:
             cursor.execute("""SELECT COUNT(*) FROM apps
-                            WHERE cluster=? AND app_id=?""",
-                            (app["cluster"], app["app_id"]))
+                            WHERE app_id=?""",
+                            (app["app_id"],))
             result = cursor.fetchone()
 
             if result[0] > 0:
                 cursor.execute("""UPDATE apps SET finished_time=?, content=?
-                                WHERE cluster=? AND app_id=?""",
-                                (app["finished_time"], app["content"], app["cluster"], app["app_id"]))
+                                WHERE app_id=?""",
+                                (app["finished_time"], app["content"], app["app_id"]))
             else:
-                cursor.execute("""INSERT INTO apps(cluster,app_id,finished_time,content)
-                                VALUES(?,?,?,?)""",
-                                (app["cluster"], app["app_id"], app["finished_time"], app["content"]))
+                cursor.execute("""INSERT INTO apps(app_id,finished_time,content)
+                                VALUES(?,?,?)""",
+                                (app["app_id"], app["finished_time"], app["content"]))
 
         db.conn.commit()
 
-    frameworks = get_frameworks(launcher_url, cluster)
+    frameworks = get_frameworks(launcher_url)
     logger.info("get %d of frameworks from launcher", len(frameworks))
 
     with db.conn:
@@ -376,19 +369,18 @@ def refresh_cache(yarn_url, launcher_url, cluster):
 
         for framework in frameworks:
             cursor.execute("""SELECT COUNT(*) FROM frameworks
-                            WHERE cluster=? AND name=?""",
-                            (framework["cluster"], framework["name"]))
+                            WHERE name=?""",
+                            (framework["name"],))
             result = cursor.fetchone()
 
             if result[0] > 0:
                 cursor.execute("""UPDATE frameworks SET finished_time=?, content=?
-                                WHERE cluster=? AND name=?""",
-                                (framework["finished_time"], framework["content"], framework["cluster"], framework["name"]))
+                                WHERE name=?""",
+                                (framework["finished_time"], framework["content"], framework["name"]))
             else:
-                cursor.execute("""INSERT INTO frameworks(cluster,name,start_time,finished_time,content)
-                                VALUES(?,?,?,?,?)""",
-                                (framework["cluster"],
-                                    framework["name"],
+                cursor.execute("""INSERT INTO frameworks(name,start_time,finished_time,content)
+                                VALUES(?,?,?,?)""",
+                                (framework["name"],
                                     framework["start_time"],
                                     framework["finished_time"],
                                     framework["content"]))
@@ -396,14 +388,14 @@ def refresh_cache(yarn_url, launcher_url, cluster):
         db.conn.commit()
 
 
-def get_vc_report(cluster, since, until):
-    db = DB()
+def get_vc_report(database, since, until):
+    db = DB(database)
 
     with db.conn:
         cursor = db.conn.cursor()
         cursor.execute("""SELECT username,vc,cpu,mem,gpu FROM vc_usage
-                        WHERE cluster=? AND time>? AND time<?""",
-                        (cluster, since, until))
+                        WHERE time>? AND time<?""",
+                        (since, until))
         result = cursor.fetchall()
 
     logger.info("get %d vc usage entries", len(result))
@@ -416,7 +408,7 @@ def get_vc_report(cluster, since, until):
 
     for username, vcs in agg.items():
         for vc, val in vcs.items():
-            result.append(VcUsage(cluster, username, vc, val[0], val[1], val[2]))
+            result.append(VcUsage(username, vc, val[0], val[1], val[2]))
 
     return result
 
@@ -448,28 +440,26 @@ def convert_job_state(framework_state, exit_code):
     return "UNKNOWN"
 
 
-def get_job_report(cluster, since, until):
+def get_job_report(database, since, until):
     """ return two values, one is aggregated job info, the other is raw job status """
-    db = DB()
+    db = DB(database)
 
     with db.conn:
         cursor = db.conn.cursor()
         cursor.execute("""SELECT content FROM apps
-                        WHERE cluster=? AND
-                          ((finished_time>? AND finished_time<?)
-                            OR finished_time=0)""",
-                        (cluster, since, until))
+                        WHERE (finished_time>? AND finished_time<?)
+                            OR finished_time=0""",
+                        (since, until))
         apps = cursor.fetchall()
 
         logger.info("get %d apps entries", len(apps))
 
         cursor.execute("""SELECT content FROM frameworks
-                        WHERE cluster=? AND
-                          ((start_time>? AND start_time<?)
+                        WHERE ((start_time>? AND start_time<?)
                             OR start_time=0) AND
                           ((finished_time>? AND finished_time<?)
                             OR finished_time=0)""",
-                        (cluster, since, until, since, until))
+                        (since, until, since, until))
         frameworks = cursor.fetchall()
 
         logger.info("get %d frameworks entries", len(frameworks))
@@ -533,7 +523,7 @@ def get_job_report(cluster, since, until):
             job.finished_time = finished_time
             job.retries = retries
             job.status = job_status
-            job.exit_code = exit_code
+            job.exit_code = exit_code or "N/A"
 
             statistic[username][vc][job_status] += job
 
@@ -552,14 +542,14 @@ def get_job_report(cluster, since, until):
                     mapping[job_status] += job_info
                 total_job_info += job_info
 
-            result.append(JobReportEntries(cluster, username, vc, total_job_info,
+            result.append(JobReportEntries(username, vc, total_job_info,
                 mapping["SUCCEEDED"], mapping["FAILED"], mapping["STOPPED"],
                 mapping["RUNNING"]))
 
     return result, processed_apps
 
 
-def get_alerts(prometheus_url, cluster, since, until):
+def get_alerts(prometheus_url, since, until):
     args = urllib.parse.urlencode({
         "query": "ALERTS{alertstate=\"firing\"}",
         "start": str(since),
@@ -615,7 +605,7 @@ def get_alerts(prometheus_url, cluster, since, until):
                 # treat end - start equals to be the durtion of the alert,
                 # the alert with start == end will have durtion of 0, which is
                 # quite confusing, so we set durtion to be end - start + gap
-                result.append(Alert(cluster, alert_name, instance, int(event["start"]),
+                result.append(Alert(alert_name, instance, int(event["start"]),
                     int(event["end"] - event["start"] + gap)))
         else:
             logger.warning("unexpected zero values in alert %s", alert_name)
@@ -625,8 +615,8 @@ def get_alerts(prometheus_url, cluster, since, until):
     return result
 
 
-def delete_old_data(days):
-    db = DB()
+def delete_old_data(database, days):
+    db = DB(database)
     now = datetime.datetime.now()
     delta = datetime.timedelta(days=days)
 
@@ -648,18 +638,18 @@ def delete_old_data(days):
         db.conn.commit()
 
 
-def gen_report(prometheus_url, path, since, until, cluster):
-    vc_report = get_vc_report(cluster, since, until)
+def gen_report(database, prometheus_url, path, since, until):
+    vc_report = get_vc_report(database, since, until)
     vc_file = "%s_vc.csv" % path
     with open(vc_file, "w") as f:
-        f.write("cluster,user,vc,cpu,mem,gpu\n")
+        f.write("user,vc,cpu,mem,gpu\n")
         for r in vc_report:
-            f.write("%s,%s,%s,%d,%d,%d\n" % (r.cluster, r.user, r.vc, r.cpu, r.mem, r.gpu))
+            f.write("%s,%s,%d,%d,%d\n" % (r.user, r.vc, r.cpu, r.mem, r.gpu))
 
-    job_report, processed_apps = get_job_report(cluster, since, until)
+    job_report, processed_apps = get_job_report(database, since, until)
     job_file = "%s_job.csv" % path
     with open(job_file, "w") as f:
-        f.write("cluster,user,vc," +
+        f.write("user,vc," +
         "total_count,total_time,total_cpu_sec,total_mem_sec,total_gpu_sec," +
         "succ_count,succ_time,succ_cpu_sec,succ_mem_sec,succ_gpu_sec," +
         "fail_count,fail_time,fail_cpu_sec,fail_mem_sec,fail_gpu_sec," +
@@ -673,10 +663,14 @@ def gen_report(prometheus_url, path, since, until, cluster):
         f.write("user,vc,job,start_time,finish_time,waiting_time,run_time,retries,status,exit_code,cpu,mem,gpu\n")
 
         for job_name, job in processed_apps.items():
+            if job.user == "unknown" or job.vc == "unknown":
+                # this is due to Framework do not have job info, but yarn have
+                continue
+
             elapsed_time = job.elapsed_time
-            cpu = int(job.cpu_sec / elapsed_time)
-            mem = int(job.mem_sec / elapsed_time)
-            gpu = int(job.gpu_sec / elapsed_time)
+            cpu = math.ceil(job.cpu_sec / elapsed_time)
+            mem = math.ceil(job.mem_sec / elapsed_time)
+            gpu = math.ceil(job.gpu_sec / elapsed_time)
 
             if job.finished_time == 0:
                 waiting_time = 0 # Unable to generate waiting time
@@ -698,10 +692,10 @@ def gen_report(prometheus_url, path, since, until, cluster):
                 mem,
                 gpu))
 
-    alert_report = get_alerts(prometheus_url, cluster, since, until)
+    alert_report = get_alerts(prometheus_url, since, until)
     alert_file = "%s_alert.csv" % path
     with open(alert_file, "w") as f:
-        f.write("cluster,alert_name,instance,start,durtion\n")
+        f.write("alert_name,instance,start,durtion\n")
         for r in alert_report:
             f.write("%s\n" % r)
 
@@ -710,10 +704,10 @@ def gen_report(prometheus_url, path, since, until, cluster):
 
 def main(args):
     if args.action == "refresh":
-        delete_old_data(args.retain)
-        refresh_cache(args.yarn_url, args.launcher_url, args.cluster)
+        delete_old_data(args.database, args.retain)
+        refresh_cache(args.database, args.yarn_url, args.launcher_url)
     elif args.action == "report":
-        gen_report(args.prometheus_url, args.file, args.since, args.until, args.cluster)
+        gen_report(args.database, args.prometheus_url, args.file, args.since, args.until)
     else:
         sys.stderr.write("unknown action %s\n" % (args.action))
         sys.exit(1)
@@ -734,11 +728,12 @@ if __name__ == "__main__":
 
     parser.add_argument("--retain", "-r", type=int, default=6*31,
             help="How many days to retain cache")
-    parser.add_argument("--cluster", "-c", required=True,
-            help="what cluster name is in fresh and select what cluster when report")
     parser.add_argument("--file", "-f", required=False,
             help="Output file prefix, required argument when action is report",
             default="cluster_report")
+
+    parser.add_argument("--database", "-d", required=True,
+            help="which sqlite db file to use")
 
     now = datetime.datetime.now()
     delta = datetime.timedelta(days=31)
