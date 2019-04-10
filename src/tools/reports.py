@@ -114,7 +114,9 @@ class VcUsage(object):
 
 
 class JobInfo(object):
-    def __init__(self, job_count=0, elapsed_time=0, cpu_sec=0, mem_sec=0, gpu_sec=0):
+    def __init__(self, job_count=0, elapsed_time=0, cpu_sec=0, mem_sec=0, gpu_sec=0,
+            user="unknown", vc="unknown", start_time=0, finished_time=0, retries=0,
+            status="unknown", exit_code="N/A"):
         """ elapsed_time is seconds, cpu_sec is vcore-seconds, mem_sec is
         megabyte-seconds, gpu_sec is card-seconds """
         self.job_count = job_count
@@ -122,6 +124,14 @@ class JobInfo(object):
         self.cpu_sec = cpu_sec
         self.mem_sec = mem_sec
         self.gpu_sec = gpu_sec
+
+        self.user = user
+        self.vc = vc
+        self.start_time = start_time
+        self.finished_time = finished_time
+        self.retries = retries
+        self.status = status
+        self.exit_code = exit_code
 
     def __iadd__(self, o):
         self.job_count += o.job_count
@@ -140,6 +150,7 @@ class JobInfo(object):
                 gpu_sec=self.gpu_sec + o.gpu_sec)
 
     def __repr__(self):
+        # NOTE this is used to generate final report
         return "%d,%d,%d,%d,%d" % (self.job_count, self.elapsed_time,
                 self.cpu_sec, self.mem_sec, self.gpu_sec)
 
@@ -157,6 +168,7 @@ class JobReportEntries(object):
         self.running_job_info = running_job_info
 
     def __repr__(self):
+        # NOTE this is used to generate final report
         return "%s,%s,%s,%s,%s,%s,%s,%s" % (
                 self.cluster,
                 self.username,
@@ -179,6 +191,7 @@ class Alert(object):
         self.durtion = durtion
 
     def __repr__(self):
+        # NOTE this is used to generate final report
         return "%s,%s,%s,%s,%s" % (self.cluster, self.alert_name, self.instance, self.start, self.durtion)
 
 
@@ -436,6 +449,7 @@ def convert_job_state(framework_state, exit_code):
 
 
 def get_job_report(cluster, since, until):
+    """ return two values, one is aggregated job info, the other is raw job status """
     db = DB()
 
     with db.conn:
@@ -479,6 +493,7 @@ def get_job_report(cluster, since, until):
         job_name = match.groups()[0]
 
         elapsed_time = walk_json_field_safe(app, "elapsedTime") or 0
+        elapsed_time = int(elapsed_time / 1000)
         cpu_sec = walk_json_field_safe(app, "vcoreSeconds") or 0
         mem_sec = walk_json_field_safe(app, "memorySeconds") or 0
         gpu_sec = walk_json_field_safe(app, "gpuSeconds") or 0
@@ -498,14 +513,29 @@ def get_job_report(cluster, since, until):
         name = walk_json_field_safe(framework, "frameworkName")
         username = walk_json_field_safe(framework, "userName")
         vc = walk_json_field_safe(framework, "queue")
+        start_time = walk_json_field_safe(framework, "firstRequestTimestamp") or 0
+        start_time = int(start_time / 1000)
+        finished_time = walk_json_field_safe(framework, "frameworkCompletedTimestamp") or 0
+        finished_time = int(finished_time / 1000)
+        retries = walk_json_field_safe(framework, "frameworkRetryPolicyState", "retriedCount")
+
         state = walk_json_field_safe(framework, "frameworkState")
         exit_code = walk_json_field_safe(framework, "applicationExitCode")
-
         job_status = convert_job_state(state, exit_code)
 
         if name in processed_apps:
-            processed_apps[name].job_count = 1
-            statistic[username][vc][job_status] += processed_apps[name]
+            job = processed_apps[name]
+
+            job.job_count = 1
+            job.user = username
+            job.vc = vc
+            job.start_time = start_time
+            job.finished_time = finished_time
+            job.retries = retries
+            job.status = job_status
+            job.exit_code = exit_code
+
+            statistic[username][vc][job_status] += job
 
     result = []
     for username, val in statistic.items():
@@ -526,7 +556,7 @@ def get_job_report(cluster, since, until):
                 mapping["SUCCEEDED"], mapping["FAILED"], mapping["STOPPED"],
                 mapping["RUNNING"]))
 
-    return result
+    return result, processed_apps
 
 
 def get_alerts(prometheus_url, cluster, since, until):
@@ -626,7 +656,7 @@ def gen_report(prometheus_url, path, since, until, cluster):
         for r in vc_report:
             f.write("%s,%s,%s,%d,%d,%d\n" % (r.cluster, r.user, r.vc, r.cpu, r.mem, r.gpu))
 
-    job_report = get_job_report(cluster, since, until)
+    job_report, processed_apps = get_job_report(cluster, since, until)
     job_file = "%s_job.csv" % path
     with open(job_file, "w") as f:
         f.write("cluster,user,vc," +
@@ -638,6 +668,36 @@ def gen_report(prometheus_url, path, since, until, cluster):
         for r in job_report:
             f.write("%s\n" % r)
 
+    job_raw_file = "%s_raw_job.csv" % path
+    with open(job_raw_file, "w") as f:
+        f.write("user,vc,job,start_time,finish_time,waiting_time,run_time,retries,status,exit_code,cpu,mem,gpu\n")
+
+        for job_name, job in processed_apps.items():
+            elapsed_time = job.elapsed_time
+            cpu = int(job.cpu_sec / elapsed_time)
+            mem = int(job.mem_sec / elapsed_time)
+            gpu = int(job.gpu_sec / elapsed_time)
+
+            if job.finished_time == 0:
+                waiting_time = 0 # Unable to generate waiting time
+            else:
+                waiting_time = job.finished_time - job.start_time - elapsed_time
+
+            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
+                job.user,
+                job.vc,
+                job_name,
+                job.start_time,
+                job.finished_time,
+                waiting_time,
+                job.elapsed_time,
+                job.retries,
+                job.status,
+                job.exit_code,
+                cpu,
+                mem,
+                gpu))
+
     alert_report = get_alerts(prometheus_url, cluster, since, until)
     alert_file = "%s_alert.csv" % path
     with open(alert_file, "w") as f:
@@ -645,8 +705,8 @@ def gen_report(prometheus_url, path, since, until, cluster):
         for r in alert_report:
             f.write("%s\n" % r)
 
-    logger.info("write csv file into %s, %s and %s",
-            vc_file, job_file, alert_file)
+    logger.info("write csv file into %s, %s, %s and %s",
+            vc_file, job_file, job_raw_file, alert_file)
 
 def main(args):
     if args.action == "refresh":
