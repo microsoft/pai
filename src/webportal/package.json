@@ -22,8 +22,8 @@
     "node": "^8.9.0"
   },
   "dependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "@webcomponents/custom-elements": "^1.2.1",
     "admin-lte": "~2.4.2",
@@ -31,13 +31,13 @@
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-lodash": "^3.3.4",
-    "babel-polyfill": "^6.26.0",
     "blueimp-file-upload": "~9.22.1",
     "bootstrap": "~3.4.0",
     "classnames": "^2.2.6",
     "compression": "~1.7.1",
     "cookie-parser": "~1.4.3",
     "copy-webpack-plugin": "~5.0.1",
+    "core-js": "^3.0.1",
     "css-loader": "~0.28.7",
     "datatables.net-buttons-bs": "^1.5.4",
     "datatables.net-plugins": "~1.10.15",
@@ -92,9 +92,8 @@
     "webpack": "~4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
-    "winston": "~2.4.0",
     "whatwg-fetch": "^3.0.0",
-    "whatwg-url": "7.0.0"
+    "winston": "~2.4.0"
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx src",

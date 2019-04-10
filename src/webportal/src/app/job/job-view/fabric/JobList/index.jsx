@@ -34,8 +34,6 @@ import Paginator from './Paginator';
 import Table from './Table';
 import TopBar from './TopBar';
 
-import 'whatwg-fetch';
-
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
 
@@ -88,7 +86,7 @@ export default function JobList() {
     userAuth.checkToken((token) => {
       jobs.forEach((job) => {
         const {name, username} = job;
-        window.fetch(`${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${name}/executionType`, {
+        fetch(`${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${name}/executionType`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -121,7 +119,7 @@ export default function JobList() {
       const {keyword, users, virtualClusters, statuses} = filter;
       setFilter(new Filter(keyword, users, virtualClusters.add(query['vcName']), statuses));
     }
-    window.fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
+    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {
           throw Error(response.message);
