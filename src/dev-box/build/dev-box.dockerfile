@@ -48,10 +48,11 @@ RUN apt-get -y update && \
       inotify-tools \
       rsync \
       realpath \
+      nfs-common \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes GitPython
+    pip install python-etcd docker kubernetes GitPython jsonschema
 
 WORKDIR /tmp
 
