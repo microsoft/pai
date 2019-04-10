@@ -1,0 +1,38 @@
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/containermanager/container/ContainerImpl.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/containermanager/container/ContainerImpl.java
+index 0cf6b55..164fcf6 100644
+--- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/containermanager/container/ContainerImpl.java
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/containermanager/container/ContainerImpl.java
+@@ -1525,9 +1525,15 @@ public void transition(ContainerImpl container, ContainerEvent event) {
+   static class ExitedWithFailureTransition extends ContainerTransition {
+ 
+     boolean clCleanupRequired;
++    boolean diagnosticsRequired;
+ 
+     public ExitedWithFailureTransition(boolean clCleanupRequired) {
++      this(clCleanupRequired, true);
++    }
++
++    public ExitedWithFailureTransition(boolean clCleanupRequired, boolean diagnosticsRequired) {
+       this.clCleanupRequired = clCleanupRequired;
++      this.diagnosticsRequired = diagnosticsRequired;
+     }
+ 
+     @Override
+@@ -1535,7 +1541,7 @@ public void transition(ContainerImpl container, ContainerEvent event) {
+       container.setIsReInitializing(false);
+       ContainerExitEvent exitEvent = (ContainerExitEvent) event;
+       container.exitCode = exitEvent.getExitCode();
+-      if (exitEvent.getDiagnosticInfo() != null) {
++      if (diagnosticsRequired && exitEvent.getDiagnosticInfo() != null) {
+         container.addDiagnostics(exitEvent.getDiagnosticInfo(), "\n");
+       }
+ 
+@@ -1608,7 +1614,7 @@ public ContainerState transition(final ContainerImpl container,
+         new KilledForReInitializationTransition().transition(container, event);
+         return ContainerState.SCHEDULED;
+       } else {
+-        new ExitedWithFailureTransition(true).transition(container, event);
++        new ExitedWithFailureTransition(true, false).transition(container, event);
+         return ContainerState.EXITED_WITH_FAILURE;
+       }
+     }
