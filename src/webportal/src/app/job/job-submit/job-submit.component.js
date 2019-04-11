@@ -159,7 +159,7 @@ $(document).ready(() => {
           editor.root.hideEditJSON();
         }
       });
-  });
+    });
 
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();

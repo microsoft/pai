@@ -29,7 +29,11 @@ const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
-const FABRIC_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
+const FABRIC_DIR = [
+  path.resolve(__dirname, '../src/app/job/job-view/fabric'),
+  path.resolve(__dirname, '../src/app/home'),
+  path.resolve(__dirname, '../node_modules/tachyons'),
+];
 
 function generateHtml(opt) {
   return new HtmlWebpackPlugin(Object.assign({
@@ -48,11 +52,10 @@ function generateHtml(opt) {
 
 const config = (env, argv) => ({
   entry: {
-    'index': './src/app/index.js',
+    'index': './src/app/home/index.jsx',
     'layout': './src/app/layout/layout.component.js',
     'register': './src/app/user/user-register/user-register.component.js',
     'userView': './src/app/user/user-view/user-view.component.js',
-    'login': './src/app/user/user-login/user-login.component.js',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
     'submit': './src/app/job/job-submit/job-submit.component.js',
@@ -215,7 +218,8 @@ const config = (env, argv) => ({
     }),
     generateHtml({
       filename: 'index.html',
-      chunks: ['layout', 'index'],
+      chunks: ['index'],
+      template: './src/app/home/index.ejs',
     }),
     generateHtml({
       filename: 'register.html',
@@ -224,10 +228,6 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'user-view.html',
       chunks: ['layout', 'userView'],
-    }),
-    generateHtml({
-      filename: 'login.html',
-      chunks: ['layout', 'login'],
     }),
     generateHtml({
       filename: 'change-password.html',

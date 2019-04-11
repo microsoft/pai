@@ -20,6 +20,7 @@ import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
 import {isJobV2} from './util';
+import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
 const params = new URLSearchParams(window.location.search);
@@ -115,15 +116,6 @@ export function cloneJob(jobConfig) {
     window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
   } else {
     window.location.href = `/submit.html?${qs.stringify(query)}`;
-  }
-}
-
-export function checkToken(redirectToLogin=true) {
-  const authToken = cookies.get('token');
-  if (!authToken && redirectToLogin) {
-    window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
-  } else {
-    return authToken;
   }
 }
 

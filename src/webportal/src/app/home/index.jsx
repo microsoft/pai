@@ -1,0 +1,109 @@
+// Copyright (c) Microsoft Corporation
+// All rights reserved.
+//
+// MIT License
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
+
+import {FontClassNames, ColorClassNames} from '@uifabric/styling';
+import c from 'classnames';
+import {Link} from 'office-ui-fabric-react';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import {checkToken} from '../user/user-auth/user-auth.component';
+
+import t from '../../../node_modules/tachyons/css/tachyons.css';
+
+if (checkToken(false)) {
+  window.location.replace('/job-list.html');
+}
+
+const Home = () => (
+  <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn)}>
+    {/* top */}
+    <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
+      <div className={c(FontClassNames.large, t.white)}>
+        Platform for AI
+      </div>
+      <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)}>
+        Sign in
+      </div>
+    </div>
+    {/* content */}
+    <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
+      {/* content 1 */}
+      <div
+        className={c(t.pa5, t.flexAuto, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter)}
+        style={{
+          backgroundImage: `url('/assets/img/home-background.svg')`,
+          backgroundRepeat: 'repeat',
+        }}
+      >
+        <div className={c(FontClassNames.superLarge, t.white)}>
+          Platform for AI
+        </div>
+        <div className={c(FontClassNames.mediumPlus, t.mv5, t.mw7, t.tc, t.lhCopy, t.white)}>
+          Platform for AI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+        </div>
+        <div className={c(t.dim, t.pointer, t.pv2, t.ph4, t.br1, t.bgWhite, t.flex, t.justifyCenter, t.itemsCenter)}>
+          <div className={c(ColorClassNames.themePrimary, FontClassNames.medium)}>
+            Sign in
+          </div>
+        </div>
+      </div>
+      {/* content 2 */}
+      <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flex)}>
+        <div className={c(t.w33, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+          <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+            <div className={c(FontClassNames.xxLarge)}>
+              Submit a hello-world job
+            </div>
+            <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
+              With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
+            </div>
+          </div>
+          <Link href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md' target='_blank'>Learn more</Link>
+        </div>
+        <div className={c(t.w34, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+          <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+            <div className={c(FontClassNames.xxLarge)}>
+              Understand Job
+            </div>
+            <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
+              The job of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
+            </div>
+          </div>
+          <Link href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md#understand-job' target='_blank'>Learn more</Link>
+        </div>
+        <div className={c(t.w33, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+          <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+            <div className={c(FontClassNames.xxLarge)}>
+              Use VS Code Extension to work with Jobs
+            </div>
+            <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
+              OpenPAI Client is a VS Code extension to connect PAI clusters, submit AI jobs, and manage files on HDFS, etc. You need to install the extension in VS code before using it.
+            </div>
+          </div>
+          <Link href='https://github.com/Microsoft/pai/blob/master/contrib/pai_vscode/VSCodeExt.md' target='_blank'>Learn more</Link>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+ReactDOM.render(<Home />, document.getElementById('content'));

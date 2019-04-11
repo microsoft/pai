@@ -29,7 +29,7 @@ $('#content-wrapper').html(changeGitHubPATHtml);
 $(document).ready(() => {
   const username = cookies.get('user');
   if (!username) {
-    location.replace('/login.html');
+    location.replace('/index.html');
   }
   userAuth.checkToken(function(token) {
     $('#form-change-github-pat').on('submit', (e) => {
