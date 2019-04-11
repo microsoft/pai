@@ -15,48 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# This script is intended to generate reports about OpenPai cluster, it has two
-# actions, one is refresh, another is report.
-# The refresh action will tries to collect data from Yarn and framework-launcher,
-# and save the data in sqlite3 DB for future process. We recommend admin run this
-# script every 1 minute using CRON job.
-# The report action will query data about vc usage and job statistic from sqlite3
-# DB and generate vc/job reports, it will also get data from prometheus to generate
-# alert reports. This action will query last 31 days data.
-
-# The reports will be 3 csv files vc.csv, job.csv and alert.csv, columns will have
-# following meaning:
-# vc.csv
-# * user: username in OpenPai cluster
-# * vc: VC name in OpenPai cluster
-# * cpu: number of vcore allocated for jobs
-# * mem: number of memory(MB) allocated for jobs
-# * gpu: number of GPU card allocated for jobs
-
-# jobs.csv
-# * user: username in OpenPai cluster
-# * vc: VC name in OpenPai cluster
-#
-# other fields are grouped into 5 groups, they are:
-# * total job: sum of all jobs
-# * successful job: those finished and exit code is 0
-# * failed job: those finished and exit code is not 0
-# * stopped job: those stopped by user
-# * running job: those running
-#
-# each group will have following subcolumn:
-# * count: job count of this subcolumn
-# * elapsed time: job running time of this subcolumn
-# * cpu second: how much vcore-second used by jobs of this subcolumn
-# * memory second: how much memory(MB)-second used by jobs of this subcolumn
-# * gpu second: how much gpu-second used by jobs of this subcolumn
-
-# alert.csv
-# alert name: alert name defined in prometheus
-# instance: where this alert was triggered
-# start: start time of this alert
-# durtion: how much time(seconds) this alert lasts
-
 import urllib.parse
 import argparse
 import logging
