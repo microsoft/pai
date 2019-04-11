@@ -131,18 +131,31 @@ def parse_smi_xml_result(smi):
             volatile = ecc_errors[0].getElementsByTagName("volatile")
             if len(volatile) > 0:
                 volatile = volatile[0]
-                try:
-                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
-                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
-                except:
-                    single = volatile.getElementsByTagName("sram_uncorrectable")[0]
-                    double = volatile.getElementsByTagName("dram_uncorrectable")[0]
-                single = single.childNodes[0].data
-                double = double.childNodes[0].data
-                if single != "N/A":
-                    ecc_single = int(single)
-                if double != "N/A":
-                    ecc_double = int(double)
+                single_bit = volatile.getElementsByTagName("single_bit")
+                double_bit = volatile.getElementsByTagName("double_bit")
+                """ In the `nvidia -q -x` xml result of some GPUs such as 1080ti, we can get the total ecc errors count number by parsing the 'single_bit' and the 'double_bit' tags. However, there are no these tags in the xml result of the 2080ti. There are only 'sram_correctable' etc.
+                
+                In this doc(https://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf), Nvidia mentioned that the ECC errors are either single or double bit, where single bit errors are corrected and double bit errors are uncorrectable. So we summarize the value of the 'sram_correctable' and 'dram_correctable' tags as the single_bit error count number. The double_bit error number are calculated by 'sram_uncorrectable' and 'dram_uncorrectable'.
+                """
+                if len(single_bit) > 0:
+                    single = single_bit[0].getElementsByTagName("total")[0]
+                    double = double_bit[0].getElementsByTagName("total")[0]
+                    single = single.childNodes[0].data
+                    double = double.childNodes[0].data
+                    if single != "N/A":
+                        ecc_single = int(single)
+                    if double != "N/A":
+                        ecc_double = int(double)
+                else:
+                    for single_tag_name in ["sram_correctable", "dram_correctable"]:
+                        single = volatile.getElementsByTagName(single_tag_name)[0].childNodes[0].data
+                        if single != "N/A":
+                            ecc_single += int(single)
+
+                    for double_tag_name in ["sram_uncorrectable", "dram_uncorrectable"]:
+                        double = volatile.getElementsByTagName(double_tag_name)[0].childNodes[0].data
+                        if double != "N/A":
+                            ecc_double += int(double)
 
         uuid = gpu.getElementsByTagName("uuid")[0].childNodes[0].data
 
