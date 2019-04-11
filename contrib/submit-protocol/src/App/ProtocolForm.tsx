@@ -56,7 +56,7 @@ interface IProtocolProps {
 
 interface IProtocolState {
   jobName: string;
-  protocol: {[key: string]: any};
+  protocol: any;
   protocolYAML: string;
   loading: boolean;
   showParameters: boolean;
