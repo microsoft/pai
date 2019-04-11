@@ -71,14 +71,14 @@ The file have following columns:
 
 ## Prerequisite
 
-You should prepare a node that have access to OpenPai services, the script will need to access hadoop-resource-manager, framework-launcher and Prometheus deployed by OpenPai. This node do not need to have much memory resource and do not need to have GPU cards. You only need to make sure this node will not restart frequently. Usualy the master node of the OpenPai cluster is a good choice.
+You should prepare a node that have access to OpenPai services, the script will need to access hadoop-resource-manager, framework-launcher and Prometheus deployed by OpenPai. This node do not need to have much memory resource and do not need to have GPU cards. You only need to make sure this node will not restart frequently. Usually the master node of the OpenPai cluster is a good choice.
 
 After you choose a node, please make sure you have following software installed:
 
 * python3
 * requests library
 
-If your node is ubuntu node you can install these software using following commands:
+If your node is ubuntu node, you can install these software using following commands:
 
 ``` sh
 sudo apt-get install -y python3 python3-pip
@@ -115,7 +115,7 @@ crontab -l
 
 to view your current crontab. It should showing what you edited.
 
-All available arguments and meanings can be viewed by execute script with `-h` arguments.
+All available arguments and meanings can be viewed by executing script with `-h` arguments.
 
 The script will automatically delete old data, by default, it will retain 6 months of data. If this is too large for you, for example, if you only want to retain 1 months of data, you can add `-r 31` to above command to tell script delete data that's older than 31 days.
 
