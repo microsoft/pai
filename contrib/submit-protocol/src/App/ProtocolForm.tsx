@@ -73,10 +73,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     showEditor: false,
   };
 
-  constructor(props: IProtocolProps) {
-    super(props);
-  }
-
   public componentDidMount() {
     this.fetchConfig();
   }
