@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import { Fabric } from "office-ui-fabric-react/lib/Fabric";
 import { Label } from "office-ui-fabric-react/lib/Label";
@@ -27,11 +27,12 @@ import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import classNames from "classnames";
 import update from "immutability-helper";
-import jsyaml from "js-yaml";
-import MonacoEditor from "react-monaco-editor";
+import yaml from "yaml";
 
-import bootstrapStyles from "bootstrap/dist/css/bootstrap.css";
+import bootstrapStyles from "bootstrap/dist/css/bootstrap.min.css";
 import monacoStyles from "./monaco.scss";
+
+const MonacoEditor = lazy(() => import("react-monaco-editor"));
 
 initializeIcons();
 
@@ -78,26 +79,42 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   public render() {
-    if (this.state.loading) {
-      return (
-        <Fabric>
-          <div className={bootstrapStyles.container}>
-            <div className={bootstrapStyles.modalDialog}>
-              <div className={bootstrapStyles.modalContent}>
-                <div className={bootstrapStyles.modalHeader}>
-                  <h3 className={bootstrapStyles.modalTitle}>
-                    Submit Job v2 <small>Protocol Preview</small>
-                  </h3>
-                </div>
-                <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
-                  <Spinner size={SpinnerSize.large} />
-                </div>
+    return this.state.loading ?
+    this.renderLoading() :
+    this.readerContent();
+  }
+
+  private renderLoading = () => {
+    return (
+      <Fabric>
+        <div className={bootstrapStyles.container}>
+          <div className={bootstrapStyles.modalDialog}>
+            <div className={bootstrapStyles.modalContent}>
+              <div className={bootstrapStyles.modalHeader}>
+                <h3 className={bootstrapStyles.modalTitle}>
+                  Submit Job v2 <small>Protocol Preview</small>
+                </h3>
+              </div>
+              <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
+                <Spinner size={SpinnerSize.large} />
               </div>
             </div>
           </div>
-        </Fabric>
-      );
-    }
+        </div>
+      </Fabric>
+    );
+  }
+
+  private readerContent = () => {
+    const editorSpinner = (
+      <Spinner
+        label="Loading YAML Editor ..."
+        ariaLive="assertive"
+        labelPosition="left"
+        size={SpinnerSize.large}
+      />
+    );
+
     return (
       <Fabric>
         <Panel
@@ -108,15 +125,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           headerText="Protocol YAML Editor"
         >
           <div className={monacoStyles.monacoHack}>
-            <MonacoEditor
-              width={800}
-              height={800}
-              value={this.state.protocolYAML}
-              onChange={this.editProtocol}
-              language="yaml"
-              theme="vs-dark"
-              options={{ wordWrap: "on", readOnly: false }}
-            />
+            <Suspense fallback={editorSpinner}>
+              <MonacoEditor
+                width={800}
+                height={800}
+                value={this.state.protocolYAML}
+                onChange={this.editProtocol}
+                language="yaml"
+                theme="vs-dark"
+                options={{ wordWrap: "on", readOnly: false }}
+              />
+            </Suspense>
           </div>
           <div style={{ marginTop: "15px" }}>
             <PrimaryButton text="Save" onClick={this.saveEditor} style={{ marginRight: "10px" }}/>
@@ -177,12 +196,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private fetchConfig = () => {
     const source = this.props.source;
     if (source && source.jobName && source.user) {
-      window.fetch(
+      fetch(
         `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
       ).then((res) => {
         return res.json();
       }).then((body) => {
-        const protocol = jsyaml.safeLoad(body);
+        const protocol = yaml.parse(body);
         this.setState(
           { protocol },
           () => this.setJobName(
@@ -191,7 +210,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           ),
         );
       }).catch((err) => {
-        window.alert(err.message);
+        alert(err.message);
       }).finally(() => {
         this.setState({ loading: false });
       });
@@ -208,7 +227,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       this.setState({
         jobName,
         protocol,
-        protocolYAML: jsyaml.safeDump(protocol),
+        protocolYAML: yaml.stringify(protocol),
       });
     }
   }
@@ -223,14 +242,14 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     fileReader.addEventListener("load", () => {
       const text = fileReader.result as string;
       try {
-        const protocol = jsyaml.safeLoad(text);
+        const protocol = yaml.parse(text);
         this.setState({
           jobName: protocol.name || "",
           protocol,
           protocolYAML: text,
         });
       } catch (err) {
-        window.alert(err.message);
+        alert(err.message);
       }
     });
     fileReader.readAsText(files[0]);
@@ -255,7 +274,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           (protocol.parameters as IParameterObj)[item.key] = value;
           this.setState({
             protocol,
-            protocolYAML: jsyaml.safeDump(protocol),
+            protocolYAML: yaml.stringify(protocol),
           });
         }
       };
@@ -316,20 +335,20 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     event.preventDefault();
     const text = this.state.protocolYAML;
     try {
-      const protocol = jsyaml.safeLoad(text);
+      const protocol = yaml.parse(text);
       this.setState({
         jobName: protocol.name || "",
         protocol,
         showEditor: false,
       });
     } catch (err) {
-      window.alert(err.message);
+      alert(err.message);
     }
   }
 
   private discardEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    const text = jsyaml.safeDump(this.state.protocol);
+    const text = yaml.stringify(this.state.protocol);
     this.setState({
       protocolYAML: text,
       showEditor: false,
@@ -341,7 +360,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (this.state.protocolYAML == null) {
       return;
     }
-    window.fetch(`${this.props.api}/api/v2/jobs`, {
+    fetch(`${this.props.api}/api/v2/jobs`, {
       body: this.state.protocolYAML,
       headers: {
         "Authorization": `Bearer ${this.props.token}`,
@@ -352,12 +371,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return res.json();
     }).then((body) => {
       if (Number(body.status) >= 400) {
-        window.alert(body.message);
+        alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
     }).catch((err) => {
-      window.alert(err.message);
+      alert(err.message);
     });
   }
 }

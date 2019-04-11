@@ -15,9 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { resolve } from "path";
-import { Configuration } from "webpack";
-import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
+const { resolve } = require("path");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const SRC_PATH = resolve(__dirname, "src");
 const OUTPUT_PATH = resolve(__dirname, "dist");
@@ -26,7 +25,7 @@ const CSS_MODULES_PATH = [
   resolve(__dirname, "node_modules/bootstrap"),
 ];
 
-const configuration: Configuration = {
+const configuration = {
   context: SRC_PATH,
   entry: {
     plugin: "./index.ts",
@@ -93,4 +92,4 @@ const configuration: Configuration = {
   },
 };
 
-export default configuration;
+module.exports = configuration;
