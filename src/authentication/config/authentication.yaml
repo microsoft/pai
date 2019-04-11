@@ -1,0 +1,7 @@
+
+
+# The default authentication method is basic model.
+# You have chose authentication method from the list for your cluster. ['basic', 'aad']
+# If you chose aad as your cluster's authentication method, you should config aad configuration in src/aad/config
+method: basic
+
