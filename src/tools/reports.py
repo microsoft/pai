@@ -212,6 +212,7 @@ class DB(object):
     CREATE_FRAMEWORK_NAME_INDEX = "CREATE INDEX IF NOT EXISTS framework_name_index ON frameworks (name);"
     CREATE_FRAMEWORK_TIME_INDEX = "CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (start_time, finished_time);"
 
+    # mem here is in byte, not MB
     CREATE_VC_USAGE_TABLE = """CREATE TABLE IF NOT EXISTS vc_usage (
                             username text NOT NULL,
                             vc text NOT NULL,
@@ -523,7 +524,10 @@ def get_job_report(database, since, until):
             job.finished_time = finished_time
             job.retries = retries
             job.status = job_status
-            job.exit_code = exit_code or "N/A"
+            if exit_code is not None:
+                job.exit_code = exit_code
+            else:
+                job.exit_code = "N/A"
 
             statistic[username][vc][job_status] += job
 
@@ -644,7 +648,9 @@ def gen_report(database, prometheus_url, path, since, until):
     with open(vc_file, "w") as f:
         f.write("user,vc,cpu,mem,gpu\n")
         for r in vc_report:
-            f.write("%s,%s,%d,%d,%d\n" % (r.user, r.vc, r.cpu, r.mem, r.gpu))
+            # csv's int should not too large, so convert into MB
+            mem = int(r.mem / 1024 / 1024)
+            f.write("%s,%s,%d,%d,%d\n" % (r.user, r.vc, r.cpu, mem, r.gpu))
 
     job_report, processed_apps = get_job_report(database, since, until)
     job_file = "%s_job.csv" % path
