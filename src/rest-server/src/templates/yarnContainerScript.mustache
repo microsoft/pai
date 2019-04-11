@@ -178,10 +178,11 @@ function generate_agg_err()
   # Here we persume the kill event trigger seq is diskCleaner, runtime and user error
   printf "[DEBUG] Generate aggregate dynamic error info\n"
 
+  printf "[PAI_RUNTIME_ERROR_START]\n" >> $RUNTIME_AGG_ERROR_FILE
   generate_error_summary
 
   echo "errorLogs:" >> $RUNTIME_AGG_ERROR_FILE
-  echo "- user: |" >> $RUNTIME_AGG_ERROR_FILE
+  echo "  user: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $USER_ERROR_FILE ]]; then
     printf "%s\n" "$(printf_file_tail_with_shift $USER_ERROR_FILE "    " 20)" >> $RUNTIME_AGG_ERROR_FILE
   fi
@@ -199,6 +200,7 @@ function generate_agg_err()
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
     printf "%s\n" "$(printf_file_tail_with_shift $DISK_CLEANER_ERROR_FILE "    " 5)" >> $RUNTIME_AGG_ERROR_FILE
   fi
+  printf "[PAI_RUNTIME_ERROR_END]\n" >> $RUNTIME_AGG_ERROR_FILE
 }
 
 
