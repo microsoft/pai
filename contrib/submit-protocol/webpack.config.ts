@@ -79,7 +79,7 @@ const configuration: Configuration = {
   plugins: [
     new MonacoWebpackPlugin({
       languages: ["yaml"],
-      features: [],
+      features: ["folding"],
     }),
   ],
   devServer: {
