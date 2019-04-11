@@ -20,3 +20,5 @@
 kubectl create configmap  host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl create configmap  docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl create configmap  gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap  pai-version --from-file=../../../version/PAI.VERSION --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap  k8s-version --from-file=../../../version/K8S.VERSION --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
