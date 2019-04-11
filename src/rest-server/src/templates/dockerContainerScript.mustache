@@ -31,8 +31,8 @@ DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 
 # create runtime docker log here. Since multi shell IO block will write to the files,
 # we just append lines to the log file to avoid flush exits contents.
-touch RUNTIME_DOCKER_ERR_LOG
-touch RUNTIME_DOCKER_LOG
+touch $RUNTIME_DOCKER_ERR_LOG
+touch $RUNTIME_DOCKER_LOG
 
 # This function is duplicate between dockerContainerScript and yarnContainerScript\
 # Need to remove one if we discard the shell scirpt
@@ -49,9 +49,9 @@ function log_runtime_error()
 
 function exit_handler()
 {
+  rc=$?
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
-  rc=$?
   if [[ $rc -eq 0 ]]; then
     exit 0
   fi

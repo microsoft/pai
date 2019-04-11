@@ -64,7 +64,7 @@ function sigterm_handler()
   log_runtime_error "ERROR" "REASON" "\"YARN Container receive signal SIGTERM\""
   log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"SIGTERM\""
   exit $CONTAINER_SIGTERM_ERROR
-} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
+} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG
 
 
 function write_error_summary()
@@ -118,6 +118,7 @@ function printf_file_tail_with_shift()
   local file_content=$(tail -n "$tail_num" "$file_name")
   while IFS= read -r line
   do
+    line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r')
     echo "$shift_space$line"
   done < <(printf '%s\n' "$file_content")
 }
@@ -246,7 +247,7 @@ function exit_handler()
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
 
   exit $rc
-} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
+} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG
 
 {
 set -x
@@ -463,8 +464,8 @@ fi
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.user.pai.error $LAUNCHER_LOG_DIR/runtime.user.pai.error
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.user.pai.log $LAUNCHER_LOG_DIR/runtime.user.pai.log
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $LAUNCHER_LOG_DIR/runtime.docker.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $LAUNCHER_LOG_DIR/runtime.docker.pai.log
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.error $LAUNCHER_LOG_DIR/user.pai.error
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.log $LAUNCHER_LOG_DIR/user.pai.log
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error $LAUNCHER_LOG_DIR/diskCleaner.pai.error
@@ -485,7 +486,7 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/
 docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
 
-} 1 >> $RUNTIME_YARN_LOG 2 >> $RUNTIME_YARN_ERR_LOG
+} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
 ## network consumption
 docker run --name $docker_name \
