@@ -133,9 +133,15 @@ def parse_smi_xml_result(smi):
                 volatile = volatile[0]
                 single_bit = volatile.getElementsByTagName("single_bit")
                 double_bit = volatile.getElementsByTagName("double_bit")
-                """ In the `nvidia -q -x` xml result of some GPUs such as 1080ti, we can get the total ecc errors count number by parsing the 'single_bit' and the 'double_bit' tags. However, there are no these tags in the xml result of the 2080ti. There are only 'sram_correctable' etc.
+                """ In the `nvidia -q -x` xml result of some GPUs such as 1080ti,
+                 we can get the total ecc errors count number by parsing the 'single_bit' and the 'double_bit' tags. 
+                 However, there are no these tags in the xml result of the 2080ti. There are only 'sram_correctable' etc.
                 
-                In this doc(https://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf), Nvidia mentioned that the ECC errors are either single or double bit, where single bit errors are corrected and double bit errors are uncorrectable. So we summarize the value of the 'sram_correctable' and 'dram_correctable' tags as the single_bit error count number. The double_bit error number are calculated by 'sram_uncorrectable' and 'dram_uncorrectable'.
+                In this doc(https://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf), 
+                Nvidia mentioned that the ECC errors are either single or double bit, 
+                where single bit errors are corrected and double bit errors are uncorrectable. 
+                So we summarize the value of the 'sram_correctable' and 'dram_correctable' tags as the single_bit error count number. 
+                The double_bit error number are calculated by 'sram_uncorrectable' and 'dram_uncorrectable'.
                 """
                 if len(single_bit) > 0:
                     single = single_bit[0].getElementsByTagName("total")[0]
