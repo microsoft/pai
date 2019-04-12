@@ -44,6 +44,8 @@ class Authentication:
 
 
     def validation_post(self, cluster_object_model):
+        if self.serice_configuration["OIDC"] == False:
+            return True, None
         if "uri" not in cluster_object_model["pylon"]:
             return False, "property named uri is missed in pylon configuration. Please check it."
         return True, None
