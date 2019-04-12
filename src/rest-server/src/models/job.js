@@ -22,9 +22,11 @@ const unirest = require('unirest');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
 const launcherConfig = require('../config/launcher');
+const taskConfig = require('../config/task');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
+const userCommandScriptTemplate = require('../templates/userCommandScript');
 const createError = require('../util/error');
 const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
@@ -464,6 +466,9 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectPidFormat': '{{.State.Pid}}',
+          'entryScriptName': taskConfig.dockerContainerScriptName,
+          'userCommandScriptName': taskConfig.userCommandScriptName,
+          'userCommandScriptContainerPath': taskConfig.userCommandScriptContainerPath,
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
@@ -485,8 +490,27 @@ class Job {
           'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
           'debuggingReservationSeconds': paiConfig.debuggingReservationSeconds,
+          'userCommandScriptContainerPath': taskConfig.userCommandScriptContainerPath,
         });
     return dockerContainerScript;
+  }
+
+  generateUserCommandScript(data, idx) {
+    const userCommandScript = mustache.render(
+        userCommandScriptTemplate, {
+          'idx': idx,
+          'hdfsUri': launcherConfig.hdfsUri,
+          'taskData': data.taskRoles[idx],
+          'jobData': data,
+          'webHdfsUri': launcherConfig.webhdfsUri,
+          'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
+          'paiMachineList': paiConfig.machineList,
+          'reqAzRDMA': data.jobEnvs && data.jobEnvs.paiAzRDMA === true ? true : false,
+          'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
+          'debuggingReservationSeconds': paiConfig.debuggingReservationSeconds,
+          'userCommandScriptContainerPath': taskConfig.userCommandScriptContainerPath,
+        });
+    return userCommandScript;
   }
 
   generateFrameworkDescription(data) {
@@ -643,8 +667,22 @@ class Job {
       (parallelCallback) => {
         async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
           hdfs.createFile(
-            `/Container/${data.userName}/${name}/DockerContainerScripts/${x}.sh`,
+            `/Container/${data.userName}/${name}/DockerContainerScripts/${x}/` + taskConfig.dockerContainerScriptName,
             this.generateDockerContainerScript(data, x),
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
+            (error, result) => {
+              eachCallback(error);
+            }
+          );
+        }, (error) => {
+          parallelCallback(error);
+        });
+      },
+      (parallelCallback) => {
+        async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
+          hdfs.createFile(
+            `/Container/${data.userName}/${name}/DockerContainerScripts/${x}/` + taskConfig.userCommandScriptName,
+            this.generateUserCommandScript(data, x),
             {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
             (error, result) => {
               eachCallback(error);

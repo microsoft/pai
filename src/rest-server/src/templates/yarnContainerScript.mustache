@@ -247,7 +247,7 @@ PAI_TEMP={{ key }}={{ value }} && echo $PAI_TEMP >> $ENV_LIST
 # Prepare docker bootstrap script
 bootstrap_dir="tmp/pai-root/bootstrap"
 mkdir -p $bootstrap_dir
-hdfs dfs -get {{ hdfsUri }}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{ idx }}.sh $bootstrap_dir/docker_bootstrap.sh \
+hdfs dfs -get {{ hdfsUri }}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{ idx }}/{{ entryScriptName }} $bootstrap_dir/docker_bootstrap.sh \
   || { echo "Can not get script from HDFS."; exit 1; }
 
 # Prepare user code
@@ -291,6 +291,12 @@ mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
 container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/appcache/$APP_ID/$CONTAINER_ID
 
+# Prepare the user command script
+user_command_script="user_command.sh"
+hdfs dfs -get {{ hdfsUri }}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{ idx }}/{{ userCommandScriptName }} $user_command_script \
+  || { echo "Can not get script from HDFS."; exit 1; }
+chmod a+x $user_command_script
+
 # Pull docker image and run
 docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
@@ -332,6 +338,7 @@ docker run --name $docker_name \
   --volume $container_local_dir/$log_dir:/pai/log \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
+  --volume $container_local_dir/$user_command_dir/$user_command_script:{{ userCommandScriptContainerPath }}:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume $container_local_dir/$hadoop_config_dir:/etc/hadoop \
   --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/:ro \

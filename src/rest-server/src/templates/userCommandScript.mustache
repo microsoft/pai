@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# By default, exit on the first error
+set -e
+
+# Sending a signal to Bash makes it exit *immediately*
+# if the signal has the default handler (set like "trap - SIG"),
+# as opposed to non-default handlers, waiting for the current
+# command to finish,
+# so the signal should be catched in the user command script.
+#
+# By default, the user command script does nothing on the signals PAI sends.
+#
+# We could leave the handlers empty ("") or set the default (- or nothing)
+# handlers, however, doing this incurs an issue in a subprocess
+# (e.g. if user command runs a script) -
+# it can not change the default handler to anything else (reference below).
+# Thus, we have to set any non-empty (not "") handler. This way it works.
+#
+# References:
+# > POSIX 2 / https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html:
+# > Signals ignored upon entry to the shell cannot be trapped or reset.
+# > Trapped signals that are not being ignored are reset to their original
+# >   values in a subshell or subshell environment when one is created.
+#
+trap ' ' "${PAI_GRACEFUL_EXIT_SIGNAL}"
+trap ' ' "${PAI_OOM_KILLED_SIGNAL}"
+
+# Enable logging for the user command
+set -x
+
+{{{ taskData.command }}}
