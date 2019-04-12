@@ -18,6 +18,7 @@
 const portTypeSchema = {
   type: 'object',
   headerTemplate: '{{ self.label }}',
+  title: 'port',
   options: {
     disable_edit_json: true,
   },
@@ -51,6 +52,7 @@ const portTypeSchema = {
 const taskRoleSchema = {
   type: 'object',
   headerTemplate: '{{ self.name }}',
+  title: 'taskRole',
   format: 'grid',
   options: {
     disable_edit_json: true,
@@ -130,6 +132,14 @@ const taskRoleSchema = {
     },
   },
   required: [
+    'name',
+    'taskNumber',
+    'cpuNumber',
+    'memoryMB',
+    'gpuNumber',
+    'command',
+  ],
+  defaultProperties: [
     'name',
     'taskNumber',
     'cpuNumber',
@@ -254,6 +264,12 @@ const jobSchema = {
   required: [
     'jobName',
     'image',
+    'taskRoles',
+  ],
+  defaultProperties: [
+    'jobName',
+    'image',
+    'virtualCluster',
     'taskRoles',
   ],
 };
