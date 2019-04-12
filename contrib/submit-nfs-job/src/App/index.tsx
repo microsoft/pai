@@ -61,7 +61,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   const [type, onTypeChanged, setType] = useValue("single-task");
   const [name, onNameChanged, setName] = useValue(`unnamed-job-${Date.now()}`);
   const [image, onImageChanged, setImage] = useValue("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04"); 
-  const [vc, onVCChanged, setVC] = useValue("default"); 
+  const [virtualCluster, onVCChanged, setVC] = useValue("default"); 
 
   const [originalJob, originalJobError] = usePromise(() => {
     if (
@@ -136,7 +136,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
     if (originalJob != null) {
       setType(originalJob.type);
       setImage(originalJob.image);
-      setVC(originalJob.vc);
+      setVC(originalJob.virtualCluster);
     }
   }, [originalJob]);
 
@@ -150,7 +150,6 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
       case "tensorflow-distributed":
         setImage("openpai/pai.example.tensorflow:stable");
         break;
-      default: break;
     }
   }, [type]);
 
@@ -160,13 +159,13 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
 
   let form = null;
   if (type === "single-task") {
-    form = <SimpleNFSJobForm name={name} image={image} vc={vc} defaultValue={originalJob} onChange={setJob}/>;
+    form = <SimpleNFSJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
   }
   if (type === "tensorflow-single-task") {
-    form = <TensorflowSingleNodeJobForm name={name} image={image} vc={vc} defaultValue={originalJob} onChange={setJob}/>;
+    form = <TensorflowSingleNodeJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
   }
   if (type === "tensorflow-distributed") {
-    form = <TensorflowDistributedJobForm name={name} image={image} vc={vc} defaultValue={originalJob} onChange={setJob}/>;
+    form = <TensorflowDistributedJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
   }
 
   return (
@@ -221,7 +220,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
                     type="text"
                     className="form-control"
                     id="virtual-cluster"
-                    value={vc}
+                    value={virtualCluster}
                     onChange={onVCChanged}
                     required={false}
                   />

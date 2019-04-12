@@ -36,7 +36,7 @@ const MEMORY_PER_GPU = 50 * 1024;
 interface ISimpleNFSJobObject {
   readonly type: "single-task";
   readonly image: string;
-  readonly vc: string;
+  readonly virtualCluster: string;
   readonly gpuNumber: number;
   readonly command: string;
   readonly mountDirectories: IMountDirectoriesObject | null;
@@ -46,7 +46,7 @@ export default class SimpleNFSJob extends Job {
   public constructor(
     private readonly name: string,
     private readonly image: string,
-    private readonly vc: string,
+    private readonly virtualCluster: string,
     private readonly gpuNumber: number,
     private readonly command: string,
     public readonly mountDirectories: MountDirectories | null,
@@ -67,7 +67,7 @@ export default class SimpleNFSJob extends Job {
     const paiJob = Object.create(null);
     paiJob.jobName = this.name;
     paiJob.image = this.image;
-    paiJob.virtualCluster = this.vc;
+    paiJob.virtualCluster = this.virtualCluster;
     
     paiJob.taskRoles = [paiTaskRole];
 
@@ -75,11 +75,11 @@ export default class SimpleNFSJob extends Job {
   }
 
   public toJSON(): ISimpleNFSJobObject {
-    const { image, vc, gpuNumber, command, mountDirectories } = this;
+    const { image, virtualCluster, gpuNumber, command, mountDirectories } = this;
     return {
       type: "single-task",
       image,
-      vc,
+      virtualCluster,
       gpuNumber,
       command,
       mountDirectories: mountDirectories !== null ? mountDirectories.toJSON() : null,
@@ -102,19 +102,19 @@ export default class SimpleNFSJob extends Job {
 interface IProps {
   name: string;
   image: string;
-  vc: string;
+  virtualCluster: string;
   defaultValue: ISimpleNFSJobObject | null;
   onChange(job: SimpleNFSJob): void;
 }
 
-export function SimpleNFSJobForm({ name, image, vc, defaultValue, onChange }: IProps) {
+export function SimpleNFSJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
   const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 1));
   const [command, onCommandChanged] = useValue(get(defaultValue, "command", "echo \"Hello OpenPAI!\""));
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {
-    onChange(new SimpleNFSJob(name, image, vc, gpuNumber, command, mountDirectories));
-  }, [name, image, vc, gpuNumber, command, mountDirectories]);
+    onChange(new SimpleNFSJob(name, image, virtualCluster, gpuNumber, command, mountDirectories));
+  }, [name, image, virtualCluster, gpuNumber, command, mountDirectories]);
 
   return (
     <>
