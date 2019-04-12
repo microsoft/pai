@@ -15,10 +15,10 @@ isB2C: {{ cluster_cfg['authentication']['AAD']['isB2C'] }}
 issuer: {{ cluster_cfg['authentication']['AAD']['issuer'] }}
 passReqToCallback: {{ cluster_cfg['authentication']['AAD']['passReqToCallback'] }}
 cookieEncryptionKeys:
-{{% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}}
+{% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}
     - key: {{ ckek['key'] }}
       iv: {{ ckek['iv'] }}
-{{% endif %}}
+{% endfor %}
 scope: {{ cluster_cfg['authentication']['AAD']['scope'] }}
 loggingLevel: {{ cluster_cfg['authentication']['AAD']['loggingLevel'] }}
 nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] }}
