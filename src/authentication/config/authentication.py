@@ -21,10 +21,8 @@ class Authentication:
         self.cluster_configuration = cluster_configuration
         self.service_configuration = dict(default_service_configuration, **service_configuration)
 
-
     def validation_pre(self):
-        print self.service_configuration["OIDC"]
-        if self.service_configuration["OIDC"] == False:
+        if self.service_configuration["OIDC"] is False:
             return True, None
         if "OIDC-type" not in self.service_configuration:
             return False, "OIDC-type is missing in service-configuration.yaml->authentication"
@@ -37,22 +35,14 @@ class Authentication:
                 return False, "ClientSecret is missing. If you wanna configure AAD-OIDC, you should configure service-configuration.yaml->authentication->AAD->ClientSecret"
         return True, None
 
-
     def run(self):
-        if self.service_configuration["OIDC"] == False:
+        if self.service_configuration["OIDC"] is False:
             return self.service_configuration
         return self.service_configuration
 
-
     def validation_post(self, cluster_object_model):
-        if self.service_configuration["OIDC"] == False:
+        if self.service_configuration["OIDC"] is False:
             return True, None
         if "uri" not in cluster_object_model["pylon"]:
             return False, "property named uri is missed in pylon configuration. Please check it."
         return True, None
-
-
-
-
-
-
