@@ -160,6 +160,9 @@ $(document).ready(() => {
         }
       });
     });
+    $('[title="Object Properties"]').each((index, element) => {
+      $($(element).contents()[2]).replaceWith('More Properties');
+    });
 
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
