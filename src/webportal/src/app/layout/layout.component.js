@@ -35,6 +35,7 @@ const userLoginNavHtml = userLoginNavComponent({cookies});
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
+userAuthComponent.checkToken();
 if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
 }
