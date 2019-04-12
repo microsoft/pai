@@ -50,6 +50,8 @@ spec:
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
 {% if not cluster_cfg['authentication']['OIDC'] %}
+        - name: AUTHN_METHOD
+          value: basic
         - name: DEFAULT_PAI_ADMIN_USERNAME
           value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
         - name: DEFAULT_PAI_ADMIN_PASSWORD
