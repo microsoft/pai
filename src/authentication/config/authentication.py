@@ -23,8 +23,8 @@ class Authentication:
 
 
     def validation_pre(self):
-        print self.serice_configuration["OIDC"]
-        if self.serice_configuration["OIDC"] == False:
+        print self.service_configuration["OIDC"]
+        if self.service_configuration["OIDC"] == False:
             return True, None
         if "OIDC-type" not in self.service_configuration:
             return False, "OIDC-type is missing in service-configuration.yaml->authentication"
@@ -39,13 +39,13 @@ class Authentication:
 
 
     def run(self):
-        if self.serice_configuration["OIDC"] == False:
+        if self.service_configuration["OIDC"] == False:
             return self.service_configuration
         return self.service_configuration
 
 
     def validation_post(self, cluster_object_model):
-        if self.serice_configuration["OIDC"] == False:
+        if self.service_configuration["OIDC"] == False:
             return True, None
         if "uri" not in cluster_object_model["pylon"]:
             return False, "property named uri is missed in pylon configuration. Please check it."
