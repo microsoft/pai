@@ -137,8 +137,8 @@ def parse_smi_xml_result(smi):
                 volatile = ecc_errors[0].getElementsByTagName("volatile")
                 if len(volatile) > 0:
                     volatile = volatile[0]
-                    single_bit = volatile.getElementsByTagName("single_bit")
-                    double = double_bit[0].getElementsByTagName("total")[0]
+                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
+                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
                     single = single.childNodes[0].data
                     double = double.childNodes[0].data
                     if single != "N/A":
