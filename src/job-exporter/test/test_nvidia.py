@@ -45,7 +45,7 @@ class TestNvidia(base.TestBase):
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
     def test_parse_smi_new_xml_result(self):
-        sample_path = "data/nvidia_smi_sample_new.xml"
+        sample_path = "data/nvidia_smi_sample_ecc_unsupported.xml"
         with open(sample_path, "r") as f:
             nvidia_smi_result = f.read()
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
