@@ -4,10 +4,10 @@
  * @author Microsoft
  */
 
+import * as bytes from 'bytes';
 import * as fs from 'fs-extra';
 import { injectable } from 'inversify';
 import * as path from 'path';
-import * as bytes from 'bytes';
 import { Request } from 'request';
 import { Transform } from 'stream';
 import * as streamifier from 'streamifier';
