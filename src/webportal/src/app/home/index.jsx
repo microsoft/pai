@@ -23,7 +23,7 @@ import {FontClassNames, ColorClassNames, FontWeights} from '@uifabric/styling';
 import c from 'classnames';
 import {Link, Modal, TextField, PrimaryButton, MessageBar, MessageBarType, initializeIcons} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
@@ -174,19 +174,36 @@ const Home = () => {
   const [lock, setLock] = useState(false);
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
-  const onLoginClick = () => {
-    setLock(true);
-    void login(
-      usernameRef.current.value,
-      passwordRef.current.value
-    ).then(() => {
-      window.location.replace(loginTarget);
-    }).catch((e) => {
-      setError(e.message);
-    }).finally(() => {
-      setLock(false);
-    });
-  };
+  const onLogin = useCallback(
+    (e) => {
+      e.preventDefault();
+      setLock(true);
+      void login(
+        usernameRef.current.value,
+        passwordRef.current.value
+      ).then(() => {
+        window.location.replace(loginTarget);
+      }).catch((e) => {
+        setError(e.message);
+      }).finally(() => {
+        setLock(false);
+      });
+    },
+    [],
+  );
+
+  const showLoginModal = useCallback(
+    () => setLoginModal(true),
+    [],
+  );
+
+  const dismissLoginModal = useCallback(
+    () => {
+      setLoginModal(false);
+      setError(null);
+    },
+    [],
+  );
 
   return (
     <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn)}>
@@ -195,24 +212,21 @@ const Home = () => {
         <div className={c(FontClassNames.large, t.white)}>
           Platform for AI
         </div>
-        <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)} onClick={() => setLoginModal(true)}>
+        <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)} onClick={showLoginModal}>
           Sign in
         </div>
       </div>
       {/* content */}
       <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
         {/* jumbotron */}
-        <Jumbotron showLoginModal={() => setLoginModal(true)} />
+        <Jumbotron showLoginModal={showLoginModal} />
         {/* bottom */}
         <Bottom />
       </div>
       {/* login modal */}
       <Modal
         isOpen={loginModal}
-        onDismiss={() => {
-          setLoginModal(false);
-          setError(null);
-        }}
+        onDismiss={dismissLoginModal}
       >
         <div className={c(t.pa5)} style={{width: '24rem'}}>
           <div className={c(t.center, t.pa2, t.h3, t.w3, t.brPill, t.bgBlack, t.flex, t.justifyCenter, t.itemsCenter)}>
@@ -226,30 +240,26 @@ const Home = () => {
               {error}
             </MessageBar>
           )}
-          <div className={c(t.center, t.mt3)}>
-            <TextField componentRef={usernameRef} label='Username'/>
-          </div>
-          <div className={c(t.center, t.mt3)}>
-            <TextField
-              componentRef={passwordRef}
-              label='Password'
-              type='password'
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  event.preventDefault();
-                  onLoginClick();
-                }
-              }}
-            />
-          </div>
-          <div className={c(t.center, t.mt4, t.tc)}>
-            <PrimaryButton
-              text="Sign in"
-              styles={{root: [t.w4]}}
-              disabled={lock}
-              onClick={onLoginClick}
-            />
-          </div>
+          <form onSubmit={onLogin}>
+            <div className={c(t.center, t.mt3)}>
+              <TextField componentRef={usernameRef} label='Username'/>
+            </div>
+            <div className={c(t.center, t.mt3)}>
+              <TextField
+                componentRef={passwordRef}
+                label='Password'
+                type='password'
+              />
+            </div>
+            <div className={c(t.center, t.mt4, t.tc)}>
+              <PrimaryButton
+                text="Sign in"
+                type="submit"
+                styles={{root: [t.w4]}}
+                disabled={lock}
+              />
+            </div>
+          </form>
         </div>
       </Modal>
     </div>
