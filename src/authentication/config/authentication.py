@@ -23,6 +23,7 @@ class Authentication:
 
 
     def validation_pre(self):
+        print self.serice_configuration["OIDC"]
         if self.serice_configuration["OIDC"] == False:
             return True, None
         if "OIDC-type" not in self.service_configuration:
