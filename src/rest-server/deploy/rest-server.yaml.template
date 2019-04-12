@@ -38,6 +38,10 @@ spec:
         volumeMounts:
         - mountPath: /pai-cluster-config
           name: pai-configuration-rest-server
+{% if cluster_cfg['authentication']['OIDC'] %}
+        - mountPath: /auth-configuration
+          name: auth-configuration-rest-server
+{% endif %}
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
@@ -56,6 +60,9 @@ spec:
           value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
         - name: DEFAULT_PAI_ADMIN_PASSWORD
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
+{% else %}
+        - name: AUTHN_METHOD
+          value: OIDC
 {% endif %}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
@@ -96,3 +103,8 @@ spec:
       - name: pai-configuration-rest-server
         configMap:
           name: pai-configuration
+{% if cluster_cfg['authentication']['OIDC'] %}
+      - name: auth-configuration-rest-server
+        configMap:
+          name: auth-configuration
+{% endif %}

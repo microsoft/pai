@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,22 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - rest-server.yaml
-  - start.sh
-  - configmap-create.sh
-  - auth-configmap/oidc.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+{% if cluster_cfg['authentication']['OIDC'] %}
+kubectl create configmap  auth-configuration --from-file=auth-configmap/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+{% endif %}
 
 
-deploy-rules:
-  - in: pai-master
+popd > /dev/null
