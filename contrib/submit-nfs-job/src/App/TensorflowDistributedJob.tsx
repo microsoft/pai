@@ -36,6 +36,8 @@ const MEMORY_PER_GPU = 50 * 1024;
 interface ITensorflowDistributedJobObject {
   readonly type: "tensorflow-distributed";
   readonly psNumber: number;
+  readonly image: string;
+  readonly virtualCluster: string;
   readonly psGpuNumber: number;
   readonly psCommand: string;
   readonly workerNumber: number;
@@ -47,6 +49,8 @@ interface ITensorflowDistributedJobObject {
 export default class TensorflowDistributedJob extends Job {
   public constructor(
     private readonly name: string,
+    private readonly image: string,
+    private readonly virtualCluster: string,
     private readonly psNumber: number,
     private readonly psGpuNumber: number,
     private readonly psCommand: string,
@@ -78,8 +82,8 @@ export default class TensorflowDistributedJob extends Job {
 
     const paiJob = Object.create(null);
     paiJob.jobName = this.name;
-    paiJob.image = "openpai/pai.example.tensorflow:stable";
-    paiJob.virtualCluster = "default";
+    paiJob.image = this.image;
+    paiJob.virtualCluster = this.virtualCluster;
     paiJob.taskRoles = [paiPsTaskRole, paiWorkerTaskRole];
     paiJob.retryCount = 0;
 
@@ -88,6 +92,8 @@ export default class TensorflowDistributedJob extends Job {
 
   public toJSON(): ITensorflowDistributedJobObject {
     const {
+      image,
+      virtualCluster,
       psNumber,
       psGpuNumber,
       psCommand,
@@ -99,6 +105,8 @@ export default class TensorflowDistributedJob extends Job {
 
     return {
       type: "tensorflow-distributed",
+      image,
+      virtualCluster,
       psNumber,
       psGpuNumber,
       psCommand,
@@ -124,11 +132,13 @@ export default class TensorflowDistributedJob extends Job {
 
 interface IProps {
   name: string;
+  image: string;
+  virtualCluster: string;
   defaultValue: ITensorflowDistributedJobObject | null;
   onChange(job: TensorflowDistributedJob): void;
 }
 
-export function TensorflowDistributedJobForm({ name, defaultValue, onChange }: IProps) {
+export function TensorflowDistributedJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
   const [psNumber, onPsNumberChanged] = useNumericValue(get(defaultValue, "psNumber", 1));
   const [psGpuNumber, onPsGpuNumberChanged] = useNumericValue(get(defaultValue, "psGpuNumber", 1));
   // tslint:disable:max-line-length
@@ -154,6 +164,8 @@ echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
   useEffect(() => {
     onChange(new TensorflowDistributedJob(
       name,
+      image,
+      virtualCluster,
       psNumber,
       psGpuNumber,
       psCommand,
@@ -164,6 +176,8 @@ echo "All workers are: $PAI_TASK_ROLE_worker_HOST_LIST"
     ));
   }, [
     name,
+    image,
+    virtualCluster,
     psNumber,
     psGpuNumber,
     psCommand,
