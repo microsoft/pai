@@ -54,7 +54,6 @@ export default class SimpleNFSJob extends Job {
     super();
   }
 
-  
   public convert() {
     const paiTaskRole = Object.create(null);
     paiTaskRole.name = "master";
@@ -68,7 +67,6 @@ export default class SimpleNFSJob extends Job {
     paiJob.jobName = this.name;
     paiJob.image = this.image;
     paiJob.virtualCluster = this.virtualCluster;
-    
     paiJob.taskRoles = [paiTaskRole];
 
     return paiJob;

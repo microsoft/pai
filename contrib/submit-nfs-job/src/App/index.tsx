@@ -45,6 +45,8 @@ const TYPES = [{
   title: "Tensorflow r1.4.0 (Distributed)",
 }];
 
+const defaultImage = "openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04";
+
 interface IProps {
   pluginId?: string;
 
@@ -60,8 +62,8 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   const [job, setJob] = useState<Job | null>(null);
   const [type, onTypeChanged, setType] = useValue("single-task");
   const [name, onNameChanged, setName] = useValue(`unnamed-job-${Date.now()}`);
-  const [image, onImageChanged, setImage] = useValue("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04"); 
-  const [virtualCluster, onVirtualClusterChanged, setVirtualCluster] = useValue("default"); 
+  const [image, onImageChanged, setImage] = useValue(defaultImage);
+  const [virtualCluster, onVirtualClusterChanged, setVirtualCluster] = useValue("default");
 
   const [originalJob, originalJobError] = usePromise(() => {
     if (
@@ -142,11 +144,11 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
 
   useEffect(() => {
     setName(`${type}-${Date.now().toString(36).toLocaleUpperCase()}`);
-    switch(type){
-      case "single-task": 
+    switch (type) {
+      case "single-task":
         setImage("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04");
         break;
-      case "tensorflow-single-task": 
+      case "tensorflow-single-task":
       case "tensorflow-distributed":
         setImage("openpai/pai.example.tensorflow:stable");
         break;
@@ -159,13 +161,34 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
 
   let form = null;
   if (type === "single-task") {
-    form = <SimpleNFSJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
+    form = (
+      <SimpleNFSJobForm
+        name={name}
+        image={image}
+        virtualCluster={virtualCluster}
+        defaultValue={originalJob}
+        onChange={setJob}
+      />);
   }
   if (type === "tensorflow-single-task") {
-    form = <TensorflowSingleNodeJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
+    form = (
+      <TensorflowSingleNodeJobForm
+        name={name}
+        image={image}
+        virtualCluster={virtualCluster}
+        defaultValue={originalJob}
+        onChange={setJob}
+      />);
   }
   if (type === "tensorflow-distributed") {
-    form = <TensorflowDistributedJobForm name={name} image={image} virtualCluster={virtualCluster} defaultValue={originalJob} onChange={setJob}/>;
+  form = (
+    <TensorflowDistributedJobForm
+      name={name}
+      image={image}
+      virtualCluster={virtualCluster}
+      defaultValue={originalJob}
+      onChange={setJob}
+    />);
   }
 
   return (
@@ -198,7 +221,11 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
             <div className="form-group">
               <label htmlFor="job-image">
                 <span className="text-danger">*</span> Job Image &emsp;
-                <a className="btn btn-link" href="https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-word-job" target="_blank">
+                <a
+                  className="btn btn-link"
+                  href="https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-word-job"
+                  target="_blank"
+                >
                   Learn More
                 </a>
               </label>
