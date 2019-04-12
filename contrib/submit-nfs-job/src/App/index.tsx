@@ -61,7 +61,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   const [type, onTypeChanged, setType] = useValue("single-task");
   const [name, onNameChanged, setName] = useValue(`unnamed-job-${Date.now()}`);
   const [image, onImageChanged, setImage] = useValue("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04"); 
-  const [virtualCluster, onVCChanged, setVC] = useValue("default"); 
+  const [virtualCluster, onVirtualClusterChanged, setVirtualCluster] = useValue("default"); 
 
   const [originalJob, originalJobError] = usePromise(() => {
     if (
@@ -136,7 +136,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
     if (originalJob != null) {
       setType(originalJob.type);
       setImage(originalJob.image);
-      setVC(originalJob.virtualCluster);
+      setVirtualCluster(originalJob.virtualCluster);
     }
   }, [originalJob]);
 
@@ -221,7 +221,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
                     className="form-control"
                     id="virtual-cluster"
                     value={virtualCluster}
-                    onChange={onVCChanged}
+                    onChange={onVirtualClusterChanged}
                     required={false}
                   />
                 </div>

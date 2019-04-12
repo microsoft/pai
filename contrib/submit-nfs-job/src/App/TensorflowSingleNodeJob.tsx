@@ -119,7 +119,7 @@ python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dat
 
   useEffect(() => {
     onChange(new TensorflowSingleNodeJob(name, image, virtualCluster, gpuNumber, command, mountDirectories));
-  }, [name, gpuNumber, command, mountDirectories]);
+  }, [name, image, virtualCluster, gpuNumber, command, mountDirectories]);
 
   return (
     <>
