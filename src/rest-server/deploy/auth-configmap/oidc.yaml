@@ -1,0 +1,32 @@
+{% if cluster_cfg['authentication']['OIDC'] %}
+
+{% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
+
+
+identityMetadata: {{ cluster_cfg['authentication']['AAD']['identityMetadata'] }}
+clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
+clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}
+responseType: {{ cluster_cfg['authentication']['AAD']['responseType'] }}
+responseMode: {{ cluster_cfg['authentication']['AAD']['responseMode'] }}
+redirectUrl: '{{ cluster_cfg['pylon']['uri'] }}/auth/openid/return'
+allowHttpForRedirectUrl: {{ cluster_cfg['authentication']['AAD']['allowHttpForRedirectUrl'] }}
+validateIssuer: {{ cluster_cfg['authentication']['AAD']['validateIssuer'] }}
+isB2C: {{ cluster_cfg['authentication']['AAD']['isB2C'] }}
+issuer: {{ cluster_cfg['authentication']['AAD']['issuer'] }}
+passReqToCallback: {{ cluster_cfg['authentication']['AAD']['passReqToCallback'] }}
+cookieEncryptionKeys:
+{{% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}}
+    - key: {{ ckek['key'] }}
+      iv: {{ ckek['iv'] }}
+{{% endif %}}
+scope: {{ cluster_cfg['authentication']['AAD']['scope'] }}
+loggingLevel: {{ cluster_cfg['authentication']['AAD']['loggingLevel'] }}
+nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] }}
+nonceMaxAmount: {{ cluster_cfg['authentication']['AAD']['nonceMaxAmount'] }}
+clockSkew: {{ cluster_cfg['authentication']['AAD']['clockSkew'] }}
+resourceURL: {{ cluster_cfg['authentication']['AAD']['resourceURL'] }}
+destroySessionUrl: https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri={{ cluster_cfg['pylon']['uri'] }}
+
+{% endif %}
+
+{% endif %}
