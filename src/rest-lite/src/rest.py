@@ -214,7 +214,7 @@ def gen_task_role(job_name, image, role, k8s_api_server):
                             "command": ["/usr/local/pai/run"],
                             "env": role.envs,
                             "securityContext": {
-                                "capabilities": {"add": ["SYS_ADMIN", "DAC_READ_SEARCH ", "DAC_OVERRIDE"]}}, # ref https://github.com/Microsoft/pai/issues/2227
+                                "capabilities": {"add": ["SYS_ADMIN", "DAC_READ_SEARCH", "DAC_OVERRIDE"]}}, # ref https://github.com/Microsoft/pai/issues/2227
                             "resources": {"limits": gen_resource(role.resource)},
                             "ports": gen_ports(role.resource.port),
                             "volumeMounts": [
