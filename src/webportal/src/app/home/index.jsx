@@ -22,6 +22,7 @@ import 'whatwg-fetch';
 import {FontClassNames, ColorClassNames, FontWeights} from '@uifabric/styling';
 import c from 'classnames';
 import {Link, Modal, TextField, PrimaryButton, MessageBar, MessageBarType, initializeIcons} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 import React, {useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
@@ -58,16 +59,16 @@ const JumbotronBackground = styled.div`
 `;
 
 const Jumbotron = ({showLoginModal}) => (
-  <div className={c(t.relative, t.h100)}>
+  <div className={c(t.flexAuto, t.relative, t.flex)}>
     <JumbotronBackground></JumbotronBackground>
-    <div className={c(t.h100, t.z0, t.pa5, t.relative, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter)}>
+    <div className={c(t.flexAuto, t.z0, t.pa5, t.relative, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter)}>
       <div className={c(FontClassNames.superLarge, t.white)}>
         Platform for AI
       </div>
       <div className={c(FontClassNames.mediumPlus, t.mv5, t.mw7, t.tc, t.lhCopy, t.white)}>
         Platform for AI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
       </div>
-      <div 
+      <div
         className={c(ColorClassNames.neutralLightBackgroundHover, t.pointer, t.pv2, t.ph4, t.br1, t.bgWhite, t.flex, t.justifyCenter, t.itemsCenter)}
         onClick={showLoginModal}
       >
@@ -79,40 +80,62 @@ const Jumbotron = ({showLoginModal}) => (
   </div>
 );
 
+Jumbotron.propTypes = {
+  showLoginModal: PropTypes.func,
+};
+
 const Bottom = () => (
-  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flex)}>
-    <div className={c(t.w33, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flex, t.flexWrap)}>
+    <div className={c(t.w33, t.w100M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
-        <div className={c(FontClassNames.xxLarge)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Submit a hello-world job
         </div>
         <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
         </div>
       </div>
-      <Link href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md' target='_blank'>Learn more</Link>
+      <Link
+        href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+      >
+        Learn more
+      </Link>
     </div>
-    <div className={c(t.w34, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+    <div className={c(t.w34, t.w100M, t.mt5M, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
-        <div className={c(FontClassNames.xxLarge)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Understand Job
         </div>
         <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           The job of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
         </div>
       </div>
-      <Link href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md#understand-job' target='_blank'>Learn more</Link>
+      <Link
+        href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md#understand-job'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+      >
+        Learn more
+      </Link>
     </div>
-    <div className={c(t.w33, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+    <div className={c(t.w33, t.w100M, t.mt5M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
-        <div className={c(FontClassNames.xxLarge)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Use VS Code Extension to work with Jobs
         </div>
         <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           OpenPAI Client is a VS Code extension to connect PAI clusters, submit AI jobs, and manage files on HDFS, etc. You need to install the extension in VS code before using it.
         </div>
       </div>
-      <Link href='https://github.com/Microsoft/pai/blob/master/contrib/pai_vscode/VSCodeExt.md' target='_blank'>Learn more</Link>
+      <Link
+        href='https://github.com/Microsoft/pai/blob/master/contrib/pai_vscode/VSCodeExt.md'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+      >
+        Learn more
+      </Link>
     </div>
   </div>
 );
@@ -123,11 +146,11 @@ async function login(username, password, expiration = 7 * 24 * 60 * 60) {
     body: JSON.stringify({
       username,
       password,
-      expiration
+      expiration,
     }),
     headers: {
-      'content-type': 'application/json'
-    }
+      'content-type': 'application/json',
+    },
   });
   if (res.ok) {
     const data = await res.json();
@@ -165,9 +188,7 @@ const Home = () => {
       {/* content */}
       <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
         {/* jumbotron */}
-        <div className={c(t.flexAuto)}>
-          <Jumbotron showLoginModal={() => setLoginModal(true)} />
-        </div>
+        <Jumbotron showLoginModal={() => setLoginModal(true)} />
         {/* bottom */}
         <Bottom />
       </div>
@@ -218,6 +239,6 @@ const Home = () => {
       </Modal>
     </div>
   );
-}
+};
 
 ReactDOM.render(<Home />, document.getElementById('content'));
