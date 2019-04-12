@@ -17,11 +17,17 @@
 
 
 const checkToken = (callback, redirectToLogin=true) => {
+  if (typeof callback === 'boolean') {
+    redirectToLogin = callback;
+    callback = null;
+  }
   const authToken = cookies.get('token');
   if (!authToken && redirectToLogin) {
-    window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
-  } else {
+    window.location.replace('/index.html');
+  } else if (callback) {
     callback(authToken);
+  } else {
+    return authToken;
   }
 };
 

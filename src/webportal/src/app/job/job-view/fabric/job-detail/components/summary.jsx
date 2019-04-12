@@ -17,11 +17,12 @@
 
 import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
-import {isEmpty, isNil} from 'lodash';
+import {get, isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
 import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
+import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -48,9 +49,15 @@ export default class Summary extends React.Component {
       autoReloadInterval: 10 * 1000,
     };
 
-    this.onDismiss = this.onDismiss.bind(this);
-    this.showEditor = this.showEditor.bind(this);
     this.onChangeInterval = this.onChangeInterval.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+    this.showApplicationSummary = this.showApplicationSummary.bind(this);
+    this.showEditor = this.showEditor.bind(this);
+    this.showJobConfig = this.showJobConfig.bind(this);
+  }
+
+  onChangeInterval(e, item) {
+    this.setState({autoReloadInterval: item.key});
   }
 
   onDismiss() {
@@ -67,13 +74,145 @@ export default class Summary extends React.Component {
     });
   }
 
-  onChangeInterval(e, item) {
-    this.setState({autoReloadInterval: item.key});
+  showApplicationSummary() {
+    const {jobInfo} = this.props;
+    this.showEditor('Application Summary', {
+      language: 'text',
+      value: jobInfo.jobStatus.appExitDiagnostics || '',
+    });
+  }
+
+  showJobConfig() {
+    const {jobConfig} = this.props;
+    this.showEditor('Job Config', {
+      language: 'json',
+      value: JSON.stringify(jobConfig, null, 2),
+    });
+  }
+
+  renderHintMessage() {
+    const {jobInfo} = this.props;
+    if (!jobInfo) {
+      return;
+    }
+
+    const state = getHumanizedJobStateString(jobInfo);
+    if (state === 'Failed') {
+      const diag = jobInfo.jobStatus.appExitDiagnostics;
+      const code = jobInfo.jobStatus.appExitCode;
+      if (code === 177) {
+        // user code error
+        let userExitCode;
+        if (diag) {
+          let match = diag.match(/<Raw>\[ExitCode\]: (\d+)/);
+          if (match) {
+            userExitCode = parseInt(match[1], 10);
+          }
+        }
+        // container id
+        let containerId;
+        if (diag) {
+          let match = diag.match(/^\s*"containerId"\s*:\s*"(.*?)",?\s*$/m);
+          if (match) {
+            containerId = match[1];
+          }
+        }
+
+        return (
+          <MessageBar messageBarType={MessageBarType.error}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span>User Error</span>
+              </div>
+              {containerId && (
+                <div>
+                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                    Container ID:
+                  </span>
+                  <span>{containerId}</span>
+                </div>
+              )}
+              {userExitCode && (
+                <div>
+                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                    Exit Code:
+                  </span>
+                  <span>{userExitCode}</span>
+                </div>
+              )}
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span>{`Please check container's Stdout and Stderr for more information.`}</span>
+              </div>
+            </div>
+          </MessageBar>
+        );
+      } else {
+        return (
+          <MessageBar messageBarType={MessageBarType.error}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span>System Error</span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span>Please send the <Link onClick={this.showApplicationSummary}>application summary</Link> to your administrator for further investigation.</span>
+              </div>
+            </div>
+          </MessageBar>
+        );
+      }
+    } else if (state === 'Waiting') {
+      const resourceRetries = get(jobInfo, 'jobStatus.retryDetails.resource');
+      if (resourceRetries >= 3) {
+        return (
+          <MessageBar messageBarType={MessageBarType.warning}>
+            <div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Error Type:
+                </span>
+                <span className={c(t.ml2)}>
+                  Resource Conflicts
+                </span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Conflict Count:
+                </span>
+                <span className={c(t.ml2)}>
+                  {resourceRetries}
+                </span>
+              </div>
+              <div>
+                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
+                  Resolution:
+                </span>
+                <span className={c(t.ml2)}>
+                  Please adjust the resource requirement in your <Link onClick={this.showJobConfig}>job config</Link>, or wait till other jobs release more resources back to the system.
+                </span>
+              </div>
+            </div>
+          </MessageBar>
+        );
+      }
+    }
   }
 
   render() {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
+    const hintMessage = this.renderHintMessage();
 
     return (
       <div className={className}>
@@ -159,6 +298,12 @@ export default class Summary extends React.Component {
               </Link>
             </div>
           </div>
+          {/* summary-row-2.5 error info */}
+          {hintMessage && (
+            <div className={t.mt4}>
+              {hintMessage}
+            </div>
+          )}
           {/* summary-row-3 */}
           <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
             <div className={c(t.flex)}>
@@ -166,12 +311,7 @@ export default class Summary extends React.Component {
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isNil(jobConfig)}
-                onClick={() => {
-                  this.showEditor('Job Config', {
-                    language: 'json',
-                    value: JSON.stringify(jobConfig, null, 2),
-                  });
-                }}
+                onClick={this.showJobConfig}
               >
                 View Job Config
               </Link>
@@ -180,12 +320,7 @@ export default class Summary extends React.Component {
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isEmpty(jobInfo.jobStatus.appExitDiagnostics)}
-                onClick={() => {
-                  this.showEditor('Application Summary', {
-                    language: 'text',
-                    value: jobInfo.jobStatus.appExitDiagnostics || '',
-                  });
-                }}
+                onClick={this.showApplicationSummary}
               >
                 View Application Summary
               </Link>
@@ -213,7 +348,7 @@ export default class Summary extends React.Component {
                 disabled={isNil(jobConfig)}
               />
               <DefaultButton
-                className={c(t.ml4)}
+                className={c(t.ml3)}
                 text='Stop'
                 onClick={onStopJob}
                 disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}
