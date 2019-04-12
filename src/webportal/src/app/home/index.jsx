@@ -174,6 +174,20 @@ const Home = () => {
   const [lock, setLock] = useState(false);
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
+  const onLoginClick = () => {
+    setLock(true);
+    void login(
+      usernameRef.current.value,
+      passwordRef.current.value
+    ).then(() => {
+      window.location.replace(loginTarget);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setLock(false);
+    });
+  };
+
   return (
     <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn)}>
       {/* top */}
@@ -195,7 +209,10 @@ const Home = () => {
       {/* login modal */}
       <Modal
         isOpen={loginModal}
-        onDismiss={() => setLoginModal(false)}
+        onDismiss={() => {
+          setLoginModal(false);
+          setError(null);
+        }}
       >
         <div className={c(t.pa5)} style={{width: '24rem'}}>
           <div className={c(t.center, t.pa2, t.h3, t.w3, t.brPill, t.bgBlack, t.flex, t.justifyCenter, t.itemsCenter)}>
@@ -213,26 +230,24 @@ const Home = () => {
             <TextField componentRef={usernameRef} label='Username'/>
           </div>
           <div className={c(t.center, t.mt3)}>
-            <TextField componentRef={passwordRef} label='Password' type='password'/>
+            <TextField
+              componentRef={passwordRef}
+              label='Password'
+              type='password'
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  event.preventDefault();
+                  onLoginClick();
+                }
+              }}
+            />
           </div>
           <div className={c(t.center, t.mt4, t.tc)}>
             <PrimaryButton
               text="Sign in"
               styles={{root: [t.w4]}}
               disabled={lock}
-              onClick={() => {
-                setLock(true);
-                void login(
-                  usernameRef.current.value,
-                  passwordRef.current.value
-                ).then(() => {
-                  window.location.replace(loginTarget);
-                }).catch((e) => {
-                  setError(e.message);
-                }).finally(() => {
-                  setLock(false);
-                });
-              }}
+              onClick={onLoginClick}
             />
           </div>
         </div>
