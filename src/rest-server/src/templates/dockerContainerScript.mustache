@@ -47,6 +47,15 @@ function log_runtime_error()
 }
 
 
+function sigterm_handler()
+{
+  rc=$?
+  printf "[DEBUG] SIGTERM received, job will be killed\n"
+  log_runtime_error "ERROR" "REASON" "\"Container receive signal SIGTERM\""
+  exit $rc
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+
+
 function exit_handler()
 {
   rc=$?
@@ -66,6 +75,7 @@ function exit_handler()
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
+trap sigterm_handler SIGTERM
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 

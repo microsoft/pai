@@ -37,6 +37,14 @@ RUNTIME_AGG_ERROR_FILE=$LAUNCHER_LOG_DIR/runtime.pai.agg.error
 touch $RUNTIME_YARN_ERR_LOG
 touch $RUNTIME_YARN_LOG
 
+MAX_SOLUTION_SIZE=384
+MAX_REASON_SIZE=384
+
+MAX_USER_LOG_SIZE=1024
+MAX_RUNTIME_YARN_LOG_SIZE=512
+MAX_RUNTIME_DOCKER_LOG_SIZE=512
+MAX_DISK_CLEANER_LOG_SIZE=256
+
 EXIT_SUCCEED=0
 CONTAINER_SIGTERM_ERROR=143
 DOCKER_DEAMON_ERROR=193
@@ -88,8 +96,8 @@ function write_error_summary()
   echo "trigger: $trigger" >> $RUNTIME_AGG_ERROR_FILE
 
   if [[ $parse_file != "" ]]; then
-    local reason=$(grep "ERROR REASON" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g')
-    local solution=$(grep "ERROR SOLUTION" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g')
+    local reason=$(grep "ERROR REASON" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g' | head -c "$MAX_REASON_SIZE")
+    local solution=$(grep "ERROR SOLUTION" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g' | head -c "$MAX_SOLUTION_SIZE")
   fi
   
   echo "reason: $reason" >> $RUNTIME_AGG_ERROR_FILE
@@ -109,13 +117,13 @@ function printf_file_tail_with_shift()
 {
   local file_name=$1
   local shift_space=$2
-  local tail_num=$3
+  local tail_char_num=$3
 
-  if [[ $tail_num == "" ]]; then
-    tail_num=10
+  if [[ $tail_char_num == "" ]]; then
+    tail_num=256
   fi
 
-  local file_content=$(tail -n "$tail_num" "$file_name")
+  local file_content=$(tail -c "$tail_char_num" "$file_name")
   while IFS= read -r line
   do
     line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r')
@@ -185,21 +193,25 @@ function generate_agg_err()
   echo "errorLogs:" >> $RUNTIME_AGG_ERROR_FILE
   echo "  user: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $USER_ERROR_FILE ]]; then
-    printf "%s\n" "$(printf_file_tail_with_shift $USER_ERROR_FILE "    " 20)" >> $RUNTIME_AGG_ERROR_FILE
+    printf "%s\n" \
+      "$(printf_file_tail_with_shift $USER_ERROR_FILE "    " $MAX_USER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
   echo "  runtime: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $RUNTIME_DOCKER_ERR_LOG ]]; then
-    printf "%s\n" "$(printf_file_tail_with_shift $RUNTIME_DOCKER_ERR_LOG "    " 5)" >> $RUNTIME_AGG_ERROR_FILE
+    printf "%s\n" \
+      "$(printf_file_tail_with_shift $RUNTIME_DOCKER_ERR_LOG "    " $MAX_RUNTIME_DOCKER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
   if [[ -f $RUNTIME_YARN_ERR_LOG ]]; then
-    printf "%s\n" "$(printf_file_tail_with_shift $RUNTIME_YARN_ERR_LOG "    " 5)" >> $RUNTIME_AGG_ERROR_FILE
+    printf "%s\n" \
+      "$(printf_file_tail_with_shift $RUNTIME_YARN_ERR_LOG "    " $MAX_RUNTIME_YARN_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
   echo "  disk: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
-    printf "%s\n" "$(printf_file_tail_with_shift $DISK_CLEANER_ERROR_FILE "    " 5)" >> $RUNTIME_AGG_ERROR_FILE
+    printf "%s\n" \
+      "$(printf_file_tail_with_shift $DISK_CLEANER_ERROR_FILE "    " $MAX_DISK_CLEANER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
   printf "[PAI_RUNTIME_ERROR_END]\n" >> $RUNTIME_AGG_ERROR_FILE
 }
