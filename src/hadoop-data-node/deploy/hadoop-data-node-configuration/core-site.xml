@@ -69,7 +69,7 @@
 
   <property>
     <name>hadoop.http.cross-origin.allowed-headers</name>
-    <value>X-Requested-With,Content-Type,Accept,Origin,WWW-Authenticate,Accept-Encoding,Transfer-Encoding</value>
+    <value>X-Requested-With,Content-Type,Origin</value>
     <description>Comma separated list of headers that are allowed</description>
   </property>
 
