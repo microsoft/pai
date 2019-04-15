@@ -43,7 +43,10 @@ export interface IHDFSClient {
 
 export function createWebHDFSClient({ host, port = '50070', user, path = '/webhdfs/v1' }: IWebHDFSOptions,
                                     { timeout = 60 * 1000 }: IWebHDFSOptions2): IHDFSClient {
-    const client: IHDFSClient = webhdfs.createClient({ host, port, user, path }, { timeout });
+    const client: IHDFSClient = webhdfs.createClient(
+        { host, port, user, path },
+        { timeout, pool: {maxSockets: Infinity} }
+    );
 
     client.createRobustWriteStream = async function (this: IHDFSClient, pathOnWebhdfs: string): Promise<request.Request> {
         const endpoint: string = this._getOperationEndpoint('create', pathOnWebhdfs, {
