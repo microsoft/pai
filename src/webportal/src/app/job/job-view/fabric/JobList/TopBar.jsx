@@ -24,7 +24,8 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 
 import Context from './Context';
 import Filter from './Filter';
-import {getStatusText} from './utils';
+
+const AllStatuses = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
 
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
@@ -74,9 +75,12 @@ function TopBar() {
       allJobs.forEach(function(job) {
         users[job.username] = true;
         virtualClusters[job.virtualCluster] = true;
-        statuses[getStatusText(job)] = true;
       });
     }
+
+    AllStatuses.forEach(function(status) {
+      statuses[status] = true;
+    });
 
     return {users, virtualClusters, statuses};
   }, [allJobs]);
