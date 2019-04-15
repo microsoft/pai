@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import config from '../config/webportal.config';
+import config from '../../config/webportal.config';
 
 export async function login(username, password, expiration = 7 * 24 * 60 * 60) {
   const res = await fetch(`${config.restServerUri}/api/v1/token`, {
