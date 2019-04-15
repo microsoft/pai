@@ -44,6 +44,21 @@ class TestNvidia(base.TestBase):
 
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
+    def test_parse_smi_new_xml_result(self):
+        sample_path = "data/nvidia_smi_sample_ecc_unsupported.xml"
+        with open(sample_path, "r") as f:
+            nvidia_smi_result = f.read()
+        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+
+        zero = nvidia.NvidiaGpuStatus(0.000, 0.000, [], nvidia.EccError(),
+                "0", "GPU-57567e11-0be2-381b-5132-2ad95c262e58")
+        one = nvidia.NvidiaGpuStatus(0.000, 0.000, [], nvidia.EccError(),
+                "1", "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8")
+
+        target_smi_info = {"0": zero, "GPU-57567e11-0be2-381b-5132-2ad95c262e58": zero, "1": one, "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8": one}
+
+        self.assertEqual(target_smi_info, nvidia_smi_parse_result)
+
     def test_exporter_will_not_report_unsupported_gpu(self):
         sample_path = "data/nvidia_smi_outdated_gpu.xml"
         with open(sample_path, "r") as f:
