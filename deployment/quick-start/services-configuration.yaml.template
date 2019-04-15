@@ -37,7 +37,7 @@ cluster:
     #username: <username>
     #password: <password>
 
-    tag: latest
+    tag: {{ env['pai-version'] }}
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.

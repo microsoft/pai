@@ -15,4 +15,26 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-window.location.replace('/dashboard.html');
+import React from "react";
+import ProtocolForm from "./ProtocolForm";
+
+interface IProps {
+  api: string;
+  user: string;
+  token: string;
+  source ?: {
+    jobName: string;
+    user: string;
+  };
+}
+
+export default function App({api, user, token, source}: IProps) {
+  return (
+    <ProtocolForm
+      api={api}
+      user={user}
+      token={token}
+      source={source}
+    />
+  );
+}

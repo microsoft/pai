@@ -18,17 +18,16 @@
 
 // module dependencies
 const express = require('express');
-const jobV2Router = require('./jobV2');
-const templateRouter = require('./template');
+const controller = require('../../controllers/v2/index');
+const jobRouter = require('./job');
+
 
 const router = new express.Router();
 
-router.route('/').all((req, res) => {
-  return res.send('PAI RESTful API V2');
-});
+router.route('/')
+  .all(controller.index);
 
-router.use('/template', templateRouter);
-router.use('/jobs', jobV2Router);
+router.use('/jobs', jobRouter);
 
 // module exports
 module.exports = router;

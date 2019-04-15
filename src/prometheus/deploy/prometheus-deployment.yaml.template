@@ -39,6 +39,13 @@ spec:
         app: prometheus
     spec:
       hostNetwork: true
+      initContainers:
+      - name: init
+        image: bash:4
+        volumeMounts:
+        - name: prometheus-data
+          mountPath: /prometheus-data
+        command: ["chmod", "777", "/prometheus-data"] # newly create dir have permission 755, which makes prometheus container unable to write
       containers:
       - name: prometheus
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}prometheus:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -54,6 +61,8 @@ spec:
           - '--web.listen-address=0.0.0.0:{{prometheus_port}}'
           - '--web.external-url={{ external_url }}/prometheus/'
           - '--web.route-prefix=prometheus'
+          - '--storage.tsdb.path=/prometheus-data'
+          - '--storage.tsdb.retention=31d'
         ports:
         - name: web
           containerPort: {{prometheus_port}}
@@ -62,6 +71,8 @@ spec:
           mountPath: /etc/prometheus
         - name: rules-volume
           mountPath: /etc/prometheus-alert
+        - name: prometheus-data
+          mountPath: /prometheus-data
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
@@ -71,6 +82,9 @@ spec:
       - name: rules-volume
         configMap:
           name: prometheus-alert
+      - name: prometheus-data
+        hostPath:
+          path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus/data
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
