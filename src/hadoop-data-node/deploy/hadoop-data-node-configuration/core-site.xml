@@ -63,7 +63,7 @@
 
   <property>
     <name>hadoop.http.cross-origin.allowed-methods</name>
-    <value>GET,POST,HEAD,PUT,OPTIONS,DELETE</value>
+    <value>GET,POST,HEAD,PUT,OPTIONS</value>
     <description>Comma separated list of methods that are allowed</description>
   </property>
 
