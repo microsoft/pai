@@ -60,9 +60,9 @@ const styles = mergeStyleSets({
 
   footer: {
     width: "80%",
-    alignItems: "flex-end",
-    paddingTop: "20px",
-    marginTop: "10px",
+    justifyContent: "flex-end",
+    paddingTop: "30px",
+    marginTop: "15px",
     borderTop: "1px solid #e5e5e5",
   },
 
@@ -193,7 +193,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     return (
       <Fabric>
         <Stack>
-          <Stack gap={10} padding={20} horizontalAlign="center" className={styles.form}>
+          <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
             <Stack className={styles.header}>
             <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
               Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
@@ -291,7 +291,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         </Panel>
 
         <Stack>
-          <Stack gap={10} padding={20} horizontalAlign="center" className={styles.form}>
+          <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
             <Stack className={styles.header}>
               <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
@@ -322,16 +322,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
               {this.renderParameters()}
             </Stack>
-            <Stack className={styles.item}>
-              <Toggle
-                label="Protocol YAML Editor"
-                checked={this.state.showEditor}
-                onChange={this.openEditor}
-                inlineLabel={true}
-              />
-            </Stack>
-            <Stack className={styles.footer}>
-              <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+            <Stack horizontal  className={styles.footer}>
+              <PrimaryButton text="Submit Job" onClick={this.submitProtocol} className={styles.rightGap}/>
+              <DefaultButton text="Edit YAML" onClick={this.openEditor} />
             </Stack>
           </Stack>
         </Stack>
@@ -467,10 +460,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     this.setState({ protocolYAML: text });
   }
 
-  private openEditor = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
-    if (checked) {
-      this.setState({ showEditor: true });
-    }
+  private openEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
+    this.setState({ showEditor: true });
   }
 
   private closeEditor = () => {
