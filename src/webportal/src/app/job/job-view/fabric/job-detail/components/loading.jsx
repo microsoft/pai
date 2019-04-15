@@ -20,7 +20,7 @@ import c from 'classnames';
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 import React from 'react';
 
-import t from '../../tachyons.css';
+import t from '../../../../../../css/tachyons.css';
 
 import loadingGif from '../../../../../../assets/img/loading.gif';
 
