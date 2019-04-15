@@ -16,23 +16,128 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, { Suspense, lazy } from "react";
-import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
-import { Fabric } from "office-ui-fabric-react/lib/Fabric";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { List } from "office-ui-fabric-react/lib/List";
-import { Toggle } from "office-ui-fabric-react/lib/Toggle";
-import { TextField } from "office-ui-fabric-react/lib/TextField";
-import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { DefaultButton, PrimaryButton } from "office-ui-fabric-react/lib/Button";
-import classNames from "classnames";
+import {
+  ChoiceGroup, DefaultButton, Fabric, Label, List, Panel, PanelType,
+  PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
+  initializeIcons, mergeStyleSets,
+} from "office-ui-fabric-react";
+import classNames from "classnames/bind";
 import update from "immutability-helper";
 import yaml from "yaml";
 
-import bootstrapStyles from "bootstrap/dist/css/bootstrap.min.css";
 import monacoStyles from "./monaco.scss";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
+const styles = mergeStyleSets({
+  form: {
+    width: "50%",
+    marginTop: "20px",
+    alignSelf: "center",
+    boxSizing: "border-box",
+    boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
+    borderStyle: "1px solid rgba(0, 0, 0, 0.2)",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+  },
+
+  title: {
+    fontWeight: "600",
+  },
+
+  subTitle: {
+    fontSize: "16px",
+    fontWeight: "300",
+    color: "#777",
+  },
+
+  header: {
+    width: "80%",
+    alignItems: "center",
+    paddingBottom: "10px",
+    marginBottom: "10px",
+    borderBottom: "1px solid #e5e5e5",
+  },
+
+  footer: {
+    width: "80%",
+    alignItems: "flex-end",
+    paddingTop: "20px",
+    marginTop: "10px",
+    borderTop: "1px solid #e5e5e5",
+  },
+
+  spinner: {
+    alignItems: "center",
+  },
+
+  item: {
+    width: "80%",
+    paddingRight: "20%",
+  },
+
+  topGap: {
+    marginTop: "15px",
+  },
+
+  rightGap: {
+    marginRight: "10px",
+  },
+
+  choiceGroupItem: {
+    display: "flex",
+    alignItems: "baseline",
+  },
+
+  fileLabel: {
+    width: "25%",
+    position: "relative",
+    minHeight: "1px",
+    padding: "0",
+  },
+
+  fileBtn: {
+    fontSize: "14px",
+    fontWeight: "400",
+    boxSizing: "border-box",
+    display: "inline-block",
+    textAlign: "center",
+    verticalAlign: "middle",
+    whiteSpace: "nowrap",
+    cursor: "pointer !important",
+    touchAction: "manipulation",
+    padding: "4px 16px",
+    minWidth: "80px",
+    height: "32px",
+    backgroundColor: "rgb(244, 244, 244)",
+    color: "rgb(51, 51, 51) !important",
+    userSelect: "none",
+    outline: "transparent",
+    border: "1px solid transparent",
+    borderRadius: "0px",
+    textDecoration: "none !important",
+  },
+
+  fileDisabled: {
+    cursor: "not-allowed",
+    filter: "alpha(opacity=60)",
+    opacity: "0.60",
+    boxShadow: "none",
+    color: "rgb(166, 166, 166)",
+    pointerEvents: "none",
+  },
+
+  fileInput: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: "0",
+    margin: "-1px",
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    border: "0",
+  },
+});
+const cx = classNames.bind(styles);
 
 initializeIcons();
 
@@ -87,20 +192,23 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private renderLoading = () => {
     return (
       <Fabric>
-        <div className={bootstrapStyles.container}>
-          <div className={bootstrapStyles.modalDialog}>
-            <div className={bootstrapStyles.modalContent}>
-              <div className={bootstrapStyles.modalHeader}>
-                <h3 className={bootstrapStyles.modalTitle}>
-                  Submit Job v2 <small>Protocol Preview</small>
-                </h3>
-              </div>
-              <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
-                <Spinner size={SpinnerSize.large} />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Stack>
+          <Stack gap={10} padding={20} horizontalAlign="center" className={styles.form}>
+            <Stack className={styles.header}>
+            <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
+              Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
+            </Text>
+            </Stack>
+            <Stack className={styles.spinner}>
+              <Spinner
+                label="Loading Cloned Job ..."
+                ariaLive="assertive"
+                labelPosition="left"
+                size={SpinnerSize.large}
+              />
+            </Stack>
+          </Stack>
+        </Stack>
       </Fabric>
     );
   }
@@ -114,6 +222,45 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         size={SpinnerSize.large}
       />
     );
+
+    const uploadOptions = [
+      {
+        key: "local",
+        text: "",
+        onRenderField: (props: any, render: any) => {
+          return (
+            <div className={styles.choiceGroupItem}>
+              {render!(props)}
+              <Label className={styles.rightGap}>Upload from local disk</Label>
+              <label className={styles.fileLabel}>
+                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
+                  Import
+                </a>
+                <input
+                  type="file"
+                  className={styles.fileInput}
+                  accept=".yml,.yaml"
+                  onChange={this.importFile}
+                  disabled={props ? !props.checked : false}
+                />
+              </label>
+            </div>
+          );
+        },
+      },
+      {
+        key: "marketplace",
+        text: "",
+        onRenderField: (props: any, render: any) => {
+          return (
+            <div className={styles.choiceGroupItem}>
+              {render!(props)}
+              <Label className={styles.rightGap}>Select from marketplace</Label>
+            </div>
+          );
+        },
+      },
+    ];
 
     return (
       <Fabric>
@@ -137,58 +284,57 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
             </Suspense>
           </div>
-          <div style={{ marginTop: "15px" }}>
-            <PrimaryButton text="Save" onClick={this.saveEditor} style={{ marginRight: "10px" }}/>
+          <div className={styles.topGap}>
+            <PrimaryButton text="Save" onClick={this.saveEditor} className={styles.rightGap} />
             <DefaultButton text="Discard" onClick={this.discardEditor} />
           </div>
         </Panel>
 
-        <div className={bootstrapStyles.container}>
-          <div className={bootstrapStyles.modalDialog}>
-            <div className={bootstrapStyles.modalContent}>
-              <div className={bootstrapStyles.modalHeader}>
-                <h3 className={bootstrapStyles.modalTitle}>
-                  Submit Job v2 <small>Protocol Preview</small>
-                </h3>
-              </div>
-              <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
-                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
-                  <TextField
-                    label="Job Name "
-                    value={this.state.jobName}
-                    onChange={this.setJobName}
-                    required={true}
-                  />
-                </div>
-                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
-                  <Toggle
-                    label="Job Parameters "
-                    checked={this.state.showParameters}
-                    onChange={this.toggleParameters}
-                    inlineLabel={true}
-                  />
-                  {this.renderParameters()}
-                </div>
-                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
-                  <Label>Protocol YAML Operation</Label>
-                  <label className={bootstrapStyles.colMd3} style={{padding: 0}}>
-                    <a className={classNames(bootstrapStyles.btn, bootstrapStyles.btnSuccess)}>Import</a>
-                    <input
-                      type="file"
-                      className={bootstrapStyles.srOnly}
-                      accept=".yml,.yaml"
-                      onChange={this.importFile}
-                    />
-                  </label>
-                  <DefaultButton text="View/Edit" onClick={this.openEditor} />
-                </div>
-              </div>
-              <div className={bootstrapStyles.modalFooter} style={{ marginTop: "150px" }}>
-                <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Stack>
+          <Stack gap={10} padding={20} horizontalAlign="center" className={styles.form}>
+            <Stack className={styles.header}>
+              <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
+                Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
+              </Text>
+            </Stack>
+            <Stack className={styles.item}>
+              <ChoiceGroup
+                defaultSelectedKey="local"
+                options={uploadOptions}
+                label="Upload Protocol YAML"
+                required={false}
+              />
+            </Stack>
+            <Stack className={styles.item}>
+              <TextField
+                label="Job Name"
+                value={this.state.jobName}
+                onChange={this.setJobName}
+                required={true}
+              />
+            </Stack>
+            <Stack className={styles.item}>
+              <Toggle
+                label="Job Parameters"
+                checked={this.state.showParameters}
+                onChange={this.toggleParameters}
+                inlineLabel={true}
+              />
+              {this.renderParameters()}
+            </Stack>
+            <Stack className={styles.item}>
+              <Toggle
+                label="Protocol YAML Editor"
+                checked={this.state.showEditor}
+                onChange={this.openEditor}
+                inlineLabel={true}
+              />
+            </Stack>
+            <Stack className={styles.footer}>
+              <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
+            </Stack>
+          </Stack>
+        </Stack>
       </Fabric>
     );
   }
@@ -284,7 +430,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           label={`${item.key}: `}
           defaultValue={item.value}
           onChange={setParameter}
-          underlined={true}
         />
       );
     } else {
@@ -322,9 +467,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     this.setState({ protocolYAML: text });
   }
 
-  private openEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.preventDefault();
-    this.setState({ showEditor: true });
+  private openEditor = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
+    if (checked) {
+      this.setState({ showEditor: true });
+    }
   }
 
   private closeEditor = () => {
