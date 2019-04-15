@@ -17,9 +17,9 @@
 
 import React, { Suspense, lazy } from "react";
 import {
-  ChoiceGroup, DefaultButton, Fabric, Label, List, Panel, PanelType,
-  PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
-  initializeIcons, mergeStyleSets,
+  ChoiceGroup, DefaultButton, Fabric, IChoiceGroupOption, IRenderFunction,
+  Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize,
+  Text, TextField, Toggle, initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
@@ -186,7 +186,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       <Fabric>
         <Stack>
           <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
-            <Stack horizontal={true} horizontalAlign={"center"} className={styles.header}>
+            <Stack horizontal={true} horizontalAlign="center" className={styles.header}>
               <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
               </Text>
@@ -219,7 +219,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       {
         key: "local",
         text: "",
-        onRenderField: (props: any, render: any) => {
+        onRenderField: (props?: IChoiceGroupOption, render?: IRenderFunction<IChoiceGroupOption>) => {
           return (
             <div className={styles.choiceGroupItem}>
               {render!(props)}
@@ -243,7 +243,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       {
         key: "marketplace",
         text: "",
-        onRenderField: (props: any, render: any) => {
+        onRenderField: (props?: IChoiceGroupOption, render?: IRenderFunction<IChoiceGroupOption>) => {
           return (
             <div className={styles.choiceGroupItem}>
               {render!(props)}
@@ -284,7 +284,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
         <Stack>
           <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
-            <Stack horizontal={true} horizontalAlign={"center"} className={styles.header}>
+            <Stack horizontal={true} horizontalAlign="center" className={styles.header}>
               <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
               </Text>
@@ -314,7 +314,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
               {this.renderParameters()}
             </Stack>
-            <Stack horizontal={true} horizontalAlign={"end"} className={styles.footer}>
+            <Stack horizontal={true} horizontalAlign="end" className={styles.footer}>
               <PrimaryButton text="Submit Job" onClick={this.submitProtocol} className={styles.rightGap}/>
               <DefaultButton text="Edit YAML" onClick={this.openEditor} />
             </Stack>
