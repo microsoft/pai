@@ -175,7 +175,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     protocol: Object.create(null),
     protocolYAML: "",
     loading: true,
-    showParameters: false,
+    showParameters: true,
     showEditor: false,
   };
 
