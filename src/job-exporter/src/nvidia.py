@@ -126,19 +126,26 @@ def parse_smi_xml_result(smi):
                     process.getElementsByTagName("pid")[0].childNodes[0].data))
 
         ecc_single = ecc_double = 0
-        ecc_errors = gpu.getElementsByTagName("ecc_errors")
-        if len(ecc_errors) > 0:
-            volatile = ecc_errors[0].getElementsByTagName("volatile")
-            if len(volatile) > 0:
-                volatile = volatile[0]
-                single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
-                double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
-                single = single.childNodes[0].data
-                double = double.childNodes[0].data
-                if single != "N/A":
-                    ecc_single = int(single)
-                if double != "N/A":
-                    ecc_double = int(double)
+
+        """Here we try to get the ecc error count.
+        If there is no single_bit tag, it means that this GPU do not support 
+        """
+        try:
+            ecc_errors = gpu.getElementsByTagName("ecc_errors")
+            if len(ecc_errors) > 0:
+                volatile = ecc_errors[0].getElementsByTagName("volatile")
+                if len(volatile) > 0:
+                    volatile = volatile[0]
+                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
+                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
+                    single = single.childNodes[0].data
+                    double = double.childNodes[0].data
+                    if single != "N/A":
+                        ecc_single = int(single)
+                    if double != "N/A":
+                        ecc_double = int(double)
+        except IndexError:
+            pass
 
         uuid = gpu.getElementsByTagName("uuid")[0].childNodes[0].data
 
