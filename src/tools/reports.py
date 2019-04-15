@@ -54,6 +54,19 @@ def request_with_error_handling(url):
         return None
 
 
+def format_time(timestamp):
+    d = datetime.datetime.fromtimestamp(timestamp)
+    return d.strftime("%Y/%m/%d-%H:%M:%S")
+
+
+def get_ip(ip_port):
+    """ return 1.2.3.4 on 1.2.3.4:123 """
+    m = re.match("([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+):?.*", ip_port)
+    if m:
+        return m.groups()[0]
+    return ip_port
+
+
 class VcUsage(object):
     def __init__(self, user, vc, cpu, mem, gpu, time=None):
         """ user/vc is string, cpu/mem/gpu is int
@@ -115,7 +128,7 @@ class JobInfo(object):
 
 class JobReportEntries(object):
     def __init__(self, username, vc, total_job_info, success_job_info,
-            failed_job_info, stopped_job_info, running_job_info):
+            failed_job_info, stopped_job_info, running_job_info, waiting_job_info):
         self.username = username
         self.vc = vc
         self.total_job_info = total_job_info
@@ -123,31 +136,82 @@ class JobReportEntries(object):
         self.failed_job_info = failed_job_info
         self.stopped_job_info = stopped_job_info
         self.running_job_info = running_job_info
+        self.waiting_job_info = waiting_job_info
 
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%s,%s,%s,%s,%s,%s,%s" % (
+        return "%s,%s,%s,%s,%s,%s,%s,%s" % (
                 self.username,
                 self.vc,
                 self.total_job_info,
                 self.success_job_info,
                 self.failed_job_info,
                 self.stopped_job_info,
-                self.running_job_info)
+                self.running_job_info,
+                self.waiting_job_info)
 
 
 class Alert(object):
-    def __init__(self, alert_name, instance, start, durtion):
-        """ alert_name/instance are derived from labels, start/durtion is timestamp
+    default_get_ip = lambda a: get_ip(a["instance"])
+    host_ip_mapping = {
+            "NodeNotReady": lambda a: get_ip(a["name"]),
+            "k8sApiServerNotOk": lambda a: get_ip(a["host_ip"]),
+            "NodeDiskPressure": lambda a: get_ip(a["name"]),
+            "NodeNotReady": lambda a: get_ip(a["name"]),
+            "PaiServicePodNotRunning": lambda a: get_ip(a["host_ip"]),
+            "PaiServicePodNotReady": lambda a: get_ip(a["host_ip"]),
+            }
+
+    src_mapping = {
+            "NvidiaSmiEccError": lambda a: a["minor_number"],
+            "NvidiaMemoryLeak": lambda a: a["minor_number"],
+            "NvidiaZombieProcess": lambda a: a["NvidiaZombieProcess"],
+            "GpuUsedByExternalProcess": lambda a: a["minor_number"],
+            "GpuUsedByZombieContainer": lambda a: a["minor_number"],
+            "PaiJobsZombie": lambda a: a["minor_number"],
+            "k8sApiServerNotOk": lambda a: a["error"],
+            "k8sDockerDaemonNotOk": lambda a: a["error"],
+            "NodeFilesystemUsage": lambda a: a["device"],
+            "NodeDiskPressure": lambda a: get_ip(a["name"]),
+            "NodeNotReady": lambda a: get_ip(a["name"]),
+            "AzureAgentConsumeTooMuchMem": lambda a: a["cmd"],
+            "PaiServicePodNotRunning": lambda a: a["name"],
+            "PaiServicePodNotReady": lambda a: a["name"],
+            "PaiServiceNotUp": lambda a: a["pai_service_name"],
+            "JobExporterHangs": lambda a: a["name"],
+            }
+
+    def __init__(self, alert_name, start, durtion, labels):
+        """ alert_name are derived from labels, start/durtion is timestamp
         value """
         self.alert_name = alert_name
-        self.instance = instance
         self.start = start
         self.durtion = durtion
+        self.labels = labels
+
+        #f.write("alert_name,host_ip,source,start,durtion,labels\n")
+
+    @staticmethod
+    def get_info(alert_name, labels, mapping):
+        return mapping.get(alert_name, Alert.default_get_ip)(labels)
+
+    def labels_repr(self):
+        r = []
+        for k, v in self.labels.items():
+            if k in {"__name__", "alertname", "alertstate", "job", "type"}:
+                continue
+            r.append("%s:%s" % (k, v))
+        return "|".join(r)
 
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%s,%s,%s,%s" % (self.alert_name, self.instance, self.start, self.durtion)
+        return "%s,%s,%s,%s,%s,%s" % (
+                self.alert_name,
+                Alert.get_info(self.alert_name, self.labels, Alert.host_ip_mapping),
+                Alert.get_info(self.alert_name, self.labels, Alert.src_mapping),
+                format_time(self.start),
+                self.durtion,
+                self.labels_repr())
 
 
 class DB(object):
@@ -444,7 +508,7 @@ def get_job_report(database, since, until):
         elapsed_time = walk_json_field_safe(app, "elapsedTime") or 0
         elapsed_time = int(elapsed_time / 1000)
         cpu_sec = walk_json_field_safe(app, "vcoreSeconds") or 0
-        mem_sec = walk_json_field_safe(app, "memorySeconds") or 0
+        mem_sec = int((walk_json_field_safe(app, "memorySeconds") or 0) / 1024)
         gpu_sec = walk_json_field_safe(app, "gpuSeconds") or 0
 
         info = JobInfo(job_count=0, elapsed_time=elapsed_time,
@@ -497,7 +561,8 @@ def get_job_report(database, since, until):
                     "SUCCEEDED": JobInfo(),
                     "FAILED": JobInfo(),
                     "STOPPED": JobInfo(),
-                    "RUNNING": JobInfo()}
+                    "RUNNING": JobInfo(),
+                    "WAITING": JobInfo()}
 
             for job_status, job_info in sub_val.items():
                 if job_status in mapping:
@@ -506,7 +571,7 @@ def get_job_report(database, since, until):
 
             result.append(JobReportEntries(username, vc, total_job_info,
                 mapping["SUCCEEDED"], mapping["FAILED"], mapping["STOPPED"],
-                mapping["RUNNING"]))
+                mapping["RUNNING"], mapping["WAITING"]))
 
     return result, processed_apps
 
@@ -535,15 +600,9 @@ def get_alerts(prometheus_url, since, until):
 
     metrics = walk_json_field_safe(obj, "data", "result")
 
-    alert_instance_mapping = {
-            "NodeNotReady": "name",
-            "PaiServicePodNotReady": "name",
-            }
-
     for metric in metrics:
-        alert_name = walk_json_field_safe(metric, "metric", "alertname") or "unknown"
-        instance_label_name = alert_instance_mapping.get(alert_name) or "instance"
-        instance = walk_json_field_safe(metric, "metric", instance_label_name) or "unknown"
+        labels = walk_json_field_safe(metric, "metric")
+        alert_name = walk_json_field_safe(labels, "alertname") or "unknown"
 
         values = walk_json_field_safe(metric, "values")
         if values is not None and len(values) > 0:
@@ -567,8 +626,9 @@ def get_alerts(prometheus_url, since, until):
                 # treat end - start equals to be the durtion of the alert,
                 # the alert with start == end will have durtion of 0, which is
                 # quite confusing, so we set durtion to be end - start + gap
-                result.append(Alert(alert_name, instance, int(event["start"]),
-                    int(event["end"] - event["start"] + gap)))
+                result.append(Alert(alert_name, int(event["start"]),
+                    int(event["end"] - event["start"] + gap),
+                    labels))
         else:
             logger.warning("unexpected zero values in alert %s", alert_name)
 
@@ -618,7 +678,8 @@ def gen_report(database, prometheus_url, path, since, until):
         "succ_count,succ_time,succ_cpu_sec,succ_mem_sec,succ_gpu_sec," +
         "fail_count,fail_time,fail_cpu_sec,fail_mem_sec,fail_gpu_sec," +
         "stop_count,stop_time,stop_cpu_sec,stop_mem_sec,stop_gpu_sec," +
-        "run_count,run_time,run_cpu_sec,run_mem_sec,run_gpu_sec\n")
+        "run_count,run_time,run_cpu_sec,run_mem_sec,run_gpu_sec," +
+        "wait_count,wait_time,wait_cpu_sec,wait_mem_sec,wait_gpu_sec\n")
         for r in job_report:
             f.write("%s\n" % r)
 
@@ -645,8 +706,8 @@ def gen_report(database, prometheus_url, path, since, until):
                 job.user,
                 job.vc,
                 job_name,
-                job.start_time,
-                job.finished_time,
+                format_time(job.start_time),
+                format_time(job.finished_time),
                 waiting_time,
                 job.elapsed_time,
                 job.retries,
@@ -659,7 +720,7 @@ def gen_report(database, prometheus_url, path, since, until):
     alert_report = get_alerts(prometheus_url, since, until)
     alert_file = "%s_alert.csv" % path
     with open(alert_file, "w") as f:
-        f.write("alert_name,instance,start,durtion\n")
+        f.write("alert_name,host_ip,source,start,durtion,labels\n")
         for r in alert_report:
             f.write("%s\n" % r)
 
