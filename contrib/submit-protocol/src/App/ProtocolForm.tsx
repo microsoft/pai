@@ -17,9 +17,9 @@
 
 import React, { Suspense, lazy } from "react";
 import {
-  ChoiceGroup, DefaultButton, Fabric, IChoiceGroupOption, IRenderFunction,
-  Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize,
-  Text, TextField, Toggle, initializeIcons, mergeStyleSets,
+  ChoiceGroup, DefaultButton, DefaultPalette, Fabric, IChoiceGroupOption, IRenderFunction,
+  Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
+  initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
@@ -37,7 +37,7 @@ const styles = mergeStyleSets({
     boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
     borderStyle: "1px solid rgba(0, 0, 0, 0.2)",
     borderRadius: "6px",
-    backgroundColor: "#fff",
+    backgroundColor: DefaultPalette.white,
   },
 
   title: {
@@ -47,19 +47,19 @@ const styles = mergeStyleSets({
   subTitle: {
     fontSize: "16px",
     fontWeight: "300",
-    color: "#777",
+    color: DefaultPalette.neutralSecondary,
   },
 
   header: {
     width: "80%",
     paddingBottom: "20px",
-    borderBottom: "1px solid #e5e5e5",
+    borderBottom: `1px solid ${DefaultPalette.neutralLight}`,
   },
 
   footer: {
     width: "80%",
     paddingTop: "20px",
-    borderTop: "1px solid #e5e5e5",
+    borderTop: `1px solid ${DefaultPalette.neutralLight}`,
   },
 
   item: {
@@ -87,8 +87,8 @@ const styles = mergeStyleSets({
     padding: "4px 16px",
     minWidth: "80px",
     height: "32px",
-    backgroundColor: "rgb(244, 244, 244)",
-    color: "rgb(51, 51, 51) !important",
+    backgroundColor: DefaultPalette.neutralLighter,
+    color: `${DefaultPalette.black} !important`,
     userSelect: "none",
     outline: "transparent",
     border: "1px solid transparent",
@@ -101,7 +101,7 @@ const styles = mergeStyleSets({
     filter: "alpha(opacity=60)",
     opacity: "0.60",
     boxShadow: "none",
-    color: "rgb(166, 166, 166)",
+    color: DefaultPalette.neutralLighterAlt,
     pointerEvents: "none",
   },
 
