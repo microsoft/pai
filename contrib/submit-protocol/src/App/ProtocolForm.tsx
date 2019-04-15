@@ -67,19 +67,6 @@ const styles = mergeStyleSets({
     paddingRight: "20%",
   },
 
-  topGap: {
-    marginTop: "15px",
-  },
-
-  rightGap: {
-    marginRight: "10px",
-  },
-
-  choiceGroupItem: {
-    display: "flex",
-    alignItems: "baseline",
-  },
-
   fileLabel: {
     width: "25%",
     position: "relative",
@@ -221,9 +208,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         text: "",
         onRenderField: (props?: IChoiceGroupOption, render?: IRenderFunction<IChoiceGroupOption>) => {
           return (
-            <div className={styles.choiceGroupItem}>
+            <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
-              <Label className={styles.rightGap}>Upload from local disk</Label>
+              <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
                 <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
                   Import
@@ -236,7 +223,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                   disabled={props ? !props.checked : false}
                 />
               </label>
-            </div>
+            </Stack>
           );
         },
       },
@@ -245,10 +232,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         text: "",
         onRenderField: (props?: IChoiceGroupOption, render?: IRenderFunction<IChoiceGroupOption>) => {
           return (
-            <div className={styles.choiceGroupItem}>
+            <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
-              <Label className={styles.rightGap}>Select from marketplace</Label>
-            </div>
+              <Label>Select from marketplace</Label>
+            </Stack>
           );
         },
       },
@@ -263,23 +250,25 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           type={PanelType.largeFixed}
           headerText="Protocol YAML Editor"
         >
-          <div className={monacoStyles.monacoHack}>
-            <Suspense fallback={editorSpinner}>
-              <MonacoEditor
-                width={800}
-                height={800}
-                value={this.state.protocolYAML}
-                onChange={this.editProtocol}
-                language="yaml"
-                theme="vs-dark"
-                options={{ wordWrap: "on", readOnly: false }}
-              />
-            </Suspense>
-          </div>
-          <div className={styles.topGap}>
-            <PrimaryButton text="Save" onClick={this.saveEditor} className={styles.rightGap} />
-            <DefaultButton text="Discard" onClick={this.discardEditor} />
-          </div>
+          <Stack gap={20}>
+            <Stack className={monacoStyles.monacoHack}>
+              <Suspense fallback={editorSpinner}>
+                <MonacoEditor
+                  width={800}
+                  height={800}
+                  value={this.state.protocolYAML}
+                  onChange={this.editProtocol}
+                  language="yaml"
+                  theme="vs-dark"
+                  options={{ wordWrap: "on", readOnly: false }}
+                />
+              </Suspense>
+            </Stack>
+            <Stack gap={20} horizontal={true}>
+              <PrimaryButton text="Save" onClick={this.saveEditor} />
+              <DefaultButton text="Discard" onClick={this.discardEditor} />
+            </Stack>
+          </Stack>
         </Panel>
 
         <Stack>
@@ -314,8 +303,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
               {this.renderParameters()}
             </Stack>
-            <Stack horizontal={true} horizontalAlign="end" className={styles.footer}>
-              <PrimaryButton text="Submit Job" onClick={this.submitProtocol} className={styles.rightGap}/>
+            <Stack gap={20} horizontal={true} horizontalAlign="end" className={styles.footer}>
+              <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
               <DefaultButton text="Edit YAML" onClick={this.openEditor} />
             </Stack>
           </Stack>
