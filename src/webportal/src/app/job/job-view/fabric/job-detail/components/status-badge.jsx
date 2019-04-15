@@ -22,7 +22,7 @@ import {Icon} from 'office-ui-fabric-react/lib/Icon';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../../../../../css/tachyons.css';
+import t from '../../../../../components/tachyons.css';
 
 import {statusColorMapping} from '../util';
 

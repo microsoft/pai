@@ -22,7 +22,7 @@ import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 import {monacoHack} from './monaco-hack.scss';
-import t from '../../../../../../css/tachyons.css';
+import t from '../../../../../components/tachyons.css';
 
 export default class MonacoCallout extends React.Component {
   constructor(props) {

@@ -19,7 +19,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../../../../../css/tachyons.css';
+import t from '../../../../../components/tachyons.css';
 
 const Card = ({children, className, style}) => (
   <div className={classNames(className, t.bgWhite)} style={style}>

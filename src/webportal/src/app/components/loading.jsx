@@ -15,17 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames} from '@uifabric/styling';
+import {FontClassNames, ColorClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 import React from 'react';
 
-import t from '../../../../../../css/tachyons.css';
+import t from './tachyons.css';
 
-import loadingGif from '../../../../../../assets/img/loading.gif';
+import loadingGif from '../../assets/img/loading.gif';
 
 export const Loading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
+  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <img className={t.o50} src={loadingGif} />
     </div>
@@ -33,7 +33,7 @@ export const Loading = () => (
 );
 
 export const SpinnerLoading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
+  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
