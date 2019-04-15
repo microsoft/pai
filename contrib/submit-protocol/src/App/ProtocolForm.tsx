@@ -32,6 +32,8 @@ import yaml from "yaml";
 import bootstrapStyles from "bootstrap/dist/css/bootstrap.min.css";
 import monacoStyles from "./monaco.scss";
 
+import MarketplaceForm from "./MarketplaceForm";
+
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 
 initializeIcons();
@@ -153,6 +155,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               </div>
               <div className={classNames(bootstrapStyles.modalBody, bootstrapStyles.row)}>
                 <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
+                  <MarketplaceForm
+                    uri="https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2?ref=feature/submission-v2"
+                    uriType="GitHub"
+                    onSelectProtocol={this.onSelectProtocol}
+                  />
+                </div>
+                <div className={classNames(bootstrapStyles.formGroup, bootstrapStyles.colMd8)}>
                   <TextField
                     label="Job Name "
                     value={this.state.jobName}
@@ -229,6 +238,19 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         protocol,
         protocolYAML: yaml.stringify(protocol),
       });
+    }
+  }
+
+  private onSelectProtocol = (text: string) => {
+    try {
+      const protocol = yaml.parse(text);
+      this.setState({
+        jobName: protocol.name || "",
+        protocol,
+        protocolYAML: text,
+      });
+    } catch (err) {
+      alert(err.message);
     }
   }
 
