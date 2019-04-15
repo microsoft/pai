@@ -127,11 +127,10 @@ def parse_smi_xml_result(smi):
 
         ecc_single = ecc_double = 0
 
-        """Here we check the ecc_object tag.
-         ecc_object is N/A means that this GPU is not for scientific computing and have no ecc correction.
-         So we need to disable the ecc error checking.
+        """Here we try to get the ecc error count.
+        If there is no single_bit tag, it means that this GPU do not support 
         """
-        if gpu.getElementsByTagName("inforom_version")[0].getElementsByTagName("ecc_object")[0].childNodes[0].data != "N/A":
+        try:
             ecc_errors = gpu.getElementsByTagName("ecc_errors")
             if len(ecc_errors) > 0:
                 volatile = ecc_errors[0].getElementsByTagName("volatile")
@@ -145,6 +144,8 @@ def parse_smi_xml_result(smi):
                         ecc_single = int(single)
                     if double != "N/A":
                         ecc_double = int(double)
+        except IndexError:
+            pass
 
         uuid = gpu.getElementsByTagName("uuid")[0].childNodes[0].data
 
