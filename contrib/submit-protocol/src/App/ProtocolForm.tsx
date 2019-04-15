@@ -52,22 +52,14 @@ const styles = mergeStyleSets({
 
   header: {
     width: "80%",
-    alignItems: "center",
-    paddingBottom: "10px",
-    marginBottom: "10px",
+    paddingBottom: "20px",
     borderBottom: "1px solid #e5e5e5",
   },
 
   footer: {
     width: "80%",
-    justifyContent: "flex-end",
-    paddingTop: "30px",
-    marginTop: "15px",
+    paddingTop: "20px",
     borderTop: "1px solid #e5e5e5",
-  },
-
-  spinner: {
-    alignItems: "center",
   },
 
   item: {
@@ -194,12 +186,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       <Fabric>
         <Stack>
           <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
-            <Stack className={styles.header}>
-            <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
-              Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
-            </Text>
+            <Stack horizontal={true} horizontalAlign={"center"} className={styles.header}>
+              <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
+                Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
+              </Text>
             </Stack>
-            <Stack className={styles.spinner}>
+            <Stack>
               <Spinner
                 label="Loading Cloned Job ..."
                 ariaLive="assertive"
@@ -292,7 +284,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
         <Stack>
           <Stack gap={20} padding={20} horizontalAlign="center" className={styles.form}>
-            <Stack className={styles.header}>
+            <Stack horizontal={true} horizontalAlign={"center"} className={styles.header}>
               <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
               </Text>
@@ -322,7 +314,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
               {this.renderParameters()}
             </Stack>
-            <Stack horizontal  className={styles.footer}>
+            <Stack horizontal={true} horizontalAlign={"end"} className={styles.footer}>
               <PrimaryButton text="Submit Job" onClick={this.submitProtocol} className={styles.rightGap}/>
               <DefaultButton text="Edit YAML" onClick={this.openEditor} />
             </Stack>
