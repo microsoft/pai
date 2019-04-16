@@ -17,7 +17,9 @@
 
 import React from "react";
 import {
-  Dropdown, DropdownMenuItemType, Fabric, IDropdownOption, TextField,
+  Callout, DefaultButton, Dropdown, DropdownMenuItemType,
+  Fabric, IDropdownOption, Stack, TextField,
+  mergeStyleSets,
 } from "office-ui-fabric-react";
 
 enum MarketplaceUriType {
@@ -37,7 +39,14 @@ interface IMarketplaceState {
   uriType: MarketplaceUriType;
   selectedProtocol?: IDropdownOption;
   protocolOptions: IDropdownOption[];
+  uriConfigCallout: boolean;
 }
+
+const styles = mergeStyleSets({
+  dropdown: {
+    width: 240,
+  },
+});
 
 export default class MarketplaceForm extends React.Component<IMarketplaceProps, IMarketplaceState> {
   public state = {
@@ -45,10 +54,13 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     uriType: this.props.uriType as MarketplaceUriType || MarketplaceUriType.None,
     protocolOptions: [
       { key: "None", text: "None" },
-      { key: 'jobsDivider', text: '-', itemType: DropdownMenuItemType.Divider },
+      { key: "jobsDivider", text: "-", itemType: DropdownMenuItemType.Divider },
       { key: "jobsHeader", text: "Protocol Jobs", itemType: DropdownMenuItemType.Header },
     ],
+    uriConfigCallout: false,
   };
+
+  private uriConfigCalloutBtn = React.createRef<HTMLDivElement>();
 
   public componentDidMount() {
     this.setProtocolOptions(null as any);
@@ -57,22 +69,54 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   public render() {
     return (
       <Fabric>
-        <TextField
-          label="Marketplace URI"
-          prefix="https://api.github.com/repos/"
-          description="Endpoint should be :owner/:repo/contents/:path?ref=:branch"
-          onChange={this.setMarketplaceURI}
-          onBlur={this.setProtocolOptions}
-        />
-        <Dropdown styles={{dropdown: {width: 240}}}
-          label="Shared Protocol Config Files"
-          placeholder="Select a protocol config file"
-          options={this.state.protocolOptions}
-          onChange={this.selectProtocol}
-          disabled={this.props.disabled}
-        />
+        <Stack gap={5} horizontal={true} verticalAlign="center">
+          <Stack>
+            <Dropdown
+              className={styles.dropdown}
+              placeholder="Select a protocol config file"
+              options={this.state.protocolOptions}
+              onChange={this.selectProtocol}
+              disabled={this.props.disabled}
+            />
+          </Stack>
+          <Stack maxWidth="5px">
+            <div ref={this.uriConfigCalloutBtn}>
+              <DefaultButton
+                onClick={this.onConfigCallout}
+                iconProps={{iconName: "ConfigurationSolid"}}
+                text="URI"
+                disabled={this.props.disabled}
+              />
+            </div>
+            <Callout
+              role="alertdialog"
+              target={this.uriConfigCalloutBtn.current}
+              onDismiss={this.closeConfigCallout}
+              setInitialFocus={true}
+              hidden={!this.state.uriConfigCallout}
+            >
+              <Stack padding={20}>
+                <TextField
+                  label="Marketplace URI"
+                  prefix="https://api.github.com/repos/"
+                  description="Endpoint should be :owner/:repo/contents/:path?ref=:branch"
+                  onChange={this.setMarketplaceURI}
+                  onBlur={this.setProtocolOptions}
+                />
+              </Stack>
+            </Callout>
+          </Stack>
+        </Stack>
       </Fabric>
     );
+  }
+
+  private onConfigCallout = () => {
+    this.setState({uriConfigCallout: !this.state.uriConfigCallout});
+  }
+
+  private closeConfigCallout = () => {
+    this.setState({uriConfigCallout: false});
   }
 
   private setMarketplaceURI = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, uri?: string) => {
@@ -89,10 +133,10 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     if (protocolList) {
       const protocolOptions = [
         { key: "None", text: "None" },
-        { key: 'jobsDivider', text: '-', itemType: DropdownMenuItemType.Divider },
+        { key: "jobsDivider", text: "-", itemType: DropdownMenuItemType.Divider },
         { key: "jobsHeader", text: "Protocol Jobs", itemType: DropdownMenuItemType.Header },
       ];
-      for (let protocolItem of protocolList) {
+      for (const protocolItem of protocolList) {
         protocolOptions.push({
           key: protocolItem.name,
           text: protocolItem.name,
@@ -125,7 +169,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
         const data = await res.json();
         if (Array.isArray(data)) {
           const protocolList: any[] = [];
-          for (let item of data) {
+          for (const item of data) {
             if (item.type === "file") {
               protocolList.push({
                 name: item.name,

@@ -26,7 +26,6 @@ import update from "immutability-helper";
 import yaml from "yaml";
 
 import monacoStyles from "./monaco.scss";
-
 import MarketplaceForm from "./MarketplaceForm";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
@@ -241,6 +240,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 uri="https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2"
                 uriType="GitHub"
                 onSelectProtocol={this.onSelectProtocol}
+                disabled={props ? !props.checked : false}
               />
             </Stack>
           );
