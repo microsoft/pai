@@ -30,7 +30,7 @@
 * [DataModel and FeatureUsage](#DataModel_and_FeatureUsage)
 * [EnvironmentVariables](#EnvironmentVariables)
 * [HDFS Published Informations](#HDFS_Published_Informations)
-* [ExitStatus Convention](#ExitStatus_Convention)
+* [Framework Exit Spec](#Framework_Exit_Spec)
 * [RetryPolicy](#RetryPolicy)
 * [ApplicationCompletionPolicy](#ApplicationCompletionPolicy)
 * [Framework ACL](#Framework_ACL)
@@ -693,14 +693,17 @@ Notes:
 
 1. The FrameworkInfo File may not be up-to-date if the Framework is not in APPLICATION_RUNNING state. So, Client is suggested to only fetch this file inside the Containers of the Framework.
 
-## <a name="ExitStatus_Convention">ExitStatus Convention</a>
+## <a name="Framework_Exit_Spec">Framework Exit Spec</a>
+### <a name="Predefined_Exit_Spec">Predefined Exit Spec</a>
+Spec for Framework, App, Task and Container ExitCode:
+[FrameworkExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/exit/FrameworkExitSpec.java).
 
-You can check all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
+### <a name="Configurable_Exit_Spec">Configurable Exit Spec</a>
+Spec for Container ExitCode:
+[UserContainerExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/model/UserContainerExitSpec.java).
 
-Recipes:
-
-1. Your LauncherClient can depend on the ExitStatus Convention
-2. If your Service failed, the Service can optionally return the ExitCode of USER_APP_TRANSIENT_ERROR and USER_APP_NON_TRANSIENT_ERROR to help FancyRetryPolicy to identify your Service's TRANSIENT_NORMAL and NON_TRANSIENT ExitType. If neither ExitCode is returned, the Service is considered to exit due to UNKNOWN ExitType.
+Example:
+[Default UserContainerExitSpec File](../conf/user-container-exit-spec.yml).
 
 ## <a name="RetryPolicy">RetryPolicy</a>
 
@@ -725,7 +728,7 @@ For details, please check: [RetryPolicyDescriptor](../src/main/java/com/microsof
 Notes:
 
 1. *Italic Conditions* can be inherited from the **DEFAULT** RetryPolicy, so no need to specify them explicitly.
-2. For the definition of each ExitType, such as transient failure, see [ExitStatus Convention](#ExitStatus_Convention).
+2. For the definition of each ExitType, such as transient failure, see [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java).
 
 <table>
   <tbody>
@@ -792,7 +795,7 @@ Notes:
 ApplicationCompletionPolicy can be configured for each TaskRole to control:
 
 1. The conditions to complete the [Application](#Concepts_YARN).
-2. The ExitStatus of the completed [Application](#Concepts_YARN).
+2. The ExitInfo of the completed [Application](#Concepts_YARN).
 
 ### <a name="ApplicationCompletionPolicy_Usage">Usage</a>
 

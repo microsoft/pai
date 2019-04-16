@@ -41,7 +41,7 @@ public class CommonUtils {
   }
 
   public static String toString(Throwable e) {
-    return "\nException:\n" + StringUtils.stringifyException(e);
+    return "\nException:\n" + (e != null ? StringUtils.stringifyException(e) : "null");
   }
 
   public static <T> T checkExist(T o) throws NotFoundException {
@@ -143,7 +143,7 @@ public class CommonUtils {
     return FileUtils.readFileToByteArray(new File(filePath));
   }
 
-  public static Set<String> listFiles(String dirPath) throws Exception {
+  public static Set<String> listFiles(String dirPath) {
     Set<String> fileNames = new HashSet<>();
     for (File file : FileUtils.listFiles(new File(dirPath), null, false)) {
       fileNames.add(file.getName());

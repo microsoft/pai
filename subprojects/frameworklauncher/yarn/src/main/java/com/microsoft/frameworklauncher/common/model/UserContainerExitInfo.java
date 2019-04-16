@@ -17,40 +17,44 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
-
 import java.io.Serializable;
 
-public enum ExitType implements Serializable {
-  // Succeeded
-  SUCCEEDED,
+public class UserContainerExitInfo implements Serializable {
+  private Integer code;
 
-  // Failed, and it can ensure that it will success within a finite retry times:
-  // such as dependent components shutdown, machine error, network error,
-  // configuration error, environment error...
-  TRANSIENT_NORMAL,
+  private ExitType type;
 
-  // A special TRANSIENT_NORMAL which indicate the exit due to resource conflict
-  // and cannot get required resource to run.
-  TRANSIENT_CONFLICT,
+  private String description;
 
-  // Failed, and it can ensure that it will fail in every retry times:
-  // such as incorrect usage, input data corruption...
-  NON_TRANSIENT,
+  public static UserContainerExitInfo newInstance(Integer code, ExitType type, String description) {
+    UserContainerExitInfo info = new UserContainerExitInfo();
+    info.setCode(code);
+    info.setType(type);
+    info.setDescription(description);
+    return info;
+  }
 
-  // Failed, and it cannot offer any retry guarantee.
-  UNKNOWN;
+  public Integer getCode() {
+    return code;
+  }
 
-  public int toLauncherExitCode() {
-    if (this == ExitType.SUCCEEDED) {
-      return GlobalConstants.EXIT_CODE_LAUNCHER_SUCCEEDED;
-    } else if (this == ExitType.TRANSIENT_NORMAL ||
-        this == ExitType.TRANSIENT_CONFLICT) {
-      return GlobalConstants.EXIT_CODE_LAUNCHER_TRANSIENT_FAILED;
-    } else if (this == ExitType.NON_TRANSIENT) {
-      return GlobalConstants.EXIT_CODE_LAUNCHER_NON_TRANSIENT_FAILED;
-    } else {
-      return GlobalConstants.EXIT_CODE_LAUNCHER_UNKNOWN_FAILED;
-    }
+  public void setCode(Integer code) {
+    this.code = code;
+  }
+
+  public ExitType getType() {
+    return type;
+  }
+
+  public void setType(ExitType type) {
+    this.type = type;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }
