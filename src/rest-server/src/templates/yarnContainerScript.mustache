@@ -315,13 +315,19 @@ function get_host_list()
     else
       taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{ aggregatedStatusUri }} 2>/dev/null | jq -r ".aggregatedTaskRoleStatuses")
     fi
-    jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
-    if [ $? -eq 0 ]; then
-      null_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -Ecv "([0-9]{1,3}.?){4}")
-      if [ $null_line -eq 0 ]; then
-        break
+
+    if [[ -z $taskrole_statuses ]]; then
+      log_runtime_error "ERROR" "REASON" "Failed to get task role status"
+    else
+      jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
+      if [ $? -eq 0 ]; then
+        null_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -Ecv "([0-9]{1,3}.?){4}")
+        if [ $null_line -eq 0 ]; then
+          break
+        fi
       fi
     fi
+
     printf "%s %s\n" "[WARNING]" "Failed to request info from $info_source, sleep $delay_time s ..."
     sleep ${delay_time}s
     if [[ $delay_time -ge 300 ]]; then
