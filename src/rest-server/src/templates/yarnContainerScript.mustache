@@ -311,20 +311,16 @@ function get_host_list()
   info_source="webhdfs"
   while true; do
     if [[ "$info_source" = "webhdfs" ]]; then
-      taskrole_statuses=$(curl -L -H "Accept: application/json" {{ frameworkInfoWebhdfsUri }} 2>/dev/null | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -s -L -H "Accept: application/json" {{ frameworkInfoWebhdfsUri }} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
     else
-      taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{ aggregatedStatusUri }} 2>/dev/null | jq -r ".aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{ aggregatedStatusUri }} | jq -r ".aggregatedTaskRoleStatuses")
     fi
 
-    if [[ -z $taskrole_statuses ]]; then
-      log_runtime_error "ERROR" "REASON" "Failed to get task role status"
-    else
-      jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
-      if [ $? -eq 0 ]; then
-        null_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -Ecv "([0-9]{1,3}.?){4}")
-        if [ $null_line -eq 0 ]; then
-          break
-        fi
+    jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
+    if [ $? -eq 0 ]; then
+      null_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -Ecv "([0-9]{1,3}.?){4}")
+      if [ $null_line -eq 0 ]; then
+        break
       fi
     fi
 
