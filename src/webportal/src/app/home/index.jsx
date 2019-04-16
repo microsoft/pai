@@ -197,7 +197,7 @@ const Home = () => {
         if (config.authnMethod === 'basic') {
           setLoginModal(true);
         } else {
-          location.href=webportalConfig.restServerUri +  '/api/v1/auth/oidc/login?callback=' + encodeURIComponent(location.href)
+          location.href=config.restServerUri + '/api/v1/auth/oidc/login?callback=' + encodeURIComponent(location.href);
         }
       },
       [],
