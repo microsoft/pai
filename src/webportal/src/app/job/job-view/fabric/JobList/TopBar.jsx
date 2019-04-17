@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
@@ -64,44 +64,45 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
+  const [users, setUser] = useState(Object.create(null));
+  const [virtualClusters, setVirtualClusters] = useState(Object.create(null));
+  const [statuses, setStatuses] = useState(Object.create(null));
+
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
-  const allStatuses = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
-
-  const {users, virtualClusters, statuses} = useMemo(() => {
-    const users = Object.create(null);
-    const virtualClusters = Object.create(null);
-    const statuses = Object.create(null);
-
+  useEffect(() => {
     fetch(`${webportalConfig.restServerUri}/api/v1/user`)
       .then((response) => {
         return response.json();
       }).then((body) => {
+        const allUsers = Object.create(null);
         body.forEach((userBody) => {
-          users[userBody['username']] = true;
+          allUsers[userBody['username']] = true;
         });
+        setUser(allUsers);
       }).catch((err) => {
         alert(err.message);
       });
 
-    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+      fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
       .then((response) => {
         return response.json();
       }).then((body) => {
-        for (let virtualCluster in body) {
-          if (body.hasOwnProperty(virtualCluster)) {
-            virtualClusters[virtualCluster] = true;
-          }
+        const allVirtualClusters = Object.create(null);
+        for (const virtualCluster of Object.keys(body)) {
+          allVirtualClusters[virtualCluster] = true;
         }
+        setVirtualClusters(allVirtualClusters);
       }).catch((err) => {
         alert(err.message);
       });
 
-    allStatuses.forEach(function(status) {
-      statuses[status] = true;
-    });
-
-    return {users, virtualClusters, statuses};
+      const ALL_STATUSES = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
+      const allStatuses = Object.create(null);
+      ALL_STATUSES.forEach(function(status) {
+        allStatuses[status] = true;
+      });
+      setStatuses(allStatuses);
   }, []);
 
   /**

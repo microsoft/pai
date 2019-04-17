@@ -77,16 +77,9 @@ export default function JobList() {
         .then((response) => {
           return response.json();
         }).then((body) => {
-          const validSet = new Set();
-          for (let virtualCluster in body) {
-            if (body.hasOwnProperty(virtualCluster)) {
-              validSet.add(virtualCluster);
-            }
-          }
-          if (validSet.has(query['vcName'])) {
+          if (Object.keys(body).indexOf(query['vcName']) != -1) {
             const {keyword, users, statuses} = filter;
             setFilter(new Filter(keyword, users, new Set().add(query['vcName']), statuses));
-            filter.save();
           }
         }).catch((err) => {
           alert(err.message);
@@ -138,11 +131,6 @@ export default function JobList() {
 
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
-    const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (query['vcName']) {
-      const {keyword, users, virtualClusters, statuses} = filter;
-      setFilter(new Filter(keyword, users, virtualClusters.add(query['vcName']), statuses));
-    }
     fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {
