@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-{% for spec_item in cluster_cfg['job-exit-spec'][spec] %}
+{% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
 {% for key, one_spec in spec_item.iteritems() %}
 {% if key != "repro" and key != "solution" %}
 - {{ key }}: {{ one_spec }}
