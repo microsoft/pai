@@ -222,11 +222,6 @@ public class FrameworkExitSpec {
         null,
         ExitType.TRANSIENT_NORMAL,
         "App lost after RMResynced"));
-    spec.put(FrameworkExitCode.APP_RM_RESYNC_EXCEEDED.toInt(), new FrameworkExitInfo(
-        FrameworkExitCode.APP_RM_RESYNC_EXCEEDED.toInt(),
-        null,
-        ExitType.NON_TRANSIENT,
-        "App exceeded after RMResynced"));
     spec.put(FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt(),
         null,
@@ -240,8 +235,8 @@ public class FrameworkExitSpec {
     spec.put(FrameworkExitCode.APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED.toInt(),
         null,
-        ExitType.UNKNOWN,
-        "Failed to deserialize AMDiagnostics from YARN, maybe it is truncated due to it is too long"));
+        ExitType.TRANSIENT_NORMAL,
+        "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted"));
     /// Service External Error is already handled by host
   }
 
