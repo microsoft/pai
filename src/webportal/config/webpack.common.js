@@ -58,6 +58,7 @@ const config = (env, argv) => ({
     'layout': './src/app/layout/layout.component.js',
     'register': './src/app/user/user-register/user-register.component.js',
     'userView': './src/app/user/user-view/user-view.component.js',
+    'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
     'submit': './src/app/job/job-submit/job-submit.component.js',
@@ -282,6 +283,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'user-view.html',
       chunks: ['layout', 'userView'],
+    }),
+    generateHtml({
+      filename: 'batch-register.html',
+      chunks: ['layout', 'batchRegister'],
     }),
     generateHtml({
       filename: 'change-password.html',
