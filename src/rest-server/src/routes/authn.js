@@ -15,28 +15,27 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const controller = require('../controllers/index');
-//const tokenRouter = require('./token');
-const authnRouter = require('./authn');
-const userRouter = require('./user');
-const jobRouter = require('./job');
-const vcRouter = require('./vc');
-const kubernetesProxy = require('../controllers/kubernetes-proxy');
+const tokenConfig = require('../config/token');
+const tokenController = require('../controllers/token');
+const param = require('../middlewares/parameter');
 
 const router = new express.Router();
 
-router.route('/')
-    .all(controller.index);
+router.route('/oidc/login')
+/** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
+  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
-//router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', vcRouter);
-router.use('/kubernetes', kubernetesProxy);
-router.use('/authn', authnRouter)
+
+router.route('/oidc/logout')
+/** POST /api/v1/auth/oidc/logout */
+  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+
+
+router.route('/basic/login')
+/** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
+  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
 // module exports
 module.exports = router;

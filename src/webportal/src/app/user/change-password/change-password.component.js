@@ -44,7 +44,7 @@ $(document).ready(() => {
       alert('Please enter a password different from the old one!');
     } else {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/token`,
+        url: `${webportalConfig.restServerUri}/api/v1/authn/basic/login`,
         type: 'POST',
         data: {
           username,

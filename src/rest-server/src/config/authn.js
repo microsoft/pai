@@ -15,28 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-//const tokenRouter = require('./token');
-const authnRouter = require('./authn');
-const userRouter = require('./user');
-const jobRouter = require('./job');
-const vcRouter = require('./vc');
-const kubernetesProxy = require('../controllers/kubernetes-proxy');
+const Joi = require('joi');
 
-const router = new express.Router();
+let authnConfig = {
+  authnMethod: process.env.AUTHN_METHOD,
+};
 
-router.route('/')
-    .all(controller.index);
+// define the schema for azure
+const authnSchema = Joi.object().keys({
+  azRDMA: Joi.string().empty('')
+    .valid('false', 'true'),
+}).required();
 
-//router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', vcRouter);
-router.use('/kubernetes', kubernetesProxy);
-router.use('/authn', authnRouter)
 
-// module exports
-module.exports = router;
+const {error, value} = Joi.validate(azureData, azureSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
+azureData = value;
+
+module.exports = azureData;

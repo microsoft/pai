@@ -24,8 +24,8 @@ const param = require('../middlewares/parameter');
 const router = new express.Router();
 
 router.route('/')
-    /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+/** POST /api/v1/token - Return a token if username and password is correct */
+  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
 // module exports
 module.exports = router;

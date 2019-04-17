@@ -34,6 +34,18 @@ import t from '../../../node_modules/tachyons/css/tachyons.css';
 
 const loginTarget = '/job-list.html';
 
+
+if ( config.authnMethod === 'OIDC') {
+  const query = url.parse(window.location.href, true).query;
+  const expiration = 7 * 24 * 60 * 60;
+  if (query['token']) {
+    cookies.set('user', data.user, {expires: expiration});
+    cookies.set('token', data.token, {expires: expiration});
+    cookies.set('admin', data.admin, {expires: expiration});
+    cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
+  }
+}
+
 if (checkToken(false)) {
   window.location.replace(loginTarget);
 }
@@ -141,7 +153,7 @@ const Bottom = () => (
 );
 
 async function login(username, password, expiration = 7 * 24 * 60 * 60) {
-  const res = await fetch(`${config.restServerUri}/api/v1/token`, {
+  const res = await fetch(`${config.restServerUri}/api/v1/authn/basic/login`, {
     method: 'POST',
     body: JSON.stringify({
       username,
