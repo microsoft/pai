@@ -17,25 +17,25 @@
 
 
 {% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
-{% for key, one_spec in spec_item.iteritems() -%}
-{% if key != "repro" and key != "solution" -%}
-{% if loop.first -%}
+{% for key, one_spec in spec_item.iteritems() %}
+{% if key != "repro" and key != "solution" %}
+{% if loop.first %}
 - {{ key }}: "{{ one_spec }}"
 {% else -%}
   {{ key }}: "{{ one_spec }}"
 {% endif %}
-{% else -%}
-{% if loop.first -%}
+{% else %}
+{% if loop.first %}
 - {{ key }}:
 {% for string_value in one_spec %}
   - "{{ string_value }}"
-{% endfor -%}
-{% else -%}
+{% endfor %}
+{% else %}
   {{ key }}:
 {% for string_value in one_spec %}
   - "{{ string_value }}"
-{% endfor -%}
-{% endif -%}
-{% endif -%}
-{% endfor -%}
-{% endfor -%}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
