@@ -84,7 +84,7 @@ function TopBar() {
         alert(err.message);
       });
 
-      fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
       .then((response) => {
         return response.json();
       }).then((body) => {
