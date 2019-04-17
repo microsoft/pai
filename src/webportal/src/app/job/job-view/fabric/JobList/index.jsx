@@ -70,6 +70,30 @@ export default function JobList() {
 
   useEffect(() => filter.save(), [filter]);
 
+  useEffect(() => {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (query['vcName']) {
+      fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+        .then((response) => {
+          return response.json();
+        }).then((body) => {
+          const validSet = new Set();
+          for (let virtualCluster in body) {
+            if (body.hasOwnProperty(virtualCluster)) {
+              validSet.add(virtualCluster);
+            }
+          }
+          if (validSet.has(query['vcName'])) {
+            const {keyword, users, statuses} = filter;
+            setFilter(new Filter(keyword, users, new Set().add(query['vcName']), statuses));
+            filter.save();
+          }
+        }).catch((err) => {
+          alert(err.message);
+        });
+    }
+  }, [])
+
   const {current: applyFilter} = useRef(debounce((allJobs, /** @type {Filter} */filter) => {
     setFilteredJobs(filter.apply(allJobs || []));
   }, 200));

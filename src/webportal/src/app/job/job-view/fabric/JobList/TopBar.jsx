@@ -25,7 +25,7 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 import Context from './Context';
 import Filter from './Filter';
 
-const AllStatuses = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
+import webportalConfig from '../../../../config/webportal.config';
 
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
@@ -64,26 +64,45 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allJobs, refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+  const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+
+  const allStatuses = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
 
   const {users, virtualClusters, statuses} = useMemo(() => {
     const users = Object.create(null);
     const virtualClusters = Object.create(null);
     const statuses = Object.create(null);
-
-    if (allJobs !== null) {
-      allJobs.forEach(function(job) {
-        users[job.username] = true;
-        virtualClusters[job.virtualCluster] = true;
+  
+    fetch(`${webportalConfig.restServerUri}/api/v1/user`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        body.forEach((userBody) => {
+          users[userBody['username']] = true;
+        });
+      }).catch((err) => {
+        alert(err.message);
       });
-    }
 
-    AllStatuses.forEach(function(status) {
+    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        for (let virtualCluster in body) {
+          if (body.hasOwnProperty(virtualCluster)) {
+            virtualClusters[virtualCluster] = true;
+          }
+        }
+      }).catch((err) => {
+        alert(err.message);
+      });
+      
+    allStatuses.forEach(function(status) {
       statuses[status] = true;
     });
 
     return {users, virtualClusters, statuses};
-  }, [allJobs]);
+  }, []);
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
