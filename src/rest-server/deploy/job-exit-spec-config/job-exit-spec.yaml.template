@@ -27,12 +27,12 @@
   reaction: {{ spec_item['reaction'] }}
   reason: "{{ spec_item['reason'] }}"
   repro:
-{% for str_val in spec_item['repro'] -%}
+{% for str_val in spec_item['repro'] %}
     - "{{ str_val }}"
-{% endfor -%}
+{% endfor %}
   solution:
-{% for str_val in spec_item['solution'] -%}
+{% for str_val in spec_item['solution'] %}
     - "{{ str_val }}"
-{% endfor -%}
+{% endfor %}
   pattern: "{{ spec_item['pattern'] }}"
 {% endfor -%}
