@@ -155,9 +155,9 @@ export default function BatchRegister() {
         },
         dataType: 'json',
         success: () => {
-          let reqs = [];
+          let githubPATReq = null;
           if (githubPAT) {
-            let req = $.ajax({
+            githubPATReq = $.ajax({
               url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
               data: {
                 githubPAT: githubPAT,
@@ -168,40 +168,50 @@ export default function BatchRegister() {
               },
               dataType: 'json',
             });
-            reqs.push(req);
           }
-          // Admin user VC update will be executed in rest-server
-          if (!toBool(admin) && vc) {
-            let req = $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-              data: {
-                virtualClusters: vc,
-              },
-              type: 'PUT',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              dataType: 'json',
-            });
-            reqs.push(req);
-          }
-          $.when(...reqs).then(
+          $.when(githubPATReq).then(
             () => {
-              deferredObject.resolve({
-                isSuccess: true,
-                message: `User ${username} created successfully`,
-              });
+              let vcReq = null;
+              // Admin user VC update will be executed in rest-server
+              if (!toBool(admin) && vc) {
+                vcReq = $.ajax({
+                  url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
+                  data: {
+                    virtualClusters: vc,
+                  },
+                  type: 'PUT',
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                  dataType: 'json',
+                });
+              }
+              $.when(vcReq).then(
+                () => {
+                  deferredObject.resolve({
+                    isSuccess: true,
+                    message: `User ${username} created successfully`,
+                  });
+                },
+                (xhr) => {
+                  const res = JSON.parse(xhr.responseText);
+                  deferredObject.resolve({
+                    isSuccess: true,
+                    message: `User ${username} created successfully but failed when update virtual clusters: ${res.message}`,
+                  });
+                }
+              );
             },
             (xhr) => {
               const res = JSON.parse(xhr.responseText);
               deferredObject.resolve({
                 isSuccess: true,
-                message: `User ${username} created successfully but failed when update other info: ${res.message}`,
+                message: `User ${username} created successfully but failed when update githubPAT: ${res.message}`,
               });
             }
           );
         },
-        error: (xhr, textStatus, error) => {
+        error: (xhr) => {
           const res = JSON.parse(xhr.responseText);
           deferredObject.resolve({
             isSuccess: false,
