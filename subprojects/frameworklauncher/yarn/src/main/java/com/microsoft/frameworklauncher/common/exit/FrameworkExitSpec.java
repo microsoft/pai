@@ -21,6 +21,7 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.ExitType;
 import com.microsoft.frameworklauncher.common.model.UserContainerExitInfo;
 import com.microsoft.frameworklauncher.common.model.UserContainerExitSpec;
+import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class FrameworkExitSpec {
     /// Container External Error
     //// Container Init Failed by YARN
     spec.put(FrameworkExitCode.CONTAINER_INVALID_EXIT_STATUS.toInt(), new FrameworkExitInfo(
-        -1000,
+        ContainerExitStatus.INVALID,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container exited with invalid exit status, maybe container initialization failed"));
@@ -55,7 +56,7 @@ public class FrameworkExitSpec {
         ExitType.TRANSIENT_NORMAL,
         "Container exited with not available exit status, maybe container process creation failed"));
     spec.put(FrameworkExitCode.CONTAINER_NODE_DISKS_FAILED.toInt(), new FrameworkExitInfo(
-        -101,
+        ContainerExitStatus.DISKS_FAILED,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container early discarded by NM due to local bad disk, maybe no capacity left on the disk"));
@@ -66,53 +67,53 @@ public class FrameworkExitSpec {
         "Container early discarded by NM due to the request ports conflict"));
     //// Container Aborted by YARN
     spec.put(FrameworkExitCode.CONTAINER_ABORTED.toInt(), new FrameworkExitInfo(
-        -100,
+        ContainerExitStatus.ABORTED,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container aborted by YARN"));
     spec.put(FrameworkExitCode.CONTAINER_NODE_LOST.toInt(), new FrameworkExitInfo(
-        -100,
+        ContainerExitStatus.ABORTED,
         "Container released on a *lost* node",
         ExitType.TRANSIENT_NORMAL,
         "Container lost due to node lost, maybe its NM is down for a long time"));
     spec.put(FrameworkExitCode.CONTAINER_EXPIRED.toInt(), new FrameworkExitInfo(
-        -100,
+        ContainerExitStatus.ABORTED,
         "Container expired since it was unused",
         ExitType.TRANSIENT_CONFLICT,
         "Container expired due to it is not launched on NM in time, maybe other containers cannot be allocated in time"));
     spec.put(FrameworkExitCode.CONTAINER_ABORTED_ON_AM_RESTART.toInt(), new FrameworkExitInfo(
-        -100,
+        ContainerExitStatus.ABORTED,
         "Container of a completed application",
         ExitType.TRANSIENT_CONFLICT,
         "Container previously allocated is aborted by RM during AM restart, maybe other containers cannot be allocated in time"));
     //// Container Other Failed by YARN
     spec.put(FrameworkExitCode.CONTAINER_PREEMPTED.toInt(), new FrameworkExitInfo(
-        -102,
+        ContainerExitStatus.PREEMPTED,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container preempted by RM, maybe its queue overused capacity was reclaimed"));
     spec.put(FrameworkExitCode.CONTAINER_VIRTUAL_MEMORY_EXCEEDED.toInt(), new FrameworkExitInfo(
-        -103,
+        ContainerExitStatus.KILLED_EXCEEDED_VMEM,
         null,
         ExitType.NON_TRANSIENT,
         "Container killed due to it exceeded the request virtual memory"));
     spec.put(FrameworkExitCode.CONTAINER_PHYSICAL_MEMORY_EXCEEDED.toInt(), new FrameworkExitInfo(
-        -104,
+        ContainerExitStatus.KILLED_EXCEEDED_PMEM,
         null,
         ExitType.NON_TRANSIENT,
         "Container killed due to it exceeded the request physical memory"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_BY_AM.toInt(), new FrameworkExitInfo(
-        -105,
+        ContainerExitStatus.KILLED_BY_APPMASTER,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container killed by AM"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_BY_RM.toInt(), new FrameworkExitInfo(
-        -106,
+        ContainerExitStatus.KILLED_BY_RESOURCEMANAGER,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container killed by RM"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_ON_APP_COMPLETION.toInt(), new FrameworkExitInfo(
-        -107,
+        ContainerExitStatus.KILLED_AFTER_APP_COMPLETION,
         null,
         ExitType.TRANSIENT_NORMAL,
         "Container killed due to App completed"));
