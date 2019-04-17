@@ -61,7 +61,7 @@ class Job {
       case 'FRAMEWORK_COMPLETED':
         if (exitCode === 0) {
           jobState = 'SUCCEEDED';
-        } else if (exitCode === 214) {
+        } else if (exitCode === -7352) {
           jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';

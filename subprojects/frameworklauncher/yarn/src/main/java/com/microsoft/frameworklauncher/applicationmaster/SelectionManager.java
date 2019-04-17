@@ -315,7 +315,7 @@ public class SelectionManager { // THREAD SAFE
   }
 
   private synchronized List<ValueRange> selectPorts(List<ValueRange> availablePorts, ResourceDescriptor optimizedRequestResource) {
-    // Remove the user specified static ports from availableProts first, then do the dynamic ports random allocation.
+    // Remove the user specified static ports from availablePorts first, then do the dynamic ports random allocation.
     if (optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> availableOverlapPorts = ValueRangeUtils.subtractRange(availablePorts, optimizedRequestResource.getPortRanges());
 

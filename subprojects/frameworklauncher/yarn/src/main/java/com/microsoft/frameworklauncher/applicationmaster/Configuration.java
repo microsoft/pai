@@ -18,10 +18,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
-import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
-import com.microsoft.frameworklauncher.common.model.LauncherStatus;
-import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.common.model.UserDescriptor;
+import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -50,6 +47,7 @@ public class Configuration {
   private String attemptId;
   private String applicationId;
   private LauncherConfiguration launcherConfig;
+  private UserContainerExitSpec userContainerExitSpec;
   private UserDescriptor loggedInUser;
 
   // Below properties defined for RM when AM Registered, it may be changed after RM configuration changed.
@@ -88,6 +86,7 @@ public class Configuration {
 
     LauncherStatus launcherStatus = zkStore.getLauncherStatus();
     launcherConfig = launcherStatus.getLauncherConfiguration();
+    userContainerExitSpec = launcherStatus.getUserContainerExitSpec();
     loggedInUser = launcherStatus.getLoggedInUser();
   }
 
@@ -168,7 +167,11 @@ public class Configuration {
     return launcherConfig;
   }
 
-  public UserDescriptor getLoggedInUser() {
+  protected UserContainerExitSpec getUserContainerExitSpec() {
+    return userContainerExitSpec;
+  }
+
+  protected UserDescriptor getLoggedInUser() {
     return loggedInUser;
   }
 

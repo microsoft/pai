@@ -22,6 +22,7 @@ import org.apache.hadoop.yarn.util.Apps;
 
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
+  public static final String USER_CONTAINER_EXIT_SPEC_FILE = "user-container-exit-spec.yml";
   public static final String FRAMEWORK_INFO_FILE = "FrameworkInfo.json";
   public static final int USING_UNLIMITED_VALUE = -1;
   public static final int USING_EXTENDED_UNLIMITED_VALUE = -2;
@@ -67,4 +68,9 @@ public class GlobalConstants {
   public static final String ENV_VAR_AGENT_BOND_RPC_TIMEOUT_SEC = "AGENT_BOND_RPC_TIMEOUT_SEC";
   public static final String REF_ENV_VAR_LAUNCHER_LOG_DIR = Apps.crossPlatformify(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR);
   public static final String LINE = new String(new char[200]).replace("\0", "_");
+  // Predefined ExitCode for Launcher itself exit:
+  public static final int EXIT_CODE_LAUNCHER_SUCCEEDED = 0;
+  public static final int EXIT_CODE_LAUNCHER_UNKNOWN_FAILED = 200;
+  public static final int EXIT_CODE_LAUNCHER_TRANSIENT_FAILED = 201;
+  public static final int EXIT_CODE_LAUNCHER_NON_TRANSIENT_FAILED = 202;
 }
