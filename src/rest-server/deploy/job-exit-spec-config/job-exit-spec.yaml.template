@@ -17,25 +17,22 @@
 
 
 {% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
-{% for key, one_spec in spec_item.iteritems() %}
-{% if key != "repro" and key != "solution" %}
-{% if loop.first %}
-- {{ key }}: "{{ one_spec }}"
-{% else -%}
-  {{ key }}: "{{ one_spec }}"
-{% endif %}
-{% else %}
-{% if loop.first %}
-- {{ key }}:
-{% for string_value in one_spec %}
-  - "{{ string_value }}"
-{% endfor %}
-{% else %}
-  {{ key }}:
-{% for string_value in one_spec %}
-  - "{{ string_value }}"
-{% endfor %}
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endfor %}
+- code: {{ spec_item['code'] }}
+  phrase: {{ spec_item['phrase'] }}
+  issuer: {{ spec_item['issuer'] }}
+  causer: {{ spec_item['causer'] }}
+  type: {{ spec_item['type'] }}
+  stage: {{ spec_item['stage'] }}
+  behavior: {{ spec_item['behavior'] }}
+  reaction: {{ spec_item['reaction'] }}
+  reason: "{{ spec_item['reason'] }}"
+  repro:
+{% for str_val in spec_item['repro'] -%}
+    - "{{ str_val }}"
+{% endfor -%}
+  solution:
+{% for str_val in spec_item['solution'] -%}
+    - "{{ str_val }}"
+{% endfor -%}
+  pattern: "{{ spec_item['pattern'] }}"
+{% endfor -%}
