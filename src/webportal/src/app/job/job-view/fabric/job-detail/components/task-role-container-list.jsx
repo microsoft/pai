@@ -129,12 +129,16 @@ export default class TaskRoleContainerList extends React.Component {
       });
     } else {
       const res = [];
-      res.push('# Step 1. Open a Bash shell terminal.');
-      res.push('# Step 2: Download the private key:');
-      res.push(`wget ${sshInfo.keyPair.privateKeyDirectDownloadLink} -O ${sshInfo.keyPair.privateKeyFileName}`);
-      res.push('# Step 3: Set correct permission for the key file:');
-      res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
-      res.push('# Step 4: Connect to the container:');
+      // res.push('# Step 1. Open a Bash shell terminal.');
+      // res.push('# Step 2: Download the private key:');
+      // res.push(`wget ${sshInfo.keyPair.privateKeyDirectDownloadLink} -O ${sshInfo.keyPair.privateKeyFileName}`);
+      // res.push('# Step 3: Set correct permission for the key file:');
+      // res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
+      // res.push('# Step 4: Connect to the container:');
+      // res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
+      res.push('# Run the following command and run it in a shell terminal to connect to the container:');
+      res.push(`wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName} &&\\`);
+      res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName} &&\\`);
       res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
       res.push('');
       this.setState({

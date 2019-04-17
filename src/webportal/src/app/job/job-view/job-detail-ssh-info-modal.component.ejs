@@ -6,13 +6,10 @@
         <h4 class="modal-title">SSH to <%= containerId %></h4>
       </div>
       <div class="modal-body">
-        <p>Step 1. Open a Bash shell terminal.</p>
-        <p>Step 2: Download the <a href='<%= keyPair.privateKeyDirectDownloadLink %>'>private key</a>:</p>
-        <pre><code>wget <%= keyPair.privateKeyDirectDownloadLink %> -O <%= keyPair.privateKeyFileName %></code></pre>
-        <p>Step 3: Set correct permission for the key file:</p>
-        <pre><code>chmod 600 <%= keyPair.privateKeyFileName %></code></pre>
-        <p>Step 4: Connect to the container:</p>
-        <pre><code>ssh -i <%= keyPair.privateKeyFileName %> -p <%= sshPort %> root@<%= sshIp %></code></pre>
+        <p>Run the following command and run it in a shell terminal to connect to the container:</p>
+        <pre><code>wget <%= keyPair.privateKeyDirectDownloadLink %> -O <%= keyPair.privateKeyFileName %> &&\</code></pre>
+        <pre><code>chmod 600 <%= keyPair.privateKeyFileName %>  &&\</code></pre>
+        <pre><code>ssh -i <%= keyPair.privateKeyFileName %> -p <%= sshPort %> root@<%= sshIp %>  &&\</code></pre>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
