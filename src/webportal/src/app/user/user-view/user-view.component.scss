@@ -12,7 +12,7 @@
   cursor: default;
 }
 
-#toRegister {
+.add-user-btn {
   margin: 10px;
   margin-top: 0px;
   padding-left: 40px;
@@ -65,12 +65,4 @@
 
 .user-edit-border {
   padding:15px;
-}
-
-.btn-group-custom{
-  vertical-align: top;
-}
-
-.btn-group-custom-left{
-  padding: 10px 40px;
 }
