@@ -311,10 +311,11 @@ function get_host_list()
   info_source="webhdfs"
   while true; do
     if [[ "$info_source" = "webhdfs" ]]; then
-      taskrole_statuses=$(curl -L -H "Accept: application/json" {{ frameworkInfoWebhdfsUri }} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -s -L -H "Accept: application/json" {{ frameworkInfoWebhdfsUri }} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
     else
       taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{ aggregatedStatusUri }} | jq -r ".aggregatedTaskRoleStatuses")
     fi
+
     jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
     if [ $? -eq 0 ]; then
       null_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -Ecv "([0-9]{1,3}.?){4}")
@@ -322,6 +323,7 @@ function get_host_list()
         break
       fi
     fi
+
     printf "%s %s\n" "[WARNING]" "Failed to request info from $info_source, sleep $delay_time s ..."
     sleep ${delay_time}s
     if [[ $delay_time -ge 300 ]]; then
