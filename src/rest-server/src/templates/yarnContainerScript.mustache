@@ -262,7 +262,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
   if [ $code_dir_size -gt 0 ] && [ $code_dir_size -le 200000000 ]; then
     hdfs dfs -get $PAI_CODE_DIR $code_dir \
       || { echo "Can not get code from HDFS."; exit 1; }
-  elif [ $code_dir_size -eq 0]; then
+  elif [ $code_dir_size -eq 0 ]; then
     # pass when code_dir_size is 0
     :
   elif [ $code_dir_size -lt 0 ]; then
