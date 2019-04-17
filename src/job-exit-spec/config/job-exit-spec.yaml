@@ -19,24 +19,24 @@
 # PAI Job ExitSpec Schema
 ################################################################################
 schema:
-  code:
+  - field: code
     description: "The PAI Job ExitCode"
-    required: YES
-    unique: YES
+    required: True
+    unique: True
     type: Integer
     range:
-      start: -8000
+      begin: -8000
       end: 256
-  phrase:
+  - field: phrase
     description: "The textual phrase representation of this ExitCode"
-    required: YES
-    unique: YES
+    required: True
+    unique: True
     type: String
     range: "Any"
-  issuer:
+  - field: issuer
     description: "Who root issued this ExitCode in details"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - USER_CONTAINER
@@ -44,10 +44,10 @@ schema:
       - PAI_RUNTIME
       - PAI_YARN
       - PAI_LAUNCHER
-  causer:
+  - field: causer
     description: "Who root caused this ExitCode in details"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - USER_SUBMISSION
@@ -64,10 +64,10 @@ schema:
       - PAI_YARN
       - PAI_LAUNCHER
       - UNKNOWN
-  type:
+  - field: type
     description: "The rough type of this ExitCode"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - USER_SUCCESS
@@ -76,10 +76,10 @@ schema:
       - PLATFORM_FAILURE
       - RESOUCE_ALLOCATION_TIMEOUT
       - UNKNOWN_FAILURE
-  stage:
+  - field: stage
     description: "The user process stage just before this ExitCode issued"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - SUBMITTING
@@ -88,48 +88,48 @@ schema:
       - RUNNING
       - COMPLETING
       - UNKNOWN
-  behavior:
+  - field: behavior
     description: "The rerun behavior of this ExitCode"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - TRANSIENT_NORMAL
       - TRANSIENT_CONFLICT
       - NON_TRANSIENT
       - UNKNOWN
-  reaction:
+  - field: reaction
     description: "The reaction for this ExitCode will be executed by PAI automatically"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: Enum
     range:
       - ALWAYS_RETRY
       - ALWAYS_BACKOFF_RETRY
       - RETRY_TO_MAX
       - NEVER_RETRY
-  reason:
+  - field: reason
     description: "Why this ExitCode is issued"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: String
     range: "Any"
-  repro:
+  - field: repro
     description: "One specific reproduce steps of this ExitCode"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: List<String>
     range: "Any"
-  solution:
+  - field: solution
     description: "Some optional solutions to resolve this ExitCode if it indicates failure"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: List<String>
     range: "Any"
-  pattern:
+  - field: pattern
     description: "The pattern that PAI used to detect this ExitCode"
-    required: NO
-    unique: NO
+    required: False
+    unique: False
     type: String
     range: "Any, such as USER_EXITCODE=X && USER_LOG_PATTERN=Y || OS_Signal=Z"
 
@@ -367,7 +367,7 @@ spec:
 # Description: Shadow Fallback ExitCode
 ################################
 # Here the code 256 is just used to represent all undefined positive exitcodes in this spec,
-# and the specific exitcode should always override it to expose outside.
+# and the specific undefined exitcode should always override it to expose outside.
 - code: 256
   phrase: CONTAINER_RUNTIME_EXIT_ABNORMALLY
   issuer: PAI_RUNTIME
@@ -979,7 +979,7 @@ spec:
 # Description: Container Failure：Shadow Fallback ExitCode
 ################################
 # Here the code -8000 is just used to represent all undefined negative exitcodes in this spec,
-# and the specific exitcode should always override it to expose outside.
+# and the specific undefined exitcode should always override it to expose outside.
 - code: -8000
   phrase: CONTAINER_UNKNOWN_YARN_EXIT_STATUS
   issuer: PAI_YARN
