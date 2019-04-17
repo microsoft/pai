@@ -193,8 +193,14 @@ const Home = () => {
   );
 
   const showLoginModal = useCallback(
-    () => setLoginModal(true),
-    [],
+      () => {
+        if (config.authnMethod === 'basic') {
+          setLoginModal(true);
+        } else {
+          location.href = config.restServerUri + '/api/v1/auth/oidc/login?callback=' + encodeURIComponent(location.href);
+        }
+      },
+      [],
   );
 
   const dismissLoginModal = useCallback(
