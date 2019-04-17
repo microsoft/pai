@@ -23,6 +23,7 @@ import com.microsoft.frameworklauncher.common.model.UserContainerExitSpec;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.testutils.YamlTestUtils;
+import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,16 +48,16 @@ public class FrameworkExitTest {
     // Predefined ExitCode
     Assert.assertEquals(
         FrameworkExitCode.CONTAINER_EXPIRED.toInt(),
-        FrameworkExitSpec.lookupExitCode(-100, "XXX Container expired since it was unused XXX"));
+        FrameworkExitSpec.lookupExitCode(ContainerExitStatus.ABORTED, "XXX Container expired since it was unused XXX"));
     Assert.assertEquals(
         FrameworkExitCode.CONTAINER_NODE_LOST.toInt(),
-        FrameworkExitSpec.lookupExitCode(-100, "XXX Container released on a *lost* node XXX"));
+        FrameworkExitSpec.lookupExitCode(ContainerExitStatus.ABORTED, "XXX Container released on a *lost* node XXX"));
     Assert.assertEquals(
         FrameworkExitCode.CONTAINER_ABORTED.toInt(),
-        FrameworkExitSpec.lookupExitCode(-100, "XXX"));
+        FrameworkExitSpec.lookupExitCode(ContainerExitStatus.ABORTED, "XXX"));
     Assert.assertEquals(
         FrameworkExitCode.CONTAINER_ABORTED.toInt(),
-        FrameworkExitSpec.lookupExitCode(-100, null));
+        FrameworkExitSpec.lookupExitCode(ContainerExitStatus.ABORTED, null));
     Assert.assertEquals(
         FrameworkExitCode.SUCCEEDED.toInt(),
         FrameworkExitSpec.lookupExitCode(0, null));
