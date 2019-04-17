@@ -136,7 +136,7 @@ export default class TaskRoleContainerList extends React.Component {
       // res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
       // res.push('# Step 4: Connect to the container:');
       // res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
-      res.push('# Run the following command and run it in a shell terminal to connect to the container:');
+      res.push('# Run the following command in a shell terminal to connect to the container:');
       res.push(`wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName} &&\\`);
       res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName} &&\\`);
       res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
