@@ -96,7 +96,7 @@
     "winston": "~2.4.0"
   },
   "scripts": {
-    "lint": "eslint --ext .js --ext .jsx src --fix",
+    "lint": "eslint --ext .js --ext .jsx src",
     "test": "npm run lint",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
