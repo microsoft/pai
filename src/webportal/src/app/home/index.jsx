@@ -76,7 +76,7 @@ const Index = () => {
   );
 
   return (
-    <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn)}>
+    <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn, FontClassNames.medium)}>
       {/* top */}
       <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
         <div className={c(FontClassNames.large, t.white)}>

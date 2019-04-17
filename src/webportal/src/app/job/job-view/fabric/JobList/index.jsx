@@ -112,13 +112,30 @@ export default function JobList() {
     });
   }, [allJobs]);
 
+  const setQueryFilter = () => {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    let flag = false;
+    const queryFilter = new Filter();
+    if (query['vcName']) {
+      queryFilter.virtualClusters = new Set(query['vcName']);
+      flag = true;
+    }
+    if (query['status']) {
+      queryFilter.statuses = new Set([query['status']]);
+      flag = true;
+    }
+    if (query['user']) {
+      queryFilter.users = new Set([query['user']]);
+      flag = true;
+    }
+    if (flag) {
+      setFilter(queryFilter);
+    }
+  };
+
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
-    const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (query['vcName']) {
-      const {keyword, users, virtualClusters, statuses} = filter;
-      setFilter(new Filter(keyword, users, virtualClusters.add(query['vcName']), statuses));
-    }
+    setQueryFilter();
     fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {

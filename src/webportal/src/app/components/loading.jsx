@@ -33,6 +33,17 @@ export const Loading = () => (
 );
 
 export const SpinnerLoading = () => (
+  <div className={c(t.w100, t.h100)}>
+    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
+      <div className={c(t.flex, t.itemsCenter)}>
+        <Spinner size={SpinnerSize.large} />
+        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+      </div>
+    </div>
+  </div>
+);
+
+export const MaskSpinnerLoading = () => (
   <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>

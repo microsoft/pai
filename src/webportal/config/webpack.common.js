@@ -32,6 +32,7 @@ const version = require('../package.json').version;
 const FABRIC_DIR = [
   path.resolve(__dirname, '../src/app/job/job-view/fabric'),
   path.resolve(__dirname, '../src/app/home'),
+  path.resolve(__dirname, '../src/app/components'),
   path.resolve(__dirname, '../node_modules/tachyons'),
 ];
 
@@ -53,6 +54,7 @@ function generateHtml(opt) {
 const config = (env, argv) => ({
   entry: {
     'index': './src/app/home/index.jsx',
+    'home': './src/app/home/home.jsx',
     'layout': './src/app/layout/layout.component.js',
     'register': './src/app/user/user-register/user-register.component.js',
     'userView': './src/app/user/user-view/user-view.component.js',
@@ -130,35 +132,83 @@ const config = (env, argv) => ({
         test: /\.(css|scss)$/,
         include: FABRIC_DIR,
         use: [
-          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           {
             loader: 'css-loader',
             options: {
               url: true,
-              minimize: true,
               sourceMap: true,
+              importLoaders: 2,
               modules: true,
               camelCase: true,
               localIdentName: '[name]-[local]--[hash:base64:5]',
             },
           },
-          'sass-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('postcss-css-variables')({preset: 'advanced'}),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
         test: /\.(css|scss)$/,
         exclude: FABRIC_DIR,
         use: [
-          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           {
             loader: 'css-loader',
             options: {
               url: true,
-              minimize: true,
+              sourceMap: true,
+              importLoaders: 2,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('postcss-css-variables')({preset: 'advanced'}),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
               sourceMap: true,
             },
           },
-          'sass-loader',
         ],
       },
       {
@@ -220,6 +270,10 @@ const config = (env, argv) => ({
       filename: 'index.html',
       chunks: ['index'],
       template: './src/app/home/index.ejs',
+    }),
+    generateHtml({
+      filename: 'home.html',
+      chunks: ['layout', 'home'],
     }),
     generateHtml({
       filename: 'register.html',

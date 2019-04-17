@@ -24,7 +24,7 @@ import React from 'react';
 
 import t from '../../../../../components/tachyons.css';
 
-import {statusColorMapping} from '../util';
+import {statusColorMapping} from '../../../../../components/theme';
 
 export const Badge = ({children, className}) => (
   <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>

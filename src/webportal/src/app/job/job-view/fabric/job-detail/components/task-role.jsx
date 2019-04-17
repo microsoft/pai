@@ -25,8 +25,8 @@ import t from '../../../../../components/tachyons.css';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
-import {statusColorMapping} from '../util';
 import TaskRoleContainerList from './task-role-container-list';
+import {statusColorMapping} from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
