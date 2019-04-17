@@ -67,23 +67,6 @@ def get_ip(ip_port):
     return ip_port
 
 
-class VcUsage(object):
-    def __init__(self, user, vc, cpu, mem, gpu, time=None):
-        """ user/vc is string, cpu/mem/gpu is int
-        cpu is virtual core in hadoop,
-        mem is in byte,
-        gpu is the number of gpu card """
-        self.user = user
-        self.vc = vc
-        self.cpu = cpu
-        self.mem = mem
-        self.gpu = gpu
-        if time is not None:
-            self.time = int(time)
-        else:
-            self.time = int(datetime.datetime.timestamp(datetime.datetime.now()))
-
-
 class JobInfo(object):
     def __init__(self, job_count=0, elapsed_time=0, cpu_sec=0, mem_sec=0, gpu_sec=0,
             user="unknown", vc="unknown", start_time=0, finished_time=0, retries=0,
@@ -234,17 +217,6 @@ class DB(object):
     CREATE_FRAMEWORK_NAME_INDEX = "CREATE INDEX IF NOT EXISTS framework_name_index ON frameworks (name);"
     CREATE_FRAMEWORK_TIME_INDEX = "CREATE INDEX IF NOT EXISTS framework_time_index ON frameworks (start_time, finished_time);"
 
-    # mem here is in byte, not MB
-    CREATE_VC_USAGE_TABLE = """CREATE TABLE IF NOT EXISTS vc_usage (
-                            username text NOT NULL,
-                            vc text NOT NULL,
-                            cpu integer NOT NULL,
-                            mem integer NOT NULL,
-                            gpu integer NOT NULL,
-                            time integer NOT NULL
-                            )"""
-    CREATE_VC_TIME_INDEX = "CREATE INDEX IF NOT EXISTS vc_time_index ON vc_usage (time);"
-
     def __init__(self, db_path):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
@@ -255,43 +227,7 @@ class DB(object):
         cursor.execute(DB.CREATE_FRAMEWORKS_TABLE)
         cursor.execute(DB.CREATE_FRAMEWORK_NAME_INDEX)
         cursor.execute(DB.CREATE_FRAMEWORK_TIME_INDEX)
-        cursor.execute(DB.CREATE_VC_USAGE_TABLE)
-        cursor.execute(DB.CREATE_VC_TIME_INDEX)
         self.conn.commit()
-
-
-def get_vc_usage(yarn_url):
-    scheduler_url = urllib.parse.urljoin(yarn_url, "/ws/v1/cluster/scheduler")
-    result = []
-
-    obj = request_with_error_handling(scheduler_url)
-
-    if obj.get("scheduler") is None:
-        return result
-
-    scheduler_info = obj["scheduler"]["schedulerInfo"]
-
-    for queue in scheduler_info["queues"]["queue"]:
-        queue_name = queue["queueName"]
-
-        users = walk_json_field_safe(queue, "users", "user")
-        if users is not None:
-            for user in users:
-                username = user["username"]
-
-                cpu = mem = gpu = 0
-                if user.get("resourcesUsed") is not None:
-                    cpu += user["resourcesUsed"].get("vCores", 0)
-                    mem += user["resourcesUsed"].get("memory", 0) * 1024 * 1024
-                    gpu += user["resourcesUsed"].get("GPUs", 0)
-                if user.get("AMResourceUsed") is not None:
-                    cpu += user["AMResourceUsed"].get("vCores", 0)
-                    mem += user["AMResourceUsed"].get("memory", 0) * 1024 * 1024
-                    gpu += user["AMResourceUsed"].get("GPUs", 0)
-
-                result.append(VcUsage(username, queue_name, cpu, mem, gpu))
-
-    return result
 
 
 def get_yarn_apps(yarn_url):
@@ -347,20 +283,6 @@ def get_frameworks(launcher_url):
 def refresh_cache(database, yarn_url, launcher_url):
     db = DB(database)
 
-    vc_usages = get_vc_usage(yarn_url)
-    logger.info("get %d of usage from yarn", len(vc_usages))
-
-    with db.conn:
-        cursor = db.conn.cursor()
-
-        for usage in vc_usages:
-            cursor.execute("""INSERT INTO vc_usage(username,vc,cpu,mem,gpu,time)
-                            VALUES(?,?,?,?,?,?)""",
-                            (usage.user, usage.vc, usage.cpu,
-                                usage.mem, usage.gpu, usage.time))
-
-        db.conn.commit()
-
     apps = get_yarn_apps(yarn_url)
     logger.info("get %d of apps from yarn", len(apps))
 
@@ -409,31 +331,6 @@ def refresh_cache(database, yarn_url, launcher_url):
                                     framework["content"]))
 
         db.conn.commit()
-
-
-def get_vc_report(database, since, until):
-    db = DB(database)
-
-    with db.conn:
-        cursor = db.conn.cursor()
-        cursor.execute("""SELECT username,vc,cpu,mem,gpu FROM vc_usage
-                        WHERE time>? AND time<?""",
-                        (since, until))
-        result = cursor.fetchall()
-
-    logger.info("get %d vc usage entries", len(result))
-    agg = collections.defaultdict(lambda : collections.defaultdict(lambda :[0, 0, 0]))
-    for username, vc, cpu, mem, gpu in result:
-        c, m, g = agg[username][vc]
-        agg[username][vc] = [c + cpu, m + mem, g + gpu]
-
-    result = []
-
-    for username, vcs in agg.items():
-        for vc, val in vcs.items():
-            result.append(VcUsage(username, vc, val[0], val[1], val[2]))
-
-    return result
 
 
 # https://github.com/Microsoft/pai/blob/pai-0.9.y/src/rest-server/src/models/job.js#L45
@@ -646,8 +543,6 @@ def delete_old_data(database, days):
 
     with db.conn:
         cursor = db.conn.cursor()
-        cursor.execute("""DELETE FROM vc_usage WHERE time<?""",
-                        (ago,))
 
         # should not delete entries if finished_time is 0, they are running apps
         cursor.execute("""DELETE FROM apps WHERE finished_time<? AND finished_time!=0""",
@@ -661,15 +556,6 @@ def delete_old_data(database, days):
 
 
 def gen_report(database, prometheus_url, path, since, until):
-    vc_report = get_vc_report(database, since, until)
-    vc_file = "%s_vc.csv" % path
-    with open(vc_file, "w") as f:
-        f.write("user,vc,cpu,mem,gpu\n")
-        for r in vc_report:
-            # csv's int should not too large, so convert into MB
-            mem = int(r.mem / 1024 / 1024)
-            f.write("%s,%s,%d,%d,%d\n" % (r.user, r.vc, r.cpu, mem, r.gpu))
-
     job_report, processed_apps = get_job_report(database, since, until)
     job_file = "%s_job.csv" % path
     with open(job_file, "w") as f:
@@ -724,8 +610,8 @@ def gen_report(database, prometheus_url, path, since, until):
         for r in alert_report:
             f.write("%s\n" % r)
 
-    logger.info("write csv file into %s, %s, %s and %s",
-            vc_file, job_file, job_raw_file, alert_file)
+    logger.info("write csv file into %s, %s and %s",
+            job_file, job_raw_file, alert_file)
 
 def main(args):
     if args.action == "refresh":
