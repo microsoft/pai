@@ -72,7 +72,7 @@ function TopBar() {
     const users = Object.create(null);
     const virtualClusters = Object.create(null);
     const statuses = Object.create(null);
-  
+
     fetch(`${webportalConfig.restServerUri}/api/v1/user`)
       .then((response) => {
         return response.json();
@@ -96,7 +96,7 @@ function TopBar() {
       }).catch((err) => {
         alert(err.message);
       });
-      
+
     allStatuses.forEach(function(status) {
       statuses[status] = true;
     });

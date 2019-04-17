@@ -92,7 +92,7 @@ export default function JobList() {
           alert(err.message);
         });
     }
-  }, [])
+  }, []);
 
   const {current: applyFilter} = useRef(debounce((allJobs, /** @type {Filter} */filter) => {
     setFilteredJobs(filter.apply(allJobs || []));
