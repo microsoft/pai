@@ -29,17 +29,20 @@ if (authnConfig.authnMethod === 'OIDC') {
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
 }
 
-// define the schema for azure
+// define the schema for authn
 const authnSchema = Joi.object().keys({
   authnMethod: Joi.string().empty('')
     .valid('OIDC', 'basic'),
+  OIDCConfig: Joi.object()
+    .when('authnMethod', {is: 'OIDC', then: Joi.object().pattern(/\w+/, Joi.required())})
+    .when('authnMethod', {is: 'basic', then: Joi.allow(null)})
 }).required();
 
 
-const {error, value} = Joi.validate(azureData, azureSchema);
+const {error, value} = Joi.validate(authnConfig, authnSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }
-azureData = value;
+authnConfig = value;
 
-module.exports = azureData;
+module.exports = authnConfig;
