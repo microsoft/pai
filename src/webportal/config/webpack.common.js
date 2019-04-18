@@ -158,7 +158,7 @@ const config = (env, argv) => ({
               ident: 'postcss',
               plugins: (loader) => [
                 require('postcss-import')({root: loader.resourcePath}),
-                require('postcss-css-variables')({preset: 'advanced'}),
+                require('autoprefixer')(),
                 require('cssnano')(),
               ],
             },
@@ -195,10 +195,10 @@ const config = (env, argv) => ({
             loader: 'postcss-loader',
             options: {
               sourceMap: true,
-              ident: 'postcss',
+              ident: 'postcss2',
               plugins: (loader) => [
                 require('postcss-import')({root: loader.resourcePath}),
-                require('postcss-css-variables')({preset: 'advanced'}),
+                require('autoprefixer')(),
                 require('cssnano')(),
               ],
             },

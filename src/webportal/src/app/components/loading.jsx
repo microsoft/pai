@@ -20,7 +20,7 @@ import c from 'classnames';
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 import React from 'react';
 
-import t from './tachyons.css';
+import t from './tachyons.scss';
 
 import loadingGif from '../../assets/img/loading.gif';
 
@@ -33,12 +33,10 @@ export const Loading = () => (
 );
 
 export const SpinnerLoading = () => (
-  <div className={c(t.w100, t.h100)}>
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
-      <div className={c(t.flex, t.itemsCenter)}>
-        <Spinner size={SpinnerSize.large} />
-        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
-      </div>
+  <div className={c(t.flex, t.itemsCenter, t.justifyCenter)} style={{minHeight: 'inherit'}}>
+    <div className={c(t.flex, t.itemsCenter)}>
+      <Spinner size={SpinnerSize.large} />
+      <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
     </div>
   </div>
 );

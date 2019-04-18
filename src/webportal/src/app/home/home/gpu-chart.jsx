@@ -26,7 +26,7 @@ import React, {useEffect, useRef} from 'react';
 import Card from './card';
 import {statusColorMapping} from '../../components/theme';
 
-import t from '../../components/tachyons.css';
+import t from '../../components/tachyons.scss';
 
 const GpuChart = ({className, gpuPerNode}) => {
   const maxVal = Math.max(...Object.values(gpuPerNode));
@@ -72,6 +72,10 @@ const GpuChart = ({className, gpuPerNode}) => {
               display: true,
               labelString: '#Node',
             },
+            ticks: {
+              max: Math.max(...data) * 1.2,
+              display: false,
+            },
             gridLines: {
               display: false,
             },
@@ -89,7 +93,7 @@ const GpuChart = ({className, gpuPerNode}) => {
 
   return (
     <Card className={className}>
-      <Stack styles={{root: [t.h100]}} gap='l2'>
+      <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             Available GPU nodes

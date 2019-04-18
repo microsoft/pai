@@ -31,7 +31,7 @@ import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
 import {checkToken} from '../user/user-auth/user-auth.component';
 
-import t from 'tachyons/css/tachyons.css';
+import t from 'tachyons-sass/tachyons.scss';
 
 const loginTarget = '/home.html';
 

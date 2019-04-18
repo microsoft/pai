@@ -21,7 +21,7 @@ import {IconButton} from 'office-ui-fabric-react/lib/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../../../../components/tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';

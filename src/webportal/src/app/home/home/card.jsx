@@ -19,9 +19,9 @@ import PropTypes from 'prop-types';
 import {ColorClassNames, Stack} from 'office-ui-fabric-react';
 import React from 'react';
 
-const Card = ({className, children}) => (
+const Card = ({className, style, children}) => (
   <Stack
-    styles={{root: [ColorClassNames.whiteBackground, className]}}
+    styles={{root: [ColorClassNames.whiteBackground, className, style]}}
     padding='l1 l2'
   >
     {children}
@@ -30,6 +30,7 @@ const Card = ({className, children}) => (
 
 Card.propTypes = {
   className: PropTypes.string,
+  style: PropTypes.object,
   children: PropTypes.node,
 };
 

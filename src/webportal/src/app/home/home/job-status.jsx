@@ -18,59 +18,54 @@
 import c from 'classnames';
 import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
-import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton} from 'office-ui-fabric-react';
+import querystring from 'querystring';
+import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme} from 'office-ui-fabric-react';
 import React from 'react';
 
 import Card from './card';
-import {getHumanizedJobStateString} from '../../components/util';
+import {getHumanizedJobStateString} from '../../components/util/job';
 
-import t from '../../components/tachyons.css';
+import t from '../../components/tachyons.scss';
 
-const StatusItem = ({icon, name, count, link}) => (
-  <Stack
-    horizontal
-    horizontalAlign='space-between'
-    verticalAlign='center'
-  >
-    <Stack.Item>
-      <Stack
-        horizontal
-        verticalAlign='center'
-        gap='l2'
-      >
+const StatusItem = ({className, icon, name, count, link}) => {
+  const {spacing} = getTheme();
+  return (
+    <Stack
+      styles={{root: [className]}}
+      horizontal
+      horizontalAlign='space-between'
+      verticalAlign='center'
+      padding='s1'
+    >
       <Stack.Item>
-        <Stack
-          horizontal
-          verticalAlign='center'
-          gap='m'
-        >
-          <Stack.Item>
+        <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
+          <div>
             <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
-          </Stack.Item>
-          <Stack.Item>
-            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.xLarge)} style={{width: '10rem'}}>
+          </div>
+          <div>
+            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '10rem', marginLeft: spacing.m}}>
               {name}
             </div>
-          </Stack.Item>
-        </Stack>
-        </Stack.Item>
-        <Stack.Item>
-          <div className={c(FontClassNames.xLarge)}>
-            {count}
           </div>
-        </Stack.Item>
-      </Stack>
-    </Stack.Item>
-    <Stack.Item>
-      <DefaultButton
-        text='View all'
-        href={link}
-      />
-    </Stack.Item>
-  </Stack>
-);
+          <div>
+            <div className={c(FontClassNames.xLarge)} style={{marginLeft: spacing.l3}}>
+              {count}
+            </div>
+          </div>
+        </div>
+      </Stack.Item>
+      <Stack.Item>
+        <DefaultButton
+          text='View all'
+          href={link}
+        />
+      </Stack.Item>
+    </Stack>
+  );
+};
 
 StatusItem.propTypes = {
+  className: PropTypes.string,
   icon: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
@@ -92,23 +87,63 @@ const JobStatus = ({className, jobs}) => {
   }
   return (
     <Card className={className}>
-      <Stack gap='l2'>
+      <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             My job status
           </div>
         </Stack.Item>
         <Stack.Item>
-          <Stack gap='m'>
-            <StatusItem icon='Clock' name='Waiting' count={waiting} link='/job-list.html?status=Waiting' />
-            <hr className={t.ma0} />
-            <StatusItem icon='Running' name='Running' count={running} link='/job-list.html?status=Running' />
-            <hr className={t.ma0} />
-            <StatusItem icon='ErrorBadge' name='Stopped' count={stopped} link='/job-list.html?status=Stopped' />
-            <hr className={t.ma0} />
-            <StatusItem icon='Blocked' name='Failed' count={failed} link='/job-list.html?status=Failed' />
-            <hr className={t.ma0} />
-            <StatusItem icon='Completed' name='Succeeded' count={succeeded} link='/job-list.html?status=Succeeded' />
+          <Stack>
+            <StatusItem
+              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+              icon='Clock'
+              name='Waiting'
+              count={waiting}
+              link={`/job-list.html?${querystring.stringify({
+                status: 'Waiting',
+                user: cookies.get('user'),
+              })}`}
+            />
+            <StatusItem
+              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+              icon='Running'
+              name='Running'
+              count={running}
+              link={`/job-list.html?${querystring.stringify({
+                status: 'Running',
+                user: cookies.get('user'),
+              })}`}
+            />
+            <StatusItem
+              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+              icon='ErrorBadge'
+              name='Stopped'
+              count={stopped}
+              link={`/job-list.html?${querystring.stringify({
+                status: 'Stopped',
+                user: cookies.get('user'),
+              })}`}
+            />
+            <StatusItem
+              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+              icon='Blocked'
+              name='Failed'
+              count={failed}
+              link={`/job-list.html?${querystring.stringify({
+                status: 'Failed',
+                user: cookies.get('user'),
+              })}`}
+            />
+            <StatusItem
+              icon='Completed'
+              name='Succeeded'
+              count={succeeded}
+              link={`/job-list.html?${querystring.stringify({
+                status: 'Succeeded',
+                user: cookies.get('user'),
+              })}`}
+            />
           </Stack>
         </Stack.Item>
       </Stack>

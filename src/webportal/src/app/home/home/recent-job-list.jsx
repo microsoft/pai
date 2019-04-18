@@ -17,23 +17,24 @@
 
 import c from 'classnames';
 import {isEmpty} from 'lodash';
-import {Link, FontClassNames, PrimaryButton, DefaultButton, Stack} from 'office-ui-fabric-react';
+import {Link, PrimaryButton, DefaultButton, Stack, getTheme, FontClassNames, DetailsList, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import Card from './card';
-import {theme} from '../../components/theme';
+import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
 
-import t from '../../components/tachyons.css';
+import t from '../../components/tachyons.scss';
+import StatusBadge from '../../components/status-badge';
 
 const Header = ({jobs}) => (
-  <div className={c(t.flex, t.justifyBetween)}>
+  <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
     <div>
       My rencent jobs
     </div>
     {!isEmpty(jobs) && (
       <div>
-        <Link href='/job-list.html'>More</Link>
+        <Link href={`/job-list.html?user=${cookies.get('user')}`}>More</Link>
       </div>
     )}
   </div>
@@ -43,47 +44,122 @@ Header.propTypes = {
   jobs: PropTypes.array.isRequired,
 };
 
-const DummyContent = () => (
-  <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
-    <div className={c(t.overflowAuto, t.w100)} style={{maxHeight: '100%', padding: theme.spacing['m']}}>
-      <div className={c(t.tc, FontClassNames.mediumPlus)}>
-        No rencent resources to display
+const DummyContent = () => {
+  const {spacing} = getTheme();
+  return (
+    <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
+      <div className={c(t.overflowAuto, t.w100)} style={{maxHeight: '100%', padding: spacing.m}}>
+        <div className={c(t.tc, FontClassNames.large)}>
+          No rencent resources to display
+        </div>
+        <div className={c(t.tc, FontClassNames.large)} style={{marginTop: spacing.l2}}>
+          {`As you visit jobs, they'll be listed in Recently used jobs for quick and easy access.`}
+        </div>
+        <Stack
+          styles={{root: [{marginTop: spacing.l3}]}}
+          horizontal
+          horizontalAlign='center'
+          gap='s1'
+        >
+          <Stack.Item>
+            <PrimaryButton
+              styles={{root: [{width: 120}]}}
+              text='Create a job'
+              href='submit.html'
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <DefaultButton
+              text='Tutorial'
+              styles={{root: [{width: 120}]}}
+              href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md'
+              target='_blank'
+            />
+          </Stack.Item>
+        </Stack>
       </div>
-      <div className={c(t.tc, FontClassNames.mediumPlus)} style={{marginTop: theme.spacing['l1']}}>
-        {`As you visit jobs, they'll be listed in Recently used jobs for quick and easy access.`}
-      </div>
-      <Stack
-        styles={{root: [{marginTop: theme.spacing['l1']}]}}
-        horizontal
-        horizontalAlign='center'
-        gap='s1'
-      >
-        <Stack.Item>
-          <PrimaryButton
-            styles={{root: [{width: 120}]}}
-            text='Create a job'
-            href='submit.html'
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <DefaultButton
-            text='Tutorial'
-            styles={{root: [{width: 120}]}}
-            href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md'
-            target='_blank'
-          />
-        </Stack.Item>
-      </Stack>
     </div>
-  </div>
-);
+  );
+};
+
+const jobListColumns = [
+  {
+    key: 'name',
+    minWidth: 200,
+    name: 'Name',
+    fieldName: 'name',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(job) {
+      const {legacy, name, namespace, username} = job;
+      const href = legacy
+        ? `/job-detail.html?jobName=${name}`
+        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+      return <Link href={href}>{name}</Link>;
+    },
+  },
+  {
+    key: 'modified',
+    minWidth: 150,
+    name: 'Date Modified',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(job) {
+      return getJobModifiedTimeString(job);
+    },
+  },
+  {
+    key: 'duration',
+    minWidth: 120,
+    name: 'Duration',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(job) {
+      return getJobDurationString(job);
+    },
+  },
+  {
+    key: 'virtualCluster',
+    minWidth: 100,
+    name: 'Virtual Cluster',
+    fieldName: 'virtualCluster',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+  },
+  {
+    key: 'status',
+    minWidth: 100,
+    name: 'Status',
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(job) {
+      return <StatusBadge status={getHumanizedJobStateString(job)} />;
+    },
+  },
+];
 
 const Content = ({jobs}) => {
   if (true && isEmpty(jobs)) {
     return <DummyContent />;
   } else {
+    const items = jobs
+      .slice()
+      .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
+      .slice(0, 10);
     return (
-      <DummyContent />
+      <div className={c(t.h100, t.overflowYAuto)}>
+        <DetailsList
+          columns={jobListColumns}
+          disableSelectionZone
+          items={items}
+          layoutMode={DetailsListLayoutMode.justified}
+          selectionMode={SelectionMode.none}
+        />
+      </div>
     );
   }
 };
@@ -91,11 +167,11 @@ const Content = ({jobs}) => {
 const RecentJobList = ({className, jobs}) => {
   return (
     <Card className={c(t.h100)}>
-      <Stack styles={{root: [t.h100]}}>
+      <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
           <Header jobs={jobs} />
         </Stack.Item>
-        <Stack.Item styles={{root: [{height: 0}]}} grow>
+        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
           <Content jobs={jobs} />
         </Stack.Item>
       </Stack>

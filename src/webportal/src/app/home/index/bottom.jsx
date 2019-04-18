@@ -20,11 +20,11 @@ import c from 'classnames';
 import {Link} from 'office-ui-fabric-react';
 import React from 'react';
 
-import t from 'tachyons/css/tachyons.css';
+import t from 'tachyons-sass/tachyons.scss';
 
 const Bottom = () => (
-  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flex, t.flexWrap)}>
-    <div className={c(t.w33, t.w100M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flexL)}>
+    <div className={c(t.w33L, t.w100, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
         <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Submit a hello-world job
@@ -41,7 +41,7 @@ const Bottom = () => (
         Learn more
       </Link>
     </div>
-    <div className={c(t.w34, t.w100M, t.mt5M, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+    <div className={c(t.w33L, t.w100, t.mt0L, t.mt5, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
         <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Understand Job
@@ -58,7 +58,7 @@ const Bottom = () => (
         Learn more
       </Link>
     </div>
-    <div className={c(t.w33, t.w100M, t.mt5M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
+    <div className={c(t.w33L, t.w100, t.mt0L, t.mt5, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
       <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
         <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Use VS Code Extension to work with Jobs

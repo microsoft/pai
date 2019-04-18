@@ -21,7 +21,7 @@ import {Modal, TextField, PrimaryButton, MessageBar, MessageBarType} from 'offic
 import PropTypes from 'prop-types';
 import React, {useRef, useCallback} from 'react';
 
-import t from 'tachyons/css/tachyons.css';
+import t from 'tachyons-sass/tachyons.scss';
 
 const LoginModal = ({isOpen, lock, error, onDismiss, onLogin}) => {
   const usernameRef = useRef(null);

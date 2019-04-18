@@ -20,9 +20,11 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import c from 'classnames';
-import {initializeIcons, FontClassNames, Stack} from 'office-ui-fabric-react';
+import {isEmpty} from 'lodash';
+import {initializeIcons, Stack, getTheme} from 'office-ui-fabric-react';
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
+import styled from 'styled-components';
 
 import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
@@ -32,7 +34,7 @@ import RecentJobList from './home/recent-job-list';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
 
-import t from '../components/tachyons.css';
+import t from '../components/tachyons.scss';
 
 initTheme();
 initializeIcons();
@@ -46,50 +48,71 @@ const Home = () => {
   const [gpuPerNode, setGpuPerNode] = useState(null);
 
   useEffect(() => {
-    Promise.all([
-      listJobs().then(setJobs),
-      getUserInfo().then(setUserInfo),
-      listVirtualClusters().then(setVirtualClusters),
-      getTotalGpu().then(setTotalGpu),
-      getAvailableGpuPerNode().then(setGpuPerNode),
-    ]).then(() => setLoading(false)).catch(alert);
+    if (!isEmpty(cookies.get('user'))) {
+      Promise.all([
+        listJobs().then(setJobs),
+        getUserInfo().then(setUserInfo),
+        listVirtualClusters().then(setVirtualClusters),
+        getTotalGpu().then(setTotalGpu),
+        getAvailableGpuPerNode().then(setGpuPerNode),
+      ]).then(() => setLoading(false)).catch(alert);
+    } else {
+      // layout.component.js will redirect user to index page.
+    }
   }, []);
 
   if (loading) {
     return <SpinnerLoading />;
   } else {
-    // about height 0: https://github.com/philipwalton/flexbugs/issues/197#issuecomment-378908438
+    const {spacing} = getTheme();
+
+    const ResponsiveGap = styled.div` {
+      height: 0;
+      width: ${spacing.l2};
+      @media screen and (max-width: 64em) {
+        height: ${spacing.l2};
+        width: 0;
+      }
+    }`;
+
+    const ResponsiveItem = styled.div`
+      width: 33%;
+      height: auto;
+      @media screen and (max-width: 64em) {
+        width: 100%;
+        height: 32rem;
+      }
+    `;
+
     return (
       <Stack
-        styles={{root: [t.w100, t.h100, FontClassNames.medium]}}
+        styles={{root: [t.w100, t.h100L]}}
         padding='l2'
         gap='l2'
       >
         {/* top */}
-        <Stack.Item grow={0}>
-          <Stack
-            horizontal
-            horizontalAlign='space-evenly'
-            gap='l2'
-          >
-            <Stack.Item styles={{root: [t.w33]}}>
+        <Stack.Item>
+          <div className={c(t.flexL)}>
+            <ResponsiveItem>
               <JobStatus jobs={jobs} />
-            </Stack.Item>
-            <Stack.Item styles={{root: [t.w33]}}>
+            </ResponsiveItem>
+            <ResponsiveGap />
+            <ResponsiveItem>
               <VirtualClusterList
                 className={t.h100}
                 userInfo={userInfo}
                 totalGpu={totalGpu}
                 virtualClusters={virtualClusters}
               />
-            </Stack.Item>
-            <Stack.Item styles={{root: [t.w33]}}>
+            </ResponsiveItem>
+            <ResponsiveGap />
+            <ResponsiveItem>
               <GpuChart gpuPerNode={gpuPerNode} className={t.h100} />
-            </Stack.Item>
-          </Stack>
+            </ResponsiveItem>
+          </div>
         </Stack.Item>
         {/* recent jobs */}
-        <Stack.Item styles={{root: [{height: 0}]}} grow>
+        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
           <RecentJobList className={c(t.h100)} jobs={jobs} />
         </Stack.Item>
       </Stack>

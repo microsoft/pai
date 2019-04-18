@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 
-import t from 'tachyons/css/tachyons.css';
+import t from 'tachyons-sass/tachyons.scss';
 
 const JumbotronBackground = styled.div`
   background-image: url('/assets/img/home-background.svg');

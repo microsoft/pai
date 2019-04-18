@@ -26,7 +26,7 @@ import ReactDOM from 'react-dom';
 import {initializeIcons} from '@uifabric/icons';
 import {FontClassNames} from '@uifabric/styling';
 
-import t from '../../../components/tachyons.css';
+import t from '../../../components/tachyons.scss';
 
 import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
