@@ -19,7 +19,7 @@ package com.microsoft.frameworklauncher.common.exit;
 
 /**
  * Predefined ExitCode for User Framework exit:
- * 1. It should be within range [-8000, -7100], [0, 0] to avoid conflicts with
+ * 1. It should be within range [-7999, -7100], [0, 0] to avoid conflicts with
  *    all the possible Failure ExitCode [1, 255] which is got from User
  *    Container exit and Failure ExitCode [-7099, -1] which is got from YARN.
  *

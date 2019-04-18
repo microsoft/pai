@@ -49,22 +49,22 @@ public class FrameworkExitSpec {
         ContainerExitStatus.INVALID,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container exited with invalid exit status, maybe container initialization failed"));
+        "Container exited with invalid exit status, maybe YARN failed to initialize container environment"));
     spec.put(FrameworkExitCode.CONTAINER_NOT_AVAILABLE_EXIT_STATUS.toInt(), new FrameworkExitInfo(
         -2517,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container exited with not available exit status, maybe container process creation failed"));
+        "Container exited with not available exit status, maybe YARN failed to create container executor process"));
     spec.put(FrameworkExitCode.CONTAINER_NODE_DISKS_FAILED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.DISKS_FAILED,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container early discarded by NM due to local bad disk, maybe no capacity left on the disk"));
+        "Container cannot be launched by YARN due to local bad disk, maybe no disk space left"));
     spec.put(FrameworkExitCode.CONTAINER_PORT_CONFLICT.toInt(), new FrameworkExitInfo(
         -210,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container early discarded by NM due to the request ports conflict"));
+        "Container cannot be launched by YARN due to local port conflict"));
     //// Container Aborted by YARN
     spec.put(FrameworkExitCode.CONTAINER_ABORTED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.ABORTED,
@@ -75,79 +75,79 @@ public class FrameworkExitSpec {
         ContainerExitStatus.ABORTED,
         "Container released on a *lost* node",
         ExitType.TRANSIENT_NORMAL,
-        "Container lost due to node lost, maybe its NM is down for a long time"));
+        "Container lost due to node lost, maybe its YARN NM is down for a long time"));
     spec.put(FrameworkExitCode.CONTAINER_EXPIRED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.ABORTED,
         "Container expired since it was unused",
         ExitType.TRANSIENT_CONFLICT,
-        "Container expired due to it is not launched on NM in time, maybe other containers cannot be allocated in time"));
+        "Container previously allocated is expired due to it is not launched on YARN NM in time, maybe other containers cannot be allocated in time"));
     spec.put(FrameworkExitCode.CONTAINER_ABORTED_ON_AM_RESTART.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.ABORTED,
         "Container of a completed application",
         ExitType.TRANSIENT_CONFLICT,
-        "Container previously allocated is aborted by RM during AM restart, maybe other containers cannot be allocated in time"));
+        "Container previously allocated is aborted by YARN RM during Launcher AM restart, maybe other containers cannot be allocated in time"));
     //// Container Other Failed by YARN
     spec.put(FrameworkExitCode.CONTAINER_PREEMPTED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.PREEMPTED,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container preempted by RM, maybe its queue overused capacity was reclaimed"));
+        "Container preempted by YARN RM, maybe its queue overused resource was reclaimed"));
     spec.put(FrameworkExitCode.CONTAINER_VIRTUAL_MEMORY_EXCEEDED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.KILLED_EXCEEDED_VMEM,
         null,
         ExitType.NON_TRANSIENT,
-        "Container killed due to it exceeded the request virtual memory"));
+        "Container killed by YARN due to it exceeded the request virtual memory"));
     spec.put(FrameworkExitCode.CONTAINER_PHYSICAL_MEMORY_EXCEEDED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.KILLED_EXCEEDED_PMEM,
         null,
         ExitType.NON_TRANSIENT,
-        "Container killed due to it exceeded the request physical memory"));
+        "Container killed by YARN due to it exceeded the request physical memory"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_BY_AM.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.KILLED_BY_APPMASTER,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed by AM"));
+        "Container killed by Launcher AM, maybe allocated container is rejected"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_BY_RM.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.KILLED_BY_RESOURCEMANAGER,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed by RM"));
+        "Container killed by YARN RM, maybe the container is not managed by YARN RM anymore"));
     spec.put(FrameworkExitCode.CONTAINER_KILLED_ON_APP_COMPLETION.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.KILLED_AFTER_APP_COMPLETION,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed due to App completed"));
+        "Container killed by YARN RM due to its app already completed"));
     spec.put(FrameworkExitCode.CONTAINER_EXTERNAL_UTILIZATION_SPIKED.toInt(), new FrameworkExitInfo(
         -200,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed due to external utilization spiked"));
+        "Container killed by YARN due to external utilization spiked"));
     //// Container Failed by Launcher AM
     spec.put(FrameworkExitCode.CONTAINER_NM_LAUNCH_FAILED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.CONTAINER_NM_LAUNCH_FAILED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container failed to launch on NM"));
+        "Container failed to launch on YARN NM"));
     spec.put(FrameworkExitCode.CONTAINER_RM_RESYNC_LOST.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.CONTAINER_RM_RESYNC_LOST.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container lost after RMResynced"));
+        "Container lost after Launcher AM resynced with YARN RM"));
     spec.put(FrameworkExitCode.CONTAINER_RM_RESYNC_EXCEEDED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.CONTAINER_RM_RESYNC_EXCEEDED.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "Container exceeded after RMResynced"));
+        "Container exceeded after Launcher AM resynced with YARN RM"));
     spec.put(FrameworkExitCode.CONTAINER_MIGRATE_TASK_REQUESTED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.CONTAINER_MIGRATE_TASK_REQUESTED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed due to MigrateTaskRequest"));
+        "Container killed by Launcher due to user MigrateTaskRequest"));
     spec.put(FrameworkExitCode.CONTAINER_AGENT_EXPIRED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.CONTAINER_AGENT_EXPIRED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed due to no agent heartbeat is received in time"));
+        "Container killed by Launcher due to no Launcher Agent heartbeat is received in time"));
     /// Container Internal Error is handled by UserContainerExitSpec.
 
 
@@ -158,38 +158,38 @@ public class FrameworkExitSpec {
         FrameworkExitCode.AM_RM_HEARTBEAT_YARN_EXCEPTION.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "AM RM heartbeat failed due to YarnException, maybe App is non-compliant"));
+        "Launcher AM failed to heartbeat with YARN RM due to YarnException, maybe App is non-compliant"));
     spec.put(FrameworkExitCode.AM_RM_HEARTBEAT_IO_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_RM_HEARTBEAT_IO_EXCEPTION.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "AM RM heartbeat failed due to IOException, maybe RM is down"));
+        "Launcher AM failed to heartbeat with YARN RM due to IOException, maybe YARN RM is down"));
     spec.put(FrameworkExitCode.AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "AM RM heartbeat failed due to unknown Exception"));
+        "Launcher AM failed to heartbeat with YARN RM due to unknown Exception"));
     spec.put(FrameworkExitCode.AM_RM_HEARTBEAT_SHUTDOWN_REQUESTED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_RM_HEARTBEAT_SHUTDOWN_REQUESTED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "AM RM heartbeat failed due to ShutdownRequest, maybe AM is not managed by RM anymore"));
+        "Launcher AM failed to heartbeat with YARN RM due to ShutdownRequest, maybe AM is not managed by YARN RM anymore"));
     //// App Failed by Launcher AM
     spec.put(FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "AM failed due to unknown Exception"));
+        "Launcher AM failed due to unknown Exception"));
     spec.put(FrameworkExitCode.AM_NON_TRANSIENT_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_NON_TRANSIENT_EXCEPTION.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "AM failed due to NonTransientException"));
+        "Launcher AM failed due to NonTransientException, maybe App is non-compliant"));
     spec.put(FrameworkExitCode.AM_GANG_ALLOCATION_TIMEOUT.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_GANG_ALLOCATION_TIMEOUT.toInt(),
         null,
         ExitType.TRANSIENT_CONFLICT,
-        "AM failed due to all the requested resource cannot be satisfied in time"));
+        "Launcher AM failed due to all the requested resource cannot be satisfied in time"));
     /// AM External Error is already handled by RM
 
 
@@ -200,33 +200,33 @@ public class FrameworkExitSpec {
         FrameworkExitCode.APP_SUBMISSION_YARN_EXCEPTION.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "Failed to submit App to RM due to YarnException, maybe App is non-compliant"));
+        "Failed to submit App to YARN RM due to YarnException, maybe App is non-compliant"));
     spec.put(FrameworkExitCode.APP_SUBMISSION_IO_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_SUBMISSION_IO_EXCEPTION.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Failed to submit App to RM due to IOException, maybe RM is down"));
+        "Failed to submit App to YARN RM due to IOException, maybe YARN RM is down"));
     spec.put(FrameworkExitCode.APP_SUBMISSION_UNKNOWN_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_SUBMISSION_UNKNOWN_EXCEPTION.toInt(),
         null,
         ExitType.UNKNOWN,
-        "Failed to submit App to RM due to unknown Exception"));
+        "Failed to submit App to YARN RM due to unknown Exception"));
     spec.put(FrameworkExitCode.APP_KILLED_UNEXPECTEDLY.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_KILLED_UNEXPECTEDLY.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "App killed unexpectedly and directly through RM"));
+        "App killed unexpectedly and directly through YARN RM"));
     /// App Failed by Launcher Service
     spec.put(FrameworkExitCode.APP_RM_RESYNC_LOST.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_RM_RESYNC_LOST.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "App lost after RMResynced"));
+        "App lost after Launcher Service resynced with YARN RM"));
     spec.put(FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "App killed due to StopFrameworkRequest"));
+        "App killed due to user StopFrameworkRequest"));
     spec.put(FrameworkExitCode.APP_AM_DIAGNOSTICS_LOST.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_AM_DIAGNOSTICS_LOST.toInt(),
         null,
