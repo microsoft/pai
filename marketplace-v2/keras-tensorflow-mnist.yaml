@@ -1,0 +1,36 @@
+protocolVersion: 2
+name: keras_tensorflow_mnist
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # Keras Tensorflow Backend MNIST Digit Recognition Examples
+  Trains a simple convnet on the MNIST dataset.
+  Gets to 99.25% test accuracy after 12 epochs
+  (there is still a lot of margin for parameter tuning).
+  16 seconds per epoch on a GRID K520 GPU.
+
+  Reference https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py
+
+prerequisites:
+  - protocolVersion: 2
+    name: keras_tensorflow_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example Keras with TensorFlow backend Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/keras).
+    uri : openpai/pai.example.keras.tensorflow
+
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: keras_tensorflow_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - python mnist_cnn.py

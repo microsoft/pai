@@ -399,10 +399,15 @@ jobs are started with the DockerContainerExecutor.
 
 <property>
   <name>yarn.nodemanager.docker-container-executor.script-command</name>
-  <value>cp -r /docker/* /usr/bin/  &amp;&amp; cp /hadoop-configuration-for-jobs/* $HADOOP_CONF_DIR/ </value>
+  <value> trap &quot; &quot; TERM; cp -r /docker/* /usr/bin/  &amp;&amp; cp /hadoop-configuration-for-jobs/* $HADOOP_CONF_DIR/ </value>
+  <description>
+      Image command before launch_container script.
+  </description>
 </property>
-<description>
-     Image command before launch_container script.
-</description>
-  
+
+  <property>
+    <name>yarn.nodemanager.sleep-delay-before-sigkill.ms</name>
+    <value>65000</value>
+  </property>
+
 </configuration>

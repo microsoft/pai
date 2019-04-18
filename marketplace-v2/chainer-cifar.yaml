@@ -1,0 +1,44 @@
+protocolVersion: 2
+name: chainer_cifar
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # Chainer CIFAR Image Classification Example
+  This is an example of a convolutional neural network (convnet) applied to an image classification task using the CIFAR-10 or CIFAR-100 dataset on OpenPAI.
+  The CIFAR datasets can be a good choice for initial experiments with convnets because the size and
+  number of images is small enough to allow typical models to be trained in a reasonable amount of time.
+  However, the classification task is still challenging because natural images are used.
+
+  Specifically, there are 50000 color training images of size 32x32 pixels with either 10 class labels (for CIFAR-10) or 100 class labels (for CIFAR-100).
+  For CIFAR-10, state of the art methods without data augmentation can achieve similar to human-level classification accuracy of around 94%.
+  For CIFAR-100, state of the art without data augmentation is around 20% (DenseNet).
+
+  If you want to run this example on the N-th GPU, pass `--gpu=N` to the script. To run on CPU, pass `--gpu=-1`.
+  For example, to run the default model, which uses CIFAR-10 and GPU 0, `python train_cifar.py`;
+  to run the CIFAR-100 dataset on GPU 1, `python train_cifar.py --gpu=1 --dataset='cifar100'`.
+
+  Reference, https://github.com/chainer/chainer/tree/master/examples/cifar
+
+prerequisites:
+  - protocolVersion: 2
+    name: chainer_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example chainer Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/chainer).
+    uri : openpai/pai.example.chainer
+
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: chainer_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - python ./chainer/examples/cifar/train_cifar.py

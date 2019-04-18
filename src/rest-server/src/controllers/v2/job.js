@@ -17,32 +17,23 @@
 
 
 // module dependencies
-const express = require('express');
-const token = require('../middlewares/token');
-const jobController = require('../controllers/job');
-const jobParam = require('../middlewares/jobV2');
+const status = require('statuses');
+const asyncHandler = require('../../middlewares/v2/asyncHandler');
+const Job = require('../../models/v2/job');
 
-const router = new express.Router();
 
-router.route('/')
-    /** GET /api/v2/jobs - Get list of jobs */
-    .get(jobParam.query, jobController.list)
-
-    /** POST /api/v2/jobs - Update job */
-    .post(token.check, jobParam.submission, jobController.init, jobController.update);
-
-router.route('/:jobName')
-    /** GET /api/v2/jobs/:jobName - Get job status */
-    .get(jobController.get)
-
-    /** PUT /api/v2/jobs/:jobName - Update job */
-    .put(token.check, jobParam.submission, jobController.update)
-
-    /** DELETE /api/v2/jobs/:jobName - Remove job */
-    .delete(token.check, jobController.remove);
-
-/** Load job when API with jobName route parameter is hit */
-router.param('jobName', jobController.load);
+const update = asyncHandler(async (req, res) => {
+  const jobName = res.locals.protocol.name;
+  const userName = req.user.username;
+  const job = new Job(jobName, userName);
+  await job.put(res.locals.protocol, req.body);
+  res.status(status('Accepted')).json({
+    status: status('Accepted'),
+    message: `Update job ${jobName} for user ${userName} successfully.`,
+  });
+});
 
 // module exports
-module.exports = router;
+module.exports = {
+  update,
+};

@@ -1,0 +1,10 @@
+// admin lte's global margin class conflicts with monaco editor
+// picked from webportal
+
+.monaco-hack {
+  :global {
+    .margin {
+      margin: 0;
+    }
+  }
+}

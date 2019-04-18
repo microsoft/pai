@@ -22,7 +22,7 @@ const userLogout = () => {
   cookies.remove('admin');
   cookies.remove('hasGitHubPAT');
   cookies.remove('my-jobs');
-  window.location.replace('/login.html');
+  window.location.replace('/index.html');
 };
 
 module.exports = {userLogout};

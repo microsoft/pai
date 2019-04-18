@@ -99,7 +99,7 @@ function write_error_summary()
     local reason=$(grep "ERROR REASON" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g' | head -c "$MAX_REASON_SIZE")
     local solution=$(grep "ERROR SOLUTION" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g' | head -c "$MAX_SOLUTION_SIZE")
   fi
-  
+
   echo "reason: $reason" >> $RUNTIME_AGG_ERROR_FILE
   echo "solution: $solution" >> $RUNTIME_AGG_ERROR_FILE
   echo "originalUserExitCode: $user_exit_code" >> $RUNTIME_AGG_ERROR_FILE
@@ -243,7 +243,7 @@ function exit_handler()
 
   # After all necessary steps, do a best effort kill here
   pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
-  if [[ $pid != "" && $pid -gt 0 ]]; then
+  if [[ -n "$pid" && "$pid" -gt 0 ]]; then
     kill -15 $pid &&\
       printf "[DEBUG] Docker container $docker_name killed successfully." ||\
       printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
@@ -462,7 +462,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
   if [ $code_dir_size -gt 0 ] && [ $code_dir_size -le 200000000 ]; then
     hdfs dfs -get $PAI_CODE_DIR $code_dir \
       || { echo "Can not get code from HDFS."; exit 1; }
-  elif [ $code_dir_size -eq 0]; then
+  elif [ $code_dir_size -eq 0 ]; then
     # pass when code_dir_size is 0
     :
   elif [ $code_dir_size -lt 0 ]; then
