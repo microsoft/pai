@@ -34,5 +34,7 @@
 {% for str_val in spec_item['solution'] %}
     - "{{ str_val }}"
 {% endfor %}
+{% if 'pattern' is in spec_item -%}
   pattern: "{{ spec_item['pattern'] }}"
+{% endif -%}
 {% endfor -%}
