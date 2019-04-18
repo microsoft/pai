@@ -76,5 +76,20 @@ class TestDockerInspect(base.TestBase):
                 30332)
         self.assertEqual(target_inspect_info, inspect_info)
 
+    def test_adapt_dlts_jobs(self):
+        sample_path = "data/dlts_docker_inspect.json"
+        with open(sample_path, "r") as f:
+            docker_inspect = f.read()
+
+        inspect_info = parse_docker_inspect(docker_inspect)
+        target_inspect_info = InspectResult(
+                "dixu",
+                "0c435eee-d31f-43d5-a1b3-442845fa1d0c",
+                None,
+                None,
+                "GPU-7c583998-b3ff-a885-8979-2d32d334cde4",
+                3533)
+        self.assertEqual(target_inspect_info, inspect_info)
+
 if __name__ == '__main__':
     unittest.main()

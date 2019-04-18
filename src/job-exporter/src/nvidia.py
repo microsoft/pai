@@ -162,11 +162,8 @@ def parse_smi_xml_result(smi):
     return result
 
 def nvidia_smi(histogram, timeout):
-    driver_path = os.environ["NV_DRIVER"]
-    bin_path = os.path.join(driver_path, "bin/nvidia-smi")
-
     try:
-        smi_output = utils.exec_cmd([bin_path, "-q", "-x"],
+        smi_output = utils.exec_cmd(["nvidia-smi", "-q", "-x"],
                 histogram=histogram, timeout=timeout)
 
         return parse_smi_xml_result(smi_output)
