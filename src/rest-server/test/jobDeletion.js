@@ -31,7 +31,7 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
   it('[P-01] should delete job by admin', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test_user',
@@ -62,7 +62,7 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
   it('[P-02] should delete own job', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',
@@ -90,10 +90,41 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
       });
   });
 
+  it('[P-02] should delete with compat API', (done) => {
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/test_user~job')
+      .reply(200,
+        mustache.render(frameworkDetailTemplate, {
+          'frameworkName': 'job',
+          'userName': 'test',
+          'applicationId': 'app1',
+        }
+      ))
+      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
+      .reply(200, {
+        'frameworkDescriptor': {
+          'user': {
+            'name': 'test_user',
+          },
+        },
+      })
+      .delete(`/v1/Frameworks/test_user~job`)
+      .matchHeader('UserName', 'test_user')
+      .reply(202);
+
+    chai.request(server)
+      .delete('/api/v1/user/test_user/jobs/test_user~job')
+      .set('Authorization', `Bearer ${userToken}`)
+      .end((err, res) => {
+        expect(res).to.have.status(202);
+        done();
+      });
+  });
+
   it('[N-01] should forbid non-admin delete other\'s job', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',
@@ -153,7 +184,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
   it('[P] should firbid delete job without namespace', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',

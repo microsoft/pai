@@ -148,15 +148,17 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     }
   };
 
+  const prepareNockForCaseP05 = prepareNockForCaseP03;
+
   const prepareNockForCaseN03 = () => {
     global.nock(global.launcherWebserviceUri)
-      .get('/v1/Frameworks/test~job1')
+      .get('/v1/Frameworks/user1~job1')
       .reply(
         200,
         global.mustache.render(
           global.frameworkDetailTemplate,
           {
-            'frameworkName': 'job1',
+            'frameworkName': 'user1~job1',
             'username': 'test',
             'applicationId': 'app1',
           }
@@ -342,9 +344,9 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.name, 'response job name').equal('new_job');
+        global.chai.expect(res.body.name, 'response job name').equal('user1~new_job');
         done();
       });
   });
@@ -360,9 +362,9 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job_in_vc1');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job_in_vc1');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.name, 'response job name').equal('new_job_in_vc1');
+        global.chai.expect(res.body.name, 'response job name').equal('user1~new_job_in_vc1');
         done();
       });
   });
@@ -376,14 +378,14 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.name, 'response job name').equal('new_job');
+        global.chai.expect(res.body.name, 'response job name').equal('user1~new_job');
         done();
       });
   });
 
-  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+  it('[P-04] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
       .put('/api/v1/user/user1/jobs/new_job')
@@ -392,9 +394,25 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        global.chai.expect(res.body.message, 'response message').equal('update job user1~new_job successfully');
+        done();
+      });
+  });
+
+  it('[P-05] Submit a job using PUT method with compat API', (done) => {
+    prepareNockForCaseP05('user1', 'new_job');
+    global.chai.request(global.server)
+      .put('/api/v1/user/user1/jobs/user1~new_job')
+      .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.name, 'response job name').equal('user1~new_job');
         done();
       });
   });
@@ -432,7 +450,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[N-03] Duplicated job name', (done) => {
     prepareNockForCaseN03();
     global.chai.request(global.server)
-      .post('/api/v1/user/test/jobs')
+      .post('/api/v1/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
@@ -517,7 +535,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[N-09] Duplicated job name using PUT method', (done) => {
     prepareNockForCaseN09();
     global.chai.request(global.server)
-      .put('/api/v1/user/test/jobs/job1')
+      .put('/api/v1/user/user1/jobs/job1')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
