@@ -57,4 +57,5 @@
 {%- if 'pattern' in spec_item %}
   pattern: "{{ spec_item['pattern'] }}"
 {%- endif %}
+
 {%- endfor %}
