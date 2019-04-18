@@ -90,6 +90,12 @@ export function isJobV2(jobConfig) {
   return !isNil(jobConfig.protocolVersion);
 }
 
+export function isClonable(jobConfig) {
+  // disable clone for old yaml job
+  // do not support protocol job at present
+  return !isNil(jobConfig) && isNil(jobConfig.protocol_version) && !isJobV2(jobConfig);
+}
+
 export function getTaskConfig(jobConfig, name) {
   if (jobConfig && jobConfig.taskRoles) {
     if (isJobV2(jobConfig)) {
