@@ -16,21 +16,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-prerequisite:
-  - cluster-configuration
-  - hadoop-batch-job
+{% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
+- code: {{ spec_item['code'] }}
+{%- if 'behavior' in spec_item %}
+  type: {{ spec_item['behavior'] }}
+{%- endif %}
+{%- if 'reason' in spec_item %}
+  description: "{{ spec_item['reason'] }}"
+{%- endif %}
 
-template-list:
-  - yarn-frameworklauncher.yaml
-  - yarn-frameworklauncher-configuration/user-container-exit-spec.yml
-  - delete.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
+{% endfor %}
