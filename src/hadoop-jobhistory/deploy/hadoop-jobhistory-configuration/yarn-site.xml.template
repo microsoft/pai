@@ -129,6 +129,55 @@
     </property>
 
     <property>
+      <description>
+        Error filename pattern, to identify the file in the container's
+        Log directory which contain the container's error log. As error file
+        redirection is done by client/AM and yarn will not be aware of the error
+        file name. YARN uses this pattern to identify the error file and tail
+        the error log as diagnostics when the container execution returns non zero
+        value. Filename patterns are case sensitive and should match the
+        specifications of FileSystem.globStatus(Path) api. If multiple filenames
+        matches the pattern, first file matching the pattern will be picked.
+      </description>
+      <name>yarn.nodemanager.container.stderr.pattern</name>
+      <value>runtime.pai.agg.error</value>
+    </property>
+    <property>
+      <description>
+        Size of the container error file which needs to be tailed, in bytes.
+        To avoid unexpected diagnostics truncation:
+        40KB = 10 * default(4096)
+      </description>
+      <name>yarn.nodemanager.container.stderr.tail.bytes</name>
+      <value>40960</value>
+    </property>
+    <property>
+      <description>
+        Maximum size of contain's diagnostics to keep for relaunching container case.
+        To avoid unexpected diagnostics truncation:
+        100KB = 10 * default(10000)
+      </description>
+      <name>yarn.nodemanager.container-diagnostics-maximum-size</name>
+      <value>100000</value>
+    </property>
+    <property>
+      <description>
+        Defines the limit of the diagnostics message of an application
+        attempt, in kilo characters (character count * 1024).
+        When using ZooKeeper to store application state behavior, it's
+        important to limit the size of the diagnostic messages to
+        prevent YARN from overwhelming ZooKeeper. In cases where
+        yarn.resourcemanager.state-store.max-completed-applications is set to
+        a large number, it may be desirable to reduce the value of this property
+        to limit the total data stored.
+        To avoid unexpected diagnostics truncation:
+        640KB = 10 * default(64)
+      </description>
+      <name>yarn.app.attempt.diagnostics.limit.kc</name>
+      <value>640</value>
+    </property>
+
+    <property>
        <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
        <value>true</value>
     </property>
