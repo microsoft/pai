@@ -237,8 +237,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Select from marketplace</Label>
               <MarketplaceForm
-                uri="https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2"
-                uriType="GitHub"
                 onSelectProtocol={this.onSelectProtocol}
                 disabled={props ? !props.checked : false}
               />
