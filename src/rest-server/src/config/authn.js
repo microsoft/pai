@@ -17,10 +17,18 @@
 
 // module dependencies
 const Joi = require('joi');
+const yaml = require('js-yaml');
+const fs = require('fs');
 
 let authnConfig = {
   authnMethod: process.env.AUTHN_METHOD,
+  OIDCConfig: null,
 };
+
+if (authnConfig.authnMethod === 'OIDC') {
+  authnConfig.OIDCConfig =
+
+}
 
 // define the schema for azure
 const authnSchema = Joi.object().keys({
