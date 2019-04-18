@@ -62,10 +62,7 @@ class TestJobExporter(unittest.TestCase):
     def test_parse_pods_status(self):
         obj = json.loads(self.get_data_test_input("data/pods_list.json"))
 
-        pod_gauge = watchdog.gen_pai_node_gauge()
-        container_gauge = watchdog.gen_pai_container_gauge()
-
-        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+        pod_gauge, container_gauge = watchdog.process_pods_status(obj)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertTrue(len(container_gauge.samples) > 0)
@@ -73,19 +70,19 @@ class TestJobExporter(unittest.TestCase):
     def test_process_nodes_status(self):
         obj = json.loads(self.get_data_test_input("data/nodes_list.json"))
 
-        gauge = watchdog.gen_pai_node_gauge()
+        gauges = watchdog.process_nodes_status(obj)
 
-        watchdog.process_nodes_status(gauge, obj)
+        gauges = watchdog.process_nodes_status(obj)
 
-        self.assertTrue(len(gauge.samples) > 0)
+        self.assertTrue(len(gauges) == 7)
+
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
 
     def test_process_pods_with_no_condition(self):
         obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
 
-        pod_gauge = watchdog.gen_pai_pod_gauge()
-        container_gauge = watchdog.gen_pai_container_gauge()
-
-        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+        pod_gauge, container_gauge = watchdog.process_pods_status(obj)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -95,10 +92,7 @@ class TestJobExporter(unittest.TestCase):
 
         class CustomCollector(object):
             def collect(self):
-                pod_gauge = watchdog.gen_pai_pod_gauge()
-                container_gauge = watchdog.gen_pai_container_gauge()
-
-                watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+                pod_gauge, container_gauge = watchdog.process_pods_status(obj)
 
                 yield pod_gauge
                 yield container_gauge
@@ -107,6 +101,16 @@ class TestJobExporter(unittest.TestCase):
 
         # expect no exception
         prometheus_client.write_to_textfile("/tmp/test_watchdog.prom", registry)
+
+    def test_process_dlws_nodes_status(self):
+        obj = json.loads(self.get_data_test_input("data/dlws_nodes_list.json"))
+
+        gauges = watchdog.process_nodes_status(obj)
+
+        self.assertTrue(len(gauges) == 7)
+
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
 
 if __name__ == '__main__':
     unittest.main()

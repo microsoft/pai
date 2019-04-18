@@ -18,6 +18,18 @@
         "externalID": "10.151.40.4"
       },
       "status": {
+        "capacity": {
+          "alpha.kubernetes.io/nvidia-gpu": "0",
+          "cpu": "16",
+          "memory": "57709692Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "16",
+          "memory": "57607292Ki",
+          "pods": "110",
+          "alpha.kubernetes.io/nvidia-gpu": "0"
+        },
         "conditions": [
           {
             "type": "OutOfDisk",

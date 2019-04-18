@@ -28,6 +28,7 @@ import threading
 import signal
 import faulthandler
 import gc
+import re
 
 import yaml
 import prometheus_client
@@ -75,7 +76,65 @@ def gen_k8s_api_gauge():
     return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
             labels=["error", "host_ip"])
 
+def gen_k8s_node_cpu_available():
+    return GaugeMetricFamily("k8s_node_cpu_available", "cpu available on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_cpu_total():
+    return GaugeMetricFamily("k8s_node_cpu_total", "cpu total on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_mem_available():
+    return GaugeMetricFamily("k8s_node_mem_available", "mem available on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_mem_total():
+    return GaugeMetricFamily("k8s_node_mem_total", "mem total on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_gpu_available():
+    return GaugeMetricFamily("k8s_node_gpu_available", "gpu available on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_gpu_total():
+    return GaugeMetricFamily("k8s_node_gpu_total", "gpu total on k8s node",
+            labels=["host_ip"])
+
 ##### watchdog will generate above metrics
+
+def walk_json_field_safe(obj, *fields):
+    """ for example a=[{"a": {"b": 2}}]
+    walk_json_field_safe(a, 0, "a", "b") will get 2
+    walk_json_field_safe(a, 0, "not_exist") will get None
+    """
+    try:
+        for f in fields:
+            obj = obj[f]
+        return obj
+    except:
+        return None
+
+def convert_to_byte(data):
+    data = data.lower()
+    number = float(re.findall(r"[0-9.]+", data)[0])
+    if "t" in data:
+        return number * 10 ** 12
+    elif "g" in data:
+        return number * 10 ** 9
+    elif "m" in data:
+        return number * 10 ** 6
+    elif "k" in data:
+        return number * 10 ** 3
+    elif "ti" in data:
+        return number * 2 ** 40
+    elif "gi" in data:
+        return number * 2 ** 30
+    elif "mi" in data:
+        return number * 2 ** 20
+    elif "ki" in data:
+        return number * 2 ** 10
+    else:
+        return number
 
 class AtomicRef(object):
     """ a thread safe way to store and get object, should not modify data get from this ref """
@@ -121,7 +180,7 @@ def catch_exception(fn, msg, default, *args, **kwargs):
         return default
 
 
-def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
+def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
@@ -191,17 +250,20 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
             pai_container_gauge.add_metric([service_name, pod_name, container_name,
                 container_state, host_ip, str(ready).lower()], 1)
 
-    return pai_pod_gauge, pai_container_gauge
 
+def process_pods_status(pods_object):
+    pai_pod_gauge = gen_pai_pod_gauge()
+    pai_container_gauge = gen_pai_container_gauge()
 
-def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
                 "catch exception when parsing pod item",
                 None,
-                pai_pod_gauge, pai_container_gauge, item)
+                item,
+                pai_pod_gauge, pai_container_gauge)
 
-    list(map(_map_fn, podsJsonObject["items"]))
+    list(map(_map_fn, pods_object["items"]))
+    return [pai_pod_gauge, pai_container_gauge]
 
 
 def collect_healthz(gauge, histogram, scheme, address, port, url, ca_path, headers):
@@ -217,52 +279,108 @@ def collect_healthz(gauge, histogram, scheme, address, port, url, ca_path, heade
         gauge.add_metric([error, address], 1)
 
 
-def collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
+def collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
+    k8s_gauge = gen_k8s_api_gauge()
+
     collect_healthz(k8s_gauge, api_healthz_histogram,
             api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
 
-def parse_node_item(pai_node_gauge, node):
-    name = node["metadata"]["name"]
+    return [k8s_gauge]
+
+
+def parse_node_item(node, pai_node_gauge,
+        node_cpu_avail, node_cpu_total,
+        node_mem_avail, node_mem_total,
+        node_gpu_avail, node_gpu_total):
+
+    ip = None
+
+    addresses = walk_json_field_safe("status", "addresses")
+    if addresses is not None:
+        for addr in addresses:
+            if addr.get("type") == "InternalIP":
+                ip = addr.get("address")
+
+    if ip is None:
+        ip = node["metadata"]["name"]
 
     disk_pressure = memory_pressure = out_of_disk = ready = "unknown"
 
     if node.get("status") is not None:
         status = node["status"]
 
-        if status.get("conditions") is not None:
-            conditions = status["conditions"]
-
+        conditions = walk_json_field_safe(status, "conditions")
+        if conditions is not None:
             for cond in conditions:
                 cond_t = cond["type"]
-                status = cond["status"].lower()
+                node_status = cond["status"].lower()
 
                 if cond_t == "DiskPressure":
-                    disk_pressure = status
+                    disk_pressure = node_status
                 elif cond_t == "MemoryPressure":
-                    memory_pressure = status
+                    memory_pressure = node_status
                 elif cond_t == "OutOfDisk":
-                    out_of_disk = status
+                    out_of_disk = node_status
                 elif cond_t == "Ready":
-                    ready = status
+                    ready = node_status
                 else:
                     error_counter.labels(type="unknown_node_cond").inc()
-                    logger.error("unexpected condition %s in node %s", cond_t, name)
+                    logger.error("unexpected condition %s in node %s", cond_t, ip)
+
+        capacity = walk_json_field_safe(status, "capacity")
+        if capacity is not None:
+            node_cpu_total.add_metric([ip],
+                int(walk_json_field_safe(capacity, "cpu") or "0"))
+            node_mem_total.add_metric([ip],
+                    convert_to_byte(walk_json_field_safe(capacity, "memory") or "0"))
+            gpu1 = int(walk_json_field_safe(capacity, "alpha.kubernetes.io/nvidia-gpu") or "0")
+            gpu2 = int(walk_json_field_safe(capacity, "nvidia.com/gpu") or "0")
+            node_gpu_total.add_metric([ip], max(gpu1, gpu2))
+
+        allocatable = walk_json_field_safe(status, "allocatable")
+        if allocatable is not None:
+            node_cpu_avail.add_metric([ip],
+                int(walk_json_field_safe(allocatable, "cpu") or "0"))
+            node_mem_avail.add_metric([ip],
+                    convert_to_byte(walk_json_field_safe(allocatable, "memory") or "0"))
+            gpu1 = int(walk_json_field_safe(allocatable, "alpha.kubernetes.io/nvidia-gpu") or "0")
+            gpu2 = int(walk_json_field_safe(allocatable, "nvidia.com/gpu") or "0")
+            node_gpu_avail.add_metric([ip], max(gpu1, gpu2))
     else:
-        logger.warning("unexpected structure of node %s: %s", name, json.dumps(node))
+        logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
-    pai_node_gauge.add_metric([name, disk_pressure, memory_pressure, out_of_disk, ready], 1)
-
-    return pai_node_gauge
+    pai_node_gauge.add_metric([ip, disk_pressure, memory_pressure, out_of_disk, ready], 1)
 
 
-def process_nodes_status(pai_node_gauge, nodesJsonObject):
+def process_nodes_status(nodes_object):
+    pai_node_gauge = gen_pai_node_gauge()
+    node_cpu_avail = gen_k8s_node_cpu_available()
+    node_cpu_total = gen_k8s_node_cpu_total()
+    node_mem_avail = gen_k8s_node_mem_available()
+    node_mem_total = gen_k8s_node_mem_total()
+    node_gpu_avail = gen_k8s_node_gpu_available()
+    node_gpu_total = gen_k8s_node_gpu_total()
+
     def _map_fn(item):
         return catch_exception(parse_node_item,
                 "catch exception when parsing node item",
                 None,
-                pai_node_gauge, item)
+                item,
+                pai_node_gauge,
+                node_cpu_avail,
+                node_cpu_total,
+                node_mem_avail,
+                node_mem_total,
+                node_gpu_avail,
+                node_gpu_total)
 
-    list(map(_map_fn, nodesJsonObject["items"]))
+    list(map(_map_fn, nodes_object["items"]))
+
+    return [pai_node_gauge,
+            node_cpu_avail, node_cpu_total,
+            node_mem_avail, node_mem_total,
+            node_gpu_avail, node_gpu_total]
+
 
 
 def load_machine_list(configFilePath):
@@ -356,29 +474,23 @@ def loop(args, atomic_ref):
     list_nodes_url = "{}/api/v1/nodes/".format(address)
 
     while True:
-        # these gauge is generate on each iteration
-        pai_pod_gauge = gen_pai_pod_gauge()
-        pai_container_gauge = gen_pai_container_gauge()
-        pai_node_gauge = gen_pai_node_gauge()
-        k8s_gauge = gen_k8s_api_gauge()
-
+        result = []
         try:
             # 1. check service level status
-            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram, ca_path, headers)
-            process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
+            pods_object = request_with_histogram(list_pods_url, list_pods_histogram, ca_path, headers)
+            result.extend(process_pods_status(pods_object))
 
             # 2. check nodes level status
-            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers) 
-            process_nodes_status(pai_node_gauge, nodes_status)
+            nodes_object = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers)
+            result.extend(process_nodes_status(nodes_object))
 
             # 3. check k8s level status
-            collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers)
+            result.extend(collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_path, headers))
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
 
-        atomic_ref.get_and_set([pai_pod_gauge, pai_container_gauge, pai_node_gauge,
-            k8s_gauge])
+        atomic_ref.get_and_set(result)
 
         time.sleep(float(args.interval))
 
