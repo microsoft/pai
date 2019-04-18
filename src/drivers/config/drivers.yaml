@@ -28,4 +28,4 @@ version: "384.111"
 pre-installed-nvidia-path: /usr/local/nvidia
 
 
-skip-ib-installation: false
+skip-ib-installation: true
