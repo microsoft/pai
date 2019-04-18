@@ -26,14 +26,13 @@ let authnConfig = {
 };
 
 if (authnConfig.authnMethod === 'OIDC') {
-  authnConfig.OIDCConfig =
-
+  authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
 }
 
 // define the schema for azure
 const authnSchema = Joi.object().keys({
-  azRDMA: Joi.string().empty('')
-    .valid('false', 'true'),
+  authnMethod: Joi.string().empty('')
+    .valid('OIDC', 'basic'),
 }).required();
 
 
