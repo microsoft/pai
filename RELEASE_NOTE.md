@@ -5,7 +5,6 @@
   - Display error message in job detail page
   - Import users from CSV file directly and show the final results (#2495)
   - Add TotalGpuCount and TotalTaskCount into job list (#2499)
-  - Display task state in job detail page (#2459)
 
 * Deployment
   - Add cluster version info (#2528)
@@ -34,7 +33,6 @@
 
 ## Bug Fixes
 * Web portal:
-  - Support IE 11
   - Add validation when submitting job by json (#2375)
   - Job List-filter UI fix (#2479)
   - Fix job detail "jobConfig is null" bug (#2500)
