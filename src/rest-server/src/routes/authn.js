@@ -20,22 +20,25 @@ const express = require('express');
 const tokenConfig = require('../config/token');
 const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
+const authnConfig = require('../config/authn');
 
 const router = new express.Router();
 
-router.route('/oidc/login')
-/** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
-  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+if (authnConfig.authnMethod === 'OIDC') {
+  router.route('/oidc/login')
+  /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
+  router.route('/oidc/logout')
+  /** POST /api/v1/auth/oidc/logout */
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
-router.route('/oidc/logout')
-/** POST /api/v1/auth/oidc/logout */
-  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+} else {
+  router.route('/basic/login')
+  /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
-
-router.route('/basic/login')
-/** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
-  .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+}
 
 // module exports
 module.exports = router;
