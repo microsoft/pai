@@ -58,4 +58,4 @@
   pattern: "{{ spec_item['pattern'] }}"
 {%- endif %}
 
-{%- endfor %}
+{% endfor %}
