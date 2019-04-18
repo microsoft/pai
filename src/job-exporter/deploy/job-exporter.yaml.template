@@ -68,6 +68,8 @@ spec:
           value: {{ cluster_cfg["job-exporter"]["logging-level"] }}
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
         volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-socket
