@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+spec:
 {% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
 - code: {{ spec_item['code'] }}
 {%- if 'behavior' in spec_item %}
