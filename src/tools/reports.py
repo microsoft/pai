@@ -70,7 +70,7 @@ def get_ip(ip_port):
 class JobInfo(object):
     def __init__(self, job_count=0, elapsed_time=0, cpu_sec=0, mem_sec=0, gpu_sec=0,
             user="unknown", vc="unknown", start_time=0, finished_time=0, retries=0,
-            status="unknown", exit_code="N/A"):
+            status="unknown", exit_code="N/A", max_mem_usage="N/A"):
         """ elapsed_time is seconds, cpu_sec is vcore-seconds, mem_sec is
         megabyte-seconds, gpu_sec is card-seconds """
         self.job_count = job_count
@@ -86,6 +86,7 @@ class JobInfo(object):
         self.retries = retries
         self.status = status
         self.exit_code = exit_code
+        self.max_mem_usage = max_mem_usage
 
     def __iadd__(self, o):
         self.job_count += o.job_count
@@ -360,7 +361,7 @@ def convert_job_state(framework_state, exit_code):
     return "UNKNOWN"
 
 
-def get_job_report(database, since, until):
+def get_job_report(database, since, until, max_mem_usage):
     """ return two values, one is aggregated job info, the other is raw job status """
     db = DB(database)
 
@@ -447,6 +448,9 @@ def get_job_report(database, since, until):
                 job.exit_code = exit_code
             else:
                 job.exit_code = "N/A"
+
+            if name in max_mem_usage:
+                job.max_mem_usage = max_mem_usage[name] / 1024 / 1024 / 1024
 
             statistic[username][vc][job_status] += job
 
@@ -555,8 +559,55 @@ def delete_old_data(database, days):
         db.conn.commit()
 
 
+def get_max_mem_usage(prometheus_url, since, until):
+    return get_max_resource_usage(prometheus_url, since, until,
+            "max (task_mem_usage_byte) by (job_name)")
+
+
+def get_max_resource_usage(prometheus_url, since, until, query):
+    args = urllib.parse.urlencode({
+        "query": query,
+        "start": str(since),
+        "end": str(until),
+        "step": "5m",
+        })
+
+    url = urllib.parse.urljoin(prometheus_url,
+            "/prometheus/api/v1/query_range") + "?" + args
+
+    logger.debug("requesting %s", url)
+    result = []
+
+    obj = request_with_error_handling(url)
+
+    if walk_json_field_safe(obj, "status") != "success":
+        logger.warning("requesting %s failed, body is %s", url, obj)
+        return result
+
+    metrics = walk_json_field_safe(obj, "data", "result")
+
+    result = {} # key is job_name, value is max resource usage.
+
+    for metric in metrics:
+        job_name = walk_json_field_safe(metric, "metric", "job_name")
+        if job_name is None:
+            continue
+
+        values = walk_json_field_safe(metric, "values")
+        if values is None or len(values) == 0:
+            continue
+
+        max_ = max(map(lambda x: float(x[1]), values))
+        result[job_name] = max_
+
+    logger.info("get %d resource usage entries", len(result))
+
+    return result
+
+
 def gen_report(database, prometheus_url, path, since, until):
-    job_report, processed_apps = get_job_report(database, since, until)
+    max_mem_usage = get_max_mem_usage(prometheus_url, since, until)
+    job_report, processed_apps = get_job_report(database, since, until, max_mem_usage)
     job_file = "%s_job.csv" % path
     with open(job_file, "w") as f:
         f.write("user,vc," +
@@ -571,7 +622,7 @@ def gen_report(database, prometheus_url, path, since, until):
 
     job_raw_file = "%s_raw_job.csv" % path
     with open(job_raw_file, "w") as f:
-        f.write("user,vc,job,start_time,finish_time,waiting_time,run_time,retries,status,exit_code,cpu,mem,gpu\n")
+        f.write("user,vc,job,start_time,finish_time,waiting_time,run_time,retries,status,exit_code,cpu,mem,max_mem,gpu\n")
 
         for job_name, job in processed_apps.items():
             if job.user == "unknown" or job.vc == "unknown":
@@ -588,7 +639,7 @@ def gen_report(database, prometheus_url, path, since, until):
             else:
                 waiting_time = job.finished_time - job.start_time - elapsed_time
 
-            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
+            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
                 job.user,
                 job.vc,
                 job_name,
@@ -601,6 +652,7 @@ def gen_report(database, prometheus_url, path, since, until):
                 job.exit_code,
                 cpu,
                 mem,
+                job.max_mem_usage,
                 gpu))
 
     alert_report = get_alerts(prometheus_url, since, until)
