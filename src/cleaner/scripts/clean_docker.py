@@ -121,7 +121,7 @@ class DockerCleaner(LoggerMixin):
                     self.logger.error("Failed to write error log, skipped")
                 else:
                     fp.writelines([
-                        "{0} ERROR ACTION \"kill\"\n".format(timestamp),
+                        "{0} ERROR ACTION \"KILL\"\n".format(timestamp),
                         "{0} ERROR REASON \"{1} killed due to disk pressure. Disk size: {2}, Used: {3}, Cleaner threshold: {4}, Container cost: {5} \"\n".format(timestamp, container_name, sized, "{0}({1}%)".format(used, usep), "{0}%".format(self.__threshold), containers[0][4]),
                         "{0} ERROR SOLUTOIN \"Node disk is full, please try another time. If your job needs large space, please use NAS to store data.\"\n".format(timestamp)
                         ])
