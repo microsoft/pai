@@ -6,7 +6,7 @@ import os
 import sys
 sys.path.extend("..")
 from deployment.clusterObjectModel import forward_compatibility
-
+from deployment.utility import pai_version
 
 print("This script is used for migrating config to v0.11!")
 print("Usage: configMigration.py from_directory to_directory")
@@ -67,6 +67,6 @@ shutil.copy2(os.path.join(input_dir, "k8s-role-definition.yaml"), output_dir)
 old_service_configuration = yaml.load(open(os.path.join(input_dir, "services-configuration.yaml")))
 service_configuration, updated = forward_compatibility.service_configuration_convert(old_service_configuration)
 # upgrade image tag version to v0.10.1
-service_configuration["cluster"]["docker-registry"]["tag"] = "v0.11.0"
+service_configuration["cluster"]["docker-registry"]["tag"] = pai_version.paictl_version()
 with open(os.path.join(output_dir, "services-configuration.yaml"), 'w') as outfile:
     yaml.dump(service_configuration, outfile, default_flow_style=False)
