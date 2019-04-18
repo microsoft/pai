@@ -30,8 +30,8 @@ interface IProtocolItem {
 }
 
 interface IMarketplaceProps {
-  uri: string;
-  uriType: MarketplaceUriType;
+  defaultURI: string;
+  defaultURIType: MarketplaceUriType;
   onSelectProtocol: ((text: string) => void);
   disabled?: boolean;
 }
@@ -60,15 +60,15 @@ const defaultProtocolOptions: IDropdownOption[] = [
 
 export default class MarketplaceForm extends React.Component<IMarketplaceProps, IMarketplaceState> {
   public static defaultProps: Partial<IMarketplaceProps> = {
-    uri: "https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2",
-    uriType: "GitHub" as MarketplaceUriType,
+    defaultURI: "https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2",
+    defaultURIType: "GitHub" as MarketplaceUriType,
     disabled: false,
   };
 
   public state = {
-    uri: this.props.uri,
-    uriType: this.props.uriType,
-    protocolOptions: [...defaultProtocolOptions],
+    uri: this.props.defaultURI,
+    uriType: this.props.defaultURIType,
+    protocolOptions: [... defaultProtocolOptions],
     uriConfigCallout: false,
   };
 
@@ -144,7 +144,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   private setProtocolOptions = async (event: React.FocusEvent<HTMLInputElement>) => {
     const protocolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protocolList) {
-      const protocolOptions: IDropdownOption[] = [...defaultProtocolOptions];
+      const protocolOptions: IDropdownOption[] = [... defaultProtocolOptions];
       for (const protocolItem of protocolList) {
         protocolOptions.push({
           key: protocolItem.name,
