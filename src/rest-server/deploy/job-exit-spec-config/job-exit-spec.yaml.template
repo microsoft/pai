@@ -29,11 +29,11 @@
   repro:
 {% for str_val in spec_item['repro'] -%}
     - "{{ str_val }}"
-{% endfor -%}
+{% endfor %}
   solution:
 {% for str_val in spec_item['solution'] -%}
     - "{{ str_val }}"
-{% endfor -%}
+{% endfor %}
 {% if 'pattern' in spec_item -%}
   pattern: "{{ spec_item['pattern'] }}"
 {% endif -%}
