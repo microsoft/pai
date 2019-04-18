@@ -149,6 +149,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   };
 
   const prepareNockForCaseP05 = prepareNockForCaseP03;
+  const prepareNockForCaseP06 = prepareNockForCaseP01;
 
   const prepareNockForCaseN03 = () => {
     global.nock(global.launcherWebserviceUri)
@@ -408,6 +409,23 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.name, 'response job name').equal('user1~new_job');
+        done();
+      });
+  });
+
+  it('[P-06] Submit a job using POST method with namespaced job name', (done) => {
+    prepareNockForCaseP06('user1', 'new_job');
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'user1~new_job'});
+    global.chai.request(global.server)
+      .post('/api/v1/user/user1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
+      .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/jobs/user1~new_job');

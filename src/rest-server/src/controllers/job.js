@@ -47,7 +47,7 @@ const load = (req, res, next, jobName) => {
 
 const init = (req, res, next) => {
   let jobName = req.body.jobName;
-  if (req.query.username !== undefined) {
+  if (jobName.indexOf('~') === -1 && req.query.username !== undefined) {
     jobName = `${req.query.username}~${jobName}`;
   }
   new Job(jobName, (job, error) => {
