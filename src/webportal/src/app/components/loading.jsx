@@ -17,32 +17,64 @@
 
 import {FontClassNames, ColorClassNames} from '@uifabric/styling';
 import c from 'classnames';
+import {isEqual, isNil} from 'lodash';
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
-import React from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 
 import t from './tachyons.scss';
 
 import loadingGif from '../../assets/img/loading.gif';
 
 export const Loading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
+  <div className={c(t.fixed, t.absoluteFill, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <img className={t.o50} src={loadingGif} />
     </div>
   </div>
 );
 
-export const SpinnerLoading = () => (
-  <div className={c(t.flex, t.itemsCenter, t.justifyCenter)} style={{minHeight: 'inherit'}}>
-    <div className={c(t.flex, t.itemsCenter)}>
-      <Spinner size={SpinnerSize.large} />
-      <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+// min-height issue hack
+// https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
+export const SpinnerLoading = () => {
+  const [style, setStyle] = useState({});
+  useLayoutEffect(() => {
+    function layout() {
+      const contentWrapper = document.getElementById('content-wrapper');
+      if (isNil(contentWrapper)) {
+        return;
+      }
+      const pt = window.getComputedStyle(contentWrapper).paddingTop;
+      const rect = contentWrapper.getBoundingClientRect();
+      const nextStyle = {
+        paddingTop: pt,
+        top: rect.top,
+        left: rect.left,
+        width: rect.right - rect.left,
+        height: rect.bottom - rect.top,
+      };
+      if (!isEqual(nextStyle, style)) {
+        setStyle(nextStyle);
+      }
+    }
+    layout();
+    window.addEventListener('resize', layout);
+    return () => {
+      window.removeEventListener('resize', layout);
+    };
+  });
+
+  return (
+    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.fixed)} style={style}>
+      <div className={c(t.flex, t.itemsCenter)}>
+        <Spinner size={SpinnerSize.large} />
+        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const MaskSpinnerLoading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
+  <div className={c(t.fixed, t.absoluteFill, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
