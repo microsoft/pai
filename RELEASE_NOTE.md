@@ -64,4 +64,4 @@
 N/A
 
 ## Upgrading from Earlier Release
-Please follow the [Upgrading to v0.11](./docs/upgrade/upgrade_to_v0.11.md) for detailed instructions.
+Please follow the [Upgrading to v0.12](./docs/upgrade/upgrade_to_v0.12.md) for detailed instructions.
