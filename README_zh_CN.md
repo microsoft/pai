@@ -127,7 +127,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 * [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
 * [监测](./docs/webportal/README.md)
-* [升级](./docs/upgrade/upgrade_to_v0.11.md)
+* [升级](./docs/upgrade/upgrade_to_v0.12.md)
 
 ## 参考手册
 
