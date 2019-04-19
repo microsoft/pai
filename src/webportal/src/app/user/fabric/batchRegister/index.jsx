@@ -15,19 +15,19 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
-import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
-import {Stack} from 'office-ui-fabric-react/lib/Stack';
-import {countBy} from 'lodash';
+import {Fabric, Stack} from 'office-ui-fabric-react';
+import {countBy, findIndex} from 'lodash';
 
 import Context from './context';
 import BackButton from '../components/back';
 import TopBar from './topBar';
 import Table from './table';
 import BottomBar from './bottomBar';
-import {toBool} from './utils';
+import MessageBox from './messageBox';
+import {toBool, isFinished} from './utils';
 
 import Loading from '../components/loading';
 
@@ -49,7 +49,38 @@ export default function BatchRegister() {
 
   const [userInfos, setUserInfos] = useState([]);
   const [loading, setLoading] = useState({'show': false, 'text': ''});
-  const [hideSubmit, setHideSubmit] = useState(false);
+  const [virtualClusters, setVirtualClusters] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [messageBox, setMessageBox] = useState({show: false, text: ''});
+
+  const refreshAllVcs = () => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters`,
+      type: 'GET',
+      dataType: 'json',
+      success: (data) => {
+        setVirtualClusters(Object.keys(data).sort());
+      },
+    });
+  };
+  useEffect(refreshAllVcs, []);
+
+  const refreshAllUsers = () => {
+    userAuth.checkToken((token) => {
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v1/user`,
+        type: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        dataType: 'json',
+        success: (data) => {
+          setAllUsers(data.map((user) => user.username));
+        },
+      });
+    });
+  };
+  useEffect(refreshAllUsers, []);
 
   const downloadTemplate = () => {
     let csvString = csvParser.unparse([{
@@ -78,33 +109,69 @@ export default function BatchRegister() {
     }
   };
 
+  const checkCSVFormat = (csvResult) => {
+    let fields = csvResult.meta.fields;
+    if (fields.indexOf(columnUsername) === -1) {
+      alert('Missing column of username in the CSV file!');
+      return false;
+    }
+    if (fields.indexOf(columnPassword) === -1) {
+      alert('Missing column of password in the CSV file!');
+      return false;
+    }
+    if (csvResult.errors.length > 0) {
+      alert(`Row ${csvResult.errors[0].row + 2}: ${csvResult.errors[0].message}`);
+      return false;
+    }
+    if (csvResult.data.length == 0) {
+      alert('Empty CSV file');
+      return false;
+    }
+    return true;
+  };
+
+  const checkVCField = (csvResult) => {
+    for (let i = 0; i < csvResult.data.length; i++) {
+      let user = csvResult.data[i];
+      if (user[columnVC]) {
+        const parsedVCs = user[columnVC].split(',').map((vc) => vc.trim());
+        for (let j = 0; j < parsedVCs.length; j++) {
+          let vc = parsedVCs[j];
+          if (vc) {
+            if (virtualClusters.indexOf(vc) == -1) {
+              alert(`${vc} is not a valid virtual cluster name`);
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
+  };
+
   const parseUserInfosFromCSV = (csvContent) => {
     if (!csvContent) {
       alert('Empty CSV file');
-      return null;
+      hideLoading();
+      return;
     }
     let csvResult = csvParser.parse(stripBom(csvContent), {
       header: true,
       skipEmptyLines: true,
     });
-    let fields = csvResult.meta.fields;
-    if (fields.indexOf(columnUsername) === -1) {
-      alert('Missing column of username in the CSV file!');
-      return null;
+    if (!checkCSVFormat(csvResult)) {
+      hideLoading();
+      return;
     }
-    if (fields.indexOf(columnPassword) === -1) {
-      alert('Missing column of password in the CSV file!');
-      return null;
+    if (!checkVCField(csvResult)) {
+      hideLoading();
+      return;
     }
-    if (csvResult.errors.length > 0) {
-      alert(`Row ${csvResult.errors[0].row + 2}: ${csvResult.errors[0].message}`);
-      return null;
+    if (csvResult.data) {
+      setUserInfos([]);
+      setUserInfos(csvResult.data);
     }
-    if (csvResult.data.length == 0) {
-      alert('Empty CSV file');
-      return null;
-    }
-    return csvResult.data;
+    hideLoading();
   };
 
   const importFromCSV = () => {
@@ -116,13 +183,8 @@ export default function BatchRegister() {
       showLoading('Uploading...');
       let reader = new FileReader();
       reader.onload = function(e) {
-        let csvResult = parseUserInfosFromCSV(e.target.result);
-        if (csvResult) {
-          setUserInfos(csvResult);
-          setHideSubmit(false);
-        }
+        parseUserInfosFromCSV(e.target.result);
         document.body.removeChild(fileInput);
-        hideLoading();
       };
       reader.onerror = function(e) {
         hideLoading();
@@ -228,6 +290,8 @@ export default function BatchRegister() {
       showLoading('Processing...');
     }
     if (index >= userInfos.length) {
+      refreshAllUsers();
+      refreshAllVcs();
       hideLoading();
       setTimeout(() => {
         const finishedStatus = countBy(userInfos, 'status.isSuccess');
@@ -239,16 +303,20 @@ export default function BatchRegister() {
       }, 100);
     } else {
       let userInfo = userInfos[index];
-      addUser(userInfo[columnUsername],
-        userInfo[columnPassword],
-        userInfo[columnAdmin],
-        userInfo[columnVC],
-        userInfo[columnGithubPAT])
-        .then((result) => {
-          userInfo.status = result;
-          setUserInfos(userInfos.slice());
-          addUserRecursively(++index);
-        });
+      if (isFinished(userInfo)) {
+        addUserRecursively(++index);
+      } else {
+        addUser(userInfo[columnUsername],
+          userInfo[columnPassword],
+          userInfo[columnAdmin],
+          userInfo[columnVC],
+          userInfo[columnGithubPAT])
+          .then((result) => {
+            userInfo.status = result;
+            setUserInfos(userInfos.slice());
+            addUserRecursively(++index);
+          });
+      }
     }
   };
 
@@ -257,14 +325,28 @@ export default function BatchRegister() {
       alert('Non-admin is not allowed to do this operation.');
       return;
     }
-    setHideSubmit(true);
     addUserRecursively(0);
+  };
+
+  const addNew = () => {
+    userInfos.push({});
+    setUserInfos(userInfos.slice());
+  };
+
+  const removeRow = (userInfo) => {
+    let newUserInfos = userInfos.slice();
+    newUserInfos.splice(newUserInfos.indexOf(userInfo), 1);
+    setUserInfos(newUserInfos);
   };
 
   const context = {
     downloadTemplate,
     importFromCSV,
+    addNew,
+    removeRow,
     userInfos,
+    virtualClusters,
+    allUsers,
     submit,
   };
 
@@ -276,6 +358,20 @@ export default function BatchRegister() {
     setLoading({'show': false});
   };
 
+  const showMessageBox = (value) => {
+    setMessageBox({show: true, text: String(value)});
+  };
+
+  const alert = showMessageBox;
+
+  const hideMessageBox = () => {
+    setMessageBox({show: false, text: ''});
+  };
+
+  const hideSubmit = findIndex(userInfos, (userInfo) => {
+    return userInfo.status == undefined || userInfo.status.isSuccess == false;
+  }) == -1;
+
   return (
     <Context.Provider value={context}>
       <Fabric style={{height: '100%'}}>
@@ -286,17 +382,16 @@ export default function BatchRegister() {
           <Stack.Item>
             <TopBar />
           </Stack.Item>
-          <Stack.Item>
-            <div style={{padding: '1rem', backgroundColor: 'white'}}>
-              <Table />
-            </div>
+          <Stack.Item grow styles={{root: {overflow: 'auto', backgroundColor: 'white', padding: '1rem'}}}>
+            <Table />
           </Stack.Item>
           <Stack.Item>
-            {userInfos.length > 0 && !hideSubmit ? <BottomBar /> : null}
+            {!hideSubmit ? <BottomBar /> : null}
           </Stack.Item>
         </Stack>
       </Fabric>
       {loading.show && <Loading label={loading.text} />}
+      {messageBox.show && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} />}
     </Context.Provider>
   );
 }

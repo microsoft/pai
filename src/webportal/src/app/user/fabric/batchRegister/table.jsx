@@ -16,33 +16,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {MessageBar, MessageBarType, DetailsList, SelectionMode, FontClassNames, TooltipHost} from 'office-ui-fabric-react';
+import {MessageBar, MessageBarType, DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
+import TableTextField from './tableTextField';
 import Context from './context';
-import {toBool} from './utils';
-
-const zeroPaddingRowFieldStyle = {
-  marginTop: -11,
-  marginBottom: -11,
-  marginLeft: -12,
-  marginRight: -8,
-};
+import {toBool, isFinished, checkUsername, checkPassword} from './utils';
 
 export default function Table() {
-  const {userInfos} = useContext(Context);
+  const {userInfos, virtualClusters, removeRow, allUsers} = useContext(Context);
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const usernameColumn = {
     key: 'username',
-    minWidth: 100,
+    minWidth: 120,
     maxWidth: 600,
     name: 'User Name',
-    fieldName: 'username',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
+    onRender: (userInfo) => {
+      const {username} = userInfo;
+      const getErrorMessage = (value) => {
+        let errorMessage = checkUsername(value);
+        if (errorMessage) {
+          return errorMessage;
+        }
+        if (allUsers.indexOf(value) != -1) {
+          return 'User name already exists';
+        }
+        return '';
+      };
+      return (
+        <TableTextField
+          readOnly={isFinished(userInfo)}
+          defaultValue={username}
+          onChange={(_event, newValue) => {
+            userInfo.username = newValue;
+          }}
+          onGetErrorMessage={getErrorMessage}
+        />
+      );
+    },
   };
 
   /**
@@ -50,13 +66,28 @@ export default function Table() {
    */
   const passwordColumn = {
     key: 'password',
-    minWidth: 80,
+    minWidth: 120,
     maxWidth: 200,
     name: 'Password',
-    fieldName: 'password',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
+    onRender: (userInfo) => {
+      const {password} = userInfo;
+      const getErrorMessage = (value) => {
+        return checkPassword(value);
+      };
+      return (
+        <TableTextField
+          readOnly={isFinished(userInfo)}
+          defaultValue={password}
+          onChange={(_event, newValue) => {
+            userInfo.password = newValue;
+          }}
+          onGetErrorMessage={getErrorMessage}
+        />
+      );
+    },
   };
 
   /**
@@ -64,15 +95,43 @@ export default function Table() {
    */
   const adminColumn = {
     key: 'admin',
-    minWidth: 60,
+    minWidth: 80,
     maxWidth: 200,
     name: 'Admin',
-    fieldName: 'admin',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: ({admin}) => {
-      return toBool(admin) ? 'Yes' : 'No';
+    onRender: (userInfo) => {
+      /**
+       * @type {import('office-ui-fabric-react').IDropdownOption[]}
+       */
+      const options = [
+        {key: 'true', text: 'Yes'},
+        {key: 'false', text: 'No'},
+      ];
+      const {admin} = userInfo;
+      const finished = isFinished(userInfo);
+      /** @type {import('@uifabric/styling').IStyle} */
+      const disableStyle = {backgroundColor: '#ffffff', border: '1px solid #a6a6a6', marginLeft: -12, marginRight: -32, paddingLeft: 12};
+      return (
+        <Dropdown
+          options={options}
+          disabled={finished}
+          defaultSelectedKey={String(toBool(admin))}
+          onChange={(_event, option, _index) => {
+            userInfo.admin = option.key;
+          }}
+          onRenderTitle={(options) => {
+            const fixStyle = finished ? disableStyle : null;
+            const [{text}] = options;
+            return (
+              <div style={fixStyle}>
+                <span style={{color: '#000000'}}>{text}</span>
+              </div>
+            );
+          }}
+        />
+      );
     },
   };
 
@@ -81,13 +140,78 @@ export default function Table() {
    */
   const virtualClusterColumn = {
     key: 'virtual cluster',
-    minWidth: 100,
+    minWidth: 150,
     maxWidth: 300,
     name: 'Virtual Cluster',
-    fieldName: 'virtual cluster',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
+    onRender: (userInfo) => {
+      /**
+       * @type {import('office-ui-fabric-react').IDropdownOption[]}
+       */
+      const options = virtualClusters.map((vc) => {
+        return {key: vc, text: vc};
+      });
+      let vcs = [];
+      const {'virtual cluster': vcsString = ''} = userInfo;
+      const parsedVCs = vcsString.split(',').map((vc) => vc.trim());
+      parsedVCs.forEach((vc) => {
+        if (vc) {
+          if (virtualClusters.indexOf(vc) != -1) {
+            vcs.push(vc);
+          }
+        }
+      });
+      const finished = isFinished(userInfo);
+      if (finished) {
+        let displayText;
+        if (vcsString === '') {
+          displayText = <span style={{color: '#000000', height: '100%'}}>&nbsp;</span>;
+        } else {
+          displayText = <span style={{color: '#000000', height: '100%'}}>{vcsString}</span>;
+        }
+        /** @type {import('@uifabric/styling').IStyle} */
+        const disableStyle = {backgroundColor: '#ffffff', border: '1px solid #a6a6a6', marginLeft: -12, marginRight: -32, paddingLeft: 12};
+        return (
+          <Dropdown
+            disabled
+            options={options}
+            defaultSelectedKey={options[0].key}
+            onRenderTitle={(_options) => {
+              return (
+                <div style={disableStyle}>
+                  {displayText}
+                </div>
+              );
+            }}
+          />
+        );
+      } else {
+        return (
+          <Dropdown
+            multiSelect
+            options={options}
+            defaultSelectedKeys={vcs}
+            onChange={(_event, option, _index) => {
+              if (option.selected) {
+                vcs.push(option.text);
+              } else {
+                vcs.splice(vcs.indexOf(option.text), 1);
+              }
+              userInfo['virtual cluster'] = vcs.join(',');
+            }}
+            onRenderTitle={(_options) => {
+              return (
+                <div>
+                  <span style={{color: '#000000'}}>{userInfo['virtual cluster']}</span>
+                </div>
+              );
+            }}
+          />
+        );
+      }
+    },
   };
 
   /**
@@ -98,11 +222,23 @@ export default function Table() {
     minWidth: 80,
     maxWidth: 200,
     name: 'Github PAT',
-    fieldName: 'githubPAT',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
+    onRender: (userInfo) => {
+      const {githubPAT} = userInfo;
+      return (
+        <TextField
+          readOnly={isFinished(userInfo)}
+          defaultValue={githubPAT}
+          onChange={(_event, newValue) => {
+            userInfo.githubPAT = newValue;
+          }}
+        />
+      );
+    },
   };
+  githubPATColumn.onRender.displayName='onRenderGithubPATColumn';
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -112,7 +248,6 @@ export default function Table() {
     minWidth: 100,
     maxWidth: 100,
     name: 'Status',
-    fieldName: 'status',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
@@ -148,7 +283,7 @@ export default function Table() {
       /** @type {import('@uifabric/styling').IStyle} */
       const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'white'};
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)}>
+        <div style={Object.assign(wrapperStyle)}>
           <TooltipHost content={message}>
             <MessageBar
               messageBarType={messageBarType}
@@ -162,6 +297,36 @@ export default function Table() {
     },
   };
 
+  /**
+   * @type {import('office-ui-fabric-react').IColumn}
+   */
+  const actionColumn = {
+    key: 'action',
+    minWidth: 100,
+    name: 'Action',
+    headerClassName: FontClassNames.medium,
+    onRender(userInfo) {
+      /**
+       * @param {React.MouseEvent} event
+       */
+      function onClick(event) {
+        event.stopPropagation();
+        removeRow(userInfo);
+      }
+      /** @type {React.CSSProperties} */
+      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '80%'};
+      return (
+        <div style={wrapperStyle}>
+          <DefaultButton
+            onClick={onClick}
+          >
+            Remove
+          </DefaultButton>
+        </div>
+      );
+    },
+  };
+
   const columns = [
     usernameColumn,
     statusColumn,
@@ -169,6 +334,7 @@ export default function Table() {
     adminColumn,
     virtualClusterColumn,
     githubPATColumn,
+    actionColumn,
   ];
 
   return (
