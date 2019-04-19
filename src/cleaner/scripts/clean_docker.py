@@ -91,9 +91,11 @@ class DockerCleaner(LoggerMixin):
                 if (splitline[3].startswith(prefix)):
                     break
             else:
-                size_str = splitline[2].split()[0]
-                size = common.calculate_size(size_str)
-                containers.append([size, splitline[0], splitline[1], splitline[3], size_str])
+                # Only check job containers
+                if re.search(r"container(_\w+)?_\d+_\d+_\d+_\d+$", splitline[3]) is not None:
+                    size_str = splitline[2].split()[0]
+                    size = common.calculate_size(size_str)
+                    containers.append([size, splitline[0], splitline[1], splitline[3], size_str])
 
         containers.sort(key=lambda x:x[0], reverse=True)
 
