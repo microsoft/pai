@@ -2,7 +2,7 @@
 
 ## New Features
 * Web portal:
-  - Display error message in job detail page
+  - Display error message in job detail page (#2456)
   - Import users from CSV file directly and show the final results (#2495)
   - Add TotalGpuCount and TotalTaskCount into job list (#2499)
 
