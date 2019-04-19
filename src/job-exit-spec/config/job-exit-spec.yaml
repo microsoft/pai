@@ -965,7 +965,7 @@ spec:
   stage: COMPLETING
   behavior: TRANSIENT_NORMAL
   reaction: ALWAYS_RETRY
-  reason: "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted"
+  reason: "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted or Launcher AM unexpectedly crashed frequently without generating AMDiagnostics"
   repro:
     - "Set yarn.app.attempt.diagnostics.limit.kc to 1B"
   solution:

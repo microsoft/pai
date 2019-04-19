@@ -80,12 +80,14 @@ public class FrameworkExitSpec {
         ContainerExitStatus.ABORTED,
         "Container expired since it was unused",
         ExitType.TRANSIENT_CONFLICT,
-        "Container previously allocated is expired due to it is not launched on YARN NM in time, maybe other containers cannot be allocated in time"));
+        "Container previously allocated is expired due to it is not launched on YARN NM in time, " +
+            "maybe other containers cannot be allocated in time"));
     spec.put(FrameworkExitCode.CONTAINER_ABORTED_ON_AM_RESTART.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.ABORTED,
         "Container of a completed application",
         ExitType.TRANSIENT_CONFLICT,
-        "Container previously allocated is aborted by YARN RM during Launcher AM restart, maybe other containers cannot be allocated in time"));
+        "Container previously allocated is aborted by YARN RM during Launcher AM restart, " +
+            "maybe other containers cannot be allocated in time"));
     //// Container Other Failed by YARN
     spec.put(FrameworkExitCode.CONTAINER_PREEMPTED.toInt(), new FrameworkExitInfo(
         ContainerExitStatus.PREEMPTED,
@@ -173,7 +175,8 @@ public class FrameworkExitSpec {
         FrameworkExitCode.AM_RM_HEARTBEAT_SHUTDOWN_REQUESTED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Launcher AM failed to heartbeat with YARN RM due to ShutdownRequest, maybe AM is not managed by YARN RM anymore"));
+        "Launcher AM failed to heartbeat with YARN RM due to ShutdownRequest, " +
+            "maybe AM is not managed by YARN RM anymore"));
     //// App Failed by Launcher AM
     spec.put(FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(),
@@ -236,7 +239,8 @@ public class FrameworkExitSpec {
         FrameworkExitCode.APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED.toInt(),
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted"));
+        "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted or " +
+            "Launcher AM unexpectedly crashed frequently without generating AMDiagnostics"));
     /// Service External Error is already handled by host
   }
 
