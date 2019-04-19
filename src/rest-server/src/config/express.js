@@ -27,6 +27,9 @@ const config = require('./index');
 const logger = require('./logger');
 const createError = require('../util/error');
 const authnConfig = require('./authn');
+const expressSession = require('express-session')
+const passport = require('passport')
+const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
 const routers = {
   v1: require('../routes/index'),
   v2: require('../routes/v2/index'),
