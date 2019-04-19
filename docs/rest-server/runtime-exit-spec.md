@@ -1,5 +1,5 @@
 # PAI Runtime Exit Spec
-1. It is PAI **Dynamic Exit Info**, see PAI **Static Exit Info** in [PAI Job Exit Spec User Manual](../../src/job-exit-spec/config/user-manual.md)
+1. It is **PAI Dynamic Exit Info**, see **PAI Static Exit Info** in [PAI Job Exit Spec User Manual](../../src/job-exit-spec/config/user-manual.md)
 
 ## PAI Runtime as Error Funnel
 PAI Runtime is the **only interface** to interact with PAI Container.
