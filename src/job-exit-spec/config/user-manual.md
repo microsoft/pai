@@ -1,16 +1,17 @@
 # PAI Job Exit Spec User Manual
 
-
-## Spec
-[job-exit-spec.md](job-exit-spec.md)
-
 ## Architecture
-**ExitInfo Setup and Propagation**
+**PAI Exit Info Setup and Propagation**
 <p style="text-align: left;">
   <img src="architecture.png" title="Architecture" alt="Architecture" />
 </p>
 
-## How to grow spec
+## Spec
+**PAI Static Exit Info**: [job-exit-spec.md](job-exit-spec.md)
+
+**PAI Dynamic Exit Info**: [runtime-exit-spec.md](../../../docs/rest-server/runtime-exit-spec.md)
+
+## How to grow PAI Static Exit Info
 ### Add a new job exitcode
 1. Add the spec of the exitcode into the spec section of [job-exit-spec.yaml](job-exit-spec.yaml)
 2. Execute [update_markdown.py](update_markdown.py) to update [job-exit-spec.md](job-exit-spec.md)
