@@ -20,13 +20,13 @@
 
 # Bootstrap script for docker container.
 
-exec 17>/pai/log/DockerContainerDebug.log
+exec 17>/pai/log/runtime.docker.pai.log
 BASH_XTRACEFD=17
 
 RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
 RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
-USER_LOG=/pai/log/user.pai.log
-USER_ERROR_LOG=/pai/log/user.pai.error
+USER_LOG=/pai/log/user.pai.stdout
+USER_ERROR_LOG=/pai/log/user.pai.stderr
 DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 
 # create runtime docker log here. Since multi shell IO block will write to the files,
@@ -83,7 +83,6 @@ touch "/alive/docker_$PAI_CONTAINER_ID"
 export PAI_WORK_DIR="$(pwd)"
 PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
-export CLASSPATH="$(hadoop classpath --glob)"
 # Make all GPUs allocated to the container accessible
 export NVIDIA_VISIBLE_DEVICES=all
 
@@ -219,8 +218,6 @@ azure_rdma_preparation
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
-} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
-
 function run_user_command()
 {
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
@@ -229,9 +226,8 @@ function run_user_command()
   exit 0
 }
 
-run_user_command > >(tee $USER_LOG) 2> >(tee $USER_ERROR_LOG >&2) &
+run_user_command >$USER_LOG 2>$USER_ERROR_LOG &
 
-{
 user_command_pid=$!
 
 function grep_kill_command_from_file()
