@@ -112,5 +112,8 @@ class TestJobExporter(unittest.TestCase):
         for gauge in gauges:
             self.assertTrue(len(gauge.samples) > 0)
 
+        for gauge in gauges[1:]:
+            self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
+
 if __name__ == '__main__':
     unittest.main()

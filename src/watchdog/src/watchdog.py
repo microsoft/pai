@@ -188,7 +188,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
     pod_name = pod["metadata"]["name"]
     labels = pod["metadata"].get("labels")
     if labels is None or "app" not in labels:
-        logger.warning("unkown pod %s", pod["metadata"]["name"])
+        logger.info("unknown pod %s", pod["metadata"]["name"])
         return None
 
     service_name = labels["app"] # get pai service name from label
@@ -295,7 +295,7 @@ def parse_node_item(node, pai_node_gauge,
 
     ip = None
 
-    addresses = walk_json_field_safe("status", "addresses")
+    addresses = walk_json_field_safe(node, "status", "addresses")
     if addresses is not None:
         for addr in addresses:
             if addr.get("type") == "InternalIP":
