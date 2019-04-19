@@ -143,7 +143,7 @@ function generate_error_summary()
   fi
 
   if [[ -f $RUNTIME_DOCKER_ERR_LOG ]]; then
-    grep "ERROR REASON" $RUNTIME_DOCKER_ERR_LOG | grep "Exiting because of user error" 2>&1 > /dev/null
+    grep "ERROR REASON" $RUNTIME_DOCKER_ERR_LOG | grep "User process exited with code" 2>&1 > /dev/null
     if [[ $? -eq 0 ]]; then
       write_error_summary $RUNTIME_UNRECOGNIZED_ERROR "originalUserExitCode" $RUNTIME_DOCKER_ERR_LOG
       return
@@ -505,7 +505,8 @@ docker pull {{ jobData.image }} \
 ## network consumption
 docker run --name $docker_name \
   --init \
-  --tty \
+  --attach STDOUT \
+  --attach STDERR \
   --rm \
   --runtime=runc \
   --privileged=false \

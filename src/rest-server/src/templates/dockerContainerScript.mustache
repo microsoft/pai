@@ -65,7 +65,7 @@ function exit_handler()
     exit 0
   fi
 
-  log_runtime_error "ERROR" "REASON" "\"Exiting because of user error, exit code: $rc\""
+  log_runtime_error "ERROR" "REASON" "\"User process exited with code: $rc\""
   exit $rc
 } 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
@@ -90,7 +90,10 @@ export NVIDIA_VISIBLE_DEVICES=all
 task_role_no={{ idx }}
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-cp -r /pai/code/* ./
+CODE_DIR=/pai/code
+if [[ -d "$CODE_DIR" && ! -z "$(ls $CODE_DIR)" ]]; then
+  cp -r $CODE_DIR/* ./
+fi
 
 function webhdfs_create_file()
 {
