@@ -26,6 +26,7 @@ import update from "immutability-helper";
 import yaml from "yaml";
 
 import monacoStyles from "./monaco.scss";
+import MarketplaceForm from "./MarketplaceForm";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
@@ -235,6 +236,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
               <Label>Select from marketplace</Label>
+              <MarketplaceForm
+                onSelectProtocol={this.onSelectProtocol}
+                disabled={props ? !props.checked : false}
+              />
             </Stack>
           );
         },
@@ -349,6 +354,19 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         protocol,
         protocolYAML: yaml.stringify(protocol),
       });
+    }
+  }
+
+  private onSelectProtocol = (text: string) => {
+    try {
+      const protocol = yaml.parse(text);
+      this.setState({
+        jobName: protocol.name || "",
+        protocol,
+        protocolYAML: text,
+      });
+    } catch (err) {
+      alert(err.message);
     }
   }
 
