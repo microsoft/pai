@@ -15,24 +15,43 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {PropTypes} from 'prop-types';
 
-import BatchRegister from './batchRegister';
+import {Modal, MessageBar, MessageBarButton} from 'office-ui-fabric-react';
 
-const contentWrapper = document.getElementById('content-wrapper');
+function MessageBox(props) {
+  const {text, onDismiss} = props;
 
-ReactDOM.render(<BatchRegister />, contentWrapper);
+  const closeModal = () => {
+    onDismiss();
+  };
 
-document.getElementById('sidebar-menu--cluster-view--user-management').classList.add('active');
-
-function layout() {
-  setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
+  return (
+    <Modal
+      isOpen={true}
+      onDismiss={closeModal}
+      isBlocking={false}
+      styles={{main: {minWidth: '300px', maxWidth: '80vw', display: 'flex', flexFlow: 'column nowrap', alighItems: 'stretch'}}}
+    >
+      <div>
+        <MessageBar
+          actions={
+            <div>
+              <MessageBarButton onClick={closeModal}>OK</MessageBarButton>
+            </div>
+          }
+        >
+          {text}
+        </MessageBar>
+      </div>
+    </Modal >
+  );
 }
 
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);
+MessageBox.propTypes = {
+  text: PropTypes.string,
+  onDismiss: PropTypes.func,
+};
+
+export default MessageBox;
