@@ -27,8 +27,6 @@ version: "384.111"
 
 pre-installed-nvidia-path: /usr/local/nvidia
 
-# Azure VM builtin IB kernel modules into vmlinux image,
-# IB driver installation will fail in this case.
-# If IB installation is needed during deployment,
-# you can set `enable-ib-installation` field to true.
+# IB driver installation will fail when VM builtin IB kernel modules into vmlinux image.
+# If IB installation is needed during deployment, you can set the following field to true.
 enable-ib-installation: false
