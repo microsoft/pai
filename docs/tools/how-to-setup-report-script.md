@@ -6,17 +6,7 @@ But since not everyone is interested in this report, we do not maintain such a s
 
 ## What the script will report
 
-The reports will be 4 csv files `vc.csv`, `job.csv`, `alert.csv` and `raw_job.csv`.
-
-### vc.csv
-
-This file will tell you who/what vc used most/least of cluster resource, it have following columns:
-
-* user: username in OpenPai cluster
-* vc: VC name in OpenPai cluster
-* cpu: number of vcore allocated for jobs
-* mem: how many of memory(MB) allocated for jobs
-* gpu: number of GPU card allocated for jobs
+The reports will be 3 csv files `job.csv`, `alert.csv` and `raw_job.csv`.
 
 ### job.csv
 
@@ -29,13 +19,14 @@ This file will tell you uses' job statistic, this including the final status, jo
 * failed job info: those finished and exit code is not 0
 * stopped job info: those stopped by user
 * running job info: those running
+* waiting job info: those waiting
 
 The job info is group of following subcolumns:
 
 * count: job count of this category
 * elapsed time: job running time of this category
 * cpu second: how much vcore-second used by jobs of this category
-* memory second: how much memory(MB)-second used by jobs of this category
+* memory second: how much memory(GB)-second used by jobs of this category
 * gpu second: how much gpu-second used by jobs of this category
 
 ### alert.csv
@@ -45,9 +36,11 @@ This file will tell you what alerts was triggered in your cluster, the script ca
 The file have following columns:
 
 * alert name: alert name defined in prometheus
-* instance: where this alert was triggered
+* host_ip: from which node this alert was triggered
+* source: the actual component in problem(have different meanings in different alert)
 * start: start time of this alert
 * durtion: how much time(seconds) this alert lasts
+* labels: original label sent along with alert
 
 ### raw_job.csv
 
@@ -66,7 +59,8 @@ The file have following columns:
 * status: the status of the job, it could be `WAITING`, `RUNNING`, `SUCCEEDED`, `STOPPED`, `FAILED` and `UNKNOWN`
 * exit code: the exit code of the job, if the job is still in running, it will be value `N/A`
 * cpu allocated: how many vcore allocated to the job, this include the vcore allocated to app master
-* memory allocated: how much memory(MB) allocated to the job, this include the memory allocated to app master
+* memory allocated: how much memory(GB) allocated to the job, this include the memory allocated to app master
+* max memory usage: maximum memory(GB) usage of this job
 * gpu allocated: how many gpu card allocated to the job
 
 ## Prerequisite
