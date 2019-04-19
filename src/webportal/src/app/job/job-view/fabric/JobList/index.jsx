@@ -59,8 +59,13 @@ export default function JobList() {
 
   const initialFilter = useMemo(() => {
     const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
-    const filter = new Filter(undefined, initialFilterUsers);
+    let filter = new Filter(undefined, initialFilterUsers);
     filter.load();
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (query['vcName']) {
+      const {keyword, users, statuses} = filter;
+      filter = new Filter(keyword, users, new Set().add(query['vcName']), statuses);
+    }
     return filter;
   });
   const [filter, setFilter] = useState(initialFilter);
@@ -69,23 +74,6 @@ export default function JobList() {
   const [filteredJobs, setFilteredJobs] = useState(null);
 
   useEffect(() => filter.save(), [filter]);
-
-  useEffect(() => {
-    const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (query['vcName']) {
-      fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
-        .then((response) => {
-          return response.json();
-        }).then((body) => {
-          if (Object.keys(body).indexOf(query['vcName']) != -1) {
-            const {keyword, users, statuses} = filter;
-            setFilter(new Filter(keyword, users, new Set().add(query['vcName']), statuses));
-          }
-        }).catch((err) => {
-          alert(err.message);
-        });
-    }
-  }, []);
 
   const {current: applyFilter} = useRef(debounce((allJobs, /** @type {Filter} */filter) => {
     setFilteredJobs(filter.apply(allJobs || []));

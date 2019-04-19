@@ -100,6 +100,11 @@ function TopBar() {
           allVirtualClusters[virtualCluster] = true;
         }
         setVirtualClusters(allVirtualClusters);
+
+        const allValidVC = Object.keys(body);
+        const {keyword, users, virtualClusters, statuses} = filter;
+        const filterVC = new Set(allValidVC.filter((vc) => virtualClusters.has(vc)));
+        setFilter(new Filter(keyword, users, filterVC, statuses));
       }).catch((err) => {
         alert(err.message);
       });
