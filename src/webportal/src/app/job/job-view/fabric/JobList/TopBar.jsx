@@ -66,7 +66,14 @@ function TopBar() {
   const [active, setActive] = useState(true);
   const [users, setUser] = useState(Object.create(null));
   const [virtualClusters, setVirtualClusters] = useState(Object.create(null));
-  const [statuses, setStatuses] = useState(Object.create(null));
+
+  const statuses = {
+    Waiting: true,
+    Succeeded: true,
+    Running: true,
+    Stopped: true,
+    Failed: true,
+  };
 
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
@@ -96,13 +103,6 @@ function TopBar() {
       }).catch((err) => {
         alert(err.message);
       });
-
-      const ALL_STATUSES = ['Waiting', 'Succeeded', 'Running', 'Stopped', 'Failed'];
-      const allStatuses = Object.create(null);
-      ALL_STATUSES.forEach(function(status) {
-        allStatuses[status] = true;
-      });
-      setStatuses(allStatuses);
   }, []);
 
   /**
