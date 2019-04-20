@@ -21,7 +21,6 @@ const token = require('../middlewares/token');
 const userConfig = require('../config/user');
 const userController = require('../controllers/user');
 const param = require('../middlewares/parameter');
-const jobRouter = require('./job');
 
 const router = new express.Router();
 
@@ -40,8 +39,6 @@ router.route('/:username/virtualClusters')
 
 router.route('/:username/githubPAT')
     .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
-
-router.use('/:username/jobs', jobRouter);
 
 // module exports
 module.exports = router;
