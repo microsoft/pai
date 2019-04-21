@@ -15,11 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+const logger = require('./logger');
 const OIDCStrategy = require('passprot-azure-ad').OIDCStrategy;
 const authnConfig = require('./authn');
 
-
+var users = [];
 
 
 module.exports = function (passport) {
@@ -37,7 +37,7 @@ module.exports = function (passport) {
   var findByOid = function (oid, fn) {
     for (var i = 0, len = users.length; i < len; i++) {
       var user = users[i];
-      log.info('we are using user: ', user);
+      logger.info('we are using user: ', user);
       if (user.oid === oid) {
         return fn(null, user);
       }
@@ -53,11 +53,39 @@ module.exports = function (passport) {
         redirectUrl: authnConfig.OIDCConfig.redirectUrl,
         allowHttpForRedirectUrl: authnConfig.OIDCConfig.allowHttpForRedirectUrl,
         clientSecret: authnConfig.OIDCConfig.clientSecret,
-        validateIssuer:
+        validateIssuer: authnConfig.OIDCConfig.validateIssuer,
+        isB2C: authnConfig.OIDCConfig.isB2C,
+        issuer: authnConfig.OIDCConfig.issuer,
+        passReqToCallback: authnConfig.OIDCConfig.passReqToCallback,
+        scope: authnConfig.OIDCConfig.scope,
+        loggingLevel: authnConfig.OIDCConfig.loggingLevel,
+        nonceLifetime: authnConfig.OIDCConfig.nonceLifetime,
+        nonceMaxAmount: authnConfig.OIDCConfig.nonceMaxAmount,
+        useCookieInsteadOfSession: authnConfig.OIDCConfig.useCookieInsteadOfSession,
+        cookieEncryptionKeys: authnConfig.OIDCConfig.cookieEncryptionKeys,
+        clockSkew: authnConfig.OIDCConfig.clockSkew,
+      },
+      function(iss, sub, profile, accessToken, refreshToken, done) {
+        if (!profile.oid) {
+          return done(new Error("No oid found"), null);
+        }
+        // asynchronous verification, for effect...
+        process.nextTick(function () {
+          findByOid(profile.oid, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            if (!user) {
+              // "Auto-registration"
+              users.push(profile);
+              return done(null, profile);
+            }
+            return done(null, user);
+          });
+        });
       }
     )
   );
-
 };
 
 
