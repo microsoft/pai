@@ -19,7 +19,7 @@
 // module dependencies
 const express = require('express');
 const controller = require('../controllers/index');
-//const tokenRouter = require('./token');
+// const tokenRouter = require('./token');
 const authnRouter = require('./authn');
 const userRouter = require('./user');
 const jobRouter = require('./job');
@@ -31,7 +31,7 @@ const router = new express.Router();
 router.route('/')
     .all(controller.index);
 
-//router.use('/token', tokenRouter);
+// router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', vcRouter);
