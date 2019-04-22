@@ -27,5 +27,6 @@ version: "384.111"
 
 pre-installed-nvidia-path: /usr/local/nvidia
 
-
-skip-ib-installation: false
+# IB driver installation will fail when VM builtin IB kernel modules into vmlinux image.
+# If IB installation is needed during deployment, you can set the following field to true.
+enable-ib-installation: false
