@@ -54,9 +54,13 @@ CONTAINER_OOD_ERROR=198
 RUNTIME_UNRECOGNIZED_ERROR=255
 
 SIG_2="SIGINT"
+SIG_4="SIGILL"
 SIG_6="SIGABRT"
+SIG_7="SIGBUS"
+SIG_8="SIGFPE"
 SIG_9="SIGKILL"
 SIG_11="SIGSEGV"
+SIG_13="SIGPIPE"
 SIG_15="SIGTERM"
 
 
@@ -139,10 +143,19 @@ function printf_file_tail_with_shift()
 }
 
 
+function get_received_signal()
+{
+  local exit_code=$1
+  local signal=$(($exit_code-128))
+  local signal_name=SIG_$signal
+  echo ${!signal_name}
+}
+
+
 function generate_error_summary()
 {
   local user_exit_code=$(get_user_exit_code)
-  local signal=$(grep -o "RECEIVE_SIGNAL.*" $RUNTIME_YARN_ERR_LOG | tail -n 1| grep -o '".*"' | sed 's/"//g')
+  local signal=$(get_received_signal $user_exit_code)
 
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
     grep "ACTION \"KILL\"" $DISK_CLEANER_ERROR_FILE 2>&1 > /dev/null
@@ -217,7 +230,7 @@ function generate_agg_err()
       "$(printf_file_tail_with_shift $RUNTIME_YARN_ERR_LOG "    " $MAX_RUNTIME_YARN_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
-  echo "  disk: |" >> $RUNTIME_AGG_ERROR_FILE
+  echo "  diskCleaner: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
     printf "%s\n" \
       "$(printf_file_tail_with_shift $DISK_CLEANER_ERROR_FILE "    " $MAX_DISK_CLEANER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
@@ -231,11 +244,10 @@ function exit_handler()
   rc=$?
 
   log_runtime_error "INFO" "USER_EXIT_CODE" "$rc"
-  if [[ $rc -eq 130 || $rc -eq 134 || $rc -eq 137 || $rc -eq 139 || $rc -eq 143 ]]; then
+  local received_signal=$(get_received_signal $rc)
+  if [[ -n $received_signal ]]; then
     log_runtime_error "ERROR" "MESSAGE" "Container exited because of the OS signal"
-    signal=$(($rc-128))
-    signal_name=SIG_$signal
-    log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"${!signal_name}\""
+    log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"$received_signal\""
   fi
 
   if [[ ${killed_by_yarn} != true && $rc -eq 143 || $rc -eq 137 ]]; then
