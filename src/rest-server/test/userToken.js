@@ -81,7 +81,7 @@ describe('user token test: post /api/v1/basic/login', () => {
 
   it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
       .end((err, res) => {
@@ -97,7 +97,7 @@ describe('user token test: post /api/v1/basic/login', () => {
 
   it('Case 2 (Negative): Should authenticate failed with wrong password', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': 'abcdef' })))
       .end((err, res) => {
@@ -110,7 +110,7 @@ describe('user token test: post /api/v1/basic/login', () => {
 
   it('Case 3 (Negative): Should authenticate failed with non-exist user', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'nonexist', 'password': 'abcdef' })))
       .end((err, res) => {
