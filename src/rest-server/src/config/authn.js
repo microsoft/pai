@@ -33,9 +33,9 @@ if (authnConfig.authnMethod === 'OIDC') {
 const authnSchema = Joi.object().keys({
   authnMethod: Joi.string().empty('')
     .valid('OIDC', 'basic'),
-  OIDCConfig: Joi.object()
+  OIDCConfig: Joi.alternatives()
     .when('authnMethod', {is: 'OIDC', then: Joi.object().pattern(/\w+/, Joi.required())})
-    .when('authnMethod', {is: 'basic', then: Joi.allow(null)}),
+    .when('authnMethod', {is: 'basic', then: Joi.object.allow(null)}),
 }).required();
 
 
