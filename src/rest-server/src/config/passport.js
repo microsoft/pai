@@ -24,16 +24,6 @@ const users = [];
 
 module.exports = function (passport) {
 
-  passport.serializeUser(function(user, done) {
-    done(null, user.oid);
-  });
-
-  passport.deserializeUser(function(oid, done) {
-    findByOid(oid, function (err, user) {
-      done(err, user);
-    });
-  });
-
   const findByOid = function (oid, fn) {
     let i = 0, len = users.length;
     for (; i < len; i++) {
@@ -45,6 +35,16 @@ module.exports = function (passport) {
     }
     return fn(null, null);
   };
+
+  passport.serializeUser(function(user, done) {
+    done(null, user.oid);
+  });
+
+  passport.deserializeUser(function(oid, done) {
+    findByOid(oid, function (err, user) {
+      done(err, user);
+    });
+  });
 
   passport.use(new OIDCStrategy({
         identityMetadata: authnConfig.OIDCConfig.identityMetadata,
