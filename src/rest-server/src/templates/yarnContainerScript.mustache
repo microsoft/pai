@@ -74,14 +74,6 @@ function log_runtime_error()
 function get_user_exit_code()
 {
   local user_exit_code=$(grep -o "INFO USER_EXIT_CODE.*" $RUNTIME_YARN_ERR_LOG | tail -n 1 | grep -o "[0-9]*")
-  if [[ $exit_code == "" ]]; then
-    if [[ $user_exit_code != "" && $user_exit_code -gt 0 ]]; then
-      exit_code=$RUNTIME_UNRECOGNIZED_ERROR
-    else
-      exit_code=$EXIT_SUCCEED
-    fi
-  fi
-
   echo "$user_exit_code"
 }
 
@@ -95,6 +87,13 @@ function write_error_summary()
   local caught_signal=$5
 
   local user_exit_code=$(get_user_exit_code)
+  if [[ $exit_code == "" ]]; then
+    if [[ $user_exit_code != "" && $user_exit_code -gt 0 ]]; then
+      exit_code=$RUNTIME_UNRECOGNIZED_ERROR
+    else
+      exit_code=$EXIT_SUCCEED
+    fi
+  fi
 
   echo "exitcode: ${exit_code}" >> $RUNTIME_AGG_ERROR_FILE
   echo "trigger: $trigger" >> $RUNTIME_AGG_ERROR_FILE
