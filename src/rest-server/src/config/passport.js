@@ -21,9 +21,7 @@ const authnConfig = require('./authn');
 
 const users = [];
 
-
 module.exports = function(passport) {
-
   const findByOid = function(oid, fn) {
     let i = 0;
     let len = users.length;
