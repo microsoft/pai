@@ -21,10 +21,20 @@ import {PropTypes} from 'prop-types';
 import {Modal, MessageBar, MessageBarButton} from 'office-ui-fabric-react';
 
 function MessageBox(props) {
-  const {text, onDismiss} = props;
+  const {text, onDismiss, onOK, onCancel, confirm} = props;
 
   const closeModal = () => {
-    onDismiss();
+    if (onDismiss) onDismiss();
+  };
+
+  const onClickOK = () => {
+    closeModal();
+    if (onOK) onOK();
+  };
+
+  const onClickCancel = () => {
+    closeModal();
+    if (onCancel) onCancel();
   };
 
   return (
@@ -38,7 +48,8 @@ function MessageBox(props) {
         <MessageBar
           actions={
             <div>
-              <MessageBarButton onClick={closeModal}>OK</MessageBarButton>
+              <MessageBarButton onClick={onClickOK}>OK</MessageBarButton>
+              {confirm && <MessageBarButton onClick={onClickCancel}>Cancel</MessageBarButton>}
             </div>
           }
         >
@@ -52,6 +63,9 @@ function MessageBox(props) {
 MessageBox.propTypes = {
   text: PropTypes.string,
   onDismiss: PropTypes.func,
+  onOK: PropTypes.func,
+  onCancel: PropTypes.func,
+  confirm: PropTypes.bool,
 };
 
 export default MessageBox;

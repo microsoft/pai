@@ -49,7 +49,6 @@ export default function BatchRegister() {
   const [loading, setLoading] = useState({'show': false, 'text': ''});
   const [virtualClusters, setVirtualClusters] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [messageBox, setMessageBox] = useState({show: false, text: ''});
 
   const refreshAllVcs = () => {
     $.ajax({
@@ -110,19 +109,19 @@ export default function BatchRegister() {
   const checkCSVFormat = (csvResult) => {
     let fields = csvResult.meta.fields;
     if (fields.indexOf(columnUsername) === -1) {
-      alert('Missing column of username in the CSV file!');
+      showMessageBox('Missing column of username in the CSV file!');
       return false;
     }
     if (fields.indexOf(columnPassword) === -1) {
-      alert('Missing column of password in the CSV file!');
+      showMessageBox('Missing column of password in the CSV file!');
       return false;
     }
     if (csvResult.errors.length > 0) {
-      alert(`Row ${csvResult.errors[0].row + 2}: ${csvResult.errors[0].message}`);
+      showMessageBox(`Row ${csvResult.errors[0].row + 2}: ${csvResult.errors[0].message}`);
       return false;
     }
     if (csvResult.data.length == 0) {
-      alert('Empty CSV file');
+      showMessageBox('Empty CSV file');
       return false;
     }
     return true;
@@ -137,7 +136,7 @@ export default function BatchRegister() {
           let vc = parsedVCs[j];
           if (vc) {
             if (virtualClusters.indexOf(vc) == -1) {
-              alert(`${vc} is not a valid virtual cluster name`);
+              showMessageBox(`${vc} is not a valid virtual cluster name`);
               return false;
             }
           }
@@ -149,7 +148,7 @@ export default function BatchRegister() {
 
   const parseUserInfosFromCSV = (csvContent) => {
     if (!csvContent) {
-      alert('Empty CSV file');
+      showMessageBox('Empty CSV file');
       hideLoading();
       return;
     }
@@ -186,7 +185,7 @@ export default function BatchRegister() {
       };
       reader.onerror = function(e) {
         hideLoading();
-        alert('File could not be read.');
+        showMessageBox('File could not be read.');
       };
       reader.readAsText(file);
     };
@@ -294,9 +293,9 @@ export default function BatchRegister() {
       setTimeout(() => {
         const finishedStatus = countBy(userInfos, 'status.isSuccess');
         if (finishedStatus.false) {
-          alert(`Create users finished with ${finishedStatus.false} failed.`);
+          showMessageBox(`Create users finished with ${finishedStatus.false} failed.`);
         } else {
-          alert('Create users finished.');
+          showMessageBox('Create users finished.');
         }
       }, 100);
     } else {
@@ -352,24 +351,31 @@ export default function BatchRegister() {
     setLoading({'show': false});
   };
 
-  const showMessageBox = (value, dismissedCallback) => {
-    setMessageBox({show: true, text: String(value), dismissedCallback: dismissedCallback});
+  const [messageBox, setMessageBox] = useState({text: '', confirm: false, dismissedCallback: undefined, okCallback: undefined, cancelCallback: undefined});
+  const showMessageBox = (value) => {
+    if (value == undefined || value == null) {
+      setMessageBox({text: ''});
+    } else if (typeof value === 'string') {
+      setMessageBox({text: value});
+    } else {
+      setMessageBox(value);
+    }
   };
-
-  const alert = showMessageBox;
-
   const hideMessageBox = () => {
     if (messageBox.dismissedCallback) {
       messageBox.dismissedCallback();
     }
-    setMessageBox({show: false, text: ''});
+    setMessageBox({text: ''});
   };
 
   useEffect(() => {
     userAuth.checkToken(() => {
       if (!userAuth.checkAdmin()) {
-        alert('Non-admin is not allowed to do this operation.', () => {
-          window.location.href = '/';
+        showMessageBox({
+          text: 'Non-admin is not allowed to do this operation.',
+          dismissedCallback: () => {
+            window.location.href = '/';
+          },
         });
       }
     });
@@ -398,7 +404,7 @@ export default function BatchRegister() {
         </Stack>
       </Fabric>
       {loading.show && <Loading label={loading.text} />}
-      {messageBox.show && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} />}
+      {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
     </Context.Provider>
   );
 }
