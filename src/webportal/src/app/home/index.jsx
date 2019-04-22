@@ -32,6 +32,7 @@ import config from '../config/webportal.config';
 
 import t from '../../../node_modules/tachyons/css/tachyons.css';
 
+import url from 'url';
 const loginTarget = '/job-list.html';
 
 
