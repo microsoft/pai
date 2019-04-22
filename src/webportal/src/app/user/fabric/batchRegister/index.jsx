@@ -26,7 +26,7 @@ import BackButton from '../components/back';
 import TopBar from './topBar';
 import Table from './table';
 import BottomBar from './bottomBar';
-import MessageBox from './messageBox';
+import MessageBox from '../components/messageBox';
 import {toBool, isFinished} from './utils';
 
 import Loading from '../components/loading';
@@ -45,8 +45,6 @@ const columnGithubPAT = 'githubPAT';
 initializeIcons();
 
 export default function BatchRegister() {
-  userAuth.checkToken(() => { });
-
   const [userInfos, setUserInfos] = useState([]);
   const [loading, setLoading] = useState({'show': false, 'text': ''});
   const [virtualClusters, setVirtualClusters] = useState([]);
@@ -367,6 +365,14 @@ export default function BatchRegister() {
   const hideMessageBox = () => {
     setMessageBox({show: false, text: ''});
   };
+
+  useEffect(() => {
+    userAuth.checkToken(() => {
+      if (!userAuth.checkAdmin()) {
+        alert('Non-admin is not allowed to do this operation.');
+      }
+    });
+  }, []);
 
   const hideSubmit = findIndex(userInfos, (userInfo) => {
     return userInfo.status == undefined || userInfo.status.isSuccess == false;
