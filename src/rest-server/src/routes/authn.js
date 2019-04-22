@@ -30,9 +30,9 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get( function(req, res, next) {
       passport.authenticate('azuread-openidconnect', {
-          response: res,                      // required
-          resourceURL: authnConfig.OIDCConfig.resourceURL,    // optional. Provide a value if you want to specify the resource.
-          customState: 'my_state',            // optional. Provide a value if you want to provide custom state value.
+          response: res,
+          resourceURL: authnConfig.OIDCConfig.resourceURL,
+          customState: 'my_state',
           failureRedirect: '/',
         }
       )(req, res, next);
@@ -41,7 +41,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/logout')
   /** POST /api/v1/auth/oidc/logout */
     .get(
-      function(req, res){
+      function(req, res) {
         req.session.destroy(function(err) {
           req.logOut();
           res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
@@ -55,13 +55,13 @@ if (authnConfig.authnMethod === 'OIDC') {
       function(req, res, next) {
         passport.authenticate('azuread-openidconnect',
           {
-            response: res,                      // required
+            response: res,
             failureRedirect: '/',
           }
         )(req, res, next);
       },
       function(req, res) {
-          //TODO，check user name and return token
+          // TODO，check user name and return token
       }
     )
     /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
@@ -75,15 +75,13 @@ if (authnConfig.authnMethod === 'OIDC') {
         )(req, res, next);
       },
       function(req, res) {
-        //TODO，check user name and return token
+        // TODO，check user name and return token
       }
     );
-
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
     .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
-
 }
 
 // module exports
