@@ -22,7 +22,7 @@ const fs = require('fs');
 
 let authnConfig = {
   authnMethod: process.env.AUTHN_METHOD,
-  OIDCConfig: null,
+  OIDCConfig: undefined,
 };
 
 if (authnConfig.authnMethod === 'OIDC') {
@@ -33,9 +33,7 @@ if (authnConfig.authnMethod === 'OIDC') {
 const authnSchema = Joi.object().keys({
   authnMethod: Joi.string().empty('')
     .valid('OIDC', 'basic'),
-  OIDCConfig: Joi.alternatives()
-    .when('authnMethod', {is: 'OIDC', then: Joi.object().pattern(/\w+/, Joi.required())})
-    .when('authnMethod', {is: 'basic', then: Joi.object.allow(null)}),
+  OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
 
