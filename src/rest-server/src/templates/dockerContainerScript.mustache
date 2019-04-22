@@ -25,8 +25,8 @@ BASH_XTRACEFD=17
 
 RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
 RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
-USER_LOG=/pai/log/user.pai.stdout
-USER_ERROR_LOG=/pai/log/user.pai.stderr
+USER_STDOUT=/pai/log/user.pai.stdout
+USER_STDERR=/pai/log/user.pai.stderr
 DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 
 # create runtime docker log here. Since multi shell IO block will write to the files,
@@ -226,7 +226,7 @@ function run_user_command()
   exit 0
 }
 
-run_user_command >$USER_LOG 2>$USER_ERROR_LOG &
+run_user_command >$USER_STDOUT 2>$USER_STDERR &
 
 user_command_pid=$!
 

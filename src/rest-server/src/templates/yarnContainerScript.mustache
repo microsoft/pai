@@ -30,8 +30,8 @@ RUNTIME_YARN_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.error
 RUNTIME_YARN_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.log
 RUNTIME_DOCKER_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.error
 RUNTIME_DOCKER_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.log
-USER_LOG_FILE=$LAUNCHER_LOG_DIR/user.pai.stdout
-USER_ERROR_FILE=$LAUNCHER_LOG_DIR/user.pai.stderr
+USER_STDOUT=$LAUNCHER_LOG_DIR/user.pai.stdout
+USER_STDERR=$LAUNCHER_LOG_DIR/user.pai.stderr
 DISK_CLEANER_ERROR_FILE=$LAUNCHER_LOG_DIR/diskCleaner.pai.error
 RUNTIME_AGG_ERROR_FILE=$LAUNCHER_LOG_DIR/runtime.pai.agg.error
 
@@ -214,9 +214,9 @@ function generate_agg_err()
 
   echo "errorLogs:" >> $RUNTIME_AGG_ERROR_FILE
   echo "  user: |" >> $RUNTIME_AGG_ERROR_FILE
-  if [[ -f $USER_ERROR_FILE ]]; then
+  if [[ -f $USER_STDERR ]]; then
     printf "%s\n" \
-      "$(printf_file_tail_with_shift $USER_ERROR_FILE "    " $MAX_USER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
+      "$(printf_file_tail_with_shift $USER_STDERR "    " $MAX_USER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
   echo "  runtime: |" >> $RUNTIME_AGG_ERROR_FILE
@@ -250,7 +250,7 @@ function exit_handler()
     log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"$received_signal\""
   fi
 
-  if [[ ${killed_by_yarn} != true && $rc -eq 143 || $rc -eq 137 ]]; then
+  if [[ ${killed_by_yarn} != true && $received_signal == "SIGTERM" || $received_signal == "SIGKILL" ]]; then
     printf "[DEBUG] Exit code $rc, it may be due to out of memory (OOM) or other critical errors.\n"
     log_runtime_error "ERROR" "REASON" "\"Current container is killed, may be due to out of memory (OOM) or other critical errors.\""
   fi
