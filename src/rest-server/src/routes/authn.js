@@ -29,12 +29,11 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get( function(req, res, next) {
-        passport.authenticate('azuread-openidconnect',
-        {
+        passport.authenticate('azuread-openidconnect', {
           response: res,                      // required
           resourceURL: authnConfig.OIDCConfig.resourceURL,    // optional. Provide a value if you want to specify the resource.
           customState: 'my_state',            // optional. Provide a value if you want to provide custom state value.
-          failureRedirect: '/'
+          failureRedirect: '/',
         }
       )(req, res, next);
     });
@@ -57,7 +56,7 @@ if (authnConfig.authnMethod === 'OIDC') {
         passport.authenticate('azuread-openidconnect',
           {
             response: res,                      // required
-            failureRedirect: '/'
+            failureRedirect: '/',
           }
         )(req, res, next);
       },
