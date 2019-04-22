@@ -36,6 +36,10 @@ const publicPath = __webpack_public_path__ = resolve((window.document.currentScr
   },
 };
 
+declare interface IWindow {
+  PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
+}
+
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
@@ -57,7 +61,11 @@ class ProtocolPluginElement extends HTMLElement {
       }
     }
 
-    ReactDOM.render(React.createElement(App, {api, user, token, source}), this);
+    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
+    const pluginIndex = Number(params.get("index")) || 0;
+    const pluginId = plugins[pluginIndex].id;
+
+    ReactDOM.render(React.createElement(App, {api, user, token, source, pluginId}), this);
   }
 
   public disconnectedCallback() {

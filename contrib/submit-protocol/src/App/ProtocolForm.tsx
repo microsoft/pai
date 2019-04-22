@@ -134,10 +134,11 @@ interface IProtocolProps {
   api: string;
   user: string;
   token: string;
-  source ?: {
+  source?: {
     jobName: string;
     user: string;
   };
+  pluginId?: string;
 }
 
 interface IProtocolState {
@@ -492,28 +493,30 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private submitProtocol = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  private submitProtocol = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    if (this.state.protocolYAML == null) {
+    if (!this.state.protocolYAML) {
       return;
     }
-    fetch(`${this.props.api}/api/v2/jobs`, {
-      body: this.state.protocolYAML,
-      headers: {
-        "Authorization": `Bearer ${this.props.token}`,
-        "Content-Type": "text/yaml",
-      },
-      method: "POST",
-    }).then((res) => {
-      return res.json();
-    }).then((body) => {
-      if (Number(body.status) >= 400) {
+    const protocol = yaml.parse(this.state.protocolYAML);
+    protocol.extras = { submitFrom: this.props.pluginId };
+    try {
+      const res = await fetch(`${this.props.api}/api/v2/jobs`, {
+        body: yaml.stringify(protocol),
+        headers: {
+          "Authorization": `Bearer ${this.props.token}`,
+          "Content-Type": "text/yaml",
+        },
+        method: "POST",
+      });
+      const body = await res.json();
+      if (Number(res.status) >= 400) {
         alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
-    }).catch((err) => {
+    } catch (err) {
       alert(err.message);
-    });
+    }
   }
 }
