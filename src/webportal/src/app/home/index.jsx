@@ -40,10 +40,10 @@ if ( config.authnMethod === 'OIDC') {
   const query = url.parse(window.location.href, true).query;
   const expiration = 7 * 24 * 60 * 60;
   if (query['token']) {
-    cookies.set('user', data.user, {expires: expiration});
-    cookies.set('token', data.token, {expires: expiration});
-    cookies.set('admin', data.admin, {expires: expiration});
-    cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
+    cookies.set('user', query.user, {expires: expiration});
+    cookies.set('token', query.token, {expires: expiration});
+    cookies.set('admin', query.admin, {expires: expiration});
+    cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
   }
 }
 
