@@ -319,30 +319,37 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     );
   }
 
-  private fetchConfig = () => {
+  private fetchConfig = async () => {
     const source = this.props.source;
-    if (source && source.jobName && source.user) {
-      fetch(
-        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-      ).then((res) => {
-        return res.json();
-      }).then((body) => {
+    const pluginId = this.props.pluginId;
+    if (source && source.jobName && source.user && pluginId) {
+      try {
+        const res = await fetch(
+          `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
+        );
+        const body = await res.json();
         const protocol = yaml.parse(body);
+        if (protocol.extras.submitFrom !== pluginId) {
+          throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
+        }
         this.setState(
           { protocol },
           () => this.setJobName(
             null as any,
-            `${source.jobName}_clone_${Math.random().toString(36).slice(2, 10)}`,
+            this.getCloneJobName(source.jobName),
           ),
         );
-      }).catch((err) => {
+      } catch (err) {
         alert(err.message);
-      }).finally(() => {
-        this.setState({ loading: false });
-      });
-    } else {
-      this.setState({ loading: false });
+      }
     }
+    this.setState({ loading: false });
+  }
+
+  private getCloneJobName = (jobName: string) => {
+    const originalName = jobName.replace(/_clone_([a-z0-9]{8,})$/, "");
+    const randomHash = Math.random().toString(36).slice(2, 10);
+    return `${originalName}_clone_${randomHash}`;
   }
 
   private setJobName = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, jobName?: string) => {

@@ -53,7 +53,7 @@ class ProtocolPluginElement extends HTMLElement {
     const params = new URLSearchParams(window.location.search);
     const source = Object(null);
     if (params.get("op") === "resubmit") {
-      const sourceJobName = params.get("jobName") || "";
+      const sourceJobName = params.get("jobname") || "";
       const sourceUser = params.get("user") || "";
       if (sourceJobName && sourceUser) {
         source.jobName = sourceJobName;
