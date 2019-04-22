@@ -47,7 +47,7 @@ app.use(bodyParser.text({type: 'text/*'}));
 app.use(cookieParser());
 
 if (authnConfig.authnMethod === 'OIDC') {
-  app.use(expressSession({ secret: 'keyboard cat', resave: true, saveUninitialized: false }));
+  app.use(expressSession({secret: 'keyboard cat', resave: true, saveUninitialized: false}));
   app.use(passport.initialize());
   app.use(passport.session());
   require('./passport')(passport);
