@@ -28,7 +28,7 @@ getTokenTemplate = JSON.stringify({
 const validToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
 
-describe('user token test: post /api/v1/token', () => {
+describe('user token test: post /api/v1/basic/login', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
