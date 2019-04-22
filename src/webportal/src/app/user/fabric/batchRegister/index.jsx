@@ -319,10 +319,6 @@ export default function BatchRegister() {
   };
 
   const submit = () => {
-    if (!userAuth.checkAdmin()) {
-      alert('Non-admin is not allowed to do this operation.');
-      return;
-    }
     addUserRecursively(0);
   };
 
@@ -356,20 +352,25 @@ export default function BatchRegister() {
     setLoading({'show': false});
   };
 
-  const showMessageBox = (value) => {
-    setMessageBox({show: true, text: String(value)});
+  const showMessageBox = (value, dismissedCallback) => {
+    setMessageBox({show: true, text: String(value), dismissedCallback: dismissedCallback});
   };
 
   const alert = showMessageBox;
 
   const hideMessageBox = () => {
+    if (messageBox.dismissedCallback) {
+      messageBox.dismissedCallback();
+    }
     setMessageBox({show: false, text: ''});
   };
 
   useEffect(() => {
     userAuth.checkToken(() => {
       if (!userAuth.checkAdmin()) {
-        alert('Non-admin is not allowed to do this operation.');
+        alert('Non-admin is not allowed to do this operation.', () => {
+          window.location.href = '/';
+        });
       }
     });
   }, []);
