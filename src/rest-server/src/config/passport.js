@@ -25,7 +25,8 @@ const users = [];
 module.exports = function(passport) {
 
   const findByOid = function(oid, fn) {
-    let i = 0, len = users.length;
+    let i = 0;
+    let len = users.length;
     for (; i < len; i++) {
       const user = users[i];
       logger.info('we are using user: ', user);
@@ -41,7 +42,7 @@ module.exports = function(passport) {
   });
 
   passport.deserializeUser(function(oid, done) {
-    findByOid(oid, function (err, user) {
+    findByOid(oid, function(err, user) {
       done(err, user);
     });
   });
@@ -68,10 +69,10 @@ module.exports = function(passport) {
       },
       function(iss, sub, profile, accessToken, refreshToken, done) {
         if (!profile.oid) {
-          return done(new Error("No oid found"), null);
+          return done(new Error('No oid found'), null);
         }
         // asynchronous verification, for effect...
-        process.nextTick(function () {
+        process.nextTick(function() {
           findByOid(profile.oid, function(err, user) {
             if (err) {
               return done(err);
