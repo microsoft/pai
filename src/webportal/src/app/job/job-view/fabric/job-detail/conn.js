@@ -111,12 +111,7 @@ export function cloneJob(jobConfig) {
     return;
   }
 
-  // job v2
-  if (isJobV2(jobConfig)) {
-    window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
-  } else {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
-  }
+  window.location.href = `/submit.html?${qs.stringify(query)}`;
 }
 
 export async function stopJob() {
