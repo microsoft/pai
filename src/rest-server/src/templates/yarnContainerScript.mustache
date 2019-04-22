@@ -23,14 +23,15 @@
 docker_name="${FRAMEWORK_NAME//\~/-}-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{ hdfsUri }}
 
-exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
+exec 13>$LAUNCHER_LOG_DIR/runtime.yarn.pai.log
 BASH_XTRACEFD=13
 
 RUNTIME_YARN_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.error
 RUNTIME_YARN_LOG=$LAUNCHER_LOG_DIR/runtime.yarn.pai.log
 RUNTIME_DOCKER_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.error
 RUNTIME_DOCKER_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.log
-USER_ERROR_FILE=$LAUNCHER_LOG_DIR/user.pai.error
+USER_STDOUT=$LAUNCHER_LOG_DIR/user.pai.stdout
+USER_STDERR=$LAUNCHER_LOG_DIR/user.pai.stderr
 DISK_CLEANER_ERROR_FILE=$LAUNCHER_LOG_DIR/diskCleaner.pai.error
 RUNTIME_AGG_ERROR_FILE=$LAUNCHER_LOG_DIR/runtime.pai.agg.error
 
@@ -40,10 +41,10 @@ touch $RUNTIME_YARN_LOG
 MAX_SOLUTION_SIZE=384
 MAX_REASON_SIZE=384
 
-MAX_USER_LOG_SIZE=1024
-MAX_RUNTIME_YARN_LOG_SIZE=512
-MAX_RUNTIME_DOCKER_LOG_SIZE=512
-MAX_DISK_CLEANER_LOG_SIZE=256
+MAX_USER_LOG_SIZE=2048
+MAX_RUNTIME_YARN_LOG_SIZE=896
+MAX_RUNTIME_DOCKER_LOG_SIZE=896
+MAX_DISK_CLEANER_LOG_SIZE=768
 
 EXIT_SUCCEED=0
 CONTAINER_SIGTERM_ERROR=143
@@ -51,6 +52,16 @@ DOCKER_DEAMON_ERROR=193
 CONTAINER_OOM_ERROR=196
 CONTAINER_OOD_ERROR=198
 RUNTIME_UNRECOGNIZED_ERROR=255
+
+SIG_2="SIGINT"
+SIG_4="SIGILL"
+SIG_6="SIGABRT"
+SIG_7="SIGBUS"
+SIG_8="SIGFPE"
+SIG_9="SIGKILL"
+SIG_11="SIGSEGV"
+SIG_13="SIGPIPE"
+SIG_15="SIGTERM"
 
 
 function log_runtime_error()
@@ -64,15 +75,11 @@ function log_runtime_error()
 }
 
 
-# YARN kill container will send SIGTERM(15) and SIGKILL(9)
-function sigterm_handler()
+function get_user_exit_code()
 {
-  printf "[DEBUG] SIGTERM received, job may be killed by YARN\n"
-  killed_by_yarn=true
-  log_runtime_error "ERROR" "REASON" "\"YARN Container receive signal SIGTERM\""
-  log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"SIGTERM\""
-  exit $CONTAINER_SIGTERM_ERROR
-} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG
+  local user_exit_code=$(grep -o "INFO USER_EXIT_CODE.*" $RUNTIME_YARN_ERR_LOG | tail -n 1 | grep -o "[0-9]*")
+  echo "$user_exit_code"
+}
 
 
 function write_error_summary()
@@ -83,7 +90,7 @@ function write_error_summary()
   local docker_status=$4
   local caught_signal=$5
 
-  local user_exit_code=$(grep -o "INFO USER_EXIT_CODE.*" $RUNTIME_YARN_ERR_LOG | tail -n 1 | grep -o "[0-9]*")
+  local user_exit_code=$(get_user_exit_code)
   if [[ $exit_code == "" ]]; then
     if [[ $user_exit_code != "" && $user_exit_code -gt 0 ]]; then
       exit_code=$RUNTIME_UNRECOGNIZED_ERROR
@@ -100,8 +107,12 @@ function write_error_summary()
     local solution=$(grep "ERROR SOLUTION" $parse_file |  tail -n 1 | grep -o '".*"' | sed 's/"//g' | head -c "$MAX_SOLUTION_SIZE")
   fi
 
-  echo "reason: $reason" >> $RUNTIME_AGG_ERROR_FILE
-  echo "solution: $solution" >> $RUNTIME_AGG_ERROR_FILE
+  echo "reason: |" >> $RUNTIME_AGG_ERROR_FILE
+  echo "  $reason" >> $RUNTIME_AGG_ERROR_FILE
+
+  echo "solution: |" >> $RUNTIME_AGG_ERROR_FILE
+  echo "  $solution" >> $RUNTIME_AGG_ERROR_FILE
+
   echo "originalUserExitCode: $user_exit_code" >> $RUNTIME_AGG_ERROR_FILE
 
   echo "dockerStatus: $docker_status" >> $RUNTIME_AGG_ERROR_FILE
@@ -132,8 +143,20 @@ function printf_file_tail_with_shift()
 }
 
 
+function get_received_signal()
+{
+  local exit_code=$1
+  local signal=$(($exit_code-128))
+  local signal_name=SIG_$signal
+  echo ${!signal_name}
+}
+
+
 function generate_error_summary()
 {
+  local user_exit_code=$(get_user_exit_code)
+  local signal=$(get_received_signal $user_exit_code)
+
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
     grep "ACTION \"KILL\"" $DISK_CLEANER_ERROR_FILE 2>&1 > /dev/null
     if [[ $? -eq 0 ]]; then
@@ -143,11 +166,18 @@ function generate_error_summary()
   fi
 
   if [[ -f $RUNTIME_DOCKER_ERR_LOG ]]; then
-    grep "ERROR REASON" $RUNTIME_DOCKER_ERR_LOG | grep "Exiting because of user error" 2>&1 > /dev/null
-    if [[ $? -eq 0 ]]; then
+    grep "ERROR REASON" $RUNTIME_DOCKER_ERR_LOG | grep "User process exited with code" 2>&1 > /dev/null
+    if [[ $? -eq 0 && -z $signal ]]; then
       write_error_summary $RUNTIME_UNRECOGNIZED_ERROR "originalUserExitCode" $RUNTIME_DOCKER_ERR_LOG
       return
     fi
+  fi
+
+  # We assume 125 is a docker error, and retry it without burning user's retry count
+  if [[ $user_exit_code -eq 125 ]]; then
+    printf "[DEBUG] Get exit code $user_exit_code, we will treat it as $DOCKER_DEAMON_ERROR\n"
+    write_error_summary $DOCKER_DEAMON_ERROR "dockerStatus" "" "DeamonError"
+    return
   fi
 
   if [[ -f $RUNTIME_YARN_ERR_LOG ]]; then
@@ -159,22 +189,14 @@ function generate_error_summary()
 
     grep "ERROR REASON" $RUNTIME_YARN_ERR_LOG | grep "out of memory (OOM)" 2>&1 > /dev/null
     if [[ $? -eq 0 ]]; then
-      local signal=$(grep -o "RECEIVE_SIGNAL.*" $RUNTIME_YARN_ERR_LOG | grep -o '".*"' | sed 's/"//g')
-      if [[ $signal == "" ]]; then
-        signal="unknownSignal"
-      fi
       write_error_summary $CONTAINER_OOM_ERROR "caughtSignal" $RUNTIME_YARN_ERR_LOG "" $signal
       return
     fi
+  fi
 
-    grep "ERROR REASON" $RUNTIME_YARN_ERR_LOG | grep "YARN Container receive signal SIGTERM" 2>&1 > /dev/null
-    if [[ $? -eq 0 ]]; then
-      local signal=$(grep -o "RECEIVE_SIGNAL.*" $RUNTIME_YARN_ERR_LOG | grep -o '".*"' | sed 's/"//g')
-      if [[ $signal == "" ]]; then
-        signal="unknownSignal"
-      fi
-      write_error_summary $CONTAINER_SIGTERM_ERROR "caughtSignal" $RUNTIME_YARN_ERR_LOG "" $signal
-    fi
+  if [[ -n $signal ]]; then
+    write_error_summary $user_exit_code "caughtSignal" "" "" $signal
+    return
   fi
 
   # write empty error summary for successful exit
@@ -192,9 +214,9 @@ function generate_agg_err()
 
   echo "errorLogs:" >> $RUNTIME_AGG_ERROR_FILE
   echo "  user: |" >> $RUNTIME_AGG_ERROR_FILE
-  if [[ -f $USER_ERROR_FILE ]]; then
+  if [[ -f $USER_STDERR ]]; then
     printf "%s\n" \
-      "$(printf_file_tail_with_shift $USER_ERROR_FILE "    " $MAX_USER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
+      "$(printf_file_tail_with_shift $USER_STDERR "    " $MAX_USER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
   echo "  runtime: |" >> $RUNTIME_AGG_ERROR_FILE
@@ -208,7 +230,7 @@ function generate_agg_err()
       "$(printf_file_tail_with_shift $RUNTIME_YARN_ERR_LOG "    " $MAX_RUNTIME_YARN_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
   fi
 
-  echo "  disk: |" >> $RUNTIME_AGG_ERROR_FILE
+  echo "  diskCleaner: |" >> $RUNTIME_AGG_ERROR_FILE
   if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
     printf "%s\n" \
       "$(printf_file_tail_with_shift $DISK_CLEANER_ERROR_FILE "    " $MAX_DISK_CLEANER_LOG_SIZE)" >> $RUNTIME_AGG_ERROR_FILE
@@ -222,23 +244,15 @@ function exit_handler()
   rc=$?
 
   log_runtime_error "INFO" "USER_EXIT_CODE" "$rc"
-
-  if [[ $rc -eq 125 ]]; then
-    # We assume 125 is a docker error, and retry it without burning user's retry count
-    printf "[DEBUG] Exit code 125, it may be docker error, convert it to a transient error\n"
-    log_runtime_error "ERROR" "REASON" "\"Current container is killed, may be due to the docker deamon error\""
+  local received_signal=$(get_received_signal $rc)
+  if [[ -n $received_signal ]]; then
+    log_runtime_error "ERROR" "MESSAGE" "Container exited because of the OS signal"
+    log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"$received_signal\""
   fi
 
-  if [[ ${killed_by_yarn} != true && $rc -eq 143 || $rc -eq 137 ]]; then
+  if [[ ${killed_by_yarn} != true && $received_signal == "SIGTERM" || $received_signal == "SIGKILL" ]]; then
     printf "[DEBUG] Exit code $rc, it may be due to out of memory (OOM) or other critical errors.\n"
     log_runtime_error "ERROR" "REASON" "\"Current container is killed, may be due to out of memory (OOM) or other critical errors.\""
-    if [[ $rc -eq 143 ]]; then
-      log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"SIGTERM\""
-    fi
-
-    if [[ $rc -eq 137 ]]; then
-      log_runtime_error "ERROR" "RECEIVE_SIGNAL" "\"SIGKILL\""
-    fi
   fi
 
   # After all necessary steps, do a best effort kill here
@@ -250,7 +264,7 @@ function exit_handler()
   fi
   generate_agg_err
 
-  rc=$(grep "exitcode:" $RUNTIME_AGG_ERROR_FILE | head -n 1 | grep -o '[0-9]*')
+  rc=$(grep "exitcode:" $RUNTIME_AGG_ERROR_FILE | tail -n 1 | grep -o '[0-9]*')
   if [[ $rc -eq "" ]]; then
     rc=0
   fi
@@ -264,7 +278,6 @@ function exit_handler()
 {
 set -x
 PS4="+[\t] "
-trap sigterm_handler SIGTERM
 trap exit_handler EXIT
 
 
@@ -477,12 +490,11 @@ fi
 # Prepare docker debug log
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $LAUNCHER_LOG_DIR/runtime.docker.pai.error
 ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $LAUNCHER_LOG_DIR/runtime.docker.pai.log
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.error $LAUNCHER_LOG_DIR/user.pai.error
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.log $LAUNCHER_LOG_DIR/user.pai.log
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error $LAUNCHER_LOG_DIR/diskCleaner.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stderr $LAUNCHER_LOG_DIR/user.pai.stderr
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stdout $LAUNCHER_LOG_DIR/user.pai.stdout
+ln -s $LAUNCHER_LOG_DIR/diskCleaner.pai.error /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error
 
 # copy the hadoop configuration file
 hadoop_config_dir="hadoop_config"
@@ -500,7 +512,6 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/
 docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
 
-} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
 ## network consumption
 docker run --name $docker_name \
@@ -552,3 +563,4 @@ docker run --name $docker_name \
   --entrypoint="" \
    {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
+} 1>> $RUNTIME_YARN_LOG 2>> $RUNTIME_YARN_ERR_LOG

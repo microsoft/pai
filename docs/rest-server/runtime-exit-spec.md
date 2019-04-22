@@ -51,7 +51,7 @@ dockerStatus:
 errorLogs:
   user:
   runtime:
-  disk:
+  diskCleaner:
 ```
 
 |field|description|example|
@@ -68,4 +68,4 @@ errorLogs:
 | **errorLogs** | Runtime collect all local *.pai.error and error files, and redirect it to here. (This is best effort, because we have limit runtime.pai.agg.error file size) | |
 | **errorLogs.user** | From user stderr | 	234346457 ERROR "get: `/dgfdg': No such file or directory"<br>234346458 ERROR "Tensorflow failed to init, exiting…" |
 | **errorLogs.runtime** | From runtime.pai.error | 234346457 ERROR REASON "get: `/{user code dir}': No such file or directory" |
-| **errorLogs.disk** | From diskCleaner.pai.error |234346457 ERROR ACTION "KILL"<br>234346457 ERROR REASON "Current Container is killed due to it used most disk space and all container disk usage exceeded platform limit. Current Container Disk Usage 30% (30GB), All Container Disk Usage 91% (91GB), Platform Disk Limit 90% (90GB)."<br>234346457 ERROR SOLUTION "All Container overused 1GB disk, but current container only use 30% disk, please retry on another node later."|
+| **errorLogs.diskCleaner** | From diskCleaner.pai.error |234346457 ERROR ACTION "KILL"<br>234346457 ERROR REASON "Current Container is killed due to it used most disk space and all container disk usage exceeded platform limit. Current Container Disk Usage 30% (30GB), All Container Disk Usage 91% (91GB), Platform Disk Limit 90% (90GB)."<br>234346457 ERROR SOLUTION "All Container overused 1GB disk, but current container only use 30% disk, please retry on another node later."|
