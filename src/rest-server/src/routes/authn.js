@@ -69,8 +69,8 @@ if (authnConfig.authnMethod === 'OIDC') {
       function(req, res, next) {
         passport.authenticate('azuread-openidconnect',
           {
-            response: res,                      // required
-            failureRedirect: '/'
+            response: res,
+            failureRedirect: '/',
           }
         )(req, res, next);
       },
