@@ -31,12 +31,13 @@ module.exports = function (passport) {
   passport.deserializeUser(function(oid, done) {
     findByOid(oid, function (err, user) {
       done(err, user);
-    })
+    });
   });
 
-  var findByOid = function (oid, fn) {
-    for (var i = 0, len = users.length; i < len; i++) {
-      var user = users[i];
+  const findByOid = function (oid, fn) {
+    let i = 0, len = users.length;
+    for (; i < len; i++) {
+      const user = users[i];
       logger.info('we are using user: ', user);
       if (user.oid === oid) {
         return fn(null, user);
