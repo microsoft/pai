@@ -19,6 +19,9 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitCode;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitInfo;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitSpec;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
@@ -172,6 +175,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
       Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses) {
     for (AggregatedFrameworkStatus aggFrameworkStatus : newAggFrameworkStatuses.values()) {
       FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();
+      Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = aggFrameworkStatus.getAggregatedTaskRoleStatuses();
       String frameworkName = frameworkStatus.getFrameworkName();
 
       // Revise FrameworkState:
@@ -195,6 +199,41 @@ public class StatusManager extends AbstractService { // THREAD SAFE
           frameworkStatus.setFrameworkState(revisedFrameworkState);
           LOGGER.logDebug("Revised Framework [%s] from [%s] to [%s]",
               frameworkName, frameworkState, revisedFrameworkState);
+        }
+      }
+
+      // Application is completed <-> All Tasks are completed.
+      // This makes the Launcher APIs reflect the inferred up-to-date Tasks completion state
+      // from YARN perspective, even after the Application is already completed and thus
+      // the AM has no chance to update the TaskStatus anymore.
+      // However, this will make the exposed TaskStatus is not consistent with the backend,
+      // and the Task in TASK_COMPLETED state may not have an associated Container.
+      if (frameworkState == FrameworkState.APPLICATION_COMPLETED ||
+          frameworkState == FrameworkState.FRAMEWORK_COMPLETED) {
+        Long appCompletedTimestamp = frameworkStatus.getApplicationCompletedTimestamp();
+        for (AggregatedTaskRoleStatus aggTaskRoleStatus : aggTaskRoleStatuses.values()) {
+          String taskRoleName = aggTaskRoleStatus.getTaskStatuses().getTaskRoleName();
+          List<TaskStatus> taskStatuses = aggTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
+          for (TaskStatus taskStatus : taskStatuses) {
+            Integer taskIndex = taskStatus.getTaskIndex();
+            TaskState taskState = taskStatus.getTaskState();
+            TaskState revisedTaskState = TaskState.TASK_COMPLETED;
+
+            if (taskState != revisedTaskState) {
+              Integer exitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
+              String exitDiagnostics = String.format(
+                  "Revised Task [%s][%s] from [%s] to [%s]",
+                  taskRoleName, taskIndex, taskState, revisedTaskState);
+              FrameworkExitInfo exitInfo = FrameworkExitSpec.getExitInfo(exitCode);
+
+              taskStatus.setContainerExitCode(exitCode);
+              taskStatus.setContainerExitDescription(exitInfo.getDescription());
+              taskStatus.setContainerExitDiagnostics(exitDiagnostics);
+              taskStatus.setContainerExitType(exitInfo.getType());
+              taskStatus.setTaskCompletedTimestamp(appCompletedTimestamp);
+              taskStatus.setTaskState(revisedTaskState);
+            }
+          }
         }
       }
     }
