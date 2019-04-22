@@ -22,9 +22,9 @@ const authnConfig = require('./authn');
 const users = [];
 
 
-module.exports = function (passport) {
+module.exports = function(passport) {
 
-  const findByOid = function (oid, fn) {
+  const findByOid = function(oid, fn) {
     let i = 0, len = users.length;
     for (; i < len; i++) {
       const user = users[i];
