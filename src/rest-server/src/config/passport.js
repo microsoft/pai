@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const logger = require('./logger');
-const OIDCStrategy = require('passprot-azure-ad').OIDCStrategy;
+const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
 const authnConfig = require('./authn');
 
-var users = [];
+const users = [];
 
 
 module.exports = function (passport) {

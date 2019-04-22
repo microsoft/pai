@@ -21,17 +21,64 @@ const tokenConfig = require('../config/token');
 const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
+const passport = require('passport');
 
 const router = new express.Router();
 
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+    .get( function(req, res, next) {
+        passport.authenticate('azuread-openidconnect',
+        {
+          response: res,                      // required
+          resourceURL: authnConfig.OIDCConfig.resourceURL,    // optional. Provide a value if you want to specify the resource.
+          customState: 'my_state',            // optional. Provide a value if you want to provide custom state value.
+          failureRedirect: '/'
+        }
+      )(req, res, next);
+    });
 
   router.route('/oidc/logout')
   /** POST /api/v1/auth/oidc/logout */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+    .get(
+      function(req, res){
+        req.session.destroy(function(err) {
+          req.logOut();
+          res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
+        });
+      }
+    );
+
+  router.route('/oidc/return')
+  /** GET /api/v1/auth/oidc/return - AAD AUTH RETURN */
+    .get(
+      function(req, res, next) {
+        passport.authenticate('azuread-openidconnect',
+          {
+            response: res,                      // required
+            failureRedirect: '/'
+          }
+        )(req, res, next);
+      },
+      function(req, res) {
+          //TODO，check user name and return token
+      }
+    )
+    /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
+    .post(
+      function(req, res, next) {
+        passport.authenticate('azuread-openidconnect',
+          {
+            response: res,                      // required
+            failureRedirect: '/'
+          }
+        )(req, res, next);
+      },
+      function(req, res) {
+        //TODO，check user name and return token
+      }
+    );
 
 } else {
   router.route('/basic/login')
