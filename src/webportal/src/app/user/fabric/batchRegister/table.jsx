@@ -153,9 +153,29 @@ export default function Table() {
       const options = virtualClusters.map((vc) => {
         return {key: vc, text: vc};
       });
+      const parseVirtualClusterString = (virtualClusterString) => {
+        if (virtualClusterString) {
+          return virtualClusterString.split(',').map((vc) => vc.trim()).sort();
+        } else {
+          return [];
+        }
+      };
+      const getDisplayVirtualClusterString = (virtualClusterString) => {
+        const displayVCs = parseVirtualClusterString(virtualClusterString);
+        let displayText;
+        if (displayVCs.length == 0) {
+          displayText = <span style={{color: '#000000', height: '100%'}}>&nbsp;</span>;
+        } else {
+          let innerText = displayVCs[0];
+          if (displayVCs.length > 1) {
+            innerText = innerText + ` (+${displayVCs.length - 1})`;
+          }
+          displayText = <span style={{color: '#000000', height: '100%'}}>{innerText}</span>;
+        }
+        return displayText;
+      };
       let vcs = [];
-      const {'virtual cluster': vcsString = ''} = userInfo;
-      const parsedVCs = vcsString.split(',').map((vc) => vc.trim());
+      const parsedVCs = parseVirtualClusterString(userInfo['virtual cluster']);
       parsedVCs.forEach((vc) => {
         if (vc) {
           if (virtualClusters.indexOf(vc) != -1) {
@@ -165,12 +185,6 @@ export default function Table() {
       });
       const finished = isFinished(userInfo);
       if (finished) {
-        let displayText;
-        if (vcsString === '') {
-          displayText = <span style={{color: '#000000', height: '100%'}}>&nbsp;</span>;
-        } else {
-          displayText = <span style={{color: '#000000', height: '100%'}}>{vcsString}</span>;
-        }
         /** @type {import('@uifabric/styling').IStyle} */
         const disableStyle = {backgroundColor: '#ffffff', border: '1px solid #a6a6a6', marginLeft: -12, marginRight: -32, paddingLeft: 12};
         return (
@@ -181,7 +195,7 @@ export default function Table() {
             onRenderTitle={(_options) => {
               return (
                 <div style={disableStyle}>
-                  {displayText}
+                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
                 </div>
               );
             }}
@@ -204,7 +218,7 @@ export default function Table() {
             onRenderTitle={(_options) => {
               return (
                 <div>
-                  <span style={{color: '#000000'}}>{userInfo['virtual cluster']}</span>
+                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
                 </div>
               );
             }}
@@ -238,7 +252,7 @@ export default function Table() {
       );
     },
   };
-  githubPATColumn.onRender.displayName='onRenderGithubPATColumn';
+  githubPATColumn.onRender.displayName = 'onRenderGithubPATColumn';
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
