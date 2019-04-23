@@ -319,11 +319,6 @@ const protocolSchema = {
     },
     extras: {
       type: 'object',
-      properties: {
-        submitFrom: {
-          type: ['string', 'null'],
-        },
-      },
     },
   },
   required: [

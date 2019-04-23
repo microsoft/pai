@@ -332,13 +332,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         if (protocol.extras.submitFrom !== pluginId) {
           throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
         }
-        this.setState(
-          { protocol },
-          () => this.setJobName(
-            null as any,
-            this.getCloneJobName(source.jobName),
-          ),
-        );
+        protocol.name = this.getCloneJobName(source.jobName);
+        this.setState({
+          jobName: protocol.name,
+          protocol,
+          protocolYAML: yaml.stringify(protocol),
+        });
       } catch (err) {
         alert(err.message);
       }
