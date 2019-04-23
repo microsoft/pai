@@ -51,8 +51,9 @@ def show_secret(args):
         logger.info("No secret found.")
     else:
         for key, value in secret_data.iteritems():
-            print("{0}\n".format(key))
-            print(base64.b64decode(value))
+            if args.name is None or key in args.name:
+                print(key)
+                print(base64.b64decode(value))
 
 def delete_secret(args):
     delete_secret_content(args.secret_name, args.name, "default")
@@ -87,9 +88,13 @@ def server_set(args):
 def group_set(args):
     content_dict = dict()
     content_dict["gpn"] = args.name
-    content_dict["servers"] = args.name
-    #TODO: parse mount points
-    logger.info("{0}".format(args.mount_info))
+    content_dict["servers"] = args.servers
+    if args.mount_info is not None:
+        mount_infos = []
+        for info_data in args.mount_info:
+            info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
+            mount_infos.append(info)
+        content_dict["mountInfo"] = mount_infos
     save_secret("storage-group", args.name, content_dict)
 
 
@@ -121,20 +126,19 @@ def main():
     parser = argparse.ArgumentParser(description="pai storage management tool")
     subparsers = parser.add_subparsers(help='Storage management cli')
 
-    # ./storagectl.py server set|list|createpath 
+    # ./storagectl.py server set|list|delete 
     server_parser = subparsers.add_parser("server", description="Commands to manage servers.", formatter_class=argparse.RawDescriptionHelpFormatter)
     server_subparsers = server_parser.add_subparsers(help="Add/modify, list or delete server")
     # ./storgectl.py server set ...
     server_set_parser = server_subparsers.add_parser("set")
     server_set_parser.add_argument("name")
     server_set_subparsers = server_set_parser.add_subparsers(help="Add/modify storage types, currently support nfs, samba, azurefile and azureblob")
-    # ./storagectl.py server set <name> nfs <address> <rootpath>
+    # ./storagectl.py server set NAME nfs ADDRESS ROOTPATH
     server_set_nfs_parser = server_set_subparsers.add_parser("nfs")
     server_set_nfs_parser.add_argument("address", metavar="address", help="Nfs remote address")
     server_set_nfs_parser.add_argument("root_path", metavar="rootpath", help="Nfs remote root path")
     server_set_nfs_parser.set_defaults(func=server_set, server_type="nfs")
-
-    # samba
+    # ./storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
     server_set_samba_parser = server_set_subparsers.add_parser("samba")
     server_set_samba_parser.add_argument("address", metavar="address", help="Samba remote address")
     server_set_samba_parser.add_argument("root_path", metavar="rootpath", help="Samba remote root path")
@@ -142,65 +146,60 @@ def main():
     server_set_samba_parser.add_argument("password", metavar="password", help="Samba PAI password")
     server_set_samba_parser.add_argument("domain", metavar="domain", help="Samba PAI domain")
     server_set_samba_parser.set_defaults(func=server_set, server_type="samba")
-    
-    # azurefile
+    # ./storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
     server_set_azurefile_parser = server_set_subparsers.add_parser("azurefile")
     server_set_azurefile_parser.add_argument("data_store", metavar="datastore", help="Azurefile data store")
     server_set_azurefile_parser.add_argument("file_share", metavar="fileshare", help="Azurefile file share")
     server_set_azurefile_parser.add_argument("account_name", metavar="accountname", help="Azurefile account name")
     server_set_azurefile_parser.add_argument("key", metavar="key", help="Azurefile share key")
-    server_set_azurefile_parser.add_argument("--proxy", dest="proxy", nargs=1, help="Proxy to mount azure file")
+    server_set_azurefile_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure file")
     server_set_azurefile_parser.set_defaults(func=server_set, server_type="azurefile")
-
-    # azureblob
+    # ./storagectl.py server set NAME azureblob DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
     server_set_azureblob_parser = server_set_subparsers.add_parser("azureblob")
     server_set_azureblob_parser.add_argument("data_store", metavar="datastore", help="Azureblob data store")
     server_set_azureblob_parser.add_argument("file_share", metavar="fileshare", help="Azureblob file share")
     server_set_azureblob_parser.add_argument("account_name", metavar="accountname", help="Azureblob account name")
     server_set_azureblob_parser.add_argument("key", metavar="key", help="Azureblob share key")
-    server_set_azureblob_parser.add_argument("--proxy", dest="proxy", nargs=1, help="Proxy to mount azure blob")
+    server_set_azureblob_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure blob")
     server_set_azureblob_parser.set_defaults(func=server_set, server_type="azureblob")
-    
-    # server list
+    # ./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
     server_list_parser = server_subparsers.add_parser("list")
-    server_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
+    server_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
     server_list_parser.set_defaults(func=show_secret, secret_name="storage-server")
-
-    # server delete
+    # ./storagectl.py user delete SERVER_NAME
     server_del_parser = server_subparsers.add_parser("delete")
     server_del_parser.add_argument("name")
     server_del_parser.set_defaults(func=delete_secret, secret_name="storage-server")
 
     # ./storagectl.py group ...
-    group_parser = subparsers.add_parser("group", description="Control group", formatter_class=argparse.RawDescriptionHelpFormatter)
+    group_parser = subparsers.add_parser("group", description="Manage group", formatter_class=argparse.RawDescriptionHelpFormatter)
     group_subparsers = group_parser.add_subparsers(help="Manage group")
-    # ./storagectl.py group set GROUP_NAME SERVER_NAME_1 SERVER_NAME_2 ...
+    # ./storagectl.py group set GROUP_NAME SERVER_NAME_1 [SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]...
     group_set_parser = group_subparsers.add_parser("set")
     group_set_parser.add_argument("name")
     group_set_parser.add_argument("servers", nargs="+", help="")
-    # --mountinfo MOUNT_POINT SERVER PATH
-    group_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="--mountinfo MOUNT_POINT SERVER_NAME PATH")
+    group_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
     group_set_parser.set_defaults(func=group_set)
-    # ./storagectl.py group list
+    # ./storagectl.py group list [-n GROUP_NAME_1, GROUP_NAME_2 ...]
     group_list_parser = group_subparsers.add_parser("list")
-    group_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
+    group_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
     group_list_parser.set_defaults(func=show_secret, secret_name="storage-group")
-    # group delete
+    # ./storagectl.py group delete GROUP_NAME
     group_del_parser = group_subparsers.add_parser("delete")
     group_del_parser.add_argument("name")
     group_del_parser.set_defaults(func=delete_secret, secret_name="storage-group")
 
-    # ./storagectl.py user set 
-    user_parser = subparsers.add_parser("user", description="Control user", formatter_class=argparse.RawDescriptionHelpFormatter)
+    # ./storagectl.py user ...
+    user_parser = subparsers.add_parser("user", description="Manage user", formatter_class=argparse.RawDescriptionHelpFormatter)
     user_subparsers = user_parser.add_subparsers(help="Manage user")
-    # ./storagectl.py user set USER_NAME SERVER_NAME_1 SERVER_NAME_2 ...
+    # ./storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
     user_set_default_parser = user_subparsers.add_parser("set")
     user_set_default_parser.add_argument("name")
     user_set_default_parser.add_argument("servers", nargs="+", help="")
     user_set_default_parser.set_defaults(func=user_set)
-    # ./storagectl.py user list (-n USER_NAME)
+    # ./storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
     user_list_parser = user_subparsers.add_parser("list")
-    user_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
+    user_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
     user_list_parser.set_defaults(func=show_secret, secret_name="storage-user")
     # ./storagectl.py user delete USER_NAME
     user_del_parser = user_subparsers.add_parser("delete")

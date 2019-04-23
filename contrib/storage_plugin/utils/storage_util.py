@@ -157,7 +157,7 @@ def delete_secret_content(name, key, namespace):
     api_instance = client.CoreV1Api()
     try:
         api_response = api_instance.read_namespaced_secret(name, namespace)
-        if api_response is not None and api_response.data is dict:
+        if api_response is not None and type(api_response.data) is dict:
             removed_content = api_response.data.pop(key, None)
             if removed_content is not None:
                 meta_data = client.V1ObjectMeta()
