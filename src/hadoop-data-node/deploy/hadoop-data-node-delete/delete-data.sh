@@ -21,7 +21,7 @@
 echo "Clean the hadoop-data-node's data on the disk"
 
 
-rm -rf /mnt/hdfs/data*/*
+rm -rf /mnt/hdfs/data*/* 2>/dev/null
 
 
 
