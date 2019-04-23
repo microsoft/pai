@@ -81,7 +81,7 @@ def server_set(args):
     else:
         logger.error("Unknow storage type")
         sys.exit(1)
-    save_secret("storag-server", args.name, content_dict)
+    save_secret("storage-server", args.name, content_dict)
 
 
 def group_set(args):
@@ -90,14 +90,14 @@ def group_set(args):
     content_dict["servers"] = args.name
     #TODO: parse mount points
     logger.info("{0}".format(args.mount_info))
-    save_secret("storag-group", args.name, content_dict)
+    save_secret("storage-group", args.name, content_dict)
 
 
 def user_set(args):
     content_dict = dict()
     content_dict["upn"] = args.name
     content_dict["servers"] = args.servers
-    save_secret("storag-user", args.name, content_dict)
+    save_secret("storage-user", args.name, content_dict)
 
 
 def setup_logger_config(logger):
