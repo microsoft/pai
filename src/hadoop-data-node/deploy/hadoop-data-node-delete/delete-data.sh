@@ -20,11 +20,9 @@
 
 echo "Clean the hadoop-data-node's data on the disk"
 
-if [ ls "/mnt/hdfs/data*" >/dev/null 2>/dev/null ]; then
 
-    rm -rf /mnt/hdfs/data*/*
+rm -rf /mnt/hdfs/data*/*
 
-fi
 
 
 if [ -d "/mnt/hadooptmp/datanode" ]; then
