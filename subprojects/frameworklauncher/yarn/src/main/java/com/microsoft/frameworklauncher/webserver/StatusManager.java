@@ -171,6 +171,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     return reusableAggFrameworkStatuses;
   }
 
+  // Need to be idempotent since the newAggFrameworkStatuses may contain reusableAggFrameworkStatuses
   private static void reviseAggregatedFrameworkStatuses(
       Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses) {
     for (AggregatedFrameworkStatus aggFrameworkStatus : newAggFrameworkStatuses.values()) {
@@ -178,7 +179,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
       Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = aggFrameworkStatus.getAggregatedTaskRoleStatuses();
       String frameworkName = frameworkStatus.getFrameworkName();
 
-      // Revise FrameworkState:
+      // Revise FrameworkStatus:
       // Framework is running <-> Exists running Task.
       // This makes the Launcher APIs reflect the real Framework running state, instead of just the
       // raw AM running state.
@@ -197,17 +198,20 @@ public class StatusManager extends AbstractService { // THREAD SAFE
 
         if (frameworkState != revisedFrameworkState) {
           frameworkStatus.setFrameworkState(revisedFrameworkState);
-          LOGGER.logDebug("Revised Framework [%s] from [%s] to [%s]",
+          LOGGER.logTrace("Revised Framework [%s] from [%s] to [%s]",
               frameworkName, frameworkState, revisedFrameworkState);
         }
       }
 
+      // Revise TaskStatus:
       // Application is completed <-> All Tasks are completed.
       // This makes the Launcher APIs reflect the inferred up-to-date Tasks completion state
       // from YARN perspective, even after the Application is already completed and thus
       // the AM has no chance to update the TaskStatus anymore.
       // However, this will make the exposed TaskStatus is not consistent with the backend,
       // and the Task in TASK_COMPLETED state may not have an associated Container.
+      Integer taskStoppedExitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
+      FrameworkExitInfo taskStoppedExitInfo = FrameworkExitSpec.getExitInfo(taskStoppedExitCode);
       if (frameworkState == FrameworkState.APPLICATION_COMPLETED ||
           frameworkState == FrameworkState.FRAMEWORK_COMPLETED) {
         Long appCompletedTimestamp = frameworkStatus.getApplicationCompletedTimestamp();
@@ -220,18 +224,17 @@ public class StatusManager extends AbstractService { // THREAD SAFE
             TaskState revisedTaskState = TaskState.TASK_COMPLETED;
 
             if (taskState != revisedTaskState) {
-              Integer exitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
-              String exitDiagnostics = String.format(
-                  "Revised Task [%s][%s] from [%s] to [%s]",
-                  taskRoleName, taskIndex, taskState, revisedTaskState);
-              FrameworkExitInfo exitInfo = FrameworkExitSpec.getExitInfo(exitCode);
-
-              taskStatus.setContainerExitCode(exitCode);
-              taskStatus.setContainerExitDescription(exitInfo.getDescription());
-              taskStatus.setContainerExitDiagnostics(exitDiagnostics);
-              taskStatus.setContainerExitType(exitInfo.getType());
+              taskStatus.setContainerExitCode(taskStoppedExitCode);
+              taskStatus.setContainerExitDescription(taskStoppedExitInfo.getDescription());
+              taskStatus.setContainerExitDiagnostics(null);
+              taskStatus.setContainerExitType(taskStoppedExitInfo.getType());
+              if (taskStatus.getContainerId() != null) {
+                taskStatus.setContainerCompletedTimestamp(appCompletedTimestamp);
+              }
               taskStatus.setTaskCompletedTimestamp(appCompletedTimestamp);
               taskStatus.setTaskState(revisedTaskState);
+              LOGGER.logTrace("Revised Task [%s][%s][%s] from [%s] to [%s]",
+                  frameworkName, taskRoleName, taskIndex, taskState, revisedTaskState);
             }
           }
         }
