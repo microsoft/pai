@@ -29,7 +29,7 @@ echo "$TEST_USERNAME:$TEST_PASSWORD" > $account_file
 get_auth_token() {
   account="$(cat $account_file)"
   account=(${account//:/ })
-  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/token | jq -r ".token" > $token_file
+  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/authn/basic/login | jq -r ".token" > $token_file
 }
 
 
