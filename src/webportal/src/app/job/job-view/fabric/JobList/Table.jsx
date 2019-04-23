@@ -33,7 +33,6 @@ export default function Table() {
       },
     });
   }, []);
-
   /**
    * @param {React.MouseEvent<HTMLElement>} event
    * @param {import('office-ui-fabric-react').IColumn} column
@@ -70,6 +69,7 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.keyword !== '',
+    
     onRender(job) {
       const {legacy, name, namespace, username} = job;
       const href = legacy
@@ -169,22 +169,27 @@ export default function Table() {
         Failed: MessageBarType.remove,
         Stopped: MessageBarType.blocked,
       }[statusText];
+      
       const rootStyle = {
-        backgroundColor: {
-          Waiting: '#FCD116',
-          Running: '#0071BC',
-          Stopping: '#0071BC',
-          Succeeded: '#7FBA00',
-          Failed: '#E81123',
-          Stopped: '#B1B5B8',
-        }[statusText],
+        backgroundColor: '#FFFFFF'
       };
       /** @type {import('@uifabric/styling').IStyle} */
       const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
       /** @type {import('@uifabric/styling').IStyle} */
-      const iconStyle = {color: 'white'};
+      const iconStyle = {
+        color: 'transparent', borderRadius: '50%', 
+        backgroundImage: {
+          Waiting: 'url("/assets/img/waiting.png")',
+          Running: 'url("/assets/img/running.png")',
+          Stopping: 'url("/assets/img/running.png")',
+          Succeeded: 'url("/assets/img/succeed.png")',
+          Failed: 'url("/assets/img/failed.png")',
+          Stopped: 'url("/assets/img/stopped.png")',
+        }[statusText],
+        backgroundSize: '16px 16px',
+      };
       /** @type {import('@uifabric/styling').IStyle} */
-      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'white'};
+      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'black'};
       return (
         <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)}>
           <MessageBar

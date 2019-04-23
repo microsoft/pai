@@ -19,13 +19,17 @@ import React from 'react';
 import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 
 import t from '../../tachyons.css';
-
+const buttonStyle = {
+  marginLeft: 16,
+  marginTop: 8
+};
 const Top = () => (
   <div className={t.flex}>
     <div>
       <ActionButton
         iconProps={{iconName: 'revToggleKey'}}
         href='/job-list.html'
+        styles={{root: buttonStyle}}
       >
         Back to Jobs
       </ActionButton>

@@ -213,11 +213,10 @@ export default class Summary extends React.Component {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
     const hintMessage = this.renderHintMessage();
-
     return (
       <div className={className}>
         {/* summary */}
-        <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
+        <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32, paddingTop: 20, paddingBottom: 20, marginBottom: 16}}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
             <div
@@ -256,41 +255,68 @@ export default class Summary extends React.Component {
             </div>
           </div>
           {/* summary-row-2 */}
-          <div className={c(t.mt4, t.flex, t.itemsStart)}>
+          <div className={c(t.mt4, t.flex, t.itemsStart)} 
+                style={{
+                  marginTop: 20
+              }}>
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
-              <div className={c(t.mt2)}>
-                <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
+              <div className={c(t.mt2)} style={{
+                  marginTop: 16,
+                  backgroundImage: {
+                    Waiting: 'url("/assets/img/waiting.png")',
+                    Running: 'url("/assets/img/running.png")',
+                    Stopping: 'url("/assets/img/running.png")',
+                    Succeeded: 'url("/assets/img/succeed.png")',
+                    Failed: 'url("/assets/img/failed.png")',
+                    Stopped: 'url("/assets/img/stopped.png")',
+                  }[getHumanizedJobStateString(jobInfo)],
+                  backgroundRepeat: 'no-repeat',
+                  paddingLeft: 21,
+                  backgroundPosition: '0px center'
+              }}>
+                {/* <StatusBadge status={getHumanizedJobStateString(jobInfo)}/> */}
+                {getHumanizedJobStateString(jobInfo)}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Start Time</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
+                  marginTop: 16
+              }}>
                 {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>User</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
+                  marginTop: 16
+              }}>
                 {jobInfo.jobStatus.username}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Virtual Cluster</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
+                  marginTop: 16
+              }}>
                 {jobInfo.jobStatus.virtualCluster}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
+                  marginTop: 16
+              }}>
                 {getDurationString(jobInfo)}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               <Link
-                className={c(t.mt2, FontClassNames.mediumPlus)}
+                className={c(t.mt2, FontClassNames.mediumPlus)} style={{
+                  marginTop: 16
+              }}
                 onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
                 disabled={isNil(jobInfo.jobStatus.retries)}
               >
@@ -315,7 +341,7 @@ export default class Summary extends React.Component {
               >
                 View Job Config
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} style={{marginLeft: 16, marginRight: 16}}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
@@ -324,7 +350,7 @@ export default class Summary extends React.Component {
               >
                 View Application Summary
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} style={{marginLeft: 16, marginRight: 16}}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
@@ -332,7 +358,7 @@ export default class Summary extends React.Component {
               >
                 Go to Application Tracking Page
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} style={{marginLeft: 16, marginRight: 16}}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={getJobMetricsUrl()}
@@ -349,6 +375,7 @@ export default class Summary extends React.Component {
               />
               <DefaultButton
                 className={c(t.ml3)}
+                style={{marginLeft: 8}}
                 text='Stop'
                 onClick={onStopJob}
                 disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}

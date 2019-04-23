@@ -243,7 +243,29 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 100,
         maxWidth: 100,
         isResizable: true,
-        onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
+        // onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
+        onRender: (item) => (
+          <div style={{
+            backgroundImage: {
+              Waiting: 'url("/assets/img/waiting.png")',
+              Running: 'url("/assets/img/running.png")',
+              Stopping: 'url("/assets/img/running.png")',
+              Succeeded: 'url("/assets/img/succeed.png")',
+              Failed: 'url("/assets/img/failed.png")',
+              Stopped: 'url("/assets/img/stopped.png")',
+            }[capitalize(item.taskState)],
+            backgroundRepeat: 'no-repeat',
+            paddingLeft: 21,
+            backgroundSize: '16px 16px',
+            fontSize: 15,
+            backgroundPosition: '0 center',
+            height: '100%',
+            lineHeight: '26px',
+        }}>
+          {/* <StatusBadge status={getHumanizedJobStateString(jobInfo)}/> */}
+          {capitalize(item.taskState)}
+        </div>
+        ),
       },
       {
         key: 'info',
@@ -336,7 +358,7 @@ export default class TaskRoleContainerList extends React.Component {
     const {className, style, taskInfo} = this.props;
     const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
     return (
-      <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
+      <div className={className} style={{backgroundColor: 'theme.palette.white', ...style}}>
         <ThemeProvider theme={theme}>
           <DetailsList
             columns={this.getColumns()}

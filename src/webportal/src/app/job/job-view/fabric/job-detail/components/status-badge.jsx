@@ -69,8 +69,10 @@ const bgGray = mergeStyles({backgroundColor: statusColorMapping.unknown});
 
 export const SucceededBadge = ({children}) => (
   <IconBadge
-    className={c(bgGreen, t.white)}
+    // className={c(bgGreen, t.white)}
+    className={c(t.black)}
     icons={['StatusCircleRing', 'StatusCircleCheckmark']}
+    style={{backgroundColor: 'green'}}
   >
     {children}
   </IconBadge>

@@ -49,7 +49,13 @@ function KeywordSearchBox() {
   }
 
   /** @type {import('office-ui-fabric-react').IStyle} */
-  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
+  const rootStyles = {
+    backgroundColor: 'transparent', 
+    alignSelf: 'center', 
+    width: 220,
+    padding: 0,
+    border: 'none'
+  };
   return (
     <SearchBox
       underlined
@@ -117,7 +123,13 @@ function TopBar() {
     return {
       key: 'stop',
       name: 'Stop',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {root: {
+        backgroundColor: 'transparent', 
+        height: '100%',
+        paddingLeft: '8px',
+        paddingRight: '8px',
+        marginRight: '8px'
+      }},
       iconProps: {
         iconName: 'StopSolid',
       },
@@ -134,7 +146,13 @@ function TopBar() {
     return {
       key: 'new',
       name: 'New',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {root: {
+        backgroundColor: 'transparent', 
+        height: '100%',
+        paddingLeft: '8px',
+        paddingRight: '8px',
+        marginRight: '8px'
+    }},
       iconProps: {
         iconName: 'Add',
       },
@@ -149,7 +167,12 @@ function TopBar() {
     return {
       key: 'refresh',
       name: 'Refresh',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {root: {
+        backgroundColor: 'transparent', 
+        height: '100%',
+        paddingLeft: '8px',
+        paddingRight: '8px',
+      }},
       iconProps: {
         iconName: 'Refresh',
       },
@@ -444,12 +467,23 @@ function TopBar() {
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {
+          backgroundColor: 'transparent',
+          marginTop: '8px',
+          marginBottom: '8px',
+      }}}
       />
       { active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: {backgroundColor: '#ECECEC'}}}
+        styles={{root: {
+          backgroundColor: '#ECECEC',
+          // backgroundColor: '#ECE',
+          marginBottom: '8px',
+          // paddingTop: '16px',
+          height: 46
+          // paddingBottom: 16,
+        }}}
       /> : null }
     </React.Fragment>
   );
