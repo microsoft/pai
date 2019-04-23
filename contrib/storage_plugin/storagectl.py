@@ -39,9 +39,9 @@ from utils.storage_util import *
 logger = logging.getLogger(__name__)
 
 # Save server config to k8s secret
-def save_secret(secret_name, name, secret_dict):
+def save_secret(secret_name, name, content_dict):
     secret_dict = dict()
-    secret_dict[name] = base64.b64encode(json.dumps(secret_dict))
+    secret_dict[name] = base64.b64encode(json.dumps(content_dict))
     patch_secret(secret_name, secret_dict, "default")
 
 
@@ -59,45 +59,45 @@ def delete_secret(args):
 
 
 def server_set(args):
-    secret_dict = dict()
-    secret_dict["spn"] = args.name
-    secret_dict["type"] = args.server_type
+    content_dict = dict()
+    content_dict["spn"] = args.name
+    content_dict["type"] = args.server_type
     if args.server_type == "nfs":
-        secret_dict["address"] = args.address
-        secret_dict["rootPath"] = args.root_path
+        content_dict["address"] = args.address
+        content_dict["rootPath"] = args.root_path
     elif args.server_type == "samba":
-        secret_dict["address"] = args.address
-        secret_dict["rootPath"] = args.root_path
-        secret_dict["userName"] = args.user_name
-        secret_dict["password"] = args.password
-        secret_dict["domain"] = args.domain
+        content_dict["address"] = args.address
+        content_dict["rootPath"] = args.root_path
+        content_dict["userName"] = args.user_name
+        content_dict["password"] = args.password
+        content_dict["domain"] = args.domain
     elif args.server_type == "azurefile" or args.server_type == "azureblob":
-        secret_dict["dataStore"] = args.data_store
-        secret_dict["fileShare"] = args.file_share
-        secret_dict["accountName"] = args.account_name
-        secret_dict["key"] = args.key
+        content_dict["dataStore"] = args.data_store
+        content_dict["fileShare"] = args.file_share
+        content_dict["accountName"] = args.account_name
+        content_dict["key"] = args.key
         if args.proxy is not None:
-            secret_dict["proxy"] = args.proxy
+            content_dict["proxy"] = args.proxy
     else:
         logger.error("Unknow storage type")
         sys.exit(1)
-    save_secret("storag-server", args.name, secret_dict)
+    save_secret("storag-server", args.name, content_dict)
 
 
 def group_set(args):
-    secret_dict = dict()
-    secret_dict["gpn"] = args.name
-    secret_dict["servers"] = args.name
+    content_dict = dict()
+    content_dict["gpn"] = args.name
+    content_dict["servers"] = args.name
     #TODO: parse mount points
     logger.info("{0}".format(args.mount_info))
-    save_secret("storag-group", args.name, secret_dict)
+    save_secret("storag-group", args.name, content_dict)
 
 
 def user_set(args):
-    secret_dict = dict()
-    secret_dict["upn"] = args.name
-    secret_dict["servers"] = args.servers
-    save_secret("storag-user", args.name, secret_dict)
+    content_dict = dict()
+    content_dict["upn"] = args.name
+    content_dict["servers"] = args.servers
+    save_secret("storag-user", args.name, content_dict)
 
 
 def setup_logger_config(logger):
@@ -164,7 +164,7 @@ def main():
     # server list
     server_list_parser = server_subparsers.add_parser("list")
     server_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
-    server_list_parser.set_defaults(func=show_secret_content, secret_name="storage-server")
+    server_list_parser.set_defaults(func=show_secret, secret_name="storage-server")
 
     # server delete
     server_del_parser = server_subparsers.add_parser("delete")
@@ -179,12 +179,12 @@ def main():
     group_set_parser.add_argument("name")
     group_set_parser.add_argument("servers", nargs="+", help="")
     # --mountinfo MOUNT_POINT SERVER PATH
-    group_set_parser.add_argument("--mountinfo", dest="mount_info", nargs=3, help="--mountinfo MOUNT_POINT SERVER_NAME PATH")
+    group_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="--mountinfo MOUNT_POINT SERVER_NAME PATH")
     group_set_parser.set_defaults(func=group_set)
     # ./storagectl.py group list
     group_list_parser = group_subparsers.add_parser("list")
     group_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
-    group_list_parser.set_defaults(func=show_secret_content, secret_name="storage-group")
+    group_list_parser.set_defaults(func=show_secret, secret_name="storage-group")
     # group delete
     group_del_parser = group_subparsers.add_parser("delete")
     group_del_parser.add_argument("name")
@@ -201,7 +201,7 @@ def main():
     # ./storagectl.py user list (-n USER_NAME)
     user_list_parser = user_subparsers.add_parser("list")
     user_list_parser.add_argument("-n", "--name", dest="name", nargs="+")
-    user_list_parser.set_defaults(func=show_secret_content, secret_name="storage-user")
+    user_list_parser.set_defaults(func=show_secret, secret_name="storage-user")
     # ./storagectl.py user delete USER_NAME
     user_del_parser = user_subparsers.add_parser("delete")
     user_del_parser.add_argument("name")
