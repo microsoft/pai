@@ -18,7 +18,7 @@
 import {ThemeProvider} from '@uifabric/foundation';
 import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
-import {capitalize, isEmpty, isNil} from 'lodash';
+import {isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
@@ -28,7 +28,6 @@ import localCss from './task-role-container-list.scss';
 import t from '../../tachyons.css';
 
 import MonacoPanel from './monaco-panel';
-import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
@@ -236,14 +235,6 @@ export default class TaskRoleContainerList extends React.Component {
             </div>
           );
         },
-      },
-      {
-        key: 'status',
-        name: 'Status',
-        minWidth: 100,
-        maxWidth: 100,
-        isResizable: true,
-        onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
       },
       {
         key: 'info',
