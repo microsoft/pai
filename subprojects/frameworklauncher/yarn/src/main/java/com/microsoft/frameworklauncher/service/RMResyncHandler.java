@@ -22,6 +22,7 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.FrameworkState;
 import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -118,7 +119,7 @@ public class RMResyncHandler { // THREAD SAFE
           if (applicationReport != null) {
             YarnApplicationState applicationState = applicationReport.getYarnApplicationState();
             FinalApplicationStatus applicationFinalStatus = applicationReport.getFinalApplicationStatus();
-            String diagnostics = applicationReport.getDiagnostics();
+            String diagnostics = CommonUtils.trim(applicationReport.getDiagnostics());
             if (applicationFinalStatus == FinalApplicationStatus.UNDEFINED) {
               LOGGER.logWarning(skipToSupplementLogPrefix +
                       "The applicationReport is not reliable since " +

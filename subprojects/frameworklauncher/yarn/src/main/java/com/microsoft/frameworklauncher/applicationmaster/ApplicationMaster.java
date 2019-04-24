@@ -111,7 +111,7 @@ public class ApplicationMaster extends AbstractService {
           serviceName);
 
       stopForInternalError(
-          FrameworkExitCode.AM_NON_TRANSIENT_EXCEPTION.toInt(), CommonUtils.toString(e));
+          FrameworkExitCode.AM_NON_TRANSIENT_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
       return false;
     } else {
       LOGGER.logError(e,
@@ -119,7 +119,7 @@ public class ApplicationMaster extends AbstractService {
           serviceName);
 
       stopForInternalError(
-          FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toString(e));
+          FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
       return false;
     }
   }
@@ -870,7 +870,7 @@ public class ApplicationMaster extends AbstractService {
       completeContainer(
           containerStatus.getContainerId().toString(),
           containerStatus.getExitStatus(),
-          containerStatus.getDiagnostics(),
+          CommonUtils.trim(containerStatus.getDiagnostics()),
           false);
     }
   }
@@ -1122,7 +1122,7 @@ public class ApplicationMaster extends AbstractService {
     completeContainer(
         containerId,
         FrameworkExitCode.CONTAINER_NM_LAUNCH_FAILED.toInt(),
-        CommonUtils.toString(e),
+        CommonUtils.toDiagnostics(e),
         true);
   }
 
@@ -1286,13 +1286,13 @@ public class ApplicationMaster extends AbstractService {
     // So, consider YarnException as NonTransientError, and IOException as TransientError.
     if (e instanceof YarnException) {
       stopForInternalError(
-          FrameworkExitCode.AM_RM_HEARTBEAT_YARN_EXCEPTION.toInt(), CommonUtils.toString(e));
+          FrameworkExitCode.AM_RM_HEARTBEAT_YARN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     } else if (e instanceof IOException) {
       stopForInternalError(
-          FrameworkExitCode.AM_RM_HEARTBEAT_IO_EXCEPTION.toInt(), CommonUtils.toString(e));
+          FrameworkExitCode.AM_RM_HEARTBEAT_IO_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     } else {
       stopForInternalError(
-          FrameworkExitCode.AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toString(e));
+          FrameworkExitCode.AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     }
   }
 

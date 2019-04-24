@@ -41,7 +41,25 @@ public class CommonUtils {
   }
 
   public static String toString(Throwable e) {
-    return "\nException:\n" + (e != null ? StringUtils.stringifyException(e) : "null");
+    if (e == null) {
+      return "";
+    }
+    return "\nException:\n" + StringUtils.stringifyException(e);
+  }
+
+  // Make first line diagnostics as short summary
+  public static String toDiagnostics(Throwable e) {
+    if (e == null) {
+      return "";
+    }
+    return e.getMessage() + toString(e);
+  }
+
+  public static String trim(String s) {
+    if (s == null) {
+      return null;
+    }
+    return s.trim();
   }
 
   public static <T> T checkExist(T o) throws NotFoundException {
