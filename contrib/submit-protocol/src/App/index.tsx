@@ -22,19 +22,21 @@ interface IProps {
   api: string;
   user: string;
   token: string;
-  source ?: {
+  source?: {
     jobName: string;
     user: string;
   };
+  pluginId?: string;
 }
 
-export default function App({api, user, token, source}: IProps) {
+export default function App({api, user, token, source, pluginId}: IProps) {
   return (
     <ProtocolForm
       api={api}
       user={user}
       token={token}
       source={source}
+      pluginId={pluginId}
     />
   );
 }
