@@ -626,7 +626,7 @@ spec:
   stage: COMPLETING
   behavior: TRANSIENT_NORMAL
   reaction: ALWAYS_RETRY
-  reason: "Container killed by YARN RM due to its app already completed"
+  reason: "Container killed by YARN RM due to its app is already completed"
   repro:
     - "Stop Launcher AM container's YARN NM"
     - "Kill the container's app"
@@ -935,7 +935,7 @@ spec:
   stage: UNKNOWN
   behavior: NON_TRANSIENT
   reaction: NEVER_RETRY
-  reason: "App killed due to user StopFrameworkRequest"
+  reason: "App stopped by Launcher due to user StopFrameworkRequest"
   repro:
     - "Stop a job"
 
@@ -971,6 +971,24 @@ spec:
   solution:
     - "Wait result from next retry"
     - "Contact Cluster Admin"
+
+
+################################
+# Range: [-7499, -7400]
+# Owner: PAI_LAUNCHER WebServer
+# Description: Task Failure
+################################
+- code: -7400
+  phrase: TASK_STOPPED_ON_APP_COMPLETION
+  issuer: PAI_LAUNCHER
+  causer: USER_STOP
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Task stopped by Launcher due to its app is already completed"
+  repro:
+    - "Stop a job with long running container"
 
 
 ################################

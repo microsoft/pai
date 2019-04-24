@@ -118,7 +118,7 @@ public class FrameworkExitSpec {
         ContainerExitStatus.KILLED_AFTER_APP_COMPLETION,
         null,
         ExitType.TRANSIENT_NORMAL,
-        "Container killed by YARN RM due to its app already completed"));
+        "Container killed by YARN RM due to its app is already completed"));
     spec.put(FrameworkExitCode.CONTAINER_EXTERNAL_UTILIZATION_SPIKED.toInt(), new FrameworkExitInfo(
         -200,
         null,
@@ -229,7 +229,7 @@ public class FrameworkExitSpec {
         FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt(),
         null,
         ExitType.NON_TRANSIENT,
-        "App killed due to user StopFrameworkRequest"));
+        "App stopped by Launcher due to user StopFrameworkRequest"));
     spec.put(FrameworkExitCode.APP_AM_DIAGNOSTICS_LOST.toInt(), new FrameworkExitInfo(
         FrameworkExitCode.APP_AM_DIAGNOSTICS_LOST.toInt(),
         null,
@@ -242,6 +242,16 @@ public class FrameworkExitSpec {
         "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted or " +
             "Launcher AM unexpectedly crashed frequently without generating AMDiagnostics"));
     /// Service External Error is already handled by host
+
+    // [-7499, -7400]:
+    // Failure ExitCode which is issued from Launcher WebServer to User Task
+    /// WebServer Internal Error
+    spec.put(FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt(), new FrameworkExitInfo(
+        FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt(),
+        null,
+        ExitType.NON_TRANSIENT,
+        "Task stopped by Launcher due to its app is already completed"));
+    /// WebServer External Error is already handled by host
   }
 
   private static UserContainerExitSpec normalize(UserContainerExitSpec userContainerExitSpec) {

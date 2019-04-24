@@ -87,7 +87,11 @@ public enum FrameworkExitCode {
   APP_RM_RESYNC_LOST(-7350),
   APP_STOP_FRAMEWORK_REQUESTED(-7351),
   APP_AM_DIAGNOSTICS_LOST(-7352),
-  APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED(-7353);
+  APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED(-7353),
+
+  // [-7499, -7400]:
+  // Failure ExitCode which is issued from Launcher WebServer to User Task
+  TASK_STOPPED_ON_APP_COMPLETION(-7400);
 
   private final int code;
 
