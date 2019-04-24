@@ -19,7 +19,6 @@ import yaml from 'js-yaml';
 import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
-import {isJobV2} from './util';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
@@ -111,12 +110,7 @@ export function cloneJob(jobConfig) {
     return;
   }
 
-  // job v2
-  if (isJobV2(jobConfig)) {
-    window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
-  } else {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
-  }
+  window.location.href = `/submit.html?${qs.stringify(query)}`;
 }
 
 export async function stopJob() {

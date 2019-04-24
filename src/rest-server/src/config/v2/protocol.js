@@ -317,6 +317,9 @@ const protocolSchema = {
         },
       },
     },
+    extras: {
+      type: 'object',
+    },
   },
   required: [
     'protocolVersion',
