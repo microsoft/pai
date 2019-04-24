@@ -148,7 +148,7 @@ public class Service extends AbstractService {
     // Initialize other components
     statusManager = new StatusManager(this, conf, userContainerExitSpec, zkStore);
     requestManager = new RequestManager(this, conf, zkStore);
-    rmResyncHandler = new RMResyncHandler(this, conf, yarnClient);
+    rmResyncHandler = new RMResyncHandler(this, conf, yarnClient, statusManager);
     amDiagnosticsRetriever = new AMDiagnosticsRetriever(this, conf, yarnClient);
 
     // Initialize External Service
@@ -908,7 +908,7 @@ public class Service extends AbstractService {
         String frameworkName = frameworkStatus.getFrameworkName();
         FrameworkState frameworkState = frameworkStatus.getFrameworkState();
 
-        // APPLICATION_CREATED Application is not in the liveApplicationReports, but it is indeed live in RM.
+        // APPLICATION_CREATED Application is expected without ApplicationReport, but it is indeed live in RM.
         if (frameworkState == FrameworkState.APPLICATION_CREATED) {
           continue;
         }

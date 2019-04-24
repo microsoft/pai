@@ -210,11 +210,12 @@ public class StatusManager extends AbstractService { // THREAD SAFE
       // the AM has no chance to update the TaskStatus anymore.
       // However, this will make the exposed TaskStatus is not consistent with the backend,
       // and the Task in TASK_COMPLETED state may not have an associated Container.
-      Integer taskStoppedExitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
-      FrameworkExitInfo taskStoppedExitInfo = FrameworkExitSpec.getExitInfo(taskStoppedExitCode);
       if (frameworkState == FrameworkState.APPLICATION_COMPLETED ||
           frameworkState == FrameworkState.FRAMEWORK_COMPLETED) {
+        Integer taskStoppedExitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
+        FrameworkExitInfo taskStoppedExitInfo = FrameworkExitSpec.getExitInfo(taskStoppedExitCode);
         Long appCompletedTimestamp = frameworkStatus.getApplicationCompletedTimestamp();
+
         for (AggregatedTaskRoleStatus aggTaskRoleStatus : aggTaskRoleStatuses.values()) {
           String taskRoleName = aggTaskRoleStatus.getTaskStatuses().getTaskRoleName();
           List<TaskStatus> taskStatuses = aggTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
