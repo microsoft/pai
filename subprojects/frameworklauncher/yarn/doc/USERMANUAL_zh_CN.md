@@ -33,6 +33,7 @@
 * [Framework Exit Spec](#Framework_Exit_Spec)
 * [RetryPolicy](#RetryPolicy)
 * [ApplicationCompletionPolicy](#ApplicationCompletionPolicy)
+* [StateMachine](#StateMachine)
 * [Framework ACL](#Framework_ACL)
 * [Best Practices](#Best_Practices)
 
@@ -873,6 +874,20 @@ Notes:
     </tr>
   </tbody>
 </table>
+
+## <a name="StateMachine">StateMachine</a>
+
+### <a name="FrameworkStateMachine">FrameworkStateMachine</a>
+
+<p style="text-align: left;">
+  <img src="img/FrameworkStateMachine.png" title="FrameworkStateMachine" alt="FrameworkStateMachine" />
+</p>
+
+### <a name="TaskStateMachine">TaskStateMachine</a>
+
+<p style="text-align: left;">
+  <img src="img/TaskStateMachine.png" title="TaskStateMachine" alt="TaskStateMachine" />
+</p>
 
 ## <a name="Framework_ACL">Framework ACL</a>
 
