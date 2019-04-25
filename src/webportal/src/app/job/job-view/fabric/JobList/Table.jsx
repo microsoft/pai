@@ -5,7 +5,7 @@ import {Link} from 'office-ui-fabric-react/lib/Link';
 import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
-import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
+import {FontClassNames, FontSizes} from 'office-ui-fabric-react/lib/Styling';
 
 import {DateTime, Duration} from 'luxon';
 
@@ -170,23 +170,21 @@ export default function Table() {
         Stopped: MessageBarType.blocked,
       }[statusText];
       
-      const rootStyle = {
-        backgroundColor: '#FFFFFF'
-      };
+      const rootStyle = {backgroundColor: 'transparent'};
       /** @type {import('@uifabric/styling').IStyle} */
       const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
       /** @type {import('@uifabric/styling').IStyle} */
       const iconStyle = {
-        color: 'transparent', borderRadius: '50%', 
-        backgroundImage: {
-          Waiting: 'url("/assets/img/waiting.png")',
-          Running: 'url("/assets/img/running.png")',
-          Stopping: 'url("/assets/img/running.png")',
-          Succeeded: 'url("/assets/img/succeed.png")',
-          Failed: 'url("/assets/img/failed.png")',
-          Stopped: 'url("/assets/img/stopped.png")',
+        color: 'white', borderRadius: '50%', 
+        backgroundColor: {
+          Waiting: '#F9B61A',
+          Running: '#579AE6',
+          Stopping: '#579AE6',
+          Succeeded: '#54D373',
+          Failed: '#E06260',
+          Stopped: '#B1B5B8',
         }[statusText],
-        backgroundSize: '16px 16px',
+        transform: statusText == 'Failed' ? 'rotate(90deg)' : 'rotate(0deg)',
       };
       /** @type {import('@uifabric/styling').IStyle} */
       const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'black'};

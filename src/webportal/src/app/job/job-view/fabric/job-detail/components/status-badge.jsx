@@ -37,17 +37,38 @@ Badge.propTypes = {
   className: PropTypes.string,
   icons: PropTypes.array,
 };
-
 export const IconBadge = ({children, className, icons}) => (
-  <Badge className={c(className)}>
-    <div className={c(t.flex)}>
+  <Badge className={c(className, t.black)}>
+    <div className={c(t.flex)} style={{marginLeft: -3}}>
       {
         icons && <div className={c(t.relative, t.w1)}>
+        {/* icons && <div className={c(t.relative, t.w1,)}> */}
         {
           icons.map((iconName, idx) => (
-            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill)} iconName={iconName} />
+            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill)} 
+            styles={{root: {
+              color: 'white', zIndex: 5,
+              transform: children == 'Failed' ? 'rotate(90deg)' : 'rotate(0deg)',
+          }}} iconName={iconName} />
           ))
         }
+            <div className={c(t.absolute)} style={{
+              backgroundColor: {
+                  Waiting: '#F9B61A',
+                  Running: '#579AE6',
+                  Stopping: '#579AE6',
+                  Succeeded: '#54D373',
+                  Failed: '#E06260',
+                  Stopped: '#B1B5B8',
+              }[children],
+              width: 12,
+              height: 12,
+              marginLeft: children == 'Failed' ? 1 : 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 1,
+              borderRadius: '50%',              
+            }}></div>
         </div>
       }
       <div className={c({[t.ml2]: !isEmpty(icons)})}>{children}</div>
@@ -61,18 +82,11 @@ IconBadge.propTypes = {
   icons: PropTypes.array,
 };
 
-const bgYellow = mergeStyles({backgroundColor: statusColorMapping.waiting});
-const bgRed = mergeStyles({backgroundColor: statusColorMapping.failed});
-const bgBlue = mergeStyles({backgroundColor: statusColorMapping.running});
-const bgGreen = mergeStyles({backgroundColor: statusColorMapping.succeeded});
-const bgGray = mergeStyles({backgroundColor: statusColorMapping.unknown});
-
 export const SucceededBadge = ({children}) => (
   <IconBadge
-    // className={c(bgGreen, t.white)}
     className={c(t.black)}
-    icons={['StatusCircleRing', 'StatusCircleCheckmark']}
-    style={{backgroundColor: 'green'}}
+    // icons={['StatusCircleRing', 'StatusCircleCheckmark']}
+    icons={['StatusCircleCheckmark']}
   >
     {children}
   </IconBadge>
@@ -84,8 +98,8 @@ SucceededBadge.propTypes = {
 
 export const PrimaryBadge = ({children}) => (
   <IconBadge
-    className={c(bgBlue, t.white)}
-    icons={['StatusCircleRing', 'StatusCircleCheckmark']}
+    className={c(t.black)}
+    icons={[ 'StatusCircleCheckmark']}
   >
     {children}
   </IconBadge>
@@ -97,7 +111,7 @@ PrimaryBadge.propTypes = {
 
 export const WaitingBadge = ({children}) => (
   <IconBadge
-    className={c(bgYellow, t.black)}
+    className={c(t.black)}
     icons={['Clock']}
   >
     {children}
@@ -110,8 +124,8 @@ WaitingBadge.propTypes = {
 
 export const FailedBadge = ({children}) => (
   <IconBadge
-    className={c(bgRed, t.white)}
-    icons={['StatusCircleRing', 'StatusCircleErrorX']}
+    className={c(t.black)}
+    icons={['Blocked']}
   >
     {children}
   </IconBadge>
@@ -123,8 +137,8 @@ FailedBadge.propTypes = {
 
 export const StoppedBadge = ({children}) => (
   <IconBadge
-    className={c(bgGray, t.white)}
-    icons={['StatusCircleRing', 'StatusCircleBlock2']}
+    className={c(t.black)}
+    icons={[ 'StatusCircleBlock2']}
   >
     {children}
   </IconBadge>
@@ -136,8 +150,8 @@ StoppedBadge.propTypes = {
 
 export const UnknownBadge = ({children}) => (
   <IconBadge
-    className={c(bgGray, t.white)}
-    icons={['StatusCircleRing', 'StatusCircleQuestionMark']}
+    className={c(t.black)}
+    icons={[ 'StatusCircleQuestionMark']}
   >
     {children || 'Unknown'}
   </IconBadge>

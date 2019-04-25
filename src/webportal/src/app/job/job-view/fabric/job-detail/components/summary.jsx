@@ -34,6 +34,7 @@ import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable} from '../util';
+import { HoverCard } from 'office-ui-fabric-react';
 
 const StoppableStatus = [
   'Running',
@@ -208,11 +209,37 @@ export default class Summary extends React.Component {
       }
     }
   }
-
   render() {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
     const hintMessage = this.renderHintMessage();
+
+    const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
+    const messageBarType = {
+      Waiting: MessageBarType.warning,
+      Running: MessageBarType.success,
+      Stopping: MessageBarType.severeWarning,
+      Succeeded: MessageBarType.success,
+      Failed: MessageBarType.remove,
+      Stopped: MessageBarType.blocked,
+    }[getHumanizedJobStateString(jobInfo)];
+    
+    const rootStyle = {backgroundColor: 'transparent'};
+    const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 0};
+    const iconStyle = {
+      color: 'white', borderRadius: '50%', 
+      backgroundColor: {
+        Waiting: '#F9B61A',
+        Running: '#579AE6',
+        Stopping: '#579AE6',
+        Succeeded: '#54D373',
+        Failed: '#E06260',
+        Stopped: '#B1B5B8',
+      }[getHumanizedJobStateString(jobInfo)],
+        transform: getHumanizedJobStateString(jobInfo) == 'Failed' ? 'rotate(90deg)' : 'rotate(0deg)',
+    };
+    /** @type {import('@uifabric/styling').IStyle} */
+    const textStyle = {marginTop: 8, marginLeft: 4, marginRight: 8, marginBottom: 8, color: 'black'};
     return (
       <div className={className}>
         {/* summary */}
@@ -256,67 +283,41 @@ export default class Summary extends React.Component {
           </div>
           {/* summary-row-2 */}
           <div className={c(t.mt4, t.flex, t.itemsStart)} 
-                style={{
-                  marginTop: 20
-              }}>
+                style={{marginTop: 20}}>
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
-              <div className={c(t.mt2)} style={{
-                  marginTop: 16,
-                  backgroundImage: {
-                    Waiting: 'url("/assets/img/waiting.png")',
-                    Running: 'url("/assets/img/running.png")',
-                    Stopping: 'url("/assets/img/running.png")',
-                    Succeeded: 'url("/assets/img/succeed.png")',
-                    Failed: 'url("/assets/img/failed.png")',
-                    Stopped: 'url("/assets/img/stopped.png")',
-                  }[getHumanizedJobStateString(jobInfo)],
-                  backgroundRepeat: 'no-repeat',
-                  paddingLeft: 21,
-                  backgroundPosition: '0px center'
-              }}>
-                {/* <StatusBadge status={getHumanizedJobStateString(jobInfo)}/> */}
-                {getHumanizedJobStateString(jobInfo)}
+              <div className={c(t.mt2)} style={{marginTop: 16,}}>
+                <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Start Time</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
-                  marginTop: 16
-              }}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{marginTop: 16}}>
                 {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>User</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
-                  marginTop: 16
-              }}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{marginTop: 16}}>
                 {jobInfo.jobStatus.username}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Virtual Cluster</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
-                  marginTop: 16
-              }}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{marginTop: 16}}>
                 {jobInfo.jobStatus.virtualCluster}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{
-                  marginTop: 16
-              }}>
+              <div className={c(t.mt2, FontClassNames.mediumPlus)} style={{marginTop: 16}}>
                 {getDurationString(jobInfo)}
               </div>
             </div>
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               <Link
-                className={c(t.mt2, FontClassNames.mediumPlus)} style={{
-                  marginTop: 16
-              }}
+                className={c(t.mt2, FontClassNames.mediumPlus)} style={{marginTop: 16}}
                 onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
                 disabled={isNil(jobInfo.jobStatus.retries)}
               >

@@ -109,9 +109,10 @@ export function getTaskConfig(jobConfig, name) {
 }
 
 export const statusColorMapping = {
-  waiting: '#fcd116',
-  failed: '#eb1123',
-  running: '#0071bc',
-  succeeded: '#7fba00',
-  unknown: '#b1b5b8',
+  Waiting: '#F9B61A',
+  Running: '#579AE6',
+  Stopping: '#579AE6',
+  Succeeded: '#54D373',
+  Failed: '#E06260',
+  Stopped: '#B1B5B8',
 };

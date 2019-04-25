@@ -33,6 +33,8 @@ import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
 
+import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
+
 const theme = createTheme({
   palette: {
     themePrimary: '#0078d4',
@@ -243,29 +245,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 100,
         maxWidth: 100,
         isResizable: true,
-        // onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
-        onRender: (item) => (
-          <div style={{
-            backgroundImage: {
-              Waiting: 'url("/assets/img/waiting.png")',
-              Running: 'url("/assets/img/running.png")',
-              Stopping: 'url("/assets/img/running.png")',
-              Succeeded: 'url("/assets/img/succeed.png")',
-              Failed: 'url("/assets/img/failed.png")',
-              Stopped: 'url("/assets/img/stopped.png")',
-            }[capitalize(item.taskState)],
-            backgroundRepeat: 'no-repeat',
-            paddingLeft: 21,
-            backgroundSize: '16px 16px',
-            fontSize: 15,
-            backgroundPosition: '0 center',
-            height: '100%',
-            lineHeight: '26px',
-        }}>
-          {/* <StatusBadge status={getHumanizedJobStateString(jobInfo)}/> */}
-          {capitalize(item.taskState)}
-        </div>
-        ),
+        onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
       },
       {
         key: 'info',
