@@ -20,6 +20,9 @@
   "bugs": {
     "url": "https://github.com/Microsoft/pai/issues"
   },
+  "engines": {
+    "node": "^8.9.0"
+  },
   "dependencies": {
     "@octokit/rest": "~15.9.5",
     "ajv": "^6.10.0",
