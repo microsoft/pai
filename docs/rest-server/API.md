@@ -456,13 +456,12 @@ Status: 200
     appLaunchedTime: "applicationLaunchedTimestamp",
     appCompletedTime: "applicationCompletedTimestamp",
     appExitCode: applicationExitCode,
-    appExitDiagnostics: "applicationExitDiagnostics",
-    appExitType: "applicationExitType",
     // please check https://github.com/Microsoft/pai/blob/master/src/job-exit-spec/config/job-exit-spec.md for more information
     appExitSpec: exitSpecObject,
     appExitTriggerMessage: "applicationExitTriggerMessage",
     appExitTriggerTaskRoleName: "applicationExitTriggerTaskRoleName",
-    appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex", 
+    appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex",
+    appExitDiagnostics: "applicationExitDiagnostics",
     // exit messages extracted from exitDiagnostics
     appExitMessages: {
       contaier: "containerStderr",
@@ -470,6 +469,8 @@ Status: 200
       runtime: runtimeScriptErrorObject,
       launcher: "launcherExitMessage"
     },
+    // appExitType is deprecated, please use appExitSpec instead.
+    appExitType: "applicationExitType",
   },
   taskRoles: {
     // Name-details map

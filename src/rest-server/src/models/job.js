@@ -438,8 +438,8 @@ class Job {
     if (_.isEmpty(diag)) {
       return null;
     }
-    const re = /\[PAI_RUNTIME_ERROR_START\]([\s\S]*?)\[PAI_RUNTIME_ERROR_END\]/;
-    return diag.replace(re, '').trim();
+    const re = /^(.*)$/m;
+    return diag.match(re)[0].trim();
   }
 
   generateJobDetail(framework) {
@@ -478,6 +478,7 @@ class Job {
         appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
         appExitCode: frameworkStatus.applicationExitCode,
         appExitSpec: this.generateExitSpec(frameworkStatus.applicationExitCode),
+        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
         appExitMessages: {
           container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
           runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
@@ -487,7 +488,6 @@ class Job {
         appExitTriggerTaskRoleName: frameworkStatus.applicationExitTriggerTaskRoleName,
         appExitTriggerTaskIndex: frameworkStatus.applicationExitTriggerTaskIndex,
         // deprecated
-        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
         appExitType: frameworkStatus.applicationExitType,
       };
     }
