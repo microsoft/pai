@@ -41,7 +41,9 @@ class UserK8sSecret extends CrudK8sSecret {
           allUserSecrets.push({
             username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
-            group
+            groupList: Json.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+            email: Buffer.from(item['data']['email'], 'base64').toString(),
+            extension: Json.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
           });
         });
       } else {
