@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.common.exit;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.ExitType;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.util.ConverterUtils;
@@ -203,9 +204,9 @@ public class AMDiagnostics implements Serializable {
   }
 
   public static String retrieve(YarnClient yarnClient, String applicationId) throws Exception {
-    String amDiagnostics = yarnClient
+    String amDiagnostics = CommonUtils.trim(yarnClient
         .getApplicationReport(ConverterUtils.toApplicationId(applicationId))
-        .getDiagnostics();
+        .getDiagnostics());
     if (equalEmpty(amDiagnostics)) {
       throw new Exception("Retrieved empty AMDiagnostics for " + applicationId);
     }

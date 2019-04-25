@@ -572,8 +572,8 @@ public class Service extends AbstractService {
         amDiagnostics = AMDiagnostics.generate(
             FrameworkExitCode.APP_AM_DIAGNOSTICS_LOST.toInt(),
             String.format(
-                "Cannot get more exit info due to retrieved empty AMDiagnostics: [%s]%s",
-                exitDiagnostics, CommonUtils.toString(exitDiagnosticsRetrieveException)),
+                "Cannot get more exit info due to retrieved empty AMDiagnostics: %s",
+                CommonUtils.toDiagnostics(exitDiagnosticsRetrieveException)),
             null, null, null);
       } else {
         try {
@@ -582,8 +582,9 @@ public class Service extends AbstractService {
           amDiagnostics = AMDiagnostics.generate(
               FrameworkExitCode.APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED.toInt(),
               String.format(
-                  "Cannot get more exit info due to failed to deserialize AMDiagnostics: [%s]%s",
-                  exitDiagnostics, CommonUtils.toString(e)),
+                  "Cannot get more exit info due to failed to deserialize AMDiagnostics: %s" +
+                      "\nAMDiagnostics:\n[%s]",
+                  CommonUtils.toDiagnostics(e), exitDiagnostics),
               null, null, null);
         }
       }
@@ -642,21 +643,21 @@ public class Service extends AbstractService {
         retrieveApplicationExitDiagnostics(
             applicationId,
             FrameworkExitCode.APP_SUBMISSION_YARN_EXCEPTION.toInt(),
-            CommonUtils.toString(e),
+            CommonUtils.toDiagnostics(e),
             true);
         return;
       } else if (e instanceof IOException) {
         retrieveApplicationExitDiagnostics(
             applicationId,
             FrameworkExitCode.APP_SUBMISSION_IO_EXCEPTION.toInt(),
-            CommonUtils.toString(e),
+            CommonUtils.toDiagnostics(e),
             true);
         return;
       } else {
         retrieveApplicationExitDiagnostics(
             applicationId,
             FrameworkExitCode.APP_SUBMISSION_UNKNOWN_EXCEPTION.toInt(),
-            CommonUtils.toString(e),
+            CommonUtils.toDiagnostics(e),
             true);
         return;
       }
@@ -852,7 +853,7 @@ public class Service extends AbstractService {
       String applicationId = applicationReport.getApplicationId().toString();
       YarnApplicationState applicationState = applicationReport.getYarnApplicationState();
       FinalApplicationStatus applicationFinalStatus = applicationReport.getFinalApplicationStatus();
-      String diagnostics = applicationReport.getDiagnostics();
+      String diagnostics = CommonUtils.trim(applicationReport.getDiagnostics());
 
       if (statusManager.isApplicationIdLiveAssociated(applicationId)) {
         FrameworkStatus frameworkStatus = statusManager.getFrameworkStatusWithLiveAssociatedApplicationId(applicationId);
