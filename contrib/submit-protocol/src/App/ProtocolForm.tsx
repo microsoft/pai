@@ -26,6 +26,7 @@ import update from "immutability-helper";
 import yaml from "yaml";
 
 import monacoStyles from "./monaco.scss";
+import MarketplaceForm from "./MarketplaceForm";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
@@ -133,10 +134,11 @@ interface IProtocolProps {
   api: string;
   user: string;
   token: string;
-  source ?: {
+  source?: {
     jobName: string;
     user: string;
   };
+  pluginId?: string;
 }
 
 interface IProtocolState {
@@ -235,6 +237,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
               <Label>Select from marketplace</Label>
+              <MarketplaceForm
+                onSelectProtocol={this.onSelectProtocol}
+                disabled={props ? !props.checked : false}
+              />
             </Stack>
           );
         },
@@ -313,30 +319,36 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     );
   }
 
-  private fetchConfig = () => {
+  private fetchConfig = async () => {
     const source = this.props.source;
-    if (source && source.jobName && source.user) {
-      fetch(
-        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-      ).then((res) => {
-        return res.json();
-      }).then((body) => {
-        const protocol = yaml.parse(body);
-        this.setState(
-          { protocol },
-          () => this.setJobName(
-            null as any,
-            `${source.jobName}_clone_${Math.random().toString(36).slice(2, 10)}`,
-          ),
+    const pluginId = this.props.pluginId;
+    if (source && source.jobName && source.user && pluginId) {
+      try {
+        const res = await fetch(
+          `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
         );
-      }).catch((err) => {
+        const body = await res.json();
+        const protocol = yaml.parse(body);
+        if (protocol.extras.submitFrom !== pluginId) {
+          throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
+        }
+        protocol.name = this.getCloneJobName(source.jobName);
+        this.setState({
+          jobName: protocol.name,
+          protocol,
+          protocolYAML: yaml.stringify(protocol),
+        });
+      } catch (err) {
         alert(err.message);
-      }).finally(() => {
-        this.setState({ loading: false });
-      });
-    } else {
-      this.setState({ loading: false });
+      }
     }
+    this.setState({ loading: false });
+  }
+
+  private getCloneJobName = (jobName: string) => {
+    const originalName = jobName.replace(/_clone_([a-z0-9]{8,})$/, "");
+    const randomHash = Math.random().toString(36).slice(2, 10);
+    return `${originalName}_clone_${randomHash}`;
   }
 
   private setJobName = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, jobName?: string) => {
@@ -349,6 +361,19 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         protocol,
         protocolYAML: yaml.stringify(protocol),
       });
+    }
+  }
+
+  private onSelectProtocol = (text: string) => {
+    try {
+      const protocol = yaml.parse(text);
+      this.setState({
+        jobName: protocol.name || "",
+        protocol,
+        protocolYAML: text,
+      });
+    } catch (err) {
+      alert(err.message);
     }
   }
 
@@ -474,28 +499,30 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private submitProtocol = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  private submitProtocol = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    if (this.state.protocolYAML == null) {
+    if (!this.state.protocolYAML) {
       return;
     }
-    fetch(`${this.props.api}/api/v2/jobs`, {
-      body: this.state.protocolYAML,
-      headers: {
-        "Authorization": `Bearer ${this.props.token}`,
-        "Content-Type": "text/yaml",
-      },
-      method: "POST",
-    }).then((res) => {
-      return res.json();
-    }).then((body) => {
-      if (Number(body.status) >= 400) {
+    const protocol = yaml.parse(this.state.protocolYAML);
+    protocol.extras = { submitFrom: this.props.pluginId };
+    try {
+      const res = await fetch(`${this.props.api}/api/v2/jobs`, {
+        body: yaml.stringify(protocol),
+        headers: {
+          "Authorization": `Bearer ${this.props.token}`,
+          "Content-Type": "text/yaml",
+        },
+        method: "POST",
+      });
+      const body = await res.json();
+      if (Number(res.status) >= 400) {
         alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
-    }).catch((err) => {
+    } catch (err) {
       alert(err.message);
-    });
+    }
   }
 }

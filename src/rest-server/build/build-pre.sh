@@ -17,18 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-echo "Clean the hadoop-data-node's data on the disk"
+npm --no-git-tag-version version $(cat ../../../version/PAI.VERSION)
 
-
-rm -rf /mnt/hdfs/data*/* 2>/dev/null
-
-
-
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
-
-fi
-
-
+popd > /dev/null

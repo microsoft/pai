@@ -53,10 +53,19 @@ exitSpecList.forEach((val) => {
   exitSpecMap[val.code] = val;
 });
 
+const getNamespace = (jobName) => {
+  const tildeIndex = jobName.indexOf('~');
+  if (tildeIndex > -1) {
+    return jobName.slice(0, tildeIndex);
+  } else {
+    return null;
+  }
+};
+
 class Job {
-  constructor(name, namespace, next) {
+  constructor(name, next) {
     this.name = name;
-    this.getJob(name, namespace, (jobDetail, error) => {
+    this.getJob(name, (jobDetail, error) => {
       if (error === null) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
@@ -115,12 +124,11 @@ class Job {
     }
   }
 
-  getJobList(query, namespace, next) {
+  getJobList(query, next) {
     let reqPath = launcherConfig.frameworksPath();
+    const namespace = query.username;
     if (namespace) {
       reqPath = `${reqPath}?UserName=${namespace}`;
-    } else if (query.username) {
-      reqPath = `${reqPath}?UserName=${query.username}`;
     }
     unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
@@ -165,15 +173,7 @@ class Job {
               totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
-            const tildeIndex = job.name.indexOf('~');
-            if (tildeIndex > -1) {
-              const namespace = job.name.slice(0, tildeIndex);
-              if (namespace !== job.username) {
-                logger.warn('Found a job with different namespace and username: ', job.name, job.username);
-                job.namespace = namespace;
-              }
-              job.name = job.name.slice(tildeIndex + 1);
-            } else {
+            if (job.name.indexOf('~') === -1) {
               job.legacy = true;
             }
 
@@ -187,8 +187,9 @@ class Job {
       });
   }
 
-  getJob(name, namespace, next) {
-    const frameworkName = namespace ? `${namespace}~${name}` : name;
+  getJob(name, next) {
+    const frameworkName = name;
+    const namespace = getNamespace(frameworkName);
     unirest.get(launcherConfig.frameworkPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -210,8 +211,9 @@ class Job {
       });
   }
 
-  putJob(name, namespace, data, next) {
-    const frameworkName = namespace ? `${namespace}~${name}` : name;
+  putJob(name, data, next) {
+    const frameworkName = name;
+    const namespace = getNamespace(frameworkName);
     data.jobName = frameworkName;
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
@@ -243,8 +245,9 @@ class Job {
     });
   }
 
-  deleteJob(name, namespace, data, next) {
-    const frameworkName = namespace ? `${namespace}~${name}` : name;
+  deleteJob(name, data, next) {
+    const frameworkName = name;
+    const namespace = getNamespace(name);
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -267,8 +270,9 @@ class Job {
       });
   }
 
-  putJobExecutionType(name, namespace, data, next) {
-    const frameworkName = namespace ? `${namespace}~${name}` : name;
+  putJobExecutionType(name, data, next) {
+    const frameworkName = name;
+    const namespace = getNamespace(name);
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -292,10 +296,7 @@ class Job {
       });
   }
 
-  getJobConfig(userName, namespace, jobName, next) {
-    if (namespace) {
-      jobName = `${namespace}~${jobName}`;
-    }
+  getJobConfig(userName, jobName, next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.yaml`,
@@ -320,10 +321,7 @@ class Job {
     );
   }
 
-  getJobSshInfo(userName, namespace, jobName, applicationId, next) {
-    if (namespace) {
-      jobName = `${namespace}~${jobName}`;
-    }
+  getJobSshInfo(userName, jobName, applicationId, next) {
     const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.list(
