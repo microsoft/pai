@@ -20,7 +20,7 @@ import {PropTypes} from 'prop-types';
 import {TextField, Stack, IconButton, TooltipHost} from 'office-ui-fabric-react';
 import {getTheme} from '@uifabric/styling';
 
-import Context from './context';
+import Context from './Context';
 
 export default function TableTextField(props) {
   const {onGetErrorMessage, styles, ...otherProps} = props;

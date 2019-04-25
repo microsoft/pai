@@ -17,75 +17,37 @@
 
 import React, {useContext} from 'react';
 
-import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
 
-import Context from './context';
+import Context from './Context';
 
-function TopBar() {
-  const {importFromCSV, downloadTemplate, addNew} = useContext(Context);
+function BottomBar() {
+  const {submit} = useContext(Context);
 
-  const buttonPrimaryStyles = {margin: '0 1rem 0 -1rem'};
-  const buttonDefaultStyles = {margin: '0 1rem', backgroundColor: '#DADADA'};
+  const buttonPrimaryStyles = {margin: '1rem'};
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  function getBrowse() {
+  function getSubmit() {
     return {
-      key: 'browse',
-      name: 'Browse...',
-      iconProps: {
-        iconName: 'OpenFolderHorizontal',
-      },
+      key: 'submit',
+      name: 'Submit',
       buttonStyles: {root: buttonPrimaryStyles},
       commandBarButtonAs: PrimaryButton,
-      onClick: importFromCSV,
+      onClick: submit,
     };
   }
-
-  /**
-   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
-   */
-  function getDownloadTemplate() {
-    return {
-      key: 'downloadTemplate',
-      name: 'Download Template',
-      iconProps: {
-        iconName: 'Download',
-      },
-      buttonStyles: {root: buttonDefaultStyles},
-      commandBarButtonAs: DefaultButton,
-      onClick: downloadTemplate,
-    };
-  }
-
-  /**
-   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
-   */
-  function getAddNew() {
-    return {
-      key: 'addNew',
-      name: 'Add New',
-      iconProps: {
-        iconName: 'Add',
-      },
-      buttonStyles: {root: buttonDefaultStyles},
-      commandBarButtonAs: DefaultButton,
-      onClick: addNew,
-    };
-  }
-
-  const topBarItems = [getBrowse(), getAddNew(), getDownloadTemplate()];
 
   return (
     <React.Fragment>
       <CommandBar
-        items={topBarItems}
+        farItems={[getSubmit()]}
         styles={{root: {backgroundColor: 'transparent'}}}
       />
     </React.Fragment>
   );
 }
 
-export default TopBar;
+export default BottomBar;

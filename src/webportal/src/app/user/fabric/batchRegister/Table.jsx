@@ -18,8 +18,8 @@
 import React, {useContext} from 'react';
 import {MessageBar, MessageBarType, DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
-import TableTextField from './tableTextField';
-import Context from './context';
+import TableTextField from './TableTextField';
+import Context from './Context';
 import {toBool, isFinished, checkUsername, checkPassword} from './utils';
 
 export default function Table() {

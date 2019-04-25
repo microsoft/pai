@@ -21,15 +21,15 @@ import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric, Stack} from 'office-ui-fabric-react';
 import {countBy, findIndex} from 'lodash';
 
-import Context from './context';
-import BackButton from '../components/back';
-import TopBar from './topBar';
-import Table from './table';
-import BottomBar from './bottomBar';
-import MessageBox from '../components/messageBox';
+import Context from './Context';
+import BackButton from '../components/Back';
+import TopBar from './TopBar';
+import Table from './Table';
+import BottomBar from './BottomBar';
+import MessageBox from '../components/MessageBox';
 import {toBool, isFinished} from './utils';
 
-import Loading from '../components/loading';
+import Loading from '../components/Loading';
 
 import webportalConfig from '../../../config/webportal.config';
 import userAuth from '../../user-auth/user-auth.component';
