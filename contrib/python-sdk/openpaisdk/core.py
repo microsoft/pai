@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import inspect
 from openpaisdk.utils import update_obj, get_response
 from openpaisdk.storage import Storage
 
@@ -71,17 +72,55 @@ class Job:
 
 class Client:
 
-    def __init__(self, pai_uri: str, user: str=None, passwd: str=None, hdfs_web_uri: str=None):
-        self.pai_uri, self.hdfs_web_uri = pai_uri, hdfs_web_uri
-        self.user, self.passwd = user, passwd
+    def __init__(self, pai_uri: str, user: str=None, passwd: str=None, hdfs_web_uri: str=None, **kwargs):
+        """Client create an openpai client from necessary information
+        
+        Arguments:
+            pai_uri {str} -- format: http://x.x.x.x
+        
+        Keyword Arguments:
+            user {str} -- user name (default: {None})
+            passwd {str} -- password (default: {None})
+            hdfs_web_uri {str} -- format http://x.x.x.x:yyyy (default: {None})
+        """
+        args, _, _, values = inspect.getargvalues(inspect.currentframe())
+        self.config = {k: values[k] for k in args}
+        self.config.update(kwargs)
         self.storages = []
         self.add_storage(hdfs_web_uri=hdfs_web_uri)
     
+    @property
+    def user(self):
+        return self.config['user']
+    
+    @property
+    def pai_uri(self):
+        return self.config['pai_uri']
+
     @staticmethod
-    def from_json(pai_json: str):
+    def from_json(pai_json: str, alias: str=None):
+        """from_json create client from openpai json config file
+        
+        Arguments:
+            pai_json {str} -- file path of json file
+        
+        Keyword Arguments:
+            alias {str} -- [description] (default: {None})
+        
+        Returns:
+            [Client or dict[Client]] -- 
+                a specific Client (if only one openpai cluster specified in json or alias is valid)
+                a dictionary of Client (elsewise)
+        """
         with open(pai_json) as fn:
-            cfg = json.load(fn)
-        return Client(**cfg)
+            cfgs = json.load(fn)
+        clients = {key: Client(**args) for key, args in cfgs.items()}
+        if len(clients) == 1:
+            return list(clients.values())[0]
+        elif alias is None:
+            return clients
+        else:
+            return clients[alias]
 
     @property
     def storage(self):
@@ -105,7 +144,7 @@ class Client:
         self.token = get_response(
             '{}/rest-server/api/v1/token'.format(self.pai_uri), 
             body={
-                'username': self.user, 'password': self.passwd, 'expiration': expiration
+                'username': self.user, 'password': self.config['passwd'], 'expiration': expiration
             }
         ).json()['token']
         return self
@@ -168,17 +207,31 @@ class Client:
         return [j['name'] for j in job_list] if name_only else job_list
 
 
-    def to_envs(self):
-        """to pass necessary information to job container via environmental variables
+    def to_envs(self, exclude: list=['passwd'], prefix: str='PAISDK'):
+        """to_envs to pass necessary information to job container via environmental variables
+        
+        Keyword Arguments:
+            exclude {list} -- information will not be shared (default: {['passwd']})
+            prefix {str} -- variable prefix (default: {'PAISDK'})
+        
+        Returns:
+            [dict] -- environmental variables dictionary
         """
-        keys = ['user', 'pai_uri', 'hdfs_web_uri']
-        dic = {'PAISDK_{}'.format(k.upper()) : getattr(self, k) for k in keys}
-        return dic
+
+        return {'{}_{}'.format(prefix, k.upper()) : v for k, v in self.config.items() if k not in exclude}
 
     @staticmethod
-    def from_envs(**kwargs):
-        keys = ['user', 'pai_uri', 'hdfs_web_uri']
-        dic = {k : os.environ.get('PAISDK_{}'.format(k.upper()), None) for k in keys}
+    def from_envs(prefix: str='PAISDK', **kwargs):
+        """from_envs create a client form environmental variables starting with prefix+'_'
+        
+        Keyword Arguments:
+            prefix {str} -- [description] (default: {'PAISDK'})
+        
+        Returns:
+            [Client] -- [description]
+        """
+        dic = {k[len(prefix)+1:].lower(): v for k,v in os.environ.items() if k.startswith(prefix+'_')}
+        dic.update(kwargs)
         return Client(**dic)
 
     
