@@ -434,8 +434,8 @@ class Job {
     }
   }
 
-  extractLauncherOutput(diag) {
-    if (_.isEmpty(diag)) {
+  extractLauncherOutput(diag, code) {
+    if (_.isEmpty(diag) || code > 0) {
       return null;
     }
     const re = /^(.*)$/m;
@@ -482,7 +482,7 @@ class Job {
         appExitMessages: {
           container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
           runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
-          launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics),
+          launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
         },
         appExitTriggerMessage: frameworkStatus.applicationExitTriggerMessage,
         appExitTriggerTaskRoleName: frameworkStatus.applicationExitTriggerTaskRoleName,
