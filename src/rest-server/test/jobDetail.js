@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // test
 describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
   after(function() {
@@ -29,6 +28,7 @@ describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
   before(() => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test~test_job')
+      .twice()
       .reply(200, mustache.render(
         frameworkDetailTemplate,
         {
@@ -62,14 +62,26 @@ describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
   // Positive cases
   //
 
-  it('[P-01] Should return test_job detail info', (done) => {
+  it('[P-01] Should return test_job detail info (/user/test/jobs/test_job)', (done) => {
     chai.request(server)
       .get('/api/v1/user/test/jobs/test_job')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('name', 'test_job');
-        expect(res.body).to.nested.include({'jobStatus.virtualCluster': 'vc3'});
+        expect(res.body).to.have.property('name', 'test~test_job');
+        expect(res.body).to.nested.include({ 'jobStatus.virtualCluster': 'vc3' });
+        done();
+      });
+  });
+
+  it('[P-02] Should return test_job detail info (/user/test/jobs/test~test_job)', (done) => {
+    chai.request(server)
+      .get('/api/v1/user/test/jobs/test~test_job')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body).to.have.property('name', 'test~test_job');
+        expect(res.body).to.nested.include({ 'jobStatus.virtualCluster': 'vc3' });
         done();
       });
   });
@@ -196,7 +208,7 @@ describe('JobDetail ExitSpec', () => {
   before(() => {
     const resp = JSON.parse(mustache.render(
       frameworkDetailTemplate,
-      {          
+      {
         'frameworkName': 'test_job',
         'userName': 'test',
         'queueName': 'vc3',

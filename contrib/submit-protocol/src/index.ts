@@ -36,6 +36,10 @@ const publicPath = __webpack_public_path__ = resolve((window.document.currentScr
   },
 };
 
+declare interface IWindow {
+  PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
+}
+
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
@@ -49,7 +53,7 @@ class ProtocolPluginElement extends HTMLElement {
     const params = new URLSearchParams(window.location.search);
     const source = Object(null);
     if (params.get("op") === "resubmit") {
-      const sourceJobName = params.get("jobName") || "";
+      const sourceJobName = params.get("jobname") || "";
       const sourceUser = params.get("user") || "";
       if (sourceJobName && sourceUser) {
         source.jobName = sourceJobName;
@@ -57,7 +61,11 @@ class ProtocolPluginElement extends HTMLElement {
       }
     }
 
-    ReactDOM.render(React.createElement(App, {api, user, token, source}), this);
+    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
+    const pluginIndex = Number(params.get("index")) || 0;
+    const pluginId = plugins[pluginIndex].id;
+
+    ReactDOM.render(React.createElement(App, {api, user, token, source, pluginId}), this);
   }
 
   public disconnectedCallback() {
