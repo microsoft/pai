@@ -50,7 +50,7 @@ class User {
     const iterations = 10000;
     const keylen = 64;
     const salt = crypto.createHash('md5').update(username).digest('hex');
-    return new Promise( (res,rej) => {
+    return new Promise( (res, rej) => {
       crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
         err ? rej(err) : res(key);
       });
@@ -58,7 +58,7 @@ class User {
   }
 
   toString() {
-    return JSON.stringify(this.data)
+    return JSON.stringify(this.data);
   }
 
   valueOf() {
