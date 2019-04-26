@@ -30,3 +30,8 @@ class Storage:
         if self.protocol == 'hdfs':
             return self.client.status(hdfs_path=remote_path, **kwargs)
         raise NotImplementedError  
+
+    def delete(self, remote_path: str, **kwargs):
+        if self.protocol == 'hdfs':
+            return self.client.delete(hdfs_path=remote_path, **kwargs)
+        raise NotImplementedError  

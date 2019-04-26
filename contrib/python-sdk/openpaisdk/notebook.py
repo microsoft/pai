@@ -3,26 +3,13 @@ import os.path
 import re
 import ipykernel
 import requests
+import uuid
 from subprocess import check_call
 
 from openpaisdk.core import Client, Job
 
-#try:  # Python 3
-#    from urllib.parse import urljoin
-#except ImportError:  # Python 2
-#    from urlparse import urljoin
-
-# Alternative that works for both Python 2 and 3:
 from requests.compat import urljoin
-
-try:  # Python 3 (see Edit2 below for why this may not work in Python 2)
-    from notebook.notebookapp import list_running_servers
-except ImportError:  # Python 2
-    import warnings
-    from IPython.utils.shimmodule import ShimWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=ShimWarning)
-        from IPython.html.notebookapp import list_running_servers
+from notebook.notebookapp import list_running_servers
 
 
 def get_notebook_path():
@@ -49,30 +36,53 @@ def parse_notebook_path():
     return d, name, ext
 
 
-def convert_to_script(nb_file: str):
-    d, fname = os.path.split(nb_file)
-    name, ext = os.path.splitext(fname)
-    assert ext == '.ipynb', '{} is not ipython notebook'.format(nb_file)
-    return name
-
-
-def submit_notebook(client: Client, job_name: str, image: str, job_dir: str=None, resources: dict={}, job_envs: dict={}, sources: list=[]):
-    """
-    submit a job with current notebook
+def submit_notebook(
+    image: str, 
+    job_dir: str=None,
+    nb_file: str=None,
+    client: Client=None,
+    alias: str=None, 
+    job_name: str=None, 
+    resources: dict={}, 
+    sources: list=[],
+    pip_requirements: list=[],
+    ):
+    """submit_notebook submit current notebook to openpai
     
-    Args:
-        pai_json (str): [description]
-        resources (dict, optional): Defaults to {}. [description]
+    Arguments:
+        image {str} -- docker image
+    
+    Keyword Arguments:
+        job_dir {str} -- remote storage path to upload code, if None, use user/$USER/jobs/$JOB_NAME (default: {None})
+        nb_file {str} -- notebook path, if None, use current notebook (default: {None})
+        client {Client} -- OpenPAI client, if None, use Client.from_json('openpai.json', alias) (default: {None})
+        alias {str} -- client alias (default: {None})
+        job_name {str} -- job name, if None, use notebook name plus random string (default: {None})
+        resources {dict} -- resource requirements (default: {{}})
+        sources {list} -- source files to be uploaded (default: {[]})
+        pip_requirements {list} -- pip install commands to execute first
+    
+    Returns:
+        [str] -- job name
     """
+    if nb_file is None:
+        nb_file = get_notebook_path()
+    d, fname = os.path.split(nb_file)
+    name = os.path.splitext(fname)[0]
+    if client is None:
+        client = Client.from_json('openpai.json', alias)
+    if job_name is None:
+        job_name = name + '_' + uuid.uuid4().hex
+    if job_dir is None:
+        job_dir = '/user/{}/jobs/{}'.format(client.user, job_name)
     # conver to script
-    d, fname = os.path.split(get_notebook_path())
-    script_name = os.path.splitext(fname)[0] + '.py'
+    script_name = name + '.py'
     check_call(['ipython', 'nbconvert', '--to', 'script', fname], cwd=d)
-    print('convert {} to script {}'.format(fname, script_name))
 
     job = Job.simple(
         job_name, image, command='ipython code/{}'.format(script_name), 
-        resources=resources, job_envs=job_envs, job_dir=job_dir
+        resources=resources, job_dir=job_dir,
+        pip_requirements=pip_requirements, sources=sources+[script_name]
     )
-    job.sources.extend(sources+[script_name])
-    return client.get_token().submit(job)
+    client.get_token().submit(job)
+    return client.get_job_link(job_name)
