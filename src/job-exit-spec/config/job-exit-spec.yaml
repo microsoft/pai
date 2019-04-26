@@ -1,0 +1,1013 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+################################################################################
+# PAI Job ExitSpec Schema
+################################################################################
+schema:
+  - field: code
+    description: "The PAI Job ExitCode"
+    required: True
+    unique: True
+    type: Integer
+    range:
+      begin: -8000
+      end: 256
+  - field: phrase
+    description: "The textual phrase representation of this ExitCode"
+    required: True
+    unique: True
+    type: String
+    range: "Any"
+  - field: issuer
+    description: "Who root issued this ExitCode in details"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_CONTAINER
+      - PAI_OS
+      - PAI_RUNTIME
+      - PAI_YARN
+      - PAI_LAUNCHER
+  - field: causer
+    description: "Who root caused this ExitCode in details"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_SUBMISSION
+      - USER_CONTAINER
+      - USER_STOP
+      - USER_DELETION
+      - USER_RETRY
+      - USER_UPGRADE
+      - RESOURCE_ALLOCATION_TIMEOUT
+      - PAI_HDFS
+      - PAI_OS
+      - PAI_DOCKER
+      - PAI_RUNTIME
+      - PAI_YARN
+      - PAI_LAUNCHER
+      - UNKNOWN
+  - field: type
+    description: "The rough type of this ExitCode"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_SUCCESS
+      - USER_STOP
+      - USER_FAILURE
+      - PLATFORM_FAILURE
+      - RESOURCE_ALLOCATION_TIMEOUT
+      - UNKNOWN_FAILURE
+  - field: stage
+    description: "The user process stage just before this ExitCode issued"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - SUBMITTING
+      - ALLOCATING
+      - LAUNCHING
+      - RUNNING
+      - COMPLETING
+      - UNKNOWN
+  - field: behavior
+    description: "The rerun behavior of this ExitCode"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - TRANSIENT_NORMAL
+      - TRANSIENT_CONFLICT
+      - NON_TRANSIENT
+      - UNKNOWN
+  - field: reaction
+    description: "The reaction for this ExitCode will be executed by PAI automatically"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - ALWAYS_RETRY
+      - ALWAYS_BACKOFF_RETRY
+      - RETRY_TO_MAX
+      - NEVER_RETRY
+  - field: reason
+    description: "Why this ExitCode is issued"
+    required: False
+    unique: False
+    type: String
+    range: "Any"
+  - field: repro
+    description: "One specific reproduce steps of this ExitCode"
+    required: False
+    unique: False
+    type: List<String>
+    range: "Any"
+  - field: solution
+    description: "Some optional solutions to resolve this ExitCode if it indicates failure"
+    required: False
+    unique: False
+    type: List<String>
+    range: "Any"
+  - field: pattern
+    description: "The pattern that PAI used to detect this ExitCode"
+    required: False
+    unique: False
+    type: String
+    range: "Any, such as USER_EXITCODE=X && USER_LOG_PATTERN=Y || OS_Signal=Z"
+
+
+################################################################################
+# PAI Job ExitSpec
+################################################################################
+spec:
+################################
+# Range: [129, 192]
+# Owner: PAI_RUNTIME
+# Description: Recognized From YARN / Signal
+################################
+# Container Failed by YARN
+- code: 154
+  phrase: CONTAINER_EXIT_CODE_FILE_LOST
+  issuer: PAI_YARN
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: COMPLETING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container exitcode file cannot be found by YARN NM, maybe node unexpected shutdown, disk cleaned up or disk failure"
+  repro:
+    - "Stop YARN NM"
+    - "Kill container process"
+    - "Delete container exitcode file"
+    - "Start YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Container Failed by OS Signal
+- code: 130
+  phrase: CONTAINER_KILLED_BY_SIGINT
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGINT"
+  repro:
+    - "Kill container process by SIGINT"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: 132
+  phrase: CONTAINER_KILLED_BY_SIGILL
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGILL"
+  repro:
+    - "User program executes an illegal, malformed, unknown, or privileged machine instruction"
+  solution:
+    - "Check container log and fix your program bug"
+
+- code: 134
+  phrase: CONTAINER_KILLED_BY_SIGABRT
+  issuer: USER_CONTAINER
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: RUNNING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container killed by OS Signal: SIGABRT"
+  repro:
+    - "User program calls abort() by libc"
+  solution:
+    - "Check container log and find root cause"
+    - "Wait result from next retry"
+
+- code: 135
+  phrase: CONTAINER_KILLED_BY_SIGBUS
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGBUS"
+  repro:
+    - "User program accesses an unaligned memory address"
+  solution:
+    - "Check container log and fix your program bug"
+
+- code: 136
+  phrase: CONTAINER_KILLED_BY_SIGFPE
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGFPE"
+  repro:
+    - "User program division by zero"
+  solution:
+    - "Check container log and fix your program bug"
+
+- code: 137
+  phrase: CONTAINER_KILLED_BY_SIGKILL
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGKILL"
+  repro:
+    - "Kill container process by SIGKILL"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: 139
+  phrase: CONTAINER_KILLED_BY_SIGSEGV
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGSEGV"
+  repro:
+    - "User program accesses an illegal memory address"
+  solution:
+    - "Check container log and fix your program bug"
+
+- code: 141
+  phrase: CONTAINER_KILLED_BY_SIGPIPE
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGPIPE"
+  repro:
+    - "User program writes to a pipe without a process connected to the other end"
+  solution:
+    - "Check container log and fix your program bug"
+
+- code: 143
+  phrase: CONTAINER_KILLED_BY_SIGTERM
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGTERM"
+  repro:
+    - "Kill container process by SIGTERM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+
+################################
+# Range: [193, 254]
+# Owner: PAI_RUNTIME
+# Description: Recognized From Error Pattern
+################################
+# Recognized during user process LAUNCHING stage
+- code: 193
+  phrase: CONTAINER_DOCKER_RUN_FAILED
+  issuer: PAI_RUNTIME
+  causer: PAI_DOCKER
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container cannot be launched by docker run"
+  repro:
+    - "PAI Runtime calls docker run with unknown flag"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Recognized during user process COMPLETING stage
+- code: 196
+  phrase: CONTAINER_OOM_KILLED_BY_DOCKER
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by docker due to it exceeded the request memory"
+  repro:
+    - "User program uses more memory than its requested"
+  solution:
+    - "Increase per task memory request"
+    - "Decrease per task memory usage by such as increasing task number"
+
+- code: 198
+  phrase: CONTAINER_OOD_KILLED_BY_DISKCLEANER
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container is killed by disk cleaner due to it used major disk space and all containers disk usage on the node exceeded platform limit"
+  repro:
+    - "User program uses almost all disk space of the node"
+  solution:
+    - "Decrease per task disk space usage by such as increasing task number"
+
+- code: 255
+  phrase: CONTAINER_RUNTIME_UNKNOWN_FAILURE
+  issuer: PAI_RUNTIME
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: COMPLETING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container failed but the failure cannot be recognized by PAI Runtime"
+  repro:
+    - "User program directly exits with exitcode 1"
+  solution:
+    - "Check container log and find root cause"
+    - "Wait result from next retry"
+
+
+################################
+# Range: {Undefined Positive ExitCodes}
+# Owner: PAI_RUNTIME
+# Description: Shadow Fallback ExitCode
+################################
+# Here the code 256 is just used to represent all undefined positive exitcodes in this spec,
+# and the specific undefined exitcode should always override it to expose outside.
+- code: 256
+  phrase: CONTAINER_RUNTIME_EXIT_ABNORMALLY
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "PAI Runtime exit abnormally with undefined exitcode, it may have bugs"
+  repro:
+    - "PAI Runtime exits with exitcode 1"
+  solution:
+    - "Contact PAI Dev to fix PAI Runtime bugs"
+
+
+################################
+# Range: [0, 0]
+# Owner: PAI_LAUNCHER
+# Description: Success ExitCode
+################################
+- code: 0
+  phrase: SUCCEEDED
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_SUCCESS
+  stage: COMPLETING
+  behavior: UNKNOWN
+  reaction: NEVER_RETRY
+  repro:
+    - "User program exits with exitcode 0"
+
+
+################################
+# Range: [-7199, -7100]
+# Owner: PAI_LAUNCHER AM
+# Description: Container Failure
+################################
+# Container Init Failed by YARN
+- code: -7100
+  phrase: CONTAINER_INVALID_EXIT_STATUS
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container exited with invalid exit status, maybe YARN failed to initialize container environment"
+  repro:
+    - "Disable write permission for YARN NM to access {yarn.nodemanager.local-dirs}"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7101
+  phrase: CONTAINER_NOT_AVAILABLE_EXIT_STATUS
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container exited with not available exit status, maybe YARN failed to create container executor process"
+  repro:
+    - "Disable execute permission for YARN NM to access bash on *nix or winutils.exe on Windows"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7102
+  phrase: CONTAINER_NODE_DISKS_FAILED
+  issuer: PAI_LAUNCHER
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container cannot be launched by YARN due to local bad disk, maybe no disk space left"
+  repro:
+    - "Set zero disk space for {yarn.nodemanager.local-dirs}"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7103
+  phrase: CONTAINER_PORT_CONFLICT
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container cannot be launched by YARN due to local port conflict"
+  repro:
+    - "After container allocated and before container started, stop the container's YARN NM"
+    - "Occupy a container requested port on the container node"
+    - "Start the container's YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Container Aborted Failed by YARN
+- code: -7110
+  phrase: CONTAINER_ABORTED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container aborted by YARN"
+  repro:
+    - "Corrupt the container entry in YARN NM state store"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7111
+  phrase: CONTAINER_NODE_LOST
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container lost due to node lost, maybe its YARN NM is down for a long time"
+  repro:
+    - "Stop the container's YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7112
+  phrase: CONTAINER_EXPIRED
+  issuer: PAI_LAUNCHER
+  causer: RESOURCE_ALLOCATION_TIMEOUT
+  type: RESOURCE_ALLOCATION_TIMEOUT
+  stage: ALLOCATING
+  behavior: TRANSIENT_CONFLICT
+  reaction: ALWAYS_BACKOFF_RETRY
+  reason: "Container previously allocated is expired due to it is not launched on YARN NM in time, maybe other containers cannot be allocated in time"
+  repro:
+    - "Disable virtual cluster bonus token"
+    - "Set amGangAllocationTimeoutSec large than yarn.resourcemanager.rm.container-allocation.expiry-interval-ms"
+    - "Request more containers in a job than its virtual cluster current available resource"
+  solution:
+    - "Wait result from next retry"
+    - "Decrease task number"
+    - "Decrease per task resource request"
+    - "Contact Cluster Admin to increase your virtual cluster quota"
+
+- code: -7113
+  phrase: CONTAINER_ABORTED_ON_AM_RESTART
+  issuer: PAI_LAUNCHER
+  causer: RESOURCE_ALLOCATION_TIMEOUT
+  type: RESOURCE_ALLOCATION_TIMEOUT
+  stage: ALLOCATING
+  behavior: TRANSIENT_CONFLICT
+  reaction: ALWAYS_BACKOFF_RETRY
+  reason: "Container previously allocated is aborted by YARN RM during Launcher AM restart, maybe other containers cannot be allocated in time"
+  repro:
+    - "Disable virtual cluster bonus token"
+    - "Request more containers in a job than its virtual cluster current available resource"
+    - "Kill Launcher AM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Container Other Failed by YARN
+- code: -7120
+  phrase: CONTAINER_PREEMPTED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container preempted by YARN RM, maybe its virtual cluster overused resource was reclaimed"
+  repro:
+    - "Enable virtual cluster bonus token"
+    - "Request more containers in a job than its virtual cluster current available resource"
+    - "Use up all other virtual clusters available resource"
+  solution:
+    - "Wait result from next retry"
+    - "Decrease task number"
+    - "Decrease per task resource request"
+    - "Contact Cluster Admin to increase your virtual cluster quota"
+    - "Contact Cluster Admin to disable your virtual cluster bonus token"
+
+- code: -7121
+  phrase: CONTAINER_RUNTIME_VIRTUAL_MEMORY_EXCEEDED
+  issuer: PAI_LAUNCHER
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by YARN due to its PAI Runtime exceeded the request virtual memory"
+  repro:
+    - "PAI Runtime uses more virtual memory than its container requested"
+  solution:
+    - "Increase per task virtual memory request"
+    - "Contact PAI Dev to decrease PAI Runtime virtual memory usage"
+
+- code: -7122
+  phrase: CONTAINER_RUNTIME_PHYSICAL_MEMORY_EXCEEDED
+  issuer: PAI_LAUNCHER
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by YARN due to its PAI Runtime exceeded the request physical memory"
+  repro:
+    - "PAI Runtime uses more physical memory than its container requested"
+  solution:
+    - "Increase per task physical memory request"
+    - "Contact PAI Dev to decrease PAI Runtime physical memory usage"
+
+- code: -7123
+  phrase: CONTAINER_KILLED_BY_AM
+  issuer: PAI_LAUNCHER
+  causer: PAI_LAUNCHER
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by Launcher AM, maybe allocated container is rejected"
+  repro:
+    - "Setup single node cluster"
+    - "Submit job with two tasks and antiaffinityAllocation enabled"
+    - "Launcher rejects allocated container whose node already allocated another container"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7124
+  phrase: CONTAINER_KILLED_BY_RM
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by YARN RM, maybe the container is not managed by YARN RM anymore"
+  repro:
+    - "Delete the container's app entry in YARN RM state store"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7125
+  phrase: CONTAINER_KILLED_ON_APP_COMPLETION
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: COMPLETING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by YARN RM due to its app is already completed"
+  repro:
+    - "Stop Launcher AM container's YARN NM"
+    - "Kill the container's app"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7126
+  phrase: CONTAINER_EXTERNAL_UTILIZATION_SPIKED
+  issuer: PAI_LAUNCHER
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by YARN due to external utilization spiked"
+  repro:
+    - "Enable YARN external utilization check"
+    - "Start raw process to use up almost all memory on the node"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Container Failed by Launcher AM
+- code: -7150
+  phrase: CONTAINER_NM_LAUNCH_FAILED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container failed to launch on YARN NM"
+  repro:
+    - "After container allocated and before container started, stop the container's YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7151
+  phrase: CONTAINER_RM_RESYNC_LOST
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container lost after Launcher AM resynced with YARN RM"
+  repro:
+    - "Stop the container's YARN NM"
+    - "Restart YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7152
+  phrase: CONTAINER_RM_RESYNC_EXCEEDED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Container exceeded after Launcher AM resynced with YARN RM"
+  repro:
+    - "Stop the container's YARN NM"
+    - "Restart YARN RM"
+    - "Wait until AM releases container"
+    - "Start the container's YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7153
+  phrase: CONTAINER_MIGRATE_TASK_REQUESTED
+  issuer: PAI_LAUNCHER
+  causer: USER_RETRY
+  type: USER_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by Launcher due to user MigrateTaskRequest"
+  repro:
+    - "Send MigrateTaskRequest for the container"
+  solution:
+    - "Wait result from next retry"
+
+- code: -7154
+  phrase: CONTAINER_AGENT_EXPIRED
+  issuer: PAI_LAUNCHER
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by Launcher due to no Launcher Agent heartbeat is received in time"
+  repro:
+    - "Enable Launcher Agent"
+    - "Bring down the container's node"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+
+################################
+# Range: [-7299, -7200]
+# Owner: PAI_LAUNCHER AM
+# Description: Job Failure
+################################
+# App Failed by YARN
+- code: -7200
+  phrase: AM_RM_HEARTBEAT_YARN_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Launcher AM failed to heartbeat with YARN RM due to YarnException, maybe App is non-compliant"
+  repro:
+    - "Submit a job with invalid node label"
+  solution:
+    - "Check diagnostics and revise your job config"
+
+- code: -7201
+  phrase: AM_RM_HEARTBEAT_IO_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Launcher AM failed to heartbeat with YARN RM due to IOException, maybe YARN RM is down"
+  repro:
+    - "Stop YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7202
+  phrase: AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Launcher AM failed to heartbeat with YARN RM due to unknown Exception"
+  repro:
+    - "AM sends invalid message to YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7203
+  phrase: AM_RM_HEARTBEAT_SHUTDOWN_REQUESTED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Launcher AM failed to heartbeat with YARN RM due to ShutdownRequest, maybe AM is not managed by YARN RM anymore"
+  repro:
+    - "Set small AM expiry time"
+    - "Set network partition between AM and YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# App Failed by Launcher AM
+- code: -7250
+  phrase: AM_UNKNOWN_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: PAI_LAUNCHER
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Launcher AM failed due to unknown Exception"
+  repro:
+    - "Set network partition between AM and ZK"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7251
+  phrase: AM_NON_TRANSIENT_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Launcher AM failed due to NonTransientException, maybe App is non-compliant"
+  repro:
+    - "Submit a job with invalid data dir"
+  solution:
+    - "Check diagnostics and revise your job config"
+
+- code: -7252
+  phrase: AM_GANG_ALLOCATION_TIMEOUT
+  issuer: PAI_LAUNCHER
+  causer: RESOURCE_ALLOCATION_TIMEOUT
+  type: RESOURCE_ALLOCATION_TIMEOUT
+  stage: ALLOCATING
+  behavior: TRANSIENT_CONFLICT
+  reaction: ALWAYS_BACKOFF_RETRY
+  reason: "Launcher AM failed due to all the requested resource cannot be satisfied in time"
+  repro:
+    - "Disable virtual cluster bonus token"
+    - "Request more containers in a job than its virtual cluster current available resource"
+  solution:
+    - "Wait result from next retry"
+    - "Decrease task number"
+    - "Decrease per task resource request"
+    - "Contact Cluster Admin to increase your virtual cluster quota"
+
+
+################################
+# Range: [-7399, -7300]
+# Owner: PAI_LAUNCHER Service
+# Description: Job Failure
+################################
+# App Failed by YARN
+- code: -7300
+  phrase: APP_SUBMISSION_YARN_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Failed to submit App to YARN RM due to YarnException, maybe App is non-compliant"
+  repro:
+    - "Submit a job to invalid virtual cluster"
+  solution:
+    - "Check diagnostics and revise your job config"
+
+- code: -7301
+  phrase: APP_SUBMISSION_IO_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: SUBMITTING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Failed to submit App to YARN RM due to IOException, maybe YARN RM is down"
+  repro:
+    - "Stop YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7302
+  phrase: APP_SUBMISSION_UNKNOWN_EXCEPTION
+  issuer: PAI_LAUNCHER
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: SUBMITTING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Failed to submit App to YARN RM due to unknown Exception"
+  repro:
+    - "Launcher Service sends invalid message to YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7303
+  phrase: APP_KILLED_UNEXPECTEDLY
+  issuer: PAI_LAUNCHER
+  causer: UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "App killed unexpectedly and directly through YARN RM"
+  repro:
+    - "Kill the app directly through YARN RM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# App Failed by Launcher Service
+- code: -7350
+  phrase: APP_RM_RESYNC_LOST
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "App lost after Launcher Service resynced with YARN RM"
+  repro:
+    - "Delete the app entry in YARN RM state store"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7351
+  phrase: APP_STOP_FRAMEWORK_REQUESTED
+  issuer: PAI_LAUNCHER
+  causer: USER_STOP
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "App stopped by Launcher due to user StopFrameworkRequest"
+  repro:
+    - "Stop a job"
+
+- code: -7352
+  phrase: APP_AM_DIAGNOSTICS_LOST
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: COMPLETING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Failed to retrieve AMDiagnostics from YARN, maybe the App is cleaned up in YARN"
+  repro:
+    - "App is in APPLICATION_RETRIEVING_DIAGNOSTICS state"
+    - "Stop Launcher Service"
+    - "Delete the app entry in YARN RM state store"
+    - "Start Launcher Service"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+- code: -7353
+  phrase: APP_AM_DIAGNOSTICS_DESERIALIZATION_FAILED
+  issuer: PAI_LAUNCHER
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: COMPLETING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Failed to deserialize AMDiagnostics from YARN, maybe it is corrupted or Launcher AM unexpectedly crashed frequently without generating AMDiagnostics"
+  repro:
+    - "Set yarn.app.attempt.diagnostics.limit.kc to 1B"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+
+################################
+# Range: [-7499, -7400]
+# Owner: PAI_LAUNCHER WebServer
+# Description: Task Failure
+################################
+- code: -7400
+  phrase: TASK_STOPPED_ON_APP_COMPLETION
+  issuer: PAI_LAUNCHER
+  causer: USER_STOP
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: NON_TRANSIENT
+  reaction: NEVER_RETRY
+  reason: "Task stopped by Launcher due to its app is already completed"
+  repro:
+    - "Stop a job with long running container"
+
+
+################################
+# Range: {Undefined Negative ExitCodes}
+# Owner: PAI_LAUNCHER
+# Description: Container Failure：Shadow Fallback ExitCode
+################################
+# Here the code -8000 is just used to represent all undefined negative exitcodes in this spec,
+# and the specific undefined exitcode should always override it to expose outside.
+- code: -8000
+  phrase: CONTAINER_UNKNOWN_YARN_EXIT_STATUS
+  issuer: PAI_YARN
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: UNKNOWN
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container exited with unknown exitcode which is issued from YARN"
+  repro:
+    - "Change YARN code to make it return container exitcode -886"
+  solution:
+    - "Contact PAI Dev to recognize this exitcode"

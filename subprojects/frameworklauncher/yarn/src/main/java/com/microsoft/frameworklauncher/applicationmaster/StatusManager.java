@@ -19,7 +19,8 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitInfo;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitSpec;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
@@ -36,7 +37,6 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.*;
 
 // Manage the CURD to ZK Status
@@ -328,7 +328,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
           TaskState taskState = taskStatus.getTaskState();
 
           // Release Container for not yet persisted CONTAINER_LIVE_ASSOCIATED_STATES Task.
-          // This can help to avoid CONTAINER_RM_RESYNC_EXCEED.
+          // This can help to avoid CONTAINER_RM_RESYNC_EXCEEDED.
           if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
             if (!persistedAggTaskRoleStatuses.containsKey(taskRoleName)) {
               am.onTaskToReleaseContainer(taskStatus);
@@ -386,6 +386,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerLaunchedTimestamp(null);
     taskStatus.setContainerCompletedTimestamp(null);
     taskStatus.setContainerExitCode(null);
+    taskStatus.setContainerExitDescription(null);
     taskStatus.setContainerExitDiagnostics(null);
     taskStatus.setContainerExitType(null);
     taskStatus.setContainerGpus(null);
@@ -705,7 +706,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return priorityLocators.containsKey(priority);
   }
 
-  public synchronized Boolean containsTask(TaskStatus taskStatus) throws IOException {
+  public synchronized Boolean containsTask(TaskStatus taskStatus) {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
 
@@ -871,12 +872,16 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
 
     if (dstState == TaskState.CONTAINER_COMPLETED) {
-      assert (event.getContainerExitCode() != null);
+      assert (event.getContainerRawExitCode() != null);
 
-      taskStatus.setContainerExitCode(event.getContainerExitCode());
-      taskStatus.setContainerExitDiagnostics(event.getContainerExitDiagnostics());
-      taskStatus.setContainerExitType(ExitDiagnostics.lookupExitType(
-          event.getContainerExitCode(), event.getContainerExitDiagnostics()));
+      Integer exitCode = FrameworkExitSpec.lookupExitCode(
+          event.getContainerRawExitCode(), event.getContainerRawExitDiagnostics());
+      FrameworkExitInfo exitInfo = FrameworkExitSpec.getExitInfo(exitCode);
+
+      taskStatus.setContainerExitCode(exitCode);
+      taskStatus.setContainerExitDescription(exitInfo.getDescription());
+      taskStatus.setContainerExitDiagnostics(event.getContainerRawExitDiagnostics());
+      taskStatus.setContainerExitType(exitInfo.getType());
     }
 
     // Task will be Retried

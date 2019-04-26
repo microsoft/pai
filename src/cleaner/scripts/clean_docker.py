@@ -23,6 +23,7 @@ import subprocess
 import multiprocessing
 import re
 import time
+import os
 
 class DockerCleaner(LoggerMixin):
     def __init__(self, threshold, interval, timeout=timedelta(hours=1)):
@@ -54,44 +55,80 @@ class DockerCleaner(LoggerMixin):
 
     def check_disk_usage(self, partition):
         df = subprocess.Popen(["df","-h", partition], stdout=subprocess.PIPE)
-        size = 0
+        sized = 0
         try:
             for line in df.stdout:
                 splitline = line.decode().split()
                 if splitline[5] == partition:
-                    size = int(splitline[4][:-1])
+                    sized = splitline[1]
+                    used = splitline[2]
+                    usep = int(splitline[4][:-1])
         except ValueError:
             self.logger.error("cannot get disk size, reset size to 0")
-            size = 0
-        self.logger.info("Checking disk, disk usage = {0}%".format(size))
-        return size
+            sized = 0
+            used = 0
+            usep = 0
+        self.logger.info("Checking disk, disk usage = {0}%".format(usep))
+        return sized, used, usep
 
 
     def check_and_clean(self):
-        if self.check_disk_usage("/") >= self.__threshold:
+        sized, used, usep = self.check_disk_usage("/") 
+        if usep >= self.__threshold:
             self.logger.info("Disk usage is above {0}%, Try to remove containers".format(self.__threshold))
-            self.kill_largest_container()
+            self.kill_largest_container(sized, used, usep)
 
 
     # Clean logic v1: kill largest container
     white_list = ["k8s_POD", "k8s_kube", "k8s_pylon", "k8s_zookeeper", "k8s_rest-server", "k8s_yarn", "k8s_hadoop", "k8s_job-exporter", "k8s_watchdog", "k8s_grafana", "k8s_node-exporter", "k8s_webportal", "k8s_prometheus", "k8s_nvidia-drivers", "k8s_etcd-container", "k8s_apiserver-container", "k8s_docker-cleaner", "kubelet", "dev-box"]
-    def kill_largest_container(self):
+    def kill_largest_container(self, sized, used, usep):
         containers = []
         # Only try to stop PAI jobs and user created containers
-        containers_source = subprocess.Popen(["docker", "ps", "-a", "--format", r'{{.ID}}\t{{.Image}}\t{{.Size}}\t{{.Names}}'], stdout=subprocess.PIPE)
+        containers_source = subprocess.Popen(["docker", "ps", "-a", "--format", r'{{.ID}}\t{{.Image}}\t{{.Size}}\t{{.Names}}\t'], stdout=subprocess.PIPE)
         for line in containers_source.stdout:
             splitline = line.split("\t")
             for prefix in self.white_list:
                 if (splitline[3].startswith(prefix)):
                     break
             else:
-                size = common.calculate_size(splitline[2].split()[0])
-                containers.append([size, splitline[0], splitline[1]])
+                # Only check job containers
+                if re.search(r"container(_\w+)?_\d+_\d+_\d+_\d+$", splitline[3]) is not None:
+                    size_str = splitline[2].split()[0]
+                    size = common.calculate_size(size_str)
+                    containers.append([size, splitline[0], splitline[1], splitline[3], size_str])
 
         containers.sort(key=lambda x:x[0], reverse=True)
 
         if containers.count > 0 and containers[0][0] > 1024**3:
-            self.logger.warning("Kill container {0} due to disk pressure. Container size: {1}".format(containers[0][1], containers[0][0]))
+            self.logger.warning("Kill container {0} due to disk pressure. Container size: {1}".format(containers[0][3], containers[0][4]))
+            
+            # Write error log
+            container_name = re.search(r"container(_\w+)?_\d+_\d+_\d+_\d+$", containers[0][3]).group()
+            application_name = "application{0}".format(re.search(r"^_\d+_\d+", re.search(r"_\d+_\d+_\d+_\d+$", container_name).group()).group())            
+            full_path = "/logs/{0}/{1}".format(application_name, container_name)
+
+            if not os.path.isdir(full_path):
+                self.logger.error("Cannot find job log dir, creating path. Log may not be collected.")
+                try:
+                    os.makedirs(full_path)
+                except OSError as exc:
+                    self.logger.error("Failed to create path {0}.".format(full_path))
+
+            if os.path.isdir(full_path):
+                error_filename = "{0}/diskCleaner.pai.error".format(full_path)
+                timestamp = int(time.time())
+                try:
+                    fp = open(error_filename, "w")
+                except IOError:
+                    self.logger.error("Failed to write error log, skipped")
+                else:
+                    fp.writelines([
+                        "{0} ERROR ACTION \"KILL\"\n".format(timestamp),
+                        "{0} ERROR REASON \"{1} killed due to disk pressure. Disk size: {2}, Used: {3}, Cleaner threshold: {4}, Container cost: {5} \"\n".format(timestamp, container_name, sized, "{0}({1}%)".format(used, usep), "{0}%".format(self.__threshold), containers[0][4]),
+                        "{0} ERROR SOLUTION \"Node disk is full, please try another time. If your job needs large space, please use NAS to store data.\"\n".format(timestamp)
+                        ])
+                    fp.close()
+
             subprocess.Popen(["docker", "kill", "--signal=10", containers[0][1]])
 
             # Because docker stop will not immedicately stop container, we can not remove docker image right after stop container

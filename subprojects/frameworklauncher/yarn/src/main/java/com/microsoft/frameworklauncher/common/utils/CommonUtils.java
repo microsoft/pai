@@ -41,7 +41,25 @@ public class CommonUtils {
   }
 
   public static String toString(Throwable e) {
+    if (e == null) {
+      return "";
+    }
     return "\nException:\n" + StringUtils.stringifyException(e);
+  }
+
+  // Make first line diagnostics as short summary
+  public static String toDiagnostics(Throwable e) {
+    if (e == null) {
+      return "";
+    }
+    return e.getMessage() + toString(e);
+  }
+
+  public static String trim(String s) {
+    if (s == null) {
+      return null;
+    }
+    return s.trim();
   }
 
   public static <T> T checkExist(T o) throws NotFoundException {
@@ -143,7 +161,7 @@ public class CommonUtils {
     return FileUtils.readFileToByteArray(new File(filePath));
   }
 
-  public static Set<String> listFiles(String dirPath) throws Exception {
+  public static Set<String> listFiles(String dirPath) {
     Set<String> fileNames = new HashSet<>();
     for (File file : FileUtils.listFiles(new File(dirPath), null, false)) {
       fileNames.add(file.getName());

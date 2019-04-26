@@ -39,8 +39,15 @@ public class FrameworkStatus implements Serializable {
   private Long applicationLaunchedTimestamp;
   private Long applicationCompletedTimestamp;
   private Integer applicationExitCode;
+  // Static App ExitInfo
+  private String applicationExitDescription;
+  // Dynamic App ExitInfo
   private String applicationExitDiagnostics;
   private ExitType applicationExitType;
+  // App CompletionPolicy TriggerInfo
+  private String applicationExitTriggerMessage;
+  private String applicationExitTriggerTaskRoleName;
+  private Integer applicationExitTriggerTaskIndex;
 
   public static FrameworkStatus newInstance(FrameworkRequest frameworkRequest) {
     FrameworkStatus frameworkStatus = new FrameworkStatus();
@@ -148,6 +155,14 @@ public class FrameworkStatus implements Serializable {
     this.applicationExitCode = applicationExitCode;
   }
 
+  public String getApplicationExitDescription() {
+    return applicationExitDescription;
+  }
+
+  public void setApplicationExitDescription(String applicationExitDescription) {
+    this.applicationExitDescription = applicationExitDescription;
+  }
+
   public String getApplicationExitDiagnostics() {
     return applicationExitDiagnostics;
   }
@@ -162,5 +177,29 @@ public class FrameworkStatus implements Serializable {
 
   public void setApplicationExitType(ExitType applicationExitType) {
     this.applicationExitType = applicationExitType;
+  }
+
+  public String getApplicationExitTriggerMessage() {
+    return applicationExitTriggerMessage;
+  }
+
+  public void setApplicationExitTriggerMessage(String applicationExitTriggerMessage) {
+    this.applicationExitTriggerMessage = applicationExitTriggerMessage;
+  }
+
+  public String getApplicationExitTriggerTaskRoleName() {
+    return applicationExitTriggerTaskRoleName;
+  }
+
+  public void setApplicationExitTriggerTaskRoleName(String applicationExitTriggerTaskRoleName) {
+    this.applicationExitTriggerTaskRoleName = applicationExitTriggerTaskRoleName;
+  }
+
+  public Integer getApplicationExitTriggerTaskIndex() {
+    return applicationExitTriggerTaskIndex;
+  }
+
+  public void setApplicationExitTriggerTaskIndex(Integer applicationExitTriggerTaskIndex) {
+    this.applicationExitTriggerTaskIndex = applicationExitTriggerTaskIndex;
   }
 }
