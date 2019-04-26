@@ -24,6 +24,9 @@ public class FrameworkEvent {
   private ApplicationSubmissionContext applicationContext;
   private Integer applicationExitCode;
   private String applicationExitDiagnostics;
+  private String applicationExitTriggerMessage;
+  private String applicationExitTriggerTaskRoleName;
+  private Integer applicationExitTriggerTaskIndex;
   private RetryPolicyState newRetryPolicyState;
   private boolean skipToPersist = false;
 
@@ -51,6 +54,33 @@ public class FrameworkEvent {
 
   public FrameworkEvent setApplicationExitDiagnostics(String applicationExitDiagnostics) {
     this.applicationExitDiagnostics = applicationExitDiagnostics;
+    return this;
+  }
+
+  public String getApplicationExitTriggerMessage() {
+    return applicationExitTriggerMessage;
+  }
+
+  public FrameworkEvent setApplicationExitTriggerMessage(String applicationExitTriggerMessage) {
+    this.applicationExitTriggerMessage = applicationExitTriggerMessage;
+    return this;
+  }
+
+  public String getApplicationExitTriggerTaskRoleName() {
+    return applicationExitTriggerTaskRoleName;
+  }
+
+  public FrameworkEvent setApplicationExitTriggerTaskRoleName(String applicationExitTriggerTaskRoleName) {
+    this.applicationExitTriggerTaskRoleName = applicationExitTriggerTaskRoleName;
+    return this;
+  }
+
+  public Integer getApplicationExitTriggerTaskIndex() {
+    return applicationExitTriggerTaskIndex;
+  }
+
+  public FrameworkEvent setApplicationExitTriggerTaskIndex(Integer applicationExitTriggerTaskIndex) {
+    this.applicationExitTriggerTaskIndex = applicationExitTriggerTaskIndex;
     return this;
   }
 

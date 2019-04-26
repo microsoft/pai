@@ -61,6 +61,8 @@ public class LauncherConfiguration implements Serializable {
   // ApplicationMaster Setup
   private Integer amVersion = 0;
   private Integer amPriority = 1;
+  // Should be less than {yarn.app.attempt.diagnostics.limit.kc}, which defaults to 64KB.
+  private Integer amDiagnosticsMaxBytes = 49152;
   // Just in case AM cannot be gracefully Stopped and RM cannot judge its exit as transient,
   // such as AM process interrupted by external system, AM exit by FailFast, etc.
   private Integer amAttemptMaxCount = 3;
@@ -256,6 +258,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmPriority(Integer amPriority) {
     this.amPriority = amPriority;
+  }
+
+  public Integer getAmDiagnosticsMaxBytes() {
+    return amDiagnosticsMaxBytes;
+  }
+
+  public void setAmDiagnosticsMaxBytes(Integer amDiagnosticsMaxBytes) {
+    this.amDiagnosticsMaxBytes = amDiagnosticsMaxBytes;
   }
 
   public Integer getAmAttemptMaxCount() {

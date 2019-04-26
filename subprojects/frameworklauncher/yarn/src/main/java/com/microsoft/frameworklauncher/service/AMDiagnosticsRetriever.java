@@ -17,46 +17,46 @@
 
 package com.microsoft.frameworklauncher.service;
 
-import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.AMDiagnostics;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.utils.RetryUtils;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
-public class DiagnosticsRetrieveHandler { // THREAD SAFE
-  private static final DefaultLogger LOGGER = new DefaultLogger(DiagnosticsRetrieveHandler.class);
+public class AMDiagnosticsRetriever { // THREAD SAFE
+  private static final DefaultLogger LOGGER = new DefaultLogger(AMDiagnosticsRetriever.class);
 
   private final Service service;
   private final LauncherConfiguration conf;
   private final YarnClient yarnClient;
 
-  public DiagnosticsRetrieveHandler(Service service, LauncherConfiguration conf, YarnClient yarnClient) {
+  public AMDiagnosticsRetriever(Service service, LauncherConfiguration conf, YarnClient yarnClient) {
     this.service = service;
     this.conf = conf;
     this.yarnClient = yarnClient;
   }
 
-  public void retrieveDiagnosticsAsync(String applicationId, String initDiagnostics) {
+  public void retrieveAsync(String applicationId) {
     new Thread(() -> {
-      String diagnostics = initDiagnostics;
+      String amDiagnostics = null;
+      Exception retrieveException = null;
 
       try {
-        LOGGER.logInfo("%s: Start to retrieveDiagnostics", applicationId);
+        LOGGER.logInfo("[%s]: Start to retrieve", applicationId);
 
-        if (ExitDiagnostics.isDiagnosticsEmpty(diagnostics)) {
-          diagnostics = RetryUtils.executeWithRetry(
-              () -> ExitDiagnostics.retrieveDiagnostics(yarnClient, applicationId),
-              conf.getApplicationRetrieveDiagnosticsMaxRetryCount(),
-              conf.getApplicationRetrieveDiagnosticsRetryIntervalSec(), null);
-        }
+        amDiagnostics = RetryUtils.executeWithRetry(
+            () -> AMDiagnostics.retrieve(yarnClient, applicationId),
+            conf.getApplicationRetrieveDiagnosticsMaxRetryCount(),
+            conf.getApplicationRetrieveDiagnosticsRetryIntervalSec(), null);
 
-        LOGGER.logInfo("%s: Succeeded to retrieveDiagnostics", applicationId);
+        LOGGER.logInfo("[%s]: Succeeded to retrieve", applicationId);
       } catch (Exception e) {
-        LOGGER.logError(e, "%s: Failed to retrieveDiagnostics", applicationId);
+        retrieveException = e;
+        LOGGER.logError(e, "[%s]: Failed to retrieve", applicationId);
       }
 
       try {
-        service.onDiagnosticsRetrieved(applicationId, diagnostics);
+        service.onAMDiagnosticsRetrieved(applicationId, amDiagnostics, retrieveException);
       } catch (Exception e) {
         service.onExceptionOccurred(e);
       }

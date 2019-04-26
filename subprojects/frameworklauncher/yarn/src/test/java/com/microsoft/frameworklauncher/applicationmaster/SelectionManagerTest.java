@@ -292,37 +292,37 @@ public class SelectionManagerTest {
     Node node9 = new Node("node9", null, ResourceDescriptor.newInstance(198, 199, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
 
-    SelectionManager packSelctionManager = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
-    packSelctionManager.addNode(node1);
-    packSelctionManager.addNode(node2);
-    packSelctionManager.addNode(node3);
-    packSelctionManager.addNode(node4);
-    packSelctionManager.addNode(node5);
-    packSelctionManager.addNode(node6);
-    packSelctionManager.addNode(node7);
-    packSelctionManager.addNode(node8);
-    packSelctionManager.addNode(node9);
+    SelectionManager packSelectionManager = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
+    packSelectionManager.addNode(node1);
+    packSelectionManager.addNode(node2);
+    packSelectionManager.addNode(node3);
+    packSelectionManager.addNode(node4);
+    packSelectionManager.addNode(node5);
+    packSelectionManager.addNode(node6);
+    packSelectionManager.addNode(node7);
+    packSelectionManager.addNode(node8);
+    packSelectionManager.addNode(node9);
 
     // Packing job by available resource:  Node5 has 1 GPUs available, Node1 has 2 GPUs available, Both Node1 and Node5 only have 2 GPU in total.
-    SelectionResult result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
+    SelectionResult result = packSelectionManager.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(result.getNodeHosts().get(0), "node5");
     Assert.assertEquals(result.getNodeHosts().get(1), "node1");
 
     // Packing job by available resource: Node7 has 3 GPUs available, Node1 has 2 GPUs available, Node7 has 4 GPUs in total.
-    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1, null, null);
+    result = packSelectionManager.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1, null, null);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(result.getNodeHosts().get(0), "node7");
     Assert.assertEquals(result.getNodeHosts().get(1), "node1");
 
     // If available GPUs are the same, choose the smaller nodes: both node2 and node6 only have 4 GPUs in total.
-    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1, null, null);
+    result = packSelectionManager.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1, null, null);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(result.getNodeHosts().get(0), "node2");
     Assert.assertEquals(result.getNodeHosts().get(1), "node6");
 
     // If available/total GPUs are the same, choose the node with fewer CPU and Memory.
-    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null, 1, null, null);
+    result = packSelectionManager.select(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null, 1, null, null);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(result.getNodeHosts().get(0), "node8");
     Assert.assertEquals(result.getNodeHosts().get(1), "node9");
@@ -383,7 +383,7 @@ public class SelectionManagerTest {
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 1, ports4), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(1, result.getNodeHosts().size());
     Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
-    List<ValueRange> randomPorts  =ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports4);
+    List<ValueRange> randomPorts = ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports4);
     Assert.assertEquals(1, ValueRangeUtils.getValueNumber(randomPorts));
 
 
@@ -391,7 +391,7 @@ public class SelectionManagerTest {
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
-    randomPorts  =ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports3);
+    randomPorts = ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports3);
     Assert.assertEquals(2, ValueRangeUtils.getValueNumber(randomPorts));
 
   }

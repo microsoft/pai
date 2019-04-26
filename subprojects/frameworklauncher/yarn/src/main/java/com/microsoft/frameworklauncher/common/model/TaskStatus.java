@@ -50,6 +50,9 @@ public class TaskStatus implements Serializable {
   private Long containerLaunchedTimestamp;
   private Long containerCompletedTimestamp;
   private Integer containerExitCode;
+  // Static Container ExitInfo
+  private String containerExitDescription;
+  // Dynamic Container ExitInfo
   private String containerExitDiagnostics;
   private ExitType containerExitType;
 
@@ -195,6 +198,14 @@ public class TaskStatus implements Serializable {
 
   public void setContainerExitCode(Integer containerExitCode) {
     this.containerExitCode = containerExitCode;
+  }
+
+  public String getContainerExitDescription() {
+    return containerExitDescription;
+  }
+
+  public void setContainerExitDescription(String containerExitDescription) {
+    this.containerExitDescription = containerExitDescription;
   }
 
   public String getContainerExitDiagnostics() {
