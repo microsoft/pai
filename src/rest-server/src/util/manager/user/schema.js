@@ -34,18 +34,19 @@ const userSchema = Joi.object.keys({
 }).required();
 
 class User {
-  async constructor(value, encrptDisable = false) {
+  constructor(value, encrptDisable) {
     const {error, validValue} = Joi.validata(value, userSchema);
     if (error) {
       throw new Error('User schema error\n${error}');
     }
     this.data = validValue;
-    if (!encrptDisable){
-      this.data['password'] = await this.encryptPassword(this.data['username'], this.data['password']);
-    }
   }
 
-  encryptPassword(username, password) {
+  encryptPassword() {
+    this.data['password'] = await this.encrypt(this.data['username'], this.data['password']);
+  }
+
+  encrypt(username, password) {
     const iterations = 10000;
     const keylen = 64;
     const salt = crypto.createHash('md5').update(username).digest('hex');
@@ -63,7 +64,6 @@ class User {
   valueOf() {
     return this.data;
   }
-
 }
 
 module.exports = User;

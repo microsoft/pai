@@ -39,23 +39,23 @@ class UserK8sSecret extends CrudK8sSecret {
       let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
         for (const item of userData['items']) {
-          let userInstance = await new UserSchema({
+          let userInstance = new UserSchema({
             username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
             groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
             email: Buffer.from(item['data']['email'], 'base64').toString(),
             extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-          }, true);
+          });
           allUserInstance.push(userInstance);
         }
       } else {
-        let userInstance = await new UserSchema({
+        let userInstance = new UserSchema({
           username: Buffer.from(userData['data']['username'], 'base64').toString(),
           password: Buffer.from(userData['data']['password'], 'base64').toString(),
           groupList: JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
           email: Buffer.from(userData['data']['email'], 'base64').toString(),
           extension: JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
-        }, true);
+        });
         allUserInstance.push(userInstance);
       }
       return allUserInstance;
@@ -76,6 +76,7 @@ class UserK8sSecret extends CrudK8sSecret {
           'extension': value['extension'],
         }
       );
+      await userInstance.encryptPassword();
       let userData = {
         'metadata': {'name': hexKey},
         'data': {
@@ -105,6 +106,7 @@ class UserK8sSecret extends CrudK8sSecret {
           'extension': value['extension'],
         }
       );
+      await userInstance.encryptPassword();
       let userData = {
         'metadata': {'name': hexKey},
         'data': {
@@ -136,7 +138,6 @@ class UserK8sSecret extends CrudK8sSecret {
       throw error.response;
     }
   }
-
 }
 
 module.exports = UserK8sSecret;
