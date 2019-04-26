@@ -22,6 +22,7 @@ prerequisite:
 
 template-list:
   - yarn-frameworklauncher.yaml
+  - yarn-frameworklauncher-configuration/user-container-exit-spec.yml
   - delete.yaml
 
 start-script: start.sh
