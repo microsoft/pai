@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const Joi = require('joi');
+const crypto = require('crypto');
 
 const userSchema = Joi.object.keys({
   username: Joi.string()
@@ -32,9 +33,40 @@ const userSchema = Joi.object.keys({
   extension: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
+class User {
+  async constructor(value, encrptDisable = false) {
+    const {error, validValue} = Joi.validata(value, userSchema);
+    if (error) {
+      throw new Error('User schema error\n${error}');
+    }
+    this.data = validValue;
+    if (!encrptDisable){
+      this.data['password'] = await this.encryptPassword(this.data['username'], this.data['password']);
+    }
+  }
 
+  encryptPassword(username, password) {
+    const iterations = 10000;
+    const keylen = 64;
+    const salt = crypto.createHash('md5').update(username).digest('hex');
+    return new Promise( (res,rej) => {
+      crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
+        err ? rej(err) : res(key);
+      });
+    });
+  }
 
-module.exports = userSchema;
+  toString() {
+    return JSON.stringify(this.data)
+  }
+
+  valueOf() {
+    return this.data;
+  }
+
+}
+
+module.exports = User;
 
 
 

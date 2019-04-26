@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const UserSchema = require('./schema');
 const CrudK8sSecret = require('./crudBase');
 const axios = require('axios');
 
@@ -35,39 +36,109 @@ class UserK8sSecret extends CrudK8sSecret {
           'Accept': 'application/json',
         },
       });
-      let allUserSecrets = [];
-      let userData = reponse['data']
+      let allUserInstance = [];
+      let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
-        userData['items'].forEach((item) => {
-          allUserSecrets.push({
+        for (const item of userData['items']){
+          let userInstance = await UserSchema({
             username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
-            groupList: Json.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+            groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
             email: Buffer.from(item['data']['email'], 'base64').toString(),
-            extension: Json.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-          });
-        });
+            extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+          }, true);
+          allUserInstance.push(userInstance);
+        }
       } else {
-        allUserSecrets.push({
+        let userInstance = await UserSchema({
           username: Buffer.from(item['data']['username'], 'base64').toString(),
           password: Buffer.from(item['data']['password'], 'base64').toString(),
-          groupList: Json.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+          groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
           email: Buffer.from(item['data']['email'], 'base64').toString(),
-          extension: Json.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-        });
+          extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        }, true);
+        allUserInstance.push(userInstance);
       }
-      return allUserSecrets;
+      return allUserInstance;
     } catch (error) {
       throw error.response;
     }
   }
 
-  async create(key, option) {
-
+  async create(key, value, option) {
+    try{
+      const hexKey = Buffer.from(key).toString('hex');
+      let userInstance = await UserSchema(
+        {
+          'username': value['username'],
+          'password': value['password'],
+          'groupList': value['groupList'],
+          'email': value['email'],
+          'extension': value['extension'],
+        }
+      );
+      let userData = {
+        'metadata': {'name': hexKey},
+        'data': {
+          'username': Buffer.from(userInstance['username']).toString('base64'),
+          'password': Buffer.from(userInstance['password']).toString('base64'),
+          'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+          'email': Buffer.from(userInstance['email']).toString('base64'),
+          'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+        },
+      };
+      let response = await this.request.post(`${this.secretRootUri}`, userData);
+      return response['data'];
+    } catch (error) {
+      throw error.response;
+    }
   }
 
-  async encrypt(username, password) {
+  async update(key, value, option) {
+    try{
+      const hexKey = Buffer.from(key).toString('hex');
+      let userInstance = await UserSchema(
+        {
+          'username': value['username'],
+          'password': value['password'],
+          'groupList': value['groupList'],
+          'email': value['email'],
+          'extension': value['extension'],
+        }
+      );
+      let userData = {
+        'metadata': {'name': hexKey},
+        'data': {
+          'username': Buffer.from(userInstance['username']).toString('base64'),
+          'password': Buffer.from(userInstance['password']).toString('base64'),
+          'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+          'email': Buffer.from(userInstance['email']).toString('base64'),
+          'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+        },
+      };
+      let response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
+      return response['data']
+    } catch (error) {
+      throw error.response;
+    }
+  }
 
+  async delete(key, option) {
+    try{
+      const hexKey = Buffer.from(key).toString('hex');
+        let response = await this.request.delete(`${this.secretRootUri}/${hexKey}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+      });
+      return response;
+    } catch (error) {
+      throw error.response
+    }
   }
 
 }
+
+
+module.exports = UserK8sSecret
