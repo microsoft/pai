@@ -19,6 +19,9 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitCode;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitInfo;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitSpec;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
@@ -168,13 +171,15 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     return reusableAggFrameworkStatuses;
   }
 
+  // Need to be idempotent since the newAggFrameworkStatuses may contain reusableAggFrameworkStatuses
   private static void reviseAggregatedFrameworkStatuses(
       Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses) {
     for (AggregatedFrameworkStatus aggFrameworkStatus : newAggFrameworkStatuses.values()) {
       FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();
+      Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = aggFrameworkStatus.getAggregatedTaskRoleStatuses();
       String frameworkName = frameworkStatus.getFrameworkName();
 
-      // Revise FrameworkState:
+      // Revise FrameworkStatus:
       // Framework is running <-> Exists running Task.
       // This makes the Launcher APIs reflect the real Framework running state, instead of just the
       // raw AM running state.
@@ -193,8 +198,46 @@ public class StatusManager extends AbstractService { // THREAD SAFE
 
         if (frameworkState != revisedFrameworkState) {
           frameworkStatus.setFrameworkState(revisedFrameworkState);
-          LOGGER.logDebug("Revised Framework [%s] from [%s] to [%s]",
+          LOGGER.logTrace("Revised Framework [%s] from [%s] to [%s]",
               frameworkName, frameworkState, revisedFrameworkState);
+        }
+      }
+
+      // Revise TaskStatus:
+      // Application is completed <-> All Tasks are completed.
+      // This makes the Launcher APIs reflect the inferred up-to-date Tasks completion state
+      // from YARN perspective, even after the Application is already completed and thus
+      // the AM has no chance to update the TaskStatus anymore.
+      // However, this will make the exposed TaskStatus is not consistent with the backend,
+      // and the Task in TASK_COMPLETED state may not have an associated Container.
+      if (frameworkState == FrameworkState.APPLICATION_COMPLETED ||
+          frameworkState == FrameworkState.FRAMEWORK_COMPLETED) {
+        Integer taskStoppedExitCode = FrameworkExitCode.TASK_STOPPED_ON_APP_COMPLETION.toInt();
+        FrameworkExitInfo taskStoppedExitInfo = FrameworkExitSpec.getExitInfo(taskStoppedExitCode);
+        Long appCompletedTimestamp = frameworkStatus.getApplicationCompletedTimestamp();
+
+        for (AggregatedTaskRoleStatus aggTaskRoleStatus : aggTaskRoleStatuses.values()) {
+          String taskRoleName = aggTaskRoleStatus.getTaskStatuses().getTaskRoleName();
+          List<TaskStatus> taskStatuses = aggTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
+          for (TaskStatus taskStatus : taskStatuses) {
+            Integer taskIndex = taskStatus.getTaskIndex();
+            TaskState taskState = taskStatus.getTaskState();
+            TaskState revisedTaskState = TaskState.TASK_COMPLETED;
+
+            if (taskState != revisedTaskState) {
+              taskStatus.setContainerExitCode(taskStoppedExitCode);
+              taskStatus.setContainerExitDescription(taskStoppedExitInfo.getDescription());
+              taskStatus.setContainerExitDiagnostics(null);
+              taskStatus.setContainerExitType(taskStoppedExitInfo.getType());
+              if (taskStatus.getContainerId() != null) {
+                taskStatus.setContainerCompletedTimestamp(appCompletedTimestamp);
+              }
+              taskStatus.setTaskCompletedTimestamp(appCompletedTimestamp);
+              taskStatus.setTaskState(revisedTaskState);
+              LOGGER.logTrace("Revised Task [%s][%s][%s] from [%s] to [%s]",
+                  frameworkName, taskRoleName, taskIndex, taskState, revisedTaskState);
+            }
+          }
         }
       }
     }
