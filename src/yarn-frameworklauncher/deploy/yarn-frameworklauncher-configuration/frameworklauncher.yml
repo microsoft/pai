@@ -40,6 +40,7 @@ applicationTransientConflictMaxDelaySec: 3600
 frameworkCompletedRetainSec: 2592000
 
 # ApplicationMaster Setup
+amDiagnosticsMaxBytes: 327680
 amRmResyncFrequency: 6
 amRequestPullIntervalSec: 20
 amStatusPushIntervalSec: 20

@@ -17,6 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
+
 import java.io.Serializable;
 
 public enum ExitType implements Serializable {
@@ -37,5 +39,18 @@ public enum ExitType implements Serializable {
   NON_TRANSIENT,
 
   // Failed, and it cannot offer any retry guarantee.
-  UNKNOWN
+  UNKNOWN;
+
+  public int toLauncherExitCode() {
+    if (this == ExitType.SUCCEEDED) {
+      return GlobalConstants.EXIT_CODE_LAUNCHER_SUCCEEDED;
+    } else if (this == ExitType.TRANSIENT_NORMAL ||
+        this == ExitType.TRANSIENT_CONFLICT) {
+      return GlobalConstants.EXIT_CODE_LAUNCHER_TRANSIENT_FAILED;
+    } else if (this == ExitType.NON_TRANSIENT) {
+      return GlobalConstants.EXIT_CODE_LAUNCHER_NON_TRANSIENT_FAILED;
+    } else {
+      return GlobalConstants.EXIT_CODE_LAUNCHER_UNKNOWN_FAILED;
+    }
+  }
 }

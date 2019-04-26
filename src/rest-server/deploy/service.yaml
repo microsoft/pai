@@ -24,6 +24,7 @@ template-list:
   - start.sh
   - configmap-create.sh
   - auth-configmap/oidc.yaml
+  - job-exit-spec-config/job-exit-spec.yaml
 
 start-script: start.sh
 stop-script: stop.sh

@@ -59,8 +59,13 @@ export default function JobList() {
 
   const initialFilter = useMemo(() => {
     const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
-    const filter = new Filter(undefined, initialFilterUsers);
+    let filter = new Filter(undefined, initialFilterUsers);
     filter.load();
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (query['vcName']) {
+      const {keyword, users, statuses} = filter;
+      filter = new Filter(keyword, users, new Set().add(query['vcName']), statuses);
+    }
     return filter;
   });
   const [filter, setFilter] = useState(initialFilter);
@@ -114,11 +119,6 @@ export default function JobList() {
 
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
-    const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (query['vcName']) {
-      const {keyword, users, virtualClusters, statuses} = filter;
-      setFilter(new Filter(keyword, users, virtualClusters.add(query['vcName']), statuses));
-    }
     fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {

@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 public class LauncherStatus implements Serializable {
   private LauncherConfiguration launcherConfiguration;
+  private UserContainerExitSpec userContainerExitSpec;
   private UserDescriptor loggedInUser;
   private Boolean hadoopLibrarySupportsGpu;
   private Boolean hadoopLibrarySupportsPort;
@@ -33,6 +34,14 @@ public class LauncherStatus implements Serializable {
 
   public void setLauncherConfiguration(LauncherConfiguration launcherConfiguration) {
     this.launcherConfiguration = launcherConfiguration;
+  }
+
+  public UserContainerExitSpec getUserContainerExitSpec() {
+    return userContainerExitSpec;
+  }
+
+  public void setUserContainerExitSpec(UserContainerExitSpec userContainerExitSpec) {
+    this.userContainerExitSpec = userContainerExitSpec;
   }
 
   public UserDescriptor getLoggedInUser() {
