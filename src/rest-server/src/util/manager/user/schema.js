@@ -34,7 +34,7 @@ const userSchema = Joi.object.keys({
 }).required();
 
 class User {
-  constructor(value, encrptDisable) {
+  constructor(value) {
     const {error, validValue} = Joi.validata(value, userSchema);
     if (error) {
       throw new Error('User schema error\n${error}');
@@ -42,7 +42,7 @@ class User {
     this.data = validValue;
   }
 
-  encryptPassword() {
+  async encryptPassword() {
     this.data['password'] = await this.encrypt(this.data['username'], this.data['password']);
   }
 
