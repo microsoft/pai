@@ -695,16 +695,16 @@ Notes:
 1. The FrameworkInfo File may not be up-to-date if the Framework is not in APPLICATION_RUNNING state. So, Client is suggested to only fetch this file inside the Containers of the Framework.
 
 ## <a name="Framework_Exit_Spec">Framework Exit Spec</a>
+
 ### <a name="Predefined_Exit_Spec">Predefined Exit Spec</a>
-Spec for Framework, App, Task and Container ExitCode:
-[FrameworkExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/exit/FrameworkExitSpec.java).
+
+Spec for Framework, App, Task and Container ExitCode: [FrameworkExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/exit/FrameworkExitSpec.java).
 
 ### <a name="Configurable_Exit_Spec">Configurable Exit Spec</a>
-Spec for Container ExitCode:
-[UserContainerExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/model/UserContainerExitSpec.java).
 
-Example:
-[Default UserContainerExitSpec File](../conf/user-container-exit-spec.yml).
+Spec for Container ExitCode: [UserContainerExitSpec](../src/main/java/com/microsoft/frameworklauncher/common/model/UserContainerExitSpec.java).
+
+Example: [Default UserContainerExitSpec File](../conf/user-container-exit-spec.yml).
 
 ## <a name="RetryPolicy">RetryPolicy</a>
 
