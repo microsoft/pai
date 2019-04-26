@@ -105,14 +105,11 @@ spec:
       - name: pai-configuration-rest-server
         configMap:
           name: pai-configuration
-<<<<<<< HEAD
 {% if cluster_cfg['authentication']['OIDC'] %}
       - name: auth-configuration-rest-server
         configMap:
           name: auth-configuration
 {% endif %}
-=======
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
->>>>>>> master
