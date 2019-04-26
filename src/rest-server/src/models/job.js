@@ -18,9 +18,13 @@
 
 // module dependencies
 const async = require('async');
+const path = require('path');
+const fs = require('fs');
 const unirest = require('unirest');
+const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
+const yaml = require('js-yaml');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -30,6 +34,24 @@ const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
 const paiConfig = require('../config/paiConfig');
+const env = require('../util/env');
+
+let exitSpecPath;
+if (process.env[env.exitSpecPath]) {
+  exitSpecPath = process.env[env.exitSpecPath];
+  if (!path.isAbsolute(exitSpecPath)) {
+    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
+  }
+} else {
+  exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
+}
+const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+const positiveFallbackExitCode = 256;
+const negativeFallbackExitCode = -8000;
+const exitSpecMap = {};
+exitSpecList.forEach((val) => {
+  exitSpecMap[val.code] = val;
+});
 
 const getNamespace = (jobName) => {
   const tildeIndex = jobName.indexOf('~');
@@ -70,7 +92,7 @@ class Job {
       case 'FRAMEWORK_COMPLETED':
         if (exitCode === 0) {
           jobState = 'SUCCEEDED';
-        } else if (exitCode === 214) {
+        } else if (exitCode === -7351) {
           jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
@@ -357,6 +379,67 @@ class Job {
     );
   }
 
+  generateExitSpec(code) {
+    if (!_.isNil(code)) {
+      if (!_.isNil(exitSpecMap[code])) {
+        return exitSpecMap[code];
+      } else {
+        if (code > 0) {
+          return {
+            ...exitSpecMap[positiveFallbackExitCode],
+            code,
+          };
+        } else {
+          return {
+            ...exitSpecMap[negativeFallbackExitCode],
+            code,
+          };
+        }
+      }
+    } else {
+      return null;
+    }
+  }
+
+  extractContainerStderr(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /ExitCodeException exitCode.*?:/;
+    const anchor2 = /at org\.apache\.hadoop\.util\.Shell\.runCommand/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      return diag.substring(start, end).trim();
+    }
+  }
+
+  extractRuntimeOutput(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      const output = diag.substring(start, end).trim();
+      return yaml.safeLoad(output);
+    }
+  }
+
+  extractLauncherOutput(diag, code) {
+    if (_.isEmpty(diag) || code > 0) {
+      return null;
+    }
+    const re = /^(.*)$/m;
+    return diag.match(re)[0].trim();
+  }
+
   generateJobDetail(framework) {
     let jobDetail = {
       'jobStatus': {},
@@ -392,7 +475,17 @@ class Job {
         appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
         appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
         appExitCode: frameworkStatus.applicationExitCode,
+        appExitSpec: this.generateExitSpec(frameworkStatus.applicationExitCode),
         appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitMessages: {
+          container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
+          runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
+          launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
+        },
+        appExitTriggerMessage: frameworkStatus.applicationExitTriggerMessage,
+        appExitTriggerTaskRoleName: frameworkStatus.applicationExitTriggerTaskRoleName,
+        appExitTriggerTaskIndex: frameworkStatus.applicationExitTriggerTaskIndex,
+        // deprecated
         appExitType: frameworkStatus.applicationExitType,
       };
     }

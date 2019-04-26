@@ -17,9 +17,9 @@
 
 package com.microsoft.frameworklauncher.webserver;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.FrameworkRequest;
 import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
@@ -63,7 +63,7 @@ public class WebServer extends AbstractService {
           "NonTransientException occurred in %1$s. %1$s will be stopped.",
           serviceName);
 
-      stop(new StopStatus(ExitStatusKey.LAUNCHER_INTERNAL_NON_TRANSIENT_ERROR.toInt(), true, null, e));
+      stop(new StopStatus(GlobalConstants.EXIT_CODE_LAUNCHER_NON_TRANSIENT_FAILED, true, null, e));
       return false;
     } else {
       LOGGER.logError(e,
@@ -71,7 +71,7 @@ public class WebServer extends AbstractService {
           serviceName);
 
       // TODO: Only Restart WebServer instead of exit whole process and Restart by external system.
-      stop(new StopStatus(ExitStatusKey.LAUNCHER_INTERNAL_UNKNOWN_ERROR.toInt(), false, null, e));
+      stop(new StopStatus(GlobalConstants.EXIT_CODE_LAUNCHER_UNKNOWN_FAILED, false, null, e));
       return true;
     }
   }
