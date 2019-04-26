@@ -116,6 +116,8 @@ class Job {
       case 'TASK_COMPLETED':
         if (exitCode === 0) {
           return 'SUCCEEDED';
+        } else if (exitCode === -7400) {
+          return 'STOPPED';
         } else {
           return 'FAILED';
         }
