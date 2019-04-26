@@ -20,7 +20,6 @@ const CrudK8sSecret = require('./crudBase');
 const axios = require('axios');
 
 class UserK8sSecret extends CrudK8sSecret {
-
   constructor(options) {
     super();
     this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
@@ -40,7 +39,7 @@ class UserK8sSecret extends CrudK8sSecret {
       let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
         for (const item of userData['items']){
-          let userInstance = await UserSchema({
+          let userInstance = await new UserSchema({
             username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
             groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
@@ -50,12 +49,12 @@ class UserK8sSecret extends CrudK8sSecret {
           allUserInstance.push(userInstance);
         }
       } else {
-        let userInstance = await UserSchema({
-          username: Buffer.from(item['data']['username'], 'base64').toString(),
-          password: Buffer.from(item['data']['password'], 'base64').toString(),
-          groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
-          email: Buffer.from(item['data']['email'], 'base64').toString(),
-          extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        let userInstance = await new UserSchema({
+          username: Buffer.from(userData['data']['username'], 'base64').toString(),
+          password: Buffer.from(userData['data']['password'], 'base64').toString(),
+          groupList: JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
+          email: Buffer.from(userData['data']['email'], 'base64').toString(),
+          extension: JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
         }, true);
         allUserInstance.push(userInstance);
       }
@@ -68,7 +67,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async create(key, value, option) {
     try{
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await UserSchema(
+      let userInstance = await new UserSchema(
         {
           'username': value['username'],
           'password': value['password'],
@@ -97,7 +96,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async update(key, value, option) {
     try{
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await UserSchema(
+      let userInstance = await new UserSchema(
         {
           'username': value['username'],
           'password': value['password'],
