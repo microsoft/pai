@@ -23,7 +23,7 @@
   <value>hdfs://{HDFS_ADDRESS}:9000</value>
   <description>
          Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
-         none is given. 
+         none is given.
   </description>
 </property>
 
@@ -35,9 +35,28 @@
   </description>
 </property>
 
-    <property>
-        <name>ipc.server.max.response.size</name>
-        <value>5242880</value>
-    </property>
+<property>
+  <name>hadoop.http.cross-origin.enabled</name>
+  <value>true</value>
+  <description>
+         Enables cross origin support for all web-services
+  </description>
+</property>
+
+<property>
+  <name>hadoop.http.filter.initializers</name>
+  <value>org.apache.hadoop.security.HttpCrossOriginFilterInitializer</value>
+  <description>
+         Add to this property the org.apache.hadoop.security.AuthenticationFilterInitializer initializer class.
+  </description>
+</property>
+
+<property>
+  <name>ipc.server.max.response.size</name>
+  <value>5242880</value>
+  <description>
+         Hidden configuration option, the maximum size when large IPC handler response buffer is reset.
+  </description>
+</property>
 
 </configuration>
