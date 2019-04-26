@@ -38,7 +38,7 @@ class UserK8sSecret extends CrudK8sSecret {
       let allUserInstance = [];
       let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
-        for (const item of userData['items']){
+        for (const item of userData['items']) {
           let userInstance = await new UserSchema({
             username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
@@ -65,7 +65,7 @@ class UserK8sSecret extends CrudK8sSecret {
   }
 
   async create(key, value, option) {
-    try{
+    try {
       const hexKey = Buffer.from(key).toString('hex');
       let userInstance = await new UserSchema(
         {
@@ -94,7 +94,7 @@ class UserK8sSecret extends CrudK8sSecret {
   }
 
   async update(key, value, option) {
-    try{
+    try {
       const hexKey = Buffer.from(key).toString('hex');
       let userInstance = await new UserSchema(
         {
@@ -116,14 +116,14 @@ class UserK8sSecret extends CrudK8sSecret {
         },
       };
       let response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
-      return response['data']
+      return response['data'];
     } catch (error) {
       throw error.response;
     }
   }
 
   async delete(key, option) {
-    try{
+    try {
       const hexKey = Buffer.from(key).toString('hex');
         let response = await this.request.delete(`${this.secretRootUri}/${hexKey}`, {
           headers: {
@@ -133,11 +133,10 @@ class UserK8sSecret extends CrudK8sSecret {
       });
       return response;
     } catch (error) {
-      throw error.response
+      throw error.response;
     }
   }
 
 }
 
-
-module.exports = UserK8sSecret
+module.exports = UserK8sSecret;
