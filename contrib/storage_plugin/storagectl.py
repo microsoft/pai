@@ -94,7 +94,7 @@ def group_set(args):
         for info_data in args.mount_info:
             info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
             mount_infos.append(info)
-        content_dict["mountInfo"] = mount_infos
+        content_dict["mountInfos"] = mount_infos
     save_secret("storage-group", args.name, content_dict)
 
 
