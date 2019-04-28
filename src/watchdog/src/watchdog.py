@@ -75,7 +75,7 @@ def gen_pai_container_gauge():
 
 def gen_pai_node_gauge():
     return GaugeMetricFamily("pai_node_count", "count of pai node",
-            labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready"])
+            labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready", "unschedulable"])
 
 def gen_k8s_api_gauge():
     return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
@@ -313,7 +313,7 @@ def parse_node_item(node, pai_node_gauge,
     if ip is None:
         ip = node["metadata"]["name"]
 
-    disk_pressure = memory_pressure = out_of_disk = ready = "unknown"
+    disk_pressure = memory_pressure = out_of_disk = ready = unschedulable = "unknown"
 
     if node.get("status") is not None:
         status = node["status"]
@@ -375,7 +375,13 @@ def parse_node_item(node, pai_node_gauge,
     else:
         logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
-    pai_node_gauge.add_metric([ip, disk_pressure, memory_pressure, out_of_disk, ready], 1)
+    unschedulable_s = walk_json_field_safe(node, "spec", "unschedulable")
+    if unschedulable_s is True:
+        unschedulable = "true"
+    else:
+        unschedulable = "false"
+
+    pai_node_gauge.add_metric([ip, disk_pressure, memory_pressure, out_of_disk, ready, unschedulable], 1)
 
 
 def process_nodes_status(nodes_object, pods_info):

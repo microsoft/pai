@@ -150,6 +150,9 @@ class TestJobExporter(unittest.TestCase):
 
         self.assertTrue(len(gauges) == 4)
 
+        self.assertEqual("pai_node_count", gauges[0].name)
+        self.assertEqual(1, len(gauges[0].samples))
+        self.assertEqual("true", gauges[0].samples[0].labels["unschedulable"])
         self.assertEqual("k8s_node_gpu_available", gauges[1].name)
         self.assertEqual(1, len(gauges[1].samples))
         self.assertEqual(0, gauges[1].samples[0].value)
