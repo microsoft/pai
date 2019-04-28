@@ -92,6 +92,22 @@ export default class Summary extends React.Component {
   showExitDiagnostics() {
     const {jobInfo} = this.props;
     const result = [];
+    // trigger info
+    result.push('[Exit Trigger Info]');
+    result.push('');
+    result.push(`ExitTriggerMessage: ${get(jobInfo, 'jobStatus.appExitTriggerMessage')}`);
+    result.push(`ExitTriggerTaskRole: ${get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName')}`);
+    result.push(`ExitTriggerTaskIndex: ${get(jobInfo, 'jobStatus.appExitTriggerTaskIndex')}`);
+    const runtimeOutput = get(jobInfo, 'jobStatus.appExitMessages.runtime');
+    // user exit code
+    if (runtimeOutput) {
+      const userCode = runtimeOutput.originalUserExitCode;
+      if (!isNil(userCode)) {
+        result.push(`UserExitCode: ${userCode}`);
+      }
+    }
+    result.push('');
+    // exit spec
     const spec = jobInfo.jobStatus.appExitSpec;
     if (spec) {
       result.push('[Exit Spec]');
@@ -99,6 +115,7 @@ export default class Summary extends React.Component {
       result.push(yaml.safeDump(spec));
       result.push('');
     }
+    // diagnostics
     const diag = jobInfo.jobStatus.appExitDiagnostics;
     if (diag) {
       if (spec) {
@@ -172,27 +189,6 @@ export default class Summary extends React.Component {
     }
     if (!isEmpty(solution)) {
       result.push(<HintItem key='solution' header='Exit Solutions:'>{solution}</HintItem>);
-    }
-    result.push(<div className={t.h1}></div>);
-    // trigger task
-    const message = get(jobInfo, 'jobStatus.appExitTriggerMessage');
-    const role = get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
-    const idx = get(jobInfo, 'jobStatus.appExitTriggerTaskIndex');
-    if (message) {
-      result.push(<HintItem key='trigger-message' header='Exit Trigger Message:'>{message}</HintItem>);
-    }
-    if (role) {
-      result.push(<HintItem key='task-role' header='Exit Trigger Task Role:'>{role}</HintItem>);
-    }
-    if (!isNil(idx)) {
-      result.push(<HintItem key='container-id' header='Exit Trigger Task Index:'>{idx}</HintItem>);
-    }
-    // user exit code
-    if (runtimeOutput) {
-      const userCode = runtimeOutput.originalUserExitCode;
-      if (!isNil(userCode)) {
-        result.push(<HintItem key='user-exit-code' header='Original User Exit Code:'>{userCode}</HintItem>);
-      }
     }
 
     return result;
