@@ -39,7 +39,7 @@ class TestPS(base.TestBase):
         self.assertEqual("D", parse_result[0].state)
         self.assertEqual("4", parse_result[0].pid)
         self.assertEqual(2 * 1024, parse_result[0].rss)
-        self.assertEqual("/var/drivers/nvidia/current/bin/nvidia-smi -q -x",
+        self.assertEqual("/usr/bin/nvidia-smi -q -x",
                 parse_result[0].cmd)
 
 if __name__ == '__main__':
