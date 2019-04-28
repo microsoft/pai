@@ -94,24 +94,21 @@ class Client:
         
         Arguments:
             pai_json {str} -- file path of json file
-        
-        Keyword Arguments:
             alias {str} -- [description] (default: {None})
         
         Returns:
-            [Client or dict[Client]] -- 
-                a specific Client (if only one openpai cluster specified in json or alias is valid)
-                a dictionary of Client (elsewise)
+            Client -- 
+                a specific Client (if alias is valid or only one cluster specified)
+            str -- 
+                cluster alias
         """
         with open(pai_json) as fn:
             cfgs = json.load(fn)
         clients = {key: Client(**args) for key, args in cfgs.items()}
-        if len(clients) == 1:
-            return list(clients.values())[0]
-        elif alias is None:
-            return clients
-        else:
-            return clients[alias]
+        a = alias
+        if not a and len(clients) == 1:
+            a = list(clients.keys())[0]
+        return clients[a], a
 
     def to_envs(self, exclude: list=['passwd'], prefix: str='PAISDK'):
         """to_envs to pass necessary information to job container via environmental variables
