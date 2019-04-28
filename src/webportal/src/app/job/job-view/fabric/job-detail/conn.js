@@ -161,7 +161,7 @@ export async function getContainerLog(logUrl) {
       if (link.length === 1) {
         ret.fullLogLink = link[0].href;
         // relative link
-        if (ret.fullLogLink.startsWith('/')) {
+        if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
           const url = new URL(ret.fullLogLink, res.url);
           ret.fullLogLink = url.href;
         }
