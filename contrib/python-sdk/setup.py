@@ -7,6 +7,9 @@ setup(name='openpaisdk',
     packages=['openpaisdk'],
     install_requires=[
         'requests', 'hdfs', 
-    ],      
+    ],
+    entry_points = {
+        'console_scripts': ['opai=openpaisdk.command_line:main'],
+    },
     zip_safe=False
 )
