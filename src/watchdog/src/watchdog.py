@@ -354,8 +354,9 @@ def parse_node_item(node, pai_node_gauge,
         # allocation, so we have to compute it ourselves.
         used_gpu = 0
 
-        for pod in pods_info[ip]: # pods_info is defaultdict
-            used_gpu += pod.gpu
+        if pods_info.get(ip) is not None:
+            for pod in pods_info[ip]:
+                used_gpu += pod.gpu
 
         node_gpu_avail.add_metric([ip], max(0, total_gpu - used_gpu))
     else:
