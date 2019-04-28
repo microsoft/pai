@@ -235,5 +235,5 @@ class Client:
                 'Content-Type': 'application/json'
             },
             body = job_config, 
-            allowed_status=[202]
+            allowed_status=[202, 201]
         )
