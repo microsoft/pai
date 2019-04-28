@@ -98,30 +98,33 @@ export default class Summary extends React.Component {
     result.push(`ExitTriggerMessage: ${get(jobInfo, 'jobStatus.appExitTriggerMessage')}`);
     result.push(`ExitTriggerTaskRole: ${get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName')}`);
     result.push(`ExitTriggerTaskIndex: ${get(jobInfo, 'jobStatus.appExitTriggerTaskIndex')}`);
-    const runtimeOutput = get(jobInfo, 'jobStatus.appExitMessages.runtime');
-    // user exit code
-    if (runtimeOutput) {
-      const userCode = runtimeOutput.originalUserExitCode;
-      if (!isNil(userCode)) {
-        result.push(`UserExitCode: ${userCode}`);
-      }
+    const userExitCode = get(jobInfo, 'jobStatus.appExitMessages.runtime.originalUserExitCode');
+    if (userExitCode) {
+      // user exit code
+      result.push(`UserExitCode: ${userExitCode}`);
     }
     result.push('');
+
     // exit spec
     const spec = jobInfo.jobStatus.appExitSpec;
     if (spec) {
+      // divider
+      result.push(Array.from({length: 80}, () => '-').join(''));
+      result.push('');
+      // content
       result.push('[Exit Spec]');
       result.push('');
       result.push(yaml.safeDump(spec));
       result.push('');
     }
+
     // diagnostics
     const diag = jobInfo.jobStatus.appExitDiagnostics;
     if (diag) {
-      if (spec) {
-        result.push(Array.from({length: 80}, () => '-').join(''));
-        result.push('');
-      }
+      // divider
+      result.push(Array.from({length: 80}, () => '-').join(''));
+      result.push('');
+      // content
       result.push('[Exit Diagnostics]');
       result.push('');
       result.push(diag);

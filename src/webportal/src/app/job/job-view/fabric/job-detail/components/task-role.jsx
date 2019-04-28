@@ -94,7 +94,7 @@ export default class TaskRole extends React.Component {
   }
 
   render() {
-    const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
+    const {className, taskInfo, taskConfig, jobStatus, sshInfo, isFailed} = this.props;
     const {containerListExpanded} = this.state;
     const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
 
@@ -136,6 +136,7 @@ export default class TaskRole extends React.Component {
               taskConfig={taskConfig}
               jobStatus={jobStatus}
               sshInfo={sshInfo}
+              isFailed={isFailed}
             />
           )}
         </Card>
@@ -150,4 +151,5 @@ TaskRole.propTypes = {
   jobStatus: PropTypes.string.isRequired,
   taskConfig: PropTypes.object,
   sshInfo: PropTypes.object,
+  isFailed: PropTypes.bool,
 };

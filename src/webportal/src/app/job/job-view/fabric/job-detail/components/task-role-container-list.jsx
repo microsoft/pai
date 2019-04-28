@@ -324,10 +324,16 @@ export default class TaskRoleContainerList extends React.Component {
 
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
-    const {className, style, taskInfo} = this.props;
+    const {className, style, taskInfo, isFailed} = this.props;
     const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
     return (
-      <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
+      <div
+        className={className}
+        style={{
+          backgroundColor: isFailed ? '#FDE7E9' : theme.palette.white,
+          ...style,
+        }}
+      >
         <ThemeProvider theme={theme}>
           <DetailsList
             columns={this.getColumns()}
@@ -360,4 +366,5 @@ TaskRoleContainerList.propTypes = {
   taskInfo: PropTypes.object,
   jobStatus: PropTypes.string.isRequired,
   sshInfo: PropTypes.object,
+  isFailed: PropTypes.boolean,
 };
