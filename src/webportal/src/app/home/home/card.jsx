@@ -15,30 +15,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames} from '@uifabric/styling';
-import c from 'classnames';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
+import PropTypes from 'prop-types';
+import {ColorClassNames, Stack} from 'office-ui-fabric-react';
 import React from 'react';
 
-import t from '../../tachyons.css';
-
-import loadingGif from '../../../../../../assets/img/loading.gif';
-
-export const Loading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
-      <img className={t.o50} src={loadingGif} />
-    </div>
-  </div>
+const Card = ({className, style, children}) => (
+  <Stack
+    styles={{root: [ColorClassNames.whiteBackground, className, style]}}
+    padding='l1 l2'
+  >
+    {children}
+  </Stack>
 );
 
-export const SpinnerLoading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
-      <div className={c(t.flex, t.itemsCenter)}>
-        <Spinner size={SpinnerSize.large} />
-        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
-      </div>
-    </div>
-  </div>
-);
+Card.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  children: PropTypes.node,
+};
+
+export default Card;

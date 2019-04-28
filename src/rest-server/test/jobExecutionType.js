@@ -114,7 +114,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
       .end((err, res) => {
         expect(res, 'status code').to.have.status(202);
         expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('execute job iamadmin~test1 successfully');
+        expect(res.body.message, 'response message').equal('execute job test1 successfully');
         done();
       });
   });
@@ -129,7 +129,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
       .end((err, res) => {
         expect(res, 'status code').to.have.status(202);
         expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('execute job test2~test2 successfully');
+        expect(res.body.message, 'response message').equal('execute job test2 successfully');
         done();
       });
   });

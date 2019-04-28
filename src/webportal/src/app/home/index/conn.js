@@ -15,34 +15,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const logger = require('../config/logger');
+import config from '../../config/webportal.config';
 
-/**
- * For compatible user job URL rewrite use
- *
- * GET /user/foo/jobs => GET /jobs?username=foo
- * GET /user/foo/jobs/bar/* => GET /jobs/foo~bar/*
- * GET /user/foo/jobs/bar~baz/* => GET /jobs/bar~baz/*
- * POST /user/foo/jobs => POST /jobs?username=foo (to distinguish with legacy POST /jobs)
- * PUT /user/foo/jobs/bar/* => POST /jobs/foo~bar/*
- * PUT /user/foo/jobs/bar~baz/* => POST /jobs/bar~baz/*
- */
-const userJob = (req, res, next) => {
-  const {username, jobName} = req.params;
-  const remains = req.params[0];
-  const url = req.url;
-  if (jobName === undefined) {
-    if (req.query.username === undefined) {
-      req.query.username = username;
+export async function login(username, password, expiration = 7 * 24 * 60 * 60) {
+  const res = await fetch(`${config.restServerUri}/api/v1/token`, {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password,
+      expiration,
+    }),
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    if (data.error) {
+      throw new Error(data.message);
+    } else {
+      cookies.set('user', data.user, {expires: expiration});
+      cookies.set('token', data.token, {expires: expiration});
+      cookies.set('admin', data.admin, {expires: expiration});
+      cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
     }
-    req.url = '/jobs';
   } else {
-    const rewritedJobName = jobName.indexOf('~') === -1 ? `${username}~${jobName}` : jobName;
-    const rewritedRemains = remains === undefined ? '' : `/${remains}`;
-    req.url = `/jobs/${rewritedJobName}${rewritedRemains}`;
+    const data = await res.json();
+    throw new Error(data.message);
   }
-  logger.info('Rewrite %s to %s', url, req.url);
-  return next('route');
-};
-
-module.exports = {userJob};
+}

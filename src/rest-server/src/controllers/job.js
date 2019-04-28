@@ -26,7 +26,7 @@ const logger = require('../config/logger');
  * Load job and append to req.
  */
 const load = (req, res, next, jobName) => {
-  new Job(jobName, (job, error) => {
+  new Job(jobName, req.params.username, (job, error) => {
     if (error) {
       if (error.code === 'NoJobError') {
         if (req.method !== 'PUT') {
@@ -46,11 +46,8 @@ const load = (req, res, next, jobName) => {
 };
 
 const init = (req, res, next) => {
-  let jobName = req.body.jobName;
-  if (jobName.indexOf('~') === -1 && req.query.username !== undefined) {
-    jobName = `${req.query.username}~${jobName}`;
-  }
-  new Job(jobName, (job, error) => {
+  const jobName = req.body.jobName;
+  new Job(jobName, req.params.username, (job, error) => {
     if (error) {
       if (error.code === 'NoJobError') {
         req.job = job;
@@ -68,7 +65,7 @@ const init = (req, res, next) => {
  * Get list of jobs.
  */
 const list = (req, res, next) => {
-  Job.prototype.getJobList(req._query, (jobList, err) => {
+  Job.prototype.getJobList(req._query, req.params.username, (jobList, err) => {
     if (err) {
       return next(createError.unknown(err));
     } else if (jobList === undefined) {
@@ -99,7 +96,7 @@ const update = (req, res, next) => {
   let data = req.body;
   data.originalData = req.originalBody;
   data.userName = req.user.username;
-  Job.prototype.putJob(name, data, (err) => {
+  Job.prototype.putJob(name, req.params.username, data, (err) => {
     if (err) {
       return next(createError.unknown(err));
     }
@@ -108,7 +105,7 @@ const update = (req, res, next) => {
       host: req.get('Host'),
       pathname: req.baseUrl + '/' + name,
     });
-    new Job(name, (job, err) => {
+    new Job(name, req.params.username, (job, err) => {
       if (err) {
         if (err.code === 'NoJobError') {
           return res.status(202).location(location).json({
@@ -129,7 +126,7 @@ const update = (req, res, next) => {
 const remove = (req, res, next) => {
   req.body.username = req.user.username;
   req.body.admin = req.user.admin;
-  Job.prototype.deleteJob(req.job.name, req.body, (err) => {
+  Job.prototype.deleteJob(req.job.name, req.params.username, req.body, (err) => {
     if (err) {
       return next(createError.unknown(err));
     } else {
@@ -146,7 +143,7 @@ const remove = (req, res, next) => {
 const execute = (req, res, next) => {
   req.body.username = req.user.username;
   req.body.admin = req.user.admin;
-  Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
+  Job.prototype.putJobExecutionType(req.job.name, req.params.username, req.body, (err) => {
     if (err) {
       return next(createError.unknown(err));
     } else {
@@ -163,6 +160,7 @@ const execute = (req, res, next) => {
 const getConfig = (req, res, next) => {
   Job.prototype.getJobConfig(
     req.job.jobStatus.username,
+    req.params.username,
     req.job.name,
     (error, result) => {
       if (!error) {
@@ -185,6 +183,7 @@ const getConfig = (req, res, next) => {
 const getSshInfo = (req, res, next) => {
   Job.prototype.getJobSshInfo(
     req.job.jobStatus.username,
+    req.params.username,
     req.job.name,
     req.job.jobStatus.appId,
     (error, result) => {

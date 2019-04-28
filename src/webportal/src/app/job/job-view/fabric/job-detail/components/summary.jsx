@@ -26,7 +26,7 @@ import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar'
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoPanel from './monaco-panel';

@@ -22,9 +22,9 @@ import {Icon} from 'office-ui-fabric-react/lib/Icon';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../../../../components/tachyons.scss';
+import t from './tachyons.scss';
 
-import {statusColorMapping} from '../../../../../components/theme';
+import {statusColorMapping} from './theme';
 
 export const Badge = ({children, className}) => (
   <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>

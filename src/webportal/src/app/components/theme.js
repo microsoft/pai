@@ -15,11 +15,35 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const express = require('express');
-const rewriteController = require('../controllers/rewrite');
+import {loadTheme, FontWeights} from '@uifabric/styling';
 
-const router = module.exports = new express.Router();
+export function initTheme() {
+  loadTheme({
+    spacing: {
+      s2: '4px',
+      s1: '8px',
+      m: '16px',
+      l1: '20px',
+      l2: '32px',
+      l3: '64px',
+    },
+    fonts: {
+      xLarge: {
+        fontSize: 20,
+        fontWeight: FontWeights.semibold,
+      },
+      large: {
+        fontSize: 17,
+        fontWeight: FontWeights.regular,
+      },
+    },
+  });
+}
 
-router.all('/user/:username/jobs', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName/*', rewriteController.userJob);
+export const statusColorMapping = {
+  waiting: '#fcd116',
+  failed: '#eb1123',
+  running: '#0071bc',
+  succeeded: '#7fba00',
+  unknown: '#b1b5b8',
+};
