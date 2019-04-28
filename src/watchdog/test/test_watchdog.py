@@ -78,7 +78,7 @@ class TestJobExporter(unittest.TestCase):
 
         gauges = watchdog.process_nodes_status(obj, {})
 
-        self.assertTrue(len(gauges) == 3)
+        self.assertTrue(len(gauges) == 4)
 
         for gauge in gauges:
             self.assertTrue(len(gauge.samples) > 0)
@@ -123,7 +123,7 @@ class TestJobExporter(unittest.TestCase):
         pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
         gauges = watchdog.process_nodes_status(obj, pod_info)
 
-        self.assertTrue(len(gauges) == 3)
+        self.assertTrue(len(gauges) == 4)
 
         self.assertEqual("k8s_node_gpu_available", gauges[1].name)
         self.assertEqual(1, len(gauges[1].samples))
@@ -131,6 +131,34 @@ class TestJobExporter(unittest.TestCase):
         self.assertEqual("k8s_node_gpu_total", gauges[2].name)
         self.assertEqual(1, len(gauges[2].samples))
         self.assertEqual(4, gauges[2].samples[0].value)
+        self.assertEqual("k8s_node_gpu_reserved", gauges[3].name)
+        self.assertEqual(1, len(gauges[3].samples))
+        self.assertEqual(0, gauges[3].samples[0].value)
+
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
+
+        for gauge in gauges[1:]:
+            self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
+
+    def test_process_dlws_nodes_status_with_unscheduable(self):
+        obj = json.loads(self.get_data_test_input("data/dlws_nodes_list_with_unschedulable.json"))
+
+        pod_info = collections.defaultdict(lambda : [])
+        pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
+        gauges = watchdog.process_nodes_status(obj, pod_info)
+
+        self.assertTrue(len(gauges) == 4)
+
+        self.assertEqual("k8s_node_gpu_available", gauges[1].name)
+        self.assertEqual(1, len(gauges[1].samples))
+        self.assertEqual(0, gauges[1].samples[0].value)
+        self.assertEqual("k8s_node_gpu_total", gauges[2].name)
+        self.assertEqual(1, len(gauges[2].samples))
+        self.assertEqual(4, gauges[2].samples[0].value)
+        self.assertEqual("k8s_node_gpu_reserved", gauges[3].name)
+        self.assertEqual(1, len(gauges[3].samples))
+        self.assertEqual(2, gauges[3].samples[0].value)
 
         for gauge in gauges:
             self.assertTrue(len(gauge.samples) > 0)

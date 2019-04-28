@@ -85,6 +85,12 @@ def gen_k8s_node_gpu_available():
     return GaugeMetricFamily("k8s_node_gpu_available", "gpu available on k8s node",
             labels=["host_ip"])
 
+# reserved gpu means gpu not allocated to tasks and the node is being marked as
+# unschedulable.
+def gen_k8s_node_gpu_reserved():
+    return GaugeMetricFamily("k8s_node_gpu_reserved", "gpu reserved on k8s node",
+            labels=["host_ip"])
+
 def gen_k8s_node_gpu_total():
     return GaugeMetricFamily("k8s_node_gpu_total", "gpu total on k8s node",
             labels=["host_ip"])
@@ -293,7 +299,7 @@ def collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_
 
 
 def parse_node_item(node, pai_node_gauge,
-        node_gpu_avail, node_gpu_total,
+        node_gpu_avail, node_gpu_total, node_gpu_reserved,
         pods_info):
 
     ip = None
@@ -358,7 +364,14 @@ def parse_node_item(node, pai_node_gauge,
             for pod in pods_info[ip]:
                 used_gpu += pod.gpu
 
-        node_gpu_avail.add_metric([ip], max(0, total_gpu - used_gpu))
+        # if a node is marked as unschedulable, the available gpu will be 0
+        # and reserved gpu will be `total - used`
+        if walk_json_field_safe(node, "spec", "unschedulable") != True:
+            node_gpu_avail.add_metric([ip], max(0, total_gpu - used_gpu))
+            node_gpu_reserved.add_metric([ip], 0)
+        else:
+            node_gpu_avail.add_metric([ip], 0)
+            node_gpu_reserved.add_metric([ip], max(0, total_gpu - used_gpu))
     else:
         logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
@@ -368,6 +381,7 @@ def parse_node_item(node, pai_node_gauge,
 def process_nodes_status(nodes_object, pods_info):
     pai_node_gauge = gen_pai_node_gauge()
     node_gpu_avail = gen_k8s_node_gpu_available()
+    node_gpu_reserved = gen_k8s_node_gpu_reserved()
     node_gpu_total = gen_k8s_node_gpu_total()
 
     def _map_fn(item):
@@ -378,12 +392,13 @@ def process_nodes_status(nodes_object, pods_info):
                 pai_node_gauge,
                 node_gpu_avail,
                 node_gpu_total,
+                node_gpu_reserved,
                 pods_info)
 
     list(map(_map_fn, nodes_object["items"]))
 
     return [pai_node_gauge,
-            node_gpu_avail, node_gpu_total]
+            node_gpu_avail, node_gpu_total, node_gpu_reserved]
 
 
 def process_pods(k8s_api_addr, ca_path, headers, pods_info):
