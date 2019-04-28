@@ -101,7 +101,7 @@ export default class TaskRole extends React.Component {
     return (
       <div className={className}>
         {/* summary */}
-        <Card>
+        <Card style={{backgroundColor: isFailed ? '#FDE7E9' : undefined}}>
           <div className={c(t.pv3, t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: 32, paddingRight: 32}}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
@@ -136,7 +136,6 @@ export default class TaskRole extends React.Component {
               taskConfig={taskConfig}
               jobStatus={jobStatus}
               sshInfo={sshInfo}
-              isFailed={isFailed}
             />
           )}
         </Card>
