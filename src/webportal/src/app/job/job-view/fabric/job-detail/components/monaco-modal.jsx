@@ -24,7 +24,7 @@ import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 import {monacoHack} from './monaco-hack.scss';
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 const MonacoModal = ({isOpen, onDismiss, title, monacoProps}) => (
   <div>

@@ -33,6 +33,7 @@ window.onresize = function(envent) {
 };
 
 $(document).ready(function() {
+  document.getElementById('sidebar-menu--dashboard').classList.add('active');
   resizeContentWrapper();
   $('#content-wrapper').html(dashboardHtml);
 });

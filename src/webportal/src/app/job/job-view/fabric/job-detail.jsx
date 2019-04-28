@@ -26,11 +26,11 @@ import ReactDOM from 'react-dom';
 import {initializeIcons} from '@uifabric/icons';
 import {FontClassNames} from '@uifabric/styling';
 
-import t from './tachyons.css';
+import t from '../../../components/tachyons.scss';
 
 import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
-import {SpinnerLoading} from './job-detail/components/loading';
+import {SpinnerLoading} from '../../../components/loading';
 import TaskRole from './job-detail/components/task-role';
 import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError} from './job-detail/conn';
 import {getHumanizedJobStateString, getTaskConfig, isJobV2} from './job-detail/util';
