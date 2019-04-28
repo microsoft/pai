@@ -29,6 +29,7 @@ import signal
 import faulthandler
 import gc
 import re
+import collections
 
 import yaml
 import prometheus_client
@@ -56,17 +57,21 @@ api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
 
+list_ns_histogram = Histogram("k8s_api_list_ns_latency_seconds",
+        "Response latency for list namespaces from k8s api (seconds)")
+
 list_nodes_histogram = Histogram("k8s_api_list_nodes_latency_seconds",
         "Response latency for list nodes from k8s api (seconds)")
 
 def gen_pai_pod_gauge():
     return GaugeMetricFamily("pai_pod_count", "count of pai pod",
-            labels=["service_name", "name", "phase", "host_ip",
+            labels=["service_name", "name", "namespace", "phase", "host_ip",
                 "initialized", "pod_scheduled", "ready"])
 
 def gen_pai_container_gauge():
     return GaugeMetricFamily("pai_container_count", "count of container pod",
-            labels=["service_name", "pod_name", "name", "state", "host_ip", "ready"])
+            labels=["service_name", "pod_name", "name", "namespace", "state",
+                "host_ip", "ready"])
 
 def gen_pai_node_gauge():
     return GaugeMetricFamily("pai_node_count", "count of pai node",
@@ -75,22 +80,6 @@ def gen_pai_node_gauge():
 def gen_k8s_api_gauge():
     return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
             labels=["error", "host_ip"])
-
-def gen_k8s_node_cpu_available():
-    return GaugeMetricFamily("k8s_node_cpu_available", "cpu available on k8s node",
-            labels=["host_ip"])
-
-def gen_k8s_node_cpu_total():
-    return GaugeMetricFamily("k8s_node_cpu_total", "cpu total on k8s node",
-            labels=["host_ip"])
-
-def gen_k8s_node_mem_available():
-    return GaugeMetricFamily("k8s_node_mem_available", "mem available on k8s node",
-            labels=["host_ip"])
-
-def gen_k8s_node_mem_total():
-    return GaugeMetricFamily("k8s_node_mem_total", "mem total on k8s node",
-            labels=["host_ip"])
 
 def gen_k8s_node_gpu_available():
     return GaugeMetricFamily("k8s_node_gpu_available", "gpu available on k8s node",
@@ -179,13 +168,33 @@ def catch_exception(fn, msg, default, *args, **kwargs):
         logger.exception(msg)
         return default
 
+class PodInfo(object):
+    def __init__(self, name, gpu):
+        self.name = name
+        self.gpu = gpu
 
-def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
+    def __repr__(self):
+        return "%s: %s" % (self.name, self.gpu)
+
+def parse_pod_item(pod, namespace, pai_pod_gauge, pai_container_gauge, pods_info):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
 
     pod_name = pod["metadata"]["name"]
+    host_ip = walk_json_field_safe(pod, "status", "hostIP") or "unscheduled"
+
+    used_gpu = 0
+    containers = walk_json_field_safe(pod, "spec", "containers")
+    if containers is not None:
+        for container in containers:
+            req_gpu = int(walk_json_field_safe(container, "resources", "requests",
+                    "nvidia.com/gpu") or 0)
+            limit_gpu = int(walk_json_field_safe(container, "resources", "limits",
+                    "nvidia.com/gpu") or 0)
+            used_gpu += max(req_gpu, limit_gpu)
+    pods_info[host_ip].append(PodInfo(pod_name, used_gpu))
+
     labels = pod["metadata"].get("labels")
     if labels is None or "app" not in labels:
         logger.info("unknown pod %s", pod["metadata"]["name"])
@@ -199,10 +208,6 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
         phase = status["phase"].lower()
     else:
         phase = "unknown"
-
-    host_ip = "unscheduled" # can not specify None here, None will cause None exception
-    if status.get("hostIP") is not None:
-        host_ip = status["hostIP"]
 
     initialized = pod_scheduled = ready = "unknown"
 
@@ -222,7 +227,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
                 error_counter.labels(type="unknown_pod_cond").inc()
                 logger.error("unexpected condition %s in pod %s", cond_t, pod_name)
 
-    pai_pod_gauge.add_metric([service_name, pod_name, phase, host_ip,
+    pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
         initialized, pod_scheduled, ready], 1)
 
     # generate pai_containers
@@ -248,22 +253,21 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge):
                     container_state = list(state.keys())[0].lower()
 
             pai_container_gauge.add_metric([service_name, pod_name, container_name,
-                container_state, host_ip, str(ready).lower()], 1)
+                namespace, container_state, host_ip, str(ready).lower()], 1)
 
 
-def process_pods_status(pods_object):
-    pai_pod_gauge = gen_pai_pod_gauge()
-    pai_container_gauge = gen_pai_container_gauge()
-
+def process_pods_status(pods_object, namespace, pai_pod_gauge, pai_container_gauge,
+        pods_info):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
                 "catch exception when parsing pod item",
                 None,
                 item,
-                pai_pod_gauge, pai_container_gauge)
+                namespace,
+                pai_pod_gauge, pai_container_gauge,
+                pods_info)
 
     list(map(_map_fn, pods_object["items"]))
-    return [pai_pod_gauge, pai_container_gauge]
 
 
 def collect_healthz(gauge, histogram, scheme, address, port, url, ca_path, headers):
@@ -289,9 +293,8 @@ def collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_
 
 
 def parse_node_item(node, pai_node_gauge,
-        node_cpu_avail, node_cpu_total,
-        node_mem_avail, node_mem_total,
-        node_gpu_avail, node_gpu_total):
+        node_gpu_avail, node_gpu_total,
+        pods_info):
 
     ip = None
 
@@ -327,37 +330,42 @@ def parse_node_item(node, pai_node_gauge,
                     error_counter.labels(type="unknown_node_cond").inc()
                     logger.error("unexpected condition %s in node %s", cond_t, ip)
 
-        capacity = walk_json_field_safe(status, "capacity")
-        if capacity is not None:
-            node_cpu_total.add_metric([ip],
-                int(walk_json_field_safe(capacity, "cpu") or "0"))
-            node_mem_total.add_metric([ip],
-                    convert_to_byte(walk_json_field_safe(capacity, "memory") or "0"))
-            gpu1 = int(walk_json_field_safe(capacity, "alpha.kubernetes.io/nvidia-gpu") or "0")
-            gpu2 = int(walk_json_field_safe(capacity, "nvidia.com/gpu") or "0")
-            node_gpu_total.add_metric([ip], max(gpu1, gpu2))
+        # https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/node-allocatable.md
+        # [Allocatable] = [Node Capacity] - [Kube-Reserved] - [System-Reserved] - [Hard-Eviction-Threshold]
+        total_gpu = 0
 
         allocatable = walk_json_field_safe(status, "allocatable")
         if allocatable is not None:
-            node_cpu_avail.add_metric([ip],
-                int(walk_json_field_safe(allocatable, "cpu") or "0"))
-            node_mem_avail.add_metric([ip],
-                    convert_to_byte(walk_json_field_safe(allocatable, "memory") or "0"))
             gpu1 = int(walk_json_field_safe(allocatable, "alpha.kubernetes.io/nvidia-gpu") or "0")
             gpu2 = int(walk_json_field_safe(allocatable, "nvidia.com/gpu") or "0")
-            node_gpu_avail.add_metric([ip], max(gpu1, gpu2))
+
+            total_gpu = max(gpu1, gpu2)
+            node_gpu_total.add_metric([ip], total_gpu)
+        else:
+            capacity = walk_json_field_safe(status, "capacity")
+            if capacity is not None:
+                gpu1 = int(walk_json_field_safe(capacity, "alpha.kubernetes.io/nvidia-gpu") or "0")
+                gpu2 = int(walk_json_field_safe(capacity, "nvidia.com/gpu") or "0")
+                total_gpu = max(gpu1. gpu2)
+
+                node_gpu_total.add_metric([ip], total_gpu)
+
+        # Because k8s api's node api do not record how much resource left for
+        # allocation, so we have to compute it ourselves.
+        used_gpu = 0
+
+        for pod in pods_info[ip]: # pods_info is defaultdict
+            used_gpu += pod.gpu
+
+        node_gpu_avail.add_metric([ip], max(0, total_gpu - used_gpu))
     else:
         logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
     pai_node_gauge.add_metric([ip, disk_pressure, memory_pressure, out_of_disk, ready], 1)
 
 
-def process_nodes_status(nodes_object):
+def process_nodes_status(nodes_object, pods_info):
     pai_node_gauge = gen_pai_node_gauge()
-    node_cpu_avail = gen_k8s_node_cpu_available()
-    node_cpu_total = gen_k8s_node_cpu_total()
-    node_mem_avail = gen_k8s_node_mem_available()
-    node_mem_total = gen_k8s_node_mem_total()
     node_gpu_avail = gen_k8s_node_gpu_available()
     node_gpu_total = gen_k8s_node_gpu_total()
 
@@ -367,20 +375,55 @@ def process_nodes_status(nodes_object):
                 None,
                 item,
                 pai_node_gauge,
-                node_cpu_avail,
-                node_cpu_total,
-                node_mem_avail,
-                node_mem_total,
                 node_gpu_avail,
-                node_gpu_total)
+                node_gpu_total,
+                pods_info)
 
     list(map(_map_fn, nodes_object["items"]))
 
     return [pai_node_gauge,
-            node_cpu_avail, node_cpu_total,
-            node_mem_avail, node_mem_total,
             node_gpu_avail, node_gpu_total]
 
+
+def process_pods(k8s_api_addr, ca_path, headers, pods_info):
+    list_namespace_url = "{}/api/v1/namespaces".format(k8s_api_addr)
+
+    ns_object = request_with_histogram(list_namespace_url, list_ns_histogram,
+            ca_path, headers)
+
+    namespaces = []
+
+    ns_items = walk_json_field_safe(ns_object, "items")
+    if ns_items is not None:
+        for ns in ns_items:
+            ns_name = walk_json_field_safe(ns, "metadata", "name")
+            if ns_name is not None:
+                namespaces.append(ns_name)
+
+    pai_pod_gauge = gen_pai_pod_gauge()
+    pai_container_gauge = gen_pai_container_gauge()
+
+    for ns in namespaces:
+        list_pods_url = "{}/api/v1/namespaces/{}/pods".format(k8s_api_addr, ns)
+        try:
+            pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
+                    ca_path, headers)
+            process_pods_status(pods_object, ns, pai_pod_gauge, pai_container_gauge,
+                    pods_info)
+        except Exception as e:
+            error_counter.labels(type="parse").inc()
+            logger.exception("failed to process pods from namespace %s", ns)
+
+    return [pai_pod_gauge, pai_container_gauge]
+
+
+def process_nodes(k8s_api_addr, ca_path, headers, pods_info):
+    list_nodes_url = "{}/api/v1/nodes/".format(k8s_api_addr)
+
+    nodes_object = request_with_histogram(list_nodes_url, list_nodes_histogram,
+            ca_path, headers)
+
+    return process_nodes_status(nodes_object, pods_info)
 
 
 def load_machine_list(configFilePath):
@@ -470,21 +513,15 @@ def loop(args, atomic_ref):
            bearer = bearer_file.read()
            headers = {'Authorization': "Bearer {}".format(bearer)}
 
-    list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
-    list_nodes_url = "{}/api/v1/nodes/".format(address)
-
     while True:
         result = []
         try:
-            # 1. check service level status
-            pods_object = request_with_histogram(list_pods_url, list_pods_histogram, ca_path, headers)
-            result.extend(process_pods_status(pods_object))
+            pods_info = collections.defaultdict(lambda : [])
 
-            # 2. check nodes level status
-            nodes_object = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers)
-            result.extend(process_nodes_status(nodes_object))
+            result.extend(process_pods(address, ca_path, headers, pods_info))
 
-            # 3. check k8s level status
+            result.extend(process_nodes(address, ca_path, headers, pods_info))
+
             result.extend(collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_path, headers))
         except Exception as e:
             error_counter.labels(type="unknown").inc()
