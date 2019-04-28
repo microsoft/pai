@@ -15,25 +15,35 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import {loadTheme, FontWeights} from '@uifabric/styling';
 
-// module dependencies
-const dashboardComponent = require('./dashboard.component.ejs');
-const webportalConfig = require('../config/webportal.config.js');
-
-const dashboardHtml = dashboardComponent({
-  grafanaUri: webportalConfig.grafanaUri,
-});
-
-function resizeContentWrapper() {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+export function initTheme() {
+  loadTheme({
+    spacing: {
+      s2: '4px',
+      s1: '8px',
+      m: '16px',
+      l1: '20px',
+      l2: '32px',
+      l3: '64px',
+    },
+    fonts: {
+      xLarge: {
+        fontSize: 20,
+        fontWeight: FontWeights.semibold,
+      },
+      large: {
+        fontSize: 17,
+        fontWeight: FontWeights.regular,
+      },
+    },
+  });
 }
 
-window.onresize = function(envent) {
-  resizeContentWrapper();
+export const statusColorMapping = {
+  waiting: '#fcd116',
+  failed: '#eb1123',
+  running: '#0071bc',
+  succeeded: '#7fba00',
+  unknown: '#b1b5b8',
 };
-
-$(document).ready(function() {
-  document.getElementById('sidebar-menu--dashboard').classList.add('active');
-  resizeContentWrapper();
-  $('#content-wrapper').html(dashboardHtml);
-});

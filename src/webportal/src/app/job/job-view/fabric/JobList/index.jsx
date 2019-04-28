@@ -18,7 +18,7 @@
 import * as querystring from 'querystring';
 
 import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
-import {debounce} from 'lodash';
+import {debounce, isEmpty} from 'lodash';
 
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
@@ -58,15 +58,25 @@ export default function JobList() {
   const [error, setError] = useState(null);
 
   const initialFilter = useMemo(() => {
-    const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
-    let filter = new Filter(undefined, initialFilterUsers);
-    filter.load();
     const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (query['vcName']) {
-      const {keyword, users, statuses} = filter;
-      filter = new Filter(keyword, users, new Set().add(query['vcName']), statuses);
+    if (['vcName', 'status', 'user'].some((x) => !isEmpty(query[x]))) {
+      const queryFilter = new Filter();
+      if (query['vcName']) {
+        queryFilter.virtualClusters = new Set(query['vcName']);
+      }
+      if (query['status']) {
+        queryFilter.statuses = new Set([query['status']]);
+      }
+      if (query['user']) {
+        queryFilter.users = new Set([query['user']]);
+      }
+      setFilter(queryFilter);
+    } else {
+      const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
+      let filter = new Filter(undefined, initialFilterUsers);
+      filter.load();
+      return filter;
     }
-    return filter;
   });
   const [filter, setFilter] = useState(initialFilter);
   const [ordering, setOrdering] = useState(new Ordering());

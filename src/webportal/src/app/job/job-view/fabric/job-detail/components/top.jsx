@@ -18,7 +18,7 @@
 import React from 'react';
 import {ActionButton} from 'office-ui-fabric-react/lib/Button';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 const Top = () => (
   <div className={t.flex}>

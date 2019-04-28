@@ -26,7 +26,7 @@ module.exports = {
   },
   "overrides": [
     {
-      "files": ["**/*.jsx", "src/app/job/job-view/fabric/**/*.js"],
+      "files": ["**/*.jsx", "src/app/job/job-view/fabric/**/*.js", "src/app/components/**/*.js", "src/app/home/**/*.js"],
       "parser": "babel-eslint"
     }
   ]
