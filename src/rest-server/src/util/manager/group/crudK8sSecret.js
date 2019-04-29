@@ -39,7 +39,7 @@ class GroupK8sSecret extends CrudK8sSecret {
       let groupData = response['data'];
       if (groupData.hasOwnProperty('items')) {
         for (const item of userData['items']) {
-          let groupInstance = new GroupSchema({
+          let groupInstance = GroupSchema.createGroup({
             'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
             'description': Buffer.from(item['data']['description'], 'base64').toString(),
             'GID': Buffer.from(item['data']['email'], 'base64').toString(),
@@ -48,7 +48,7 @@ class GroupK8sSecret extends CrudK8sSecret {
           allGroupInstance.push(groupInstance);
         }
       } else {
-        let groupInstance = new GroupSchema({
+        let groupInstance = GroupSchema.createGroup({
           'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
           'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
           'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
@@ -65,7 +65,7 @@ class GroupK8sSecret extends CrudK8sSecret {
   async create(key, value, option) {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      let groupInstance = new GroupSchema({
+      let groupInstance = GroupSchema.createGroup({
         'groupname': value['groupname'],
         'description': value['description'],
         'GID': value['description'],
@@ -90,7 +90,7 @@ class GroupK8sSecret extends CrudK8sSecret {
   async update(key, value, option) {
     try {
       const hexKey = Buffer.from(key).toString('hex');
-      let groupInstance = new GroupSchema({
+      let groupInstance = GroupSchema.createGroup({
         'groupname': value['groupname'],
         'description': value['description'],
         'GID': value['description'],
@@ -129,4 +129,3 @@ class GroupK8sSecret extends CrudK8sSecret {
 }
 
 module.exports = GroupK8sSecret;
-

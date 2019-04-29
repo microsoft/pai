@@ -48,4 +48,14 @@ class Group {
   }
 }
 
-module.exports = Group;
+function createGroup(value) {
+  let groupInstance = new Group({
+    'groupname': value['groupname'],
+    'description': value['description'],
+    'GID': value['description'],
+    'extension': value['extension'],
+  });
+  return groupInstance;
+}
+
+module.exports = {createGroup};
