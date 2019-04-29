@@ -19,7 +19,7 @@ import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {get, isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
-import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
+import {ActionButton, DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -369,7 +369,7 @@ export default class Summary extends React.Component {
               </Link>
             </div>
             <div>
-              <DefaultButton
+              <PrimaryButton
                 text='Clone'
                 onClick={() => cloneJob(jobConfig)}
                 disabled={!isClonable(jobConfig)}
@@ -397,7 +397,6 @@ export default class Summary extends React.Component {
     );
   }
 }
-
 Summary.propTypes = {
   className: PropTypes.string,
   jobInfo: PropTypes.object.isRequired,

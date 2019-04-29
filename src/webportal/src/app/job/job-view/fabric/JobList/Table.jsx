@@ -69,7 +69,6 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.keyword !== '',
-    
     onRender(job) {
       const {legacy, name, namespace, username} = job;
       const href = legacy
