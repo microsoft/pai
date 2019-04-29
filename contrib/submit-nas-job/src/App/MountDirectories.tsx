@@ -58,38 +58,47 @@ export default class MountDirectories {
 
   private generatePreMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
     const serverType = serverData["type"];
-    if (serverType == "azurefile" && ("proxy" in serverData)) {
-      const proxyInfo: string = serverData["proxy"][0];
-      const proxyPassword: string = serverData["proxy"][1];
-      const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@")+1); 
-      const returnValue: string[] = [];
-      returnValue.push(`mkdir --parents ~/.ssh`);
-      returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
-      returnValue.push(`sshpass -p '${proxyPassword}' ssh -N -f -L 445:${serverData["dataStore"]}:445 ${proxyInfo}`);
-      return returnValue;
-    } else if (serverType == "azureblob") {
-      const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
-      const cfgFile = `/${serverData["spn"]}.cfg`;
-      const returnValue: string[] = [
-      // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
-      "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
-      "dpkg -i packages-microsoft-prod.deb",
-      "apt-get update",
-      "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
-      `mkdir --parents ${tmpPath}`,
-      // Generate mount point
-      `echo "accountName ${serverData["accountName"]}" >> ${cfgFile}`,
-      `echo "accountKey ${serverData["key"]}" >> ${cfgFile}`,
-      `echo "containerName ${serverData["containerName"]}" >> ${cfgFile}`,
-      `echo "blobEndPoint ${serverData["dataStore"]}" >> ${cfgFile}`,
-      `chmod 600 ${cfgFile}`,
-      `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile}` + 
-       ` -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120`,
-      ];
-      return returnValue;
-    } else {
-      return undefined;
+    let returnValue: string[] | undefined = undefined;
+
+    switch (serverType) {
+      case "nfs":
+      case "samba":
+        returnValue = [`mkdir --parents ${tmpFolder}`];
+        break;
+      case "azurefile":
+        returnValue = [`mkdir --parents ${tmpFolder}`];
+        if ("proxy" in serverData) {
+          const proxyInfo: string = serverData["proxy"][0];
+          const proxyPassword: string = serverData["proxy"][1];
+          const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@")+1); 
+          returnValue.push(`mkdir --parents ~/.ssh`);
+          returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
+          returnValue.push(`sshpass -p '${proxyPassword}' ssh -N -f -L 445:${serverData["dataStore"]}:445 ${proxyInfo}`);
+        }
+        break;
+      case "azureblob":
+        const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
+        const cfgFile = `/${serverData["spn"]}.cfg`;
+        returnValue = [
+        // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
+        "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
+        "dpkg -i packages-microsoft-prod.deb",
+        "apt-get update",
+        "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
+        `mkdir --parents ${tmpPath}`,
+        // Generate mount point
+        `echo "accountName ${serverData["accountName"]}" >> ${cfgFile}`,
+        `echo "accountKey ${serverData["key"]}" >> ${cfgFile}`,
+        `echo "containerName ${serverData["containerName"]}" >> ${cfgFile}`,
+        `echo "blobEndPoint ${serverData["dataStore"]}" >> ${cfgFile}`,
+        `chmod 600 ${cfgFile}`,
+        `mkdir --parents ${tmpFolder}`,
+        ];
+        break;
+      default:
+        break;
     }
+    return returnValue;
   } 
 
   //TODO: Umount base path for nfs, samba, azurefile. Azureblob does not have folders
@@ -107,28 +116,40 @@ export default class MountDirectories {
         ]
         break;
       case "azureblob":
-        // azureblob doesn't have tmpFolder
+        // Use ln for azure blob, does not mount folder separately
+        // Can use 'fusermount -u </path/to/mountpoint>' to unmount. fusermount is from fuse package
         break;
     }
     return returnValue;
   }
 
-  private generateMountCmd(serverData:any, mountPoint:string, relativePath:string, tmpFolder:string): string | undefined {
+  private generateMountCmd(serverData:any, mountPoint:string, relativePath:string, tmpFolder:string): string[] | undefined {
     const serverType = serverData["type"];
     switch (serverType) {
       case "nfs":
-        return `mount -t nfs4 ${serverData["address"]}:${this.normalizePath(`${serverData["rootPath"]}/${relativePath}`)} ${mountPoint}`;
+        return [`mount -t nfs4 ${serverData["address"]}:${this.normalizePath(`${serverData["rootPath"]}/${relativePath}`)} ${mountPoint}`];
       case "samba":
-        return `mount -t cifs //${serverData["address"]}${this.normalizePath(`/${serverData["rootPath"]}/${relativePath}`)} ${mountPoint} -o username=${serverData["userName"]},password=${serverData["password"]},domain=${serverData["domain"]}`
+        return [`mount -t cifs //${serverData["address"]}${this.normalizePath(`/${serverData["rootPath"]}/${relativePath}`)} ${mountPoint} -o username=${serverData["userName"]},password=${serverData["password"]},domain=${serverData["domain"]}`]
       case "azurefile":
         if ("proxy" in serverData) {
-          return `mount -t cifs //localhost/${serverData["fileShare"]} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`;
+          return [`mount -t cifs //localhost/${this.normalizePath(serverData["fileShare"] + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`];
         } else {
-          return `mount -t cifs //${serverData["dataStore"]}/${serverData["fileShare"]} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`;
+          return [`mount -t cifs //${serverData["dataStore"]}/${this.normalizePath(serverData["fileShare"] + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`];
         }
       case "azureblob":
-        // ln folder 
-        return `ln -s ${tmpFolder}${relativePath} ${mountPoint}`;
+        if (mountPoint == tmpFolder) {
+          // Mount azureblob endpoint
+          const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
+          const cfgFile = `/${serverData["spn"]}.cfg`;
+          return [`blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120`];
+        } else {
+          // ln azureblob sub folder
+          return [
+            // remove mountPoint folder first. Otherwise will create soft link under mountPoint
+            `rm -r ${mountPoint}`,
+            `ln -s ${this.normalizePath(tmpFolder + relativePath)} ${mountPoint}`
+          ];
+        }
       default:
         return undefined;
     }
@@ -173,18 +194,18 @@ export default class MountDirectories {
           }
         }
 
-        const mountStr = this.generateMountCmd(server, tmpFolder, "", tmpFolder);
-        if (mountStr != undefined) {
-          // Step1: Mount root folder and make sub directories
-          returnValue.push(`mkdir --parents ${tmpFolder}`);
-          returnValue.push(mountStr);
-          
-          for (const mountInfo of mountInfos) {
-            const relativePath: string = this.normalizePath(mountInfo.path);
-            // Create folder on server root path
-            returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`,)
-            returnValue.push(`mkdir --parents ${tmpFolder}${relativePath}`,)
+        // Step1: Mount root folder and make sub directories
+        const mountStrs = this.generateMountCmd(server, tmpFolder, "", tmpFolder);
+        if (mountStrs != undefined) {
+          for (const mountStr of mountStrs) {
+            returnValue.push(mountStr);
           }
+        }
+
+        for (const mountInfo of mountInfos) {
+          // Create folder on server root path
+          returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`)
+          returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`)
         }
 
         const postCmds: string[] | undefined = this.generatePostMountCmds(server, tmpFolder);
@@ -197,9 +218,11 @@ export default class MountDirectories {
         // Step2: Mount folder for mount infos
         for (const mountInfo of mountInfos) {
           // Mount
-          let mountSubStr = this.generateMountCmd(server, mountInfo.mountPoint, mountInfo.path, tmpFolder);
-          if (mountSubStr !== undefined) {
-            returnValue.push(mountSubStr);
+          let mountSubStrs = this.generateMountCmd(server, mountInfo.mountPoint, mountInfo.path, tmpFolder);
+          if (mountSubStrs != undefined) {
+            for (const mountStr of mountSubStrs) {
+              returnValue.push(mountStr);
+            }
           }
         }
       }
