@@ -72,13 +72,18 @@ def server_set(args):
         content_dict["userName"] = args.user_name
         content_dict["password"] = args.password
         content_dict["domain"] = args.domain
-    elif args.server_type == "azurefile" or args.server_type == "azureblob":
+    elif args.server_type == "azurefile":
         content_dict["dataStore"] = args.data_store
         content_dict["fileShare"] = args.file_share
         content_dict["accountName"] = args.account_name
         content_dict["key"] = args.key
         if args.proxy is not None:
             content_dict["proxy"] = args.proxy
+    elif args.server_type == "azureblob":
+        content_dict["dataStore"] = args.data_store
+        content_dict["containerName"] = args.container_name
+        content_dict["accountName"] = args.account_name
+        content_dict["key"] = args.key
     else:
         logger.error("Unknow storage type")
         sys.exit(1)
@@ -152,15 +157,14 @@ def main():
     server_set_azurefile_parser.add_argument("file_share", metavar="fileshare", help="Azurefile file share")
     server_set_azurefile_parser.add_argument("account_name", metavar="accountname", help="Azurefile account name")
     server_set_azurefile_parser.add_argument("key", metavar="key", help="Azurefile share key")
-    server_set_azurefile_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure file")
+    server_set_azurefile_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure file: PROXY_INFO PROXY_PASSWORD")
     server_set_azurefile_parser.set_defaults(func=server_set, server_type="azurefile")
     # ./storagectl.py server set NAME azureblob DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
     server_set_azureblob_parser = server_set_subparsers.add_parser("azureblob")
     server_set_azureblob_parser.add_argument("data_store", metavar="datastore", help="Azureblob data store")
-    server_set_azureblob_parser.add_argument("file_share", metavar="fileshare", help="Azureblob file share")
+    server_set_azureblob_parser.add_argument("container_name", metavar="containername", help="Azureblob container name")
     server_set_azureblob_parser.add_argument("account_name", metavar="accountname", help="Azureblob account name")
     server_set_azureblob_parser.add_argument("key", metavar="key", help="Azureblob share key")
-    server_set_azureblob_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure blob")
     server_set_azureblob_parser.set_defaults(func=server_set, server_type="azureblob")
     # ./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
     server_list_parser = server_subparsers.add_parser("list")

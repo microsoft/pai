@@ -56,25 +56,93 @@ export default class MountDirectories {
     private readonly servers: IServer[],
   ) {}
 
-  private generateMountCmd(serverData:any, mountPoint:string, relativePath:string): string | undefined {
+  private generatePreMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
     const serverType = serverData["type"];
-    if (serverType == "nfs") {
-      return `mount -t nfs4 ${serverData["address"]}:${this.normalizePath(`${serverData["rootPath"]}/${relativePath}`)} ${mountPoint}`;
-    } else if (serverType == "samba") {
-      return `mount -t cifs ${serverData["address"]}${this.normalizePath(`/${serverData["rootPath"]}/${relativePath}`)} ${mountPoint} -o username=${serverData["userName"]},password=${serverData["password"]},domain=${serverData["domain"]}`
+    if (serverType == "azurefile" && ("proxy" in serverData)) {
+      const proxyInfo: string = serverData["proxy"][0];
+      const proxyPassword: string = serverData["proxy"][1];
+      const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@")+1); 
+      const returnValue: string[] = [];
+      returnValue.push(`mkdir --parents ~/.ssh`);
+      returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
+      returnValue.push(`sshpass -p '${proxyPassword}' ssh -N -f -L 445:${serverData["dataStore"]}:445 ${proxyInfo}`);
+      return returnValue;
+    } else if (serverType == "azureblob") {
+      const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
+      const cfgFile = `/${serverData["spn"]}.cfg`;
+      const returnValue: string[] = [
+      // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
+      "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
+      "dpkg -i packages-microsoft-prod.deb",
+      "apt-get update",
+      "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
+      `mkdir --parents ${tmpPath}`,
+      // Generate mount point
+      `echo "accountName ${serverData["accountName"]}" >> ${cfgFile}`,
+      `echo "accountKey ${serverData["key"]}" >> ${cfgFile}`,
+      `echo "containerName ${serverData["containerName"]}" >> ${cfgFile}`,
+      `echo "blobEndPoint ${serverData["dataStore"]}" >> ${cfgFile}`,
+      `chmod 600 ${cfgFile}`,
+      `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile}` + 
+       ` -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120`,
+      ];
+      return returnValue;
     } else {
       return undefined;
     }
   } 
 
+  //TODO: Umount base path for nfs, samba, azurefile. Azureblob does not have folders
+  private generatePostMountCmds(serverData:any, tmpFolder:string): string[] | undefined {
+    let returnValue = undefined;
+    const serverType = serverData["type"];
+    switch (serverType) {
+      case "nfs":
+      case "samba":
+      case "azurefile":
+        // umount server root path
+        returnValue = [
+          `umount -l ${tmpFolder}`,
+          `rm -r ${tmpFolder}`,
+        ]
+        break;
+      case "azureblob":
+        // azureblob doesn't have tmpFolder
+        break;
+    }
+    return returnValue;
+  }
+
+  private generateMountCmd(serverData:any, mountPoint:string, relativePath:string, tmpFolder:string): string | undefined {
+    const serverType = serverData["type"];
+    switch (serverType) {
+      case "nfs":
+        return `mount -t nfs4 ${serverData["address"]}:${this.normalizePath(`${serverData["rootPath"]}/${relativePath}`)} ${mountPoint}`;
+      case "samba":
+        return `mount -t cifs //${serverData["address"]}${this.normalizePath(`/${serverData["rootPath"]}/${relativePath}`)} ${mountPoint} -o username=${serverData["userName"]},password=${serverData["password"]},domain=${serverData["domain"]}`
+      case "azurefile":
+        if ("proxy" in serverData) {
+          return `mount -t cifs //localhost/${serverData["fileShare"]} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`;
+        } else {
+          return `mount -t cifs //${serverData["dataStore"]}/${serverData["fileShare"]} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`;
+        }
+      case "azureblob":
+        // ln folder 
+        return `ln -s ${tmpFolder}${relativePath} ${mountPoint}`;
+      default:
+        return undefined;
+    }
+  } 
+
   private normalizePath(oriPath: string): string {
-    return oriPath.replace("$USER", `${this.user}`).replace("$JOB", `${this.jobName}`).replace("//", "/");
+    console.log("normalize path: user:" + this.user + ", job:" + this.jobName);
+    return oriPath.replace(/%USER/ig, this.user).replace(/%JOB/ig, this.jobName).replace("//", "/");
   }
 
   public getPaiCommand() {
     const returnValue:string[] = [
       "apt-get update",
-      "apt-get install --assume-yes nfs-common cifs-utils",
+      "apt-get install --assume-yes nfs-common cifs-utils sshpass wget",
     ];
 
     const serverMountDict: { [spn: string]: IMountInfo[] } = {};
@@ -96,29 +164,42 @@ export default class MountDirectories {
       const server = this.servers.find(item => item.spn === spn);
       
       if (server !== undefined) {
-        const folder:string = `/tmp_${spn}_root/`;
-        const mountStr = this.generateMountCmd(server, folder, "");
+        const tmpFolder: string = `/tmp_${spn}_root/`;
+
+        const preCmds: string[] | undefined = this.generatePreMountCmds(server, tmpFolder);
+        if (preCmds !== undefined) {
+          for (const preCmd of preCmds) {
+            returnValue.push(preCmd);
+          }
+        }
+
+        const mountStr = this.generateMountCmd(server, tmpFolder, "", tmpFolder);
         if (mountStr != undefined) {
           // Step1: Mount root folder and make sub directories
-          returnValue.push(`mkdir --parents ${folder}`);
+          returnValue.push(`mkdir --parents ${tmpFolder}`);
           returnValue.push(mountStr);
           
           for (const mountInfo of mountInfos) {
             const relativePath: string = this.normalizePath(mountInfo.path);
             // Create folder on server root path
-            returnValue.push(`mkdir --parents ${join(folder, relativePath)}`,)
+            returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`,)
+            returnValue.push(`mkdir --parents ${tmpFolder}${relativePath}`,)
           }
-          // umount server root path
-          returnValue.push(`umount -l ${folder}`);
-          returnValue.push(`rm -r ${folder}`);
+        }
 
-          // Step2: Mount folder for mount infos
-          for (const mountInfo of mountInfos) {
-            // Mount
-            let mountSubStr = this.generateMountCmd(server, folder, mountInfo.path);
-            if (mountSubStr !== undefined) {
-              returnValue.push(mountSubStr);
-            }
+        const postCmds: string[] | undefined = this.generatePostMountCmds(server, tmpFolder);
+        if (postCmds !== undefined) {
+          for (const postCmd of postCmds) {
+            returnValue.push(postCmd);
+          }
+        }
+
+        // Step2: Mount folder for mount infos
+        for (const mountInfo of mountInfos) {
+          // Mount
+          let mountSubStr = this.generateMountCmd(server, mountInfo.mountPoint, mountInfo.path, tmpFolder);
+          if (mountSubStr !== undefined) {
+            returnValue.push(mountSubStr);
           }
         }
       }
@@ -150,9 +231,9 @@ export function MountDirectoriesForm({
   const { api, user } = useContext(Context);
 
   // TODO: Get userGroups from UserManager
-  const userGroups = ["g1", "g2"];
+  const userGroups = ["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB"];
 
-  const responseToData2 = (response: Response) => {
+  const responseToData = (response: Response) => {
     if (response.ok) {
       return response.json().then((responseData) => responseData.data);
     } else {
@@ -160,13 +241,17 @@ export function MountDirectoriesForm({
     }
   };
 
+  const normalizePath = (oriPath: string) => {
+    return oriPath.replace(/%USER/ig, user).replace(/%JOB/ig, jobName).replace("//", "/");
+  }
+
   const [serverNames, setServerNames] = useState<string[]>([]);
   const [groups, setGroups] = useState<IGroup[]>([]);
 
   useEffect(() => {
     const storageGroupUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-group`;
     console.log(storageGroupUrl)
-    fetch(storageGroupUrl).then(responseToData2).then((storageGroupData) => {
+    fetch(storageGroupUrl).then(responseToData).then((storageGroupData) => {
       console.log(storageGroupData)
       const newGroups = [];
       for (const groupName of userGroups) {
@@ -194,7 +279,7 @@ export function MountDirectoriesForm({
 
     const storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-user`;
     try {
-       fetch(storageUserUrl).then(responseToData2).then((storageUserData) => {
+       fetch(storageUserUrl).then(responseToData).then((storageUserData) => {
         if (user in storageUserData) {
           const userContent = JSON.parse(atob(storageUserData[user]));
           for (const serverName of userContent.servers) {
@@ -216,7 +301,7 @@ export function MountDirectoriesForm({
     console.log(serverNames);
     const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-server`;
     try {
-       fetch(storageServerUrl).then(responseToData2).then((storageServerData) => {
+       fetch(storageServerUrl).then(responseToData).then((storageServerData) => {
         console.log(storageServerData)
         for (const serverName of serverNames) {
           if (serverName in storageServerData) {
@@ -249,12 +334,12 @@ export function MountDirectoriesForm({
      }
      console.log(selectedGroups);
      setSelectedGroups(selectedGroups.concat())
-
-     // Set MountDirectories
   }, []);
 
+  // const [mountDirectories, setMountDirectories] = useState<MountDirectories>(undefined);
 
   const mountDirectories = useMemo(() => {
+    console.log("user: " + user + " jobName: " + jobName);
     return new MountDirectories(user, jobName, selectedGroups, servers);
   }, [user, jobName, selectedGroups, servers]);
 
@@ -283,7 +368,7 @@ export function MountDirectoriesForm({
               <input type="checkbox" key={index} onChange={(event) => onGroupCheckBoxChange(index, group, event.target.checked)}/>
               {group.gpn}
             </label>
-            </div>)
+          </div>)
         })}
       </div>
 
@@ -299,7 +384,7 @@ export function MountDirectoriesForm({
               return (
               <div>
                 <span className="input-group-addon">{mountInfo.mountPoint}</span>
-                <span className="input-group-addon">{"[" + mountInfo.server + "]"}/{mountInfo.path}</span>
+                <span className="input-group-addon">{"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</span>
               </div>
               );
             }) 

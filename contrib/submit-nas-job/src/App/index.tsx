@@ -28,6 +28,7 @@ import Context from "./Context";
 import { usePromise, useValue } from "./hooks";
 import Job from "./Job";
 
+import { MountTestJobForm } from "./MountTestJob";
 import { SimpleNFSJobForm } from "./SimpleNFSJob";
 import { TensorflowDistributedJobForm } from "./TensorflowDistributedJob";
 import { TensorflowSingleNodeJobForm } from "./TensorflowSingleNodeJob";
@@ -35,6 +36,9 @@ import { TensorflowSingleNodeJobForm } from "./TensorflowSingleNodeJob";
 const EXTRAS_ID = "com.microsoft.submit-nfs-job-plugin";
 
 const TYPES = [{
+  key: "mount-test-task",
+  title: "Mount Test Task Template",
+}, {
   key: "single-task",
   title: "Single Task Template",
 }, {
@@ -60,7 +64,7 @@ interface IProps {
 
 export default function App({ pluginId, api, user, token, originalJobName, originalJobUser }: IProps) {
   const [job, setJob] = useState<Job | null>(null);
-  const [type, onTypeChanged, setType] = useValue("single-task");
+  const [type, onTypeChanged, setType] = useValue("mount-test-task");
   const [name, onNameChanged, setName] = useValue(`unnamed-job-${Date.now()}`);
   const [image, onImageChanged, setImage] = useValue(defaultImage);
   const [virtualCluster, onVirtualClusterChanged, setVirtualCluster] = useValue("default");
@@ -145,6 +149,9 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   useEffect(() => {
     setName(`${type}-${Date.now().toString(36).toLocaleUpperCase()}`);
     switch (type) {
+      case "mount-test-task":
+        setImage("ubuntu");
+        break;
       case "single-task":
         setImage("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04");
         break;
@@ -160,6 +167,16 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   }
 
   let form = null;
+  if (type === "mount-test-task") {
+    form = (
+      <MountTestJobForm
+        name={name}
+        image={image}
+        virtualCluster={virtualCluster}
+        defaultValue={originalJob}
+        onChange={setJob}
+      />);
+  }
   if (type === "single-task") {
     form = (
       <SimpleNFSJobForm
