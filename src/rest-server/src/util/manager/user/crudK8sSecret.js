@@ -17,9 +17,16 @@
 
 const User = require('./user');
 const axios = require('axios');
+const Joi = require('joi');
+const {readFileSync} = require('fs');
+const {Agent} = require('https');
+
+function initK8sOption(options) {
+
+}
 
 function getSecretRootUri(options) {
-  return `${options.kubernetesAPIServerAddress}/${options.groupNamespace}/secrets`;
+  return `${options.k8sAPIServerAddress}/${options.namespace}/secrets`;
 }
 
 async function read(key, options) {
