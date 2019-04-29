@@ -22,7 +22,7 @@ const axios = require('axios');
 class UserK8sSecret extends CrudK8sSecret {
   constructor(options) {
     super();
-    this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
+    this.secretRootUri = `${options.kubernetesAPIServerAddress}/${options.groupNamespace}/secrets`;
     this.request = axios.create(options.requestConfig);
     this.options = options;
   }
