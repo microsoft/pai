@@ -180,18 +180,24 @@ export default class Summary extends React.Component {
     const solution = [];
     if (runtimeOutput && runtimeOutput.solution) {
       solution.push(
-        <div key='runtime-solution'>{runtimeOutput.solution}</div>,
+        <li key='runtime-solution'>{runtimeOutput.solution}</li>,
       );
     }
     if (spec && spec.solution) {
       solution.push(
         ...spec.solution.map((x, i) => (
-          <div key={`spec-reason-${i}`}>{x}</div>
+          <li key={`spec-reason-${i}`}>{x}</li>
         )),
       );
     }
     if (!isEmpty(solution)) {
-      result.push(<HintItem key='solution' header='Exit Solutions:'>{solution}</HintItem>);
+      result.push(
+        <HintItem key='solution' header='Exit Solutions:'>
+          <ul className={c(t.pa0, t.ma0)} style={{listStyle: 'inside'}}>
+            {solution}
+          </ul>
+        </HintItem>
+      );
     }
 
     return result;
@@ -223,15 +229,8 @@ export default class Summary extends React.Component {
         </HintItem>);
       }
 
-      let messageBarType;
-      if (state === 'Failed') {
-        messageBarType = MessageBarType.error;
-      } else {
-        messageBarType = MessageBarType.info;
-      }
-
       return (
-        <MessageBar messageBarType={messageBarType}>
+        <MessageBar messageBarType={MessageBarType.error}>
           <div>
             {result}
           </div>
