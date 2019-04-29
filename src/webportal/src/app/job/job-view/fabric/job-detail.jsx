@@ -94,7 +94,7 @@ class JobDetail extends React.Component {
   renderTaskRoles() {
     const {jobConfig, jobInfo, sshInfo} = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
-      const failedTaskRole = get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
+      const failedTaskRole = getHumanizedJobStateString(jobInfo) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map((key) => (
         <TaskRole
           key={key}
@@ -103,7 +103,7 @@ class JobDetail extends React.Component {
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
           taskConfig={getTaskConfig(jobConfig, key)}
-          isFailed={key === failedTaskRole}
+          isFailed={failedTaskRole && key === failedTaskRole}
         />
       ));
     } else if (jobConfig && jobConfig.taskRoles) {
