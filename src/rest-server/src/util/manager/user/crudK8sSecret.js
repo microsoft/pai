@@ -39,7 +39,7 @@ class UserK8sSecret extends CrudK8sSecret {
       let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
         for (const item of userData['items']) {
-          let userInstance = new UserSchema({
+          let userInstance = UserSchema.createUserWithoutEncryptPassword({
             'username': Buffer.from(item['data']['username'], 'base64').toString(),
             'password': Buffer.from(item['data']['password'], 'base64').toString(),
             'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
@@ -49,7 +49,7 @@ class UserK8sSecret extends CrudK8sSecret {
           allUserInstance.push(userInstance);
         }
       } else {
-        let userInstance = new UserSchema({
+        let userInstance = UserSchema.createUserWithoutEncryptPassword({
           'username': Buffer.from(userData['data']['username'], 'base64').toString(),
           'password': Buffer.from(userData['data']['password'], 'base64').toString(),
           'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
@@ -67,7 +67,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async create(key, value, option) {
     try {
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = new UserSchema(
+      let userInstance = await UserSchema.createUserWithEncryptPassword(
         {
           'username': value['username'],
           'password': value['password'],
@@ -76,7 +76,6 @@ class UserK8sSecret extends CrudK8sSecret {
           'extension': value['extension'],
         }
       );
-      await userInstance.encryptPassword();
       let userData = {
         'metadata': {'name': hexKey},
         'data': {
@@ -97,7 +96,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async update(key, value, option) {
     try {
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = new UserSchema(
+      let userInstance = await UserSchema.createUserWithEncryptPassword(
         {
           'username': value['username'],
           'password': value['password'],
@@ -106,7 +105,6 @@ class UserK8sSecret extends CrudK8sSecret {
           'extension': value['extension'],
         }
       );
-      await userInstance.encryptPassword();
       let userData = {
         'metadata': {'name': hexKey},
         'data': {

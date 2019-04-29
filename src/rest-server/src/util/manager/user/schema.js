@@ -66,4 +66,30 @@ class User {
   }
 }
 
-module.exports = User;
+async function createUserWithEncryptPassword(value) {
+  let userInstance = new UserSchema(
+    {
+      'username': value['username'],
+      'password': value['password'],
+      'groupList': value['groupList'],
+      'email': value['email'],
+      'extension': value['extension'],
+    }
+  );
+  await userInstance.encryptPassword();
+}
+
+function createUserWithoutEncryptPassword(value) {
+  let userInstance = new UserSchema(
+    {
+      'username': value['username'],
+      'password': value['password'],
+      'groupList': value['groupList'],
+      'email': value['email'],
+      'extension': value['extension'],
+    }
+  );
+  return userInstance;
+}
+
+module.exports = {createUserWithEncryptPassword, createUserWithoutEncryptPassword};
