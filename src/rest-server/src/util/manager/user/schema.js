@@ -66,21 +66,11 @@ class User {
   }
 }
 
-async function createUserWithEncryptPassword(value) {
-  let userInstance = new User(
-    {
-      'username': value['username'],
-      'password': value['password'],
-      'groupList': value['groupList'],
-      'email': value['email'],
-      'extension': value['extension'],
-    }
-  );
+async function encryptUserPassword(userInstance) {
   await userInstance.encryptPassword();
-  return userInstance
 }
 
-function createUserWithoutEncryptPassword(value) {
+function createUser(value) {
   let userInstance = new User(
     {
       'username': value['username'],
@@ -93,4 +83,4 @@ function createUserWithoutEncryptPassword(value) {
   return userInstance;
 }
 
-module.exports = {createUserWithEncryptPassword, createUserWithoutEncryptPassword};
+module.exports = {encryptUserPassword, createUser};

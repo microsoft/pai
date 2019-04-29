@@ -15,127 +15,126 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const UserSchema = require('./schema');
-const CrudK8sSecret = require('./crudBase');
+const User = require('./schema');
 const axios = require('axios');
 
-class UserK8sSecret extends CrudK8sSecret {
-  constructor(options) {
-    super();
-    this.secretRootUri = `${options.kubernetesAPIServerAddress}/${options.groupNamespace}/secrets`;
-    this.request = axios.create(options.requestConfig);
-    this.options = options;
-  }
+function getSecretRootUri(options) {
+  return `${options.kubernetesAPIServerAddress}/${options.groupNamespace}/secrets`;
+}
 
-  async read(key, options) {
-    try {
-      const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      const response = await this.request.get(`${this.secretRootUri}/${hexKey}`, {
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-      let allUserInstance = [];
-      let userData = response['data'];
-      if (userData.hasOwnProperty('items')) {
-        for (const item of userData['items']) {
-          let userInstance = UserSchema.createUserWithoutEncryptPassword({
-            'username': Buffer.from(item['data']['username'], 'base64').toString(),
-            'password': Buffer.from(item['data']['password'], 'base64').toString(),
-            'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
-            'email': Buffer.from(item['data']['email'], 'base64').toString(),
-            'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-          });
-          allUserInstance.push(userInstance);
-        }
-      } else {
-        let userInstance = UserSchema.createUserWithoutEncryptPassword({
-          'username': Buffer.from(userData['data']['username'], 'base64').toString(),
-          'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-          'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
-          'email': Buffer.from(userData['data']['email'], 'base64').toString(),
-          'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+async function read(key, options) {
+  try {
+    const request = axios.create(options.requestConfig);
+    const hexKey = key ? Buffer.from(key).toString('hex') : '';
+    const response = await request.get(getSecretRootUri(options) + `/${hexKey}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    let allUserInstance = [];
+    let userData = response['data'];
+    if (userData.hasOwnProperty('items')) {
+      for (const item of userData['items']) {
+        let userInstance = User.createUser({
+          'username': Buffer.from(item['data']['username'], 'base64').toString(),
+          'password': Buffer.from(item['data']['password'], 'base64').toString(),
+          'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+          'email': Buffer.from(item['data']['email'], 'base64').toString(),
+          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
         });
         allUserInstance.push(userInstance);
       }
-      return allUserInstance;
-    } catch (error) {
-      throw error.response;
-    }
-  }
-
-  async create(key, value, option) {
-    try {
-      const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await UserSchema.createUserWithEncryptPassword(
-        {
-          'username': value['username'],
-          'password': value['password'],
-          'groupList': value['groupList'],
-          'email': value['email'],
-          'extension': value['extension'],
-        }
-      );
-      let userData = {
-        'metadata': {'name': hexKey},
-        'data': {
-          'username': Buffer.from(userInstance['username']).toString('base64'),
-          'password': Buffer.from(userInstance['password']).toString('base64'),
-          'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
-          'email': Buffer.from(userInstance['email']).toString('base64'),
-          'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
-        },
-      };
-      let response = await this.request.post(`${this.secretRootUri}`, userData);
-      return response['data'];
-    } catch (error) {
-      throw error.response;
-    }
-  }
-
-  async update(key, value, option) {
-    try {
-      const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await UserSchema.createUserWithEncryptPassword(
-        {
-          'username': value['username'],
-          'password': value['password'],
-          'groupList': value['groupList'],
-          'email': value['email'],
-          'extension': value['extension'],
-        }
-      );
-      let userData = {
-        'metadata': {'name': hexKey},
-        'data': {
-          'username': Buffer.from(userInstance['username']).toString('base64'),
-          'password': Buffer.from(userInstance['password']).toString('base64'),
-          'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
-          'email': Buffer.from(userInstance['email']).toString('base64'),
-          'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
-        },
-      };
-      let response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
-      return response['data'];
-    } catch (error) {
-      throw error.response;
-    }
-  }
-
-  async delete(key, option) {
-    try {
-      const hexKey = Buffer.from(key).toString('hex');
-        let response = await this.request.delete(`${this.secretRootUri}/${hexKey}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
+    } else {
+      let userInstance = User.createUser({
+        'username': Buffer.from(userData['data']['username'], 'base64').toString(),
+        'password': Buffer.from(userData['data']['password'], 'base64').toString(),
+        'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
+        'email': Buffer.from(userData['data']['email'], 'base64').toString(),
+        'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
       });
-      return response;
-    } catch (error) {
-      throw error.response;
+      allUserInstance.push(userInstance);
     }
+    return allUserInstance;
+  } catch (error) {
+    throw error.response;
   }
 }
 
-module.exports = UserK8sSecret;
+async function create(key, value, options) {
+  try {
+    const request = axios.create(options.requestConfig);
+    const hexKey = Buffer.from(key).toString('hex');
+    let userInstance = User.createUser(
+      {
+        'username': value['username'],
+        'password': value['password'],
+        'groupList': value['groupList'],
+        'email': value['email'],
+        'extension': value['extension'],
+      }
+    );
+    await User.encryptUserPassword(userInstance);
+    let userData = {
+      'metadata': {'name': hexKey},
+      'data': {
+        'username': Buffer.from(userInstance['username']).toString('base64'),
+        'password': Buffer.from(userInstance['password']).toString('base64'),
+        'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+        'email': Buffer.from(userInstance['email']).toString('base64'),
+        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+      },
+    };
+    let response = await request.post(getSecretRootUri(options), userData);
+    return response['data'];
+  } catch (error) {
+    throw error.response;
+  }
+}
+
+async function update(key, value, options) {
+  try {
+    const request = axios.create(options.requestConfig);
+    const hexKey = Buffer.from(key).toString('hex');
+    let userInstance = User.createUser(
+      {
+        'username': value['username'],
+        'password': value['password'],
+        'groupList': value['groupList'],
+        'email': value['email'],
+        'extension': value['extension'],
+      }
+    );
+    await User.encryptUserPassword(userInstance);
+    let userData = {
+      'metadata': {'name': hexKey},
+      'data': {
+        'username': Buffer.from(userInstance['username']).toString('base64'),
+        'password': Buffer.from(userInstance['password']).toString('base64'),
+        'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+        'email': Buffer.from(userInstance['email']).toString('base64'),
+        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+      },
+    };
+    let response = await request.put(getSecretRootUri(options) + `/${hexKey}`, userData);
+    return response['data'];
+  } catch (error) {
+    throw error.response;
+  }
+}
+
+async function remove(key, options) {
+  try {
+    const request = axios.create(options.requestConfig);
+    const hexKey = Buffer.from(key).toString('hex');
+    return await request.delete(getSecretRootUri(options) + `/${hexKey}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+  } catch (error) {
+    throw error.response;
+  }
+}
+
+module.exports = {create, read, update, remove};
