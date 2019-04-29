@@ -77,6 +77,7 @@ async function createUserWithEncryptPassword(value) {
     }
   );
   await userInstance.encryptPassword();
+  return userInstance
 }
 
 function createUserWithoutEncryptPassword(value) {
