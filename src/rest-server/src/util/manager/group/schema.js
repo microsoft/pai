@@ -24,7 +24,7 @@ const groupSchema = Joi.object.keys({
   description: Joi.string()
     .email()
     .empty(''),
-  description: Joi.string()
+  GID: Joi.string()
     .email()
     .empty(''),
   extension: Joi.object().pattern(/\w+/, Joi.required()),
