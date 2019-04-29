@@ -40,19 +40,19 @@ class GroupK8sSecret extends CrudK8sSecret {
       if (groupData.hasOwnProperty('items')) {
         for (const item of userData['items']) {
           let groupInstance = new GroupSchema({
-            groupname: Buffer.from(item['data']['groupname'], 'base64').toString(),
-            description: Buffer.from(item['data']['description'], 'base64').toString(),
-            GID: Buffer.from(item['data']['email'], 'base64').toString(),
-            extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+            'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
+            'description': Buffer.from(item['data']['description'], 'base64').toString(),
+            'GID': Buffer.from(item['data']['email'], 'base64').toString(),
+            'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
           });
           allGroupInstance.push(groupInstance);
         }
       } else {
         let groupInstance = new GroupSchema({
-          groupname: Buffer.from(groupData['data']['groupname'], 'base64').toString(),
-          description: Buffer.from(groupData['data']['description'], 'base64').toString(),
-          GID: Buffer.from(groupData['data']['email'], 'base64').toString(),
-          extension: JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
+          'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
+          'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
+          'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
+          'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
         });
         allGroupInstance.push(groupInstance);
       }
@@ -66,10 +66,10 @@ class GroupK8sSecret extends CrudK8sSecret {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
       let groupInstance = new GroupSchema({
-        groupname: value['groupname'],
-        description: value['description'],
-        GID: value['description'],
-        extension: value['extension'],
+        'groupname': value['groupname'],
+        'description': value['description'],
+        'GID': value['description'],
+        'extension': value['extension'],
       });
       let groupData = {
         'metadata': {'name': hexKey},
@@ -91,10 +91,10 @@ class GroupK8sSecret extends CrudK8sSecret {
     try {
       const hexKey = Buffer.from(key).toString('hex');
       let groupInstance = new GroupSchema({
-        groupname: value['groupname'],
-        description: value['description'],
-        GID: value['description'],
-        extension: value['extension'],
+        'groupname': value['groupname'],
+        'description': value['description'],
+        'GID': value['description'],
+        'extension': value['extension'],
       });
       let groupData = {
         'metadata': {'name': hexKey},
