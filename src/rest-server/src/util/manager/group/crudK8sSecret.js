@@ -23,7 +23,7 @@ class GroupK8sSecret extends CrudK8sSecret {
   constructor(options) {
     super();
     this.secretRootUri = `${options.kubernetesAPIServerAddress}/${options.groupNamespace}/secrets`;
-    this.request = axios.create(option.requestConfig);
+    this.request = axios.create(options.requestConfig);
     this.options = options;
   }
 
@@ -38,7 +38,7 @@ class GroupK8sSecret extends CrudK8sSecret {
       let allGroupInstance = [];
       let groupData = response['data'];
       if (groupData.hasOwnProperty('items')) {
-        for (const item of userData['items']) {
+        for (const item of groupData['items']) {
           let groupInstance = GroupSchema.createGroup({
             'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
             'description': Buffer.from(item['data']['description'], 'base64').toString(),
@@ -81,7 +81,7 @@ class GroupK8sSecret extends CrudK8sSecret {
         },
       };
       let response = await this.request.post(`${this.secretRootUri}`, groupData);
-      return response['data']
+      return response['data'];
     } catch (error) {
       throw error.response;
     }
