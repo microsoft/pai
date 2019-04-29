@@ -67,7 +67,7 @@ class User {
 }
 
 async function createUserWithEncryptPassword(value) {
-  let userInstance = new UserSchema(
+  let userInstance = new User(
     {
       'username': value['username'],
       'password': value['password'],
@@ -80,7 +80,7 @@ async function createUserWithEncryptPassword(value) {
 }
 
 function createUserWithoutEncryptPassword(value) {
-  let userInstance = new UserSchema(
+  let userInstance = new User(
     {
       'username': value['username'],
       'password': value['password'],
