@@ -46,7 +46,6 @@ export const color = {
   green: '#7fba00',
   blue: '#0071bc',
   gray: '#b1b5b8',
-  washedRed: '#fde7e9',
 };
 
 export const statusColorMapping = {
