@@ -159,7 +159,7 @@ def main():
     server_set_azurefile_parser.add_argument("key", metavar="key", help="Azurefile share key")
     server_set_azurefile_parser.add_argument("-p", "--proxy", dest="proxy", nargs=2, help="Proxy to mount azure file: PROXY_INFO PROXY_PASSWORD")
     server_set_azurefile_parser.set_defaults(func=server_set, server_type="azurefile")
-    # ./storagectl.py server set NAME azureblob DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
+    # ./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
     server_set_azureblob_parser = server_set_subparsers.add_parser("azureblob")
     server_set_azureblob_parser.add_argument("data_store", metavar="datastore", help="Azureblob data store")
     server_set_azureblob_parser.add_argument("container_name", metavar="containername", help="Azureblob container name")
