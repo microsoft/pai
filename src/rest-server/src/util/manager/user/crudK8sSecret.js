@@ -40,21 +40,21 @@ class UserK8sSecret extends CrudK8sSecret {
       if (userData.hasOwnProperty('items')) {
         for (const item of userData['items']) {
           let userInstance = new UserSchema({
-            username: Buffer.from(item['data']['username'], 'base64').toString(),
-            password: Buffer.from(item['data']['password'], 'base64').toString(),
-            groupList: JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
-            email: Buffer.from(item['data']['email'], 'base64').toString(),
-            extension: JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+            'username': Buffer.from(item['data']['username'], 'base64').toString(),
+            'password': Buffer.from(item['data']['password'], 'base64').toString(),
+            'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+            'email': Buffer.from(item['data']['email'], 'base64').toString(),
+            'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
           });
           allUserInstance.push(userInstance);
         }
       } else {
         let userInstance = new UserSchema({
-          username: Buffer.from(userData['data']['username'], 'base64').toString(),
-          password: Buffer.from(userData['data']['password'], 'base64').toString(),
-          groupList: JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
-          email: Buffer.from(userData['data']['email'], 'base64').toString(),
-          extension: JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+          'username': Buffer.from(userData['data']['username'], 'base64').toString(),
+          'password': Buffer.from(userData['data']['password'], 'base64').toString(),
+          'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
+          'email': Buffer.from(userData['data']['email'], 'base64').toString(),
+          'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
         });
         allUserInstance.push(userInstance);
       }
@@ -67,7 +67,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async create(key, value, option) {
     try {
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await new UserSchema(
+      let userInstance = new UserSchema(
         {
           'username': value['username'],
           'password': value['password'],
@@ -97,7 +97,7 @@ class UserK8sSecret extends CrudK8sSecret {
   async update(key, value, option) {
     try {
       const hexKey = Buffer.from(key).toString('hex');
-      let userInstance = await new UserSchema(
+      let userInstance = new UserSchema(
         {
           'username': value['username'],
           'password': value['password'],
