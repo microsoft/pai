@@ -17,16 +17,30 @@
 
 const User = require('./user');
 const axios = require('axios');
-const Joi = require('joi');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
-function initK8sOption(options) {
-
+function initConfig(apiServerUri, namespace, option) {
+  const config = {
+    apiServerUri: apiServerUri,
+    namespace: namespace,
+    reqeustConfig: {
+      baseURL: `${apiServerUri}/api/v1/namespaces/`,
+      maxRedirects: 0,
+    },
+  };
+  if ('k8sAPIServerCaFile' in option) {
+    const ca = readFileSync(option.k8sAPIServerCaFile);
+    config.reqeustConfig.httpsAgent = new Agent({ca});
+  }
+  if ('k8sAPIServerTokenFile' in option) {
+    const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
+    config.headers = {Authorization: `Bearer ${token}`};
+  }
 }
 
 function getSecretRootUri(options) {
-  return `${options.k8sAPIServerAddress}/${options.namespace}/secrets`;
+  return `${options.apiServerUri}/${options.namespace}/secrets`;
 }
 
 async function read(key, options) {
@@ -144,4 +158,4 @@ async function remove(key, options) {
   }
 }
 
-module.exports = {create, read, update, remove};
+module.exports = {initConfig, create, read, update, remove};
