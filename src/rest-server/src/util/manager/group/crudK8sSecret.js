@@ -60,7 +60,7 @@ async function read(key, config) {
       'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
     });
-    return groupInstance;
+    return groupInstance.data;
   } catch (error) {
     throw error.response;
   }
@@ -83,7 +83,7 @@ async function readAll(config) {
         'GID': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      allGroupInstance.push(groupInstance);
+      allGroupInstance.push(groupInstance.data);
     }
     return allGroupInstance;
   } catch (error) {
