@@ -56,14 +56,6 @@ class User {
       });
     });
   }
-
-  toString() {
-    return JSON.stringify(this.data);
-  }
-
-  valueOf() {
-    return this.data;
-  }
 }
 
 async function encryptUserPassword(userInstance) {
@@ -71,15 +63,7 @@ async function encryptUserPassword(userInstance) {
 }
 
 function createUser(value) {
-  let userInstance = new User(
-    {
-      'username': value['username'],
-      'password': value['password'],
-      'groupList': value['groupList'],
-      'email': value['email'],
-      'extension': value['extension'],
-    }
-  );
+  let userInstance = new User(value);
   return userInstance;
 }
 
