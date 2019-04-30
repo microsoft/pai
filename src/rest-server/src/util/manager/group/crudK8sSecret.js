@@ -21,9 +21,10 @@ const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
 function initConfig(apiServerUri, namespace, option) {
+  const namespaces = process.env.PAI_GROUP_NAMESPACE;
   const config = {
     'apiServerUri': apiServerUri,
-    'namespace': namespace,
+    'namespace': namespaces? namespaces : 'pai-group',
     'reqeustConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
@@ -46,30 +47,41 @@ function getSecretRootUri(config) {
 async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
-    const hexKey = key ? Buffer.from(key).toString('hex') : '';
+    const hexKey = Buffer.from(key).toString('hex');
     const response = await request.get(getSecretRootUri() + `/${hexKey}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    let groupData = response['data'];
+    let groupInstance = Group.createGroup({
+      'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
+      'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
+      'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
+      'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
+    });
+    return groupInstance;
+  } catch (error) {
+    throw error.response;
+  }
+}
+
+async function readAll(config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(getSecretRootUri(), {
       headers: {
         'Accept': 'application/json',
       },
     });
     let allGroupInstance = [];
     let groupData = response['data'];
-    if (groupData.hasOwnProperty('items')) {
-      for (const item of groupData['items']) {
-        let groupInstance = Group.createGroup({
-          'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
-          'description': Buffer.from(item['data']['description'], 'base64').toString(),
-          'GID': Buffer.from(item['data']['email'], 'base64').toString(),
-          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-        });
-        allGroupInstance.push(groupInstance);
-      }
-    } else {
+    for (const item of groupData['items']) {
       let groupInstance = Group.createGroup({
-        'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
-        'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
-        'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
-        'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
+        'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
+        'description': Buffer.from(item['data']['description'], 'base64').toString(),
+        'GID': Buffer.from(item['data']['email'], 'base64').toString(),
+        'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
       allGroupInstance.push(groupInstance);
     }
@@ -77,6 +89,7 @@ async function read(key, config) {
   } catch (error) {
     throw error.response;
   }
+
 }
 
 async function create(key, value, config) {
@@ -147,4 +160,4 @@ async function remove(key, config) {
   }
 }
 
-module.exports = {initConfig, create, read, update, remove};
+module.exports = {initConfig, create, read, readAll, update, remove};
