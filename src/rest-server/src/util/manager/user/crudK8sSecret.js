@@ -17,8 +17,8 @@
 
 const User = require('./user');
 const axios = require('axios');
-const {readFileSync} = require('fs');
-const {Agent} = require('https');
+const readFileSync = require('fs');
+const Agent = require('https');
 
 function initConfig(apiServerUri, namespace, option) {
   const config = {
