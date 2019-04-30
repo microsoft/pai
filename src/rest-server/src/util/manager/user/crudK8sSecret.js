@@ -21,12 +21,31 @@ const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
 /**
+ * @typedef Config
+ * @property {string} namespace - kubernetes namespace
+ * @property {Object} requestConfig - RequestConfig
+ * @property {string} requestConfig.baseURL - BaseURL for axios
+ * @property {integer} requestConfig.maxRedirects - maxRedirects for axios
+ * @property {Object} requestConfig.httpsAgent - For kubernetes authn
+ * @property {Object} requestConfig.headers - For kubernetes authn
+ */
+
+/**
+ * @typedef User
+ * @property {string} UserInstance.username - username
+ * @property {string} UserInstance.password - password. If no password is set, it will be ''
+ * @property {string[]} UserInstance.groupList - group list. Group name list which the user belongs to
+ * @property {string} UserInstance.email - email
+ * @property {Object} UserInstance.extension - extension field
+ */
+
+/**
  * @function initConfig - Init the kubernetes configuration for user manager's crud.
  * @param {string} apiServerUri - Required config, the uri of kubernetes APIServer.
  * @param {Object} option - Config for kubernetes APIServer's authn.
  * @param {string} option.k8sAPIServerCaFile - Optional config, the ca file path of kubernetes APIServer.
  * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
- * @return {Object} {{namespace: string,  requestConfig: {baseURL: string, maxRedirects: integer}}}
+ * @return {Config} config
 */
 function initConfig(apiServerUri, option) {
   const namespaces = process.env.PAI_USER_NAMESPACE;
@@ -56,13 +75,8 @@ function getSecretRootUri(config) {
  * @function read - return a user's info based on the UserName.
  * @async
  * @param {string} key - User name
- * @param {Object} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
- * @return {Object} UserInstance
- * @return {string} UserInstance.username - username
- * @return {string} UserInstance.password - password. If no password is set, it will be ''.
- * @return {string[]} UserInstance.groupList - group list. Group name list which the user belongs to.
- * @return {string} UserInstance.email - email
- * @return {Object} UserInstance.extension - extension field
+ * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @return {Promise<User>} A promise to the User instance
  */
 async function read(key, config) {
   try {
@@ -81,7 +95,7 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
-    return userInstance.data;
+    return userInstance;
   } catch (error) {
     throw error.response;
   }
@@ -91,12 +105,7 @@ async function read(key, config) {
  * @function readAll - return all users' info.
  * @async
  * @param {Object} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
- * @return {Object[]} allUserInstance - a list of all user info.
- * @return {string} allUserInstance[].username - username
- * @return {string} allUserInstance[].password - password. If no password is set, it will be ''.
- * @return {string[]} allUserInstance[].groupList - group list. Group name list which the user belongs to.
- * @return {string} allUserInstance[].email - email
- * @return {Object} allUserInstance[].extension - extension field
+ * @return {Promise<User[]>} A promise to all User instance list.
  */
 async function readAll(config) {
   try {
@@ -116,7 +125,7 @@ async function readAll(config) {
         'email': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      allUserInstance.push(userInstance.data);
+      allUserInstance.push(userInstance);
     }
     return allUserInstance;
   } catch (error) {
@@ -128,19 +137,9 @@ async function readAll(config) {
  * @function create - Create an user entry to kubernetes secrets.
  * @async
  * @param {string} key - User name
- * @param {Object} value - User info
- * @return {string} value.username - username
- * @return {string} value.password - password. If no password is set, it will be ''.
- * @return {string[]} value.groupList - group list. Group name list which the user belongs to.
- * @return {string} value.email - email
- * @return {Object} value.extension - extension field
- * @param {Object} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
- * @return {Object[]} allUserInstance - a list of all user info.
- * @return {string} allUserInstance[].username - username
- * @return {string} allUserInstance[].password - password. If no password is set, it will be ''.
- * @return {string[]} allUserInstance[].groupList - group list. Group name list which the user belongs to.
- * @return {string} allUserInstance[].email - email
- * @return {Object} allUserInstance[].extension - entension field
+ * @param {User} value - User info
+ * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @return {Promise<User>} A promise to the User instance.
  */
 async function create(key, value, config) {
   try {
@@ -177,19 +176,9 @@ async function create(key, value, config) {
  * @function update - Update an user entry to kubernetes secrets.
  * @async
  * @param {string} key - User name
- * @param {Object} value - User info
- * @return {string} value.username - username
- * @return {string} value.password - password. If no password is set, it will be ''.
- * @return {string[]} value.groupList - group list. Group name list which the user belongs to.
- * @return {string} value.email - email
- * @return {Object} value.extension - extension field
+ * @param {User} value - User info
  * @param {Object} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
- * @return {Object[]} allUserInstance - a list of all user info.
- * @return {string} allUserInstance[].username - username
- * @return {string} allUserInstance[].password - password. If no password is set, it will be ''.
- * @return {string[]} allUserInstance[].groupList - group list. Group name list which the user belongs to.
- * @return {string} allUserInstance[].email - email
- * @return {Object} allUserInstance[].extension - entension field
+ * @return {Promise<User>} A promise to the User instance.
  */
 async function update(key, value, config) {
   try {
@@ -228,6 +217,7 @@ async function update(key, value, config) {
  * @async
  * @param {string} key - User name
  * @param {Object} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @return {Promise<void>}
  */
 async function remove(key, config) {
   try {
