@@ -39,15 +39,15 @@ function initConfig(apiServerUri, namespace, option) {
   }
 }
 
-function getSecretRootUri(options) {
-  return `${options.apiServerUri}/${options.namespace}/secrets`;
+function getSecretRootUri(config) {
+  return `${config.apiServerUri}/${config.namespace}/secrets`;
 }
 
-async function read(key, options) {
+async function read(key, config) {
   try {
-    const request = axios.create(options.requestConfig);
+    const request = axios.create(config.requestConfig);
     const hexKey = key ? Buffer.from(key).toString('hex') : '';
-    const response = await request.get(getSecretRootUri(options) + `/${hexKey}`, {
+    const response = await request.get(getSecretRootUri(config) + `/${hexKey}`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -81,9 +81,9 @@ async function read(key, options) {
   }
 }
 
-async function create(key, value, options) {
+async function create(key, value, config) {
   try {
-    const request = axios.create(options.requestConfig);
+    const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
     let userInstance = User.createUser(
       {
@@ -105,16 +105,16 @@ async function create(key, value, options) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.post(getSecretRootUri(options), userData);
+    let response = await request.post(getSecretRootUri(config), userData);
     return response['data'];
   } catch (error) {
     throw error.response;
   }
 }
 
-async function update(key, value, options) {
+async function update(key, value, config) {
   try {
-    const request = axios.create(options.requestConfig);
+    const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
     let userInstance = User.createUser(
       {
@@ -136,18 +136,18 @@ async function update(key, value, options) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.put(getSecretRootUri(options) + `/${hexKey}`, userData);
+    let response = await request.put(getSecretRootUri(config) + `/${hexKey}`, userData);
     return response['data'];
   } catch (error) {
     throw error.response;
   }
 }
 
-async function remove(key, options) {
+async function remove(key, config) {
   try {
-    const request = axios.create(options.requestConfig);
+    const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    return await request.delete(getSecretRootUri(options) + `/${hexKey}`, {
+    return await request.delete(getSecretRootUri(config) + `/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
