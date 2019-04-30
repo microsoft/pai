@@ -38,23 +38,10 @@ class Group {
     }
     this.data = validValue;
   }
-
-  toString() {
-    return JSON.stringify(this.data);
-  }
-
-  valueOf() {
-    return this.data;
-  }
 }
 
 function createGroup(value) {
-  let groupInstance = new Group({
-    'groupname': value['groupname'],
-    'description': value['description'],
-    'GID': value['description'],
-    'extension': value['extension'],
-  });
+  let groupInstance = new Group(value);
   return groupInstance;
 }
 
