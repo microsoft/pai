@@ -1,0 +1,48 @@
+{
+  "name": "marketplace",
+  "version": "1.0.0",
+  "description": "A web portal plugin for marketplace.",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development",
+    "prebuild": "tslint --project .",
+    "build": "webpack --mode=production"
+  },
+  "author": "Microsoft Corporation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
+  "homepage": "https://github.com/Microsoft/pai#readme",
+  "license": "MIT",
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "core-js": "^3.0.1",
+    "office-ui-fabric-react": "^6.162.1",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "whatwg-fetch": "^3.0.0",
+    "yaml": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.7",
+    "@types/react": "^16.8.7",
+    "@types/react-dom": "^16.8.2",
+    "@types/webpack": "^4.4.27",
+    "@types/webpack-dev-server": "^3.1.5",
+    "@types/yaml": "^1.0.2",
+    "css-loader": "^2.1.1",
+    "style-loader": "^0.23.1",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.13.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}
