@@ -61,7 +61,7 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
-    return userInstance;
+    return userInstance.data;
   } catch (error) {
     throw error.response;
   }
@@ -85,7 +85,7 @@ async function readAll(config) {
         'email': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      allUserInstance.push(userInstance);
+      allUserInstance.push(userInstance.data);
     }
     return allUserInstance;
   } catch (error) {
