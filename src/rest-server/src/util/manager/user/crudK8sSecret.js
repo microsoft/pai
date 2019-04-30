@@ -22,11 +22,11 @@ const {Agent} = require('https');
 
 function initConfig(apiServerUri, namespace, option) {
   const config = {
-    apiServerUri: apiServerUri,
-    namespace: namespace,
-    reqeustConfig: {
-      baseURL: `${apiServerUri}/api/v1/namespaces/`,
-      maxRedirects: 0,
+    'apiServerUri': apiServerUri,
+    'namespace': namespace,
+    'reqeustConfig': {
+      'baseURL': `${apiServerUri}/api/v1/namespaces/`,
+      'maxRedirects': 0,
     },
   };
   if ('k8sAPIServerCaFile' in option) {
