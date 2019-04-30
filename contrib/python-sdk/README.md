@@ -24,10 +24,10 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [3.3. Do it in a more pythoic way](#33-do-it-in-a-more-pythoic-way)
   - [3.4. _Updating_ Submit your working notebook running in local server](#34-updating-submit-your-working-notebook-running-in-local-server)
 - [4. _ToDiscuss_ Python SDK as a runtime](#4-todiscuss-python-sdk-as-a-runtime)
-  - [Reconstruct the client in job container](#reconstruct-the-client-in-job-container)
-  - [User can customize callbacks before or after the command executation](#user-can-customize-callbacks-before-or-after-the-command-executation)
-  - [User can customize callbacks when exception raised](#user-can-customize-callbacks-when-exception-raised)
-  - [Implementation](#implementation)
+  - [4.1. Reconstruct the client in job container](#41-reconstruct-the-client-in-job-container)
+  - [4.2. User can customize callbacks before or after the command executation](#42-user-can-customize-callbacks-before-or-after-the-command-executation)
+  - [4.3. User can customize callbacks when exception raised](#43-user-can-customize-callbacks-when-exception-raised)
+  - [4.4. Implementation](#44-implementation)
 - [5. Notebook tutorials](#5-notebook-tutorials)
 
 # 1. Installation and Cluster management
@@ -227,19 +227,19 @@ if not in_job_container():
 
 When submitting a job through the SDK (CLI or python binding), the SDK would be isntalled inside the job container automatically by default (turn off by adding `--disable-sdk-install` in `job create`).  
 
-## Reconstruct the client in job container
+## 4.1. Reconstruct the client in job container
 
 The SDK has passed necessary information to job container through environmental variables, so it is easy to reconstruct the client by calling `Client.from_env()`.
 
-## User can customize callbacks before or after the command executation
+## 4.2. User can customize callbacks before or after the command executation
 
 This is similar to the pre- or post- commands in protocol v2. 
 
-## User can customize callbacks when exception raised
+## 4.3. User can customize callbacks when exception raised
 
 This is for debugging.
 
-## Implementation
+## 4.4. Implementation
 
 An ideal implementation is SDK provides some decorators for registering callbacks. Here is an example. 
 
