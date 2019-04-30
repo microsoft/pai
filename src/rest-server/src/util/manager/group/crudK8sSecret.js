@@ -65,7 +65,7 @@ async function read(key, config) {
         allGroupInstance.push(groupInstance);
       }
     } else {
-      let groupInstance = group.createGroup({
+      let groupInstance = Group.createGroup({
         'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
         'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
         'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
