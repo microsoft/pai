@@ -30,7 +30,6 @@ import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -195,7 +194,7 @@ public class GangAllocationTest {
       }
 
       String containerIdStr = list.get(0).getContainerId();
-      ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
+      ContainerId containerId = ContainerId.fromString(containerIdStr);
       onStartContainerError(containerId, new Exception());
     }
   }
