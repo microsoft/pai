@@ -35,7 +35,7 @@ function initConfig(apiServerUri, namespace, option) {
   }
   if ('k8sAPIServerTokenFile' in option) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-    config.headers = {Authorization: `Bearer ${token}`};
+    config.reqeustConfig.headers = {Authorization: `Bearer ${token}`};
   }
 }
 
