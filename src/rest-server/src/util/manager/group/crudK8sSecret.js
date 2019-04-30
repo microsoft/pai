@@ -89,7 +89,6 @@ async function readAll(config) {
   } catch (error) {
     throw error.response;
   }
-
 }
 
 async function create(key, value, config) {
