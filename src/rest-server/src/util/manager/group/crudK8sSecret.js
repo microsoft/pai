@@ -25,18 +25,18 @@ function initConfig(apiServerUri, namespace, option) {
   const config = {
     'apiServerUri': apiServerUri,
     'namespace': namespaces? namespaces : 'pai-group',
-    'reqeustConfig': {
+    'requstConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
     },
   };
   if ('k8sAPIServerCaFile' in option) {
     const ca = readFileSync(option.k8sAPIServerCaFile);
-    config.reqeustConfig.httpsAgent = new Agent({ca});
+    config.requstConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-    config.reqeustConfig.headers = {Authorization: `Bearer ${token}`};
+    config.requstConfig.headers = {Authorization: `Bearer ${token}`};
   }
 }
 
