@@ -1,7 +1,51 @@
 """
 common functions to
 """
-from requests import request, Response
+import argparse
+import inspect
+from requests import Response, request
+
+
+def attach_args(target=None, expand: list=['kwargs'], ignore: list=['self']):
+    caller = inspect.currentframe().f_back
+    dic = {k: v for k, v in caller.f_locals.items() if k not in ignore and not k.startswith('__')}
+    for k in expand:
+        v = dic.pop(k, {})
+        dic.update(v)
+    if target:
+        for k, v in dic.items():
+            setattr(target, k, v)
+    return dic
+
+
+class Namespace(argparse.Namespace):
+    
+    def __init__(self):
+        super().__init__
+        self.from_argv()
+
+    def to_dict(self):
+        dic = vars(self)
+        for k, v in dic.items():
+            if isinstance(v, Namespace):
+                dic[k] = v.to_dict()
+        return dic
+
+    def define(self, parser: argparse.ArgumentParser):
+        pass
+
+    def from_argv(self, argv: list=[]):
+        parser = argparse.ArgumentParser()
+        self.define(parser)
+        parser.parse_known_args(argv, self)
+        return self
+
+    def from_dict(self, dic: dict, ignore_unkown: bool=False):
+        for k, v in dic.items():
+            if ignore_unkown and not hasattr(self, k):
+                continue
+            setattr(self, k, v)
+        return self
 
 
 def update_obj(a, b, func: str='update'):

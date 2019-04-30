@@ -1,9 +1,12 @@
-import os
-import re
-import json
 import inspect
-from openpaisdk.utils import update_obj, get_response
+import json
+import os
+
 from openpaisdk.storage import Storage
+from openpaisdk.utils import get_response, update_obj, Namespace
+from openpaisdk.job import Job
+from openpaisdk.io_utils import to_file
+from openpaisdk import __jobs_cache__
 
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
     """in_job_container check whether it is inside a job container (by checking environmental variables)
@@ -18,55 +21,6 @@ def in_job_container(varname: str='PAI_CONTAINER_ID'):
     if not os.environ.get(varname, ''):
         return False
     return True
-
-
-class Job:
-
-    def __init__(self, version: str='1.0', job_dir: str=None, sources: list=[], pip_requirements: list=[], **kwargs):
-        self.config = dict()
-        self.version, self.job_dir = version, job_dir
-        self.sources, self.pip_requirements= sources, pip_requirements
-        if self.version == '1.0':
-            for k in ['jobName', 'image', 'codeDir', 'dataDir', 'outputDir']:
-                self.config[k] = ''
-            self.config.update(taskRoles=[], jobEnvs={})
-        self.config.update(kwargs)
-
-    @property
-    def minimal_resources(self):
-        return dict(taskNumber=1, cpuNumber=4, gpuNumber=0, memoryMB=8192)
-
-    def add_task_role(self, name: str, command: str, **kwargs):
-        commands = ['pip install {}'.format(r) for r in self.pip_requirements]
-        commands.append(command)
-        task_role = dict(name=name, command=' && '.join(commands))
-        update_obj(task_role, self.minimal_resources)
-        update_obj(task_role, kwargs)
-        self.config['taskRoles'].append(task_role)
-        return self
-
-    @staticmethod
-    def simple(jobName: str, image: str, command: str, resources: dict={}, **kwargs):
-        """
-        return a job config object from only necessary information
-        
-        Args:
-            jobName (str): [description]
-            image (str): [description]
-            command (str): [description]
-            resources (dict, optional): Defaults to {}. [description]
-        
-        Named Arguments:
-            kwargs: refer to Job.__init__
-
-        Returns:
-            [type]: [description]
-        """
-        job = Job(
-            jobName=jobName, image=image, **kwargs
-        )            
-        job.add_task_role(name='main', command=command, **resources)
-        return job
 
 
 class Client:
@@ -110,12 +64,12 @@ class Client:
             a = list(clients.keys())[0]
         return clients[a], a
 
-    def to_envs(self, exclude: list=['passwd'], prefix: str='PAISDK'):
+    def to_envs(self, exclude: list=['passwd'], prefix: str='PAI_SDK_CLIENT'):
         """to_envs to pass necessary information to job container via environmental variables
         
         Keyword Arguments:
             exclude {list} -- information will not be shared (default: {['passwd']})
-            prefix {str} -- variable prefix (default: {'PAISDK'})
+            prefix {str} -- variable prefix (default: {'PAI_SDK_CLIENT'})
         
         Returns:
             [dict] -- environmental variables dictionary
@@ -124,11 +78,11 @@ class Client:
         return {'{}_{}'.format(prefix, k.upper()) : v for k, v in self.config.items() if k not in exclude}
 
     @staticmethod
-    def from_envs(prefix: str='PAISDK', **kwargs):
+    def from_envs(prefix: str='PAI_SDK_CLIENT', **kwargs):
         """from_envs create a client form environmental variables starting with prefix+'_'
         
         Keyword Arguments:
-            prefix {str} -- [description] (default: {'PAISDK'})
+            prefix {str} -- [description] (default: {'PAI_SDK_CLIENT'})
         
         Returns:
             [Client] -- [description]
@@ -181,18 +135,17 @@ class Client:
 
         if not allow_job_in_job:
             assert not in_job_container(), 'not allowed submiting jobs inside a job'
+        job_config = job.to_job_config_v1()
         if append_pai_info:
-            job.config.setdefault('jobEnvs', {}).update(self.to_envs())
-        if job.job_dir:
-            job.config['jobEnvs']['PAISDK_JOB_DIR'] = job.job_dir
-        if len(job.sources) > 0:
-            assert job.job_dir, 'job directory not specified'
-            code_dir = '{}/code'.format(job.job_dir)
-            job.config['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(code_dir)
-            for file in job.sources:
-                self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file))
-        self.rest_api_submit(job.config)
-        return job.config['jobName']
+            job_config.setdefault('jobEnvs', {}).update(self.to_envs())
+        to_file(job_config, os.path.join(__jobs_cache__, job.spec.job_name, 'config.json'))            
+
+        if job.spec.sources:
+            code_dir = job.get_folder_path('code')
+            for file in job.spec.sources:
+                self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)
+        self.get_token().rest_api_submit(job_config)
+        return job_config['jobName']
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
