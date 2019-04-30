@@ -20,10 +20,11 @@ const axios = require('axios');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
-function initConfig(apiServerUri, namespace, option) {
+function initConfig(apiServerUri, option) {
+  const namespace = process.env.PAI_USER_NAMESPACE;
   const config = {
     'apiServerUri': apiServerUri,
-    'namespace': namespace,
+    'namespace': namespace ? namespace : 'pai-user',
     'reqeustConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
@@ -46,32 +47,43 @@ function getSecretRootUri(config) {
 async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
-    const hexKey = key ? Buffer.from(key).toString('hex') : '';
+    const hexKey = Buffer.from(key).toString('hex');
     const response = await request.get(getSecretRootUri(config) + `/${hexKey}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    let userData = response['data'];
+    let userInstance = User.createUser({
+      'username': Buffer.from(userData['data']['username'], 'base64').toString(),
+      'password': Buffer.from(userData['data']['password'], 'base64').toString(),
+      'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
+      'email': Buffer.from(userData['data']['email'], 'base64').toString(),
+      'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+    });
+    return userInstance;
+  } catch (error) {
+    throw error.response;
+  }
+}
+
+async function readAll(config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(getSecretRootUri(config), {
       headers: {
         'Accept': 'application/json',
       },
     });
     let allUserInstance = [];
     let userData = response['data'];
-    if (userData.hasOwnProperty('items')) {
-      for (const item of userData['items']) {
-        let userInstance = User.createUser({
-          'username': Buffer.from(item['data']['username'], 'base64').toString(),
-          'password': Buffer.from(item['data']['password'], 'base64').toString(),
-          'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
-          'email': Buffer.from(item['data']['email'], 'base64').toString(),
-          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-        });
-        allUserInstance.push(userInstance);
-      }
-    } else {
+    for (const item of userData['items']) {
       let userInstance = User.createUser({
-        'username': Buffer.from(userData['data']['username'], 'base64').toString(),
-        'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-        'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
-        'email': Buffer.from(userData['data']['email'], 'base64').toString(),
-        'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+        'username': Buffer.from(item['data']['username'], 'base64').toString(),
+        'password': Buffer.from(item['data']['password'], 'base64').toString(),
+        'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+        'email': Buffer.from(item['data']['email'], 'base64').toString(),
+        'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
       allUserInstance.push(userInstance);
     }
@@ -158,4 +170,4 @@ async function remove(key, config) {
   }
 }
 
-module.exports = {initConfig, create, read, update, remove};
+module.exports = {initConfig, create, read, readAll, update, remove};
