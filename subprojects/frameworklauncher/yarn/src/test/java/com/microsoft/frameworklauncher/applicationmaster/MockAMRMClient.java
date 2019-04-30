@@ -37,7 +37,7 @@ public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<
   private final AtomicInteger containerId = new AtomicInteger(0);
 
   public MockAMRMClient(ApplicationAttemptId attemptId, MockResourceManager mockResourceManager,
-      int intervalMs, CallbackHandler callbackHandler) {
+      int intervalMs, AbstractCallbackHandler callbackHandler) {
     super(null, intervalMs, callbackHandler);
     this.mockResourceManager = mockResourceManager;
     this.attemptId = attemptId;
@@ -145,6 +145,12 @@ public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<
 
   @Override
   public void removeContainerRequest(T req) {
+
+  }
+
+  @Override
+  public void requestContainerUpdate(
+      Container container, UpdateContainerRequest updateContainerRequest) {
 
   }
 
