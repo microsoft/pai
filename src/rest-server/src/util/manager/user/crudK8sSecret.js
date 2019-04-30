@@ -21,22 +21,22 @@ const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
 function initConfig(apiServerUri, option) {
-  const namespace = process.env.PAI_USER_NAMESPACE;
+  const namespaces = process.env.PAI_USER_NAMESPACE;
   const config = {
     'apiServerUri': apiServerUri,
-    'namespace': namespace ? namespace : 'pai-user',
-    'reqeustConfig': {
+    'namespace': namespaces? namespaces : 'pai-user',
+    'requstConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
     },
   };
   if ('k8sAPIServerCaFile' in option) {
     const ca = readFileSync(option.k8sAPIServerCaFile);
-    config.reqeustConfig.httpsAgent = new Agent({ca});
+    config.requstConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-    config.reqeustConfig.headers = {Authorization: `Bearer ${token}`};
+    config.requstConfig.headers = {Authorization: `Bearer ${token}`};
   }
 }
 
