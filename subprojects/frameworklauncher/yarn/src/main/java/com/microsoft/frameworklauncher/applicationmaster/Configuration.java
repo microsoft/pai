@@ -24,9 +24,9 @@ import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 // Const parameters for the current AM instead of state variable
 public class Configuration {
@@ -80,7 +80,7 @@ public class Configuration {
   }
 
   public void initializeDependOnZKStoreConfig(ZookeeperStore zkStore) throws Exception {
-    ApplicationAttemptId attemptId = ConverterUtils.toContainerId(getAmContainerId()).getApplicationAttemptId();
+    ApplicationAttemptId attemptId = ContainerId.fromString(getAmContainerId()).getApplicationAttemptId();
     this.attemptId = attemptId.toString();
     applicationId = attemptId.getApplicationId().toString();
 

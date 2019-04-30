@@ -50,7 +50,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.log4j.Level;
 
@@ -419,7 +418,7 @@ public class ApplicationMaster extends AbstractService {
   private Boolean tryToReleaseContainer(String containerId) {
     try {
       LOGGER.logDebug("[%s]: releaseAssignedContainer", containerId);
-      rmClient.releaseAssignedContainer(ConverterUtils.toContainerId(containerId));
+      rmClient.releaseAssignedContainer(ContainerId.fromString(containerId));
       return true;
     } catch (Exception e) {
       LOGGER.logError(e, "[%s]: Failed to releaseAssignedContainer", containerId);
@@ -1357,11 +1356,6 @@ public class ApplicationMaster extends AbstractService {
     transitionTaskStateQueue.queueSystemTask(() -> {
       completeContainer(containerStatuses);
     });
-  }
-
-  public void onPreemptionMessage(PreemptionMessage message) {
-    //TODO: Do some work to save current work, otherwise, the container will be released by RM.
-    //By default, no action take is ok.
   }
 
   // Callbacks from NMClient

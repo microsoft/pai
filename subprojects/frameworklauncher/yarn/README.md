@@ -54,7 +54,7 @@ Compile-time dependencies:
 * JDK 1.8+
 
 Run-time dependencies:
-* Hadoop 2.7.2 with YARN-7481 is required to support Gpu Scheduling and Port Scheduling, if you do not need them, any Hadoop 2.7+ is fine.
+* Hadoop 2.9.0 with YARN-7481 is required to support Gpu Scheduling and Port Scheduling, if you do not need them, any Hadoop 2.7+ is fine.
 * Apache Zookeeper
 
 ### Build Launcher Distribution

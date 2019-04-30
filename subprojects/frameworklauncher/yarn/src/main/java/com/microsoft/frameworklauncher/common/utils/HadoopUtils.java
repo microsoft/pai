@@ -33,7 +33,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -70,10 +69,10 @@ public class HadoopUtils {
       LOGGER.logInfo("[hadoop fs -put -f %s %s]", localPath, hdfsPath);
       fs.copyFromLocalFile(new Path(localPath), new Path(hdfsPath));
     } catch (PathNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
+      throw new NonTransientException(e.getMessage(), e);
     } catch (Exception e) {
       if (e.getMessage().toLowerCase().contains("not a directory")) {
-        throw new NonTransientException("Path is not a directory", e);
+        throw new NonTransientException(e.getMessage(), e);
       } else {
         throw e;
       }
@@ -87,10 +86,8 @@ public class HadoopUtils {
       FileContext fc = FileContext.getFileContext(CONF);
       LOGGER.logInfo("[hadoop fs -mv -f %s %s]", srcHdfsPath, dstHdfsPath);
       fc.rename(new Path(srcHdfsPath), new Path(dstHdfsPath), Options.Rename.OVERWRITE);
-    } catch (FileNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
-    } catch (ParentNotDirectoryException e) {
-      throw new NonTransientException("Path is not a directory", e);
+    } catch (FileNotFoundException | ParentNotDirectoryException e) {
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
@@ -113,7 +110,7 @@ public class HadoopUtils {
       fs.mkdirs(new Path(hdfsPath));
     } catch (Exception e) {
       if (e.getMessage().toLowerCase().contains("not a directory")) {
-        throw new NonTransientException("Path is not a directory", e);
+        throw new NonTransientException(e.getMessage(), e);
       } else {
         throw e;
       }
@@ -142,7 +139,7 @@ public class HadoopUtils {
       LOGGER.logInfo("[hadoop fs -stat %%Y %s]", hdfsPath);
       return fs.getFileStatus(new Path(hdfsPath));
     } catch (PathNotFoundException | FileNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
@@ -162,7 +159,7 @@ public class HadoopUtils {
       yarnClient.init(CONF);
       yarnClient.start();
       LOGGER.logInfo("[yarn application -kill %s]", applicationId);
-      yarnClient.killApplication(ConverterUtils.toApplicationId(applicationId));
+      yarnClient.killApplication(ApplicationId.fromString(applicationId));
       yarnClient.stop();
     } catch (ApplicationNotFoundException ignored) {
     } catch (Exception e) {
@@ -200,7 +197,7 @@ public class HadoopUtils {
     YarnClient yarnClient = YarnClient.createYarnClient();
     yarnClient.init(CONF);
     yarnClient.start();
-    List<ContainerReport> containerReports = yarnClient.getContainers(ConverterUtils.toApplicationAttemptId(attemptId));
+    List<ContainerReport> containerReports = yarnClient.getContainers(ApplicationAttemptId.fromString(attemptId));
     yarnClient.stop();
 
     // Since we at least has AM container, so we check whether the containerReports is reliable
@@ -248,12 +245,12 @@ public class HadoopUtils {
       FileStatus fileStatus = getFileStatusInHdfs(hdfsPath);
       FileContext fileContext = FileContext.getFileContext(CONF);
       return LocalResource.newInstance(
-          ConverterUtils.getYarnUrlFromPath(fileContext
+          URL.fromPath(fileContext
               .getDefaultFileSystem().resolvePath(fileStatus.getPath())),
           type, visibility, fileStatus.getLen(), fileStatus.getModificationTime());
     } catch (IllegalArgumentException e) {
       // hdfsPath may be from user, so it may be illegal.
-      throw new NonTransientException("Path is illegal.", e);
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
