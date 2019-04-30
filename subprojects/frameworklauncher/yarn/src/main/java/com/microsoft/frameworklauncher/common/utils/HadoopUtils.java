@@ -69,10 +69,10 @@ public class HadoopUtils {
       LOGGER.logInfo("[hadoop fs -put -f %s %s]", localPath, hdfsPath);
       fs.copyFromLocalFile(new Path(localPath), new Path(hdfsPath));
     } catch (PathNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
+      throw new NonTransientException(e.getMessage(), e);
     } catch (Exception e) {
       if (e.getMessage().toLowerCase().contains("not a directory")) {
-        throw new NonTransientException("Path is not a directory", e);
+        throw new NonTransientException(e.getMessage(), e);
       } else {
         throw e;
       }
@@ -86,10 +86,8 @@ public class HadoopUtils {
       FileContext fc = FileContext.getFileContext(CONF);
       LOGGER.logInfo("[hadoop fs -mv -f %s %s]", srcHdfsPath, dstHdfsPath);
       fc.rename(new Path(srcHdfsPath), new Path(dstHdfsPath), Options.Rename.OVERWRITE);
-    } catch (FileNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
-    } catch (ParentNotDirectoryException e) {
-      throw new NonTransientException("Path is not a directory", e);
+    } catch (FileNotFoundException | ParentNotDirectoryException e) {
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
@@ -112,7 +110,7 @@ public class HadoopUtils {
       fs.mkdirs(new Path(hdfsPath));
     } catch (Exception e) {
       if (e.getMessage().toLowerCase().contains("not a directory")) {
-        throw new NonTransientException("Path is not a directory", e);
+        throw new NonTransientException(e.getMessage(), e);
       } else {
         throw e;
       }
@@ -141,7 +139,7 @@ public class HadoopUtils {
       LOGGER.logInfo("[hadoop fs -stat %%Y %s]", hdfsPath);
       return fs.getFileStatus(new Path(hdfsPath));
     } catch (PathNotFoundException | FileNotFoundException e) {
-      throw new NonTransientException("Path does not exist", e);
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
@@ -252,7 +250,7 @@ public class HadoopUtils {
           type, visibility, fileStatus.getLen(), fileStatus.getModificationTime());
     } catch (IllegalArgumentException e) {
       // hdfsPath may be from user, so it may be illegal.
-      throw new NonTransientException("Path is illegal.", e);
+      throw new NonTransientException(e.getMessage(), e);
     }
   }
 
