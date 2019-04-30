@@ -18,7 +18,7 @@
 const User = require('./user');
 const axios = require('axios');
 const readFileSync = require('fs');
-const Agent = require('https');
+const {Agent} = require('https');
 
 function initConfig(apiServerUri, namespace, option) {
   const config = {
@@ -40,7 +40,7 @@ function initConfig(apiServerUri, namespace, option) {
 }
 
 function getSecretRootUri(config) {
-  return `${config.apiServerUri}/${config.namespace}/secrets`;
+  return `${config.namespace}/secrets`;
 }
 
 async function read(key, config) {
