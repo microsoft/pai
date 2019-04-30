@@ -30,28 +30,12 @@ function initConfig(apiServerUri, namespace, option) {
     },
   };
   if ('k8sAPIServerCaFile' in option) {
-    try {
-      const ca = readFileSync(option.k8sAPIServerCaFile);
-      config.reqeustConfig.httpsAgent = new Agent({ca});
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log('File not found!');
-      } else {
-        throw err;
-      }
-    }
+    const ca = readFileSync(option.k8sAPIServerCaFile);
+    config.reqeustConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
-    try {
-      const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-      config.reqeustConfig.headers = {Authorization: `Bearer ${token}`};
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log('File not found!');
-      } else {
-        throw err;
-      }
-    }
+    const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
+    config.reqeustConfig.headers = {Authorization: `Bearer ${token}`};
   }
 }
 
