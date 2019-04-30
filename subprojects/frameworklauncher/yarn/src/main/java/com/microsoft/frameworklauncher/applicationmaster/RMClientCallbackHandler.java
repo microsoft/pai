@@ -20,43 +20,49 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.PreemptionMessage;
+import org.apache.hadoop.yarn.api.records.UpdatedContainer;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 
 import java.util.List;
 
-public class RMClientCallbackHandler implements AMRMClientAsync.CallbackHandler {
+public class RMClientCallbackHandler extends AMRMClientAsync.AbstractCallbackHandler {
   private final ApplicationMaster am;
 
   public RMClientCallbackHandler(ApplicationMaster am) {
     this.am = am;
   }
 
+  @Override
   public void onError(Throwable e) {
     am.onError(e);
   }
 
+  @Override
   public void onShutdownRequest() {
     am.onShutdownRequest();
   }
 
+  @Override
   public float getProgress() {
     return am.getProgress();
   }
 
+  @Override
   public void onNodesUpdated(List<NodeReport> updatedNodes) {
     am.onNodesUpdated(updatedNodes);
   }
 
+  @Override
   public void onContainersAllocated(List<Container> allocatedContainers) {
     am.onContainersAllocated(allocatedContainers);
   }
 
+  @Override
   public void onContainersCompleted(List<ContainerStatus> completedContainers) {
     am.onContainersCompleted(completedContainers);
   }
 
-  public void onPreemptionMessage(PreemptionMessage message) {
-    am.onPreemptionMessage(message);
+  @Override
+  public void onContainersUpdated(List<UpdatedContainer> containers) {
   }
 }

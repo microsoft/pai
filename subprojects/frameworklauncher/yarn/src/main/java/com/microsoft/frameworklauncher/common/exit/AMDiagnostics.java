@@ -22,8 +22,8 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.ExitType;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -205,7 +205,7 @@ public class AMDiagnostics implements Serializable {
 
   public static String retrieve(YarnClient yarnClient, String applicationId) throws Exception {
     String amDiagnostics = CommonUtils.trim(yarnClient
-        .getApplicationReport(ConverterUtils.toApplicationId(applicationId))
+        .getApplicationReport(ApplicationId.fromString(applicationId))
         .getDiagnostics());
     if (equalEmpty(amDiagnostics)) {
       throw new Exception("Retrieved empty AMDiagnostics for " + applicationId);

@@ -28,7 +28,6 @@ import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.*;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.junit.Assert;
 import org.junit.Test;
@@ -180,7 +179,7 @@ public class ApplicationCompletionPolicyTest {
       }
 
       String containerIdStr = list.get(0).getContainerId();
-      ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
+      ContainerId containerId = ContainerId.fromString(containerIdStr);
 
       ContainerStatus status = Records.newRecord(ContainerStatus.class);
       status.setContainerId(containerId);

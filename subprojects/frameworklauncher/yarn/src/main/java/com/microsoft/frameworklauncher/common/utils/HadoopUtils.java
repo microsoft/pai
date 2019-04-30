@@ -33,7 +33,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -162,7 +161,7 @@ public class HadoopUtils {
       yarnClient.init(CONF);
       yarnClient.start();
       LOGGER.logInfo("[yarn application -kill %s]", applicationId);
-      yarnClient.killApplication(ConverterUtils.toApplicationId(applicationId));
+      yarnClient.killApplication(ApplicationId.fromString(applicationId));
       yarnClient.stop();
     } catch (ApplicationNotFoundException ignored) {
     } catch (Exception e) {
@@ -200,7 +199,7 @@ public class HadoopUtils {
     YarnClient yarnClient = YarnClient.createYarnClient();
     yarnClient.init(CONF);
     yarnClient.start();
-    List<ContainerReport> containerReports = yarnClient.getContainers(ConverterUtils.toApplicationAttemptId(attemptId));
+    List<ContainerReport> containerReports = yarnClient.getContainers(ApplicationAttemptId.fromString(attemptId));
     yarnClient.stop();
 
     // Since we at least has AM container, so we check whether the containerReports is reliable
@@ -248,7 +247,7 @@ public class HadoopUtils {
       FileStatus fileStatus = getFileStatusInHdfs(hdfsPath);
       FileContext fileContext = FileContext.getFileContext(CONF);
       return LocalResource.newInstance(
-          ConverterUtils.getYarnUrlFromPath(fileContext
+          URL.fromPath(fileContext
               .getDefaultFileSystem().resolvePath(fileStatus.getPath())),
           type, visibility, fileStatus.getLen(), fileStatus.getModificationTime());
     } catch (IllegalArgumentException e) {

@@ -36,7 +36,7 @@ public class PortUtils {
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       List<ValueRange> coalescedPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
       // Assign static ports
-      List<ValueRange> staticPorts = new ArrayList();
+      List<ValueRange> staticPorts = new ArrayList<>();
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
