@@ -211,7 +211,6 @@ async function update(key, value, config) {
   }
 }
 
-
 /**
  * @function update - Update an user entry to kubernetes secrets.
  * @async
