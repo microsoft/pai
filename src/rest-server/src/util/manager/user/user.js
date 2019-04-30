@@ -33,38 +33,37 @@ const userSchema = Joi.object.keys({
   extension: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
-class User {
-  constructor(value) {
-    const {error, validValue} = Joi.validata(value, userSchema);
-    if (error) {
-      throw new Error('User schema error\n${error}');
-    }
-    this.data = validValue;
-  }
 
-  async encryptPassword() {
-    this.data['password'] = await this.encrypt(this.data['username'], this.data['password']);
+function userValidate(userValue) {
+  const {error, validValue} = Joi.validata(userValue, userSchema);
+  if (error) {
+    throw new Error('User schema error\n${error}');
   }
-
-  encrypt(username, password) {
-    const iterations = 10000;
-    const keylen = 64;
-    const salt = crypto.createHash('md5').update(username).digest('hex');
-    return new Promise( (res, rej) => {
-      crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
-        err ? rej(err) : res(key);
-      });
-    });
-  }
+  return validValue;
 }
 
-async function encryptUserPassword(userInstance) {
-  await userInstance.encryptPassword();
+function encrypt(username, password) {
+  const iterations = 10000;
+  const keylen = 64;
+  const salt = crypto.createHash('md5').update(username).digest('hex');
+  return new Promise( (res, rej) => {
+    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
+      err ? rej(err) : res(key);
+    });
+  });
+}
+
+async function encryptPassword(userValue) {
+  userValue['password'] = await encrypt(userValue['username'], userValue['password']);
+}
+
+async function encryptUserPassword(userValue) {
+  await encryptPassword(userValue);
 }
 
 function createUser(value) {
-  let userInstance = new User(value);
-  return userInstance;
+  const userValue = userValidate(value);
+  return userValue;
 }
 
 module.exports = {encryptUserPassword, createUser};
