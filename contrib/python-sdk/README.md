@@ -18,7 +18,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [2.4. _InProgress_ Submit one-line job in command line](#24-inprogress-submit-one-line-job-in-command-line)
   - [2.5. _InProgress_ Fetch outputs](#25-inprogress-fetch-outputs)
   - [2.6. _InProgress_ Storage access](#26-inprogress-storage-access)
-  - [_TBD_ Job cloning and batch submitting](#tbd-job-cloning-and-batch-submitting)
+  - [2.7. _TBD_ Job cloning and batch submitting](#27-tbd-job-cloning-and-batch-submitting)
 - [3. Python binding](#3-python-binding)
   - [3.1. Dectect your executation environment](#31-dectect-your-executation-environment)
   - [3.2. Do it in easy way](#32-do-it-in-easy-way)
@@ -158,7 +158,7 @@ opai storage download <remote-path> <local-path>
 
 The `HDFS` accessing is implemented by the package `hdfs`, the backend of which is through `webHDFS` API.
 
-## _TBD_ Job cloning and batch submitting
+## 2.7. _TBD_ Job cloning and batch submitting
 
 The advanced function like job cloning has been proven to be very useful. 
 
