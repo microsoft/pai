@@ -33,7 +33,6 @@ const userSchema = Joi.object.keys({
   extension: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
-
 function userValidate(userValue) {
   const {error, validValue} = Joi.validata(userValue, userSchema);
   if (error) {
