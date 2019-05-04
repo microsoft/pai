@@ -62,6 +62,7 @@ async function encryptUserPassword(userValue) {
 
 function createUser(value) {
   const userValue = userValidate(value);
+  console.log(userValue);
   return userValue;
 }
 
