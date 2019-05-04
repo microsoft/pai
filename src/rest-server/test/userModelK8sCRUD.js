@@ -108,13 +108,13 @@ describe('k8s secret get function test', () => {
   // positive test case
   // get exist single key value pair
   it('Should return whole user list.', async () => {
-    return await expect(userK8sCRUD.readAll(userK8sCRUDConfig)).to.have.lengthOf(2);
+    return userK8sCRUD.readAll(userK8sCRUDConfig).should.eventually.have.lengthOf(2);
   });
 
   // negative test case
   // get non-exist user
   it('Should report user not found error', async ()=> {
-    return await expect(userK8sCRUD.read('non_exist', userK8sCRUDConfig)).to.be.rejected;
+    return userK8sCRUD.read('non_exist', userK8sCRUDConfig).should.be.rejected;
   });
 
   // positive test case
