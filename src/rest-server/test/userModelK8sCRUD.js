@@ -120,15 +120,12 @@ describe('k8s secret get function test', () => {
   // positive test case
   // find specific user
   it('Should return specific user info.', async () => {
-    return Promise.all([
-      userK8sCRUD.read('paitest', userK8sCRUDConfig).should.eventually.have.lengthOf(1),
-      userK8sCRUD.read('paitest', userK8sCRUDConfig).should.eventually.have.deep.members([{
+    return userK8sCRUD.read('paitest', userK8sCRUDConfig).should.eventually.have.deep.members({
         username: 'paitest',
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
         admin: 'true',
         virtualCluster: 'default,vc2,vc3',
         githubPAT: ''
-      }])
-    ])
+    });
   });
 });
