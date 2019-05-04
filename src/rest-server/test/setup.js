@@ -36,11 +36,12 @@ process.env[env.exitSpecPath] = 'test/data/exit-spec.yaml';
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
 const nock = require('nock');
-const chai = require('chai');
+const chaiAsPromised = require("chai-as-promised");
 const chaiHttp = require('chai-http');
 const server = require('../src/index');
 
 chai.use(chaiHttp);
+chai.use(chaiAsPromised);
 
 
 global.jwt = jwt;

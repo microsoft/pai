@@ -17,11 +17,8 @@
 
 // test
 const userK8sCRUD = require('../src/util/manager/user/crudK8sSecret');
-const chai = require("chai");
-const chaiAsPromised = require("chai-as-promised");
 
 const userK8sCRUDConfig = userK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
-chai.use(chaiAsPromised);
 
 describe('k8s secret get function test', () => {
   afterEach(function() {
