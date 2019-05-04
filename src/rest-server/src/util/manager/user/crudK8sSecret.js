@@ -25,7 +25,7 @@ const {Agent} = require('https');
  * @property {string} namespace - kubernetes namespace
  * @property {Object} requestConfig - RequestConfig
  * @property {string} requestConfig.baseURL - BaseURL for axios
- * @property {integer} requestConfig.maxRedirects - maxRedirects for axios
+ * @property {Number} requestConfig.maxRedirects - maxRedirects for axios
  * @property {Object} requestConfig.httpsAgent - For kubernetes authn
  * @property {Object} requestConfig.headers - For kubernetes authn
  */
@@ -47,7 +47,7 @@ const {Agent} = require('https');
  * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
  * @return {Config} config
 */
-function initConfig(apiServerUri, option) {
+function initConfig(apiServerUri, option = {}) {
   const namespaces = process.env.PAI_USER_NAMESPACE;
   const config = {
     'namespace': namespaces? namespaces : 'pai-user',
