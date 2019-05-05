@@ -179,7 +179,7 @@ describe('User model k8s secret set function test', () => {
         'type': 'Opaque'
       });
 
-    // Mock for case2 username=newuser
+    // Mock for case1 username=newuser
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user/secrets', {
         'metadata': {'name': '6e657775736572'},
@@ -235,7 +235,7 @@ describe('User model k8s secret set function test', () => {
       'grouplist': ['test'],
       'extension': {}
     };
-    const res = await userK8sCRUD.update('newuser', updateUser, userK8sCRUDConfig);
+    const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
 });
