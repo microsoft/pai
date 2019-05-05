@@ -119,6 +119,8 @@ async function readAll(config) {
         'Accept': 'application/json',
       },
     });
+    // eslint-disable-next-line no-console
+    console.log(response);
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
