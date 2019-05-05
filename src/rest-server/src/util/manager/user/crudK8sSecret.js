@@ -78,10 +78,6 @@ async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    // eslint-disable-next-line no-console
-    console.log(key);
-    // eslint-disable-next-line no-console
-    console.log(hexKey);
     const response = await request.get(`${config.namespace}/secrets/${hexKey}`.toString(), {
       headers: {
         'Accept': 'application/json',
@@ -95,12 +91,10 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
+    // eslint-disable-next-line no-console
+    console.log(userInstance);
     return userInstance;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('sdadadadadadad');
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
@@ -119,13 +113,9 @@ async function readAll(config) {
         'Accept': 'application/json',
       },
     });
-    // eslint-disable-next-line no-console
-    console.log(response);
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
-      // eslint-disable-next-line no-console
-      console.log(item);
       let userInstance = User.createUser({
         'username': Buffer.from(item['data']['username'], 'base64').toString(),
         'password': Buffer.from(item['data']['password'], 'base64').toString(),
@@ -133,16 +123,12 @@ async function readAll(config) {
         'email': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      // eslint-disable-next-line no-console
-      console.log(userInstance);
       allUserInstance.push(userInstance);
     }
+    // eslint-disable-next-line no-console
+    console.log(allUserInstance);
     return allUserInstance;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('sdadadadadadad');
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
