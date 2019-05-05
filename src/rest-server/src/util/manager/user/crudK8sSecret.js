@@ -50,7 +50,7 @@ const {Agent} = require('https');
 function initConfig(apiServerUri, option = {}) {
   const namespaces = process.env.PAI_USER_NAMESPACE;
   const config = {
-    'namespace': namespaces? namespaces : 'pai-user',
+    'namespace': namespaces ? namespaces : 'pai-user',
     'requestConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
