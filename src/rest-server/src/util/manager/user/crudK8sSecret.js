@@ -52,7 +52,7 @@ function initConfig(apiServerUri, option = {}) {
   const config = {
     'namespace': namespaces? namespaces : 'pai-user',
     'requestConfig': {
-      'baseURL': `${apiServerUri}/api/v1/namespaces/secrets`,
+      'baseURL': `${apiServerUri}/api/v1/namespaces`,
       'maxRedirects': 0,
     },
   };
@@ -112,6 +112,8 @@ async function readAll(config) {
     // eslint-disable-next-line no-console
     console.log(config.requestConfig);
     const request = axios.create(config.requestConfig);
+    // eslint-disable-next-line no-console
+    console.log(getSecretRootUri(config));
     const response = await request.get(getSecretRootUri(config), {
       headers: {
         'Accept': 'application/json',
