@@ -71,7 +71,7 @@ function initConfig(apiServerUri, option = {}) {
  * @function read - return a user's info based on the UserName.
  * @async
  * @param {string} key - User name
- * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<User>} A promise to the User instance
  */
 async function read(key, config) {
@@ -100,7 +100,7 @@ async function read(key, config) {
 /**
  * @function readAll - return all users' info.
  * @async
- * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<User[]>} A promise to all User instance list.
  */
 async function readAll(config) {
@@ -134,7 +134,7 @@ async function readAll(config) {
  * @async
  * @param {string} key - User name
  * @param {User} value - User info
- * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<User>} A promise to the User instance.
  */
 async function create(key, value, config) {
@@ -173,7 +173,7 @@ async function create(key, value, config) {
  * @async
  * @param {string} key - User name
  * @param {User} value - User info
- * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<User>} A promise to the User instance.
  */
 async function update(key, value, config) {
@@ -211,7 +211,7 @@ async function update(key, value, config) {
  * @function update - Update an user entry to kubernetes secrets.
  * @async
  * @param {string} key - User name
- * @param {Config} config - Config for kubernetes APIServer. You should generate it from initConfig(apiServerUri, option).
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<void>}
  */
 async function remove(key, config) {
