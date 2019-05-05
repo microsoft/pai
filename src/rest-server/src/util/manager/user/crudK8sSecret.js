@@ -71,23 +71,6 @@ function getSecretRootUri(config) {
   return `${config.namespace}/secrets`;
 }
 
-function readPromise(key, config) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const request = axios.create(config.requestConfig);
-      const hexKey = Buffer.from(key).toString('hex');
-      const response = await request.get(getSecretRootUri(config) + `/${hexKey}`, {
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-      resolve(response);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
 /**
  * @function read - return a user's info based on the UserName.
  * @async
@@ -97,7 +80,13 @@ function readPromise(key, config) {
  */
 async function read(key, config) {
   try {
-    const response = await readPromise(key, config);
+    const request = axios.create(config.requestConfig);
+    const hexKey = Buffer.from(key).toString('hex');
+    const response = await request.get(getSecretRootUri(config) + `/${hexKey}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
     let userData = response['data'];
     let userInstance = User.createUser({
       'username': Buffer.from(userData['data']['username'], 'base64').toString(),
@@ -112,23 +101,6 @@ async function read(key, config) {
   }
 }
 
-function readAllPromise(config) {
-  return new Promise(async (resolve, reject) => {
-      try {
-        const request = axios.create(config.requestConfig);
-        const response = await request.get(getSecretRootUri(config), {
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        resolve(response);
-      } catch (error) {
-        reject(error);
-      }
-    }
-  );
-}
-
 /**
  * @function readAll - return all users' info.
  * @async
@@ -137,7 +109,12 @@ function readAllPromise(config) {
  */
 async function readAll(config) {
   try {
-    const response = await readAllPromise(config);
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(getSecretRootUri(config), {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
@@ -154,6 +131,7 @@ async function readAll(config) {
     }
     return allUserInstance;
   } catch (error) {
+    console.log("sdadadadadadad");
     throw error.response;
   }
 }
