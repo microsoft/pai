@@ -25,9 +25,10 @@ const userSchema = Joi.object.keys({
   email: Joi.string()
     .email()
     .empty(''),
-  grouplist: Joi.array()
+  grouplist: Joi
+    .array()
     .items(Joi.string())
-    .empty([]),
+    .required(),
   password: Joi.string()
     .empty(''),
   extension: Joi.object().pattern(/\w+/, Joi.required()),
