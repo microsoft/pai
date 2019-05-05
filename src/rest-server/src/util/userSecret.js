@@ -23,10 +23,6 @@ class UserSecret extends StorageBase {
   constructor(options) {
     super();
     this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
-    // eslint-disable-next-line no-console
-    console.log('taggg');
-    // eslint-disable-next-line no-console
-    console.log(options.requestConfig);
     this.request = axios.create(options.requestConfig);
     this.options = options;
   }

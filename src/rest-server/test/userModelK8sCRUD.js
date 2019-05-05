@@ -39,7 +39,7 @@ describe('k8s secret get function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682',
+          'resourceVersion': '1062682'
         },
         'items': [
           {
@@ -51,9 +51,9 @@ describe('k8s secret get function test', () => {
               'username': 'Y2FudGVzdDAwMQ==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30=',
+              'extension': 'e30='
             },
-            'type': 'Opaque',
+            'type': 'Opaque'
           },
           {
             'metadata': {
@@ -64,11 +64,11 @@ describe('k8s secret get function test', () => {
               'username': 'cGFpdGVzdA==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30=',
+              'extension': 'e30='
             },
-            'type': 'Opaque',
+            'type': 'Opaque'
           },
-        ],
+        ]
       });
 
     // mock for case3 username=paitest
@@ -85,9 +85,9 @@ describe('k8s secret get function test', () => {
           'username': 'cGFpdGVzdA==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30=',
+          'extension': 'e30='
         },
-        'type': 'Opaque',
+        'type': 'Opaque'
       });
 
     // mock for case2 username=non_exist
@@ -102,9 +102,9 @@ describe('k8s secret get function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': 'nonexist',
-          'kind': 'secrets',
+          'kind': 'secrets'
         },
-        'code': 404,
+        'code': 404
       });
   });
 
