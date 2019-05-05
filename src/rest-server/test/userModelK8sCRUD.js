@@ -33,7 +33,7 @@ describe('k8s secret get function test', () => {
 
     // Mock for case1 return all userinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
+      .get('/api/v1/namespaces/pai-user/secrets')
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
@@ -112,7 +112,6 @@ describe('k8s secret get function test', () => {
   // get exist single key value pair
   it('Should return whole user list.', async () => {
     // eslint-disable-next-line no-console
-    console.log(userK8sCRUDConfig);
     return await expect(userK8sCRUD.readAll(userK8sCRUDConfig)).to.have.lengthOf(2);
   });
 
