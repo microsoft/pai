@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {MessageBar, MessageBarType, DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
 import {StatusBadge} from '../../../components/status-badge';
 
