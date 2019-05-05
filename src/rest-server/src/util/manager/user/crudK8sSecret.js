@@ -34,7 +34,7 @@ const {Agent} = require('https');
  * @typedef User
  * @property {string} UserInstance.username - username
  * @property {string} UserInstance.password - password. If no password is set, it will be ''
- * @property {string[]} UserInstance.groupList - group list. Group name list which the user belongs to
+ * @property {string[]} UserInstance.grouplist - group list. Group name list which the user belongs to
  * @property {string} UserInstance.email - email
  * @property {Object} UserInstance.extension - extension field
  */
@@ -91,7 +91,7 @@ async function read(key, config) {
     let userInstance = User.createUser({
       'username': Buffer.from(userData['data']['username'], 'base64').toString(),
       'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-      'groupList': JSON.parse(Buffer.from(userData['data']['groupList'], 'base64').toString()),
+      'grouplist': JSON.parse(Buffer.from(userData['data']['grouplist'], 'base64').toString()),
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
@@ -129,7 +129,7 @@ async function readAll(config) {
       let userInstance = User.createUser({
         'username': Buffer.from(item['data']['username'], 'base64').toString(),
         'password': Buffer.from(item['data']['password'], 'base64').toString(),
-        'groupList': JSON.parse(Buffer.from(item['data']['groupList'], 'base64').toString()),
+        'grouplist': JSON.parse(Buffer.from(item['data']['grouplist'], 'base64').toString()),
         'email': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
@@ -163,7 +163,7 @@ async function create(key, value, config) {
       {
         'username': value['username'],
         'password': value['password'],
-        'groupList': value['groupList'],
+        'grouplist': value['grouplist'],
         'email': value['email'],
         'extension': value['extension'],
       }
@@ -174,7 +174,7 @@ async function create(key, value, config) {
       'data': {
         'username': Buffer.from(userInstance['username']).toString('base64'),
         'password': Buffer.from(userInstance['password']).toString('base64'),
-        'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
         'email': Buffer.from(userInstance['email']).toString('base64'),
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
@@ -202,7 +202,7 @@ async function update(key, value, config) {
       {
         'username': value['username'],
         'password': value['password'],
-        'groupList': value['groupList'],
+        'grouplist': value['grouplist'],
         'email': value['email'],
         'extension': value['extension'],
       }
@@ -213,7 +213,7 @@ async function update(key, value, config) {
       'data': {
         'username': Buffer.from(userInstance['username']).toString('base64'),
         'password': Buffer.from(userInstance['password']).toString('base64'),
-        'groupList': Buffer.from(JSON.stringify(userInstance['groupList'])).toString('base64'),
+        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
         'email': Buffer.from(userInstance['email']).toString('base64'),
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
