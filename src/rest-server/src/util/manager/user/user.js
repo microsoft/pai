@@ -18,7 +18,7 @@
 const Joi = require('joi');
 const crypto = require('crypto');
 
-const userSchema = Joi.object.keys({
+const userSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
@@ -35,7 +35,7 @@ const userSchema = Joi.object.keys({
 }).required();
 
 function userValidate(userValue) {
-  const {error, validValue} = Joi.validata(userValue, userSchema);
+  const {error, validValue} = Joi.validate(userValue, userSchema);
   if (error) {
     throw new Error('User schema error\n${error}');
   }
