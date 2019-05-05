@@ -52,7 +52,7 @@ function initConfig(apiServerUri, option = {}) {
   const config = {
     'namespace': namespaces? namespaces : 'pai-user',
     'requestConfig': {
-      'baseURL': `${apiServerUri}/api/v1/namespaces/`,
+      'baseURL': `${apiServerUri}/api/v1/namespaces/secrets`,
       'maxRedirects': 0,
     },
   };
