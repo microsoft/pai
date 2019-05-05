@@ -119,7 +119,7 @@ describe('k8s secret get function test', () => {
   it('should return whole user list', (done) => {
     const dbGet = util.callbackify(db.get.bind(db));
     dbGet('', null, (err, res) => {
-      expect(res).to.have.lengthOf(2)
+      expect(res).to.have.lengthOf(2);
       done();
     });
   });
