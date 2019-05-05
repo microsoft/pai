@@ -166,6 +166,7 @@ async function create(key, value, config) {
       },
     };
     let response = await request.post(getSecretRootUri(config), userData);
+    response['data'].print();
     return response['data'];
   } catch (error) {
     throw error.response;
