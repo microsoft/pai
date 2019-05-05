@@ -15,40 +15,70 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const Group = require('./schema');
+const Group = require('./group');
 const axios = require('axios');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
-function initConfig(apiServerUri, namespace, option) {
+/**
+ * @typedef Config
+ * @property {string} namespace - kubernetes namespace
+ * @property {Object} requestConfig - RequestConfig
+ * @property {string} requestConfig.baseURL - BaseURL for axios
+ * @property {Number} requestConfig.maxRedirects - maxRedirects for axios
+ * @property {Object} requestConfig.httpsAgent - For kubernetes authn
+ * @property {Object} requestConfig.headers - For kubernetes authn
+ */
+
+/**
+ * @typedef Group
+ * @property {string} username - username
+ * @property {String} GID - GID
+ * @property {string} description - description
+ * @property {Object} extension - extension field
+ */
+
+/**
+ * @function initConfig - Init the kubernetes configuration for user manager's crud.
+ * @param {string} apiServerUri - Required config, the uri of kubernetes APIServer.
+ * @param {Object} option - Config for kubernetes APIServer's authn.
+ * @param {string} option.k8sAPIServerCaFile - Optional config, the ca file path of kubernetes APIServer.
+ * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
+ * @return {Config} config
+ */
+function initConfig(apiServerUri, option = {}) {
   const namespaces = process.env.PAI_GROUP_NAMESPACE;
   const config = {
     'apiServerUri': apiServerUri,
     'namespace': namespaces? namespaces : 'pai-group',
-    'requstConfig': {
+    'requestConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
     },
   };
   if ('k8sAPIServerCaFile' in option) {
     const ca = readFileSync(option.k8sAPIServerCaFile);
-    config.requstConfig.httpsAgent = new Agent({ca});
+    config.requestConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-    config.requstConfig.headers = {Authorization: `Bearer ${token}`};
+    config.requestConfig.headers = {Authorization: `Bearer ${token}`};
   }
+  return config;
 }
 
-function getSecretRootUri(config) {
-  return `${config.namespace}/secrets`;
-}
-
+/**
+ * @function read - return a Group's info based on the GroupName.
+ * @async
+ * @param {string} key - Group name
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @return {Promise<Group>} A promise to the Group instance
+ */
 async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(getSecretRootUri() + `/${hexKey}`, {
+    const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -60,16 +90,22 @@ async function read(key, config) {
       'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
     });
-    return groupInstance.data;
+    return groupInstance;
   } catch (error) {
     throw error.response;
   }
 }
 
+/**
+ * @function readAll - return all Groups' info.
+ * @async
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @return {Promise<Group[]>} A promise to all Group instance list.
+ */
 async function readAll(config) {
   try {
     const request = axios.create(config.requestConfig);
-    const response = await request.get(getSecretRootUri(), {
+    const response = await request.get(`${config.namespace}/secrets`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -83,7 +119,7 @@ async function readAll(config) {
         'GID': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      allGroupInstance.push(groupInstance.data);
+      allGroupInstance.push(groupInstance);
     }
     return allGroupInstance;
   } catch (error) {
@@ -91,6 +127,14 @@ async function readAll(config) {
   }
 }
 
+/**
+ * @function create - Create a Group entry to kubernetes secrets.
+ * @async
+ * @param {string} key - Group name
+ * @param {User} value - Group info
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @return {Promise<Group>} A promise to the Group instance.
+ */
 async function create(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
@@ -110,13 +154,20 @@ async function create(key, value, config) {
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.post(getSecretRootUri(), groupData);
-    return response['data'];
+    return await request.post(`${config.namespace}/secrets`, groupData);
   } catch (error) {
     throw error.response;
   }
 }
 
+/**
+ * @function update - Update a Group entry to kubernetes secrets.
+ * @async
+ * @param {string} key - Group name
+ * @param {User} value - Group info
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @return {Promise<Group>} A promise to the User instance.
+ */
 async function update(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
@@ -136,24 +187,29 @@ async function update(key, value, config) {
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.put(getSecretRootUri() + `/${hexKey}`, groupData);
-    return response['data'];
+    return await request.put(`${config.namespace}/secrets/${hexKey}`, groupData);
   } catch (error) {
     throw error.response;
   }
 }
 
+/**
+ * @function Remove - Remove a group entry to kubernetes secrets.
+ * @async
+ * @param {string} key - Group name
+ * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @return {Promise<void>}
+ */
 async function remove(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    let response = await request.delete(getSecretRootUri() + `/${hexKey}`, {
+    return await request.delete(`${config.namespace}/secrets/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
     });
-    return response;
   } catch (error) {
     throw error.response;
   }

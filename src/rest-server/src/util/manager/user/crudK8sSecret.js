@@ -208,7 +208,7 @@ async function update(key, value, config) {
 }
 
 /**
- * @function update - Update an user entry to kubernetes secrets.
+ * @function Remove - Remove an user entry from kubernetes secrets.
  * @async
  * @param {string} key - User name
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).

@@ -17,32 +17,25 @@
 
 const Joi = require('joi');
 
-const groupSchema = Joi.object.keys({
+const groupSchema = Joi.object().keys({
   groupname: Joi.string()
     .token()
     .required(),
   description: Joi.string()
-    .email()
     .empty(''),
   GID: Joi.string()
-    .email()
     .empty(''),
-  extension: Joi.object().pattern(/\w+/, Joi.required()),
+  extension: Joi.object()
+    .pattern(/\w+/, Joi.required())
+    .required(),
 }).required();
 
-class Group {
-  constructor(value) {
-    const {error, validValue} = Joi.validata(value, groupSchema);
-    if (error) {
-      throw new Error('Group schema error\n${error}');
-    }
-    this.data = validValue;
-  }
-}
-
 function createGroup(value) {
-  let groupInstance = new Group(value);
-  return groupInstance;
+  const res = groupSchema.validate(value);
+  if (res['error']) {
+    throw new Error('Group schema error\n${error}');
+  }
+  return res['value'];
 }
 
 module.exports = {createGroup};
