@@ -239,3 +239,59 @@ describe('User model k8s secret set function test', () => {
     return expect(res, 'status').to.have.status(200);
   });
 });
+
+
+describe('User Model k8s secret delete function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
+  beforeEach(() => {
+
+    // Mock for case1 username=existuser
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-user/secrets/657869737475736572')
+      .reply(200, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Success',
+        'details': {
+          'name': '657869737475736572',
+          'kind': 'secrets',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
+        }
+      });
+
+    // Mock for case2 username=nonexistuser
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-user/secrets/6e6f6e657869737475736572')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'6e6f6e657869737475736572\' not found',
+        'reason': 'NotFound',
+        'details': {
+          'name': '6e6f6e657869737475736572',
+          'kind': 'secrets'
+        },
+        'code': 404
+      });
+  });
+
+  // delete exist user
+  it('should delete an exist user successfully', async () => {
+    const res = await userK8sCRUD.remove('existuser', userK8sCRUDConfig);
+    return expect(res, 'status').to.have.status(200);
+  });
+
+  it('should failed to delete an non-exist user', async () => {
+    return await expect(userK8sCRUD.remove('nonexistuser', userK8sCRUDConfig)).to.be.rejected;
+  });
+});
