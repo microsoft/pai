@@ -39,7 +39,7 @@ describe('k8s secret get function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
+          'resourceVersion': '1062682',
         },
         'items': [
           {
@@ -47,26 +47,26 @@ describe('k8s secret get function test', () => {
               'name': 'cantest001',
             },
             'data': {
-              'admin': 'ZmFsc2U=',
               'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
               'username': 'Y2FudGVzdDAwMQ==',
-              'virtualCluster': 'ZGVmYXVsdA=='
+              'email': 'dGVzdEBwYWkuY29t',
+              'grouplist': 'WyJ0ZXN0Il0=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
           {
             'metadata': {
               'name': 'pai_test',
             },
             'data': {
-              'admin': 'dHJ1ZQ==',
               'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
               'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+              'email': 'dGVzdEBwYWkuY29t',
+              'grouplist': 'WyJ0ZXN0Il0=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
-        ]
+        ],
       });
 
     // mock for case3 username=paitest
@@ -79,12 +79,12 @@ describe('k8s secret get function test', () => {
           'name': '70616974657374',
         },
         'data': {
-          'admin': 'dHJ1ZQ==',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'cGFpdGVzdA==',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJ0ZXN0Il0=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case2 username=non_exist
@@ -99,9 +99,9 @@ describe('k8s secret get function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': 'nonexist',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 
@@ -123,9 +123,8 @@ describe('k8s secret get function test', () => {
     return userK8sCRUD.read('paitest', userK8sCRUDConfig).should.eventually.have.deep.members({
         username: 'paitest',
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
-        admin: 'true',
-        virtualCluster: 'default,vc2,vc3',
-        githubPAT: ''
+        email: 'test@pai.com',
+        grouplist: ['test'],
     });
   });
 });
