@@ -109,16 +109,14 @@ async function read(key, config) {
  */
 async function readAll(config) {
   try {
-    // eslint-disable-next-line no-console
-    console.log(config.requestConfig);
     const request = axios.create(config.requestConfig);
-    // eslint-disable-next-line no-console
-    console.log(getSecretRootUri(config));
     const response = await request.get(getSecretRootUri(config), {
       headers: {
         'Accept': 'application/json',
       },
     });
+    // eslint-disable-next-line no-console
+    console.log(response);
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
