@@ -111,19 +111,19 @@ describe('k8s secret get function test', () => {
   // positive test case
   // get exist single key value pair
   it('Should return whole user list.', async () => {
-    return userK8sCRUD.readAll(userK8sCRUDConfig).should.eventually.have.lengthOf(2);
+    return await expect(userK8sCRUD.readAll(userK8sCRUDConfig)).to.have.lengthOf(2);
   });
 
   // negative test case
   // get non-exist user
   it('Should report user not found error', async ()=> {
-    return userK8sCRUD.read('non_exist', userK8sCRUDConfig).should.be.rejected;
+    return await expect(userK8sCRUD.read('non_exist', userK8sCRUDConfig)).to.be.rejected;
   });
 
   // positive test case
   // find specific user
   it('Should return specific user info.', async () => {
-    return userK8sCRUD.read('paitest', userK8sCRUDConfig).should.eventually.have.deep.members({
+    return await expect(userK8sCRUD.read('paitest', userK8sCRUDConfig)).to.have.deep.members({
         username: 'paitest',
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
         email: 'test@pai.com',
