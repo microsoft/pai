@@ -93,6 +93,10 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('sdadadadadadad');
+    // eslint-disable-next-line no-console
+    console.log(error);
     throw error.response;
   }
 }
