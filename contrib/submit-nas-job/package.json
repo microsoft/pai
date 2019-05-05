@@ -32,7 +32,7 @@
     "@types/webpack-dev-server": "^3.1.4",
     "ts-loader": "^5.3.3",
     "ts-node": "^8.0.3",
-    "tslint": "^5.13.1",
+    "tslint": "^5.16.0",
     "tslint-react": "^3.6.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.6",

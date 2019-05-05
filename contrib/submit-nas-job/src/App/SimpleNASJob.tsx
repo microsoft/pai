@@ -33,7 +33,7 @@ import MountDirectories, { IMountDirectoriesObject, MountDirectoriesForm } from 
 const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
 
-interface ISimpleNFSJobObject {
+interface ISimpleNASJobObject {
   readonly type: "single-task";
   readonly image: string;
   readonly virtualCluster: string;
@@ -42,7 +42,7 @@ interface ISimpleNFSJobObject {
   readonly mountDirectories: IMountDirectoriesObject | null;
 }
 
-export default class SimpleNFSJob extends Job {
+export default class SimpleNASJob extends Job {
   public constructor(
     private readonly name: string,
     private readonly image: string,
@@ -72,7 +72,7 @@ export default class SimpleNFSJob extends Job {
     return paiJob;
   }
 
-  public toJSON(): ISimpleNFSJobObject {
+  public toJSON(): ISimpleNASJobObject {
     const { image, virtualCluster, gpuNumber, command, mountDirectories } = this;
     return {
       type: "single-task",
@@ -101,17 +101,17 @@ interface IProps {
   name: string;
   image: string;
   virtualCluster: string;
-  defaultValue: ISimpleNFSJobObject | null;
-  onChange(job: SimpleNFSJob): void;
+  defaultValue: ISimpleNASJobObject | null;
+  onChange(job: SimpleNASJob): void;
 }
 
-export function SimpleNFSJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
+export function SimpleNASJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
   const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 1));
   const [command, onCommandChanged] = useValue(get(defaultValue, "command", "echo \"Hello OpenPAI!\""));
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {
-    onChange(new SimpleNFSJob(name, image, virtualCluster, gpuNumber, command, mountDirectories));
+    onChange(new SimpleNASJob(name, image, virtualCluster, gpuNumber, command, mountDirectories));
   }, [name, image, virtualCluster, gpuNumber, command, mountDirectories]);
 
   return (

@@ -104,7 +104,8 @@ interface IProps {
 
 export function MountTestJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
   const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 0));
-  const [command, onCommandChanged] = useValue(get(defaultValue, "command", "sleep infinity"));
+  const [command, onCommandChanged] = useValue(get(defaultValue,
+    "command", "for i in ${MOUNTPOINTS[@]}; do echo $i; ls -l $i; echo ''; done; sleep infinity"));
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {

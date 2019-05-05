@@ -29,11 +29,11 @@ import { usePromise, useValue } from "./hooks";
 import Job from "./Job";
 
 import { MountTestJobForm } from "./MountTestJob";
-import { SimpleNFSJobForm } from "./SimpleNFSJob";
+import { SimpleNASJobForm } from "./SimpleNASJob";
 import { TensorflowDistributedJobForm } from "./TensorflowDistributedJob";
 import { TensorflowSingleNodeJobForm } from "./TensorflowSingleNodeJob";
 
-const EXTRAS_ID = "com.microsoft.submit-nfs-job-plugin";
+const EXTRAS_ID = "com.microsoft.submit-nas-job-plugin";
 
 const TYPES = [{
   key: "mount-test-task",
@@ -179,7 +179,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   }
   if (type === "single-task") {
     form = (
-      <SimpleNFSJobForm
+      <SimpleNASJobForm
         name={name}
         image={image}
         virtualCluster={virtualCluster}

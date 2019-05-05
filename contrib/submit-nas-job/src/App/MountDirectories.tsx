@@ -22,8 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { join } from "path";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Context from "./Context";
 
 interface IGroup {
@@ -56,114 +55,12 @@ export default class MountDirectories {
     private readonly servers: IServer[],
   ) {}
 
-  private generatePreMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
-    const serverType = serverData["type"];
-    let returnValue: string[] | undefined = undefined;
-
-    switch (serverType) {
-      case "nfs":
-      case "samba":
-        returnValue = [`mkdir --parents ${tmpFolder}`];
-        break;
-      case "azurefile":
-        returnValue = [`mkdir --parents ${tmpFolder}`];
-        if ("proxy" in serverData) {
-          const proxyInfo: string = serverData["proxy"][0];
-          const proxyPassword: string = serverData["proxy"][1];
-          const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@")+1); 
-          returnValue.push(`mkdir --parents ~/.ssh`);
-          returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
-          returnValue.push(`sshpass -p '${proxyPassword}' ssh -N -f -L 445:${serverData["dataStore"]}:445 ${proxyInfo}`);
-        }
-        break;
-      case "azureblob":
-        const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
-        const cfgFile = `/${serverData["spn"]}.cfg`;
-        returnValue = [
-        // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
-        "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
-        "dpkg -i packages-microsoft-prod.deb",
-        "apt-get update",
-        "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
-        `mkdir --parents ${tmpPath}`,
-        // Generate mount point
-        `echo "accountName ${serverData["accountName"]}" >> ${cfgFile}`,
-        `echo "accountKey ${serverData["key"]}" >> ${cfgFile}`,
-        `echo "containerName ${serverData["containerName"]}" >> ${cfgFile}`,
-        `echo "blobEndPoint ${serverData["dataStore"]}" >> ${cfgFile}`,
-        `chmod 600 ${cfgFile}`,
-        `mkdir --parents ${tmpFolder}`,
-        ];
-        break;
-      default:
-        break;
-    }
-    return returnValue;
-  } 
-
-  //TODO: Umount base path for nfs, samba, azurefile. Azureblob does not have folders
-  private generatePostMountCmds(serverData:any, tmpFolder:string): string[] | undefined {
-    let returnValue = undefined;
-    const serverType = serverData["type"];
-    switch (serverType) {
-      case "nfs":
-      case "samba":
-      case "azurefile":
-        // umount server root path
-        returnValue = [
-          `umount -l ${tmpFolder}`,
-          `rm -r ${tmpFolder}`,
-        ]
-        break;
-      case "azureblob":
-        // Use ln for azure blob, does not mount folder separately
-        // Can use 'fusermount -u </path/to/mountpoint>' to unmount. fusermount is from fuse package
-        break;
-    }
-    return returnValue;
-  }
-
-  private generateMountCmd(serverData:any, mountPoint:string, relativePath:string, tmpFolder:string): string[] | undefined {
-    const serverType = serverData["type"];
-    switch (serverType) {
-      case "nfs":
-        return [`mount -t nfs4 ${serverData["address"]}:${this.normalizePath(`${serverData["rootPath"]}/${relativePath}`)} ${mountPoint}`];
-      case "samba":
-        return [`mount -t cifs //${serverData["address"]}${this.normalizePath(`/${serverData["rootPath"]}/${relativePath}`)} ${mountPoint} -o username=${serverData["userName"]},password=${serverData["password"]},domain=${serverData["domain"]}`]
-      case "azurefile":
-        if ("proxy" in serverData) {
-          return [`mount -t cifs //localhost/${this.normalizePath(serverData["fileShare"] + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`];
-        } else {
-          return [`mount -t cifs //${serverData["dataStore"]}/${this.normalizePath(serverData["fileShare"] + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${serverData["accountName"]},password=${serverData["key"]},dir_mode=0777,file_mode=0777,serverino`];
-        }
-      case "azureblob":
-        if (mountPoint == tmpFolder) {
-          // Mount azureblob endpoint
-          const tmpPath = `/mnt/resource/blobfusetmp/${serverData["spn"]}`;
-          const cfgFile = `/${serverData["spn"]}.cfg`;
-          return [`blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120`];
-        } else {
-          // ln azureblob sub folder
-          return [
-            // remove mountPoint folder first. Otherwise will create soft link under mountPoint
-            `rm -r ${mountPoint}`,
-            `ln -s ${this.normalizePath(tmpFolder + relativePath)} ${mountPoint}`
-          ];
-        }
-      default:
-        return undefined;
-    }
-  } 
-
-  private normalizePath(oriPath: string): string {
-    console.log("normalize path: user:" + this.user + ", job:" + this.jobName);
-    return oriPath.replace(/%USER/ig, this.user).replace(/%JOB/ig, this.jobName).replace("//", "/");
-  }
-
   public getPaiCommand() {
-    const returnValue:string[] = [
+    const returnValue: string[] = [
       "apt-get update",
       "apt-get install --assume-yes nfs-common cifs-utils sshpass wget",
+      "umask 000",
+      "declare -a MOUNTPOINTS=()",
     ];
 
     const serverMountDict: { [spn: string]: IMountInfo[] } = {};
@@ -179,49 +76,53 @@ export default class MountDirectories {
         }
       }
     }
-   
+
     for (const spn in serverMountDict) {
-      const mountInfos = serverMountDict[spn];
-      const server = this.servers.find(item => item.spn === spn);
-      
-      if (server !== undefined) {
-        const tmpFolder: string = `/tmp_${spn}_root/`;
+      if (serverMountDict.hasOwnProperty(spn)) {
+        const mountInfos = serverMountDict[spn];
+        const server = this.servers.find((item) => item.spn === spn);
 
-        const preCmds: string[] | undefined = this.generatePreMountCmds(server, tmpFolder);
-        if (preCmds !== undefined) {
-          for (const preCmd of preCmds) {
-            returnValue.push(preCmd);
+        if (server !== undefined) {
+          const tmpFolder: string = `/tmp_${spn}_root/`;
+
+          const preCmds: string[] | undefined = this.generatePreMountCmds(server, tmpFolder);
+          if (preCmds !== undefined) {
+            for (const preCmd of preCmds) {
+              returnValue.push(preCmd);
+            }
           }
-        }
 
-        // Step1: Mount root folder and make sub directories
-        const mountStrs = this.generateMountCmd(server, tmpFolder, "", tmpFolder);
-        if (mountStrs != undefined) {
-          for (const mountStr of mountStrs) {
-            returnValue.push(mountStr);
-          }
-        }
-
-        for (const mountInfo of mountInfos) {
-          // Create folder on server root path
-          returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`)
-          returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`)
-        }
-
-        const postCmds: string[] | undefined = this.generatePostMountCmds(server, tmpFolder);
-        if (postCmds !== undefined) {
-          for (const postCmd of postCmds) {
-            returnValue.push(postCmd);
-          }
-        }
-
-        // Step2: Mount folder for mount infos
-        for (const mountInfo of mountInfos) {
-          // Mount
-          let mountSubStrs = this.generateMountCmd(server, mountInfo.mountPoint, mountInfo.path, tmpFolder);
-          if (mountSubStrs != undefined) {
-            for (const mountStr of mountSubStrs) {
+          // Step1: Mount root folder and make sub directories
+          const mountStrs = this.generateMountCmds(server, tmpFolder, "", tmpFolder);
+          if (mountStrs !== undefined) {
+            for (const mountStr of mountStrs) {
               returnValue.push(mountStr);
+            }
+          }
+
+          for (const mountInfo of mountInfos) {
+            // Create folder on server root path
+            returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`);
+            returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`);
+            // Monitor mount point
+            returnValue.push("MOUNTPOINTS=(${MOUNTPOINTS[@]} " + mountInfo.mountPoint + ")");
+          }
+
+          const postCmds: string[] | undefined = this.generatePostMountCmds(server, tmpFolder);
+          if (postCmds !== undefined) {
+            for (const postCmd of postCmds) {
+              returnValue.push(postCmd);
+            }
+          }
+
+          // Step2: Mount folder for mount infos
+          for (const mountInfo of mountInfos) {
+            // Mount
+            const mountSubStrs = this.generateMountCmds(server, mountInfo.mountPoint, mountInfo.path, tmpFolder);
+            if (mountSubStrs !== undefined) {
+              for (const mountStr of mountSubStrs) {
+                returnValue.push(mountStr);
+              }
             }
           }
         }
@@ -237,6 +138,129 @@ export default class MountDirectories {
   public toJSON(): IMountDirectoriesObject {
     const { selectedGroups, servers } = this;
     return { selectedGroups, servers } ;
+  }
+
+  private generatePreMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
+    const serverType = serverData.type;
+    let returnValue: string[] | undefined;
+
+    switch (serverType) {
+      case "nfs":
+      case "samba":
+        returnValue = [`mkdir --parents ${tmpFolder}`];
+        break;
+      case "azurefile":
+        returnValue = [`mkdir --parents ${tmpFolder}`];
+        if ("proxy" in serverData) {
+          const proxyInfo: string = serverData.proxy[0];
+          const proxyPassword: string = serverData.proxy[1];
+          const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@") + 1);
+          returnValue.push(`mkdir --parents ~/.ssh`);
+          returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
+          returnValue.push(`sshpass -p '${proxyPassword}'` +
+          ` ssh -N -f -L 445:${serverData.dataStore}:445 ${proxyInfo}`);
+        }
+        break;
+      case "azureblob":
+        const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
+        const cfgFile = `/${serverData.spn}.cfg`;
+        returnValue = [
+        // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
+        "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
+        "dpkg -i packages-microsoft-prod.deb",
+        "apt-get update",
+        "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
+        `mkdir --parents ${tmpPath}`,
+        // Generate mount point
+        `echo "accountName ${serverData.accountName}" >> ${cfgFile}`,
+        `echo "accountKey ${serverData.key}" >> ${cfgFile}`,
+        `echo "containerName ${serverData.containerName}" >> ${cfgFile}`,
+        `echo "blobEndPoint ${serverData.dataStore}" >> ${cfgFile}`,
+        `chmod 600 ${cfgFile}`,
+        `mkdir --parents ${tmpFolder}`,
+        ];
+        break;
+      default:
+        break;
+    }
+    return returnValue;
+  }
+
+  private generatePostMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
+    let returnValue;
+    const serverType = serverData.type;
+    switch (serverType) {
+      case "nfs":
+      case "samba":
+      case "azurefile":
+        // umount server root path
+        returnValue = [
+          `umount -l ${tmpFolder}`,
+          `rm -r ${tmpFolder}`,
+        ];
+        break;
+      case "azureblob":
+        // Use ln for azure blob, does not mount folder separately
+        // Can use 'fusermount -u </path/to/mountpoint>' to unmount. fusermount is from fuse package
+        break;
+    }
+    return returnValue;
+  }
+
+  // tslint:disable-next-line:max-line-length
+  private generateMountCmds(serverData: any, mountPoint: string, relativePath: string, tmpFolder: string): string[] | undefined {
+    const serverType = serverData.type;
+    switch (serverType) {
+      case "nfs":
+        return [
+          `mount -t nfs4 ${serverData.address}:${this.normalizePath(
+            `${serverData.rootPath}/${relativePath}`)} ${mountPoint}`,
+        ];
+      case "samba":
+        return [
+          `mount -t cifs //${serverData.address}${this.normalizePath(
+          `/${serverData.rootPath}/${relativePath}`)} ${mountPoint} -o username=${
+            serverData.userName},password=${serverData.password}` +
+            (serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ""),
+          ];
+      case "azurefile":
+        if ("proxy" in serverData) {
+          return [
+            `mount -t cifs //localhost/${this.normalizePath(
+              serverData.fileShare + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${
+                serverData.accountName},password=${serverData.key},dir_mode=0777,file_mode=0777,serverino`,
+              ];
+        } else {
+          return [
+            `mount -t cifs //${serverData.dataStore}/${this.normalizePath(
+              serverData.fileShare + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${
+                serverData.accountName},password=${serverData.key},dir_mode=0777,file_mode=0777,serverino`,
+              ];
+        }
+      case "azureblob":
+        if (mountPoint === tmpFolder) {
+          // Mount azureblob endpoint
+          const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
+          const cfgFile = `/${serverData.spn}.cfg`;
+          return [
+            `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 ` +
+            `-o entry_timeout=240 -o negative_timeout=120`,
+          ];
+        } else {
+          // ln azureblob sub folder
+          return [
+            // remove mountPoint folder first. Otherwise will create soft link under mountPoint
+            `rm -r ${mountPoint}`,
+            `ln -s ${this.normalizePath(tmpFolder + relativePath)} ${mountPoint}`,
+          ];
+        }
+      default:
+        return undefined;
+    }
+  }
+
+  private normalizePath(oriPath: string): string {
+    return oriPath.replace(/%USER/ig, this.user).replace(/%JOB/ig, this.jobName).replace("//", "/");
   }
 }
 
@@ -254,7 +278,7 @@ export function MountDirectoriesForm({
   const { api, user } = useContext(Context);
 
   // TODO: Get userGroups from UserManager
-  const userGroups = ["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB"];
+  const userGroups = ["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB", "GROUP_MIX"];
 
   const responseToData = (response: Response) => {
     if (response.ok) {
@@ -266,16 +290,14 @@ export function MountDirectoriesForm({
 
   const normalizePath = (oriPath: string) => {
     return oriPath.replace(/%USER/ig, user).replace(/%JOB/ig, jobName).replace("//", "/");
-  }
+  };
 
   const [serverNames, setServerNames] = useState<string[]>([]);
   const [groups, setGroups] = useState<IGroup[]>([]);
 
   useEffect(() => {
     const storageGroupUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-group`;
-    console.log(storageGroupUrl)
     fetch(storageGroupUrl).then(responseToData).then((storageGroupData) => {
-      console.log(storageGroupData)
       const newGroups = [];
       for (const groupName of userGroups) {
         try {
@@ -286,8 +308,7 @@ export function MountDirectoriesForm({
           newGroups.push(groupContent);
           if (groupContent.servers !== undefined) {
             for (const serverName of groupContent.servers) {
-              if (serverNames.indexOf(serverName) == -1) {
-                console.log("serverName:" + serverName + " serverNames: " + serverNames)
+              if (serverNames.indexOf(serverName) === -1) {
                 serverNames.push(serverName);
               }
             }
@@ -306,7 +327,7 @@ export function MountDirectoriesForm({
         if (user in storageUserData) {
           const userContent = JSON.parse(atob(storageUserData[user]));
           for (const serverName of userContent.servers) {
-            if (serverNames.indexOf(serverName) == -1) {
+            if (serverNames.indexOf(serverName) === -1) {
               serverNames.push(serverName);
             }
           }
@@ -314,22 +335,20 @@ export function MountDirectoriesForm({
         }
       });
     } catch (e) {
-      
+      // Do nothing
     }
   }, []);
 
   const [servers, setServers] = useState<IServer[]>([]);
-  useEffect(()=> {
+  useEffect(() => {
     // Get Server info
-    console.log(serverNames);
     const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-server`;
     try {
        fetch(storageServerUrl).then(responseToData).then((storageServerData) => {
-        console.log(storageServerData)
         for (const serverName of serverNames) {
           if (serverName in storageServerData) {
             const serverContent = JSON.parse(atob(storageServerData[serverName]));
-            if (servers.find(item => item.spn == serverContent.spn) === undefined) {
+            if (servers.find((item) => item.spn === serverContent.spn) === undefined) {
               servers.push(serverContent);
             }
           }
@@ -337,32 +356,27 @@ export function MountDirectoriesForm({
         setServers(servers.concat());
       });
     } catch (e) {
-      
-    }    
-  }, [serverNames])
+      // Do nothing
+    }
+  }, [serverNames]);
 
   const [selectedGroups, setSelectedGroups] = useState<IGroup[]>([]);
 
-  const onGroupCheckBoxChange  = useCallback((index: number, group:IGroup, value:boolean) => {
+  const onSGChange  = useCallback((group: IGroup, value: boolean) => {
     if (value) {
-      if (selectedGroups.find(item => item.gpn == group.gpn) === undefined) {
-        console.log("index: " + index + " selectedGroupIndices: " + selectedGroups)
+      if (selectedGroups.find((item) => item.gpn === group.gpn) === undefined) {
         selectedGroups.push(group);
       }
     } else {
-      const oriGroupIndex = selectedGroups.find(item => item.gpn == group.gpn)
+      const oriGroupIndex = selectedGroups.find((item) => item.gpn === group.gpn);
       if (oriGroupIndex !== undefined) {
-        selectedGroups.splice(selectedGroups.indexOf(oriGroupIndex), 1)
+        selectedGroups.splice(selectedGroups.indexOf(oriGroupIndex), 1);
       }
      }
-     console.log(selectedGroups);
-     setSelectedGroups(selectedGroups.concat())
+    setSelectedGroups(selectedGroups.concat());
   }, []);
 
-  // const [mountDirectories, setMountDirectories] = useState<MountDirectories>(undefined);
-
   const mountDirectories = useMemo(() => {
-    console.log("user: " + user + " jobName: " + jobName);
     return new MountDirectories(user, jobName, selectedGroups, servers);
   }, [user, jobName, selectedGroups, servers]);
 
@@ -371,6 +385,35 @@ export function MountDirectoriesForm({
       onChange(mountDirectories);
     }
   }, [mountDirectories]);
+
+  const showGroups = (group: IGroup, index: number) => {
+    return (
+      <div key={group.gpn}>
+        <label>
+          {/* tslint:disable-next-line:jsx-no-lambda */}
+          <input type="checkbox" key={index} onChange={(event) => onSGChange(group, event.target.checked)}/>
+          {group.gpn}
+        </label>
+      </div>);
+  };
+
+  const showMountInfos = (selectedGroup: IGroup) => {
+    {
+      if (selectedGroup.mountInfos !== undefined) {
+        return selectedGroup.mountInfos.map((mountInfo, index) => {
+          // normalize path
+          return (
+          <div key={selectedGroup.gpn + "_" + index}>
+            <span className="input-group-addon">{mountInfo.mountPoint}</span>
+            <span className="input-group-addon">{"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</span>
+          </div>
+          );
+        });
+      } else {
+        return null;
+      }
+    }
+  };
 
   return (
     <div>
@@ -384,37 +427,14 @@ export function MountDirectoriesForm({
         <label>
           User Groups:
         </label>
-        {groups.map((group, index) => {
-          return (
-          <div>
-            <label>
-              <input type="checkbox" key={index} onChange={(event) => onGroupCheckBoxChange(index, group, event.target.checked)}/>
-              {group.gpn}
-            </label>
-          </div>)
-        })}
+        {groups.map((group, index) => showGroups(group, index))}
       </div>
 
       <div>
         <label>
           Mount Info:
         </label>
-        {selectedGroups.map((selectedGroupIndex, index) => {
-          if (selectedGroupIndex.mountInfos !== undefined) {
-            console.log("mountInfos: " + selectedGroupIndex.mountInfos);
-            return selectedGroupIndex.mountInfos.map((mountInfo, index) => {
-              // normalize path
-              return (
-              <div>
-                <span className="input-group-addon">{mountInfo.mountPoint}</span>
-                <span className="input-group-addon">{"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</span>
-              </div>
-              );
-            }) 
-          } else {
-            return null;
-          }
-        })}
+        {selectedGroups.map((selectedGroup) => showMountInfos(selectedGroup))}
       </div>
     </div>
   );
