@@ -120,7 +120,7 @@ Note, OpenPAI also supports to allocate dedicated resource besides queuing jobs.
 
 Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job configuration and familiar with Web UI.
 
-### OpenPAI VS Code Client
+### Client tool
 
 [OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
 
