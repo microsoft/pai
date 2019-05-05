@@ -91,8 +91,6 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
-    // eslint-disable-next-line no-console
-    console.log(userInstance);
     return userInstance;
   } catch (error) {
     throw error.response;
@@ -125,8 +123,6 @@ async function readAll(config) {
       });
       allUserInstance.push(userInstance);
     }
-    // eslint-disable-next-line no-console
-    console.log(allUserInstance);
     return allUserInstance;
   } catch (error) {
     throw error.response;
@@ -165,6 +161,7 @@ async function create(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
+    console.log(userData);
     let response = await request.post(`${config.namespace}/secrets`, userData);
     return response;
   } catch (error) {
@@ -206,6 +203,7 @@ async function update(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
+    console.log(userData);
     let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
     return response;
   } catch (error) {
