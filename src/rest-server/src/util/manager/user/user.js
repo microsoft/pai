@@ -62,9 +62,7 @@ async function encryptUserPassword(userValue) {
 }
 
 function createUser(value) {
-  const userValue = userValidate(value);
-  userValue.print();
-  return userValue;
+  return userValidate(value);
 }
 
 module.exports = {encryptUserPassword, createUser};
