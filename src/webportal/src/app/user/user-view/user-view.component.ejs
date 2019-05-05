@@ -3,19 +3,8 @@
 <section class="content">
   <div class="box">
     <div id="modalPlaceHolder" class="box-body" />
-    <button class="btn btn-success btn-lg add-user-btn" id="toRegister" onclick="redirectToAddUser()">Add User</button>
-    <div class="btn-group btn-group-custom">
-      <button type="button" class="btn btn-success btn-lg btn-group-custom-left" onclick="importFromCSV()">Import CSV</button>
-      <button type="button" class="btn btn-success btn-lg dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-        aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a href="#" onclick="importFromCSV()">Import CSV</a></li>
-        <li><a href="#" onclick="downloadTemplate()">Download Template</a></li>
-      </ul>
-    </div>
+    <button class="btn btn-success btn-lg add-user-btn" onclick="redirectToAddUser()">Add User</button>
+    <button class="btn btn-success btn-lg add-user-btn" onclick="redirectToBatchAddUser()">Import CSV</button>
     <div id="view-table" class="box-body">
       <%= userTable({ userLists: [] }) %>
     </div>
