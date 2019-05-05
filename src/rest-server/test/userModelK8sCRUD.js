@@ -124,11 +124,11 @@ describe('k8s secret get function test', () => {
   // positive test case
   // find specific user
   it('Should return specific user info.', async () => {
-    return await expect(userK8sCRUD.read('paitest', userK8sCRUDConfig)).to.have.deep.members({
+    return await expect(userK8sCRUD.read('paitest', userK8sCRUDConfig)).to.deep.equal({
         username: 'paitest',
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
-        email: 'test@pai.com',
         grouplist: ['test'],
+        email: 'test@pai.com',
         extension: {},
     });
   });
