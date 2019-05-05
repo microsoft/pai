@@ -95,6 +95,8 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
+    // eslint-disable-next-line no-console
+    console.log(userInstance);
     return userInstance;
   } catch (error) {
     throw error.response;
@@ -110,6 +112,8 @@ async function read(key, config) {
 async function readAll(config) {
   try {
     const request = axios.create(config.requestConfig);
+    // eslint-disable-next-line no-console
+    console.log(getSecretRootUri(config));
     const response = await request.get(getSecretRootUri(config), {
       headers: {
         'Accept': 'application/json',
@@ -127,6 +131,8 @@ async function readAll(config) {
       });
       allUserInstance.push(userInstance);
     }
+    // eslint-disable-next-line no-console
+    console.log(allUserInstance);
     return allUserInstance;
   } catch (error) {
     throw error.response;
@@ -166,7 +172,6 @@ async function create(key, value, config) {
       },
     };
     let response = await request.post(getSecretRootUri(config), userData);
-    response['data'].print();
     return response['data'];
   } catch (error) {
     throw error.response;
