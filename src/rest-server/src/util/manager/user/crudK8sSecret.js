@@ -73,7 +73,7 @@ function getSecretRootUri(config) {
 
 function readPromise(key, config) {
   return new Promise(async (resolve, reject) => {
-    try{
+    try {
       const request = axios.create(config.requestConfig);
       const hexKey = Buffer.from(key).toString('hex');
       const response = await request.get(getSecretRootUri(config) + `/${hexKey}`, {
