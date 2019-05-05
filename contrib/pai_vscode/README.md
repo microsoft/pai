@@ -4,7 +4,7 @@ OpenPAI VS Code Client is an extension to connect PAI clusters, submit AI jobs, 
 
 ## Connect to an OpenPAI cluster
 
-Before using OpenPAI VS Code Client, follow below steps connecting to a OpenPAI cluster.
+Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster.
 
 Notice, it needs the version OpenPAI cluster >= 0.8.0
 
@@ -29,11 +29,11 @@ After added a cluster configuration, you can find the cluster in *PAI CLUSTER EX
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
-You can create a job configuration, and submit to OpenPAI as below steps.
+You can create a job configuration and submit to OpenPAI as below steps.
 
 1. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
-3. Right click on the created job configuration file, then click on *Submit Job to PAI Cluster*. The client will upload files to OpenPAI, and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+3. Right click on the created job configuration file, then click on *Submit Job to PAI Cluster*. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
 
     If there are multiple OpenPAI clusters, you need to choose one.
 
@@ -65,7 +65,9 @@ This animation shows above steps.
 As local simulation is a close but still different environment with OpenPAI cluster, there are some issues cannot be found by simulation. Some examples,
 
 * The job may need much more memory or distributed environments. It cannot be simulated locally.
-* The job may need GPU, but local machine may not have one. It also needs a different docker image, if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
+* The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
+* The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
+* Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
 
 ## Manual
 
@@ -83,7 +85,7 @@ There are two parts in the side bar.
 
 * Job List
 
-    You can view jobs in OpenPAI cluster. The lists refreshs periodically, and the icon shows the status of each job. You can open a job in browser with double clicking it.
+    You can view jobs in OpenPAI cluster. The lists refresh periodically, and the icon shows the status of each job. You can open a job in browser with double clicking it.
 
 ![job list](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
 
