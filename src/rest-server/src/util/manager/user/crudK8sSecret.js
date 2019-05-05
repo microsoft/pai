@@ -78,7 +78,7 @@ async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
+    const response = await request.get(`${config.namespace}/secrets/${hexKey}`.toString(), {
       headers: {
         'Accept': 'application/json',
       },
@@ -106,7 +106,7 @@ async function read(key, config) {
 async function readAll(config) {
   try {
     const request = axios.create(config.requestConfig);
-    const response = await request.get(`${config.namespace}/secrets`, {
+    const response = await request.get(`${config.namespace}/secrets`.toString(), {
       headers: {
         'Accept': 'application/json',
       },
