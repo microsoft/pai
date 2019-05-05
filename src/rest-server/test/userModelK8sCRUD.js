@@ -20,7 +20,7 @@ const userK8sCRUD = require('../src/util/manager/user/crudK8sSecret');
 
 const userK8sCRUDConfig = userK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
 
-describe('k8s secret get function test', () => {
+describe('User model k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -132,5 +132,110 @@ describe('k8s secret get function test', () => {
         email: 'test@pai.com',
         extension: {},
     });
+  });
+});
+
+describe('User model k8s secret set function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
+  beforeEach(() => {
+
+    // Mock for case2 username=existuser
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user/secrets/657869737475736572', {
+        'metadata':{'name':'657869737475736572'},
+        'data': {
+          'password': 'cGFpNjY2',
+          'username': 'ZXhpc3R1c2Vy',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJ0ZXN0Il0=',
+          'extension': 'e30='
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '657869737475736572',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/657869737475736572',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+          'password': 'cGFpNjY2',
+          'username': 'ZXhpc3R1c2Vy',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJ0ZXN0Il0=',
+          'extension': 'e30='
+        },
+        'type': 'Opaque'
+      });
+
+    // Mock for case2 username=newuser
+    nock(apiServerRootUri)
+      .post('/api/v1/namespaces/pai-user/secrets', {
+        'metadata': {'name': '6e657775736572'},
+        'data': {
+          'password': 'cGFpNjY2',
+          'username': 'bmV3dXNlcg==',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJ0ZXN0Il0=',
+          'extension': 'e30='
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '6e657775736572',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/6e657775736572',
+          'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1116114',
+          'creationTimestamp': '2018-12-07T02:29:47Z'
+        },
+        'data': {
+          'password': 'cGFpNjY2',
+          'username': 'bmV3dXNlcg==',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJ0ZXN0Il0=',
+          'extension': 'e30='
+        },
+        'type': 'Opaque'
+      });
+  });
+
+  // set a key value pair
+  it('Should add a new user.', async () => {
+    const updateUser = {
+      'username': 'newuser',
+      'password': 'pai666',
+      'email': 'test@pai.com',
+      'grouplist': ['test'],
+      'extension': {}
+    }
+    const res = await userK8sCRUD.create('newuser', updateUser, userK8sCRUDConfig);
+    return expect(res, 'status').to.have.status(200);
+  });
+
+  // update a user
+  it('should update an exist new user', async () => {
+    const updateUser = {
+      'username': 'existuser',
+      'password': 'pai666',
+      'email': 'test@pai.com',
+      'grouplist': ['test'],
+      'extension': {}
+    }
+    const res = await userK8sCRUD.update('newuser', updateUser, userK8sCRUDConfig);
+    return expect(res, 'status').to.have.status(200);
   });
 });

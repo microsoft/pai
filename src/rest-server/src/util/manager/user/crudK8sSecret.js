@@ -166,7 +166,7 @@ async function create(key, value, config) {
       },
     };
     let response = await request.post(`${config.namespace}/secrets`, userData);
-    return response['data'];
+    return response;
   } catch (error) {
     throw error.response;
   }
@@ -205,7 +205,7 @@ async function update(key, value, config) {
       },
     };
     let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
-    return response['data'];
+    return response;
   } catch (error) {
     throw error.response;
   }
