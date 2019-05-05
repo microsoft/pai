@@ -124,6 +124,8 @@ async function readAll(config) {
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
+      // eslint-disable-next-line no-console
+      console.log(item);
       let userInstance = User.createUser({
         'username': Buffer.from(item['data']['username'], 'base64').toString(),
         'password': Buffer.from(item['data']['password'], 'base64').toString(),
