@@ -112,7 +112,7 @@ async function read(key, config) {
   }
 }
 
-function readAllPromise(config){
+function readAllPromise(config) {
   return new Promise(async (resolve, reject) => {
       try {
         const request = axios.create(config.requestConfig);
