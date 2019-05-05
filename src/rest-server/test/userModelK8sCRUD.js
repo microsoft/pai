@@ -221,7 +221,7 @@ describe('User model k8s secret set function test', () => {
       'email': 'test@pai.com',
       'grouplist': ['test'],
       'extension': {}
-    }
+    };
     const res = await userK8sCRUD.create('newuser', updateUser, userK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
@@ -234,7 +234,7 @@ describe('User model k8s secret set function test', () => {
       'email': 'test@pai.com',
       'grouplist': ['test'],
       'extension': {}
-    }
+    };
     const res = await userK8sCRUD.update('newuser', updateUser, userK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
