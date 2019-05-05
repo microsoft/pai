@@ -145,16 +145,15 @@ describe('User model k8s secret set function test', () => {
   });
 
   beforeEach(() => {
-
     // Mock for case2 username=existuser
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-user/secrets/657869737475736572', {
         'metadata':{'name':'657869737475736572'},
         'data': {
-          'password': 'cGFpNjY2',
           'username': 'ZXhpc3R1c2Vy',
-          'email': 'dGVzdEBwYWkuY29t',
+          'password': 'cGFpNjY2',
           'grouplist': 'WyJ0ZXN0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
         }
       })
@@ -184,10 +183,10 @@ describe('User model k8s secret set function test', () => {
       .post('/api/v1/namespaces/pai-user/secrets', {
         'metadata': {'name': '6e657775736572'},
         'data': {
-          'password': 'cGFpNjY2',
           'username': 'bmV3dXNlcg==',
-          'email': 'dGVzdEBwYWkuY29t',
+          'password': 'cGFpNjY2',
           'grouplist': 'WyJ0ZXN0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
         }
       })
