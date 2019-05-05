@@ -51,6 +51,7 @@ describe('k8s secret get function test', () => {
               'username': 'Y2FudGVzdDAwMQ==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
+              'extension': 'e30=',
             },
             'type': 'Opaque',
           },
@@ -63,6 +64,7 @@ describe('k8s secret get function test', () => {
               'username': 'cGFpdGVzdA==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
+              'extension': 'e30=',
             },
             'type': 'Opaque',
           },
@@ -83,6 +85,7 @@ describe('k8s secret get function test', () => {
           'username': 'cGFpdGVzdA==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -125,6 +128,7 @@ describe('k8s secret get function test', () => {
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
         email: 'test@pai.com',
         grouplist: ['test'],
+        extension: {},
     });
   });
 });
