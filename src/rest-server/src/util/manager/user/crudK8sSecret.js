@@ -67,10 +67,6 @@ function initConfig(apiServerUri, option = {}) {
   return config;
 }
 
-function getSecretRootUri(config) {
-  return `${config.namespace}/secrets`;
-}
-
 /**
  * @function read - return a user's info based on the UserName.
  * @async
@@ -82,7 +78,7 @@ async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(getSecretRootUri(config).toString() + `/${hexKey}`, {
+    const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -110,7 +106,7 @@ async function read(key, config) {
 async function readAll(config) {
   try {
     const request = axios.create(config.requestConfig);
-    const response = await request.get(getSecretRootUri(config).toString(), {
+    const response = await request.get(`${config.namespace}/secrets`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -171,7 +167,7 @@ async function create(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.post(getSecretRootUri(config).toString(), userData);
+    let response = await request.post(`${config.namespace}/secrets`, userData);
     return response['data'];
   } catch (error) {
     throw error.response;
@@ -210,7 +206,7 @@ async function update(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.put(getSecretRootUri(config).toString() + `/${hexKey}`, userData);
+    let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
     return response['data'];
   } catch (error) {
     throw error.response;
@@ -228,7 +224,7 @@ async function remove(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    return await request.delete(getSecretRootUri(config).toString() + `/${hexKey}`, {
+    return await request.delete(`${config.namespace}/secrets/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
