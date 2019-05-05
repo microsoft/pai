@@ -35,11 +35,11 @@ const userSchema = Joi.object().keys({
 }).required();
 
 function userValidate(userValue) {
-  const {error, validValue} = Joi.validate(userValue, userSchema);
-  if (error) {
+  const res = userSchema.validate(userValue);
+  if (res['error']) {
     throw new Error('User schema error\n${error}');
   }
-  return validValue;
+  return res['value'];
 }
 
 function encrypt(username, password) {
