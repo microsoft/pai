@@ -151,7 +151,7 @@ describe('User model k8s secret set function test', () => {
         'metadata':{'name':'657869737475736572'},
         'data': {
           'username': 'ZXhpc3R1c2Vy',
-          'password': 'cGFpNjY2',
+          'password': 'gLGtuvOq0oIrBMwqhNXOTlAOH3EPWK6gx1mTpFa5fmC2IsI3pTTsBd+kLUYjUBAVy+7En8M8Mk3LL5PABsLvnA==',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
@@ -169,7 +169,7 @@ describe('User model k8s secret set function test', () => {
           'creationTimestamp': '2018-12-07T02:21:42Z'
         },
         'data': {
-          'password': 'cGFpNjY2',
+          'password': 'gLGtuvOq0oIrBMwqhNXOTlAOH3EPWK6gx1mTpFa5fmC2IsI3pTTsBd+kLUYjUBAVy+7En8M8Mk3LL5PABsLvnA==',
           'username': 'ZXhpc3R1c2Vy',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
@@ -184,7 +184,7 @@ describe('User model k8s secret set function test', () => {
         'metadata': {'name': '6e657775736572'},
         'data': {
           'username': 'bmV3dXNlcg==',
-          'password': 'cGFpNjY2',
+          'password': 'obxiwRWY19AXDQ0it8Q8euW9gcaji+mVySdDQQiGwrzMnhtAuyT3U1FL3NnVaZe497apk2jLk/JgxLSKaFWfmQ==',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
@@ -202,7 +202,7 @@ describe('User model k8s secret set function test', () => {
           'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
-          'password': 'cGFpNjY2',
+          'password': 'obxiwRWY19AXDQ0it8Q8euW9gcaji+mVySdDQQiGwrzMnhtAuyT3U1FL3NnVaZe497apk2jLk/JgxLSKaFWfmQ==',
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',

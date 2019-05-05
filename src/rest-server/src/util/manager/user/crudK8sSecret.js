@@ -161,13 +161,9 @@ async function create(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    // eslint-disable-next-line no-console
-    console.log(userData);
     let response = await request.post(`${config.namespace}/secrets`, userData);
     return response;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
@@ -204,13 +200,9 @@ async function update(key, value, config) {
         'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
       },
     };
-    // eslint-disable-next-line no-console
-    console.log(userData);
     let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
     return response;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
