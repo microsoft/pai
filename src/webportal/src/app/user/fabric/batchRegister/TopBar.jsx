@@ -29,54 +29,48 @@ function TopBar() {
   const buttonDefaultStyles = {margin: '0 1rem', backgroundColor: '#DADADA'};
 
   /**
-   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  function getBrowse() {
-    return {
-      key: 'browse',
-      name: 'Browse...',
-      iconProps: {
-        iconName: 'OpenFolderHorizontal',
-      },
-      buttonStyles: {root: buttonPrimaryStyles},
-      commandBarButtonAs: PrimaryButton,
-      onClick: importFromCSV,
-    };
-  }
+  const btnBrowse = {
+    key: 'browse',
+    name: 'Browse...',
+    iconProps: {
+      iconName: 'OpenFolderHorizontal',
+    },
+    buttonStyles: {root: buttonPrimaryStyles},
+    commandBarButtonAs: PrimaryButton,
+    onClick: importFromCSV,
+  };
 
   /**
-   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  function getDownloadTemplate() {
-    return {
-      key: 'downloadTemplate',
-      name: 'Download Template',
-      iconProps: {
-        iconName: 'Download',
-      },
-      buttonStyles: {root: buttonDefaultStyles},
-      commandBarButtonAs: DefaultButton,
-      onClick: downloadTemplate,
-    };
-  }
+  const btnDownloadTemplate = {
+    key: 'downloadTemplate',
+    name: 'Download Template',
+    iconProps: {
+      iconName: 'Download',
+    },
+    buttonStyles: {root: buttonDefaultStyles},
+    commandBarButtonAs: DefaultButton,
+    onClick: downloadTemplate,
+  };
 
   /**
-   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  function getAddNew() {
-    return {
-      key: 'addNew',
-      name: 'Add New',
-      iconProps: {
-        iconName: 'Add',
-      },
-      buttonStyles: {root: buttonDefaultStyles},
-      commandBarButtonAs: DefaultButton,
-      onClick: addNew,
-    };
-  }
+  const btnAddNew = {
+    key: 'addNew',
+    name: 'Add New',
+    iconProps: {
+      iconName: 'Add',
+    },
+    buttonStyles: {root: buttonDefaultStyles},
+    commandBarButtonAs: DefaultButton,
+    onClick: addNew,
+  };
 
-  const topBarItems = [getBrowse(), getAddNew(), getDownloadTemplate()];
+  const topBarItems = [btnBrowse, btnAddNew, btnDownloadTemplate];
 
   return (
     <React.Fragment>

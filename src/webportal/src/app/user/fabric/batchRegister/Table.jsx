@@ -18,6 +18,8 @@
 import React, {useContext} from 'react';
 import {MessageBar, MessageBarType, DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
+import {StatusBadge} from '../../../components/status-badge';
+
 import TableTextField from './TableTextField';
 import Context from './Context';
 import {toBool, isFinished, checkUsername, checkPassword} from './utils';
@@ -268,9 +270,6 @@ export default function Table() {
 
     onRender(userInfo) {
       const {status: {isSuccess, message} = {}} = userInfo;
-
-      /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
       let statusText = undefined;
       if (isSuccess === true) {
         statusText = 'Succeeded';
@@ -279,34 +278,12 @@ export default function Table() {
       } else {
         return undefined;
       }
-      /** @type {MessageBarType} */
-      const messageBarType = {
-        Succeeded: MessageBarType.success,
-        Failed: MessageBarType.remove,
-      }[statusText];
-      const rootStyle = {
-        backgroundColor: {
-          Succeeded: '#7FBA00',
-          Failed: '#E81123',
-        }[statusText],
-      };
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconStyle = {color: 'white'};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'white'};
       return (
-        <div style={Object.assign(wrapperStyle)}>
-          <TooltipHost content={message}>
-            <MessageBar
-              messageBarType={messageBarType}
-              styles={{root: rootStyle, iconContainer: iconContainerStyle, icon: iconStyle, text: textStyle}}
-            >
-              {statusText}
-            </MessageBar>
-          </TooltipHost>
-        </div>
+        <TooltipHost content={message}>
+          <div style={{marginTop: '0.5rem'}}>
+            <StatusBadge status={statusText} />
+          </div>
+        </TooltipHost>
       );
     },
   };
