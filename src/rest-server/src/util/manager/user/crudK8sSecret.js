@@ -95,8 +95,6 @@ async function read(key, config) {
       'email': Buffer.from(userData['data']['email'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
     });
-    // eslint-disable-next-line no-console
-    console.log(userInstance);
     return userInstance;
   } catch (error) {
     throw error.response;
@@ -111,9 +109,9 @@ async function read(key, config) {
  */
 async function readAll(config) {
   try {
-    const request = axios.create(config.requestConfig);
     // eslint-disable-next-line no-console
-    console.log(getSecretRootUri(config));
+    console.log(config.requestConfig);
+    const request = axios.create(config.requestConfig);
     const response = await request.get(getSecretRootUri(config), {
       headers: {
         'Accept': 'application/json',
@@ -129,10 +127,10 @@ async function readAll(config) {
         'email': Buffer.from(item['data']['email'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
+      // eslint-disable-next-line no-console
+      console.log(userInstance);
       allUserInstance.push(userInstance);
     }
-    // eslint-disable-next-line no-console
-    console.log(allUserInstance);
     return allUserInstance;
   } catch (error) {
     throw error.response;
