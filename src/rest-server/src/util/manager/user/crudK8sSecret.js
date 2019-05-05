@@ -51,18 +51,18 @@ function initConfig(apiServerUri, option = {}) {
   const namespaces = process.env.PAI_USER_NAMESPACE;
   const config = {
     'namespace': namespaces? namespaces : 'pai-user',
-    'requstConfig': {
+    'requestConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
     },
   };
   if ('k8sAPIServerCaFile' in option) {
     const ca = readFileSync(option.k8sAPIServerCaFile);
-    config.requstConfig.httpsAgent = new Agent({ca});
+    config.requestConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
-    config.requstConfig.headers = {Authorization: `Bearer ${token}`};
+    config.requestConfig.headers = {Authorization: `Bearer ${token}`};
   }
   return config;
 }
