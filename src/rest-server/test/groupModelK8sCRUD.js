@@ -141,7 +141,7 @@ describe('Group model k8s secret set function test', () => {
   });
 
   beforeEach(() => {
-    // Mock for case2 username=existuser
+    // Mock for case2 groupname=existuser
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-group/secrets/657869737475736572', {
         'metadata':{'name':'657869737475736572'},
@@ -157,7 +157,7 @@ describe('Group model k8s secret set function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'name': '657869737475736572',
-          'namespace': 'pai-user',
+          'namespace': 'pai-group',
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
@@ -174,11 +174,10 @@ describe('Group model k8s secret set function test', () => {
 
     // Mock for case1 username=newuser
     nock(apiServerRootUri)
-      .post('/api/v1/namespaces/pai-user/secrets', {
+      .post('/api/v1/namespaces/pai-group/secrets', {
         'metadata': {'name': '6e657775736572'},
         'data': {
-          'username': 'bmV3dXNlcg==',
-          'password': 'obxiwRWY19AXDQ0it8Q8euW9gcaji+mVySdDQQiGwrzMnhtAuyT3U1FL3NnVaZe497apk2jLk/JgxLSKaFWfmQ==',
+          'groupname': 'bmV3dXNlcg==',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
@@ -190,16 +189,15 @@ describe('Group model k8s secret set function test', () => {
         'metadata': {
           'name': '6e657775736572',
           'namespace': 'pai-user',
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/6e657775736572',
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/6e657775736572',
           'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
           'resourceVersion': '1116114',
           'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
-          'password': 'obxiwRWY19AXDQ0it8Q8euW9gcaji+mVySdDQQiGwrzMnhtAuyT3U1FL3NnVaZe497apk2jLk/JgxLSKaFWfmQ==',
-          'username': 'bmV3dXNlcg==',
-          'email': 'dGVzdEBwYWkuY29t',
+          'groupname': 'bmV3dXNlcg==',
           'grouplist': 'WyJ0ZXN0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -209,8 +207,7 @@ describe('Group model k8s secret set function test', () => {
   // set a key value pair
   it('Should add a new user.', async () => {
     const updateUser = {
-      'username': 'newuser',
-      'password': 'pai666',
+      'groupname': 'newuser',
       'email': 'test@pai.com',
       'grouplist': ['test'],
       'extension': {}
@@ -223,10 +220,9 @@ describe('Group model k8s secret set function test', () => {
   it('should update an exist new user', async () => {
     const updateUser = {
       'username': 'existuser',
-      'password': 'pai666',
-      'email': 'test@pai.com',
-      'grouplist': ['test'],
-      'extension': {}
+      'description': 'test',
+      'GID': '1234',
+      'extension': {},
     };
     const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
