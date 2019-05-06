@@ -137,6 +137,7 @@ interface IProtocolProps {
   source?: {
     jobName: string;
     user: string;
+    protocolYAML: string;
   };
   pluginId?: string;
 }
@@ -320,10 +321,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private fetchConfig = async () => {
+    let protocol = null;
     const source = this.props.source;
     const pluginId = this.props.pluginId;
-    if (source && source.jobName && source.user && pluginId) {
-      try {
+    try {
+      if (source && source.protocolYAML) {
+        protocol = yaml.parse(source.protocolYAML);
+      } else if (source && source.jobName && source.user && pluginId) {
         const res = await fetch(
           `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
         );
@@ -333,14 +337,16 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
         }
         protocol.name = this.getCloneJobName(source.jobName);
+      }
+      if (protocol) {
         this.setState({
           jobName: protocol.name,
           protocol,
           protocolYAML: yaml.stringify(protocol),
         });
-      } catch (err) {
-        alert(err.message);
       }
+    } catch (err) {
+      alert(err.message);
     }
     this.setState({ loading: false });
   }

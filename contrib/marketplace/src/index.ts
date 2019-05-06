@@ -36,13 +36,25 @@ const publicPath = __webpack_public_path__ = resolve((window.document.currentScr
   },
 };
 
+declare interface IWindow {
+  PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
+}
+
 class MarketplacePluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
     const user = this.getAttribute("pai-user") as string;
     const token = this.getAttribute("pai-rest-server-token") as string;
 
-    ReactDOM.render(React.createElement(App, {api, user, token}), this);
+    let submissionId;
+    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
+    for (let i in plugins) {
+      if (plugins[i].id === "protocol") {
+        submissionId = i;
+      }
+    }
+
+    ReactDOM.render(React.createElement(App, {api, user, token, submissionId}), this);
   }
 
   public disconnectedCallback() {

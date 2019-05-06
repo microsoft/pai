@@ -25,6 +25,7 @@ interface IProps {
   source?: {
     jobName: string;
     user: string;
+    protocolYAML: string;
   };
   pluginId?: string;
 }

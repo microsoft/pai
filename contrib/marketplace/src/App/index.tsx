@@ -22,14 +22,16 @@ interface IProps {
   api: string;
   user: string;
   token: string;
+  submissionId?: string;
 }
 
-export default function App({api, user, token}: IProps) {
+export default function App({api, user, token, submissionId}: IProps) {
   return (
     <MarketplaceList
       api={api}
       user={user}
       token={token}
+      submissionId={submissionId}
     />
   );
 }

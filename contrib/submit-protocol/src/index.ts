@@ -48,7 +48,10 @@ class ProtocolPluginElement extends HTMLElement {
 
     const params = new URLSearchParams(window.location.search);
     const source = Object(null);
-    if (params.get("op") === "resubmit") {
+    if (params.get("op") === "init") {
+      source.protocolYAML = sessionStorage.getItem("protocolYAML") || "";
+      sessionStorage.removeItem("protocolYAML");
+    } else if (params.get("op") === "resubmit") {
       const sourceJobName = params.get("jobname") || "";
       const sourceUser = params.get("user") || "";
       if (sourceJobName && sourceUser) {

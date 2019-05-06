@@ -140,6 +140,7 @@ interface IMarketplaceListProps {
   api: string;
   user: string;
   token: string;
+  submissionId?: string;
   defaultURI: string;
   defaultURIType: MarketplaceUriType;
 }
@@ -389,10 +390,12 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
   }
 
   private submitProtocol = (protocol: IProtocol) => () => {
-    this.setState({
-      showEditor: true,
-      editorYAML: protocol.raw,
-    });
+    if (this.props.submissionId == null) {
+      alert("Cannot find protocol submission plugin.");
+    } else {
+      sessionStorage.setItem("protocolYAML", protocol.raw);
+      window.open(`/plugin.html?op=init&index=${this.props.submissionId}`);
+    }
   }
 
   private starProtocol = () => {
