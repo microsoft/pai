@@ -15,11 +15,34 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const express = require('express');
-const rewriteController = require('../controllers/rewrite');
+const Joi = require('joi-browser');
 
-const router = module.exports = new express.Router();
+export const toBool = (val) => {
+  return (String(val)).toLowerCase() === 'true' || (String(val)).toLowerCase() === 'yes';
+};
 
-router.all('/user/:username/jobs', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName/*', rewriteController.userJob);
+export const isFinished = (userInfo) => {
+  const {status: {isSuccess} = {}} = userInfo;
+  if (isSuccess) return true;
+  return false;
+};
+
+const usernameSchema = Joi.string().token().required();
+export const checkUsername = (value) => {
+  const {error} = Joi.validate(value, usernameSchema);
+  if (error) {
+    return error.message.replace('"value"', 'User name');
+  } else {
+    return error;
+  }
+};
+
+const passwordSchema = Joi.string().min(6).required();
+export const checkPassword = (value) => {
+  const {error} = Joi.validate(value, passwordSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Password');
+  } else {
+    return error;
+  }
+};

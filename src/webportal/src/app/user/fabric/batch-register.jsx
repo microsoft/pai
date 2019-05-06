@@ -15,34 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const logger = require('../config/logger');
+import 'core-js/stable';
 
-/**
- * For compatible user job URL rewrite use
- *
- * GET /user/foo/jobs => GET /jobs?username=foo
- * GET /user/foo/jobs/bar/* => GET /jobs/foo~bar/*
- * GET /user/foo/jobs/bar~baz/* => GET /jobs/bar~baz/*
- * POST /user/foo/jobs => POST /jobs?username=foo (to distinguish with legacy POST /jobs)
- * PUT /user/foo/jobs/bar/* => POST /jobs/foo~bar/*
- * PUT /user/foo/jobs/bar~baz/* => POST /jobs/bar~baz/*
- */
-const userJob = (req, res, next) => {
-  const {username, jobName} = req.params;
-  const remains = req.params[0];
-  const url = req.url;
-  if (jobName === undefined) {
-    if (req.query.username === undefined) {
-      req.query.username = username;
-    }
-    req.url = '/jobs';
-  } else {
-    const rewritedJobName = jobName.indexOf('~') === -1 ? `${username}~${jobName}` : jobName;
-    const rewritedRemains = remains === undefined ? '' : `/${remains}`;
-    req.url = `/jobs/${rewritedJobName}${rewritedRemains}`;
-  }
-  logger.info('Rewrite %s to %s', url, req.url);
-  return next('route');
-};
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-module.exports = {userJob};
+import BatchRegister from './batchRegister';
+
+const contentWrapper = document.getElementById('content-wrapper');
+
+ReactDOM.render(<BatchRegister />, contentWrapper);
+
+document.getElementById('sidebar-menu--cluster-view--user-management').classList.add('active');
+
+function layout() {
+  setTimeout(function() {
+    contentWrapper.style.height = contentWrapper.style.minHeight;
+  }, 10);
+}
+
+window.addEventListener('resize', layout);
+window.addEventListener('load', layout);

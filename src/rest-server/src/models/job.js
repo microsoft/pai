@@ -53,19 +53,10 @@ exitSpecList.forEach((val) => {
   exitSpecMap[val.code] = val;
 });
 
-const getNamespace = (jobName) => {
-  const tildeIndex = jobName.indexOf('~');
-  if (tildeIndex > -1) {
-    return jobName.slice(0, tildeIndex);
-  } else {
-    return null;
-  }
-};
-
 class Job {
-  constructor(name, next) {
+  constructor(name, namespace, next) {
     this.name = name;
-    this.getJob(name, (jobDetail, error) => {
+    this.getJob(name, namespace, (jobDetail, error) => {
       if (error === null) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
@@ -116,6 +107,8 @@ class Job {
       case 'TASK_COMPLETED':
         if (exitCode === 0) {
           return 'SUCCEEDED';
+        } else if (exitCode === -7400) {
+          return 'STOPPED';
         } else {
           return 'FAILED';
         }
@@ -124,11 +117,12 @@ class Job {
     }
   }
 
-  getJobList(query, next) {
+  getJobList(query, namespace, next) {
     let reqPath = launcherConfig.frameworksPath();
-    const namespace = query.username;
     if (namespace) {
       reqPath = `${reqPath}?UserName=${namespace}`;
+    } else if (query.username) {
+      reqPath = `${reqPath}?UserName=${query.username}`;
     }
     unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
@@ -173,7 +167,15 @@ class Job {
               totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
-            if (job.name.indexOf('~') === -1) {
+            const tildeIndex = job.name.indexOf('~');
+            if (tildeIndex > -1) {
+              const namespace = job.name.slice(0, tildeIndex);
+              if (namespace !== job.username) {
+                logger.warn('Found a job with different namespace and username: ', job.name, job.username);
+                job.namespace = namespace;
+              }
+              job.name = job.name.slice(tildeIndex + 1);
+            } else {
               job.legacy = true;
             }
 
@@ -187,9 +189,8 @@ class Job {
       });
   }
 
-  getJob(name, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(frameworkName);
+  getJob(name, namespace, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -211,9 +212,8 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(frameworkName);
+  putJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     data.jobName = frameworkName;
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
@@ -245,9 +245,8 @@ class Job {
     });
   }
 
-  deleteJob(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(name);
+  deleteJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -270,9 +269,8 @@ class Job {
       });
   }
 
-  putJobExecutionType(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(name);
+  putJobExecutionType(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -296,7 +294,10 @@ class Job {
       });
   }
 
-  getJobConfig(userName, jobName, next) {
+  getJobConfig(userName, namespace, jobName, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.yaml`,
@@ -321,7 +322,10 @@ class Job {
     );
   }
 
-  getJobSshInfo(userName, jobName, applicationId, next) {
+  getJobSshInfo(userName, namespace, jobName, applicationId, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.list(

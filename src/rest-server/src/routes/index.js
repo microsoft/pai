@@ -19,9 +19,7 @@
 // module dependencies
 const express = require('express');
 const controller = require('../controllers/index');
-// const tokenRouter = require('./token');
 const authnRouter = require('./authn');
-const rewriteRouter = require('./rewrite');
 const tokenRouter = require('./token');
 const userRouter = require('./user');
 const jobRouter = require('./job');
@@ -33,7 +31,6 @@ const router = new express.Router();
 router.route('/')
     .all(controller.index);
 
-router.use(rewriteRouter);
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);

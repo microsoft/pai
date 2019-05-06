@@ -25,7 +25,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import localCss from './task-role-container-list.scss';
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import MonacoPanel from './monaco-panel';
 import Timer from './timer';

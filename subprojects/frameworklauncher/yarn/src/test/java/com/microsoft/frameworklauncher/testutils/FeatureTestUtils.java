@@ -29,7 +29,6 @@ import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStoreStructure;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.*;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -110,7 +109,7 @@ public class FeatureTestUtils {
   public static void initContainerList(List<Container> containerList, int length, Resource resource) {
     for (int i = 0; i < length; i++) {
       String containerIdStr = "container_" + System.currentTimeMillis() + "_0001_000001_" + (i + 2);
-      ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
+      ContainerId containerId = ContainerId.fromString(containerIdStr);
       NodeId nodeId = NodeId.newInstance(DnsUtils.getLocalHost(), 3215);
       Container container = Container.newInstance(containerId,
           nodeId, DnsUtils.getLocalHost(), resource, Priority.newInstance(1), null);
