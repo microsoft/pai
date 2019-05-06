@@ -15,43 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { resolve } from "path";
-import { Configuration } from "webpack";
+declare module "*.css" {
+  interface IClassNames {
+    [className: string]: string
+  }
+  const classNames: IClassNames;
+  export = classNames;
+}
 
-const configuration: Configuration = {
-  context: resolve(__dirname, "src"),
-  entry: {
-    plugin: "./index.ts",
-  },
-  output: {
-    path: resolve(__dirname, "dist"),
-    filename: "plugin.js",
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".tsx", ".ts", ".js", ".json"],
-  },
-  devServer: {
-    host: "0.0.0.0",
-    port: 9291,
-    contentBase: false,
-    disableHostCheck: true,
-    watchOptions: {
-      ignored: /node_modules/,
-    },
-  },
-};
-
-export default configuration;
+declare module "*.scss" {
+  interface IClassNames {
+    [className: string]: string
+  }
+  const classNames: IClassNames;
+  export = classNames;
+}

@@ -15,14 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import {
-  DocumentCard, DocumentCardActions, DocumentCardActivity, DocumentCardLogo, DocumentCardStatus, DocumentCardTitle,
-  DefaultPalette, Fabric, Icon, IconButton, Label, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
+  DefaultButton, DocumentCard, DocumentCardActions, DocumentCardActivity, DocumentCardLogo,
+  DocumentCardStatus, DocumentCardTitle, DefaultPalette, Fabric, Icon, IconButton, Label,
+  Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
 import yaml from "yaml";
 
+import monacoStyles from "./monaco.scss";
+
+const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
   title: {
     marginTop: "15px",
@@ -129,6 +133,7 @@ interface IProtocol {
   contributor: string;
   description: string;
   prerequisitesNum: number;
+  raw: string;
 }
 
 interface IMarketplaceListProps {
@@ -144,6 +149,8 @@ interface IMarketplaceListState {
   uriType: MarketplaceUriType;
   protocols: Array<IProtocol | null>;
   loading: boolean;
+  showEditor: boolean;
+  editorYAML: string;
   layout: LayoutType;
 }
 
@@ -158,6 +165,8 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
     uriType: this.props.defaultURIType,
     protocols: [],
     loading: true,
+    showEditor: false,
+    editorYAML: "",
     layout: "list" as LayoutType,
   };
 
@@ -194,6 +203,15 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
   }
 
   private renderContent = () => {
+    const editorSpinner = (
+      <Spinner
+        label="Loading YAML Editor ..."
+        ariaLive="assertive"
+        labelPosition="left"
+        size={SpinnerSize.large}
+      />
+    );
+
     return (
       <>
         <Stack className={styles.layoutOption}>
@@ -214,6 +232,33 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
             />
           </Stack>
         </Stack>
+
+        <Panel
+          isOpen={this.state.showEditor}
+          isLightDismiss={true}
+          onDismiss={this.closeEditor}
+          type={PanelType.largeFixed}
+          headerText="Protocol YAML Editor"
+        >
+          <Stack gap={20}>
+            <Stack className={monacoStyles.monacoHack}>
+              <Suspense fallback={editorSpinner}>
+                <MonacoEditor
+                  width={800}
+                  height={800}
+                  value={this.state.editorYAML}
+                  language="yaml"
+                  theme="vs-dark"
+                  options={{ wordWrap: "on", readOnly: true }}
+                />
+              </Suspense>
+            </Stack>
+            <Stack gap={20} horizontal={true}>
+              <DefaultButton text="Close" onClick={this.closeEditor} />
+            </Stack>
+          </Stack>
+        </Panel>
+
         {this.renderLayout()}
       </>
     );
@@ -261,16 +306,19 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
                   iconProps={{ iconName: "View" }}
                   title="View protocol job"
                   ariaLabel="View protocol job"
+                  onClick={this.viewProtocol(protocol)}
+                />
+                <IconButton
+                  iconProps={{ iconName: "Share" }}
+                  title="Submit protocol job"
+                  ariaLabel="Submit protocol job"
+                  onClick={this.submitProtocol(protocol)}
                 />
                 <IconButton
                   iconProps={{ iconName: "FavoriteStar" }}
                   title="Star protocol job"
                   ariaLabel="Star protocol job"
-                />
-                <IconButton
-                  iconProps={{ iconName: "Share" }}
-                  title="Share protocol job"
-                  ariaLabel="Share protocol job"
+                  onClick={this.starProtocol}
                 />
               </Stack>
               <Persona
@@ -305,14 +353,17 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
       {
         iconProps: { iconName: "View"  },
         ariaLabel: "View protocol job",
+        onClick: this.viewProtocol(protocol),
+      },
+      {
+        iconProps: { iconName: "Share" },
+        ariaLabel: "Submit protocol job",
+        onClick: this.submitProtocol(protocol),
       },
       {
         iconProps: { iconName: "FavoriteStar" },
         ariaLabel: "Star protocol job",
-      },
-      {
-        iconProps: { iconName: "Share" },
-        ariaLabel: "Share protocol job",
+        onClick: this.starProtocol,
       },
     ];
 
@@ -328,6 +379,28 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
         <DocumentCardActions actions={cardActions} />
       </DocumentCard>
     );
+  }
+
+  private viewProtocol = (protocol: IProtocol) => () => {
+    this.setState({
+      showEditor: true,
+      editorYAML: protocol.raw,
+    });
+  }
+
+  private submitProtocol = (protocol: IProtocol) => () => {
+    this.setState({
+      showEditor: true,
+      editorYAML: protocol.raw,
+    });
+  }
+
+  private starProtocol = () => {
+    window.open("https://github.com/Microsoft/pai/tree/master/marketplace-v2");
+  }
+
+  private closeEditor = () => {
+    this.setState({ showEditor: false });
   }
 
   private changeListView = () => {
@@ -400,6 +473,7 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
         contributor: protocol.contributor,
         description: protocol.description,
         prerequisitesNum: protocol.prerequisites.length,
+        raw: data,
       } as IProtocol;
     } catch (err) {
       return null;
