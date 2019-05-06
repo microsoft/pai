@@ -22,11 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import get from "lodash.get";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Context from "./Context";
 
+const groupDivStyle: React.CSSProperties = {
+  width: "300px",
+  verticalAlign: "middle",
+  display: "inline-block",
+};
+
+const mountPointTableDataStyle: React.CSSProperties = {
+  width: "35%",
+  verticalAlign: "middle",
+};
+
 interface IGroup {
   readonly gpn: string;
+  readonly default: boolean;
   readonly mountInfos: IMountInfo[];
 }
 
@@ -318,6 +331,16 @@ export function MountDirectoriesForm({
           // ignored
         }
       }
+      // Auto select default mounted groups
+      if (defaultValue === null) {
+        for (const group of newGroups ) {
+          if (group.default === true) {
+            selectedGroups.push(group);
+          }
+        }
+        setSelectedGroups(selectedGroups.concat);
+      }
+
       setGroups(newGroups);
     });
 
@@ -360,7 +383,7 @@ export function MountDirectoriesForm({
     }
   }, [serverNames]);
 
-  const [selectedGroups, setSelectedGroups] = useState<IGroup[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<IGroup[]>(get(defaultValue, "selectedGroups", []));
 
   const onSGChange  = useCallback((group: IGroup, value: boolean) => {
     if (value) {
@@ -388,10 +411,10 @@ export function MountDirectoriesForm({
 
   const showGroups = (group: IGroup, index: number) => {
     return (
-      <div key={group.gpn}>
+      <div key={group.gpn} style={groupDivStyle}>
         <label>
-          {/* tslint:disable-next-line:jsx-no-lambda */}
-          <input type="checkbox" key={index} onChange={(event) => onSGChange(group, event.target.checked)}/>
+          {/* tslint:disable-next-line:jsx-no-lambda tslint:disable-next-line: max-line-length*/}
+          <input type="checkbox" key={index} checked={selectedGroups.find((sg) => sg.gpn === group.gpn) !== undefined} onChange={(event) => onSGChange(group, event.target.checked)}/>
           {group.gpn}
         </label>
       </div>);
@@ -401,12 +424,12 @@ export function MountDirectoriesForm({
     {
       if (selectedGroup.mountInfos !== undefined) {
         return selectedGroup.mountInfos.map((mountInfo, index) => {
-          // normalize path
           return (
-          <div key={selectedGroup.gpn + "_" + index}>
-            <span className="input-group-addon">{mountInfo.mountPoint}</span>
-            <span className="input-group-addon">{"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</span>
-          </div>
+          <tr key={selectedGroup.gpn + "_" + index}>
+            <td data-tooltip="asdf">{mountInfo.mountPoint}</td>
+            <td>
+              {"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</td>
+          </tr>
           );
         });
       } else {
@@ -427,14 +450,24 @@ export function MountDirectoriesForm({
         <label>
           User Groups:
         </label>
-        {groups.map((group, index) => showGroups(group, index))}
       </div>
+      {groups.map((group, index) => showGroups(group, index))}
 
       <div>
         <label>
           Mount Info:
         </label>
-        {selectedGroups.map((selectedGroup) => showMountInfos(selectedGroup))}
+        <table className="table table-striped table-dark">
+          <thead>
+            <tr>
+              <th scope="col" style={mountPointTableDataStyle}>MountPoint</th>
+              <th scope="col">ServerPath</th>
+            </tr>
+          </thead>
+          <tbody>
+          {selectedGroups.map((selectedGroup) => showMountInfos(selectedGroup))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

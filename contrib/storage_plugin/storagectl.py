@@ -94,6 +94,7 @@ def group_set(args):
     content_dict = dict()
     content_dict["gpn"] = args.name
     content_dict["servers"] = args.servers
+    content_dict["default"] = args.default
     if args.mount_info is not None:
         mount_infos = []
         for info_data in args.mount_info:
@@ -183,6 +184,7 @@ def main():
     group_set_parser.add_argument("name")
     group_set_parser.add_argument("servers", nargs="+", help="")
     group_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
+    group_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
     group_set_parser.set_defaults(func=group_set)
     # ./storagectl.py group list [-n GROUP_NAME_1, GROUP_NAME_2 ...]
     group_list_parser = group_subparsers.add_parser("list")

@@ -169,5 +169,5 @@ def delete_secret_content(name, key, namespace):
         if e.status == 404:
             logger.info("Couldn't find secret named {0}.".format(name))
         else:
-            logger.error("Exception when try to delete {0} from {1}: reason: {0}".format(key, name, str(e)))
+            logger.error("Exception when try to delete {0} from {1}: reason: {2}".format(key, name, str(e)))
             sys.exit(1)
