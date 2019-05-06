@@ -9,7 +9,7 @@
         <div class="box-header with-border user-edit-border">
           <h3 class="box-title">Change Userinfo</h3>
         </div>
-        <form id="form-update-account" class="form-register">
+        <form id="form-update-account" class="form-register" onsubmit="updateUserAccount('<%= username %>'); return false;">
           <label for="inputPassword" class="sr-only">Password</label>
           <input type="password" name="password" id="update-account-input-password" class="form-control" placeholder="******">
           <div class="checkbox">
@@ -26,7 +26,7 @@
           <div class="box-header with-border user-edit-border">
               <h3 class="box-title">Update Virtual Clusters</h3>
           </div>
-          <form id="form-update-virtual-cluster" class="form-register">
+          <form id="form-update-virtual-cluster" class="form-register" onsubmit="updateUserVc('<%= username %>'); return false;">
               <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
               <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
                 placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
@@ -36,7 +36,7 @@
         <div class="box-header with-border user-edit-border">
             <h3 class="box-title">Update Github PAT</h3>
         </div>
-        <form id="form-update-github-token" class="form-register">
+        <form id="form-update-github-token" class="form-register" onsubmit="updateUserGithubPAT('<%= username %>'); return false;">
             <label for="inputGithubPAT" class="sr-only">GithubPAT</label>
             <input type="text" name="githubPAT" id="update-github-token-input-githubPAT" class="form-control"
               placeholder=
