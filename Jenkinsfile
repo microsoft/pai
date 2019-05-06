@@ -322,7 +322,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$SINGLE_BOX_URL/rest-server/api/v1/token \
+$SINGLE_BOX_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",
@@ -420,7 +420,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$CLUSTER_URL/rest-server/api/v1/token \
+$CLUSTER_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",

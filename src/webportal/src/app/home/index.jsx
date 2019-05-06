@@ -32,7 +32,20 @@ import config from '../config/webportal.config';
 
 import t from '../../../node_modules/tachyons/css/tachyons.css';
 
+import url from 'url';
 const loginTarget = '/job-list.html';
+
+
+if ( config.authnMethod === 'OIDC') {
+  const query = url.parse(window.location.href, true).query;
+  const expiration = 7 * 24 * 60 * 60;
+  if (query['token']) {
+    cookies.set('user', query.user, {expires: expiration});
+    cookies.set('token', query.token, {expires: expiration});
+    cookies.set('admin', query.admin, {expires: expiration});
+    cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
+  }
+}
 
 if (checkToken(false)) {
   window.location.replace(loginTarget);
@@ -141,7 +154,7 @@ const Bottom = () => (
 );
 
 async function login(username, password, expiration = 7 * 24 * 60 * 60) {
-  const res = await fetch(`${config.restServerUri}/api/v1/token`, {
+  const res = await fetch(`${config.restServerUri}/api/v1/authn/basic/login`, {
     method: 'POST',
     body: JSON.stringify({
       username,

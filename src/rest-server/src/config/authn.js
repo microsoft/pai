@@ -15,31 +15,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-// const tokenRouter = require('./token');
-const authnRouter = require('./authn');
-const rewriteRouter = require('./rewrite');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
-const vcRouter = require('./vc');
-const kubernetesProxy = require('../controllers/kubernetes-proxy');
+const Joi = require('joi');
+const yaml = require('js-yaml');
+const fs = require('fs');
 
-const router = new express.Router();
+let authnConfig = {
+  authnMethod: process.env.AUTHN_METHOD,
+  OIDCConfig: undefined,
+};
 
-router.route('/')
-    .all(controller.index);
+if (authnConfig.authnMethod === 'OIDC') {
+  authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
+}
 
-router.use(rewriteRouter);
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', vcRouter);
-router.use('/kubernetes', kubernetesProxy);
-router.use('/authn', authnRouter);
+// define the schema for authn
+const authnSchema = Joi.object().keys({
+  authnMethod: Joi.string().empty('')
+    .valid('OIDC', 'basic'),
+  OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
+}).required();
 
-// module exports
-module.exports = router;
+
+const {error, value} = Joi.validate(authnConfig, authnSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
+authnConfig = value;
+
+module.exports = authnConfig;

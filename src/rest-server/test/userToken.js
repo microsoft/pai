@@ -28,7 +28,7 @@ getTokenTemplate = JSON.stringify({
 const validToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
 
-describe('user token test: post /api/v1/token', () => {
+describe('user token test: post /api/v1/authn/basic/login', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -81,7 +81,7 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
       .end((err, res) => {
@@ -97,7 +97,7 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 2 (Negative): Should authenticate failed with wrong password', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': 'abcdef' })))
       .end((err, res) => {
@@ -110,7 +110,7 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 3 (Negative): Should authenticate failed with non-exist user', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'nonexist', 'password': 'abcdef' })))
       .end((err, res) => {

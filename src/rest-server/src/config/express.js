@@ -26,6 +26,9 @@ const cookieParser = require('cookie-parser');
 const config = require('./index');
 const logger = require('./logger');
 const createError = require('../util/error');
+const authnConfig = require('./authn');
+const expressSession = require('express-session');
+const passport = require('passport');
 const routers = {
   v1: require('../routes/index'),
   v2: require('../routes/v2/index'),
@@ -42,6 +45,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.text({type: 'text/*'}));
 app.use(cookieParser());
+
+if (authnConfig.authnMethod === 'OIDC') {
+  app.use(expressSession({secret: 'keyboard cat', resave: true, saveUninitialized: false}));
+  app.use(passport.initialize());
+  app.use(passport.session());
+  require('./passport')(passport);
+}
 
 // setup the logger for requests
 app.use(morgan('dev', {'stream': logger.stream}));

@@ -14,6 +14,7 @@ validateIssuer: {{ cluster_cfg['authentication']['AAD']['validateIssuer'] }}
 isB2C: {{ cluster_cfg['authentication']['AAD']['isB2C'] }}
 issuer: {{ cluster_cfg['authentication']['AAD']['issuer'] }}
 passReqToCallback: {{ cluster_cfg['authentication']['AAD']['passReqToCallback'] }}
+useCookieInsteadOfSession: {{ cluster_cfg['authentication']['AAD']['useCookieInsteadOfSession'] }}
 cookieEncryptionKeys:
 {% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}
     - key: {{ ckek['key'] }}
