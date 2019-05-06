@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const User = require('./user');
+const Group = require('./group');
 const axios = require('axios');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
@@ -31,12 +31,11 @@ const {Agent} = require('https');
  */
 
 /**
- * @typedef User
- * @property {string} UserInstance.username - username
- * @property {string} UserInstance.password - password. If no password is set, it will be ''
- * @property {string[]} UserInstance.grouplist - group list. Group name list which the user belongs to
- * @property {string} UserInstance.email - email
- * @property {Object} UserInstance.extension - extension field
+ * @typedef Group
+ * @property {string} username - username
+ * @property {String} GID - GID
+ * @property {string} description - description
+ * @property {Object} extension - extension field
  */
 
 /**
@@ -46,11 +45,12 @@ const {Agent} = require('https');
  * @param {string} option.k8sAPIServerCaFile - Optional config, the ca file path of kubernetes APIServer.
  * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
  * @return {Config} config
-*/
+ */
 function initConfig(apiServerUri, option = {}) {
-  const namespaces = process.env.PAI_USER_NAMESPACE;
+  const namespaces = process.env.PAI_GROUP_NAMESPACE;
   const config = {
-    'namespace': namespaces ? namespaces : 'pai-user',
+    'apiServerUri': apiServerUri,
+    'namespace': namespaces? namespaces : 'pai-group',
     'requestConfig': {
       'baseURL': `${apiServerUri}/api/v1/namespaces/`,
       'maxRedirects': 0,
@@ -68,149 +68,135 @@ function initConfig(apiServerUri, option = {}) {
 }
 
 /**
- * @function read - return a user's info based on the UserName.
+ * @function read - return a Group's info based on the GroupName.
  * @async
- * @param {string} key - User name
+ * @param {string} key - Group name
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
- * @return {Promise<User>} A promise to the User instance
+ * @return {Promise<Group>} A promise to the Group instance
  */
 async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(`${config.namespace}/secrets/${hexKey}`.toString(), {
+    const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
       headers: {
         'Accept': 'application/json',
       },
     });
-    let userData = response['data'];
-    let userInstance = User.createUser({
-      'username': Buffer.from(userData['data']['username'], 'base64').toString(),
-      'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-      'grouplist': JSON.parse(Buffer.from(userData['data']['grouplist'], 'base64').toString()),
-      'email': Buffer.from(userData['data']['email'], 'base64').toString(),
-      'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+    let groupData = response['data'];
+    let groupInstance = Group.createGroup({
+      'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
+      'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
+      'GID': Buffer.from(groupData['data']['GID'], 'base64').toString(),
+      'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
     });
-    return userInstance;
+    return groupInstance;
   } catch (error) {
     throw error.response;
   }
 }
 
 /**
- * @function readAll - return all users' info.
+ * @function readAll - return all Groups' info.
  * @async
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
- * @return {Promise<User[]>} A promise to all User instance list.
+ * @return {Promise<Group[]>} A promise to all Group instance list.
  */
 async function readAll(config) {
   try {
     const request = axios.create(config.requestConfig);
-    const response = await request.get(`${config.namespace}/secrets`.toString(), {
+    const response = await request.get(`${config.namespace}/secrets`, {
       headers: {
         'Accept': 'application/json',
       },
     });
-    let allUserInstance = [];
-    let userData = response['data'];
-    for (const item of userData['items']) {
-      let userInstance = User.createUser({
-        'username': Buffer.from(item['data']['username'], 'base64').toString(),
-        'password': Buffer.from(item['data']['password'], 'base64').toString(),
-        'grouplist': JSON.parse(Buffer.from(item['data']['grouplist'], 'base64').toString()),
-        'email': Buffer.from(item['data']['email'], 'base64').toString(),
+    let allGroupInstance = [];
+    let groupData = response['data'];
+    for (const item of groupData['items']) {
+      let groupInstance = Group.createGroup({
+        'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
+        'description': Buffer.from(item['data']['description'], 'base64').toString(),
+        'GID': Buffer.from(item['data']['GID'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
-      allUserInstance.push(userInstance);
+      allGroupInstance.push(groupInstance);
     }
-    return allUserInstance;
+    return allGroupInstance;
   } catch (error) {
     throw error.response;
   }
 }
 
 /**
- * @function create - Create an user entry to kubernetes secrets.
+ * @function create - Create a Group entry to kubernetes secrets.
  * @async
- * @param {string} key - User name
- * @param {User} value - User info
+ * @param {string} key - Group name
+ * @param {User} value - Group info
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
- * @return {Promise<User>} A promise to the User instance.
+ * @return {Promise<Group>} A promise to the Group instance.
  */
 async function create(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
-    const hexKey = Buffer.from(key).toString('hex');
-    let userInstance = User.createUser(
-      {
-        'username': value['username'],
-        'password': value['password'],
-        'grouplist': value['grouplist'],
-        'email': value['email'],
-        'extension': value['extension'],
-      }
-    );
-    await User.encryptUserPassword(userInstance);
-    let userData = {
+    const hexKey = key ? Buffer.from(key).toString('hex') : '';
+    let groupInstance = Group.createGroup({
+      'groupname': value['groupname'],
+      'description': value['description'],
+      'GID': value['GID'],
+      'extension': value['extension'],
+    });
+    let groupData = {
       'metadata': {'name': hexKey},
       'data': {
-        'username': Buffer.from(userInstance['username']).toString('base64'),
-        'password': Buffer.from(userInstance['password']).toString('base64'),
-        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
-        'email': Buffer.from(userInstance['email']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+        'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
+        'description': Buffer.from(groupInstance['description']).toString('base64'),
+        'GID': Buffer.from(groupInstance['GID']).toString('base64'),
+        'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.post(`${config.namespace}/secrets`, userData);
-    return response;
+    return await request.post(`${config.namespace}/secrets`, groupData);
   } catch (error) {
     throw error.response;
   }
 }
 
 /**
- * @function update - Update an user entry to kubernetes secrets.
+ * @function update - Update a Group entry to kubernetes secrets.
  * @async
- * @param {string} key - User name
- * @param {User} value - User info
+ * @param {string} key - Group name
+ * @param {User} value - Group info
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
- * @return {Promise<User>} A promise to the User instance.
+ * @return {Promise<Group>} A promise to the User instance.
  */
 async function update(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    let userInstance = User.createUser(
-      {
-        'username': value['username'],
-        'password': value['password'],
-        'grouplist': value['grouplist'],
-        'email': value['email'],
-        'extension': value['extension'],
-      }
-    );
-    await User.encryptUserPassword(userInstance);
-    let userData = {
+    let groupInstance = Group.createGroup({
+      'groupname': value['groupname'],
+      'description': value['description'],
+      'GID': value['GID'],
+      'extension': value['extension'],
+    });
+    let groupData = {
       'metadata': {'name': hexKey},
       'data': {
-        'username': Buffer.from(userInstance['username']).toString('base64'),
-        'password': Buffer.from(userInstance['password']).toString('base64'),
-        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
-        'email': Buffer.from(userInstance['email']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+        'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
+        'description': Buffer.from(groupInstance['description']).toString('base64'),
+        'GID': Buffer.from(groupInstance['GID']).toString('base64'),
+        'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
-    return response;
+    return await request.put(`${config.namespace}/secrets/${hexKey}`, groupData);
   } catch (error) {
     throw error.response;
   }
 }
 
 /**
- * @function Remove - Remove an user entry from kubernetes secrets.
+ * @function Remove - Remove a group entry to kubernetes secrets.
  * @async
- * @param {string} key - User name
+ * @param {string} key - Group name
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<void>}
  */
