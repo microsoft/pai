@@ -48,7 +48,7 @@ class MarketplacePluginElement extends HTMLElement {
 
     let submissionId;
     const plugins = (window as unknown as IWindow).PAI_PLUGINS;
-    for (let i in plugins) {
+    for (const i in plugins) {
       if (plugins[i].id === "protocol") {
         submissionId = i;
       }

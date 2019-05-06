@@ -22,7 +22,7 @@ import {
   Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
-import yaml from "yaml";
+import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 
@@ -470,7 +470,7 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
     try {
       const res = await fetch(uri);
       const data = await res.text();
-      const protocol = yaml.parse(data);
+      const protocol = yaml.safeLoad(data);
       return {
         name: protocol.name,
         contributor: protocol.contributor,
