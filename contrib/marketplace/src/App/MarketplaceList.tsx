@@ -21,7 +21,6 @@ import {
   DefaultPalette, Fabric, Icon, IconButton, Label, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
-import classNames from "classnames/bind";
 import yaml from "yaml";
 
 const styles = mergeStyleSets({
@@ -114,7 +113,6 @@ const styles = mergeStyleSets({
     },
   },
 });
-const cx = classNames.bind(styles);
 
 initializeIcons();
 
