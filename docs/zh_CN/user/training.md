@@ -110,7 +110,7 @@ Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信�
       
       **image** 字段是 Docker 映像的标识，它包含了定制的 Python 和系统包，为每次运行提供干净、一致的环境。
       
-      管理员可以设置专用的 Docker 存储库。 The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
+      管理员可以设置专用的 Docker 存储库。 hub.docker.com 是共享的 Docker 存储库，有很多 Docker 映像。 推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) 来用于深度学习。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。
       
       If an appropriate docker image isn't found, it's not difficult to [build a docker image](../job_docker_env.md) from scratch.
       
