@@ -17,20 +17,24 @@
 
 
 // module dependencies
-const express = require('express');
-const controller = require('../../controllers/v2/index');
-const jobRouter = require('./job');
-const userRouter = require('./user')
+const crudUtil = require('../../util/manager/user/crudUtil');
+const createError = require('../../util/error');
 
+const crudType = 'k8sSecret';
+const crudUser = crudUtil.getStorageObject(crudType);
+const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI)
 
-const router = new express.Router();
-
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-
-router.use('./user', userRouter);
+const getUser = async (username, next) => {
+  try {
+    return crudUser.read(username, crudConfig);
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+    } else {
+      return next(error);
+    }
+  }
+};
 
 // module exports
-module.exports = router;
+module.exports = {getUser};

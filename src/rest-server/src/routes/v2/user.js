@@ -15,22 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const controller = require('../../controllers/v2/index');
-const jobRouter = require('./job');
-const userRouter = require('./user')
-
+const userController = require('../../controllers/v2/user');
 
 const router = new express.Router();
 
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-
-router.use('./user', userRouter);
-
-// module exports
-module.exports = router;
+router.route('/:username/')
+  .get(userController.getUser);
