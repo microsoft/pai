@@ -164,7 +164,7 @@ The UI is implemented by [Grafana](https://grafana.com/), check its web site for
 
 - Click *Go to Tracking Page* in job details page, if IP address,  ports and GPU are assigned.
 
-![job link](imgs/web_job_details_loglink.png)
+   ![job link](imgs/web_job_details_loglink.png)
 
 - A new page is opened and shows log of yarn platform.
 

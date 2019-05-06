@@ -102,7 +102,7 @@ After deployment, it's recommended to [validate key components of OpenPAI](docs/
 
 The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users  can learn from [Train models](#train-models). But below part of training models is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users  can learn from [Train models](#train-models). But below section of training models is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
 
 ### FAQ
 
