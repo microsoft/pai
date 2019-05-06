@@ -1,21 +1,20 @@
 # OpenPAI VS Code Client
 
+OpenPAI VS Code Client is the dedicated client tool for OpenPAI. It's an extension of [Visual Studio Code](https://code.visualstudio.com/). Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
+
+With OpenPAI VS Code Client, you can submit jobs, simulate jobs locally, or manage files, etc. OpenPAI VS Code Client also supports Windows, macOS, and Linux.
+
 ## Installation
 
-Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
+1. Install and launch [Visual Studio Code](https://code.visualstudio.com). Click green button to download and install Visual Studio Code if it's not installed.
 
-More information please refer to the [Visual Studio Code Official Site](https://code.visualstudio.com/).
+    ![Download vs code](assets/download_vscode.png)
 
-OpenPAI Client is a VS Code extension to connect PAI clusters, submit AI jobs, and manage files on HDFS, etc. You need to install the extension in VS code before using it.
+1. Click the *Extensions* icon on left side, after Visual Studio Code launched. And input *openpai* to search OpenPAI VS Code Client.
 
-To install the OpenPAI Client:
-1. Launch VS Code.
-2. Click the "Extensions" icon in Activity Bar or press **Ctrl+Shift+X** to bring up the Extensions view.
-3. Input **openpai** in the text box, the OpenPAI VS Code Client will appear in the result list.
-4. Click the **Install** button. The extension will be installed.
-5. After a successful installation, you will see an introduction page. Follow the instructions there and try the PAI client.
+    ![Extension](assets/ext-install-1.png)
 
-![Extension](./assets/ext-install-1.png)
+1. Click the **Install** button, and wait installation completes.
 
 ## Next steps
 
