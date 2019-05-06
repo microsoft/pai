@@ -92,6 +92,8 @@ async function read(key, config) {
     });
     return groupInstance;
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
     throw error.response;
   }
 }
@@ -123,6 +125,8 @@ async function readAll(config) {
     }
     return allGroupInstance;
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
     throw error.response;
   }
 }
