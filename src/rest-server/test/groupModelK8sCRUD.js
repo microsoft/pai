@@ -172,7 +172,7 @@ describe('Group model k8s secret set function test', () => {
         'type': 'Opaque'
       });
 
-    // Mock for case1 username=newuser
+    // Mock for case1 groupname=newuser
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-group/secrets', {
         'metadata': {'name': '6e657775736572'},
@@ -188,7 +188,7 @@ describe('Group model k8s secret set function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'name': '6e657775736572',
-          'namespace': 'pai-user',
+          'namespace': 'pai-group',
           'selfLink': '/api/v1/namespaces/pai-group/secrets/6e657775736572',
           'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
           'resourceVersion': '1116114',
@@ -205,26 +205,26 @@ describe('Group model k8s secret set function test', () => {
   });
 
   // set a key value pair
-  it('Should add a new user.', async () => {
-    const updateUser = {
+  it('Should add a new group.', async () => {
+    const updateGroup = {
       'groupname': 'newuser',
       'email': 'test@pai.com',
       'grouplist': ['test'],
       'extension': {}
     };
-    const res = await userK8sCRUD.create('newuser', updateUser, userK8sCRUDConfig);
+    const res = await groupK8sCRUD.create('newuser', updateGroup, groupK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
 
-  // update a user
-  it('should update an exist new user', async () => {
-    const updateUser = {
+  // update a group
+  it('should update an exist new group', async () => {
+    const updateGroup = {
       'username': 'existuser',
       'description': 'test',
       'GID': '1234',
       'extension': {},
     };
-    const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig);
+    const res = await groupK8sCRUD.update('existuser', updateGroup, groupK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
 });
@@ -243,7 +243,7 @@ describe('User Model k8s secret delete function test', () => {
 
     // Mock for case1 username=existuser
     nock(apiServerRootUri)
-      .delete('/api/v1/namespaces/pai-user/secrets/657869737475736572')
+      .delete('/api/v1/namespaces/pai-group/secrets/657869737475736572')
       .reply(200, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -258,7 +258,7 @@ describe('User Model k8s secret delete function test', () => {
 
     // Mock for case2 username=nonexistuser
     nock(apiServerRootUri)
-      .delete('/api/v1/namespaces/pai-user/secrets/6e6f6e657869737475736572')
+      .delete('/api/v1/namespaces/pai-group/secrets/6e6f6e657869737475736572')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -275,12 +275,12 @@ describe('User Model k8s secret delete function test', () => {
   });
 
   // delete exist user
-  it('should delete an exist user successfully', async () => {
-    const res = await userK8sCRUD.remove('existuser', userK8sCRUDConfig);
+  it('should delete an exist group successfully', async () => {
+    const res = await groupK8sCRUD.remove('existuser', groupK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
   });
 
   it('should failed to delete an non-exist user', async () => {
-    return await expect(userK8sCRUD.remove('nonexistuser', userK8sCRUDConfig)).to.be.rejected;
+    return await expect(groupK8sCRUD.remove('nonexistuser', groupK8sCRUDConfig)).to.be.rejected;
   });
 });
