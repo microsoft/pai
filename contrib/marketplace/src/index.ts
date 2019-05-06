@@ -39,12 +39,8 @@ const publicPath = __webpack_public_path__ = resolve((window.document.currentScr
 class MarketplacePluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
-    const user = this.getAttribute("pai-user");
-    const token = this.getAttribute("pai-rest-server-token");
-    if (user === null || token === null) {
-      window.location.href = "/login.html";
-      return;
-    }
+    const user = this.getAttribute("pai-user") as string;
+    const token = this.getAttribute("pai-rest-server-token") as string;
 
     ReactDOM.render(React.createElement(App, {api, user, token}), this);
   }
