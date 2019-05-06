@@ -18,7 +18,7 @@
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/tooltip.js');
 
-const monaco = require('monaco-editor');
+const monaco = require('monaco-editor/esm/vs/editor/editor.api');
 
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');

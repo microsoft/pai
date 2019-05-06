@@ -244,8 +244,17 @@ const config = (env, argv) => ({
     new webpack.WatchIgnorePlugin([
       /css\.d\.ts$/,
     ]),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^moment$/,
+      contextRegExp: /chart.js/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^esprima$/,
+      contextRegExp: /js-yaml/,
+    }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'css', 'ts', 'html'],
+      languages: ['json', 'yaml'],
+      features: ['smartSelect'],
     }),
     new CopyWebpackPlugin([
       {from: 'src/assets', to: 'assets'},
