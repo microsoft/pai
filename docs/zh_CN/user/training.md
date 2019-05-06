@@ -112,7 +112,7 @@ Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信�
       
       管理员可以设置专用的 Docker 存储库。 hub.docker.com 是共享的 Docker 存储库，有很多 Docker 映像。 推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) 来用于深度学习。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。
       
-      If an appropriate docker image isn't found, it's not difficult to [build a docker image](../job_docker_env.md) from scratch.
+      如果找不到合适的 Docker 映像，从头[构建 Docker 映像](../job_docker_env.md)并不难。
       
       Note, if a docker image doesn't include *openssh-server* and *curl* components by default, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built on top of this image and includes *openssh-server* and *curl*.
       
