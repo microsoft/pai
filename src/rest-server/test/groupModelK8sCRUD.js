@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-const groupK8sCRUD = require('../src/util/manager/gtoup/crudK8sSecret');
+const groupK8sCRUD = require('../src/util/manager/group/crudK8sSecret');
 
 const groupK8sCRUDConfig = groupK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
 
