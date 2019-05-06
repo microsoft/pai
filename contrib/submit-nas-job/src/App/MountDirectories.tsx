@@ -307,6 +307,7 @@ export function MountDirectoriesForm({
 
   const [serverNames, setServerNames] = useState<string[]>([]);
   const [groups, setGroups] = useState<IGroup[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<IGroup[]>(get(defaultValue, "selectedGroups", []));
 
   useEffect(() => {
     const storageGroupUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-group`;
@@ -338,7 +339,7 @@ export function MountDirectoriesForm({
             selectedGroups.push(group);
           }
         }
-        setSelectedGroups(selectedGroups.concat);
+        setSelectedGroups(selectedGroups.concat());
       }
 
       setGroups(newGroups);
@@ -382,8 +383,6 @@ export function MountDirectoriesForm({
       // Do nothing
     }
   }, [serverNames]);
-
-  const [selectedGroups, setSelectedGroups] = useState<IGroup[]>(get(defaultValue, "selectedGroups", []));
 
   const onSGChange  = useCallback((group: IGroup, value: boolean) => {
     if (value) {
