@@ -115,6 +115,8 @@ async function readAll(config) {
     let allGroupInstance = [];
     let groupData = response['data'];
     for (const item of groupData['items']) {
+      // eslint-disable-next-line no-console
+      console.log(item);
       let groupInstance = Group.createGroup({
         'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
         'description': Buffer.from(item['data']['description'], 'base64').toString(),
