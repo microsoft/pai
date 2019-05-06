@@ -80,6 +80,7 @@ A tool to manage external storage in PAI.
 ```json
 {
 	"gpn": "groupname",
+	"default": false,
 	"servers": [
 		"servername1",
 		"servername2",

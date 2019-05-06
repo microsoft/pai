@@ -64,9 +64,10 @@ Set server config in PAI.
 
 ### Set group config <a name="Group_set"></a> 
 ```
-./storagectl.py group set GROUP_NAME SERVER_NAME_1 [SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]...
+./storagectl.py group set GROUP_NAME SERVER_NAME_1 [SERVER_NAME_2 ...] [-d] [-m MOUNT_POINT SERVER PATH]...
 ```
 - SERVER_NAME_1 means groups useable servers.
+- If -d is set, means mount group storage by default.
 - -m means the mount info for group. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
     - In PATH, %USER indicates current PAI user
     - In PATH, %JOB indicates current job name
