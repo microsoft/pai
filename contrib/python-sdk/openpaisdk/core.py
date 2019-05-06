@@ -3,7 +3,7 @@ import json
 import os
 
 from openpaisdk.storage import Storage
-from openpaisdk.utils import get_response, update_obj, Namespace
+from openpaisdk.utils import get_response, Namespace
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
 from openpaisdk import __jobs_cache__

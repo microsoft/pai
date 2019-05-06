@@ -184,8 +184,16 @@ class ActionJobFactory(ActionFactory):
         if args.config:
             return self.client.get_token().rest_api_submit(from_file(args.config))
         self.client.submit(self.__job__)
-        Engine().process(['default', 'remove', 'job-name'])
         return self.client.get_job_link(args.job_name)
+
+    def define_arguments_fast(self, parser: argparse.ArgumentParser):
+        JobSpec().define(parser, common=['job-name', 'alias', 'dont-set-as-default', 'config'])
+        TaskRole().define(parser, common=[])
+
+    def do_action_fast(self, args):
+        self.do_action_create(args)
+        self.do_action_task(args)
+        return self.do_action_submit(args)
 
 class ActionSubmit(Action):
 
@@ -241,7 +249,7 @@ __cli_structure__ = {
         "cluster management", [ActionListCluster()]
     ],
     "job": [
-        "job operations", [ActionJobFactory(x, __job_actions__) for x in "list create task submit".split()]   
+        "job operations", [ActionJobFactory(x, __job_actions__) for x in "list create task submit fast".split()]   
     ],
     "default": [
         "set or show defaults", [ActionDefaultFactory(x, __default_actions__) for x in "list add remove".split()]

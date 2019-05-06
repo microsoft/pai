@@ -4,8 +4,7 @@ import shutil
 import fnmatch
 from contextlib import contextmanager
 import json
-import yaml
-
+from openpaisdk import __logger__
 
 __yaml_exts__ = ['.yaml', '.yml']
 __json_exts__ = ['.json', '.jsn']
@@ -18,14 +17,18 @@ def from_file(fname: str, default={}, fmt=None):
             if ext in __json_exts__:
                 fmt = json
             elif ext in __yaml_exts__:
+                import yaml
                 fmt = yaml
             else:
-                raise NotImplementedError
+                __logger__.error('unrecognized file extension %s', ext, exc_info=True)
         with open(fname) as fn:
+            __logger__.debug('Deserializing from %s', fname)
             return fmt.load(fn)
     except Exception as e:
-        print(e)
-        return default
+        if default == '==FATAL==':
+            __logger__.error('IO Err: %s', e, exc_info=True)
+        __logger__.debug('Deserializing failed, return default')
+        return default 
 
 
 def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
@@ -75,6 +78,7 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
         if ext in __json_exts__:
             fmt, dic = json, dict(indent=4)
         elif ext in __yaml_exts__:
+            import yaml
             fmt, dic = yaml, dict(default_flow_style=False)
         else:
             raise NotImplementedError

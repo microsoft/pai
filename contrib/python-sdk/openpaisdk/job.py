@@ -1,6 +1,6 @@
 from openpaisdk.utils import Namespace, attach_args
 from openpaisdk.io_utils import from_file, to_file
-from openpaisdk import __defaults__, __jobs_cache__, __install__
+from openpaisdk import __defaults__, __jobs_cache__, __install__, __logger__
 import argparse
 import os
 
@@ -40,8 +40,8 @@ class JobSpec(Namespace):
         super().__init__()
         self.type = 'job-spec'
 
-    def define(self, parser: argparse.ArgumentParser):
-        define_common_arguments(parser, ['job-name'])
+    def define(self, parser: argparse.ArgumentParser, common: list=['job-name', 'alias']):
+        define_common_arguments(parser, common)
         parser.add_argument('--workspace', '-w', default=__defaults__.get('workspace', None), help='remote path for workspace (store code, output, ...)')
         parser.add_argument('--protocol', default='1.0', help='protocol version')
         parser.add_argument('--sources', '-s', action='append', help='sources files')
@@ -64,8 +64,8 @@ class TaskRole(Namespace):
         super().__init__()
         self.type = 'task-role'
 
-    def define(self, parser: argparse.ArgumentParser):
-        define_common_arguments(parser, ['job-name'])
+    def define(self, parser: argparse.ArgumentParser, common: list=['job-name']):
+        define_common_arguments(parser, common)
         parser.add_argument('--task-role-name', '-t', default='main', help='task role name')
         parser.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
         parser.add_argument('--cpu', type=int, default=__defaults__.get('cpu', 1), help='cpu number per instance')
@@ -93,6 +93,7 @@ class Job:
     def restore(self, job_name):
         fname = Job.job_cache_file(job_name)
         if os.path.isfile(fname):
+            __logger__.debug('restore Job config from %s', fname)
             self.from_file(Job.job_cache_file(job_name))
         return self
 

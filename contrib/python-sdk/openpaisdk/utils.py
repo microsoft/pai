@@ -2,9 +2,10 @@
 common functions to
 """
 import argparse
+import importlib
 import inspect
 from requests import Response, request
-
+from openpaisdk import __logger__
 
 def attach_args(target=None, expand: list=['kwargs'], ignore: list=['self']):
     caller = inspect.currentframe().f_back
@@ -48,19 +49,10 @@ class Namespace(argparse.Namespace):
         return self
 
 
-def update_obj(a, b, func: str='update'):
-    """
-    update objecgt a with b (if b is not None)
-    
-    Args:
-        a ([type]): destination object
-        b ([type]): object to be merged
-    """
-    f = getattr(a, func)
-    assert callable(f), 'method {} is not callable'.format(func)
-    if b is not None:
-        f(b)
-    return a
+def getobj(name: str):
+    mod_name, func_name = name.rsplit('.',1)
+    mod = importlib.import_module(mod_name)
+    return getattr(mod, func_name)
 
 
 def get_response(

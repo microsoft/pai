@@ -15,8 +15,8 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [2.1. Query your existing jobs](#21-query-your-existing-jobs)
   - [2.2. Submit a job with an existing config file](#22-submit-a-job-with-an-existing-config-file)
   - [2.3. Submit a job step by step from sketch up](#23-submit-a-job-step-by-step-from-sketch-up)
-  - [2.4. _InProgress_ Submit one-line job in command line](#24-inprogress-submit-one-line-job-in-command-line)
-  - [2.5. _InProgress_ Fetch outputs](#25-inprogress-fetch-outputs)
+  - [2.4. Submit one-line job in command line](#24-submit-one-line-job-in-command-line)
+  - [2.5. _InProgress_ Job management and fetching outputs](#25-inprogress-job-management-and-fetching-outputs)
   - [2.6. _InProgress_ Storage access](#26-inprogress-storage-access)
   - [2.7. _TBD_ Job cloning and batch submitting](#27-tbd-job-cloning-and-batch-submitting)
 - [3. Python binding](#3-python-binding)
@@ -114,15 +114,17 @@ opai job task -t <name-2> [-n <instances>] [--gpu <gpu>] [--cpu <cpu>] [--mem <m
 opai job submit 
 ```
 
-## 2.4. _InProgress_ Submit one-line job in command line
+## 2.4. Submit one-line job in command line
+
+For the jobs that are simple (e.g. with only one task role), the CLI tool provides a shortcut to combine create, task and submit into only one command `fast`. 
 
 If your job only has one task role and its command looks like `python script.py arg1 arg2`, you may submit it in a simplest way like 
 
 ```bash
-opai job fast -j <job-name> [-a <alias>] -i <your-image> python script.py arg1 arg2
+opai job fast -j <job-name> [-a <alias>] [-i <your-image>] python script.py arg1 arg2
 ```
 
-## 2.5. _InProgress_ Fetch outputs
+## 2.5. _InProgress_ Job management and fetching outputs
 
 The SDK provides simple job management based folder structure on _remote_ storage. It is recommended to upload user logging or results to the output directory. 
 
@@ -165,7 +167,7 @@ The advanced function like job cloning has been proven to be very useful.
 ```bash
 opai job clone --from <existing-job-name> -j <new-job-name>
 # change some of the parameters to new value
-opai job mutate <path::to::parameter::in::config> <new-value>
+opai job submit <path::to::parameter::in::config>=<new-value> [...]
 # submit job with new parameter
 opai job evolve
 ```
