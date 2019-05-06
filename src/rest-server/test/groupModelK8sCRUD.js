@@ -219,7 +219,7 @@ describe('Group model k8s secret set function test', () => {
   // update a group
   it('should update an exist new group', async () => {
     const updateGroup = {
-      'username': 'existuser',
+      'groupname': 'existuser',
       'description': 'test',
       'GID': '1234',
       'extension': {},

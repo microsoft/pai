@@ -189,8 +189,6 @@ async function update(key, value, config) {
     };
     return await request.put(`${config.namespace}/secrets/${hexKey}`, groupData);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
