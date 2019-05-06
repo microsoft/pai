@@ -39,56 +39,49 @@ Following this section to submit a very simple job like hello-world during learn
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
   
-      After that, OpenPAI will show dashboard as below.
-      
-      ![dashboard](imgs/web_dashboard.png)
-      
+  After that, OpenPAI will show dashboard as below.
+  
+  ![dashboard](imgs/web_dashboard.png)
 
 2. Click **Submit Job** on the left pane and reach this page.
   
-      ![submit job](imgs/web_submit_job.png)
-      
+  ![submit job](imgs/web_submit_job.png)
 
 3. Click **JSON** button. Clear existing content and paste below content in the popped text box, then click save.
   
-      The content is introduced in next sections.
-      
-      ```json
-      {
-      "jobName": "tensorflow-cifar10",
-      "image": "tensorflow/tensorflow:1.12.0-gpu-py3",
-      "taskRoles": [
-          {
-          "name": "default",
-          "taskNumber": 1,
-          "cpuNumber": 4,
-          "memoryMB": 8192,
-          "gpuNumber": 1,
-          "command": "apt update && apt install -y git && git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-          }
-      ]
-      }
-      ```
-      
-      ![paste job](imgs/web_paste_json.png)
-      
+  The content is introduced in next sections.
+  
+      json
+       {
+       "jobName": "tensorflow-cifar10",
+       "image": "tensorflow/tensorflow:1.12.0-gpu-py3",
+       "taskRoles": [
+           {
+           "name": "default",
+           "taskNumber": 1,
+           "cpuNumber": 4,
+           "memoryMB": 8192,
+           "gpuNumber": 1,
+           "command": "apt update && apt install -y git && git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+           }
+       ]
+       }
+  
+  ![paste job](imgs/web_paste_json.png)
 
 4. It will show as below. Click **Submit** button to submit the job to OpenPAI platform.
   
-      ![click submit job](imgs/web_click_submit_job.png)
-      
-      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) is recommended to work with OpenPAI.
-      
+  ![click submit job](imgs/web_click_submit_job.png)
+  
+  Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
 
 5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
   
-      ![job list](imgs/web_job_list.png)
-      
+  ![job list](imgs/web_job_list.png)
 
 6. Click job name to view job details. Keep refreshing the details page, until job status is changed to *Running*, and IP address is assigned in below pane of task role. There are more details and actions, like status, tracking log and so on.
   
-      ![job list](imgs/web_job_details.png)
-      
+  ![job list](imgs/web_job_details.png)
 
 ## 理解 Job
 
@@ -106,23 +99,21 @@ Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信�
 
 - **image**
   
-      OpenPAI 使用 [docker](https://www.docker.com/why-docker) 来提供运行时的环境。 Docker 是一种流行的技术，可以在同一台服务器上提供多个相互隔离的运行环境。 因此，OpenPAI 可以在同一台服务器上为多个资源请求提供服务，并提供一致、干净的环境。
-      
-      **image** 字段是 Docker 映像的标识，它包含了定制的 Python 和系统包，为每次运行提供干净、一致的环境。
-      
-      管理员可以设置专用的 Docker 存储库。 hub.docker.com 是共享的 Docker 存储库，有很多 Docker 映像。 推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) 来用于深度学习。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。
-      
-      如果找不到合适的 Docker 映像，从头[构建 Docker 映像](../job_docker_env.md)并不难。
-      
-      Note, if a docker image doesn't include *openssh-server* and *curl* components by default, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built on top of this image and includes *openssh-server* and *curl*.
-      
+  OpenPAI uses [docker](https://www.docker.com/why-docker) to provide runtime environments. Docker is a popular technology to provide isolated environments on the same server. So that OpenPAI can serve multiple resource requests on the same server and provides consistent clean environments.
+  
+  The **image** field is the identity of docker image, which includes customized Python and system packages, to provide a clean and consistent environment for each running.
+  
+  Administrator may set a private docker repository. The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
+  
+  If an appropriate docker image isn't found, it's not difficult to [build a docker image](../job_docker_env.md) from scratch.
+  
+  Note, if a docker image doesn't include *openssh-server* and *curl* components by default, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built on top of this image and includes *openssh-server* and *curl*.
 
 - **taskRoles** defines different roles in a job.
   
-      For single machine jobs, there is only one item in taskRoles.
-      
-      For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [an example](../job_tutorial.md#a-complete-example).
-      
+  For single machine jobs, there is only one item in taskRoles.
+  
+  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [an example](../job_tutorial.md#a-complete-example).
 
 - **taskRoles/name** is the name of current task role and it's used in environment variables for communication in distributed jobs.
 
@@ -132,8 +123,7 @@ Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信�
 
 - **taskRoles/command** is what user want to run in this task role. It can be multiple commands, which are joint by `&&` like in terminal. In the hello-world job configuration, it clones code from GitHub, downloads data and then executes the training progress within one line.
   
-      Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
-      
+  Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
 
 ### Transfer files
 
