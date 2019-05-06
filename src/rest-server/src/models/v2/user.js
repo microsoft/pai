@@ -22,7 +22,7 @@ const createError = require('../../util/error');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
-const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI)
+const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
 const getUser = async (username, next) => {
   try {

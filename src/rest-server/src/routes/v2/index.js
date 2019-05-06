@@ -20,7 +20,7 @@
 const express = require('express');
 const controller = require('../../controllers/v2/index');
 const jobRouter = require('./job');
-const userRouter = require('./user')
+const userRouter = require('./user');
 
 
 const router = new express.Router();
