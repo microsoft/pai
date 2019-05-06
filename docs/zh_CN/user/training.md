@@ -17,21 +17,21 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Train models on OpenPAI
+# 在 OpenPAI 上训练模型
 
-- [Train models on OpenPAI](#train-models-on-openpai) 
-  - [Submit a hello-world job](#submit-a-hello-world-job)
-  - [Understand job](#understand-job) 
-    - [Learn hello-world job](#learn-hello-world-job)
-    - [Transfer files](#transfer-files)
-    - [Job workflow](#job-workflow)
-  - [Reference](#reference)
+- [在 OpenPAI 上训练模型](#train-models-on-openpai) 
+  - [提交 hello-world Job](#submit-a-hello-world-job)
+  - [理解 Job](#understand-job) 
+    - [理解 hello-world Job](#learn-hello-world-job)
+    - [传输文件](#transfer-files)
+    - [Job 流程](#job-workflow)
+  - [参考](#reference)
 
-This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
+本文档适合于初次使用 OpenPAI 来训练机器学习模型或执行其它命令的人。
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
+假设已经知道 OpenPAI 的 IP 地址或域名，并已经有了账号。 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
-## Submit a hello-world job
+## 提交 hello-world Job
 
 The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
 
@@ -90,15 +90,15 @@ Following this section to submit a very simple job like hello-world during learn
       ![job list](imgs/web_job_details.png)
       
 
-## Understand job
+## 理解 Job
 
 With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
 
-### Learn hello-world job
+### 理解 hello-world Job
 
-The **job configuration** is a JSON file, which is posted to OpenPAI. Here uses the hello-world job configuration to understand key fields.
+**Job 配置**是一个发送到 OpenPAI 的 JSON 文件。 这里使用 hello-world Job 的配置来理解关键字段。
 
-The JSON file of job has two levels entries. The top level includes shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and the corresponding running environment.
+Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信息，包括 Job 名称，Docker 映像，任务角色等等。 第二级是 taskRoles，它是一个数组。 Each item in the array specifies commands and the corresponding running environment.
 
 Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
 
