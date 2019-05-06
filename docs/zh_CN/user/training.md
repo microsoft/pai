@@ -98,19 +98,19 @@ With submitting a hello-world job, this section introduces more knowledge about 
 
 **Job 配置**是一个发送到 OpenPAI 的 JSON 文件。 这里使用 hello-world Job 的配置来理解关键字段。
 
-Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信息，包括 Job 名称，Docker 映像，任务角色等等。 第二级是 taskRoles，它是一个数组。 Each item in the array specifies commands and the corresponding running environment.
+Job 的 JSON 文件有两层节点。 顶级节点包括了此 Job 的共享信息，包括 Job 名称，Docker 映像，任务角色等等。 第二级是 taskRoles，它是一个数组。 数组中每个项目都会指定命令和相应的运行环境。
 
-Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
+以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
-- **jobName** is the unique name of current job, displays in web also. A meaningful name helps managing jobs well.
+- **jobName** 是当前 Job 的唯一名称，也会显示在 Web 中。 有意义的名称有助于管理 Job。
 
 - **image**
   
-      OpenPAI uses [docker](https://www.docker.com/why-docker) to provide runtime environments. Docker is a popular technology to provide isolated environments on the same server. So that OpenPAI can serve multiple resource requests on the same server and provides consistent clean environments.
+      OpenPAI 使用 [docker](https://www.docker.com/why-docker) 来提供运行时的环境。 Docker 是一种流行的技术，可以在同一台服务器上提供多个相互隔离的运行环境。 因此，OpenPAI 可以在同一台服务器上为多个资源请求提供服务，并提供一致、干净的环境。
       
-      The **image** field is the identity of docker image, which includes customized Python and system packages, to provide a clean and consistent environment for each running.
+      **image** 字段是 Docker 映像的标识，它包含了定制的 Python 和系统包，为每次运行提供干净、一致的环境。
       
-      Administrator may set a private docker repository. The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
+      管理员可以设置专用的 Docker 存储库。 The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
       
       If an appropriate docker image isn't found, it's not difficult to [build a docker image](../job_docker_env.md) from scratch.
       
