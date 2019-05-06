@@ -2,7 +2,7 @@
 
 [![生成状态](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai) [![代码覆盖状态](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master) [![进入 https://gitter.im/Microsoft/pai 聊天室提问](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![版本](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-[English](README_zh_CN.md)
+[English](README.md)
 
 OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
@@ -126,14 +126,14 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ## 运维管理
 
-* [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
-* [监测](./docs/webportal/README.md)
-* [升级](./docs/upgrade/upgrade_to_v0.12.md)
+* [使用 paictl 管理集群](docs/zh_CN/paictl/paictl-manual.md)
+* [监测](./docs/zh_CN/webportal/README.md)
+* [升级](./docs/zh_CN/upgrade/upgrade_to_v0.12.md)
 
 ## 参考手册
 
-* [Job 配置](docs/job_tutorial.md)
-* [RESTful API](docs/rest-server/API.md)
+* [Job 配置](docs/zh_CN/job_tutorial.md)
+* [RESTful API](docs/zh_CN/rest-server/API.md)
 * 可以在[这里](docs)查看设计文档。
 
 ## 寻求帮助
