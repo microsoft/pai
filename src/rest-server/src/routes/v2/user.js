@@ -23,3 +23,5 @@ const router = new express.Router();
 
 router.route('/:username/')
   .get(userController.getUser);
+
+module.exports = router;
