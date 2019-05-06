@@ -81,10 +81,10 @@ This animation shows above steps.
 
 As local simulation is a close but still different environment with OpenPAI cluster, there are some issues cannot be found by simulation. Some examples,
 
-* The job may need much more memory or distributed environments. It cannot be simulated locally.
-* The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
-* The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
-* Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
+- The job may need much more memory or distributed environments. It cannot be simulated locally.
+- The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
+- The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
+- Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
 
 ## Manual
 
@@ -96,11 +96,11 @@ The client has two GUI parts. First is the *PAI CLUSTER EXPLORER* in explorer an
 
 There are two parts in the side bar.
 
-* HDFS Explorer
+- HDFS Explorer
 
     You can view, upload and download folder and files of the OpenPAI cluster storage.
 
-* Job List
+- Job List
 
     You can view jobs in OpenPAI cluster. The lists refresh periodically, and the icon shows the status of each job. You can open a job in browser with double clicking it.
 
