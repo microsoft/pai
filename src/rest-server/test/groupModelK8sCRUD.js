@@ -125,7 +125,7 @@ describe('Group model k8s secret get function test', () => {
     // eslint-disable-next-line no-console
     console.log(res);
     return expect(res).to.deep.equal({
-      username: 'paitest',
+      groupname: 'paitest',
       description: 'test',
       GID: '1234',
       extension: {},
@@ -149,8 +149,8 @@ describe('Group model k8s secret set function test', () => {
         'metadata':{'name':'657869737475736572'},
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
-          'grouplist': 'WyJ0ZXN0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
+          'description': 'dGVzdA==',
+          'GID': 'MTIzNA==',
           'extension': 'e30='
         }
       })
@@ -167,8 +167,8 @@ describe('Group model k8s secret set function test', () => {
         },
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
-          'grouplist': 'WyJ0ZXN0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
+          'description': 'dGVzdA==',
+          'GID': 'MTIzNA==',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -180,8 +180,8 @@ describe('Group model k8s secret set function test', () => {
         'metadata': {'name': '6e657775736572'},
         'data': {
           'groupname': 'bmV3dXNlcg==',
-          'grouplist': 'WyJ0ZXN0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
+          'description': 'dGVzdA==',
+          'GID': 'MTIzNA==',
           'extension': 'e30='
         }
       })
@@ -198,8 +198,8 @@ describe('Group model k8s secret set function test', () => {
         },
         'data': {
           'groupname': 'bmV3dXNlcg==',
-          'grouplist': 'WyJ0ZXN0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
+          'description': 'dGVzdA==',
+          'GID': 'MTIzNA==',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -210,9 +210,9 @@ describe('Group model k8s secret set function test', () => {
   it('Should add a new group.', async () => {
     const updateGroup = {
       'groupname': 'newuser',
-      'email': 'test@pai.com',
-      'grouplist': ['test'],
-      'extension': {}
+      'description': 'test',
+      'GID': '1234',
+      'extension': {},
     };
     const res = await groupK8sCRUD.create('newuser', updateGroup, groupK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
