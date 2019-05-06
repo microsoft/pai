@@ -23,11 +23,11 @@ import com.microsoft.frameworklauncher.common.model.FrameworkState;
 import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.util.*;
 
@@ -109,7 +109,7 @@ public class RMResyncHandler { // THREAD SAFE
           ApplicationReport applicationReport = null;
 
           try {
-            applicationReport = yarnClient.getApplicationReport(ConverterUtils.toApplicationId(applicationId));
+            applicationReport = yarnClient.getApplicationReport(ApplicationId.fromString(applicationId));
           } catch (Exception e) {
             // Best Effort to getApplicationReport, since it depends on ApplicationHistoryServer
             // which is not as reliable as RM.

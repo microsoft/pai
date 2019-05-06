@@ -20,7 +20,7 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import classNames from 'classnames';
-import {isEmpty} from 'lodash';
+import {get, isEmpty} from 'lodash';
 import {initializeIcons, FontClassNames, MessageBar, MessageBarType} from 'office-ui-fabric-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -103,6 +103,7 @@ class JobDetail extends React.Component {
   renderTaskRoles() {
     const {jobConfig, jobInfo, sshInfo} = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
+      const failedTaskRole = getHumanizedJobStateString(jobInfo) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map((key) => (
         <TaskRole
           key={key}
@@ -111,6 +112,7 @@ class JobDetail extends React.Component {
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
           taskConfig={getTaskConfig(jobConfig, key)}
+          isFailed={failedTaskRole && key === failedTaskRole}
         />
       ));
     } else if (jobConfig && jobConfig.taskRoles) {

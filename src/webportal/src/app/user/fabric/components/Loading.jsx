@@ -15,43 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {loadTheme, FontWeights} from '@uifabric/styling';
+import React from 'react';
+import {PropTypes} from 'prop-types';
+import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 
-export function initTheme() {
-  loadTheme({
-    spacing: {
-      s2: '4px',
-      s1: '8px',
-      m: '16px',
-      l1: '20px',
-      l2: '32px',
-      l3: '64px',
-    },
-    fonts: {
-      xLarge: {
-        fontSize: 20,
-        fontWeight: FontWeights.semibold,
-      },
-      large: {
-        fontSize: 17,
-        fontWeight: FontWeights.regular,
-      },
-    },
-  });
-}
-
-export const color = {
-  red: '#eb1123',
-  yellow: '#fcd116',
-  green: '#7fba00',
-  blue: '#0071bc',
-  gray: '#b1b5b8',
+const Loading = (props) => {
+  return (
+    <div style={{height: '100%', width: '100%', position: 'absolute', backgroundColor: 'hsla(0,0%,100%,.3)', left: '0', top: '0'}}>
+      <div style={{height: '100%', justifyContent: 'center', alignItems: 'center', display: 'flex'}}>
+        <div style={{alignItems: 'center', display: 'flex'}}>
+          <Spinner size={SpinnerSize.large} label={props.label} ariaLive="assertive" labelPosition="right" />
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export const statusColorMapping = {
-  waiting: color.yellow,
-  failed: color.red,
-  running: color.blue,
-  succeeded: color.green,
-  unknown: color.gray,
+Loading.propTypes = {
+  label: PropTypes.string.isRequired,
 };
+
+export default Loading;

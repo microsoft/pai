@@ -48,7 +48,20 @@ public class MockYarnClient extends YarnClient {
   }
 
   @Override
+  public void failApplicationAttempt(
+      ApplicationAttemptId applicationAttemptId) throws YarnException,
+      IOException {
+
+  }
+
+  @Override
   public void killApplication(ApplicationId applicationId) throws YarnException, IOException {
+
+  }
+
+  @Override
+  public void killApplication(ApplicationId applicationId,
+      String diagnostics) throws YarnException, IOException {
 
   }
 
@@ -81,6 +94,24 @@ public class MockYarnClient extends YarnClient {
   public List<ApplicationReport> getApplications(Set<String> applicationTypes, EnumSet<YarnApplicationState> applicationStates) throws YarnException, IOException {
     return null;
   }
+
+  @Override
+  public List<ApplicationReport> getApplications(
+      Set<String> applicationTypes,
+      EnumSet<YarnApplicationState> applicationStates,
+      Set<String> applicationTags) throws YarnException,
+      IOException {
+    return null;
+  }
+
+  @Override
+  public List<ApplicationReport> getApplications(Set<String> queues,
+      Set<String> users, Set<String> applicationTypes,
+      EnumSet<YarnApplicationState> applicationStates) throws YarnException,
+      IOException {
+    return null;
+  }
+
 
   @Override
   public YarnClusterMetrics getYarnClusterMetrics() throws YarnException, IOException {
@@ -158,6 +189,12 @@ public class MockYarnClient extends YarnClient {
   }
 
   @Override
+  public GetNewReservationResponse createReservation()
+      throws YarnException, IOException {
+    return null;
+  }
+
+  @Override
   public ReservationSubmissionResponse submitReservation(ReservationSubmissionRequest request) throws YarnException, IOException {
     return null;
   }
@@ -169,6 +206,12 @@ public class MockYarnClient extends YarnClient {
 
   @Override
   public ReservationDeleteResponse deleteReservation(ReservationDeleteRequest request) throws YarnException, IOException {
+    return null;
+  }
+
+  @Override
+  public ReservationListResponse listReservations(
+      ReservationListRequest request) throws YarnException, IOException {
     return null;
   }
 
@@ -188,7 +231,20 @@ public class MockYarnClient extends YarnClient {
   }
 
   @Override
-  public Set<String> getClusterNodeLabels() throws YarnException, IOException {
+  public void signalToContainer(ContainerId containerId,
+      SignalContainerCommand command) throws YarnException, IOException {
+
+  }
+
+  @Override
+  public Priority updateApplicationPriority(
+      ApplicationId applicationId,
+      Priority priority) throws YarnException, IOException {
+    return null;
+  }
+
+  @Override
+  public List<NodeLabel> getClusterNodeLabels() throws YarnException, IOException {
     return null;
   }
 }

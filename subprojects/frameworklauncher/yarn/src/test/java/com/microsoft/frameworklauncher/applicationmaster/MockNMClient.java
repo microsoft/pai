@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 
 public class MockNMClient extends NMClientAsync {
 
-  public MockNMClient(CallbackHandler callbackHandler) {
+  public MockNMClient(AbstractCallbackHandler callbackHandler) {
     super(MockNMClient.class.getName(), callbackHandler);
   }
 
@@ -41,6 +41,37 @@ public class MockNMClient extends NMClientAsync {
 
   @Override
   public void getContainerStatusAsync(ContainerId containerId, NodeId nodeId) {
+
+  }
+
+  @Override
+  public void updateContainerResourceAsync(Container container) {
+
+  }
+
+  @Override
+  public void commitLastReInitializationAsync(ContainerId containerId) {
+
+  }
+
+  @Override
+  public void increaseContainerResourceAsync(Container container) {
+
+  }
+
+  @Override
+  public void reInitializeContainerAsync(ContainerId containerId,
+      ContainerLaunchContext containerLaunchContex, boolean autoCommit) {
+
+  }
+
+  @Override
+  public void restartContainerAsync(ContainerId containerId) {
+
+  }
+
+  @Override
+  public void rollbackLastReInitializationAsync(ContainerId containerId) {
 
   }
 }

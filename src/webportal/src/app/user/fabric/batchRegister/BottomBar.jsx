@@ -15,43 +15,39 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {loadTheme, FontWeights} from '@uifabric/styling';
+import React, {useContext} from 'react';
 
-export function initTheme() {
-  loadTheme({
-    spacing: {
-      s2: '4px',
-      s1: '8px',
-      m: '16px',
-      l1: '20px',
-      l2: '32px',
-      l3: '64px',
-    },
-    fonts: {
-      xLarge: {
-        fontSize: 20,
-        fontWeight: FontWeights.semibold,
-      },
-      large: {
-        fontSize: 17,
-        fontWeight: FontWeights.regular,
-      },
-    },
-  });
+import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
+
+import Context from './Context';
+
+function BottomBar() {
+  const {submit} = useContext(Context);
+
+  const buttonPrimaryStyles = {margin: '1rem'};
+
+  /**
+   * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  function getSubmit() {
+    return {
+      key: 'submit',
+      name: 'Submit',
+      buttonStyles: {root: buttonPrimaryStyles},
+      commandBarButtonAs: PrimaryButton,
+      onClick: submit,
+    };
+  }
+
+  return (
+    <React.Fragment>
+      <CommandBar
+        farItems={[getSubmit()]}
+        styles={{root: {backgroundColor: 'transparent'}}}
+      />
+    </React.Fragment>
+  );
 }
 
-export const color = {
-  red: '#eb1123',
-  yellow: '#fcd116',
-  green: '#7fba00',
-  blue: '#0071bc',
-  gray: '#b1b5b8',
-};
-
-export const statusColorMapping = {
-  waiting: color.yellow,
-  failed: color.red,
-  running: color.blue,
-  succeeded: color.green,
-  unknown: color.gray,
-};
+export default BottomBar;
