@@ -66,15 +66,21 @@ public class WebCommon {
 
   // Object <-> Json
   // obj can be null, but cannot be Exception
-  public static String toJson(Object obj) throws JsonProcessingException {
+  public static String toJson(Object obj) {
     return toJson(obj, true);
   }
 
-  public static String toJson(Object obj, Boolean pretty) throws JsonProcessingException {
-    if (pretty) {
-      return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-    } else {
-      return OBJECT_MAPPER.writeValueAsString(obj);
+  public static String toJson(Object obj, Boolean pretty) {
+    try {
+      if (pretty) {
+        return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+      } else {
+        return OBJECT_MAPPER.writeValueAsString(obj);
+      }
+    } catch (JsonProcessingException e) {
+      // Caller generally expect always success and will never recover from it,
+      // so make it as unchecked.
+      throw new RuntimeException(e);
     }
   }
 

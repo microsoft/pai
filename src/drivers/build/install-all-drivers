@@ -43,7 +43,7 @@ else
     echo NVIDIA gpu not detected, skipping driver installation
 fi
 
-if [ -z ${SKIP_IB} ]; then
+if [ -n ${ENABLE_IB} ]; then
     if lspci | grep -qE '(Network|Infiniband) controller.*Mellanox.*ConnectX'; then
         echo Infiniband hardware detected
         # Installing InfiniBand drivers and GPU direct RDMA drivers
@@ -53,7 +53,7 @@ if [ -z ${SKIP_IB} ]; then
         echo Infiniband hardware is not detected, skipping driver installation
     fi
 else
-    echo "Depending on configuration, the variable SKIP_IB is set. So the ib installation will be skipped!"
+    echo "Depending on configuration, the variable ENABLE_IB is not set. So the ib installation will be skipped!"
 fi
 
 

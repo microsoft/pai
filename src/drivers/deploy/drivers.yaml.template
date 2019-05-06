@@ -57,8 +57,8 @@ spec:
         - mountPath: {{ cluster_cfg["drivers"]["pre-installed-nvidia-path"] }}
           name: pre-install-nv-driver-path
         env:
-        {% if cluster_cfg['drivers']['skip-ib-installation'] %}
-        - name: SKIP_IB
+        {% if cluster_cfg['drivers']['enable-ib-installation'] %}
+        - name: ENABLE_IB
           value: "true"
         {%- endif %}
         - name: DRIVER_PATH

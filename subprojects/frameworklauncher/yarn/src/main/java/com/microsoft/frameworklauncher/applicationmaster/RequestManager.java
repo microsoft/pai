@@ -30,7 +30,6 @@ import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
-import java.io.IOException;
 import java.util.Map;
 
 // Manage the CURD to ZK Request
@@ -173,7 +172,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     aggFrameworkRequest = newAggFrameworkRequest;
   }
 
-  private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
+  private void updateLauncherRequest(LauncherRequest newLauncherRequest) {
     if (YamlUtils.deepEquals(launcherRequest, newLauncherRequest)) {
       return;
     }
@@ -314,7 +313,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   private void updateOverrideApplicationProgressRequest(
-      OverrideApplicationProgressRequest newOverrideApplicationProgressRequest) throws IOException {
+      OverrideApplicationProgressRequest newOverrideApplicationProgressRequest) {
     if (YamlUtils.deepEquals(overrideApplicationProgressRequest, newOverrideApplicationProgressRequest)) {
       return;
     }
@@ -327,7 +326,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     overrideApplicationProgressRequest = newOverrideApplicationProgressRequest;
   }
 
-  private void updateMigrateTaskRequests(Map<String, MigrateTaskRequest> newMigrateTaskRequests) throws IOException {
+  private void updateMigrateTaskRequests(Map<String, MigrateTaskRequest> newMigrateTaskRequests) {
     if (YamlUtils.deepEquals(migrateTaskRequests, newMigrateTaskRequests)) {
       return;
     }

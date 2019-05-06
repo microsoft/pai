@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
@@ -24,7 +24,8 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 
 import Context from './Context';
 import Filter from './Filter';
-import {getStatusText} from './utils';
+
+import webportalConfig from '../../../../config/webportal.config';
 
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
@@ -63,23 +64,51 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allJobs, refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+  const [users, setUser] = useState(Object.create(null));
+  const [virtualClusters, setVirtualClusters] = useState(Object.create(null));
 
-  const {users, virtualClusters, statuses} = useMemo(() => {
-    const users = Object.create(null);
-    const virtualClusters = Object.create(null);
-    const statuses = Object.create(null);
+  const statuses = {
+    Waiting: true,
+    Succeeded: true,
+    Running: true,
+    Stopped: true,
+    Failed: true,
+  };
 
-    if (allJobs !== null) {
-      allJobs.forEach(function(job) {
-        users[job.username] = true;
-        virtualClusters[job.virtualCluster] = true;
-        statuses[getStatusText(job)] = true;
+  const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+
+  useEffect(() => {
+    fetch(`${webportalConfig.restServerUri}/api/v1/user`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        const allUsers = Object.create(null);
+        body.forEach((userBody) => {
+          allUsers[userBody['username']] = true;
+        });
+        setUser(allUsers);
+      }).catch((err) => {
+        alert(err.message);
       });
-    }
 
-    return {users, virtualClusters, statuses};
-  }, [allJobs]);
+    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        const allVirtualClusters = Object.create(null);
+        for (const virtualCluster of Object.keys(body)) {
+          allVirtualClusters[virtualCluster] = true;
+        }
+        setVirtualClusters(allVirtualClusters);
+
+        const allValidVC = Object.keys(body);
+        const {keyword, users, virtualClusters, statuses} = filter;
+        const filterVC = new Set(allValidVC.filter((vc) => virtualClusters.has(vc)));
+        setFilter(new Filter(keyword, users, filterVC, statuses));
+      }).catch((err) => {
+        alert(err.message);
+      });
+  }, []);
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}

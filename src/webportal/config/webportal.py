@@ -49,6 +49,7 @@ class Webportal:
                 config_query = urllib.urlencode(plugin['config'], True).replace('+', '%20')
                 uri = urlparse.urljoin(uri, '?' + config_query)
             return {
+                'id': plugin.get('id'),
                 'title': plugin['title'],
                 'uri': uri,
             }

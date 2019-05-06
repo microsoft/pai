@@ -24,6 +24,10 @@ if kubectl get configmap | grep -q "auth-configuration"; then
     kubectl delete configmap auth-configuration || exit $?
 fi
 
+if kubectl get configmap | grep -q "job-exit-spec-configuration"; then
+    kubectl delete configmap job-exit-spec-configuration || exit $?
+fi
+
 if kubectl get daemonset | grep -q "rest-server-ds"; then
     kubectl delete ds rest-server-ds || exit $?
 fi

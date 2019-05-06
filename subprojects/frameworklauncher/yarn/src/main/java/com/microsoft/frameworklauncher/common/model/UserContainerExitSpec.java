@@ -15,25 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-package com.microsoft.frameworklauncher.common.exit;
+package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.model.ExitType;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ExitStatusValue {
-  // exitCode and exitDiagnostics is used to lookup matched ExitStatusKey from ExitStatusEnum
-  // So exitCode and exitDiagnostics in ExitStatusEnum must be predefined consistently with other
-  // system components, such as Yarn, UserApp and OS.
-  public final int exitCode;
-  public final String exitDiagnostics;
-  public final ExitType exitType;
+public class UserContainerExitSpec implements Serializable {
+  // A UserContainerExitInfo is effective only if
+  // its code is in range [1, 255], and
+  // its type is not SUCCEEDED, and
+  // its following UserContainerExitInfos do not have the same code.
+  private List<UserContainerExitInfo> spec = new ArrayList<>();
 
-  public ExitStatusValue(int exitCode, String exitDiagnostics, ExitType exitType) {
-    this.exitCode = exitCode;
-    this.exitDiagnostics = exitDiagnostics;
-    this.exitType = exitType;
+  public static UserContainerExitSpec newInstance(List<UserContainerExitInfo> spec) {
+    UserContainerExitSpec exitSpec = new UserContainerExitSpec();
+    exitSpec.setSpec(spec);
+    return exitSpec;
   }
 
-  public String toString() {
-    return "(" + exitCode + "; " + exitDiagnostics + "; " + exitType + ")";
+  public List<UserContainerExitInfo> getSpec() {
+    return spec;
+  }
+
+  public void setSpec(List<UserContainerExitInfo> spec) {
+    this.spec = spec;
   }
 }

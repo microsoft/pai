@@ -88,16 +88,12 @@ const updateUserVc = (req, res, next) => {
  * Update user virtual clusters.
  */
 const getUserList = (req, res, next) => {
-  if (req.user.admin) {
-    userModel.getUserList((err, userList) => {
-      if (err) {
-        return next(createError.unknown(err));
-      }
-      return res.status(200).json(userList);
-    });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
-  }
+  userModel.getUserList((err, userList) => {
+    if (err) {
+      return next(createError.unknown(err));
+    }
+    return res.status(200).json(userList);
+  });
 };
 
 /**

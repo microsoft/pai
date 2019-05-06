@@ -33,7 +33,7 @@ import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
-import {printDateTime, getHumanizedJobStateString, getDurationString} from '../util';
+import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable} from '../util';
 
 const StoppableStatus = [
   'Running',
@@ -345,7 +345,7 @@ export default class Summary extends React.Component {
               <DefaultButton
                 text='Clone'
                 onClick={() => cloneJob(jobConfig)}
-                disabled={isNil(jobConfig)}
+                disabled={!isClonable(jobConfig)}
               />
               <DefaultButton
                 className={c(t.ml3)}

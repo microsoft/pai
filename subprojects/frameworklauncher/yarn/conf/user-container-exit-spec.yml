@@ -1,0 +1,52 @@
+!!com.microsoft.frameworklauncher.common.model.UserContainerExitSpec
+# Default UserContainerExitSpec
+# code:
+#   Required Unique Integer in Range [1, 255]
+# type:
+#   Optional String in Set {TRANSIENT_NORMAL / TRANSIENT_CONFLICT / NON_TRANSIENT / UNKNOWN}
+# description:
+#   Optional Any String
+spec:
+# Container Failed by YARN
+- code: 154
+  type: TRANSIENT_NORMAL
+  description: "Container exitcode file cannot be found by NM, maybe node unexpected shutdown, disk cleaned up or disk failure"
+
+# Container Failed by OS Signal
+# [129, 192]
+- code: 130
+  type: TRANSIENT_NORMAL
+  description: "Container killed by OS Signal: SIGINT"
+- code: 132
+  type: NON_TRANSIENT
+  description: "Container killed by OS Signal: SIGILL"
+- code: 134
+  type: UNKNOWN
+  description: "Container killed by OS Signal: SIGABRT"
+- code: 135
+  type: NON_TRANSIENT
+  description: "Container killed by OS Signal: SIGBUS"
+- code: 136
+  type: NON_TRANSIENT
+  description: "Container killed by OS Signal: SIGFPE"
+- code: 137
+  type: TRANSIENT_NORMAL
+  description: "Container killed by OS Signal: SIGKILL"
+- code: 139
+  type: NON_TRANSIENT
+  description: "Container killed by OS Signal: SIGSEGV"
+- code: 141
+  type: NON_TRANSIENT
+  description: "Container killed by OS Signal: SIGPIPE"
+- code: 143
+  type: TRANSIENT_NORMAL
+  description: "Container killed by OS Signal: SIGTERM"
+
+# Container Failed by Itself
+# [193, 255]
+- code: 193
+  type: TRANSIENT_NORMAL
+  description: "Container exited with the general exitcode for TRANSIENT_NORMAL"
+- code: 194
+  type: NON_TRANSIENT
+  description: "Container exited with the general exitcode for NON_TRANSIENT"

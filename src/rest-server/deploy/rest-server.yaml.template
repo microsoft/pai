@@ -42,6 +42,8 @@ spec:
         - mountPath: /auth-configuration
           name: auth-configuration-rest-server
 {% endif %}
+        - mountPath: /job-exit-spec-configuration
+          name: job-exit-spec-rest-server
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
@@ -108,3 +110,6 @@ spec:
         configMap:
           name: auth-configuration
 {% endif %}
+      - name: job-exit-spec-rest-server
+        configMap:
+          name: job-exit-spec-configuration

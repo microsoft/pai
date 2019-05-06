@@ -17,8 +17,9 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitCode;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
@@ -85,7 +86,7 @@ public class ApplicationCompletionPolicyTest {
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
     Assert.assertTrue(String.format("Wrong exitCode: %s", exitCode),
-        exitCode == ExitStatusKey.SUCCEEDED.toInt());
+        exitCode == GlobalConstants.EXIT_CODE_LAUNCHER_SUCCEEDED);
   }
 
   private void init() throws Exception {
@@ -184,7 +185,7 @@ public class ApplicationCompletionPolicyTest {
       ContainerStatus status = Records.newRecord(ContainerStatus.class);
       status.setContainerId(containerId);
       status.setState(ContainerState.COMPLETE);
-      status.setExitStatus(ExitStatusKey.SUCCEEDED.toInt());
+      status.setExitStatus(FrameworkExitCode.SUCCEEDED.toInt());
       onContainersCompleted(Collections.singletonList(status));
     }
   }

@@ -59,14 +59,16 @@ export default class MonacoPanel extends React.Component {
             main: [ColorClassNames.neutralPrimaryBackground],
             headerText: [ColorClassNames.white],
             overlay: [ColorClassNames.blackTranslucent40Background],
-            content: [t.h100],
+            content: [t.flex, t.flexAuto],
+            scrollableContent: [t.flex, t.flexAuto],
             closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
           }}
         >
-          <div className={c(t.h100, t.flex, t.flexColumn)}>
-            <div className={c(monacoHack, t.flexAuto)} style={{resize: 'vertical'}}>
+          <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
+            <div className={c(monacoHack)} style={{flex: '1 1 100%', minHeight: 0}}>
               {open && (
                 <MonacoEditor
+                  className={c(t.flexAuto)}
                   ref={this.monaco}
                   theme='vs-dark'
                   language='text'
