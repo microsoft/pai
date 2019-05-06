@@ -47,11 +47,11 @@ OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态�
 
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
-* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
+* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
 
 ## 入门
 
-OpenPAI manages computing resources and optimizing for machine learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
+OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed computing, switch with different deep learning frameworks, or run jobs on consistent environments.
 
 As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
 
