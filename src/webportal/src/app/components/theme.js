@@ -62,7 +62,6 @@ export function initTheme() {
       yellowLight: '#fcd116',
       blue: '#0071bc',
       greenLight: '#7fba00',
-
     },
   });
 }

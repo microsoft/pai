@@ -28,8 +28,7 @@ import Card from './card';
 import Context from './context';
 import MonacoCallout from './monaco-callout';
 import TaskRoleContainerList from './task-role-container-list';
-import {getTaskConfig} from '../util';
-import {statusColorMapping} from '../../../../../components/theme';
+import {statusColor} from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
@@ -85,7 +84,7 @@ export default class TaskRole extends React.Component {
       <div className={c(t.flex, t.itemsCenter)}>
         {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
           <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
-            <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColorMapping[x]}}>
+            <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}>
             </div>
             <div className={c(t.ml2)}>{count[x]}</div>
           </div>

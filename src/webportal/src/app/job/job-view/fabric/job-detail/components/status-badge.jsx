@@ -24,7 +24,7 @@ import React from 'react';
 
 import t from '../../../../../components/tachyons.scss';
 
-import {statusColorMapping} from '../../../../../components/theme';
+import {statusColor} from '../../../../../components/theme';
 
 export const Badge = ({children, className}) => (
   <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>
@@ -61,11 +61,11 @@ IconBadge.propTypes = {
   icons: PropTypes.array,
 };
 
-const bgYellow = mergeStyles({backgroundColor: statusColorMapping.waiting});
-const bgRed = mergeStyles({backgroundColor: statusColorMapping.failed});
-const bgBlue = mergeStyles({backgroundColor: statusColorMapping.running});
-const bgGreen = mergeStyles({backgroundColor: statusColorMapping.succeeded});
-const bgGray = mergeStyles({backgroundColor: statusColorMapping.unknown});
+const bgYellow = mergeStyles({backgroundColor: statusColor.waiting});
+const bgRed = mergeStyles({backgroundColor: statusColor.failed});
+const bgBlue = mergeStyles({backgroundColor: statusColor.running});
+const bgGreen = mergeStyles({backgroundColor: statusColor.succeeded});
+const bgGray = mergeStyles({backgroundColor: statusColor.unknown});
 
 export const SucceededBadge = ({children}) => (
   <IconBadge
