@@ -122,8 +122,6 @@ describe('Group model k8s secret get function test', () => {
   // find specific user
   it('Should return specific group info.', async () => {
     const res = await groupK8sCRUD.read('paitest', groupK8sCRUDConfig);
-    // eslint-disable-next-line no-console
-    console.log(res);
     return expect(res).to.deep.equal({
       groupname: 'paitest',
       description: 'test',
