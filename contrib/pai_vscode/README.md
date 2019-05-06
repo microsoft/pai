@@ -2,6 +2,23 @@
 
 OpenPAI VS Code Client is an extension to connect PAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
 
+- [OpenPAI VS Code Client](#openpai-vs-code-client)
+  - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
+  - [Submit job](#submit-job)
+  - [Local simulation](#local-simulation)
+    - [Prerequisites](#prerequisites)
+    - [Steps](#steps)
+    - [Limitations](#limitations)
+  - [Manual](#manual)
+    - [GUI](#gui)
+  - [Commands](#commands)
+    - [Command Palette](#command-palette)
+    - [PAI Cluster Explorer](#pai-cluster-explorer)
+    - [Settings](#settings)
+  - [Issue and suggestions](#issue-and-suggestions)
+  - [Contribution](#contribution)
+  - [License](#license)
+
 ## Connect to an OpenPAI cluster
 
 Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster.
@@ -113,7 +130,7 @@ There are two parts in the side bar.
 | Edit Configuration...   | Edit OpenPAI cluster configuration            |
 | Open HDFS...            | Open HDFS storage explorer of OpenPAI cluster |
 
-## Settings
+### Settings
 
 | ID                               | Description                                             |
 | -------------------------------- | ------------------------------------------------------- |
@@ -126,13 +143,13 @@ There are two parts in the side bar.
 | pai.job.jobList.refreshInterval  | The refresh interval of job list (in seconds)           |
 | pai.hdfs.location                | Where HDFS storage will be shown                        |
 
-## Contributing
-
-https://github.com/Microsoft/pai#how-to-contribute
-
 ## Issue and suggestions
 
 Submit at [GitHub](https://github.com/Microsoft/pai/issues)
+
+## Contribution
+
+https://github.com/Microsoft/pai#how-to-contribute
 
 ## License
 
