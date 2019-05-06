@@ -87,7 +87,7 @@ async function read(key, config) {
     let groupInstance = Group.createGroup({
       'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
       'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
-      'GID': Buffer.from(groupData['data']['email'], 'base64').toString(),
+      'GID': Buffer.from(groupData['data']['GID'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
     });
     return groupInstance;
@@ -120,7 +120,7 @@ async function readAll(config) {
       let groupInstance = Group.createGroup({
         'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
         'description': Buffer.from(item['data']['description'], 'base64').toString(),
-        'GID': Buffer.from(item['data']['email'], 'base64').toString(),
+        'GID': Buffer.from(item['data']['GID'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
       allGroupInstance.push(groupInstance);
@@ -148,7 +148,7 @@ async function create(key, value, config) {
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
-      'GID': value['description'],
+      'GID': value['GID'],
       'extension': value['extension'],
     });
     let groupData = {
@@ -181,7 +181,7 @@ async function update(key, value, config) {
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
-      'GID': value['description'],
+      'GID': value['GID'],
       'extension': value['extension'],
     });
     let groupData = {
