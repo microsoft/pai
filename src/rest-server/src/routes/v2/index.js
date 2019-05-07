@@ -30,7 +30,7 @@ router.route('/')
 
 router.use('/jobs', jobRouter);
 
-router.use('./user', userRouter);
+router.use('/user', userRouter);
 
 // module exports
 module.exports = router;
