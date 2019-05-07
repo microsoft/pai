@@ -23,6 +23,10 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = userModel.getUser(username);
+    // eslint-disable-next-line no-console
+    console.log(username);
+    // eslint-disable-next-line no-console
+    console.log(userInfo);
     return res.status(200).json(userInfo);
   } catch (error) {
     return next(createError.unknown(error));
