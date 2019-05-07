@@ -17,7 +17,7 @@
 
 import React, { Suspense, lazy } from "react";
 import {
-  DefaultButton, DocumentCard, DocumentCardActions, DocumentCardActivity, DocumentCardLogo,
+  Callout, DefaultButton, DocumentCard, DocumentCardActions, DocumentCardActivity, DocumentCardLogo,
   DocumentCardStatus, DocumentCardTitle, DefaultPalette, Fabric, Icon, IconButton, Label,
   Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
@@ -37,6 +37,10 @@ const styles = mergeStyleSets({
     fontSize: "16px",
     fontWeight: "300",
     color: DefaultPalette.neutralSecondary,
+  },
+
+  textfiled: {
+    width: 480,
   },
 
   layoutOption: {
@@ -151,6 +155,7 @@ interface IMarketplaceListState {
   protocols: Array<IProtocol | null>;
   loading: boolean;
   showEditor: boolean;
+  uriConfigCallout: boolean;
   editorYAML: string;
   layout: LayoutType;
 }
@@ -167,9 +172,12 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
     protocols: [],
     loading: true,
     showEditor: false,
+    uriConfigCallout: false,
     editorYAML: "",
     layout: "list" as LayoutType,
   };
+
+  private uriConfigCalloutBtn = React.createRef<HTMLDivElement>();
 
   public componentDidMount() {
     this.getProtocols();
@@ -215,7 +223,36 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
 
     return (
       <>
-        <Stack className={styles.layoutOption}>
+        <Stack horizontal={true} horizontalAlign="space-between" className={styles.layoutOption}>
+          <Stack horizontal={true} horizontalAlign="start">
+            <Label>Config URI : </Label>
+            <div ref={this.uriConfigCalloutBtn}>
+              <IconButton
+                iconProps={{ iconName: "ConfigurationSolid" }}
+                title="Config Marketplace URI"
+                ariaLabel="Config Marketplace URI"
+                onClick={this.toggleConfigCallout}
+              />
+            </div>
+            <Callout
+              role="alertdialog"
+              target={this.uriConfigCalloutBtn.current}
+              onDismiss={this.closeConfigCallout}
+              setInitialFocus={true}
+              hidden={!this.state.uriConfigCallout}
+            >
+              <Stack padding={20}>
+                <TextField
+                  className={styles.textfiled}
+                  label="Marketplace URI"
+                  prefix={this.state.uriType || undefined}
+                  value={this.state.uri}
+                  onChange={this.setMarketplaceURI}
+                  onBlur={this.getProtocols}
+                />
+              </Stack>
+            </Callout>
+          </Stack>
           <Stack horizontal={true} horizontalAlign="end">
             <Label>Change View : </Label>
             <IconButton
@@ -348,7 +385,6 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
     const people = [{
       name: protocol.contributor,
       profileImageSrc: this.getProfileImage(protocol.contributor),
-      initials: this.getProfileInitials(protocol.contributor),
     }];
     const cardActions = [
       {
@@ -380,6 +416,23 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
         <DocumentCardActions actions={cardActions} />
       </DocumentCard>
     );
+  }
+
+  private toggleConfigCallout = () => {
+    this.setState({uriConfigCallout: !this.state.uriConfigCallout});
+  }
+
+  private closeConfigCallout = () => {
+    this.setState({uriConfigCallout: false});
+  }
+
+  private setMarketplaceURI = (event: React.FormEvent<HTMLElement>, uri?: string) => {
+    if (uri !== undefined) {
+      this.setState({
+        uri,
+        uriType: "GitHub",
+      });
+    }
   }
 
   private viewProtocol = (protocol: IProtocol) => () => {
@@ -420,10 +473,6 @@ export default class MarketplaceList extends React.Component<IMarketplaceListPro
     } else {
       return "";
     }
-  }
-
-  private getProfileInitials = (contributor: string) => {
-    return contributor.split(" ").map((name: string) => name[0]).join(".").toUpperCase();
   }
 
   private getProtocols = async () => {
