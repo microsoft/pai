@@ -35,9 +35,9 @@
 
 **Job** 在 OpenPAI 中定义了在指定的环境中如何执行命令。 Job 可以是模型训练，其它用途的命令，或者分布在多台服务器上。
 
-本节介绍了如何提交一个非常简单的 Job，这就像在学习编程语言时，从 hello-world 示例开始一样。 此示例使用 TensorFlow 在 CIFAR-10 数据集上训练模型。 它会从互联网下载数据和代码，且不会将模型复制出来。 通过此示例可入门 OpenPAI。 Next sections include more details to help on submitting real jobs.
+本节介绍了如何提交一个非常简单的 Job，这就像在学习编程语言时，从 hello-world 示例开始一样。 此示例使用 TensorFlow 在 CIFAR-10 数据集上训练模型。 它会从互联网下载数据和代码，且不会将模型复制出来。 通过此示例可入门 OpenPAI。 接下来的章节会介绍更多内容，以便于提交真正实用的 Job。
 
-1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
+1. 浏览至 OpenPAI 的 Web 界面。 可从 OpenPAI 管理员那里获取 IP 地址或域名。 If it doesn't require to login, click *login* link at top right side and input user/password.
   
   After that, OpenPAI will show dashboard as below.
   
