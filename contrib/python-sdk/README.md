@@ -7,6 +7,8 @@ By providing a bag of APIs, the SDK can facilitate users access `OpenPAI` servic
 
 Users can import the SDK as a `python` package in their own scripts, or use the command line interface (CLI) provided. 
 
+- [Overview](#overview)
+  - [Who should consider the SDK and CLI tools](#who-should-consider-the-sdk-and-cli-tools)
 - [1. Installation and Cluster management](#1-installation-and-cluster-management)
   - [1.1. Installation](#11-installation)
   - [1.2. Define your cluster](#12-define-your-cluster)
@@ -20,7 +22,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [2.6. _InProgress_ Storage access](#26-inprogress-storage-access)
   - [2.7. _InProgress_ Job cloning and batch submitting](#27-inprogress-job-cloning-and-batch-submitting)
 - [3. Python binding](#3-python-binding)
-  - [3.1. Dectect your executation environment](#31-dectect-your-executation-environment)
+  - [3.1. Dectect your execution environment](#31-dectect-your-execution-environment)
   - [3.2. Do it in easy way](#32-do-it-in-easy-way)
   - [3.3. Do it in a more pythoic way](#33-do-it-in-a-more-pythoic-way)
   - [3.4. Submit your working notebook running in local server](#34-submit-your-working-notebook-running-in-local-server)
@@ -31,11 +33,26 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [4.4. Implementation](#44-implementation)
 - [5. Notebook tutorials](#5-notebook-tutorials)
 
+# Overview
+
+`OpenPAI` provides multiple ways to handle jobs and do other operations, such as web portal, extension of Visual Studio Code. The SDK and CLI tools make it easy in specific scenarios.
+
+## Who should consider the SDK and CLI tools
+
+- Users who prefer command line interface (e.g. former users of the platform `LSF`)
+
+- Users who want to interact with `OpenPAI` in their codes
+
+- Users who want to write code locally and then submit to `OpenPAI` 
+
+- Users who want to reuse their codes inside or outside `OpenPAI`
+
 # 1. Installation and Cluster management
 
 ## 1.1. Installation
 
 We provide installing method leveraging `pip install`
+
 ```bash
 pip install -U pip
 pip install -U -e "git+https://github.com/Microsoft/pai@yuqyang/sdk#egg=openpaisdk&subdirectory=contrib/python-sdk"
@@ -111,7 +128,7 @@ To submit a job from sketch, user need to `create` the job (it would be cached i
 opai job create [-a <alias>] -j <job-name> [-i <image>] [-p <package>] [-s <source-file>]
 opai job task -t <name-1> [-n <instances>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
 opai job task -t <name-2> [-n <instances>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
-opai job submit 
+opai job submit [--preview] [--export <config-file-name>]
 ```
 
 ## 2.4. Submit one-line job in command line
@@ -189,7 +206,7 @@ from openpaisdk.job import Job # job description
 from openpaisdk.engine import Engine # command dispatcher
 ```
 
-## 3.1. Dectect your executation environment
+## 3.1. Dectect your execution environment
 
 In your code, you may use `openpaisdk.core.in_job_container` to indicate where you are. This let you to do different things according to your environment.
 
