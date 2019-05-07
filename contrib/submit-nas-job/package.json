@@ -19,6 +19,9 @@
   "homepage": "https://github.com/Microsoft/pai#readme",
   "license": "MIT",
   "dependencies": {
+    "@material-ui/core": "^3.9.3",
+    "axios": "^0.18.0",
+    "joi": "^14.3.1",
     "lodash.get": "^4.4.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",

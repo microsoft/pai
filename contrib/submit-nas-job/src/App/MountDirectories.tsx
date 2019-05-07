@@ -26,7 +26,10 @@ import get from "lodash.get";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Context from "./Context";
 
-const groupDivStyle: React.CSSProperties = {
+import Button from "@material-ui/core/Button";
+import Tooltip from "@material-ui/core/Tooltip";
+
+const configDivStyle: React.CSSProperties = {
   width: "300px",
   verticalAlign: "middle",
   display: "inline-block",
@@ -37,7 +40,8 @@ const mountPointTableDataStyle: React.CSSProperties = {
   verticalAlign: "middle",
 };
 
-interface IGroup {
+interface IConfig {
+  readonly name: string;
   readonly gpn: string;
   readonly default: boolean;
   readonly mountInfos: IMountInfo[];
@@ -52,10 +56,21 @@ interface IMountInfo {
 interface IServer {
   readonly spn: string;
   readonly type: string;
+  readonly address?: string;
+  readonly rootPath?: string;
+  readonly userName?: string;
+  readonly password?: string;
+  readonly domain?: string;
+  readonly dataStore?: string;
+  readonly fileShare?: string;
+  readonly accountName?: string;
+  readonly containerName?: string;
+  readonly key?: string;
+  readonly proxy?: string[];
 }
 
 export interface IMountDirectoriesObject {
-  readonly selectedGroups: IGroup[];
+  readonly selectedConfigs: IConfig[];
   readonly servers: IServer[];
 }
 
@@ -64,7 +79,7 @@ export default class MountDirectories {
     private readonly user: string,
     private readonly jobName: string,
 
-    private readonly selectedGroups: IGroup[],
+    private readonly selectedConfigs: IConfig[],
     private readonly servers: IServer[],
   ) {}
 
@@ -78,9 +93,9 @@ export default class MountDirectories {
 
     const serverMountDict: { [spn: string]: IMountInfo[] } = {};
 
-    for (const group of this.selectedGroups) {
-      if (group.mountInfos !== undefined) {
-        for (const mountInfo of group.mountInfos) {
+    for (const config of this.selectedConfigs) {
+      if (config.mountInfos !== undefined) {
+        for (const mountInfo of config.mountInfos) {
           if (mountInfo.server in serverMountDict) {
             serverMountDict[mountInfo.server].push(mountInfo);
           } else {
@@ -144,16 +159,16 @@ export default class MountDirectories {
     return returnValue.join(" && ");
   }
 
-  public applyJSON({ selectedGroups, servers }: IMountDirectoriesObject) {
-    Object.assign(this, { selectedGroups, servers });
+  public applyJSON({ selectedConfigs, servers }: IMountDirectoriesObject) {
+    Object.assign(this, { selectedConfigs, servers });
   }
 
   public toJSON(): IMountDirectoriesObject {
-    const { selectedGroups, servers } = this;
-    return { selectedGroups, servers } ;
+    const { selectedConfigs, servers } = this;
+    return { selectedConfigs, servers } ;
   }
 
-  private generatePreMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
+  private generatePreMountCmds(serverData: IServer, tmpFolder: string): string[] | undefined {
     const serverType = serverData.type;
     let returnValue: string[] | undefined;
 
@@ -164,7 +179,7 @@ export default class MountDirectories {
         break;
       case "azurefile":
         returnValue = [`mkdir --parents ${tmpFolder}`];
-        if ("proxy" in serverData) {
+        if (serverData.proxy !== undefined && serverData.proxy.length === 2) {
           const proxyInfo: string = serverData.proxy[0];
           const proxyPassword: string = serverData.proxy[1];
           const proxyIp = proxyInfo.indexOf("@") === -1 ? proxyInfo : proxyInfo.substring(proxyInfo.indexOf("@") + 1);
@@ -199,7 +214,7 @@ export default class MountDirectories {
     return returnValue;
   }
 
-  private generatePostMountCmds(serverData: any, tmpFolder: string): string[] | undefined {
+  private generatePostMountCmds(serverData: IServer, tmpFolder: string): string[] | undefined {
     let returnValue;
     const serverType = serverData.type;
     switch (serverType) {
@@ -221,23 +236,23 @@ export default class MountDirectories {
   }
 
   // tslint:disable-next-line:max-line-length
-  private generateMountCmds(serverData: any, mountPoint: string, relativePath: string, tmpFolder: string): string[] | undefined {
+  private generateMountCmds(serverData: IServer, mountPoint: string, relativePath: string, tmpFolder: string): string[] | undefined {
     const serverType = serverData.type;
     switch (serverType) {
       case "nfs":
         return [
           `mount -t nfs4 ${serverData.address}:${this.normalizePath(
-            `${serverData.rootPath}/${relativePath}`)} ${mountPoint}`,
+            serverData.rootPath + "/" + relativePath)} ${mountPoint}`,
         ];
       case "samba":
         return [
           `mount -t cifs //${serverData.address}${this.normalizePath(
-          `/${serverData.rootPath}/${relativePath}`)} ${mountPoint} -o username=${
+          "/" + serverData.rootPath + "/" + relativePath)} ${mountPoint} -o username=${
             serverData.userName},password=${serverData.password}` +
-            (serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ""),
+            (serverData.domain !== undefined && serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ""),
           ];
       case "azurefile":
-        if ("proxy" in serverData) {
+        if (serverData.proxy !== undefined) {
           return [
             `mount -t cifs //localhost/${this.normalizePath(
               serverData.fileShare + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${
@@ -288,11 +303,6 @@ export function MountDirectoriesForm({
   defaultValue,
   onChange,
 }: IProps) {
-  const { api, user } = useContext(Context);
-
-  // TODO: Get userGroups from UserManager
-  const userGroups = ["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB", "GROUP_MIX"];
-
   const responseToData = (response: Response) => {
     if (response.ok) {
       return response.json().then((responseData) => responseData.data);
@@ -305,44 +315,65 @@ export function MountDirectoriesForm({
     return oriPath.replace(/%USER/ig, user).replace(/%JOB/ig, jobName).replace("//", "/");
   };
 
+  const { api, user } = useContext(Context);
+
+  const [userGroups, setUserGroups] = useState<string[]>([]);
   const [serverNames, setServerNames] = useState<string[]>([]);
-  const [groups, setGroups] = useState<IGroup[]>([]);
-  const [selectedGroups, setSelectedGroups] = useState<IGroup[]>(get(defaultValue, "selectedGroups", []));
+  const [configs, setConfigs] = useState<IConfig[]>([]);
+  const [selectedConfigs, setSelectedConfigs] = useState<IConfig[]>(get(defaultValue, "selectedConfigs", []));
 
   useEffect(() => {
-    const storageGroupUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-group`;
-    fetch(storageGroupUrl).then(responseToData).then((storageGroupData) => {
-      const newGroups = [];
-      for (const groupName of userGroups) {
+    const userInfoUrl = `${api}/api/v2/user/${user}`;
+    fetch(userInfoUrl).then((response: Response) => {
+      if (response.ok) {
+        response.json().then((responseData) => responseData.grouplist).then((groupList) => {
+          setUserGroups(groupList);
+        });
+      } else {
+        // TODO: Remove after AD intgration.
+        setUserGroups(["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB", "GROUP_MIX"]);
+        throw Error(`HTTP ${response.status}`);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (userGroups.length === 0) {
+      return;
+    }
+
+    const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-config`;
+    fetch(storageConfigUrl).then(responseToData).then((storageConfigData) => {
+      const newConfigs = [];
+      for (const gpn of userGroups) {
         try {
-          if (!(groupName in storageGroupData)) {
-            continue;
-          }
-          const groupContent = JSON.parse(atob(storageGroupData[groupName]));
-          newGroups.push(groupContent);
-          if (groupContent.servers !== undefined) {
-            for (const serverName of groupContent.servers) {
-              if (serverNames.indexOf(serverName) === -1) {
-                serverNames.push(serverName);
+          for (const rawConfig of storageConfigData.values()) {
+            const config = JSON.parse(atob(rawConfig));
+            if (config.gpn !== gpn) {
+              continue;
+            } else {
+              newConfigs.push(config);
+              if (config.servers !== undefined) {
+                for (const serverName of config.servers) {
+                  if (serverNames.indexOf(serverName) === -1) {
+                    serverNames.push(serverName);
+                  }
+                }
+              }
+              // Auto select default mounted configs
+              if (defaultValue === null && config.default === true) {
+                selectedConfigs.push(config);
               }
             }
-            setServerNames(serverNames.concat());
           }
         } catch (e) {
           // ignored
         }
       }
-      // Auto select default mounted groups
-      if (defaultValue === null) {
-        for (const group of newGroups ) {
-          if (group.default === true) {
-            selectedGroups.push(group);
-          }
-        }
-        setSelectedGroups(selectedGroups.concat());
-      }
 
-      setGroups(newGroups);
+      setConfigs(newConfigs);
+      setSelectedConfigs(selectedConfigs.concat());
+      setServerNames(serverNames.concat());
     });
 
     const storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-user`;
@@ -361,7 +392,7 @@ export function MountDirectoriesForm({
     } catch (e) {
       // Do nothing
     }
-  }, []);
+  }, [userGroups]);
 
   const [servers, setServers] = useState<IServer[]>([]);
   useEffect(() => {
@@ -384,23 +415,23 @@ export function MountDirectoriesForm({
     }
   }, [serverNames]);
 
-  const onSGChange  = useCallback((group: IGroup, value: boolean) => {
+  const onSCChange  = useCallback((config: IConfig, value: boolean) => {
     if (value) {
-      if (selectedGroups.find((item) => item.gpn === group.gpn) === undefined) {
-        selectedGroups.push(group);
+      if (selectedConfigs.find((item) => item.name === config.name) === undefined) {
+        selectedConfigs.push(config);
       }
     } else {
-      const oriGroupIndex = selectedGroups.find((item) => item.gpn === group.gpn);
-      if (oriGroupIndex !== undefined) {
-        selectedGroups.splice(selectedGroups.indexOf(oriGroupIndex), 1);
+      const oriConfigIndex = selectedConfigs.find((item) => item.name === config.name);
+      if (oriConfigIndex !== undefined) {
+        selectedConfigs.splice(selectedConfigs.indexOf(oriConfigIndex), 1);
       }
      }
-    setSelectedGroups(selectedGroups.concat());
+    setSelectedConfigs(selectedConfigs.concat());
   }, []);
 
   const mountDirectories = useMemo(() => {
-    return new MountDirectories(user, jobName, selectedGroups, servers);
-  }, [user, jobName, selectedGroups, servers]);
+    return new MountDirectories(user, jobName, selectedConfigs, servers);
+  }, [user, jobName, selectedConfigs, servers]);
 
   useEffect(() => {
     if (mountDirectories !== null) {
@@ -408,26 +439,52 @@ export function MountDirectoriesForm({
     }
   }, [mountDirectories]);
 
-  const showGroups = (group: IGroup, index: number) => {
+  const showConfigs = (config: IConfig, index: number) => {
     return (
-      <div key={group.gpn} style={groupDivStyle}>
+      <div key={config.name} style={configDivStyle}>
         <label>
           {/* tslint:disable-next-line:jsx-no-lambda tslint:disable-next-line: max-line-length*/}
-          <input type="checkbox" key={index} checked={selectedGroups.find((sg) => sg.gpn === group.gpn) !== undefined} onChange={(event) => onSGChange(group, event.target.checked)}/>
-          {group.gpn}
+          <input type="checkbox" key={index} checked={selectedConfigs.find((sc) => sc.name === config.name) !== undefined} onChange={(event) => onSCChange(config, event.target.checked)}/>
+          {config.name}
         </label>
       </div>);
   };
 
-  const showMountInfos = (selectedGroup: IGroup) => {
+  const getServerPath = useCallback((serverName: string) => {
+    let returnValue: string = "";
+
+    const server = servers.find((srv) => srv.spn === serverName);
+    if (server !== undefined) {
+      switch (server.type) {
+        case "nfs":
+          returnValue = server.address + ":" + server.rootPath;
+          break;
+        case "samba":
+          returnValue = "//" + server.address + server.rootPath;
+          break;
+        case "azurefile":
+          returnValue = server.dataStore + "/" + server.fileShare;
+          break;
+        case "azureblob":
+          returnValue = server.dataStore + "/" + server.containerName;
+          break;
+      }
+    }
+    return returnValue;
+  }, [servers]);
+
+  const showMountInfos = (selectedConfig: IConfig) => {
     {
-      if (selectedGroup.mountInfos !== undefined) {
-        return selectedGroup.mountInfos.map((mountInfo, index) => {
+      if (selectedConfig.mountInfos !== undefined) {
+        return selectedConfig.mountInfos.map((mountInfo, index) => {
           return (
-          <tr key={selectedGroup.gpn + "_" + index}>
-            <td data-tooltip="asdf">{mountInfo.mountPoint}</td>
+          <tr key={selectedConfig.name + "_" + index}>
+            <td>{mountInfo.mountPoint}</td>
             <td>
-              {"[" + mountInfo.server + "]"}/{normalizePath(mountInfo.path)}</td>
+              <Tooltip title={getServerPath(mountInfo.server)} placement="left">
+              <Button>{"[" + mountInfo.server + "]"}</Button>
+              </Tooltip>
+              /{normalizePath(mountInfo.path)}</td>
           </tr>
           );
         });
@@ -447,10 +504,10 @@ export function MountDirectoriesForm({
 
       <div>
         <label>
-          User Groups:
+          Mount Config Sets :
         </label>
       </div>
-      {groups.map((group, index) => showGroups(group, index))}
+      {configs.map((config, index) => showConfigs(config, index))}
 
       <div>
         <label>
@@ -464,7 +521,7 @@ export function MountDirectoriesForm({
             </tr>
           </thead>
           <tbody>
-          {selectedGroups.map((selectedGroup) => showMountInfos(selectedGroup))}
+          {selectedConfigs.map((selectedConfig) => showMountInfos(selectedConfig))}
           </tbody>
         </table>
       </div>

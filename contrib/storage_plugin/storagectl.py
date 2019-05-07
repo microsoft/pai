@@ -90,9 +90,10 @@ def server_set(args):
     save_secret("storage-server", args.name, content_dict)
 
 
-def group_set(args):
+def config_set(args):
     content_dict = dict()
-    content_dict["gpn"] = args.name
+    content_dict["name"] = args.name
+    content_dict["gpn"] = args.gpn
     content_dict["servers"] = args.servers
     content_dict["default"] = args.default
     if args.mount_info is not None:
@@ -101,7 +102,7 @@ def group_set(args):
             info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
             mount_infos.append(info)
         content_dict["mountInfos"] = mount_infos
-    save_secret("storage-group", args.name, content_dict)
+    save_secret("storage-config", args.name, content_dict)
 
 
 def user_set(args):
@@ -176,24 +177,26 @@ def main():
     server_del_parser.add_argument("name")
     server_del_parser.set_defaults(func=delete_secret, secret_name="storage-server")
 
-    # ./storagectl.py group ...
-    group_parser = subparsers.add_parser("group", description="Manage group", formatter_class=argparse.RawDescriptionHelpFormatter)
-    group_subparsers = group_parser.add_subparsers(help="Manage group")
-    # ./storagectl.py group set GROUP_NAME SERVER_NAME_1 [SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]...
-    group_set_parser = group_subparsers.add_parser("set")
-    group_set_parser.add_argument("name")
-    group_set_parser.add_argument("servers", nargs="+", help="")
-    group_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
-    group_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
-    group_set_parser.set_defaults(func=group_set)
-    # ./storagectl.py group list [-n GROUP_NAME_1, GROUP_NAME_2 ...]
-    group_list_parser = group_subparsers.add_parser("list")
-    group_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
-    group_list_parser.set_defaults(func=show_secret, secret_name="storage-group")
-    # ./storagectl.py group delete GROUP_NAME
-    group_del_parser = group_subparsers.add_parser("delete")
-    group_del_parser.add_argument("name")
-    group_del_parser.set_defaults(func=delete_secret, secret_name="storage-group")
+    # ./storagectl.py config ...
+    config_parser = subparsers.add_parser("config", description="Manage config", formatter_class=argparse.RawDescriptionHelpFormatter)
+    config_subparsers = config_parser.add_subparsers(help="Manage config")
+    # ./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+    config_set_parser = config_subparsers.add_parser("set")
+    config_set_parser.add_argument("name", help="Config name")
+    config_set_parser.add_argument("gpn", help="Config group name")
+    config_set_parser.add_argument("-s", "--server", dest="servers", nargs="+", help="-s SERVER_NAME_1 SERVER_NAME_2 ...")
+    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
+    config_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
+    config_set_parser.set_defaults(func=config_set)
+    # ./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...] [-g GROUP_NAME_1, GROUP_NAME_2 ...]
+    config_list_parser = config_subparsers.add_parser("list")
+    config_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
+    config_list_parser.add_argument("-g", "--group", dest="group", nargs="+", help="filter result by groups")
+    config_list_parser.set_defaults(func=show_secret, secret_name="storage-config")
+    # ./storagectl.py config delete CONFIG_NAME
+    config_del_parser = config_subparsers.add_parser("delete")
+    config_del_parser.add_argument("name")
+    config_del_parser.set_defaults(func=delete_secret, secret_name="storage-config")
 
     # ./storagectl.py user ...
     user_parser = subparsers.add_parser("user", description="Manage user", formatter_class=argparse.RawDescriptionHelpFormatter)
