@@ -22,7 +22,7 @@ const createError = require('../../util/error');
 const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const userInfo = userModel.getUser(username);
+    const userInfo = await userModel.getUser(username);
     // eslint-disable-next-line no-console
     console.log(username);
     // eslint-disable-next-line no-console

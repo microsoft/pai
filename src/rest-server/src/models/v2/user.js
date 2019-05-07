@@ -26,7 +26,7 @@ const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
 const getUser = async (username, next) => {
   try {
-    return crudUser.read(username, crudConfig);
+    return await crudUser.read(username, crudConfig);
   } catch (error) {
     if (error.status === 404) {
       return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
