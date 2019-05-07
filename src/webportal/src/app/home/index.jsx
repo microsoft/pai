@@ -61,11 +61,11 @@ const JumbotronBackground = styled.div`
 const Jumbotron = ({showLoginModal}) => (
   <div className={c(t.flexAuto, t.relative, t.flex)}>
     <JumbotronBackground></JumbotronBackground>
-    <div className={c(t.flexAuto, t.z0, t.pa5, t.relative, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter, t.w100)}>
+    <div className={c(t.flexAuto, t.z0, t.pa5, t.relative, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter)}>
       <div className={c(FontClassNames.superLarge, t.white)}>
         Platform for AI
       </div>
-      <div className={c(FontClassNames.mediumPlus, t.mv5, t.mw7, t.tc, t.lhCopy, t.white, t.w100)}>
+      <div className={c(FontClassNames.mediumPlus, t.mv5, t.mw7, t.tc, t.lhCopy, t.white)}>
         Platform for AI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
       </div>
       <div
@@ -87,11 +87,11 @@ Jumbotron.propTypes = {
 const Bottom = () => (
   <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flex, t.flexWrap)}>
     <div className={c(t.w33, t.w100M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
-      <div className={c(t.flex, t.flexColumn, t.itemsCenter, t.w100)}>
-        <div className={c(FontClassNames.xxLarge, t.w100)} style={{fontWeight: FontWeights.semibold}}>
+      <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Submit a hello-world job
         </div>
-        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4, t.w100)} style={{maxWidth: '20rem'}}>
+        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
         </div>
       </div>
@@ -104,11 +104,11 @@ const Bottom = () => (
       </Link>
     </div>
     <div className={c(t.w34, t.w100M, t.mt5M, t.tc, t.ph4, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
-      <div className={c(t.flex, t.flexColumn, t.itemsCenter, t.w100)}>
-        <div className={c(FontClassNames.xxLarge, t.w100)} style={{fontWeight: FontWeights.semibold}}>
+      <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Understand Job
         </div>
-        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4, t.w100)} style={{maxWidth: '20rem'}}>
+        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           The job of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
         </div>
       </div>
@@ -121,11 +121,11 @@ const Bottom = () => (
       </Link>
     </div>
     <div className={c(t.w33, t.w100M, t.mt5M, t.tc, t.flex, t.flexColumn, t.itemsCenter, t.justifyBetween)}>
-      <div className={c(t.flex, t.flexColumn, t.itemsCenter, t.w100)}>
-        <div className={c(FontClassNames.xxLarge, t.w100)} style={{fontWeight: FontWeights.semibold}}>
+      <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+        <div className={c(FontClassNames.xxLarge)} style={{fontWeight: FontWeights.semibold}}>
           Use VS Code Extension to work with Jobs
         </div>
-        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4, t.w100)} style={{maxWidth: '20rem'}}>
+        <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)} style={{maxWidth: '20rem'}}>
           OpenPAI Client is a VS Code extension to connect PAI clusters, submit AI jobs, and manage files on HDFS, etc. You need to install the extension in VS code before using it.
         </div>
       </div>

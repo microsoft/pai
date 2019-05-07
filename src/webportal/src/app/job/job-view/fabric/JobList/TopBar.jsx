@@ -24,9 +24,11 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 
 import Context from './Context';
 import Filter from './Filter';
+import {spacing} from '../job-detail/util';
+import c from 'classnames';
+import t from '../tachyons.css';
 
 import webportalConfig from '../../../../config/webportal.config';
-
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
   const {subMenuProps: {items}} = props;
@@ -126,9 +128,9 @@ function TopBar() {
       buttonStyles: {root: {
         backgroundColor: 'transparent', 
         height: '100%',
-        paddingLeft: '8px',
-        paddingRight: '8px',
-        marginRight: '8px'
+        paddingLeft: spacing.s1,
+        paddingRight: spacing.s1,
+        marginRight: spacing.s1,
       }},
       iconProps: {
         iconName: 'StopSolid',
@@ -149,9 +151,9 @@ function TopBar() {
       buttonStyles: {root: {
         backgroundColor: 'transparent', 
         height: '100%',
-        paddingLeft: '8px',
-        paddingRight: '8px',
-        marginRight: '8px'
+        paddingLeft: spacing.s1,
+        paddingRight: spacing.s1,
+        marginRight: spacing.s1
     }},
       iconProps: {
         iconName: 'Add',
@@ -170,8 +172,8 @@ function TopBar() {
       buttonStyles: {root: {
         backgroundColor: 'transparent', 
         height: '100%',
-        paddingLeft: '8px',
-        paddingRight: '8px',
+        paddingLeft: spacing.s1,
+        paddingRight: spacing.s1,
       }},
       iconProps: {
         iconName: 'Refresh',
@@ -469,20 +471,19 @@ function TopBar() {
         farItems={topBarFarItems}
         styles={{root: {
           backgroundColor: 'transparent',
-          marginTop: '8px',
-          marginBottom: '8px',
+          marginTop: spacing.s1,
       }}}
       />
       { active ? <CommandBar
         items={filterBarItems}
+        className={c(t.h-100)}
         farItems={filterBarFarItems}
         styles={{root: {
           backgroundColor: '#ECECEC',
-          // backgroundColor: '#ECE',
-          marginBottom: '8px',
-          // paddingTop: '16px',
-          height: 46
-          // paddingBottom: 16,
+          marginBottom: spacing.s1,
+          marginTop: spacing.s1,
+          paddingTop: spacing.s1,
+          paddingBottom: spacing.s1,
         }}}
       /> : null }
     </React.Fragment>

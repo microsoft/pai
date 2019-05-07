@@ -25,6 +25,7 @@ import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {Overlay} from 'office-ui-fabric-react/lib/Overlay';
 import {Stack} from 'office-ui-fabric-react/lib/Stack';
+import {spacing} from '../job-detail/util';
 
 import Context from './Context';
 import Filter from './Filter';
@@ -36,6 +37,9 @@ import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
+import t from '../tachyons.css';
+// import {spacing} from '../job-detail/util';
+import c from 'classnames';
 
 initializeIcons();
 
@@ -154,15 +158,15 @@ export default function JobList() {
 
   return (
     <Context.Provider value={context}>
-      <Fabric style={{height: '100%'}}>
-        <Stack verticalFill styles={{root: {position: 'relative', padding: '0 20px 20px'}}}>
+      <Fabric className={c(t.h100)}>
+        <Stack verticalFill className={c(t.relative)} styles={{root: { padding: spacing.l1, paddingTop: 0}}}>
           <Stack.Item>
             <TopBar/>
           </Stack.Item>
-          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white', paddingTop: 16, paddingLeft: 20}}}>
+          <Stack.Item grow className={c(t.overflowAuto)} styles={{root: {height: 1, backgroundColor: 'white', paddingTop: spacing.m, paddingLeft: spacing.l1, paddingRight: spacing.l1}}}>
             <Table/>
           </Stack.Item>
-          <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: 15}}}>
+          <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: spacing.l1}}}>
             <Paginator/>
           </Stack.Item>
           {error !== null ? getError(error) : null}

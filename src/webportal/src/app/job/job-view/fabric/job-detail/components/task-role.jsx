@@ -25,7 +25,7 @@ import t from '../../tachyons.css';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
-import {statusColorMapping} from '../util';
+import {statusColorMapping, spacing} from '../util';
 import TaskRoleContainerList from './task-role-container-list';
 
 export default class TaskRole extends React.Component {
@@ -83,10 +83,10 @@ export default class TaskRole extends React.Component {
     return (
       <div className={c(t.flex, t.itemsCenter)}>
         {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
-          <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)} style={{marginRight: 20}}>
+          <div key={x} className={c(t.flex, t.itemsCenter)} style={{marginRight: spacing.l1}}>
             <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColorMapping[x]}}>
             </div>
-            <div className={c(t.ml2)} style={{marginLeft: 8}}>{count[x]}</div>
+            <div style={{marginLeft: spacing.s1}}>{count[x]}</div>
           </div>
         ))}
       </div>
@@ -99,10 +99,10 @@ export default class TaskRole extends React.Component {
     const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
 
     return (
-      <div className={className}  style={{marginBottom: 8, marginTop: 0}}>
+      <div className={className}  style={{marginBottom: spacing.s1}}>
         {/* summary */}
         <Card>
-          <div className={c(t.pv3, t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: 32, paddingRight: 32, paddingTop: 20, paddingBottom: 20}}>
+          <div className={c(t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: spacing.l2, paddingRight: spacing.l2, paddingTop: spacing.l1, paddingBottom: spacing.l1}}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
               <div className={c(FontClassNames.large)}>
@@ -111,12 +111,12 @@ export default class TaskRole extends React.Component {
               </div>
               {taskConfig && (
                 <MonacoCallout language='json' value={JSON.stringify(taskConfig, null, 2)}>
-                  <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}}   style={{marginLeft: 8}} />
+                  <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}}   style={{marginLeft: spacing.s1}} />
                 </MonacoCallout>
               )}
               {/* status */}
-              <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)} style={{marginLeft: 64}}>
-                <div className={c(t.ml3)} style={{margin: 0}}>
+              <div className={c(t.flex, t.itemsCenter, t.justifyStart)} style={{marginLeft: spacing.l3}}>
+                <div>
                   {this.renderTaskRoleCount()}
                 </div>
               </div>
@@ -131,7 +131,6 @@ export default class TaskRole extends React.Component {
           </div>
           {containerListExpanded && (
             <TaskRoleContainerList
-              style={{paddingLeft: 32, paddingRight: 32, backgroundColor: 'rgb(248, 248, 248)'}}
               taskInfo={taskInfo}
               taskConfig={taskConfig}
               jobStatus={jobStatus}

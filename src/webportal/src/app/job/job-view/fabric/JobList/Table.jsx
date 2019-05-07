@@ -5,7 +5,10 @@ import {Link} from 'office-ui-fabric-react/lib/Link';
 import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
-import {FontClassNames, FontSizes} from 'office-ui-fabric-react/lib/Styling';
+import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
+import StatusBadge from '../job-detail/components/status-badge';
+import c from 'classnames';
+import t from '../tachyons.css';
 
 import {DateTime, Duration} from 'luxon';
 
@@ -157,44 +160,10 @@ export default function Table() {
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
       const statusText = getStatusText(job);
-      /** @type {MessageBarType} */
-      const messageBarType = {
-        Waiting: MessageBarType.warning,
-        Running: MessageBarType.success,
-        Stopping: MessageBarType.severeWarning,
-        Succeeded: MessageBarType.success,
-        Failed: MessageBarType.remove,
-        Stopped: MessageBarType.blocked,
-      }[statusText];
-      
-      const rootStyle = {backgroundColor: 'transparent'};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconStyle = {
-        color: 'white', borderRadius: '50%', 
-        backgroundColor: {
-          Waiting: '#F9B61A',
-          Running: '#579AE6',
-          Stopping: '#579AE6',
-          Succeeded: '#54D373',
-          Failed: '#E06260',
-          Stopped: '#B1B5B8',
-        }[statusText],
-        transform: statusText == 'Failed' ? 'rotate(90deg)' : 'rotate(0deg)',
-      };
-      /** @type {import('@uifabric/styling').IStyle} */
-      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'black'};
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)}>
-          <MessageBar
-            messageBarType={messageBarType}
-            styles={{root: rootStyle, iconContainer: iconContainerStyle, icon: iconStyle, text: textStyle}}
-          >
-            {statusText}
-          </MessageBar>
+        <div style={Object.assign(zeroPaddingRowFieldStyle) } className={c(t.w1, t.dib, t.vMid)}>
+          <StatusBadge status={statusText} />
         </div>
       );
     },
@@ -218,14 +187,12 @@ export default function Table() {
         stopJob(job);
       }
       /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
-
       const statusText = getStatusText(job);
       const disabled = statusText !== 'Waiting' && statusText !== 'Running';
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)} data-selection-disabled>
+        <div style={Object.assign(zeroPaddingRowFieldStyle)} className={c(t.w1, t.dib, t.vMid)} data-selection-disabled>
           <DefaultButton
-            iconProps={{iconName: 'StopSolid'}}
+            iconProps={{iconName: 'StatusCircleBlock'}}
             disabled={disabled}
             onClick={onClick}
           >

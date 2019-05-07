@@ -116,3 +116,11 @@ export const statusColorMapping = {
   Failed: '#E06260',
   Stopped: '#B1B5B8',
 };
+export const spacing = {
+  s1: 8,
+  s2: 4,
+  m: 16,
+  l1: 20,
+  l2: 32,
+  l3: 64,
+}
