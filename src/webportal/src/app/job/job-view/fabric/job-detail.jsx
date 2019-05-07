@@ -21,10 +21,9 @@ import 'whatwg-fetch';
 
 import classNames from 'classnames';
 import {get, isEmpty} from 'lodash';
+import {initializeIcons, FontClassNames, MessageBar, MessageBarType} from 'office-ui-fabric-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {initializeIcons} from '@uifabric/icons';
-import {FontClassNames} from '@uifabric/styling';
 
 import t from '../../../components/tachyons.scss';
 
@@ -46,33 +45,36 @@ class JobDetail extends React.Component {
       loading: true,
       reloading: false,
       sshInfo: null,
+      error: null,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
   }
 
   componentDidMount() {
-    void this.reload();
+    void this.reload(true);
   }
 
-  async reload() {
+  async reload(alert) {
     this.setState({
       reloading: true,
     });
     await Promise.all([
-      fetchJobInfo().catch(alert),
+      fetchJobInfo().catch((err) => {
+        throw new Error(`fetch job status failed: ${err.message}`);
+      }),
       fetchJobConfig().catch((err) => {
         if (err instanceof NotFoundError) {
           return null;
         } else {
-          alert(err);
+          throw new Error(`fetch job config failed: ${err.message}`);
         }
       }),
       fetchSshInfo().catch((err) => {
         if (err instanceof NotFoundError) {
           return null;
         } else {
-          alert(err);
+          throw new Error(`fetch ssh info failed: ${err.message}`);
         }
       }),
     ]).then(([jobInfo, jobConfig, sshInfo]) => {
@@ -82,7 +84,14 @@ class JobDetail extends React.Component {
         jobInfo: jobInfo,
         jobConfig: jobConfig,
         sshInfo: sshInfo,
+        error: null,
       });
+    }).catch((err) => {
+      if (alert === true) {
+        alert(err);
+      } else {
+        this.setState({error: err.message});
+      }
     });
   }
 
@@ -135,13 +144,20 @@ class JobDetail extends React.Component {
   }
 
   render() {
-    const {loading, jobConfig, jobInfo, reloading} = this.state;
+    const {loading, jobConfig, jobInfo, reloading, error} = this.state;
     if (loading) {
       return <SpinnerLoading />;
     } else {
       return (
         <div className={classNames(t.w100, t.ph4, t.pv3, FontClassNames.medium)}>
           <Top />
+          {!isEmpty(error) && (
+            <div className={t.bgWhite}>
+              <MessageBar messageBarType={MessageBarType.error}>
+                {error}
+              </MessageBar>
+            </div>
+          )}
           <Summary
             className={t.mt3}
             jobInfo={jobInfo}
