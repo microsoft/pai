@@ -306,6 +306,10 @@ gpu_id=$(echo $gpu_id | sed "s/,$//g")
 printf "%s %s\n%s\n\n" "[INFO]" "GPU_ID" "$gpu_id"
 printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 
+infiniband_flags=''
+if [[ -d "/dev/infiniband" ]]; then
+  infiniband_flags+='--cap-add=IPC_LOCK --device=/dev/infiniband'
+fi
 
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
@@ -528,6 +532,7 @@ docker run --name $docker_name \
   --cpus={{ taskData.cpuNumber }} \
   --memory={{ taskData.memoryMB }}m \
   --shm-size={{ taskData.shmMB }}m \
+  $infiniband_flags \
   $nvidia_devices \
   --device=/dev/fuse \
 {{# isDebug }}
@@ -539,8 +544,6 @@ docker run --name $docker_name \
 {{# azRDMA }}
   --volume /var/lib/hyperv:/var/lib/hyperv \
   --volume /etc/dat.conf:/etc/dat.conf \
-  --device=/dev/infiniband/rdma_cm \
-  --device=/dev/infiniband/uverbs0 \
   --ulimit memlock=-1  \
 {{/ azRDMA }}
 {{/ reqAzRDMA }}
