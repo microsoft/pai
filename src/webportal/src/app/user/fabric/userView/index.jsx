@@ -17,14 +17,11 @@
 
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 
-import {initializeIcons} from 'office-ui-fabric-react';
-import {Fabric, Stack} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons} from 'office-ui-fabric-react';
 import {debounce} from 'lodash';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
 import MessageBox from '../components/MessageBox';
-import webportalConfig from '../../../config/webportal.config';
-import userAuth from '../../user-auth/user-auth.component';
 
 import Context from './Context';
 import TopBar from './TopBar';
@@ -33,6 +30,7 @@ import Ordering from './Ordering';
 import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
+import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
 
 require('bootstrap/js/modal.js');
 const userEditModalComponent = require('./user-edit-modal-component.ejs');
@@ -55,6 +53,8 @@ export default function UserView() {
       setMessageBox({text: ''});
     } else if (typeof value === 'string') {
       setMessageBox({text: value});
+    } else if (!value.hasOwnProperty('text')) {
+      setMessageBox({text: String(value)});
     } else {
       setMessageBox(value);
     }
@@ -68,25 +68,13 @@ export default function UserView() {
 
   const [allUsers, setAllUsers] = useState([]);
   const refreshAllUsers = () => {
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user`,
-        type: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: (data) => {
-          setAllUsers(data);
-        },
-        error: (xhr) => {
-          const res = JSON.parse(xhr.responseText);
-          showMessageBox({
-            text: res.message,
-            dismissedCallback: () => {
-              window.location.href = '/';
-            },
-          });
+    getAllUsersRequest().then((data) => {
+      setAllUsers(data);
+    }).catch((err) => {
+      showMessageBox({
+        text: String(err),
+        dismissedCallback: () => {
+          window.location.href = '/';
         },
       });
     });
@@ -134,63 +122,36 @@ export default function UserView() {
     window.location.href = '/batch-register.html';
   };
 
-  const removeUser = (user) => {
-    const token = userAuth.checkToken();
-    return $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/user`,
-      data: {
-        username: user.username,
-      },
-      type: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      dataType: 'json',
-    });
-  };
-
-  const removeUserRecursively = (selected, index) => {
-    if (index == 0) {
-      showLoading('Processing...');
-    }
-    if (index >= selected.length) {
-      hideLoading();
-      setTimeout(() => {
-        showMessageBox({
-          text: `Remove ${selected.length == 1 ? 'user' : 'users'} successfully.`,
-          dismissedCallback: () => {
-            setAllUsers([]);
-            refreshAllUsers();
-          },
-        });
-      }, 100);
-    } else {
-      const user = selected[index];
-      removeUser(user).then(() => {
-        removeUserRecursively(selected, ++index);
-      }, (xhr) => {
-        hideLoading();
-        setTimeout(() => {
-          const res = JSON.parse(xhr.responseText);
-          showMessageBox({
-            text: res.message,
-            dismissedCallback: () => {
-              setAllUsers([]);
-              refreshAllUsers();
-            },
-          });
-        }, 100);
-      });
-    }
-  };
-
   const removeUsers = () => {
     const selected = getSelectedUsers();
     showMessageBox({
       text: `Are you sure to remove ${selected.length == 1 ? 'the user' : 'these users'}?`,
       confirm: true,
       okCallback: () => {
-        removeUserRecursively(selected, 0);
+        showLoading('Processing...');
+        Promise.all(selected.map((user) => removeUserRequest(user.username).catch((err) => err)))
+          .then((results) => {
+            hideLoading();
+            const errors = results.filter((result) => result instanceof Error);
+            let message = `Remove ${selected.length == 1 ? 'user' : 'users'} `;
+            if (errors.length == 0) {
+              message += 'successfully.';
+            } else {
+              message += `with ${errors.length} failed.`;
+              errors.forEach((error) => {
+                message += `\n${String(error)}`;
+              });
+            }
+            setTimeout(() => {
+              showMessageBox({
+                text: message,
+                dismissedCallback: () => {
+                  setAllUsers([]);
+                  refreshAllUsers();
+                },
+              });
+            }, 100);
+          });
       },
     });
   };
@@ -212,116 +173,50 @@ export default function UserView() {
     $('#userEditModal').modal('show');
   };
 
-  const updateUserVc = (username) => {
-    const virtualCluster = $('#form-update-virtual-cluster :input[name=virtualCluster]').val();
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-        data: {
-          virtualClusters: virtualCluster,
-        },
-        type: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: (data) => {
-          if (data.error) {
-            showMessageBox(data.message);
-          } else {
-            showMessageBox({
-              text: 'Update user information successfully',
-              dismissedCallback: () => {
-                $('#userEditModal').modal('hide');
-                setAllUsers([]);
-                refreshAllUsers();
-              },
-            });
-          }
-        },
-        error: (xhr, textStatus, error) => {
-          $('#form-update-virtual-cluster').trigger('reset');
-          const res = JSON.parse(xhr.responseText);
-          showMessageBox(res.message);
+  const updateUserInfoCallback = (data) => {
+    if (data.error) {
+      showMessageBox(data.message);
+    } else {
+      showMessageBox({
+        text: 'Update user information successfully',
+        dismissedCallback: () => {
+          $('#userEditModal').modal('hide');
+          setAllUsers([]);
+          refreshAllUsers();
         },
       });
-    });
+    }
+  };
+
+  const updateUserVc = (username) => {
+    const virtualCluster = $('#form-update-virtual-cluster :input[name=virtualCluster]').val();
+    updateUserVcRequest(username, virtualCluster)
+      .then(updateUserInfoCallback)
+      .catch((err) => {
+        $('#form-update-virtual-cluster').trigger('reset');
+        showMessageBox(err);
+      });
   };
 
   const updateUserAccount = (username) => {
     const password = $('#form-update-account :input[name=password]').val();
     const admin = $('#form-update-account :input[name=admin]').is(':checked') ? true : false;
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user`,
-        data: {
-          username,
-          password,
-          admin: admin,
-          modify: true,
-        },
-        type: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: (data) => {
-          if (data.error) {
-            showMessageBox(data.message);
-          } else {
-            showMessageBox({
-              text: 'Update user basic information successfully',
-              dismissedCallback: () => {
-                $('#userEditModal').modal('hide');
-                setAllUsers([]);
-                refreshAllUsers();
-              },
-            });
-          }
-        },
-        error: (xhr, textStatus, error) => {
-          $('#form-update-account').trigger('reset');
-          const res = JSON.parse(xhr.responseText);
-          showMessageBox(res.message);
-        },
+    updateUserAccountRequest(username, password, admin)
+      .then(updateUserInfoCallback)
+      .catch((err) => {
+        $('#form-update-account').trigger('reset');
+        showMessageBox(err);
       });
-    });
   };
 
   const updateUserGithubPAT = (username) => {
     const githubPAT = $('#form-update-github-token :input[name=githubPAT]').val();
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
-        data: {
-          githubPAT: githubPAT,
-        },
-        type: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: (data) => {
-          if (data.error) {
-            showMessageBox(data.message);
-          } else {
-            showMessageBox({
-              text: 'Update user information successfully',
-              dismissedCallback: () => {
-                $('#userEditModal').modal('hide');
-                setAllUsers([]);
-                refreshAllUsers();
-              },
-            });
-          }
-        },
-        error: (xhr, textStatus, error) => {
-          $('#form-update-github-token').trigger('reset');
-          const res = JSON.parse(xhr.responseText);
-          showMessageBox(res.message);
-        },
+    updateUserGithubPATRequest(username, githubPAT)
+      .then(updateUserInfoCallback)
+      .catch((err) => {
+        $('#form-update-github-token').trigger('reset');
+        showMessageBox(err);
       });
-    });
   };
 
   window.updateUserVc = updateUserVc;
