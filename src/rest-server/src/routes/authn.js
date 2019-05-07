@@ -24,6 +24,7 @@ const authnConfig = require('../config/authn');
 const passport = require('passport');
 const logger = require('../config/logger');
 const userController = require('../controllers/v2/user');
+const tokenV2Controller = require('../controllers/v2/token');
 
 const router = new express.Router();
 
@@ -67,9 +68,21 @@ if (authnConfig.authnMethod === 'OIDC') {
           }
         )(req, res, next);
       },
-      function(req, res) {
-          // TODO，check user name and return token
-      }
+      function(req, res, next) {
+        // TODO，check user name and return token
+        const email = req._json.email;
+        const username = email.substring(0, email.lastIndexOf("@"));
+        const oid = req._json.oid;
+        const userBasicInfo = {
+          email: email,
+          username: username,
+          oid: oid,
+        };
+        req.userData = userBasicInfo;
+        next();
+      },
+      userController.createUserIfUserNotExist,
+      tokenV2Controller.get
     )
     /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
     .post(
@@ -95,7 +108,7 @@ if (authnConfig.authnMethod === 'OIDC') {
         next();
       },
       userController.createUserIfUserNotExist,
-
+      tokenV2Controller.get
     );
 } else {
   router.route('/basic/login')

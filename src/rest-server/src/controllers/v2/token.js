@@ -20,35 +20,19 @@
 // module dependencies
 const jwt = require('jsonwebtoken');
 const tokenConfig = require('../../config/token');
-const tokenModel = require('../../models/token');
 const createError = require('../../util/error');
 const userModel = require('../../models/v2/user');
 
-
-
-function jwtSignPromise(userinfo, expiration = 7 * 24 * 60 * 60) {
-  return new Promise( (res, rej) => {
-    if
+function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
+  return new Promise((res, rej) => {
     jwt.sign({
-      username: userinfo.username,
+      username: userInfo.username,
       admin: admin,
     }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      if (signError) {
-        return next(createError.unknown(signError));
-      }
-      return res.status(200).json({
-        user: username,
-        token: token,
-        admin: admin,
-        hasGitHubPAT: hasGitHubPAT,
-      });
-    });
-    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
-      err ? rej(err) : res(key);
+      signError ? rej(signError) : res(token);
     });
   });
 }
-
 
 /**
  * Get the token.
@@ -57,35 +41,20 @@ const get = async (req, res, next) => {
   try {
     const username = req.userData.username;
     const userInfo = await userModel.getUser(username);
-
+    let admin = false;
+    if (userInfo.grouplist.includes('admingroup')) {
+      admin = true;
+    }
+    const token = await jwtSignPromise(userInfo, admin);
+    return res.status(200).json({
+      user: userInfo.username,
+      token: token,
+      admin: admin,
+      hasGitHubPAT: userInfo.extension.hasOwnProperty('githubPAT')&& Boolean(userInfo.extension['githubPAT']),
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
-
-
-  tokenModel.check(username,
-    , (err, state, admin, hasGitHubPAT) => {
-    if (err) {
-      return next(createError.unknown(err));
-    }
-    if (!state) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    jwt.sign({
-      username: username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      if (signError) {
-        return next(createError.unknown(signError));
-      }
-      return res.status(200).json({
-        user: username,
-        token: token,
-        admin: admin,
-        hasGitHubPAT: hasGitHubPAT,
-      });
-    });
-  });
 };
 
 // module exports
