@@ -18,7 +18,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [2.4. Submit one-line job in command line](#24-submit-one-line-job-in-command-line)
   - [2.5. _InProgress_ Job management and fetching outputs](#25-inprogress-job-management-and-fetching-outputs)
   - [2.6. _InProgress_ Storage access](#26-inprogress-storage-access)
-  - [2.7. _TBD_ Job cloning and batch submitting](#27-tbd-job-cloning-and-batch-submitting)
+  - [2.7. _InProgress_ Job cloning and batch submitting](#27-inprogress-job-cloning-and-batch-submitting)
 - [3. Python binding](#3-python-binding)
   - [3.1. Dectect your executation environment](#31-dectect-your-executation-environment)
   - [3.2. Do it in easy way](#32-do-it-in-easy-way)
@@ -160,26 +160,23 @@ opai storage download <remote-path> <local-path>
 
 The `HDFS` accessing is implemented by the package `hdfs`, the backend of which is through `webHDFS` API.
 
-## 2.7. _TBD_ Job cloning and batch submitting
+## 2.7. _InProgress_ Job cloning and batch submitting
 
-The advanced function like job cloning has been proven to be very useful. 
+The advanced function like job cloning has been proven to be very useful. User can clone from a local job config file or an existing job name. And user may change some parameters (nested in dictionary path joined by `::`) to a new value.
 
 ```bash
-opai job clone --from <existing-job-name> -j <new-job-name>
-# change some of the parameters to new value
-opai job mutate <path::to::parameter::in::config>=<new-value> [...]
-# submit job with new parameter
-opai job evolve
+opai job clone --from <job-name-or-config> -j <new-job-name> <parameter::path::config>=<new-value> [...]
 ```
 
 It is natural to try submitting multiple jobs with only small changes in the config.
 
-```bash
-opai job clone --from <existing-job-name> -j <new-job-name>
-# set the search space
-opai job mutate --search [--linear <N>] [--log <N>] <path::to::key::in::config> <start> <end> [...]
-opai job mutate --search --choices <path::to::key::in::config> <choice1> [...]
-opai job evolve [--random-search] [--grid-search]
+```python
+from subprocess import check_call
+# base job
+check_call(f'opai job fast -j base_job --env LR=0.001 python train.py $LR'.split())
+# batch submit
+for lr in ["0.005", "0.01"]:
+    check_call(f'opai job clone --from base_job -j bj_lr_{lr} jobEnvs::LR={lr}'.split())
 ```
 
 # 3. Python binding
