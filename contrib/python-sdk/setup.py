@@ -6,7 +6,7 @@ setup(name='openpaisdk',
     url='https://github.com/microsoft/pai/contrib/python-sdk',
     packages=['openpaisdk'],
     install_requires=[
-        'requests', 'hdfs', 'yaml'
+        'requests', 'hdfs', 'PyYAML'
     ],
     entry_points = {
         'console_scripts': ['opai=openpaisdk.engine:main'],
