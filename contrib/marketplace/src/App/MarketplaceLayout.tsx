@@ -140,7 +140,7 @@ interface IProtocol {
   raw: string;
 }
 
-interface IMarketplaceListProps {
+interface IMarketplaceLayoutProps {
   api: string;
   user: string;
   token: string;
@@ -149,7 +149,7 @@ interface IMarketplaceListProps {
   defaultURIType: MarketplaceUriType;
 }
 
-interface IMarketplaceListState {
+interface IMarketplaceLayoutState {
   uri: string;
   uriType: MarketplaceUriType;
   protocols: Array<IProtocol | null>;
@@ -160,8 +160,8 @@ interface IMarketplaceListState {
   layout: LayoutType;
 }
 
-export default class MarketplaceList extends React.Component<IMarketplaceListProps, IMarketplaceListState> {
-  public static defaultProps: Partial<IMarketplaceListProps> = {
+export default class MarketplaceLayout extends React.Component<IMarketplaceLayoutProps, IMarketplaceLayoutState> {
+  public static defaultProps: Partial<IMarketplaceLayoutProps> = {
     defaultURI: "https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2",
     defaultURIType: "GitHub",
   };

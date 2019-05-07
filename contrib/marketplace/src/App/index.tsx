@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from "react";
-import MarketplaceList from "./MarketplaceList";
+import MarketplaceLayout from "./MarketplaceLayout";
 
 interface IProps {
   api: string;
@@ -27,7 +27,7 @@ interface IProps {
 
 export default function App({api, user, token, submissionId}: IProps) {
   return (
-    <MarketplaceList
+    <MarketplaceLayout
       api={api}
       user={user}
       token={token}
