@@ -22,21 +22,28 @@ const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
 const passport = require('passport');
+const logger = require('../config/logger');
+const userController = require('../controllers/v2/user');
 
 const router = new express.Router();
 
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
-    .get( function(req, res, next) {
-      passport.authenticate('azuread-openidconnect', {
-          response: res,
-          resourceURL: authnConfig.OIDCConfig.resourceURL,
-          customState: 'my_state',
-          failureRedirect: '/',
-        }
-      )(req, res, next);
-    });
+    .get(
+      function(req, res, next) {
+        passport.authenticate('azuread-openidconnect', {
+            response: res,
+            resourceURL: authnConfig.OIDCConfig.resourceURL,
+            customState: 'my_state',
+            failureRedirect: '/',
+          }
+        )(req, res, next);
+      },
+      function(req, res) {
+        res.redirect('/');
+      }
+    );
 
   router.route('/oidc/logout')
   /** POST /api/v1/auth/oidc/logout */
@@ -74,9 +81,21 @@ if (authnConfig.authnMethod === 'OIDC') {
           }
         )(req, res, next);
       },
-      function(req, res) {
+      function(req, res, next) {
         // TODO，check user name and return token
-      }
+        const email = req._json.email;
+        const username = email.substring(0, email.lastIndexOf("@"));
+        const oid = req._json.oid;
+        const userBasicInfo = {
+          email: email,
+          username: username,
+          oid: oid,
+        };
+        req.userData = userBasicInfo;
+        next();
+      },
+      userController.createUserIfUserNotExist,
+
     );
 } else {
   router.route('/basic/login')

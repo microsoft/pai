@@ -29,5 +29,28 @@ const getUser = async (req, res, next) => {
   }
 };
 
+const createUserIfUserNotExist = async (req, res, next) => {
+  try {
+    const userData = req.userData;
+    const username = userData.username;
+    const userValue = {
+      username: userData.username,
+      email: userData.email,
+      // only used for token generate.
+      password: userData.oid,
+      grouplist: [],
+      extension: {},
+    };
+    await userModel.createUserIfNotExists(username, userValue);
+    // const res = await userModel.createUserIfNotExists(username, userValue);
+    // TODO: sync group data from group manager.
+    // if (res.status === 200) {
+    // }
+    next();
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
 // module exports
-module.exports = {getUser};
+module.exports = {getUser, createUserIfUserNotExist};

@@ -29,7 +29,19 @@ const getUser = async (username, next) => {
     return await crudUser.read(username, crudConfig);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+      throw (error);
+    } else {
+      return next(error);
+    }
+  }
+};
+
+const createUserIfNotExists = async (username, value, next) => {
+  try {
+    return await crudUser.create(username, value, crudConfig);
+  } catch (error) {
+    if (error.status === 409) {
+      return error;
     } else {
       return next(error);
     }
@@ -37,4 +49,4 @@ const getUser = async (username, next) => {
 };
 
 // module exports
-module.exports = {getUser};
+module.exports = {getUser, createUserIfNotExists};
