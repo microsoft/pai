@@ -23,7 +23,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [3.1. Dectect your executation environment](#31-dectect-your-executation-environment)
   - [3.2. Do it in easy way](#32-do-it-in-easy-way)
   - [3.3. Do it in a more pythoic way](#33-do-it-in-a-more-pythoic-way)
-  - [3.4. _Updating_ Submit your working notebook running in local server](#34-updating-submit-your-working-notebook-running-in-local-server)
+  - [3.4. Submit your working notebook running in local server](#34-submit-your-working-notebook-running-in-local-server)
 - [4. _ToDiscuss_ Python SDK as a runtime](#4-todiscuss-python-sdk-as-a-runtime)
   - [4.1. Reconstruct the client in job container](#41-reconstruct-the-client-in-job-container)
   - [4.2. User can customize callbacks before or after the command executation](#42-user-can-customize-callbacks-before-or-after-the-command-executation)
@@ -167,7 +167,7 @@ The advanced function like job cloning has been proven to be very useful.
 ```bash
 opai job clone --from <existing-job-name> -j <new-job-name>
 # change some of the parameters to new value
-opai job submit <path::to::parameter::in::config>=<new-value> [...]
+opai job mutate <path::to::parameter::in::config>=<new-value> [...]
 # submit job with new parameter
 opai job evolve
 ```
@@ -231,20 +231,16 @@ client, _ = Client.from_json(__cluster_config_file__, 'your-alias')
 job_name_list = client.jobs(name_only=True)
 ```
 
-## 3.4. _Updating_ Submit your working notebook running in local server
+## 3.4. Submit your working notebook running in local server
 
 If you are working in your local `Jupyter` notebook, add below cell and execute it would submit a job. 
 
 ```python
 from openpaisdk.notebook import submit_notebook
 from openpaisdk.core import in_job_container
-from openpaisdk import __install__
 # help(submit_notebook) for more details
 if not in_job_container():
-    job_link = submit_notebook(
-        image='jupyter/minimal-notebook', # 'ubuntu:16.04'
-        pip_requirements=[__install__]
-    )
+    job_link = submit_notebook()
     print(job_link)
 ```
 
@@ -320,6 +316,6 @@ To show the user stories, we prepare some `Jupyter` notebook tutorials. Below is
 - [x] [Submit and query job via command line interface from local environment](examples/1-submit-and-query-via-command-line.ipynb)
 - [x] [Submit job from notebook running in local environment](examples/2-submit-job-from-local-notebook.ipynb)
 - [ ] [Access data storage via CLI or code from local and job container]()
-- [ ] [Submit jobs with multiple taskroles]()
+- [x] [Submit jobs with multiple taskroles](examples/1-submit-and-query-via-command-line.ipynb)
 - [ ] [Runtime - fetch user stdout and stderr seperatedly]()
 - [ ] [Runtime - debug experience enhancement]()

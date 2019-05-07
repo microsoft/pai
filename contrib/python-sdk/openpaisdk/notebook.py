@@ -7,6 +7,7 @@ import uuid
 from subprocess import check_call
 
 from openpaisdk.core import Client, Job
+from openpaisdk.engine import Engine
 
 from requests.compat import urljoin
 from notebook.notebookapp import list_running_servers
@@ -37,15 +38,9 @@ def parse_notebook_path():
 
 
 def submit_notebook(
-    image: str, 
-    job_dir: str=None,
     nb_file: str=None,
-    client: Client=None,
-    alias: str=None, 
     job_name: str=None, 
-    resources: dict={}, 
-    sources: list=[],
-    pip_requirements: list=[],
+    extra_args: list=[]
     ):
     """submit_notebook submit current notebook to openpai
     
@@ -65,24 +60,21 @@ def submit_notebook(
     Returns:
         [str] -- job name
     """
+    commands = ['job', 'fast']
     if nb_file is None:
         nb_file = get_notebook_path()
     d, fname = os.path.split(nb_file)
     name = os.path.splitext(fname)[0]
-    if client is None:
-        client = Client.from_json('openpai.json', alias)
     if job_name is None:
         job_name = name + '_' + uuid.uuid4().hex
-    if job_dir is None:
-        job_dir = '/user/{}/jobs/{}'.format(client.user, job_name)
+    commands.extend(['-j', job_name])
+
+    commands.extend(extra_args)
+
     # conver to script
     script_name = name + '.py'
     check_call(['ipython', 'nbconvert', '--to', 'script', fname], cwd=d)
+    commands.extend(['-s', script_name])
+    commands.extend(['ipython', script_name])
 
-    job = Job.simple(
-        job_name, image, command='ipython code/{}'.format(script_name), 
-        resources=resources, job_dir=job_dir,
-        pip_requirements=pip_requirements, sources=sources+[script_name]
-    )
-    client.get_token().submit(job)
-    return client.get_job_link(job_name)
+    return Engine().process(commands)
