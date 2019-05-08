@@ -163,5 +163,5 @@ module.exports = {
   updateUserGroupList,
   deleteUser,
   updateUserPassword,
-  createUser
+  createUser,
 };
