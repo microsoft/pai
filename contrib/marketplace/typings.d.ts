@@ -15,29 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from "react";
-import ProtocolForm from "./ProtocolForm";
-
-interface IProps {
-  api: string;
-  user: string;
-  token: string;
-  source?: {
-    jobName: string;
-    user: string;
-    protocolYAML: string;
-  };
-  pluginId?: string;
+declare module "*.css" {
+  interface IClassNames {
+    [className: string]: string
+  }
+  const classNames: IClassNames;
+  export = classNames;
 }
 
-export default function App({api, user, token, source, pluginId}: IProps) {
-  return (
-    <ProtocolForm
-      api={api}
-      user={user}
-      token={token}
-      source={source}
-      pluginId={pluginId}
-    />
-  );
+declare module "*.scss" {
+  interface IClassNames {
+    [className: string]: string
+  }
+  const classNames: IClassNames;
+  export = classNames;
 }
