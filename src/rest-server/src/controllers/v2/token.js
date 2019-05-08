@@ -16,8 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-
-// module dependencies
 const jwt = require('jsonwebtoken');
 const tokenConfig = require('../../config/token');
 const createError = require('../../util/error');
