@@ -22,7 +22,6 @@ const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
 const passport = require('passport');
-const logger = require('../config/logger');
 const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
 
