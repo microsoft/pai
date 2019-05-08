@@ -83,7 +83,6 @@ const createUser = async (req, res, next) => {
   }
 };
 
-
 const updateUserExtension = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -139,7 +138,6 @@ const updateUserPassword = async (req, res, next) => {
     return next(createError.unknown((error)));
   }
 };
-
 
 const deleteUser = async (req, res, next) => {
   try {
