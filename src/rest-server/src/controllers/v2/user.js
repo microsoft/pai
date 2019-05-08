@@ -29,6 +29,15 @@ const getUser = async (req, res, next) => {
   }
 };
 
+const getAllUser = async (req, res, next) => {
+  try {
+    const userList = await userModel.getAllUser();
+    return res.status(200).json(userList);
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
 const createUserIfUserNotExist = async (req, res, next) => {
   try {
     const userData = req.userData;
@@ -52,5 +61,25 @@ const createUserIfUserNotExist = async (req, res, next) => {
   }
 };
 
+const updateUserExtension = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const extensionData = req.body.extensionData;
+    if (req.user.admin || req.user.username === username) {
+      let userInfo = await userModel.getUser(username);
+      userInfo['extension'] = extensionData;
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user extension data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+
 // module exports
-module.exports = {getUser, createUserIfUserNotExist};
+module.exports = {getUser, getAllUser, createUserIfUserNotExist, updateUserExtension};

@@ -17,11 +17,24 @@
 
 // module dependencies
 const express = require('express');
+const token = require('../../middlewares/token');
 const userController = require('../../controllers/v2/user');
+const jobRouter = require('../job');
 
 const router = new express.Router();
 
-router.route('/:username/')
+router.route('/get/:username/')
+  /** Get api/v2/user/get/:username */
   .get(userController.getUser);
+
+router.route('/get/')
+  /** Get api/v2/user/get */
+  .get(userController.getAllUser);
+
+router.route('/update/:username/extension')
+  /** Put api/v2/user/update/:username/extension */
+  .put(token.check, userController.updateUserExtension);
+
+router.use('/:username/jobs', jobRouter);
 
 module.exports = router;

@@ -18,35 +18,42 @@
 
 // module dependencies
 const crudUtil = require('../../util/manager/user/crudUtil');
-const createError = require('../../util/error');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
 const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
-const getUser = async (username, next) => {
+const getUser = async (username) => {
   try {
     return await crudUser.read(username, crudConfig);
   } catch (error) {
-    if (error.status === 404) {
-      throw (error);
-    } else {
-      return next(error);
-    }
+    throw error;
   }
 };
 
-const createUserIfNotExists = async (username, value, next) => {
+const getAllUser = async () => {
+  try {
+    return await crudUser.readAll(crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createUserIfNotExists = async (username, value) => {
   try {
     return await crudUser.create(username, value, crudConfig);
   } catch (error) {
-    if (error.status === 409) {
-      return error;
-    } else {
-      return next(error);
-    }
+    throw error;
+  }
+};
+
+const updateUser = async (username, value) => {
+  try {
+    return await crudUser.update(username, value, crudConfig);
+  } catch (error) {
+    throw error;
   }
 };
 
 // module exports
-module.exports = {getUser, createUserIfNotExists};
+module.exports = {getUser, getAllUser, createUserIfNotExists, updateUser};

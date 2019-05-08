@@ -71,7 +71,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       function(req, res, next) {
         // TODO，check user name and return token
         const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf("@"));
+        const username = email.substring(0, email.lastIndexOf('@'));
         const oid = req._json.oid;
         const userBasicInfo = {
           email: email,
@@ -97,7 +97,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       function(req, res, next) {
         // TODO，check user name and return token
         const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf("@"));
+        const username = email.substring(0, email.lastIndexOf('@'));
         const oid = req._json.oid;
         const userBasicInfo = {
           email: email,
