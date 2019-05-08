@@ -18,6 +18,7 @@
 
 // module dependencies
 const crudUtil = require('../../util/manager/user/crudUtil');
+const user = require('../../util/manager/user/user');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
@@ -39,7 +40,7 @@ const getAllUser = async () => {
   }
 };
 
-const createUserIfNotExists = async (username, value) => {
+const createUser = async (username, value) => {
   try {
     return await crudUser.create(username, value, crudConfig);
   } catch (error) {
@@ -55,5 +56,22 @@ const updateUser = async (username, value) => {
   }
 };
 
+const deleteUser = async (username) => {
+  try {
+    return await crudUser.remove(username, crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getEncryptPassword = async (userValue) => {
+  try {
+    await user.encryptUserPassword(userValue);
+    return userValue;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // module exports
-module.exports = {getUser, getAllUser, createUserIfNotExists, updateUser};
+module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword};

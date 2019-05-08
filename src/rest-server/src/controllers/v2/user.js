@@ -50,16 +50,39 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist: [],
       extension: {},
     };
-    await userModel.createUserIfNotExists(username, userValue);
+    await userModel.createUser(username, userValue);
     // const res = await userModel.createUserIfNotExists(username, userValue);
     // TODO: sync group data from group manager.
     // if (res.status === 200) {
     // }
     next();
   } catch (error) {
+    if (error.status === 409) {
+      next();
+    } else {
+      return next(createError.unknown(error));
+    }
+  }
+};
+
+const createUser = async (req, res, next) => {
+  try {
+    const userData = req.userData;
+    const username = userData.username;
+    const userValue = {
+      username: userData.username,
+      email: userData.email,
+      password: userData.password,
+      grouplist: userData.grouplist,
+      extension: userData.extension,
+    };
+    await userModel.createUser(username, userValue);
+    next();
+  } catch (error) {
     return next(createError.unknown(error));
   }
 };
+
 
 const updateUserExtension = async (req, res, next) => {
   try {
@@ -80,6 +103,65 @@ const updateUserExtension = async (req, res, next) => {
   }
 };
 
+const updateUserGroupList = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const grouplist = req.body.grouplist;
+    // TODO: check every new group is in datastore
+    let userInfo = await userModel.getUser(username);
+    userInfo['grouplist'] = grouplist;
+    await userModel.updateUser(username, userInfo);
+    return res.status(201).json({
+      message: 'Update user grouplist data successfully.',
+    });
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+const updateUserPassword = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword;
+    let userValue = await userModel.getUser(username);
+    let newUserValue = userValue;
+    newUserValue['password'] = oldPassword;
+    newUserValue = await userModel.getEncryptPassword(newUserValue);
+    if (req.user.admin || newUserValue['password'] !== userValue['password']) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+    } else {
+      newUserValue['password'] = newPassword;
+      newUserValue = await userModel.getEncryptPassword(newUserValue);
+      await userModel.updateUser(username, newUserValue);
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+
+const deleteUser = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    if (req.user.admin) {
+      await userModel.deleteUser(username);
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
 
 // module exports
-module.exports = {getUser, getAllUser, createUserIfUserNotExist, updateUserExtension};
+module.exports = {
+  getUser,
+  getAllUser,
+  createUserIfUserNotExist,
+  updateUserExtension,
+  updateUserGroupList,
+  deleteUser,
+  updateUserPassword,
+  createUser
+};
