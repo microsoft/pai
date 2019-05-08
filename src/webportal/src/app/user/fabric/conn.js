@@ -46,13 +46,11 @@ export const removeUserRequest = async (username) => {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      username: username,
-    }),
+    body: JSON.stringify({username}),
   });
 };
 
-export const updateUserVcRequest = async (username, virtualCluster) => {
+export const updateUserVcRequest = async (username, virtualClusters) => {
   const url = `${config.restServerUri}/api/v1/user/${username}/virtualClusters`;
   const token = checkToken();
   return await fetchWrapper(url, {
@@ -60,9 +58,7 @@ export const updateUserVcRequest = async (username, virtualCluster) => {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      virtualClusters: virtualCluster,
-    }),
+    body: JSON.stringify({virtualClusters}),
   });
 };
 
@@ -77,7 +73,7 @@ export const updateUserAccountRequest = async (username, password, admin) => {
     body: JSON.stringify({
       username,
       password,
-      admin: admin,
+      admin,
       modify: true,
     }),
   });
@@ -91,8 +87,6 @@ export const updateUserGithubPATRequest = async (username, githubPAT) => {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      githubPAT: githubPAT,
-    }),
+    body: JSON.stringify({githubPAT}),
   });
 };
