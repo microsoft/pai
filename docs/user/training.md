@@ -35,13 +35,13 @@ It assumes that you know IP address or domain name and have an account of OpenPA
 
 The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
 
-Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpoenPAI. Next sections include more details to help on submitting real jobs.
+Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
 
-1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
+1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input user name, password, once login page shows.
 
-   After that, OpenPAI will show dashboard as below.
+   After that, OpenPAI will show job list as below.
 
-   ![dashboard](imgs/web_dashboard.png)
+   ![job list](imgs/web_job_list.png)
 
 2. Click **Submit Job** on the left pane and reach this page.
 
