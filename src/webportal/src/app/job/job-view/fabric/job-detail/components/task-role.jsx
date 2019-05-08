@@ -137,7 +137,7 @@ export default class TaskRole extends React.Component {
           </div>
           {containerListExpanded && (
             <TaskRoleContainerList
-              style={{paddingLeft: 32, paddingRight: 32}}
+              className={t.ph5}
               taskInfo={taskInfo}
             />
           )}

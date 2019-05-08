@@ -274,7 +274,7 @@ export default class Summary extends React.Component {
     return (
       <div className={className}>
         {/* summary */}
-        <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
+        <Card className={c(t.pv4, t.ph5)}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
             <div
@@ -316,38 +316,38 @@ export default class Summary extends React.Component {
           <div className={c(t.mt4, t.flex, t.itemsStart)}>
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
-              <div className={c(t.mt2)}>
+              <div className={c(t.mt3)}>
                 <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Start Time</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>User</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {jobInfo.jobStatus.username}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Virtual Cluster</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {jobInfo.jobStatus.virtualCluster}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {getDurationString(jobInfo)}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               <Link
-                className={c(t.mt2, FontClassNames.mediumPlus)}
+                className={c(t.mt3, FontClassNames.mediumPlus)}
                 onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
                 disabled={isNil(jobInfo.jobStatus.retries)}
               >
@@ -405,7 +405,7 @@ export default class Summary extends React.Component {
                 disabled={!isClonable(rawJobConfig)}
               />
               <DefaultButton
-                className={c(t.ml3)}
+                className={c(t.ml2)}
                 text='Stop'
                 onClick={onStopJob}
                 disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}
