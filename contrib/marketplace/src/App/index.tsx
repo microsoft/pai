@@ -16,28 +16,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from "react";
-import ProtocolForm from "./ProtocolForm";
+import MarketplaceLayout from "./MarketplaceLayout";
 
 interface IProps {
   api: string;
   user: string;
   token: string;
-  source?: {
-    jobName: string;
-    user: string;
-    protocolYAML: string;
-  };
-  pluginId?: string;
+  submissionId?: string;
 }
 
-export default function App({api, user, token, source, pluginId}: IProps) {
+export default function App({api, user, token, submissionId}: IProps) {
   return (
-    <ProtocolForm
+    <MarketplaceLayout
       api={api}
       user={user}
       token={token}
-      source={source}
-      pluginId={pluginId}
+      submissionId={submissionId}
     />
   );
 }

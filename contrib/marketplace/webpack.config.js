@@ -19,20 +19,13 @@ const { resolve } = require("path");
 const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
-const SRC_PATH = resolve(__dirname, "src");
-const OUTPUT_PATH = resolve(__dirname, "dist");
-const CSS_MODULES_PATH = [
-  SRC_PATH,
-  resolve(__dirname, "node_modules/bootstrap"),
-];
-
 const configuration = {
-  context: SRC_PATH,
+  context: resolve(__dirname, "src"),
   entry: {
     plugin: "./index.ts",
   },
   output: {
-    path: OUTPUT_PATH,
+    path: resolve(__dirname, "dist"),
     filename: "[name].js",
     chunkFilename: "[id].chunk.js",
     globalObject: "this",
@@ -46,7 +39,7 @@ const configuration = {
       },
       {
         test: /\.(css|scss)$/,
-        include: CSS_MODULES_PATH,
+        include: resolve(__dirname, "src"),
         use: [
           "style-loader",
           {
@@ -64,12 +57,8 @@ const configuration = {
       },
       {
         test: /\.(css|scss)$/,
-        exclude: CSS_MODULES_PATH,
+        exclude: resolve(__dirname, "src"),
         use: ["style-loader", "css-loader", "sass-loader"],
-      },
-      {
-        test: /\.(eot|woff2?|svg|ttf)([\?]?.*)$/,
-        use: "file-loader",
       },
     ],
   },
@@ -88,12 +77,12 @@ const configuration = {
   ],
   devServer: {
     host: "0.0.0.0",
-    port: 9290,
+    port: 9291,
     contentBase: false,
+    disableHostCheck: true,
     watchOptions: {
       ignored: /node_modules/,
     },
-    disableHostCheck: true,
   },
 };
 

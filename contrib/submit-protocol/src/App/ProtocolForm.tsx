@@ -23,7 +23,7 @@ import {
 } from "office-ui-fabric-react";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
-import yaml from "yaml";
+import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
@@ -137,6 +137,7 @@ interface IProtocolProps {
   source?: {
     jobName: string;
     user: string;
+    protocolYAML: string;
   };
   pluginId?: string;
 }
@@ -320,27 +321,32 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private fetchConfig = async () => {
+    let protocol = null;
     const source = this.props.source;
     const pluginId = this.props.pluginId;
-    if (source && source.jobName && source.user && pluginId) {
-      try {
+    try {
+      if (source && source.protocolYAML) {
+        protocol = yaml.safeLoad(source.protocolYAML);
+      } else if (source && source.jobName && source.user && pluginId) {
         const res = await fetch(
           `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
         );
         const body = await res.json();
-        const protocol = yaml.parse(body);
+        protocol = yaml.safeLoad(body);
         if (protocol.extras.submitFrom !== pluginId) {
           throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
         }
         protocol.name = this.getCloneJobName(source.jobName);
+      }
+      if (protocol) {
         this.setState({
           jobName: protocol.name,
           protocol,
-          protocolYAML: yaml.stringify(protocol),
+          protocolYAML: yaml.safeDump(protocol),
         });
-      } catch (err) {
-        alert(err.message);
       }
+    } catch (err) {
+      alert(err.message);
     }
     this.setState({ loading: false });
   }
@@ -359,14 +365,14 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       this.setState({
         jobName,
         protocol,
-        protocolYAML: yaml.stringify(protocol),
+        protocolYAML: yaml.safeDump(protocol),
       });
     }
   }
 
   private onSelectProtocol = (text: string) => {
     try {
-      const protocol = yaml.parse(text);
+      const protocol = yaml.safeLoad(text);
       this.setState({
         jobName: protocol.name || "",
         protocol,
@@ -387,7 +393,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     fileReader.addEventListener("load", () => {
       const text = fileReader.result as string;
       try {
-        const protocol = yaml.parse(text);
+        const protocol = yaml.safeLoad(text);
         this.setState({
           jobName: protocol.name || "",
           protocol,
@@ -419,7 +425,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           (protocol.parameters as IParameterObj)[item.key] = value;
           this.setState({
             protocol,
-            protocolYAML: yaml.stringify(protocol),
+            protocolYAML: yaml.safeDump(protocol),
           });
         }
       };
@@ -479,7 +485,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     event.preventDefault();
     const text = this.state.protocolYAML;
     try {
-      const protocol = yaml.parse(text);
+      const protocol = yaml.safeLoad(text);
       this.setState({
         jobName: protocol.name || "",
         protocol,
@@ -492,7 +498,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private discardEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    const text = yaml.stringify(this.state.protocol);
+    const text = yaml.safeDump(this.state.protocol);
     this.setState({
       protocolYAML: text,
       showEditor: false,
@@ -504,11 +510,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (!this.state.protocolYAML) {
       return;
     }
-    const protocol = yaml.parse(this.state.protocolYAML);
+    const protocol = yaml.safeLoad(this.state.protocolYAML);
     protocol.extras = { submitFrom: this.props.pluginId };
     try {
       const res = await fetch(`${this.props.api}/api/v2/jobs`, {
-        body: yaml.stringify(protocol),
+        body: yaml.safeDump(protocol),
         headers: {
           "Authorization": `Bearer ${this.props.token}`,
           "Content-Type": "text/yaml",

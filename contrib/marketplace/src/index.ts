@@ -40,31 +40,21 @@ declare interface IWindow {
   PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
 }
 
-class ProtocolPluginElement extends HTMLElement {
+class MarketplacePluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
     const user = this.getAttribute("pai-user") as string;
     const token = this.getAttribute("pai-rest-server-token") as string;
 
-    const params = new URLSearchParams(window.location.search);
-    const source = Object(null);
-    if (params.get("op") === "init") {
-      source.protocolYAML = sessionStorage.getItem("protocolYAML") || "";
-      sessionStorage.removeItem("protocolYAML");
-    } else if (params.get("op") === "resubmit") {
-      const sourceJobName = params.get("jobname") || "";
-      const sourceUser = params.get("user") || "";
-      if (sourceJobName && sourceUser) {
-        source.jobName = sourceJobName;
-        source.user = sourceUser;
+    let submissionId;
+    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
+    for (const i in plugins) {
+      if (plugins[i].id === "protocol") {
+        submissionId = i;
       }
     }
 
-    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
-    const pluginIndex = Number(params.get("index")) || 0;
-    const pluginId = plugins[pluginIndex].id;
-
-    ReactDOM.render(React.createElement(App, {api, user, token, source, pluginId}), this);
+    ReactDOM.render(React.createElement(App, {api, user, token, submissionId}), this);
   }
 
   public disconnectedCallback() {
@@ -72,4 +62,4 @@ class ProtocolPluginElement extends HTMLElement {
   }
 }
 
-window.customElements.define("pai-plugin", ProtocolPluginElement);
+window.customElements.define("pai-plugin", MarketplacePluginElement);

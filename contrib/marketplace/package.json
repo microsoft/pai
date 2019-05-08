@@ -1,7 +1,7 @@
 {
-  "name": "submit-protocol",
+  "name": "marketplace",
   "version": "1.0.0",
-  "description": "A web portal plugin to submit protocol.",
+  "description": "A web portal plugin for marketplace.",
   "main": "src/index.ts",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
@@ -19,11 +19,9 @@
   "homepage": "https://github.com/Microsoft/pai#readme",
   "license": "MIT",
   "dependencies": {
-    "classnames": "^2.2.6",
     "core-js": "^3.0.1",
-    "immutability-helper": "^3.0.0",
     "js-yaml": "^3.13.1",
-    "monaco-editor": "^0.16.2",
+    "monaco-editor": "^0.17.0",
     "office-ui-fabric-react": "^6.162.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
@@ -31,14 +29,12 @@
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.7",
     "@types/js-yaml": "^3.12.1",
     "@types/react": "^16.8.7",
     "@types/react-dom": "^16.8.2",
     "css-loader": "^2.1.1",
-    "file-loader": "^3.0.1",
     "monaco-editor-webpack-plugin": "^1.7.0",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.12.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
