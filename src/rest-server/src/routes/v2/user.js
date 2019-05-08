@@ -20,21 +20,25 @@ const express = require('express');
 const token = require('../../middlewares/token');
 const userController = require('../../controllers/v2/user');
 const jobRouter = require('../job');
+const authnConfig = require('/../../config/authn');
 
 const router = new express.Router();
 
-router.route('/get/:username/')
+/** Only in OIDC mode, v2 user api could be accessed */
+if (authnConfig.authnMethod === 'OIDC') {
+  router.route('/get/:username/')
   /** Get api/v2/user/get/:username */
-  .get(userController.getUser);
+    .get(userController.getUser);
 
-router.route('/get/')
+  router.route('/get/')
   /** Get api/v2/user/get */
-  .get(userController.getAllUser);
+    .get(userController.getAllUser);
 
-router.route('/update/:username/extension')
+  router.route('/update/:username/extension')
   /** Put api/v2/user/update/:username/extension */
-  .put(token.check, userController.updateUserExtension);
+    .put(token.check, userController.updateUserExtension);
 
-router.use('/:username/jobs', jobRouter);
+  router.use('/:username/jobs', jobRouter);
+}
 
 module.exports = router;
