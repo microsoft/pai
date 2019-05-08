@@ -51,9 +51,8 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/create')
   /** Create /api/v2/user/create */
-    .post(token.check, userController.)
+    .post(token.check, userController.createUser);
 }
-
 
 router.use('/:username/jobs', jobRouter);
 

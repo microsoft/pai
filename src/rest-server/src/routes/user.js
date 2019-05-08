@@ -22,7 +22,6 @@ const userConfig = require('../config/user');
 const userController = require('../controllers/user');
 const param = require('../middlewares/parameter');
 const jobRouter = require('./job');
-const authnConfig = require('../config/authn');
 
 const router = new express.Router();
 
