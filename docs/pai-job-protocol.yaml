@@ -120,7 +120,7 @@ prerequisites:
     version: 84820935288cab696c9c2ac409cbd46a1f24723d
     contributor: MaggieQi
     description: tensorflow benchmarks
-    uri: https://github.com/MaggieQi/benchmarks
+    uri: github.com/MaggieQi/benchmarks
   - protocolVersion: 2
     name: cifar10
     type: data
@@ -136,7 +136,7 @@ parameters:
 
 secrets:
   docker_password: password
-  api_token: cGFzc3dvcmQ=
+  github_token: cGFzc3dvcmQ=
 
 jobRetryCount: 1
 taskRoles:
@@ -215,14 +215,14 @@ deployments:
         preCommands:
           - wget <% $data.uri[0] %> -P data_<% $data.name %> # If local data cache deployed, one can copy data from local cache, only wget in case of cache miss.
           - >
-            git clone <% $script.uri %> script_<% $script.name %> &&
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
             # Then the system will go ahead to execute worker's command.
       ps_server:
         preCommands:
           - wget <% $data.uri[0] %> -P data_<% $data.name %>
           - >
-            git clone <% $script.uri %> script_<% $script.name %> &&
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
             # Then the system will go ahead to execute ps_server's command.
         postCommands:
