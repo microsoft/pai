@@ -317,7 +317,7 @@ export function MountDirectoriesForm({
 
   const { api, user } = useContext(Context);
 
-  const [userGroups, setUserGroups] = useState<string[]>([]);
+  const [userGroups, setUserGroups] = useState<string[]>(["PAI"]);
   const [serverNames, setServerNames] = useState<string[]>([]);
   const [configs, setConfigs] = useState<IConfig[]>([]);
   const [selectedConfigs, setSelectedConfigs] = useState<IConfig[]>(get(defaultValue, "selectedConfigs", []));
@@ -331,7 +331,7 @@ export function MountDirectoriesForm({
         });
       } else {
         // TODO: Remove after AD intgration.
-        setUserGroups(["GROUP_NFS", "GROUP_SAMBA", "GROUP_AZUREFILE", "GROUP_AZUREBLOB", "GROUP_MIX"]);
+        setUserGroups(["PAI"]);
         throw Error(`HTTP ${response.status}`);
       }
     });
@@ -347,8 +347,8 @@ export function MountDirectoriesForm({
       const newConfigs = [];
       for (const gpn of userGroups) {
         try {
-          for (const rawConfig of storageConfigData.values()) {
-            const config = JSON.parse(atob(rawConfig));
+          for (const confName of Object.keys(storageConfigData)) {
+            const config = JSON.parse(atob(storageConfigData[confName]));
             if (config.gpn !== gpn) {
               continue;
             } else {
@@ -361,7 +361,8 @@ export function MountDirectoriesForm({
                 }
               }
               // Auto select default mounted configs
-              if (defaultValue === null && config.default === true) {
+              if (defaultValue === null && config.default === true &&
+                selectedConfigs.find((conf) => conf.name === config.name) === undefined) {
                 selectedConfigs.push(config);
               }
             }
