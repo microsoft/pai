@@ -19,15 +19,22 @@ prerequisites: # Optional
     description: String, optional
     auth: Object, optional # Only available when the type is dockerimage.
       username: String, optional
-      passward: String, optional
+      password: String, optional # If a password is needed, it should be referenced as a secret
       registryuri: String, optional
     uri: String or list, required # Only when the type is data can the uri be a list.
 
 # If specified, the whole parameters object can be referenced as `$parameters`.
-# Scope of reference `$parameters`: the refercen is global and shared among all task roles.
+# Scope of reference `$parameters`: the reference is global and shared among all task roles.
 parameters: # Optional, can be omitted.
   <param1>: value1 # Specify name and value of all the referencable parameters that will be used in the whole job template.
   <param2>: value2 # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`.
+
+# If sensitive information including password or API key is needed in the protocol,
+# it should be specified here in secrets section and referenced as `$secrets`.
+# All secrets will be hidden in the plain text and won't be shared.
+secrets: # Optional, can be omitted.
+  <secret1>: password # Specify name and value of all secrets that will be used in the whole job template.
+  <secret2>: key # Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.
 
 jobRetryCount: Integer, optional # Default is 0.
 # Task roles are different types of task in the protocol.
@@ -95,8 +102,8 @@ prerequisites:
     contributor: Alice
     description: python3.5, tensorflow
     auth:
-      username: 81f1fd6a-2844-4072-982d-62371fa37bd3
-      passward: user1
+      username: user
+      password: <% $secrets.docker_password %>
       registryuri: openpai.azurecr.io
     uri: openpai/pai.example.tensorflow
   - protocolVersion: 2
@@ -125,6 +132,10 @@ prerequisites:
 parameters:
   model: resnet20
   batchsize: 32
+
+secrets:
+  docker_password: password
+  api_token: cGFzc3dvcmQ=
 
 jobRetryCount: 1
 taskRoles:
