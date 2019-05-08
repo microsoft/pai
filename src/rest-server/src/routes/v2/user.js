@@ -20,7 +20,7 @@ const express = require('express');
 const token = require('../../middlewares/token');
 const userController = require('../../controllers/v2/user');
 const jobRouter = require('../job');
-const authnConfig = require('/../../config/authn');
+const authnConfig = require('../../config/authn');
 
 const router = new express.Router();
 
