@@ -91,9 +91,10 @@ class Job(JobSpec):
             image=self.image,
             codeDir='', dataDir='', outputDir='',
             jobEnvs={},
-            Prequisites=self.requirements
+            extras=dict(prequisites=self.requirements),
         )
         dic['taskRoles'] = self.to_job_config_taskroles_v1()
+        dic['extras']['userCommands'] = {t.task_role_name: t.commands for t in self.taskroles}
         if self.workspace:
             dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
             dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_folder_path('output')
@@ -105,7 +106,7 @@ class Job(JobSpec):
         commands = []
         if not self.disable_sdk_install:
             commands.append('pip install -U %s' % __install__)
-        commands.append('opai runtime execute --working-dir ~/code --config job_config.json')
+        commands.append('opai runtime execute --working-dir ~/code job_config.json')
         taskroles = []
         for t in self.taskroles:
             assert len(t.commands) >0, 'empty commands'
@@ -116,7 +117,6 @@ class Job(JobSpec):
                 name=t.task_role_name,
                 taskNumber=t.task_number,
                 cpuNumber=t.cpu, gpuNumber=t.gpu, memoryMB=t.mem,
-                userCommands=t.commands
             )
             dic['command'] = ' && '.join(commands)
             taskroles.append(dic)

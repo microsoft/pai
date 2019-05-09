@@ -148,13 +148,18 @@ class Client:
         if not allow_job_in_job:
             assert not in_job_container(), 'not allowed submiting jobs inside a job'
         job_config = job.to_job_config_v1()
+        to_file(job_config, Job.job_config_file(job.job_name))
+
         if append_pai_info:
             job_config.setdefault('jobEnvs', {}).update(self.to_envs())
 
-        if job.spec.sources:
-            code_dir = job.get_folder_path('code')
-            for file in job.spec.sources:
-                self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)
+        files_to_upload = job.sources if job.sources else []
+        if os.path.isfile(Job.job_config_file(job.job_name)):
+            files_to_upload.append(Job.job_config_file(job.job_name))
+
+        code_dir = job.get_folder_path('code')
+        for file in files_to_upload:
+            self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)
         self.get_token().rest_api_submit(job_config)
         return job_config['jobName']
 

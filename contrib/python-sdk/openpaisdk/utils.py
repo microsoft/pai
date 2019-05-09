@@ -7,6 +7,13 @@ from requests import Response, request
 from openpaisdk import __logger__
 
 
+def find_match(lst: iter, key: str=None, attr: str=None, target=None):
+    if key:
+        return [x for x in lst if x[key] == target]
+    if attr:
+        return [x for x in lst if getattr(x, attr) == target]
+
+
 def merge_two_object(a: dict, b: dict):
     y = deepcopy(a)
     y.update(b)
