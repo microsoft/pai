@@ -25,7 +25,7 @@ class PipRequirement(Requirement):
 
 
 class WebLinkRequirement(Requirement):
-    __type__ = 'map-weblink-requirement'
+    __type__ = 'weblink-requirement'
     __fields__ = {}
 
     def define(self, parser: argparse.ArgumentParser):

@@ -31,6 +31,12 @@ class Action:
     def check_arguments(self, args):
         pass
 
+    def restore(self, args):
+        pass
+
+    def store(self, args):
+        pass
+
     def do_action(self, args):
         raise NotImplementedError
 
@@ -65,10 +71,13 @@ class Scene:
     def process(self, args):
         actor = self if self.single_action else self.actions[args.action]
         actor.check_arguments(args)
-        return actor.do_action(args)
+        actor.restore(args)
+        result = actor.do_action(args)
+        actor.store(args)
+        return result
 
 
-class ActionDefaultFactory(ActionFactory):
+class ActionFactoryForDefault(ActionFactory):
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         parser.add_argument('contents', nargs='+', help='(variable=value) pair to be set as default')
@@ -98,7 +107,7 @@ class ActionDefaultFactory(ActionFactory):
         return result
 
 
-class ActionClusterFactory(ActionFactory):
+class ActionFactoryForCluster(ActionFactory):
 
     def define_arguments_list(self, parser):
         cli_add_arguments(None, parser, ['--alias', '--name'])
@@ -110,16 +119,13 @@ class ActionClusterFactory(ActionFactory):
         return cfgs[args.alias] if args.alias else list(cfgs.keys()) if args.name else cfgs
 
 
-class ActionJobFactory(ActionFactory):
+class ActionFactoryForJob(ActionFactory):
 
-    def __init__(self, action: str, allowed_actions: dict):
-        super().__init__(action, allowed_actions)
-        self.__job__ = Job()
+    def restore(self, args):
+        self.__job__ = Job.restore(args.job_name)
 
-    def check_arguments(self, args):
-        r = Job.restore(args.job_name)
-        if r is not None:
-            self.__job__ = r
+    def store(self, args):
+        self.__job__.store()
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--alias', '--name'])
@@ -174,11 +180,10 @@ class ActionJobFactory(ActionFactory):
         client = get_client()
         if args.config:
             return client.get_token().rest_api_submit(from_file(args.config))
+        job_config = self.__job__.to_job_config_v1(save_to_file=self.__job__.get_config_file())
         if args.preview:
-            dic = self.__job__.to_job_config_v1()
-            to_file(dic, Job.job_config_file(self.__job__.job_name))
-            return dic
-        client.submit(self.__job__)
+            return job_config
+        client.submit(self.__job__, job_config)
         return client.get_job_link(args.job_name)
 
     def define_arguments_fast(self, parser: argparse.ArgumentParser):
@@ -193,20 +198,34 @@ class ActionJobFactory(ActionFactory):
         self.do_action_task(args)
         return self.do_action_submit(args)
 
-    def do_action_require_common(self, args: argparse.Namespace, r_type: req.Requirement):
+
+class ActionFactoryForRequirement(ActionFactory):
+
+    def restore(self, args):
+        self.__job__ = Job.restore(args.job_name)
+
+    def store(self, args):
+        self.__job__.store()
+
+    def do_action_common(self, args: argparse.Namespace, r_type: req.Requirement):
         dic = dict(r_type().from_dict(vars(args), ignore_unkown=True).to_dict())
         self.__job__.requirements.append(dic)
-        self.__job__.store()
         return dic
 
-    def define_arguments_require_pip(self, parser: argparse.ArgumentParser):
+    def define_arguments_pip(self, parser: argparse.ArgumentParser):
         req.PipRequirement().define(parser)
 
-    def do_action_require_pip(self, args):
-        return self.do_action_require_common(args, req.PipRequirement)
+    def do_action_pip(self, args):
+        return self.do_action_common(args, req.PipRequirement)
+
+    def define_arguments_weblink(self, parser: argparse.ArgumentParser):
+        req.WebLinkRequirement().define(parser)
+
+    def do_action_weblink(self, args):
+        return self.do_action_common(args, req.WebLinkRequirement)
 
 
-class ActionRuntimeFactory(ActionFactory):
+class ActionFactoryForRuntime(ActionFactory):
 
     def define_arguments_execute(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--working-dir', 'config'])
@@ -233,8 +252,11 @@ __job_actions__ = {
     "submit": ["submit the job"],
     "abort": ["remove local cache of the job"],
     "fast": ["shortcut of submitting a job in one line"],
-    "require-pip": ["add pip dependencies"],
-    "require-weblink": ["download weblink to folder"]
+}
+
+__require_actions__ = {
+    "pip": ["add pip dependencies"],
+    "weblink": ["download weblink to folder"]
 }
 
 __storage_actions__ = {
@@ -250,19 +272,27 @@ __runtime_actions__ = {
     "execute": ["execute user commands"]
 }
 
+
+def factory(af: type(ActionFactory), actions: dict):
+    return [af(x, actions) for x in actions.keys()]
+
+
 __cli_structure__ = {
     "cluster": [
-        "cluster management", [ActionClusterFactory('list', __cluster_actions__)]
+        "cluster management", [ActionFactoryForCluster('list', __cluster_actions__)]
     ],
     "job": [
-        "job operations", [ActionJobFactory(x, __job_actions__) for x in __job_actions__.keys()]
+        "job operations", factory(ActionFactoryForJob, __job_actions__),
+    ],
+    "require": [
+        "add requirements to job or task", factory(ActionFactoryForRequirement, __require_actions__)
     ],
     "default": [
-        "set or show defaults", [ActionDefaultFactory(x, __default_actions__) for x in __default_actions__.keys()]
+        "set or show defaults", factory(ActionFactoryForDefault, __default_actions__)
     ],
     "runtime": [
-        "runtime", [ActionRuntimeFactory(x, __runtime_actions__) for x in __runtime_actions__.keys()]
-    ]
+        "runtime", factory(ActionFactoryForRuntime, __runtime_actions__)
+    ],
 }
 
 

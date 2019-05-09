@@ -60,15 +60,18 @@ class Job(JobSpec):
         self.taskroles = t_objs
 
     def store(self):
-        self.to_file(Job.job_cache_file(self.job_name))
+        if self.job_name:
+            self.to_file(Job.job_cache_file(self.job_name))
 
     @staticmethod
     def job_cache_file(job_name: str):
         return os.path.join(__jobs_cache__, job_name, 'cache.json')
 
-    @staticmethod
-    def job_config_file(job_name: str):
-        return os.path.join(__jobs_cache__, job_name, 'job_config.json')
+    def get_config_file(self):
+        return os.path.join(__jobs_cache__, self.job_name, 'job_config.json')
+
+    def get_cache_file(self):
+        return Job.job_cache_file(self.job_name)
 
     @staticmethod
     def restore(job_name):
@@ -77,12 +80,12 @@ class Job(JobSpec):
             __logger__.debug('restore Job config from %s', fname)
             dic = from_file(fname)
             return Job(**dic)
-        return None
+        return Job()
 
     def to_file(self, fname: str):
         to_file(self.to_dict(), fname)
 
-    def to_job_config_v1(self) -> dict:
+    def to_job_config_v1(self, save_to_file: str=None) -> dict:
         for a in ['sources']:
             if getattr(self, a) is None:
                 setattr(self, a, [])
@@ -98,15 +101,16 @@ class Job(JobSpec):
         if self.workspace:
             dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
             dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_folder_path('output')
-            if len(self.sources) >0:
-                dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_folder_path('code'))
+            dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_folder_path('code'))
+        if save_to_file:
+            to_file(dic, save_to_file)
         return dic
     
     def to_job_config_taskroles_v1(self):
         commands = []
         if not self.disable_sdk_install:
             commands.append('pip install -U %s' % __install__)
-        commands.append('opai runtime execute --working-dir ~/code job_config.json')
+        commands.append('opai runtime execute --working-dir code job_config.json')
         taskroles = []
         for t in self.taskroles:
             assert len(t.commands) >0, 'empty commands'

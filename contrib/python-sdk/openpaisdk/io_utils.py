@@ -28,8 +28,12 @@ def web_download_to_folder(url: str, folder: str, fname: str=None):
             filename = fname
     filename = os.path.join(folder, filename)
     os.makedirs(folder, exist_ok=True)
-    urlretrieve(url, filename)
-    return filename
+    try:
+        urlretrieve(url, filename)
+        __logger__.info('download from %s to %s', url, filename)
+        return filename
+    except Exception as e:
+        __logger__.error("failed to download", exc_info=True)
 
 
 def from_file(fname: str, default={}, fmt=None):

@@ -81,8 +81,8 @@ class ArgumentFactory:
         self.add_argument('--image', '-i', default=__defaults__.get('image', None), help='docker image')
         self.add_argument('--pip-flags', '-p', action='append', help='pip install -U <all-is-flags>')
         self.add_argument('pip_flags', nargs='*', help='pip install -U <all-is-flags>')
-        self.add_argument('weblink', help="download http (or https) web link")
-        self.add_argument('folder', help="target folder")
+        self.add_argument('weblink', nargs='?', help="download http (or https) web link")
+        self.add_argument('folder', nargs='?', help="target folder")
 
         # common
         self.add_argument('--name', help='if asserted, show name / alias only; otherwise show all details', action='store_true', default=False)
