@@ -1,0 +1,15 @@
+admin-group:
+{%- for group_item in cluster_cfg['authentication']['admin-group'] %}
+  - groupname: {{ group_item["group_item"] }}
+    description: {{ group_item["description"] }}
+    externalName: {{ group_item["externalName"] }}
+    extension: {}
+{%- if 'userlist' not in group_item %}
+    userlist: []
+{%- else %}
+    userlist:
+{%- for usernameValue in group_item["userlist"] %}
+      - {{ usernameValue }}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}

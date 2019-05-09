@@ -102,8 +102,9 @@ group-manager:
   admin-group:
     - groupname: admingroup
       description: "admin's group"
-      externalName:
-      extension:
+      externalName: ""
+      # In admin group, you can manually add user to it. If you don't want to add a new admin user to OpenPAI,
+      # please remove this field.
       userlist:
         - openpai
 
@@ -113,8 +114,6 @@ group-manager:
       # internal name
       description: for-example
       # description of the group
-      externalName:
+      externalName: ""
       # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
       # the result of winbind. If the group-data-source is basic, this field is useless.
-      extension:
-      # extension field
