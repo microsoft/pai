@@ -100,6 +100,9 @@ describe('Jobs API /api/v1/user/:username/jobs', () => {
         expect(res.body[0].name, 'job name').to.equal('test1~job1');
         expect(res.body[1].name, 'job name').to.equal('test1~job2');
         expect(res.body[2].name, 'job name').to.equal('job3');
+        expect(res.body[0].id, 'job id').to.equal('test1~job1');
+        expect(res.body[1].id, 'job id').to.equal('test1~job2');
+        expect(res.body[2].id, 'job id').to.equal('job3');
         expect(res.body[2].legacy, 'job legacy').to.equal(true);
         done();
       });
@@ -185,10 +188,13 @@ describe('Jobs API /api/v1/jobs', () => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
         expect(res.body[0].name, 'job name').to.equal('job1');
+        expect(res.body[0].id, 'job id').to.equal('job1');
         expect(res.body[0].legacy, 'job legacy').to.equal(true);
         expect(res.body[1].name, 'job name').to.equal('job2');
+        expect(res.body[1].id, 'job id').to.equal('job2');
         expect(res.body[1].legacy, 'job legacy').to.equal(true);
         expect(res.body[2].name, 'job name').to.equal('test1~job3');
+        expect(res.body[2].id, 'job id').to.equal('test1~job3');
         done();
       });
   });

@@ -151,10 +151,20 @@ class Job {
               totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
+            if (!job.id) job.id = job.name;
+            const tildeIndex = job.name.indexOf('~');
+            if (tildeIndex > -1) {
+              const namespace = job.name.slice(0, tildeIndex);
+              if (namespace !== job.username) {
+                logger.warn('Found a job with different namespace and username: ', job.name, job.username);
+                job.namespace = namespace;
+              }
+              job.name = job.name.slice(tildeIndex + 1);
+            } else {
             if (job.name.indexOf('~') === -1) {
               job.legacy = true;
             }
-
+          }
             return job;
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
