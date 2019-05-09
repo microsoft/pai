@@ -73,35 +73,33 @@ const syncUserGroupList = async (user) => {
   }
 };
 
-if (config.env !== 'test') {
-  const dbCheckBasePath = util.callbackify(db.checkBasePath.bind(db));
-  dbCheckBasePath((err, res) => {
-    if (err) {
-      if (err.status === 404) {
-        const dbPrepareBasePath = util.callbackify(db.prepareBasePath.bind(db));
-        dbPrepareBasePath((err, res) => {
-          if (err) {
-            throw new Error('build storage base path failed');
+
+(async function() {
+  if (config.env !== 'test') {
+    for (const adminGroup of authConfig.groupConfig.adminGroup) {
+      const groupname = adminGroup.groupname;
+      try {
+        await crudGroup.read(groupname, crudConfig);
+      } catch (errorRead) {
+        if (errorRead.status === 404) {
+          try {
+            const groupValue = {
+              groupname: groupname,
+              description: adminGroup.description,
+              externalName: adminGroup.externalName,
+              extension: adminGroup.extension,
+            };
+            await crudGroup.create(groupname, groupValue, crudConfig);
+          } catch (errorCreate) {
+            throw new Error('Failed to add a new group to storage.');
           }
-          setDefaultAdmin();
-        });
-      } else {
-        throw new Error('Check user info storage base path failed');
-      }
-    } else {
-      getUserList((errMsg, userInfoList) => {
-        if (errMsg) {
-          logger.warn('get user list failed', errMsg);
         } else {
-          logger.warn('users:', userInfoList);
-          if (userInfoList.length === 0) {
-            setDefaultAdmin();
-          }
+          throw new Error('Check group info storage base path failed.');
         }
-      });
+      }
     }
-  });
-}
+  }
+})();
 
 module.exports = {
   getGroup,

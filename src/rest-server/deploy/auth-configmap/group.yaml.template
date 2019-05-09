@@ -1,11 +1,10 @@
-group-data-source: {{ cluster_cfg["authentication"]["group-manager"]["group-data-source"] }}
+groupDataSource: {{ cluster_cfg["authentication"]["group-manager"]["group-data-source"] }}
 
 {%- if cluster_cfg["authentication"]["group-manager"]["group-data-source"] == "winbind" %}
-
-
+winbindServerAddress: xxx.xxx.xxx.xxx:yyyy
 {%- endif %}
 
-admin-group:
+adminGroup:
 {%- for group_item in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
   - groupname: {{ group_item["groupname"] }}
     description: {{ group_item["description"] }}
