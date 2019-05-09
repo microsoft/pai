@@ -18,13 +18,15 @@
 import React, {useContext, useMemo, useState} from 'react';
 
 import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType} from 'office-ui-fabric-react';
+import {PropTypes} from 'prop-types';
 import {findIndex} from 'lodash';
+
+import t from '../../../components/tachyons.scss';
 
 import Context from './Context';
 import Filter from './Filter';
 import {toBool} from './utils';
 
-/* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
   const {subMenuProps: {items}} = props;
   const checkedItems = items.filter((item) => item.checked).map((item) => item.text);
@@ -38,6 +40,11 @@ function FilterButton({defaultRender: Button, ...props}) {
   );
 }
 
+FilterButton.propTypes = {
+  defaultRender: PropTypes.elementType.isRequired,
+  subMenuProps: PropTypes.object.isRequired,
+};
+
 function KeywordSearchBox() {
   const {filter, setFilter} = useContext(Context);
   function onKeywordChange(keyword) {
@@ -45,19 +52,16 @@ function KeywordSearchBox() {
     setFilter(new Filter(keyword, admins, virtualClusters));
   }
 
-  /** @type {import('office-ui-fabric-react').IStyle} */
-  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
   return (
     <SearchBox
       underlined
       placeholder="Filter by keyword"
-      styles={{root: rootStyles}}
+      styles={{root: [t.bgTransparent, t.selfCenter, {width: '220px'}]}}
       value={filter.keyword}
       onChange={onKeywordChange}
     />
   );
 }
-/* eslint-enable react/prop-types */
 
 function TopBar() {
   const [active, setActive] = useState(true);
@@ -82,13 +86,15 @@ function TopBar() {
     return {admins, virtualClusters};
   }, [allUsers]);
 
+  const transparentStyles = {root: [t.bgTransparent]};
+
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
   const btnAddUser = {
     key: 'addUser',
     name: 'Add User',
-    buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+    buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'Add',
     },
@@ -101,7 +107,7 @@ function TopBar() {
   const btnImportCSV = {
     key: 'importCSV',
     name: 'Import CSV',
-    buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+    buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'Stack',
     },
@@ -114,7 +120,7 @@ function TopBar() {
   const btnRemove = {
     key: 'remove',
     name: 'Remove',
-    buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+    buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'UserRemove',
     },
@@ -127,7 +133,7 @@ function TopBar() {
   const btnRefresh = {
     key: 'refresh',
     name: 'Refresh',
-    buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+    buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'Refresh',
     },
@@ -159,7 +165,7 @@ function TopBar() {
           onClick={item.onClick}
           iconProps={item.iconProps}
           menuIconProps={item.menuIconProps}
-          styles={{root: {backgroundColor: 'transparent'}}}
+          styles={transparentStyles}
         >
           Filters
           </CommandBarButton>
@@ -173,7 +179,7 @@ function TopBar() {
   const btnClear = {
     key: 'clear',
     name: 'Clear',
-    buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+    buttonStyles: {root: [t.bgTransparent, t.h100]},
     iconOnly: true,
     iconProps: {
       iconName: 'Cancel',
@@ -231,7 +237,7 @@ function TopBar() {
     return {
       key: 'admin',
       text: 'Admin',
-      buttonStyles: {root: {backgroundColor: 'transparent'}},
+      buttonStyles: transparentStyles,
       iconProps: {
         iconName: 'Clock',
       },
@@ -298,7 +304,7 @@ function TopBar() {
     return {
       key: 'virtualCluster',
       name: 'Virtual Cluster',
-      buttonStyles: {root: {backgroundColor: 'transparent'}},
+      buttonStyles: transparentStyles,
       iconProps: {
         iconName: 'CellPhone',
       },
@@ -338,7 +344,7 @@ function TopBar() {
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={transparentStyles}
       />
       {active ? <CommandBar
         items={filterBarItems}

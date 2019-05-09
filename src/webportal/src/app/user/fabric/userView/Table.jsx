@@ -19,6 +19,9 @@ import React, {useContext, useMemo} from 'react';
 
 import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton} from 'office-ui-fabric-react';
 
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
+
 import {toBool, getVirtualCluster} from './utils';
 
 import Context from './Context';
@@ -123,16 +126,8 @@ export default function Table() {
         event.stopPropagation();
         editUser(user);
       }
-      /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
-      const zeroPaddingRowFieldStyle = {
-        marginTop: -11,
-        marginBottom: -11,
-        marginLeft: -12,
-        marginRight: -8,
-      };
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)} data-selection-disabled>
+        <div className={c([t.dib, t.vMid, t.w100])} style={{margin: '-11px -8px -11px -12px'}} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
           >

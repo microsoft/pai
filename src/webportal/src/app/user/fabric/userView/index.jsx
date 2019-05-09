@@ -17,11 +17,14 @@
 
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 
-import {Fabric, Stack, initializeIcons} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, Modal, getTheme} from 'office-ui-fabric-react';
 import {debounce} from 'lodash';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
+import {initTheme} from '../../../components/theme';
 import MessageBox from '../components/MessageBox';
+
+import t from '../../../components/tachyons.scss';
 
 import Context from './Context';
 import TopBar from './TopBar';
@@ -32,10 +35,10 @@ import Pagination from './Pagination';
 import Paginator from './Paginator';
 import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
 
-require('bootstrap/js/modal.js');
 const userEditModalComponent = require('./user-edit-modal-component.ejs');
 require('./user-edit-modal-component.scss');
 
+initTheme();
 initializeIcons();
 
 export default function UserView() {
@@ -156,21 +159,22 @@ export default function UserView() {
     });
   };
 
+  const [showEditInfo, setShowEditInfo] = useState({isOpen: false, innerHtml: ''});
+
   const editUser = (user) => {
-    showEditInfo(user.username, user.admin, user.virtualCluster, user.hasGithubPAT);
+    setShowEditInfo({
+      isOpen: true,
+      innerHtml: userEditModalComponent({
+        'username': user.username,
+        'isAdmin': user.admin,
+        'vcList': user.virtualCluster,
+        'hasGithubPAT': String(user.hasGithubPAT),
+      }),
+    });
   };
 
-  const showEditInfo = (username, isAdmin, vcList, hasGithubPAT) => {
-    $('#modalPlaceHolder').html(userEditModalComponent({
-      'username': username,
-      'isAdmin': String(isAdmin),
-      'vcList': vcList,
-      'hasGithubPAT': String(hasGithubPAT),
-      updateUserVc,
-      updateUserAccount,
-      updateUserGithubPAT,
-    }));
-    $('#userEditModal').modal('show');
+  const hideEditUser = () => {
+    setShowEditInfo({isOpen: false, innerHtml: ''});
   };
 
   const updateUserInfoCallback = (data) => {
@@ -180,7 +184,7 @@ export default function UserView() {
       showMessageBox({
         text: 'Update user information successfully',
         dismissedCallback: () => {
-          $('#userEditModal').modal('hide');
+          setShowEditInfo({isOpen: false, innerHtml: ''});
           setAllUsers([]);
           refreshAllUsers();
         },
@@ -222,6 +226,7 @@ export default function UserView() {
   window.updateUserVc = updateUserVc;
   window.updateUserAccount = updateUserAccount;
   window.updateUserGithubPAT = updateUserGithubPAT;
+  window.hideEditUser = hideEditUser;
 
   const context = {
     allUsers,
@@ -242,14 +247,16 @@ export default function UserView() {
     editUser,
   };
 
+  const {spacing} = getTheme();
+
   return (
     <Context.Provider value={context}>
-      <Fabric style={{height: '100%'}}>
-        <Stack verticalFill styles={{root: {position: 'relative'}}}>
+      <Fabric className={t.h100}>
+        <Stack verticalFill styles={{root: [t.relative]}}>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
-          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white', paddingTop: 15}}}>
+          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {paddingTop: spacing.m}]}}>
             <Table />
           </Stack.Item>
           <Stack.Item>
@@ -257,9 +264,13 @@ export default function UserView() {
           </Stack.Item>
         </Stack>
       </Fabric>
+      <Modal
+        isOpen={showEditInfo.isOpen}
+        styles={{main: [t.mw8, t.w90]}}>
+        <div dangerouslySetInnerHTML={{__html: showEditInfo.innerHtml}} />
+      </Modal>
       {loading.show && <MaskSpinnerLoading label={loading.text} />}
       {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
-      <div id="modalPlaceHolder" />
     </Context.Provider>
   );
 }
