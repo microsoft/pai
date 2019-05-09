@@ -1,6 +1,6 @@
 admin-group:
 {%- for group_item in cluster_cfg['authentication']['admin-group'] %}
-  - groupname: {{ group_item["group_item"] }}
+  - groupname: {{ group_item["groupname"] }}
     description: {{ group_item["description"] }}
     externalName: {{ group_item["externalName"] }}
     extension: {}
@@ -12,4 +12,12 @@ admin-group:
       - {{ usernameValue }}
 {%- endfor %}
 {%- endif %}
+{%- endfor %}
+
+grouplist:
+{%- for group_item in cluster_cfg['authentication']['grouplist'] %}
+  - groupname: {{ group_item["group_item"] }}
+    description: {{ group_item["description"] }}
+    externalName: {{ group_item["externalName"] }}
+    extension: {}
 {%- endfor %}
