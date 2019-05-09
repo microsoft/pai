@@ -20,6 +20,7 @@ const crudUtil = require('../../util/manager/group/crudUtil');
 const authConfig = require('../../config/authn');
 const adapter =  require('../../util/manager/group/adapter/externalUtil');
 const config = require('../../config/index');
+const userModel = require('./user');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
