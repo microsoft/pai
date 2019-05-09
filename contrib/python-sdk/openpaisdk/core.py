@@ -1,12 +1,13 @@
-import inspect
 import json
 import os
 
 from openpaisdk.storage import Storage
-from openpaisdk.utils import get_response, Namespace
+from openpaisdk.utils import get_response
+from openpaisdk.cli_arguments import attach_args
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
-from openpaisdk import __jobs_cache__
+from openpaisdk import __jobs_cache__, __logger__
+
 
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
     """in_job_container check whether it is inside a job container (by checking environmental variables)
@@ -25,7 +26,7 @@ def in_job_container(varname: str='PAI_CONTAINER_ID'):
 
 class Client:
 
-    def __init__(self, pai_uri: str, user: str=None, passwd: str=None, hdfs_web_uri: str=None, **kwargs):
+    def __init__(self, pai_uri: str, user: str=None, passwd: str=None, storages: list=[], **kwargs):
         """Client create an openpai client from necessary information
         
         Arguments:
@@ -36,11 +37,12 @@ class Client:
             passwd {str} -- password (default: {None})
             hdfs_web_uri {str} -- format http://x.x.x.x:yyyy (default: {None})
         """
-        args, _, _, values = inspect.getargvalues(inspect.currentframe())
-        self.config = {k: values[k] for k in args if k != 'self'}
-        self.config.update(kwargs)
-        self.storages = []
-        self.add_storage(hdfs_web_uri=hdfs_web_uri)
+        self.config = attach_args()
+        self.storages, self.default_storage_alias = dict(), 'default'
+        for i, cfg in enumerate(storages):
+            self.add_storage(**cfg)
+            if i==0:
+                self.default_storage_alias = cfg.get('alias')
 
     @staticmethod
     def from_json(pai_json: str, alias: str=None):
@@ -58,11 +60,14 @@ class Client:
         """
         with open(pai_json) as fn:
             cfgs = json.load(fn)
-        clients = {key: Client(**args) for key, args in cfgs.items()}
-        a = alias
-        if not a and len(clients) == 1:
-            a = list(clients.keys())[0]
-        return clients[a], a
+        clients = [Client(**c) for c in cfgs]
+        if alias is None:
+            return clients[0], clients[0].alias
+        try:
+            c = [c for c in clients if c.alias == alias][0]
+            return c, alias
+        except:
+            __logger__.error('Cannot find cluster named %s', alias)
 
     def to_envs(self, exclude: list=['passwd'], prefix: str='PAI_SDK_CLIENT'):
         """to_envs to pass necessary information to job container via environmental variables
@@ -92,6 +97,10 @@ class Client:
         return Client(**dic)
 
     @property
+    def alias(self):
+        return self.config['alias']
+
+    @property
     def user(self):
         return self.config['user']
     
@@ -101,14 +110,17 @@ class Client:
 
     @property
     def storage(self):
-        return self.storages[0] if len(self.storages) >0 else None
+        return self.storages.get(self.default_storage_alias, None)
              
-    def add_storage(self, hdfs_web_uri: str=None):
+    def add_storage(self, protocol: str=None, alias: str=None, **kwargs):
         "initialize the connection information"
-        if hdfs_web_uri:
-            self.storages.append(Storage(protocol='hdfs', url=hdfs_web_uri, user=self.user))
-        return self
+        func = 'add_storage_%s' % protocol.lower()
+        return getattr(self, func)(alias, **kwargs)
     
+    def add_storage_webhdfs(self, alias, hdfs_web_uri: str, **kwargs):
+        self.storages[alias] = Storage(protocol='webHDFS', url=hdfs_web_uri, user=kwargs.get('user', self.user))
+        return self
+
     def get_token(self, expiration=3600):
         """
         [summary]
@@ -138,7 +150,6 @@ class Client:
         job_config = job.to_job_config_v1()
         if append_pai_info:
             job_config.setdefault('jobEnvs', {}).update(self.to_envs())
-        to_file(job_config, os.path.join(__jobs_cache__, job.spec.job_name, 'config.json'))            
 
         if job.spec.sources:
             code_dir = job.get_folder_path('code')

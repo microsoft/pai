@@ -5,9 +5,31 @@ import fnmatch
 from contextlib import contextmanager
 import json
 from openpaisdk import __logger__
+from urllib.request import urlopen
+from urllib.parse import urlparse, urlsplit
+from urllib.request import urlretrieve
+import cgi
+
 
 __yaml_exts__ = ['.yaml', '.yml']
 __json_exts__ = ['.json', '.jsn']
+
+
+def web_download_to_folder(url: str, folder: str, fname: str=None):
+    remotefile = urlopen(url)
+    blah = remotefile.info()['Content-Disposition']
+    if blah:
+        _, params = cgi.parse_header(blah)
+        filename = params["filename"]
+    else:
+        split = urlsplit(url)
+        filename = split.path.split("/")[-1]
+        if not filename:
+            filename = fname
+    filename = os.path.join(folder, filename)
+    os.makedirs(folder, exist_ok=True)
+    urlretrieve(url, filename)
+    return filename
 
 
 def from_file(fname: str, default={}, fmt=None):

@@ -1,52 +1,16 @@
 """
 common functions to
 """
-import argparse
 import importlib
-import inspect
+from copy import deepcopy
 from requests import Response, request
 from openpaisdk import __logger__
 
-def attach_args(target=None, expand: list=['kwargs'], ignore: list=['self']):
-    caller = inspect.currentframe().f_back
-    dic = {k: v for k, v in caller.f_locals.items() if k not in ignore and not k.startswith('__')}
-    for k in expand:
-        v = dic.pop(k, {})
-        dic.update(v)
-    if target:
-        for k, v in dic.items():
-            setattr(target, k, v)
-    return dic
 
-
-class Namespace(argparse.Namespace):
-    
-    def __init__(self):
-        super().__init__
-        self.from_argv()
-
-    def to_dict(self):
-        dic = vars(self)
-        for k, v in dic.items():
-            if isinstance(v, Namespace):
-                dic[k] = v.to_dict()
-        return dic
-
-    def define(self, parser: argparse.ArgumentParser):
-        pass
-
-    def from_argv(self, argv: list=[]):
-        parser = argparse.ArgumentParser()
-        self.define(parser)
-        parser.parse_known_args(argv, self)
-        return self
-
-    def from_dict(self, dic: dict, ignore_unkown: bool=False):
-        for k, v in dic.items():
-            if ignore_unkown and not hasattr(self, k):
-                continue
-            setattr(self, k, v)
-        return self
+def merge_two_object(a: dict, b: dict):
+    y = deepcopy(a)
+    y.update(b)
+    return y
 
 
 def getobj(name: str):
@@ -57,10 +21,10 @@ def getobj(name: str):
 
 def get_response(
     path: str, 
-    headers: dict={'Content-Type': 'application/json'}, 
-    body: dict=dict(), 
-    method: str='POST', 
-    allowed_status = [200], # type: list[int]
+    headers: dict = {'Content-Type': 'application/json'},
+    body: dict = dict(),
+    method: str = 'POST',
+    allowed_status=[200],  # type: list[int]
     max_try: int=1) -> Response:
     """
     Send request to REST server and get the response.

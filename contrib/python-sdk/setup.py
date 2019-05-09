@@ -9,7 +9,7 @@ setup(name='openpaisdk',
         'requests', 'hdfs', 'PyYAML'
     ],
     entry_points = {
-        'console_scripts': ['opai=openpaisdk.engine:main'],
+        'console_scripts': ['opai=openpaisdk.command_line:main'],
     },
     zip_safe=False
 )

@@ -7,7 +7,7 @@ import uuid
 from subprocess import check_call
 
 from openpaisdk.core import Client, Job
-from openpaisdk.engine import Engine
+from openpaisdk.command_line import Engine
 
 from requests.compat import urljoin
 from notebook.notebookapp import list_running_servers

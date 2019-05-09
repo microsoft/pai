@@ -26,7 +26,6 @@ __local_default_file__ = os.path.join(__cache__, 'defaults.json')
 __jobs_cache__ = os.path.join(__cache__, 'jobs')
 
 
-__clients__ = from_json_file(__cluster_config_file__)
 __defaults__ = from_json_file(__local_default_file__)
 
 logging.basicConfig(level=logging.WARN, format='%(name)s - %(levelname)s - %(message)s')
