@@ -63,7 +63,13 @@ const updateGroup = async (groupname, groupValue) => {
   }
 };
 
+const syncUserGroupList = async (user) => {
+  try {
 
+  } catch (error) {
+    throw error;
+  }
+};
 
 module.exports = {
   getGroup,

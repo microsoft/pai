@@ -98,9 +98,23 @@ group-manager:
   # If you set winbind as your data source, you should configure this configuraiton.
   # winbind-server-address: xxxxxxx
 
-  admin-group: admingroup
+  # Admin group name and its user list
+  admin-group:
+    - groupname: admingroup
+      description: "admin's group"
+      externalName:
+      extension:
+      userlist:
+        - openpai
 
-  group-list:
-    -
-
-
+  # If the following groups are not in the data store, it will be created by default.
+  grouplist:
+    - groupname: for-example
+      # internal name
+      description: for-example
+      # description of the group
+      externalName:
+      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
+      # the result of winbind. If the group-data-source is basic, this field is useless.
+      extension:
+      # extension field
