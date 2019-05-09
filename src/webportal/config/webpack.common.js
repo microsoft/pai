@@ -32,6 +32,7 @@ const version = require('../package.json').version;
 const FABRIC_DIR = [
   path.resolve(__dirname, '../src/app/job/job-view/fabric'),
   path.resolve(__dirname, '../src/app/home'),
+  path.resolve(__dirname, '../src/app/components'),
   path.resolve(__dirname, '../node_modules/tachyons'),
 ];
 
@@ -53,9 +54,11 @@ function generateHtml(opt) {
 const config = (env, argv) => ({
   entry: {
     'index': './src/app/home/index.jsx',
+    'home': './src/app/home/home.jsx',
     'layout': './src/app/layout/layout.component.js',
     'register': './src/app/user/user-register/user-register.component.js',
     'userView': './src/app/user/user-view/user-view.component.js',
+    'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
     'submit': './src/app/job/job-submit/job-submit.component.js',
@@ -130,35 +133,83 @@ const config = (env, argv) => ({
         test: /\.(css|scss)$/,
         include: FABRIC_DIR,
         use: [
-          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           {
             loader: 'css-loader',
             options: {
               url: true,
-              minimize: true,
               sourceMap: true,
+              importLoaders: 2,
               modules: true,
               camelCase: true,
               localIdentName: '[name]-[local]--[hash:base64:5]',
             },
           },
-          'sass-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('autoprefixer')(),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
         test: /\.(css|scss)$/,
         exclude: FABRIC_DIR,
         use: [
-          argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           {
             loader: 'css-loader',
             options: {
               url: true,
-              minimize: true,
+              sourceMap: true,
+              importLoaders: 2,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss2',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('autoprefixer')(),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
               sourceMap: true,
             },
           },
-          'sass-loader',
         ],
       },
       {
@@ -193,8 +244,17 @@ const config = (env, argv) => ({
     new webpack.WatchIgnorePlugin([
       /css\.d\.ts$/,
     ]),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^moment$/,
+      contextRegExp: /chart.js/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^esprima$/,
+      contextRegExp: /js-yaml/,
+    }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'css', 'ts', 'html'],
+      languages: ['json', 'yaml'],
+      features: ['smartSelect'],
     }),
     new CopyWebpackPlugin([
       {from: 'src/assets', to: 'assets'},
@@ -222,12 +282,20 @@ const config = (env, argv) => ({
       template: './src/app/home/index.ejs',
     }),
     generateHtml({
+      filename: 'home.html',
+      chunks: ['layout', 'home'],
+    }),
+    generateHtml({
       filename: 'register.html',
       chunks: ['layout', 'register'],
     }),
     generateHtml({
       filename: 'user-view.html',
       chunks: ['layout', 'userView'],
+    }),
+    generateHtml({
+      filename: 'batch-register.html',
+      chunks: ['layout', 'batchRegister'],
     }),
     generateHtml({
       filename: 'change-password.html',

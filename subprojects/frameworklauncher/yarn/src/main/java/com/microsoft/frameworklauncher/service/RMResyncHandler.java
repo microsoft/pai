@@ -19,8 +19,14 @@ package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.model.FrameworkState;
+import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.*;
@@ -31,11 +37,15 @@ public class RMResyncHandler { // THREAD SAFE
   private final Service service;
   private final LauncherConfiguration conf;
   private final YarnClient yarnClient;
+  private final StatusManager statusManager;
 
-  public RMResyncHandler(Service service, LauncherConfiguration conf, YarnClient yarnClient) {
+  public RMResyncHandler(
+      Service service, LauncherConfiguration conf,
+      YarnClient yarnClient, StatusManager statusManager) {
     this.service = service;
     this.conf = conf;
     this.yarnClient = yarnClient;
+    this.statusManager = statusManager;
   }
 
   public void start() {
@@ -49,27 +59,83 @@ public class RMResyncHandler { // THREAD SAFE
   }
 
   public void resyncWithRM() throws Exception {
-    List<ApplicationReport> reports = null;
+    List<ApplicationReport> applicationReports = null;
 
     try {
       LOGGER.logDebug("Started to getApplications");
 
       // Only Get LAUNCHER ApplicationReport
-      reports = yarnClient.getApplications(new HashSet<>(
+      applicationReports = yarnClient.getApplications(new HashSet<>(
           Collections.singletonList(GlobalConstants.LAUNCHER_APPLICATION_TYPE)));
 
       LOGGER.logDebug("Succeeded to getApplications");
     } catch (Exception e) {
       LOGGER.logWarning(e,
-          "Exception occurred during GetApplications. It should be transient. " +
+          "Exception occurred during getApplications. It should be transient. " +
               "Will retry next time after %ss", conf.getServiceRMResyncIntervalSec());
     }
 
-    if (reports != null) {
+    if (applicationReports != null) {
       // ApplicationId -> ApplicationReport
       Map<String, ApplicationReport> liveApplicationReports = new HashMap<>();
-      for (ApplicationReport report : reports) {
-        liveApplicationReports.put(report.getApplicationId().toString(), report);
+      for (ApplicationReport applicationReport : applicationReports) {
+        liveApplicationReports.put(
+            applicationReport.getApplicationId().toString(), applicationReport);
+      }
+
+
+      // GetApplications only leverages RM, so the result may be incomplete due to the application
+      // is finished and then GCed in RM. So, we need to also leverage ApplicationHistoryServer
+      // by using getApplicationReport to supplement the result.
+      List<String> liveAssociatedApplicationIds = statusManager.getLiveAssociatedApplicationIds();
+      for (String applicationId : liveAssociatedApplicationIds) {
+        if (!liveApplicationReports.containsKey(applicationId)) {
+          FrameworkStatus frameworkStatus = statusManager.getFrameworkStatusWithLiveAssociatedApplicationId(applicationId);
+          String frameworkName = frameworkStatus.getFrameworkName();
+          FrameworkState frameworkState = frameworkStatus.getFrameworkState();
+
+          // APPLICATION_CREATED Application is expected without ApplicationReport, but it is indeed live in RM.
+          if (frameworkState == FrameworkState.APPLICATION_CREATED) {
+            continue;
+          }
+
+          String supplementLogPrefix = String.format(
+              "[%s][%s]: Supplement liveApplicationReports. Reason: ",
+              frameworkName, applicationId);
+          String skipToSupplementLogPrefix = String.format(
+              "[%s][%s]: Skip to supplement liveApplicationReports. Reason: ",
+              frameworkName, applicationId);
+
+          ApplicationReport applicationReport = null;
+
+          try {
+            applicationReport = yarnClient.getApplicationReport(ApplicationId.fromString(applicationId));
+          } catch (Exception e) {
+            // Best Effort to getApplicationReport, since it depends on ApplicationHistoryServer
+            // which is not as reliable as RM.
+            LOGGER.logWarning(e, skipToSupplementLogPrefix + "Failed to getApplicationReport");
+          }
+
+          if (applicationReport != null) {
+            YarnApplicationState applicationState = applicationReport.getYarnApplicationState();
+            FinalApplicationStatus applicationFinalStatus = applicationReport.getFinalApplicationStatus();
+            String diagnostics = CommonUtils.trim(applicationReport.getDiagnostics());
+            if (applicationFinalStatus == FinalApplicationStatus.UNDEFINED) {
+              LOGGER.logWarning(skipToSupplementLogPrefix +
+                      "The applicationReport is not reliable since " +
+                      "the Application from getApplicationReport is not completed. " +
+                      "ApplicationState: %s, ApplicationFinalStatus: %s, Diagnostics: %s",
+                  applicationState, applicationFinalStatus, diagnostics);
+            } else {
+              LOGGER.logInfo(supplementLogPrefix +
+                      "The applicationReport is reliable since " +
+                      "the Application from getApplicationReport is completed. " +
+                      "ApplicationState: %s, ApplicationFinalStatus: %s, Diagnostics: %s",
+                  applicationState, applicationFinalStatus, diagnostics);
+              liveApplicationReports.put(applicationId, applicationReport);
+            }
+          }
+        }
       }
 
       service.onLiveApplicationsUpdated(liveApplicationReports);

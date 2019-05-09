@@ -15,13 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames} from '@uifabric/styling';
+import {FontClassNames, ColorClassNames, getTheme} from '@uifabric/styling';
 import c from 'classnames';
-import {IconButton} from 'office-ui-fabric-react/lib/Button';
+import {Icon, IconButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
@@ -94,10 +94,10 @@ export default class TaskRole extends React.Component {
   }
 
   render() {
-    const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
+    const {className, taskInfo, taskConfig, jobStatus, sshInfo, isFailed} = this.props;
     const {containerListExpanded} = this.state;
     const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
-
+    const {semanticColors} = getTheme();
     return (
       <div className={className}  style={{marginBottom: spacing.s1}}>
         {/* summary */}
@@ -105,6 +105,11 @@ export default class TaskRole extends React.Component {
           <div className={c(t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: spacing.l2, paddingRight: spacing.l2, paddingTop: spacing.l1, paddingBottom: spacing.l1}}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
+              {isFailed && (
+                <div className={c(t.mr3, FontClassNames.large)}>
+                  <Icon style={{color: semanticColors.errorText}} iconName='ErrorBadge' />
+                </div>
+              )}
               <div className={c(FontClassNames.large)}>
                 <span >Task Role:</span>
                 <span className={t.ml3}>{name}</span>
@@ -149,4 +154,5 @@ TaskRole.propTypes = {
   jobStatus: PropTypes.string.isRequired,
   taskConfig: PropTypes.object,
   sshInfo: PropTypes.object,
+  isFailed: PropTypes.bool,
 };

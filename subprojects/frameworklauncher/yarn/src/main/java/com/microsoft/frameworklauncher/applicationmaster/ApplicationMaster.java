@@ -23,9 +23,9 @@ import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
-import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusValue;
+import com.microsoft.frameworklauncher.common.exit.AMDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitCode;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitSpec;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.exts.HadoopExts;
 import com.microsoft.frameworklauncher.common.log.ChangeAwareLogger;
@@ -50,7 +50,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.log4j.Level;
 
@@ -106,22 +105,20 @@ public class ApplicationMaster extends AbstractService {
     super.handleException(e);
 
     if (e instanceof NonTransientException) {
-      String msg = String.format(
+      LOGGER.logError(e,
           "NonTransientException occurred in %s. Framework will be stopped.",
           serviceName);
-      LOGGER.logError(e, msg);
-      msg += CommonUtils.toString(e);
 
-      stopForInternalNonTransientError(msg);
+      stopForInternalError(
+          FrameworkExitCode.AM_NON_TRANSIENT_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
       return false;
     } else {
-      String msg = String.format(
+      LOGGER.logError(e,
           "Exception occurred in %1$s. It should be transient. Will migrate %1$s to another node.",
           serviceName);
-      LOGGER.logError(e, msg);
-      msg += CommonUtils.toString(e);
 
-      stopForInternalTransientNormalError(msg);
+      stopForInternalError(
+          FrameworkExitCode.AM_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
       return false;
     }
   }
@@ -157,6 +154,8 @@ public class ApplicationMaster extends AbstractService {
     // Initialize Launcher Store
     zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
     conf.initializeDependOnZKStoreConfig(zkStore);
+    FrameworkExitSpec.initialize(conf.getUserContainerExitSpec());
+    AMDiagnostics.limitSerializationMaxBytes(conf.getLauncherConfig().getAmDiagnosticsMaxBytes());
     hdfsStore = new HdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
     hdfsStore.makeUserStoreRootDir(conf.getFrameworkName());
@@ -245,7 +244,7 @@ public class ApplicationMaster extends AbstractService {
               stopStatus.getCode() == 0 ?
                   FinalApplicationStatus.SUCCEEDED :
                   FinalApplicationStatus.FAILED,
-              stopStatus.getDiagnostics(), conf.getAmTrackingUrl());
+              stopStatus.getUnregisterDiagnostics(), conf.getAmTrackingUrl());
         }
         rmClient.stop();
       }
@@ -276,68 +275,45 @@ public class ApplicationMaster extends AbstractService {
     return rmResp;
   }
 
-  private void stopForContainerCompletion(int exitCode, String diagnostics, String customizedDiagnostics) {
-    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
-
-    String fullDiagnostics = ExitDiagnostics.generateDiagnostics(partialValue, customizedDiagnostics);
-    ExitStatusKey exitStatusKey = ExitDiagnostics.extractExitStatusKey(fullDiagnostics);
-
-    stop(new StopStatus(exitStatusKey.toInt(), true, fullDiagnostics));
-  }
-
   private void stopForApplicationCompletion(
-      String applicationCompletionReason, List<TaskStatus> completedTaskStatuses) throws IOException {
-    TaskStatus lastCompletedTaskStatus = completedTaskStatuses.get(0);
-    for (TaskStatus completedTaskStatus : completedTaskStatuses) {
-      if (lastCompletedTaskStatus.getTaskCompletedTimestamp() < completedTaskStatus.getTaskCompletedTimestamp()) {
-        lastCompletedTaskStatus = completedTaskStatus;
-      }
+      String triggerMessage, TaskStatus triggerTaskStatus) {
+    Integer exitCode = triggerTaskStatus.getContainerExitCode();
+    ExitType exitType = FrameworkExitSpec.getExitInfo(exitCode).getType();
+    String amDiagnostics =
+        AMDiagnostics.generateAndSerialize(
+            exitCode, triggerTaskStatus.getContainerExitDiagnostics(),
+            triggerMessage, triggerTaskStatus.getTaskRoleName(),
+            triggerTaskStatus.getTaskIndex());
+
+    // Unregister to cleanup App
+    stop(new StopStatus(exitType.toLauncherExitCode(), true, amDiagnostics));
+  }
+
+  private void stopForApplicationCompletion(String triggerMessage) {
+    Integer exitCode = FrameworkExitCode.SUCCEEDED.toInt();
+    ExitType exitType = FrameworkExitSpec.getExitInfo(exitCode).getType();
+    String amDiagnostics =
+        AMDiagnostics.generateAndSerialize(
+            exitCode, null, triggerMessage, null, null);
+
+    // Unregister to cleanup App
+    stop(new StopStatus(exitType.toLauncherExitCode(), true, amDiagnostics));
+  }
+
+  private void stopForInternalError(Integer exitCode, String exitDiagnostics) {
+    ExitType exitType = FrameworkExitSpec.getExitInfo(exitCode).getType();
+    String amDiagnostics =
+        AMDiagnostics.generateAndSerialize(
+            exitCode, exitDiagnostics, null, null, null);
+
+    if (exitType == ExitType.TRANSIENT_NORMAL) {
+      // Do not unregister, so that RM will start new attempt if AMAttemptMaxCount and
+      // AMAttemptFailuresValidityIntervalSec is allowed.
+      stop(new StopStatus(exitType.toLauncherExitCode(), false, amDiagnostics));
+    } else {
+      // Unregister to leverage Framework RetryPolicy
+      stop(new StopStatus(exitType.toLauncherExitCode(), true, amDiagnostics));
     }
-
-    stopForContainerCompletion(
-        lastCompletedTaskStatus.getContainerExitCode(),
-        lastCompletedTaskStatus.getContainerExitDiagnostics(),
-        generateApplicationCompletionDiagnostics(applicationCompletionReason, lastCompletedTaskStatus));
-  }
-
-  private void stopForApplicationCompletion(String applicationCompletionReason) {
-    String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.SUCCEEDED,
-        generateApplicationCompletionDiagnostics(applicationCompletionReason));
-
-    stop(new StopStatus(ExitStatusKey.SUCCEEDED.toInt(), true, diagnostics));
-  }
-
-  private void stopForInternalTransientNormalError(String customizedDiagnostics) {
-    String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR, customizedDiagnostics);
-
-    // Do not unregister, so that RM will start new attempt if AMAttemptMaxCount and
-    // AMAttemptFailuresValidityIntervalSec is allowed.
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR.toInt(), false, diagnostics));
-  }
-
-  private void stopForInternalTransientConflictError(String customizedDiagnostics) {
-    String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR, customizedDiagnostics);
-
-    // Unregister to leverage Framework FancyRetryPolicy
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR.toInt(), true, diagnostics));
-  }
-
-  private void stopForInternalNonTransientError(String customizedDiagnostics) {
-    String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR, customizedDiagnostics);
-
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR.toInt(), true, diagnostics));
-  }
-
-  private void stopForInternalUnKnownError(String customizedDiagnostics) {
-    String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR, customizedDiagnostics);
-
-    // Do not unregister to treat it conservatively.
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), false, diagnostics));
   }
 
   // Principle to setup ContainerRequest for a Task:
@@ -375,10 +351,6 @@ public class ApplicationMaster extends AbstractService {
     return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
   }
 
-  private String generateContainerLocations(TaskStatus taskStatus) {
-    return generateContainerLocations(taskStatus, "");
-  }
-
   private String generateContainerLocations(TaskStatus taskStatus, String linePrefix) {
     String containerId = taskStatus.getContainerId();
     String hostName = taskStatus.getContainerHost();
@@ -394,24 +366,7 @@ public class ApplicationMaster extends AbstractService {
         linePrefix);
   }
 
-  private String generateApplicationCompletionDiagnostics(String applicationCompletionReason) {
-    return "[ApplicationCompletionReason]: " + applicationCompletionReason;
-  }
-
-  private String generateApplicationCompletionDiagnostics(
-      String applicationCompletionReason, TaskStatus lastCompletedTaskStatus) throws IOException {
-    String taskRoleName = lastCompletedTaskStatus.getTaskRoleName();
-
-    return String.format("" +
-            "[%s]: [LastCompletedTask]: [TaskStatus]:\n%s\n" +
-            "[%s]: [LastCompletedTask]: [ContainerLocations]:\n%s\n%s\n%s",
-        taskRoleName, WebCommon.toJson(lastCompletedTaskStatus),
-        taskRoleName, generateContainerLocations(lastCompletedTaskStatus),
-        GlobalConstants.LINE,
-        generateApplicationCompletionDiagnostics(applicationCompletionReason));
-  }
-
-  private void attemptToStop(TaskStatus taskStatus) throws IOException {
+  private void attemptToStop(TaskStatus taskStatus) {
     String taskRoleName = taskStatus.getTaskRoleName();
     ExitType exitType = taskStatus.getContainerExitType();
 
@@ -423,35 +378,34 @@ public class ApplicationMaster extends AbstractService {
     if (exitType != ExitType.SUCCEEDED && minFailedTaskCount != null) {
       List<TaskStatus> failedTaskStatuses = statusManager.getFailedTaskStatus(taskRoleName);
       if (minFailedTaskCount <= failedTaskStatuses.size()) {
-        String applicationCompletionReason = String.format(
-            "[%s]: FailedTaskCount %s has reached MinFailedTaskCount %s.",
-            taskRoleName, failedTaskStatuses.size(), minFailedTaskCount);
-        stopForApplicationCompletion(applicationCompletionReason, failedTaskStatuses);
+        stopForApplicationCompletion(String.format(
+            "FailedTaskCount %s has reached MinFailedTaskCount %s in TaskRole [%s]",
+            failedTaskStatuses.size(), minFailedTaskCount, taskRoleName),
+            taskStatus);
       }
     }
 
     if (exitType == ExitType.SUCCEEDED && minSucceededTaskCount != null) {
       List<TaskStatus> succeededTaskStatuses = statusManager.getSucceededTaskStatus(taskRoleName);
       if (minSucceededTaskCount <= succeededTaskStatuses.size()) {
-        String applicationCompletionReason = String.format(
-            "[%s]: SucceededTaskCount %s has reached MinSucceededTaskCount %s.",
-            taskRoleName, succeededTaskStatuses.size(), minSucceededTaskCount);
-        stopForApplicationCompletion(applicationCompletionReason, succeededTaskStatuses);
+        stopForApplicationCompletion(String.format(
+            "SucceededTaskCount %s has reached MinSucceededTaskCount %s in TaskRole [%s]",
+            succeededTaskStatuses.size(), minSucceededTaskCount, taskRoleName),
+            taskStatus);
       }
     }
 
     if (statusManager.isAllTaskInFinalState()) {
       int totalTaskCount = statusManager.getTaskCount();
       List<TaskStatus> failedTaskStatuses = statusManager.getFailedTaskStatus();
-      String applicationCompletionReason = String.format(
+      stopForApplicationCompletion(String.format(
           "All Tasks completed and no ApplicationCompletionPolicy has ever been triggered: " +
-              "TotalTaskCount: %s, FailedTaskCount: %s.",
-          totalTaskCount, failedTaskStatuses.size());
-      stopForApplicationCompletion(applicationCompletionReason);
+              "TotalTaskCount: %s, FailedTaskCount: %s",
+          totalTaskCount, failedTaskStatuses.size()));
     }
   }
 
-  private void attemptToStop() throws Exception {
+  private void attemptToStop() {
     for (TaskStatus taskStatus : statusManager.getTaskStatus(
         new HashSet<>(Collections.singletonList(TaskState.TASK_COMPLETED)))) {
       attemptToStop(taskStatus);
@@ -464,7 +418,7 @@ public class ApplicationMaster extends AbstractService {
   private Boolean tryToReleaseContainer(String containerId) {
     try {
       LOGGER.logDebug("[%s]: releaseAssignedContainer", containerId);
-      rmClient.releaseAssignedContainer(ConverterUtils.toContainerId(containerId));
+      rmClient.releaseAssignedContainer(ContainerId.fromString(containerId));
       return true;
     } catch (Exception e) {
       LOGGER.logError(e, "[%s]: Failed to releaseAssignedContainer", containerId);
@@ -548,7 +502,7 @@ public class ApplicationMaster extends AbstractService {
     return true;
   }
 
-  private ContainerLaunchContext setupContainerLaunchContext(TaskStatus taskStatus) throws Exception {
+  private ContainerLaunchContext setupContainerLaunchContext(TaskStatus taskStatus) {
     HdfsStoreStructure hdfsStruct = hdfsStore.getHdfsStruct();
 
     String taskRoleName = taskStatus.getTaskRoleName();
@@ -877,17 +831,17 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private void completeContainer(String containerId, int exitCode, String diagnostics, Boolean needToRelease) throws Exception {
+  private void completeContainer(String containerId, int rawExitCode, String rawExitDiagnostics, Boolean needToRelease) throws Exception {
     if (needToRelease) {
       tryToReleaseContainer(containerId);
-      if (exitCode == ExitStatusKey.CONTAINER_MIGRATE_TASK_REQUESTED.toInt()) {
+      if (rawExitCode == FrameworkExitCode.CONTAINER_MIGRATE_TASK_REQUESTED.toInt()) {
         requestManager.onMigrateTaskRequestContainerReleased(containerId);
       }
     }
 
     String logSuffix = String.format(
-        "[%s]: completeContainer: ExitCode: %s, ExitDiagnostics: %s, NeedToRelease: %s",
-        containerId, exitCode, diagnostics, needToRelease);
+        "[%s]: completeContainer: RawExitCode: %s, RawExitDiagnostics: %s, NeedToRelease: %s",
+        containerId, rawExitCode, rawExitDiagnostics, needToRelease);
 
     if (!statusManager.isContainerIdLiveAssociated(containerId)) {
       LOGGER.logDebug("[NotLiveAssociated]%s", logSuffix);
@@ -904,16 +858,10 @@ public class ApplicationMaster extends AbstractService {
         taskLocator, logSuffix, generateContainerLocations(taskStatus, linePrefix));
 
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_COMPLETED,
-        new TaskEvent().setContainerExitCode(exitCode).setContainerExitDiagnostics(diagnostics));
+        new TaskEvent().setContainerRawExitCode(rawExitCode).setContainerRawExitDiagnostics(rawExitDiagnostics));
 
     // Post-mortem CONTAINER_COMPLETED Task
     attemptToRetry(taskStatus);
-  }
-
-  private void completeContainer(List<String> containerIds, int exitCode, String diagnostics, Boolean needToRelease) throws Exception {
-    for (String containerId : containerIds) {
-      completeContainer(containerId, exitCode, diagnostics, needToRelease);
-    }
   }
 
   private void completeContainer(List<ContainerStatus> containerStatuses) throws Exception {
@@ -921,7 +869,7 @@ public class ApplicationMaster extends AbstractService {
       completeContainer(
           containerStatus.getContainerId().toString(),
           containerStatus.getExitStatus(),
-          containerStatus.getDiagnostics(),
+          CommonUtils.trim(containerStatus.getDiagnostics()),
           false);
     }
   }
@@ -962,7 +910,7 @@ public class ApplicationMaster extends AbstractService {
             LOGGER.logWarning(
                 "Live Container %s's ContainerConnectionExceedCount %s " +
                     "exceed ContainerConnectionMaxExceedCount %s. " +
-                    "Will complete it with RMResyncExceed ExitStatus",
+                    "Will complete it as RMResyncExceed",
                 containerId, exceedCount, maxExceedCount);
 
             // This may Release the Container which is Allocated in RM, but AM has not got notified
@@ -971,8 +919,8 @@ public class ApplicationMaster extends AbstractService {
             // AMRMHeartbeatIntervalSec < ContainerConnectionMaxExceedCount * AMRMResyncIntervalSec
             completeContainer(
                 containerId,
-                ExitStatusKey.CONTAINER_RM_RESYNC_EXCEED.toInt(),
-                "Container exceed after RMResynced",
+                FrameworkExitCode.CONTAINER_RM_RESYNC_EXCEEDED.toInt(),
+                null,
                 true);
 
             // Pending Exceed Container now is settled to definitely Exceed Container
@@ -1010,13 +958,13 @@ public class ApplicationMaster extends AbstractService {
             LOGGER.logWarning(
                 "%s: Live associated Container %s's ContainerConnectionLostCount %s " +
                     "exceed ContainerConnectionMaxLostCount %s. " +
-                    "Will complete it with RMResyncLost ExitStatus",
+                    "Will complete it as RMResyncLost",
                 taskLocator, containerId, lostCount, maxLostCount);
 
             completeContainer(
                 containerId,
-                ExitStatusKey.CONTAINER_RM_RESYNC_LOST.toInt(),
-                "Container lost after RMResynced",
+                FrameworkExitCode.CONTAINER_RM_RESYNC_LOST.toInt(),
+                null,
                 true);
           } else {
             retainContainerIds.add(containerId);
@@ -1169,12 +1117,11 @@ public class ApplicationMaster extends AbstractService {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
 
-    String diagnostics = String.format("%s%s", taskLocator, logSuffix);
-    LOGGER.logInfo(diagnostics);
+    LOGGER.logInfo("%s%s", taskLocator, logSuffix);
     completeContainer(
         containerId,
-        ExitStatusKey.CONTAINER_START_FAILED.toInt(),
-        diagnostics,
+        FrameworkExitCode.CONTAINER_NM_LAUNCH_FAILED.toInt(),
+        CommonUtils.toDiagnostics(e),
         true);
   }
 
@@ -1281,11 +1228,10 @@ public class ApplicationMaster extends AbstractService {
         if (outstandingTaskAppearedRound == statusManager.getOutstandingTaskAppearedRound()) {
           int currentOutstandingTaskCount = statusManager.getOutstandingStateTaskCount();
           if (currentOutstandingTaskCount > 0) {
-            stopForInternalTransientConflictError(String.format(
-                "GangAllocation cannot be satisfied in time: " +
-                    "Still waiting for %s outstanding Tasks after timeout %ss, " +
-                    "maybe current available resource for the application is not enough, please retry later.",
-                currentOutstandingTaskCount, gangAllocationTimeoutSec));
+            stopForInternalError(
+                FrameworkExitCode.AM_GANG_ALLOCATION_TIMEOUT.toInt(),
+                String.format("Still waiting for %s outstanding Tasks after timeout %ss",
+                    currentOutstandingTaskCount, gangAllocationTimeoutSec));
           }
         }
       }, gangAllocationTimeoutSec * 1000);
@@ -1304,7 +1250,7 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logInfo("Running TransitionTaskStateQueue");
   }
 
-  public void onMigrateTaskRequested(String containerId, MigrateTaskRequest migrateTaskRequest) throws IOException {
+  public void onMigrateTaskRequested(String containerId, MigrateTaskRequest migrateTaskRequest) {
     LOGGER.logSplittedLines(Level.INFO,
         "onMigrateTask: ContainerId: %s MigrateTaskRequest:\n%s",
         containerId, WebCommon.toJson(migrateTaskRequest));
@@ -1312,8 +1258,8 @@ public class ApplicationMaster extends AbstractService {
     transitionTaskStateQueue.queueSystemTask(() -> {
       completeContainer(
           containerId,
-          ExitStatusKey.CONTAINER_MIGRATE_TASK_REQUESTED.toInt(),
-          "Container killed due to MigrateTaskRequest",
+          FrameworkExitCode.CONTAINER_MIGRATE_TASK_REQUESTED.toInt(),
+          null,
           true);
     });
   }
@@ -1338,23 +1284,20 @@ public class ApplicationMaster extends AbstractService {
     // YarnException indicates exceptions from yarn servers, and IOException indicates exceptions from RPC layer.
     // So, consider YarnException as NonTransientError, and IOException as TransientError.
     if (e instanceof YarnException) {
-      stopForInternalNonTransientError(String.format(
-          "onError called into AM from RM due to non-transient error, maybe application is non-compliant.%s",
-          CommonUtils.toString(e)));
+      stopForInternalError(
+          FrameworkExitCode.AM_RM_HEARTBEAT_YARN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     } else if (e instanceof IOException) {
-      stopForInternalTransientNormalError(String.format(
-          "onError called into AM from RM due to transient error, maybe YARN RM is down.%s",
-          CommonUtils.toString(e)));
+      stopForInternalError(
+          FrameworkExitCode.AM_RM_HEARTBEAT_IO_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     } else {
-      stopForInternalUnKnownError(String.format(
-          "onError called into AM from RM due to unknown error.%s",
-          CommonUtils.toString(e)));
+      stopForInternalError(
+          FrameworkExitCode.AM_RM_HEARTBEAT_UNKNOWN_EXCEPTION.toInt(), CommonUtils.toDiagnostics(e));
     }
   }
 
   public void onShutdownRequest() {
-    stopForInternalTransientNormalError(
-        "onShutdownRequest called into AM from RM, maybe this Attempt does not exist in RM.");
+    stopForInternalError(
+        FrameworkExitCode.AM_RM_HEARTBEAT_SHUTDOWN_REQUESTED.toInt(), null);
   }
 
   public float getProgress() {
@@ -1413,11 +1356,6 @@ public class ApplicationMaster extends AbstractService {
     transitionTaskStateQueue.queueSystemTask(() -> {
       completeContainer(containerStatuses);
     });
-  }
-
-  public void onPreemptionMessage(PreemptionMessage message) {
-    //TODO: Do some work to save current work, otherwise, the container will be released by RM.
-    //By default, no action take is ok.
   }
 
   // Callbacks from NMClient

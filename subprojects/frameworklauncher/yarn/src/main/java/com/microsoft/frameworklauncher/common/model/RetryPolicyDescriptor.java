@@ -35,7 +35,7 @@ import java.io.Serializable;
  *  will retry and retriedCount++ if exit due to failure and retriedCount < maxRetryCount,
  *  will not retry if all above conditions are not satisfied.
  *
- * For all cases, the final ExitStatus is always the same as the ExitStatus of the last attempt.
+ * For all cases, the final ExitInfo is always the same as the ExitInfo of the last attempt.
  */
 public class RetryPolicyDescriptor implements Serializable {
   @Valid

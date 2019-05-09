@@ -20,17 +20,16 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import classNames from 'classnames';
-import {isEmpty} from 'lodash';
+import {get, isEmpty} from 'lodash';
+import {initializeIcons, FontClassNames, MessageBar, MessageBarType} from 'office-ui-fabric-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {initializeIcons} from '@uifabric/icons';
-import {FontClassNames} from '@uifabric/styling';
 
-import t from './tachyons.css';
+import t from '../../../components/tachyons.scss';
 
 import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
-import {SpinnerLoading} from './job-detail/components/loading';
+import {SpinnerLoading} from '../../../components/loading';
 import TaskRole from './job-detail/components/task-role';
 import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError} from './job-detail/conn';
 import {getHumanizedJobStateString, getTaskConfig, isJobV2} from './job-detail/util';
@@ -46,33 +45,36 @@ class JobDetail extends React.Component {
       loading: true,
       reloading: false,
       sshInfo: null,
+      error: null,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
   }
 
   componentDidMount() {
-    void this.reload();
+    void this.reload(true);
   }
 
-  async reload() {
+  async reload(alert) {
     this.setState({
       reloading: true,
     });
     await Promise.all([
-      fetchJobInfo().catch(alert),
+      fetchJobInfo().catch((err) => {
+        throw new Error(`fetch job status failed: ${err.message}`);
+      }),
       fetchJobConfig().catch((err) => {
         if (err instanceof NotFoundError) {
           return null;
         } else {
-          alert(err);
+          throw new Error(`fetch job config failed: ${err.message}`);
         }
       }),
       fetchSshInfo().catch((err) => {
         if (err instanceof NotFoundError) {
           return null;
         } else {
-          alert(err);
+          throw new Error(`fetch ssh info failed: ${err.message}`);
         }
       }),
     ]).then(([jobInfo, jobConfig, sshInfo]) => {
@@ -82,7 +84,14 @@ class JobDetail extends React.Component {
         jobInfo: jobInfo,
         jobConfig: jobConfig,
         sshInfo: sshInfo,
+        error: null,
       });
+    }).catch((err) => {
+      if (alert === true) {
+        alert(err);
+      } else {
+        this.setState({error: err.message});
+      }
     });
   }
 
@@ -94,6 +103,7 @@ class JobDetail extends React.Component {
   renderTaskRoles() {
     const {jobConfig, jobInfo, sshInfo} = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
+      const failedTaskRole = getHumanizedJobStateString(jobInfo) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map((key) => (
         <TaskRole
           key={key}
@@ -102,6 +112,7 @@ class JobDetail extends React.Component {
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
           taskConfig={getTaskConfig(jobConfig, key)}
+          isFailed={failedTaskRole && key === failedTaskRole}
         />
       ));
     } else if (jobConfig && jobConfig.taskRoles) {
@@ -131,13 +142,20 @@ class JobDetail extends React.Component {
   }
 
   render() {
-    const {loading, jobConfig, jobInfo, reloading} = this.state;
+    const {loading, jobConfig, jobInfo, reloading, error} = this.state;
     if (loading) {
       return <SpinnerLoading />;
     } else {
       return (
         <div className={classNames(t.w100, t.ph4, t.pv3, FontClassNames.medium)}>
           <Top />
+          {!isEmpty(error) && (
+            <div className={t.bgWhite}>
+              <MessageBar messageBarType={MessageBarType.error}>
+                {error}
+              </MessageBar>
+            </div>
+          )}
           <Summary
             jobInfo={jobInfo}
             jobConfig={jobConfig}

@@ -96,7 +96,7 @@ matrix:
         - npm run coveralls
 
     - language: node_js
-      node_js: node
+      node_js: lts/dubnium
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
@@ -117,7 +117,7 @@ matrix:
         - npm test
 
     - language: node_js
-      node_js: node
+      node_js: lts/dubnium
       before_install:
         - cd src/webportal
       install:
@@ -139,7 +139,7 @@ matrix:
       script: yarn build
 
     - language: node_js
-      node_js: node
+      node_js: lts/dubnium
       before_install: cd contrib/submit-protocol
       install: yarn --frozen-lockfiles
       script: yarn build

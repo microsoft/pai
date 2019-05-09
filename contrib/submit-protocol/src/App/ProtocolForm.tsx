@@ -23,7 +23,7 @@ import {
 } from "office-ui-fabric-react";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
-import yaml from "yaml";
+import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
@@ -134,10 +134,12 @@ interface IProtocolProps {
   api: string;
   user: string;
   token: string;
-  source ?: {
+  source?: {
     jobName: string;
     user: string;
+    protocolYAML: string;
   };
+  pluginId?: string;
 }
 
 interface IProtocolState {
@@ -318,30 +320,41 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     );
   }
 
-  private fetchConfig = () => {
+  private fetchConfig = async () => {
+    let protocol = null;
     const source = this.props.source;
-    if (source && source.jobName && source.user) {
-      fetch(
-        `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-      ).then((res) => {
-        return res.json();
-      }).then((body) => {
-        const protocol = yaml.parse(body);
-        this.setState(
-          { protocol },
-          () => this.setJobName(
-            null as any,
-            `${source.jobName}_clone_${Math.random().toString(36).slice(2, 10)}`,
-          ),
+    const pluginId = this.props.pluginId;
+    try {
+      if (source && source.protocolYAML) {
+        protocol = yaml.safeLoad(source.protocolYAML);
+      } else if (source && source.jobName && source.user && pluginId) {
+        const res = await fetch(
+          `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
         );
-      }).catch((err) => {
-        alert(err.message);
-      }).finally(() => {
-        this.setState({ loading: false });
-      });
-    } else {
-      this.setState({ loading: false });
+        const body = await res.json();
+        protocol = yaml.safeLoad(body);
+        if (protocol.extras.submitFrom !== pluginId) {
+          throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
+        }
+        protocol.name = this.getCloneJobName(source.jobName);
+      }
+      if (protocol) {
+        this.setState({
+          jobName: protocol.name,
+          protocol,
+          protocolYAML: yaml.safeDump(protocol),
+        });
+      }
+    } catch (err) {
+      alert(err.message);
     }
+    this.setState({ loading: false });
+  }
+
+  private getCloneJobName = (jobName: string) => {
+    const originalName = jobName.replace(/_clone_([a-z0-9]{8,})$/, "");
+    const randomHash = Math.random().toString(36).slice(2, 10);
+    return `${originalName}_clone_${randomHash}`;
   }
 
   private setJobName = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, jobName?: string) => {
@@ -352,14 +365,14 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       this.setState({
         jobName,
         protocol,
-        protocolYAML: yaml.stringify(protocol),
+        protocolYAML: yaml.safeDump(protocol),
       });
     }
   }
 
   private onSelectProtocol = (text: string) => {
     try {
-      const protocol = yaml.parse(text);
+      const protocol = yaml.safeLoad(text);
       this.setState({
         jobName: protocol.name || "",
         protocol,
@@ -380,7 +393,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     fileReader.addEventListener("load", () => {
       const text = fileReader.result as string;
       try {
-        const protocol = yaml.parse(text);
+        const protocol = yaml.safeLoad(text);
         this.setState({
           jobName: protocol.name || "",
           protocol,
@@ -412,7 +425,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           (protocol.parameters as IParameterObj)[item.key] = value;
           this.setState({
             protocol,
-            protocolYAML: yaml.stringify(protocol),
+            protocolYAML: yaml.safeDump(protocol),
           });
         }
       };
@@ -472,7 +485,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     event.preventDefault();
     const text = this.state.protocolYAML;
     try {
-      const protocol = yaml.parse(text);
+      const protocol = yaml.safeLoad(text);
       this.setState({
         jobName: protocol.name || "",
         protocol,
@@ -485,35 +498,37 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private discardEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    const text = yaml.stringify(this.state.protocol);
+    const text = yaml.safeDump(this.state.protocol);
     this.setState({
       protocolYAML: text,
       showEditor: false,
     });
   }
 
-  private submitProtocol = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  private submitProtocol = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    if (this.state.protocolYAML == null) {
+    if (!this.state.protocolYAML) {
       return;
     }
-    fetch(`${this.props.api}/api/v2/jobs`, {
-      body: this.state.protocolYAML,
-      headers: {
-        "Authorization": `Bearer ${this.props.token}`,
-        "Content-Type": "text/yaml",
-      },
-      method: "POST",
-    }).then((res) => {
-      return res.json();
-    }).then((body) => {
-      if (Number(body.status) >= 400) {
+    const protocol = yaml.safeLoad(this.state.protocolYAML);
+    protocol.extras = { submitFrom: this.props.pluginId };
+    try {
+      const res = await fetch(`${this.props.api}/api/v2/jobs`, {
+        body: yaml.safeDump(protocol),
+        headers: {
+          "Authorization": `Bearer ${this.props.token}`,
+          "Content-Type": "text/yaml",
+        },
+        method: "POST",
+      });
+      const body = await res.json();
+      if (Number(res.status) >= 400) {
         alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
-    }).catch((err) => {
+    } catch (err) {
       alert(err.message);
-    });
+    }
   }
 }

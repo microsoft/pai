@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
@@ -30,7 +30,6 @@ import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +52,7 @@ public class GangAllocationTest {
   private ZookeeperStore zkStore;
   private HdfsStore hdfsStore;
 
-  private int exitStatus;
+  private int exitCode;
 
   @Test
   public void testGangAllocation() throws Exception {
@@ -89,8 +88,8 @@ public class GangAllocationTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode: %s", exitStatus),
-        exitStatus == ExitStatusKey.CONTAINER_START_FAILED.toInt());
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitCode),
+        exitCode == GlobalConstants.EXIT_CODE_LAUNCHER_TRANSIENT_FAILED);
   }
 
   private void init() throws Exception {
@@ -181,7 +180,7 @@ public class GangAllocationTest {
       }
 
       LOGGER.logInfo("%s stopped", serviceName);
-      exitStatus = stopStatus.getCode();
+      exitCode = stopStatus.getCode();
       signal.countDown();
     }
 
@@ -195,7 +194,7 @@ public class GangAllocationTest {
       }
 
       String containerIdStr = list.get(0).getContainerId();
-      ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
+      ContainerId containerId = ContainerId.fromString(containerIdStr);
       onStartContainerError(containerId, new Exception());
     }
   }

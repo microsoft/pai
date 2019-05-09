@@ -51,7 +51,7 @@ public enum FrameworkState implements Serializable {
   APPLICATION_RUNNING,
 
   // Framework's current associated Application Retrieving ExitDiagnostics
-  //    onDiagnosticsRetrieved    -> APPLICATION_COMPLETED
+  //    diagnosticsRetrieved    -> APPLICATION_COMPLETED
   //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_RETRIEVING_DIAGNOSTICS,
 

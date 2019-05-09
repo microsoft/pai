@@ -36,20 +36,23 @@ const publicPath = __webpack_public_path__ = resolve((window.document.currentScr
   },
 };
 
+declare interface IWindow {
+  PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
+}
+
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
-    const user = this.getAttribute("pai-user");
-    const token = this.getAttribute("pai-rest-server-token");
-    if (user === null || token === null) {
-      window.location.href = "/login.html";
-      return;
-    }
+    const user = this.getAttribute("pai-user") as string;
+    const token = this.getAttribute("pai-rest-server-token") as string;
 
     const params = new URLSearchParams(window.location.search);
     const source = Object(null);
-    if (params.get("op") === "resubmit") {
-      const sourceJobName = params.get("jobName") || "";
+    if (params.get("op") === "init") {
+      source.protocolYAML = sessionStorage.getItem("protocolYAML") || "";
+      sessionStorage.removeItem("protocolYAML");
+    } else if (params.get("op") === "resubmit") {
+      const sourceJobName = params.get("jobname") || "";
       const sourceUser = params.get("user") || "";
       if (sourceJobName && sourceUser) {
         source.jobName = sourceJobName;
@@ -57,7 +60,11 @@ class ProtocolPluginElement extends HTMLElement {
       }
     }
 
-    ReactDOM.render(React.createElement(App, {api, user, token, source}), this);
+    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
+    const pluginIndex = Number(params.get("index")) || 0;
+    const pluginId = plugins[pluginIndex].id;
+
+    ReactDOM.render(React.createElement(App, {api, user, token, source, pluginId}), this);
   }
 
   public disconnectedCallback() {

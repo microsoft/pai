@@ -25,8 +25,9 @@ import {Link} from 'office-ui-fabric-react/lib/Link';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import PropTypes from 'prop-types';
 import React from 'react';
+import yaml from 'js-yaml';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoPanel from './monaco-panel';
@@ -42,6 +43,7 @@ const StoppableStatus = [
   'Running',
   'Waiting',
 ];
+
 export default class Summary extends React.Component {
   constructor(props) {
     super(props);
@@ -53,7 +55,7 @@ export default class Summary extends React.Component {
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
-    this.showApplicationSummary = this.showApplicationSummary.bind(this);
+    this.showExitDiagnostics = this.showExitDiagnostics.bind(this);
     this.showEditor = this.showEditor.bind(this);
     this.showJobConfig = this.showJobConfig.bind(this);
   }
@@ -76,11 +78,51 @@ export default class Summary extends React.Component {
     });
   }
 
-  showApplicationSummary() {
+  showExitDiagnostics() {
     const {jobInfo} = this.props;
-    this.showEditor('Application Summary', {
+    const result = [];
+    // trigger info
+    result.push('[Exit Trigger Info]');
+    result.push('');
+    result.push(`ExitTriggerMessage: ${get(jobInfo, 'jobStatus.appExitTriggerMessage')}`);
+    result.push(`ExitTriggerTaskRole: ${get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName')}`);
+    result.push(`ExitTriggerTaskIndex: ${get(jobInfo, 'jobStatus.appExitTriggerTaskIndex')}`);
+    const userExitCode = get(jobInfo, 'jobStatus.appExitMessages.runtime.originalUserExitCode');
+    if (userExitCode) {
+      // user exit code
+      result.push(`UserExitCode: ${userExitCode}`);
+    }
+    result.push('');
+
+    // exit spec
+    const spec = jobInfo.jobStatus.appExitSpec;
+    if (spec) {
+      // divider
+      result.push(Array.from({length: 80}, () => '-').join(''));
+      result.push('');
+      // content
+      result.push('[Exit Spec]');
+      result.push('');
+      result.push(yaml.safeDump(spec));
+      result.push('');
+    }
+
+    // diagnostics
+    const diag = jobInfo.jobStatus.appExitDiagnostics;
+    if (diag) {
+      // divider
+      result.push(Array.from({length: 80}, () => '-').join(''));
+      result.push('');
+      // content
+      result.push('[Exit Diagnostics]');
+      result.push('');
+      result.push(diag);
+      result.push('');
+    }
+
+    this.showEditor('Exit Diagnostics', {
       language: 'text',
-      value: jobInfo.jobStatus.appExitDiagnostics || '',
+      value: result.join('\n'),
     });
   }
 
@@ -92,6 +134,64 @@ export default class Summary extends React.Component {
     });
   }
 
+  getUserFailureHintItems(jobInfo) {
+    const result = [];
+    const runtimeOutput = get(jobInfo, 'jobStatus.appExitMessages.runtime');
+    // reason
+    const reason = [];
+    // static reason
+    const spec = get(jobInfo, 'jobStatus.appExitSpec');
+    if (spec && spec.reason) {
+      reason.push(
+        <div key='spec-reason'>{spec.reason}</div>,
+      );
+    }
+    // dynamic reason
+    const code = jobInfo.jobStatus.appExitCode;
+    if (code > 0) {
+      if (runtimeOutput && runtimeOutput.reason) {
+        reason.push(
+          <div key='runtime-reason'>{runtimeOutput.reason}</div>,
+        );
+      }
+    } else {
+      const launcherOutput = get(jobInfo, 'jobStatus.appExitMessages.launcher');
+      if (launcherOutput) {
+        reason.push(
+          <div key='launcher-reason'>{launcherOutput}</div>,
+        );
+      }
+    }
+    if (!isEmpty(reason)) {
+      result.push(<HintItem key='reason' header='Exit Reason:'>{reason}</HintItem>);
+    }
+    // solution
+    const solution = [];
+    if (runtimeOutput && runtimeOutput.solution) {
+      solution.push(
+        <li key='runtime-solution'>{runtimeOutput.solution}</li>,
+      );
+    }
+    if (spec && spec.solution) {
+      solution.push(
+        ...spec.solution.map((x, i) => (
+          <li key={`spec-reason-${i}`}>{x}</li>
+        )),
+      );
+    }
+    if (!isEmpty(solution)) {
+      result.push(
+        <HintItem key='solution' header='Exit Solutions:'>
+          <ul className={c(t.pa0, t.ma0)} style={{listStyle: 'inside'}}>
+            {solution}
+          </ul>
+        </HintItem>
+      );
+    }
+
+    return result;
+  }
+
   renderHintMessage() {
     const {jobInfo} = this.props;
     if (!jobInfo) {
@@ -100,110 +200,45 @@ export default class Summary extends React.Component {
 
     const state = getHumanizedJobStateString(jobInfo);
     if (state === 'Failed') {
-      const diag = jobInfo.jobStatus.appExitDiagnostics;
+      const result = [];
+      const spec = jobInfo.jobStatus.appExitSpec;
+      const type = spec && spec.type;
+      // exit code
       const code = jobInfo.jobStatus.appExitCode;
-      if (code === 177) {
-        // user code error
-        let userExitCode;
-        if (diag) {
-          let match = diag.match(/<Raw>\[ExitCode\]: (\d+)/);
-          if (match) {
-            userExitCode = parseInt(match[1], 10);
-          }
-        }
-        // container id
-        let containerId;
-        if (diag) {
-          let match = diag.match(/^\s*"containerId"\s*:\s*"(.*?)",?\s*$/m);
-          if (match) {
-            containerId = match[1];
-          }
-        }
-
-        return (
-          <MessageBar messageBarType={MessageBarType.error}>
-            <div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Error Type:
-                </span>
-                <span>User Error</span>
-              </div>
-              {containerId && (
-                <div>
-                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                    Container ID:
-                  </span>
-                  <span>{containerId}</span>
-                </div>
-              )}
-              {userExitCode && (
-                <div>
-                  <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                    Exit Code:
-                  </span>
-                  <span>{userExitCode}</span>
-                </div>
-              )}
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Resolution:
-                </span>
-                <span>{`Please check container's Stdout and Stderr for more information.`}</span>
-              </div>
-            </div>
-          </MessageBar>
-        );
-      } else {
-        return (
-          <MessageBar messageBarType={MessageBarType.error}>
-            <div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Error Type:
-                </span>
-                <span>System Error</span>
-              </div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Resolution:
-                </span>
-                <span>Please send the <Link onClick={this.showApplicationSummary}>application summary</Link> to your administrator for further investigation.</span>
-              </div>
-            </div>
-          </MessageBar>
-        );
+      result.push(<HintItem key='platform-exit-code' header='Exit Code:'>{code}</HintItem>);
+      // type
+      if (type) {
+        result.push(<HintItem key='type' header='Exit Type:'>{type}</HintItem>);
       }
+      if (type === 'USER_FAILURE' || type === 'UNKNOWN_FAILURE') {
+        result.push(...this.getUserFailureHintItems(jobInfo));
+      } else {
+        result.push(<HintItem key='solution' header='Exit Solutions:'>
+          Please send the <Link onClick={this.showExitDiagnostics}>exit diagnostics</Link> to your administrator for further investigation.
+        </HintItem>);
+      }
+
+      return (
+        <MessageBar messageBarType={MessageBarType.error}>
+          <div>
+            {result}
+          </div>
+        </MessageBar>
+      );
     } else if (state === 'Waiting') {
       const resourceRetries = get(jobInfo, 'jobStatus.retryDetails.resource');
       if (resourceRetries >= 3) {
         return (
           <MessageBar messageBarType={MessageBarType.warning}>
             <div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Error Type:
-                </span>
-                <span className={c(t.ml2)}>
-                  Resource Conflicts
-                </span>
-              </div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Conflict Count:
-                </span>
-                <span className={c(t.ml2)}>
+              <HintItem key='conflict-retry-count' header='Conflict Count:'>
                   {resourceRetries}
-                </span>
-              </div>
-              <div>
-                <span className={c(t.w4, t.dib)} style={{fontWeight: FontWeights.semibold}}>
-                  Resolution:
-                </span>
-                <span className={c(t.ml2)}>
+              </HintItem>
+              <HintItem key='resolution' header='Resolution:'>
+                <div>
                   Please adjust the resource requirement in your <Link onClick={this.showJobConfig}>job config</Link>, or wait till other jobs release more resources back to the system.
-                </span>
-              </div>
+                </div>
+              </HintItem>
             </div>
           </MessageBar>
         );
@@ -321,10 +356,10 @@ export default class Summary extends React.Component {
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
-                disabled={isEmpty(jobInfo.jobStatus.appExitDiagnostics)}
-                onClick={this.showApplicationSummary}
+                disabled={isNil(jobInfo.jobStatus.appExitDiagnostics) && isNil(jobInfo.jobStatus.appExitSpec)}
+                onClick={this.showExitDiagnostics}
               >
-                View Application Summary
+                View Exit Diagnostics
               </Link>
               <div className={c(t.bl)} style={{marginLeft: spacing.m, marginRight: spacing.m}}></div>
               <Link

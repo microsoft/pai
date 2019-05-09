@@ -18,9 +18,13 @@
 
 // module dependencies
 const async = require('async');
+const path = require('path');
+const fs = require('fs');
 const unirest = require('unirest');
+const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
+const yaml = require('js-yaml');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -30,20 +34,29 @@ const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
 const paiConfig = require('../config/paiConfig');
+const env = require('../util/env');
 
-const getNamespace = (jobName) => {
-  const tildeIndex = jobName.indexOf('~');
-  if (tildeIndex > -1) {
-    return jobName.slice(0, tildeIndex);
-  } else {
-    return null;
+let exitSpecPath;
+if (process.env[env.exitSpecPath]) {
+  exitSpecPath = process.env[env.exitSpecPath];
+  if (!path.isAbsolute(exitSpecPath)) {
+    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
   }
-};
+} else {
+  exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
+}
+const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+const positiveFallbackExitCode = 256;
+const negativeFallbackExitCode = -8000;
+const exitSpecMap = {};
+exitSpecList.forEach((val) => {
+  exitSpecMap[val.code] = val;
+});
 
 class Job {
-  constructor(name, next) {
+  constructor(name, namespace, next) {
     this.name = name;
-    this.getJob(name, (jobDetail, error) => {
+    this.getJob(name, namespace, (jobDetail, error) => {
       if (error === null) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
@@ -70,7 +83,7 @@ class Job {
       case 'FRAMEWORK_COMPLETED':
         if (exitCode === 0) {
           jobState = 'SUCCEEDED';
-        } else if (exitCode === 214) {
+        } else if (exitCode === -7351) {
           jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
@@ -94,6 +107,8 @@ class Job {
       case 'TASK_COMPLETED':
         if (exitCode === 0) {
           return 'SUCCEEDED';
+        } else if (exitCode === -7400) {
+          return 'STOPPED';
         } else {
           return 'FAILED';
         }
@@ -102,11 +117,12 @@ class Job {
     }
   }
 
-  getJobList(query, next) {
+  getJobList(query, namespace, next) {
     let reqPath = launcherConfig.frameworksPath();
-    const namespace = query.username;
     if (namespace) {
       reqPath = `${reqPath}?UserName=${namespace}`;
+    } else if (query.username) {
+      reqPath = `${reqPath}?UserName=${query.username}`;
     }
     unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
@@ -151,7 +167,15 @@ class Job {
               totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
-            if (job.name.indexOf('~') === -1) {
+            const tildeIndex = job.name.indexOf('~');
+            if (tildeIndex > -1) {
+              const namespace = job.name.slice(0, tildeIndex);
+              if (namespace !== job.username) {
+                logger.warn('Found a job with different namespace and username: ', job.name, job.username);
+                job.namespace = namespace;
+              }
+              job.name = job.name.slice(tildeIndex + 1);
+            } else {
               job.legacy = true;
             }
 
@@ -165,9 +189,8 @@ class Job {
       });
   }
 
-  getJob(name, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(frameworkName);
+  getJob(name, namespace, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -189,9 +212,8 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(frameworkName);
+  putJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     data.jobName = frameworkName;
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
@@ -223,9 +245,8 @@ class Job {
     });
   }
 
-  deleteJob(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(name);
+  deleteJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -248,9 +269,8 @@ class Job {
       });
   }
 
-  putJobExecutionType(name, data, next) {
-    const frameworkName = name;
-    const namespace = getNamespace(name);
+  putJobExecutionType(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
       .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
@@ -274,7 +294,10 @@ class Job {
       });
   }
 
-  getJobConfig(userName, jobName, next) {
+  getJobConfig(userName, namespace, jobName, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.yaml`,
@@ -299,7 +322,10 @@ class Job {
     );
   }
 
-  getJobSshInfo(userName, jobName, applicationId, next) {
+  getJobSshInfo(userName, namespace, jobName, applicationId, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.list(
@@ -357,6 +383,67 @@ class Job {
     );
   }
 
+  generateExitSpec(code) {
+    if (!_.isNil(code)) {
+      if (!_.isNil(exitSpecMap[code])) {
+        return exitSpecMap[code];
+      } else {
+        if (code > 0) {
+          return {
+            ...exitSpecMap[positiveFallbackExitCode],
+            code,
+          };
+        } else {
+          return {
+            ...exitSpecMap[negativeFallbackExitCode],
+            code,
+          };
+        }
+      }
+    } else {
+      return null;
+    }
+  }
+
+  extractContainerStderr(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /ExitCodeException exitCode.*?:/;
+    const anchor2 = /at org\.apache\.hadoop\.util\.Shell\.runCommand/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      return diag.substring(start, end).trim();
+    }
+  }
+
+  extractRuntimeOutput(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      const output = diag.substring(start, end).trim();
+      return yaml.safeLoad(output);
+    }
+  }
+
+  extractLauncherOutput(diag, code) {
+    if (_.isEmpty(diag) || code > 0) {
+      return null;
+    }
+    const re = /^(.*)$/m;
+    return diag.match(re)[0].trim();
+  }
+
   generateJobDetail(framework) {
     let jobDetail = {
       'jobStatus': {},
@@ -392,7 +479,17 @@ class Job {
         appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
         appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
         appExitCode: frameworkStatus.applicationExitCode,
+        appExitSpec: this.generateExitSpec(frameworkStatus.applicationExitCode),
         appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitMessages: {
+          container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
+          runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
+          launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
+        },
+        appExitTriggerMessage: frameworkStatus.applicationExitTriggerMessage,
+        appExitTriggerTaskRoleName: frameworkStatus.applicationExitTriggerTaskRoleName,
+        appExitTriggerTaskIndex: frameworkStatus.applicationExitTriggerTaskIndex,
+        // deprecated
         appExitType: frameworkStatus.applicationExitType,
       };
     }

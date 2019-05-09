@@ -25,7 +25,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import localCss from './task-role-container-list.scss';
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
@@ -131,7 +131,7 @@ export default class TaskRoleContainerList extends React.Component {
       const res = [];
       res.push('# Step 1. Open a Bash shell terminal.');
       res.push('# Step 2: Download the private key:');
-      res.push(`wget ${sshInfo.keyPair.privateKeyDirectDownloadLink} -O ${sshInfo.keyPair.privateKeyFileName}`);
+      res.push(`wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName}`);
       res.push('# Step 3: Set correct permission for the key file:');
       res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
       res.push('# Step 4: Connect to the container:');
@@ -240,6 +240,7 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'status',
         name: 'Status',
+        headerClassName: FontClassNames.medium,
         minWidth: 100,
         maxWidth: 100,
         isResizable: true,
@@ -273,7 +274,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'TextDocument'}}
               text='Stdout'
-              onClick={() => this.showContainerLog(`${item.containerLog}stdout`, 'Standard Output (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
@@ -284,7 +285,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'Error'}}
               text='Stderr'
-              onClick={() => this.showContainerLog(`${item.containerLog}stderr`, 'Standard Error (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton

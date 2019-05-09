@@ -21,6 +21,7 @@ const token = require('../middlewares/token');
 const userConfig = require('../config/user');
 const userController = require('../controllers/user');
 const param = require('../middlewares/parameter');
+const jobRouter = require('./job');
 
 const router = new express.Router();
 
@@ -34,11 +35,17 @@ router.route('/')
     /** Get /api/v1/user - Get user info list */
     .get(userController.getUserList);
 
+
+router.route('/:username/')
+    .get(token.check, userController.getUserInfo);
+
 router.route('/:username/virtualClusters')
     .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
 
 router.route('/:username/githubPAT')
     .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
+
+router.use('/:username/jobs', jobRouter);
 
 // module exports
 module.exports = router;
