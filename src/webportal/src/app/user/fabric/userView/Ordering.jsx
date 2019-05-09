@@ -29,22 +29,18 @@ export default class Ordering {
 
   apply(users) {
     const {field, descending} = this;
-    let comparator;
     if (field == null) {
       return users;
     }
-    if (field === 'username') {
-      comparator = descending
-        ? (a, b) => (String(b.username).localeCompare(a.username))
-        : (a, b) => (String(a.username).localeCompare(b.username));
-    } else if (field === 'admin') {
-      comparator = descending
-        ? (a, b) => toBool(b.admin) - toBool(a.admin)
-        : (a, b) => toBool(a.admin) - toBool(b.admin);
-    } else if (field === 'virtualCluster') {
+    let comparator;
+    if (field === 'virtualCluster') {
       comparator = descending
         ? (a, b) => String(getVirtualCluster(b)).localeCompare(getVirtualCluster(a))
         : (a, b) => String(getVirtualCluster(a)).localeCompare(getVirtualCluster(b));
+    } else {
+      comparator = descending
+        ? (a, b) => (String(b[field]).localeCompare(a[field]))
+        : (a, b) => (String(a[field]).localeCompare(b[field]));
     }
     return users.slice().sort(comparator);
   }
