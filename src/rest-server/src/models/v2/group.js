@@ -17,7 +17,9 @@
 
 // module dependencies
 const crudUtil = require('../../util/manager/group/crudUtil');
+const authConfig = require('../../config/authn');
 const adapter =  require('../../util/manager/group/adapter/externalUtil');
+const config = require('../../config/index');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
@@ -70,6 +72,36 @@ const syncUserGroupList = async (user) => {
     throw error;
   }
 };
+
+if (config.env !== 'test') {
+  const dbCheckBasePath = util.callbackify(db.checkBasePath.bind(db));
+  dbCheckBasePath((err, res) => {
+    if (err) {
+      if (err.status === 404) {
+        const dbPrepareBasePath = util.callbackify(db.prepareBasePath.bind(db));
+        dbPrepareBasePath((err, res) => {
+          if (err) {
+            throw new Error('build storage base path failed');
+          }
+          setDefaultAdmin();
+        });
+      } else {
+        throw new Error('Check user info storage base path failed');
+      }
+    } else {
+      getUserList((errMsg, userInfoList) => {
+        if (errMsg) {
+          logger.warn('get user list failed', errMsg);
+        } else {
+          logger.warn('users:', userInfoList);
+          if (userInfoList.length === 0) {
+            setDefaultAdmin();
+          }
+        }
+      });
+    }
+  });
+}
 
 module.exports = {
   getGroup,
