@@ -23,7 +23,7 @@ const groupSchema = Joi.object().keys({
     .required(),
   description: Joi.string()
     .empty(''),
-  GID: Joi.string()
+  externalName: Joi.string()
     .empty(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())

@@ -49,7 +49,7 @@ describe('Group model k8s secret get function test', () => {
             'data': {
               'groupname': 'Y2FudGVzdDAwMQ==',
               'description': 'dGVzdA==',
-              'GID': 'MTIzNA==',
+              'externalName': 'MTIzNA==',
               'extension': 'e30=',
             },
             'type': 'Opaque'
@@ -61,7 +61,7 @@ describe('Group model k8s secret get function test', () => {
             'data': {
               'groupname': 'cGFpdGVzdA==',
               'description': 'dGVzdA==',
-              'GID': 'MTIzNA==',
+              'externalName': 'MTIzNA==',
               'extension': 'e30='
             },
             'type': 'Opaque'
@@ -81,7 +81,7 @@ describe('Group model k8s secret get function test', () => {
         'data': {
           'groupname': 'cGFpdGVzdA==',
           'description': 'dGVzdA==',
-          'GID': 'MTIzNA==',
+          'externalName': 'MTIzNA==',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -125,7 +125,7 @@ describe('Group model k8s secret get function test', () => {
     return expect(res).to.deep.equal({
       groupname: 'paitest',
       description: 'test',
-      GID: '1234',
+      externalName: '1234',
       extension: {},
     });
   });
@@ -148,7 +148,7 @@ describe('Group model k8s secret set function test', () => {
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
-          'GID': 'MTIzNA==',
+          'externalName': 'MTIzNA==',
           'extension': 'e30='
         }
       })
@@ -166,7 +166,7 @@ describe('Group model k8s secret set function test', () => {
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
-          'GID': 'MTIzNA==',
+          'externalName': 'MTIzNA==',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -179,7 +179,7 @@ describe('Group model k8s secret set function test', () => {
         'data': {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
-          'GID': 'MTIzNA==',
+          'externalName': 'MTIzNA==',
           'extension': 'e30='
         }
       })
@@ -197,7 +197,7 @@ describe('Group model k8s secret set function test', () => {
         'data': {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
-          'GID': 'MTIzNA==',
+          'externalName': 'MTIzNA==',
           'extension': 'e30='
         },
         'type': 'Opaque'
@@ -209,7 +209,7 @@ describe('Group model k8s secret set function test', () => {
     const updateGroup = {
       'groupname': 'newuser',
       'description': 'test',
-      'GID': '1234',
+      'externalName': '1234',
       'extension': {},
     };
     const res = await groupK8sCRUD.create('newuser', updateGroup, groupK8sCRUDConfig);
@@ -221,7 +221,7 @@ describe('Group model k8s secret set function test', () => {
     const updateGroup = {
       'groupname': 'existuser',
       'description': 'test',
-      'GID': '1234',
+      'externalName': '1234',
       'extension': {},
     };
     const res = await groupK8sCRUD.update('existuser', updateGroup, groupK8sCRUDConfig);

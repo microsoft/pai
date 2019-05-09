@@ -17,6 +17,7 @@
 
 // module dependencies
 const crudUtil = require('../../util/manager/group/crudUtil');
+const adapter =  require('../../util/manager/group/adapter/externalUtil');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
@@ -61,6 +62,8 @@ const updateGroup = async (groupname, groupValue) => {
     throw error;
   }
 };
+
+
 
 module.exports = {
   getGroup,
