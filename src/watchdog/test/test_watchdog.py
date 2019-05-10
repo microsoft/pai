@@ -22,6 +22,7 @@ import yaml
 import json
 import logging
 import logging.config
+import collections
 
 import prometheus_client
 
@@ -62,10 +63,12 @@ class TestJobExporter(unittest.TestCase):
     def test_parse_pods_status(self):
         obj = json.loads(self.get_data_test_input("data/pods_list.json"))
 
-        pod_gauge = watchdog.gen_pai_node_gauge()
+        pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+        watchdog.process_pods_status(obj, "default",
+                pod_gauge, container_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertTrue(len(container_gauge.samples) > 0)
@@ -73,19 +76,22 @@ class TestJobExporter(unittest.TestCase):
     def test_process_nodes_status(self):
         obj = json.loads(self.get_data_test_input("data/nodes_list.json"))
 
-        gauge = watchdog.gen_pai_node_gauge()
+        gauges = watchdog.process_nodes_status(obj, {})
 
-        watchdog.process_nodes_status(gauge, obj)
+        self.assertTrue(len(gauges) == 4)
 
-        self.assertTrue(len(gauge.samples) > 0)
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
 
     def test_process_pods_with_no_condition(self):
         obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+        watchdog.process_pods_status(obj, "default",
+                pod_gauge, container_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -97,8 +103,10 @@ class TestJobExporter(unittest.TestCase):
             def collect(self):
                 pod_gauge = watchdog.gen_pai_pod_gauge()
                 container_gauge = watchdog.gen_pai_container_gauge()
+                pod_info = collections.defaultdict(lambda : [])
 
-                watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+                watchdog.process_pods_status(obj, "default",
+                        pod_gauge, container_gauge, pod_info)
 
                 yield pod_gauge
                 yield container_gauge
@@ -107,6 +115,59 @@ class TestJobExporter(unittest.TestCase):
 
         # expect no exception
         prometheus_client.write_to_textfile("/tmp/test_watchdog.prom", registry)
+
+    def test_process_dlws_nodes_status(self):
+        obj = json.loads(self.get_data_test_input("data/dlws_nodes_list.json"))
+
+        pod_info = collections.defaultdict(lambda : [])
+        pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
+        gauges = watchdog.process_nodes_status(obj, pod_info)
+
+        self.assertTrue(len(gauges) == 4)
+
+        self.assertEqual("k8s_node_gpu_available", gauges[1].name)
+        self.assertEqual(1, len(gauges[1].samples))
+        self.assertEqual(2, gauges[1].samples[0].value)
+        self.assertEqual("k8s_node_gpu_total", gauges[2].name)
+        self.assertEqual(1, len(gauges[2].samples))
+        self.assertEqual(4, gauges[2].samples[0].value)
+        self.assertEqual("k8s_node_gpu_reserved", gauges[3].name)
+        self.assertEqual(1, len(gauges[3].samples))
+        self.assertEqual(0, gauges[3].samples[0].value)
+
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
+
+        for gauge in gauges[1:]:
+            self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
+
+    def test_process_dlws_nodes_status_with_unscheduable(self):
+        obj = json.loads(self.get_data_test_input("data/dlws_nodes_list_with_unschedulable.json"))
+
+        pod_info = collections.defaultdict(lambda : [])
+        pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
+        gauges = watchdog.process_nodes_status(obj, pod_info)
+
+        self.assertTrue(len(gauges) == 4)
+
+        self.assertEqual("pai_node_count", gauges[0].name)
+        self.assertEqual(1, len(gauges[0].samples))
+        self.assertEqual("true", gauges[0].samples[0].labels["unschedulable"])
+        self.assertEqual("k8s_node_gpu_available", gauges[1].name)
+        self.assertEqual(1, len(gauges[1].samples))
+        self.assertEqual(0, gauges[1].samples[0].value)
+        self.assertEqual("k8s_node_gpu_total", gauges[2].name)
+        self.assertEqual(1, len(gauges[2].samples))
+        self.assertEqual(4, gauges[2].samples[0].value)
+        self.assertEqual("k8s_node_gpu_reserved", gauges[3].name)
+        self.assertEqual(1, len(gauges[3].samples))
+        self.assertEqual(2, gauges[3].samples[0].value)
+
+        for gauge in gauges:
+            self.assertTrue(len(gauge.samples) > 0)
+
+        for gauge in gauges[1:]:
+            self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
 
 if __name__ == '__main__':
     unittest.main()
