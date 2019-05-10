@@ -140,11 +140,11 @@ class ActionFactoryForJob(ActionFactory):
             result = [j['name'] for j in result]
         return result                
 
-    def define_arguments_create(self, parser: argparse.ArgumentParser):
+    def define_arguments_new(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
         cli_add_arguments(None, parser, ['--update', '--dont-set-as-default'])
 
-    def do_action_create(self, args):
+    def do_action_new(self, args):
         if os.path.isfile(Job.job_cache_file(args.job_name)): 
             if not getattr(args, 'update', False):
                 raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
@@ -153,25 +153,6 @@ class ActionFactoryForJob(ActionFactory):
         if not args.dont_set_as_default:
             Engine().process(['default', 'add', 'job-name={}'.format(args.job_name)]) 
         return self.__job__.to_dict()
-
-    def define_arguments_task(self, parser: argparse.ArgumentParser):
-        TaskRole().define(parser)
-        cli_add_arguments(None, parser, ['--update'])
-
-    def do_action_task(self, args):
-        elems = [x for x in self.__job__.taskroles if x.task_role_name == args.task_role_name]
-        if len(elems):
-            if not args.update:
-                raise Exception("task role already exists", args.task_role_name)
-            else:
-                assert len(elems) == 1, ("why found too many task roles", self.__job__)
-                elem = elems[0]
-        else:
-            self.__job__.taskroles.append(TaskRole())
-            elem = self.__job__.taskroles[-1]
-        elem.from_dict(vars(args), ignore_unkown=True)
-        self.__job__.store()
-        return elem.to_dict()
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--job-name', '--alias', '--preview', 'config'])
@@ -197,6 +178,33 @@ class ActionFactoryForJob(ActionFactory):
             args.task_role_name = 'main'
         self.do_action_task(args)
         return self.do_action_submit(args)
+
+
+class ActionFactoryForTaskRole(ActionFactory):
+
+    def restore(self, args):
+        self.__job__ = Job.restore(args.job_name)
+
+    def store(self, args):
+        self.__job__.store()
+
+    def define_arguments_add(self, parser: argparse.ArgumentParser):
+        TaskRole().define(parser)
+
+    def do_action_add(self, args):
+        elems = [x for x in self.__job__.taskroles if x.task_role_name == args.task_role_name]
+        if len(elems):
+            if not args.update:
+                raise Exception("task role already exists", args.task_role_name)
+            else:
+                assert len(elems) == 1, ("why found too many task roles", self.__job__)
+                elem = elems[0]
+        else:
+            self.__job__.taskroles.append(TaskRole())
+            elem = self.__job__.taskroles[-1]
+        elem.from_dict(vars(args), ignore_unkown=True)
+        self.__job__.store()
+        return elem.to_dict()
 
 
 class ActionFactoryForRequirement(ActionFactory):
@@ -246,12 +254,15 @@ __default_actions__ = {
 
 __job_actions__ = {
     "list": ["list existing jobs"],
-    "create": ["create a job config cache for submitting"],
-    "task": ["add a task role"],
+    "new": ["create a job config cache for submitting"],
     "require": ["add requirements (prerequisites) for job (or task)"],
     "submit": ["submit the job"],
     "abort": ["remove local cache of the job"],
     "fast": ["shortcut of submitting a job in one line"],
+}
+
+__task_actions__ = {
+    "add": ["add a task role"],
 }
 
 __require_actions__ = {
@@ -292,6 +303,9 @@ __cli_structure__ = {
     ],
     "runtime": [
         "runtime", factory(ActionFactoryForRuntime, __runtime_actions__)
+    ],
+    "task": [
+        "configure task role", factory(ActionFactoryForTaskRole, __task_actions__)
     ],
 }
 

@@ -7,37 +7,38 @@ By providing a bag of APIs, the SDK can facilitate users access `OpenPAI` servic
 
 Users can import the SDK as a `python` package in their own scripts, or use the command line interface (CLI) provided. 
 
-- [Overview](#overview)
-  - [Who should consider the SDK and CLI tools](#who-should-consider-the-sdk-and-cli-tools)
-- [1. Installation and Cluster management](#1-installation-and-cluster-management)
-  - [1.1. Installation](#11-installation)
-  - [1.2. Define your cluster](#12-define-your-cluster)
-  - [1.3. Set default values](#13-set-default-values)
-- [2. CLI tools](#2-cli-tools)
-  - [2.1. Query your existing jobs](#21-query-your-existing-jobs)
-  - [2.2. Submit a job with an existing config file](#22-submit-a-job-with-an-existing-config-file)
-  - [2.3. Submit a job step by step from sketch up](#23-submit-a-job-step-by-step-from-sketch-up)
-  - [2.4. Submit one-line job in command line](#24-submit-one-line-job-in-command-line)
-  - [2.5. _InProgress_ Job management and fetching outputs](#25-inprogress-job-management-and-fetching-outputs)
-  - [2.6. _InProgress_ Storage access](#26-inprogress-storage-access)
-  - [2.7. _InProgress_ Job cloning and batch submitting](#27-inprogress-job-cloning-and-batch-submitting)
-- [3. Python binding](#3-python-binding)
-  - [3.1. Dectect your execution environment](#31-dectect-your-execution-environment)
-  - [3.2. Do it in easy way](#32-do-it-in-easy-way)
-  - [3.3. Do it in a more pythoic way](#33-do-it-in-a-more-pythoic-way)
-  - [3.4. Submit your working notebook running in local server](#34-submit-your-working-notebook-running-in-local-server)
-- [4. _ToDiscuss_ Python SDK as a runtime](#4-todiscuss-python-sdk-as-a-runtime)
-  - [4.1. Reconstruct the client in job container](#41-reconstruct-the-client-in-job-container)
-  - [4.2. User can customize callbacks before or after the command executation](#42-user-can-customize-callbacks-before-or-after-the-command-executation)
-  - [4.3. User can customize callbacks when exception raised](#43-user-can-customize-callbacks-when-exception-raised)
-  - [4.4. Implementation](#44-implementation)
-- [5. Notebook tutorials](#5-notebook-tutorials)
+- [1. Overview](#1-overview)
+  - [1.1. Who should consider the SDK and CLI tools](#11-who-should-consider-the-sdk-and-cli-tools)
+- [2. Installation and Cluster management](#2-installation-and-cluster-management)
+  - [2.1. Installation](#21-installation)
+  - [2.2. Define your cluster](#22-define-your-cluster)
+  - [2.3. Set default values](#23-set-default-values)
+- [3. CLI tools](#3-cli-tools)
+  - [3.1. Query your existing jobs](#31-query-your-existing-jobs)
+  - [3.2. Submit a job with an existing config file](#32-submit-a-job-with-an-existing-config-file)
+  - [3.3. Submit a job step by step from sketch up](#33-submit-a-job-step-by-step-from-sketch-up)
+  - [3.4. Add requirements (prerequisites) to job (or task role)](#34-add-requirements-prerequisites-to-job-or-task-role)
+  - [3.5. Submit one-line job in command line](#35-submit-one-line-job-in-command-line)
+  - [3.6. _InProgress_ Job management and fetching outputs](#36-inprogress-job-management-and-fetching-outputs)
+  - [3.7. _InProgress_ Storage access](#37-inprogress-storage-access)
+  - [3.8. _InProgress_ Job cloning and batch submitting](#38-inprogress-job-cloning-and-batch-submitting)
+- [4. Python binding](#4-python-binding)
+  - [4.1. Dectect your execution environment](#41-dectect-your-execution-environment)
+  - [4.2. Do it in easy way](#42-do-it-in-easy-way)
+  - [4.3. Do it in a more pythoic way](#43-do-it-in-a-more-pythoic-way)
+  - [4.4. Submit your working notebook running in local server](#44-submit-your-working-notebook-running-in-local-server)
+- [5. _ToDiscuss_ Python SDK as a runtime](#5-todiscuss-python-sdk-as-a-runtime)
+  - [5.1. Reconstruct the client in job container](#51-reconstruct-the-client-in-job-container)
+  - [5.2. User can customize callbacks before or after the command executation](#52-user-can-customize-callbacks-before-or-after-the-command-executation)
+  - [5.3. User can customize callbacks when exception raised](#53-user-can-customize-callbacks-when-exception-raised)
+  - [5.4. Implementation](#54-implementation)
+- [6. Notebook tutorials](#6-notebook-tutorials)
 
-# Overview
+# 1. Overview
 
 `OpenPAI` provides multiple ways to handle jobs and do other operations, such as web portal, extension of Visual Studio Code. The SDK and CLI tools make it easy in specific scenarios.
 
-## Who should consider the SDK and CLI tools
+## 1.1. Who should consider the SDK and CLI tools
 
 - Users who prefer command line interface (e.g. former users of the platform `LSF`)
 
@@ -47,9 +48,9 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
 
 - Users who want to reuse their codes inside or outside `OpenPAI`
 
-# 1. Installation and Cluster management
+# 2. Installation and Cluster management
 
-## 1.1. Installation
+## 2.1. Installation
 
 We provide installing method leveraging `pip install`
 
@@ -65,19 +66,26 @@ opai -h
 python -c "from openpaisdk import __version__; print(__version__)"
 ```
 
-## 1.2. Define your cluster
+## 2.2. Define your cluster
 
 Please store your cluster information into `~/.openpai/clusters.json`. Every cluster would have an alias for calling, and you may save more than one cluster in the file.
 
 ```json
-{
-    "cluster-alias-1": {
+[
+    {
+        "alias": "cluster-alias-1",
         "pai_uri": "http://x.x.x.x",
         "user": "user name",
         "passwd": "password",
-        "hdfs_web_uri": "http://x.x.x.x:yyyy"
+        "storages":[
+            {
+                "alias": "default",
+                "protocol": "webHDFS",
+                "hdfs_web_uri": "http://x.x.x.x:yyyy"
+            }
+        ]
     }
-}
+]
 ```
 
 Now below command shows all your clusters would be displayed.
@@ -88,7 +96,7 @@ opai cluster list [--name] [-a <cluster-alias>]
 
 _Note: `-a <alias>` could be omitted if only one cluster is defined_
 
-## 1.3. Set default values
+## 2.3. Set default values
 
 It is annoying that specify some arguments every time, (e.g. `-a <alias>` or `-i <image>`). During the workflow, user may often reference some variables without changing. For example, it is usually to use the same docker image for multiple jobs, and the storage root doesn't change either. To simplify, it is suggested setting them by `default` command, which would be stored in `.opanpai/defaults.json` in current working directory.
 
@@ -100,11 +108,11 @@ opai default remove [variable-name]
 
 Here are some frequently used variables, such as `cluster-alias`, `worksapce`, `image` and so on.
 
-# 2. CLI tools
+# 3. CLI tools
 
 The CLI provides functions like `cluster`, `job` ... and their sub commands.
 
-## 2.1. Query your existing jobs
+## 3.1. Query your existing jobs
 
 By executing below commands, all your existing job names would be displayed.
 
@@ -112,7 +120,7 @@ By executing below commands, all your existing job names would be displayed.
 opai job list [-a <alias>] [<job-name>] [{config,ssh}]
 ```
 
-## 2.2. Submit a job with an existing config file
+## 3.2. Submit a job with an existing config file
 
 Of course, you could submit a job from a job config `Json` file by 
 
@@ -120,18 +128,34 @@ Of course, you could submit a job from a job config `Json` file by
 opai job submit [-a <alias>] --config <your-job-config-file>
 ```
 
-## 2.3. Submit a job step by step from sketch up
+## 3.3. Submit a job step by step from sketch up
 
 To submit a job from sketch, user need to `create` the job (it would be cached in `.openpai/jobs/<job-name>`). Then task roles could be added by `task` command one by one, and `submit` commond would dump the job config to `.openpai/jobs/<job-name>/config.json` and submit it through `REST` API.
 
 ```bash
-opai job create [-a <alias>] -j <job-name> [-i <image>] [-p <package>] [-s <source-file>]
-opai job task -t <name-1> [-n <instances>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
-opai job task -t <name-2> [-n <instances>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
+opai job new [-a <alias>] -j <job-name> [-i <image>] [-s <source-file>]
+opai task -t <name-1> [-n <num>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
+opai task -t <name-2> [-n <num>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
 opai job submit [--preview] [--export <config-file-name>]
 ```
 
-## 2.4. Submit one-line job in command line
+## 3.4. Add requirements (prerequisites) to job (or task role)
+
+It is common scenarios that users would prepare their environments by add requirements, such as installing python packages, mapping data storages. 
+
+```bash
+opai require pip ...
+opai require weblink http://x.x.x.x/filename.zip /data 
+```
+
+In the above command, user can specify `--job-name <job-name>` (required) and `--task-role-name <task-role-name>` (optional). If task role name is specified, the command only applies to the specific task role, otherwise, it is for the job (all task roles).
+
+Now we support
+
+- python `pip` packages
+- data mapping with weblink
+
+## 3.5. Submit one-line job in command line
 
 For the jobs that are simple (e.g. with only one task role), the CLI tool provides a shortcut to combine create, task and submit into only one command `fast`. 
 
@@ -141,7 +165,7 @@ If your job only has one task role and its command looks like `python script.py 
 opai job fast -j <job-name> [-a <alias>] [-i <your-image>] python script.py arg1 arg2
 ```
 
-## 2.5. _InProgress_ Job management and fetching outputs
+## 3.6. _InProgress_ Job management and fetching outputs
 
 The SDK provides simple job management based folder structure on _remote_ storage. It is recommended to upload user logging or results to the output directory. 
 
@@ -165,7 +189,7 @@ opai output download [-j <job-name>] <output-name> [<output-name-1> [...]]
 opai output peek [-j <job-name>] [--stdout] [--stdin] [--save <local-copy-name>]
 ```
 
-## 2.6. _InProgress_ Storage access
+## 3.7. _InProgress_ Storage access
 
 ```bash
 opai storage list <remote-path>
@@ -177,7 +201,7 @@ opai storage download <remote-path> <local-path>
 
 The `HDFS` accessing is implemented by the package `hdfs`, the backend of which is through `webHDFS` API.
 
-## 2.7. _InProgress_ Job cloning and batch submitting
+## 3.8. _InProgress_ Job cloning and batch submitting
 
 The advanced function like job cloning has been proven to be very useful. User can clone from a local job config file or an existing job name. And user may change some parameters (nested in dictionary path joined by `::`) to a new value.
 
@@ -196,17 +220,17 @@ for lr in ["0.005", "0.01"]:
     check_call(f'opai job clone --from base_job -j bj_lr_{lr} jobEnvs::LR={lr}'.split())
 ```
 
-# 3. Python binding
+# 4. Python binding
 
 After installing the SDK, there is a package named `openpaisdk` that can be imported in python code. Here are some classes being frequently used.
 
 ```python
 from openpaisdk.core import Client # OpenPAI client
 from openpaisdk.job import Job # job description
-from openpaisdk.engine import Engine # command dispatcher
+from openpaisdk.command_line import Engine # command dispatcher
 ```
 
-## 3.1. Dectect your execution environment
+## 4.1. Dectect your execution environment
 
 In your code, you may use `openpaisdk.core.in_job_container` to indicate where you are. This let you to do different things according to your environment.
 
@@ -221,19 +245,19 @@ else:
 
 This function is implemented by checking whether some environmental variable (e.g. `PAI_CONTAINER_ID` is set to a non-empty value).
 
-## 3.2. Do it in easy way
+## 4.2. Do it in easy way
 
 To unify the interface and simplifying user's learning cost, user can do whatever CLI provides in their python code in a similar way by calling `Engine`. For example, the following lines query all existing jobs submitted by current user in cluster named `your-alias`.
 
 ```python
-from openpaisdk.engine import Engine
+from openpaisdk.command_line import Engine
 
 job_name_list = Engine().process(['job', 'list', '--name', '-a', 'your-alias'])
 ```
 
 The advantages of this way over using `os.system()` or `subprocess.check_call` lies in (a) avoid overheading and (b) get the structued result (no need to parsing the text output). And this way can guarantee the consistency between CLI and python binding.
 
-## 3.3. Do it in a more pythoic way
+## 4.3. Do it in a more pythoic way
 
 Since someone may not like above solution, of course, user can use the code snippets behind CLI. Here is the code to do the same thing.
 
@@ -245,7 +269,7 @@ client, _ = Client.from_json(__cluster_config_file__, 'your-alias')
 job_name_list = client.jobs(name_only=True)
 ```
 
-## 3.4. Submit your working notebook running in local server
+## 4.4. Submit your working notebook running in local server
 
 If you are working in your local `Jupyter` notebook, add below cell and execute it would submit a job. 
 
@@ -258,23 +282,23 @@ if not in_job_container():
     print(job_link)
 ```
 
-# 4. _ToDiscuss_ Python SDK as a runtime
+# 5. _ToDiscuss_ Python SDK as a runtime
 
 When submitting a job through the SDK (CLI or python binding), the SDK would be isntalled inside the job container automatically by default (turn off by adding `--disable-sdk-install` in `job create`).  
 
-## 4.1. Reconstruct the client in job container
+## 5.1. Reconstruct the client in job container
 
 The SDK has passed necessary information to job container through environmental variables, so it is easy to reconstruct the client by calling `Client.from_env()`.
 
-## 4.2. User can customize callbacks before or after the command executation
+## 5.2. User can customize callbacks before or after the command executation
 
 This is similar to the pre- or post- commands in protocol v2. 
 
-## 4.3. User can customize callbacks when exception raised
+## 5.3. User can customize callbacks when exception raised
 
 This is for debugging.
 
-## 4.4. Implementation
+## 5.4. Implementation
 
 An ideal implementation is SDK provides some decorators for registering callbacks. Here is an example. 
 
@@ -321,8 +345,7 @@ if __name__ == "__main__":
 
 _Note: the RunTime may only be triggered when in_job_container() is true, or some user-defined conditions_
 
-
-# 5. Notebook tutorials
+# 6. Notebook tutorials
 
 To show the user stories, we prepare some `Jupyter` notebook tutorials. Below is a brief summary of how-to tutorials (some are to be added). 
 
