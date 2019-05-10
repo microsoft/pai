@@ -21,6 +21,7 @@ import {
   Fabric, IDropdownOption, Stack, TextField,
   mergeStyleSets,
 } from "office-ui-fabric-react";
+import Cookies from "js-cookie";
 
 type MarketplaceUriType = ("GitHub" | "DevOps" | null);
 
@@ -142,7 +143,13 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   }
 
   private closeConfigCallout = () => {
-    this.setProtocolOptions();
+    this.setProtocolOptions(() => {
+      Cookies.set("marketplace", {
+        uri: this.state.uri,
+        type: this.state.uriType,
+        token: this.state.uriToken,
+      });
+    });
     this.setState({uriConfigCallout: false});
   }
 
@@ -166,7 +173,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     }
   }
 
-  private setProtocolOptions = async () => {
+  private setProtocolOptions = async (next?: () => void) => {
     const protocolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protocolList) {
       const protocolOptions: IDropdownOption[] = [... defaultProtocolOptions];
@@ -178,6 +185,9 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
         });
       }
       this.setState({ protocolOptions });
+      if (next) {
+        next();
+      }
     }
   }
 

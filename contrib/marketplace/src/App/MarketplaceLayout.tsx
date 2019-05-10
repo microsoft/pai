@@ -22,6 +22,7 @@ import {
   Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
+import Cookies from "js-cookie";
 import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
@@ -436,7 +437,13 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
   }
 
   private closeConfigCallout = () => {
-    this.getProtocols();
+    this.getProtocols(() => {
+      Cookies.set("marketplace", {
+        uri: this.state.uri,
+        type: this.state.uriType,
+        token: this.state.uriToken,
+      });
+    });
     this.setState({uriConfigCallout: false});
   }
 
@@ -500,7 +507,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     }
   }
 
-  private getProtocols = async () => {
+  private getProtocols = async (next?: () => void) => {
     const protcolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protcolList !== null) {
       let protocols = await Promise.all(protcolList.map(async (item: IProtocolItem) => {
@@ -511,6 +518,9 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         protocols,
         loading: false,
       });
+      if (next) {
+        next();
+      }
     }
   }
 
