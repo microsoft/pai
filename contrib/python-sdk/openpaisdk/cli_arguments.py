@@ -74,7 +74,7 @@ class ArgumentFactory:
         self.factory = dict()
 
         # cluster
-        self.add_argument('--alias', '-a', help='cluster alias to select')
+        self.add_argument('--cluster-alias', '-a', default=__defaults__.get('cluster-alias', None), help='cluster alias to select')
 
         # job spec
         self.add_argument('--job-name', '-j', help='job name', default=__defaults__.get('job-name', None))
@@ -108,6 +108,13 @@ class ArgumentFactory:
         # runtime
         self.add_argument('config', nargs='?', help='job config file')
         self.add_argument('--working-dir', default='', help="working directory")
+
+        # storage
+        self.add_argument('--storage-alias', help="alias of storage attached to cluster")
+        self.add_argument('--recursive', help="recursive target operation")
+        self.add_argument('--overwrite', help="enable overwrite if exists")
+        self.add_argument('local_path', help="local path")
+        self.add_argument('remote_path', help="remote path")
 
     def add_argument(self, *args, **kwargs):
         self.factory[args[0]] = dict(args=args, kwargs=kwargs)

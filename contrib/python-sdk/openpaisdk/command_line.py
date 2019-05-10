@@ -16,8 +16,18 @@ def pprint(s, fmt: str='yaml', **kwargs):
         print(yaml.dump(s, default_flow_style=False))
 
 
-def get_client():
-    return Client.from_json(pai.__cluster_config_file__, pai.__defaults__.get('cluster-alias', None))[0]
+def get_client(alias):
+    client, _ = Client.from_json(pai.__cluster_config_file__, alias)
+    return client
+
+
+def get_storage(args):
+    client = get_client(args.cluster_alias)
+    s_a = getattr(args, 'storage_alias', None)
+    if s_a is None:
+        return client.storage
+    else:
+        return client.storages[s_a]
 
 
 class Action:
@@ -110,13 +120,13 @@ class ActionFactoryForDefault(ActionFactory):
 class ActionFactoryForCluster(ActionFactory):
 
     def define_arguments_list(self, parser):
-        cli_add_arguments(None, parser, ['--alias', '--name'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
         cfgs = {cluster['alias']: cluster for cluster in from_file(pai.__cluster_config_file__, default=[])}
         for v in cfgs.values():
             v['passwd'] = "******"
-        return cfgs[args.alias] if args.alias else list(cfgs.keys()) if args.name else cfgs
+        return cfgs[args.cluster_alias] if args.cluster_alias else list(cfgs.keys()) if args.name else cfgs
 
 
 class ActionFactoryForJob(ActionFactory):
@@ -128,12 +138,12 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.store()
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--alias', '--name'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
         parser.add_argument('job_name', metavar='job name', nargs='?')
         parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
 
     def do_action_list(self, args):
-        client = get_client()
+        client = get_client(args.cluster_alias)
         result = client.rest_api_jobs(args.job_name, args.query)
         if args.name:
             assert not args.query, 'cannot use --name with query at the same time'
@@ -155,10 +165,10 @@ class ActionFactoryForJob(ActionFactory):
         return self.__job__.to_dict()
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--job-name', '--alias', '--preview', 'config'])
+        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--preview', 'config'])
 
     def do_action_submit(self, args):
-        client = get_client()
+        client = get_client(args.cluster_alias)
         if args.config:
             return client.get_token().rest_api_submit(from_file(args.config))
         job_config = self.__job__.to_job_config_v1(save_to_file=self.__job__.get_config_file())
@@ -242,6 +252,28 @@ class ActionFactoryForRuntime(ActionFactory):
         return runtime_execute(args.config, args.working_dir)
 
 
+class ActionFactoryForStorage(ActionFactory):
+
+    def define_arguments_list_storage(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias'])
+
+    def do_action_list_storage(self, args):
+        client = get_client(args.cluster_alias)
+        return client.config['storages']
+
+    def define_arguments_list(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
+
+    def do_action_list(self, args):
+        return get_storage(args).list(args.remote_path)
+
+    def define_arguments_status(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
+
+    def define_arguments_delete(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--recursive', 'remote_path'])
+
+
 __cluster_actions__ = {
     "list": ["list clusters in config file %s" % pai.__cluster_config_file__]
 }
@@ -271,12 +303,12 @@ __require_actions__ = {
 }
 
 __storage_actions__ = {
+    "list-storage": ["list storage attached to the cluster"],
     "list": ["list items about the remote path"],
     "status": ["get detailed information about remote path"],
     "upload": ["upload"],
     "download": ["download"],
     "delete": ["delete"],
-    "map": ["add a storage mapping"],
 }
 
 __runtime_actions__ = {
@@ -307,6 +339,9 @@ __cli_structure__ = {
     "task": [
         "configure task role", factory(ActionFactoryForTaskRole, __task_actions__)
     ],
+    "storage": [
+        "storage operation", factory(ActionFactoryForStorage, __storage_actions__)
+    ]
 }
 
 

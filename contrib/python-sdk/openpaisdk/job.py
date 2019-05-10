@@ -15,7 +15,7 @@ class JobSpec(Namespace):
     def define(self, parser: argparse.ArgumentParser):
         cli_add_arguments(self, parser, [
             '--job-name',
-            '--alias',
+            '--cluster-alias',
             '--workspace',
             '--sources',
             '--image',
