@@ -22,6 +22,7 @@ import {
   Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
+import Cookies from "js-cookie";
 import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
@@ -124,7 +125,7 @@ const styles = mergeStyleSets({
 
 initializeIcons();
 
-type MarketplaceUriType = ("GitHub" | null);
+type MarketplaceUriType = ("GitHub" | "DevOps" | null);
 type LayoutType = ("grid" | "list");
 
 interface IProtocolItem {
@@ -147,11 +148,13 @@ interface IMarketplaceLayoutProps {
   submissionId?: string;
   defaultURI: string;
   defaultURIType: MarketplaceUriType;
+  defaultURIToken: string;
 }
 
 interface IMarketplaceLayoutState {
   uri: string;
   uriType: MarketplaceUriType;
+  uriToken: string;
   protocols: Array<IProtocol | null>;
   loading: boolean;
   showEditor: boolean;
@@ -164,11 +167,13 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
   public static defaultProps: Partial<IMarketplaceLayoutProps> = {
     defaultURI: "https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2",
     defaultURIType: "GitHub",
+    defaultURIToken: "",
   };
 
   public state = {
     uri: this.props.defaultURI,
     uriType: this.props.defaultURIType,
+    uriToken: this.props.defaultURIToken,
     protocols: [],
     loading: true,
     showEditor: false,
@@ -248,7 +253,12 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
                   prefix={this.state.uriType || undefined}
                   value={this.state.uri}
                   onChange={this.setMarketplaceURI}
-                  onBlur={this.getProtocols}
+                />
+                <TextField
+                  className={styles.textfiled}
+                  label="Personal Access Token"
+                  value={this.state.uriToken}
+                  onChange={this.setMarketplaceURIToken}
                 />
               </Stack>
             </Callout>
@@ -419,19 +429,35 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
   }
 
   private toggleConfigCallout = () => {
-    this.setState({uriConfigCallout: !this.state.uriConfigCallout});
+    if (this.state.uriConfigCallout) {
+      this.closeConfigCallout();
+    } else {
+      this.setState({uriConfigCallout: true});
+    }
   }
 
   private closeConfigCallout = () => {
+    this.getProtocols();
     this.setState({uriConfigCallout: false});
   }
 
   private setMarketplaceURI = (event: React.FormEvent<HTMLElement>, uri?: string) => {
     if (uri !== undefined) {
-      this.setState({
-        uri,
-        uriType: "GitHub",
-      });
+      if (uri.includes("api.github.com")) {
+        // https://api.github.com/repos/{owner}/{repo}/contents/{path}?ref={branch}
+        this.setState({uri, uriType: "GitHub"});
+      } else if (uri.includes("dev.azure.com")) {
+        // https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/items?path={path}&api-version=5.0
+        this.setState({uri, uriType: "DevOps"});
+      } else {
+        this.setState({uri, uriType: null});
+      }
+    }
+  }
+
+  private setMarketplaceURIToken = (event: React.FormEvent<HTMLElement>, uriToken?: string) => {
+    if (uriToken !== undefined) {
+      this.setState({uriToken});
     }
   }
 
@@ -475,7 +501,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     }
   }
 
-  private getProtocols = async () => {
+  private getProtocols = async (next?: () => void) => {
     const protcolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protcolList !== null) {
       let protocols = await Promise.all(protcolList.map(async (item: IProtocolItem) => {
@@ -486,13 +512,25 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         protocols,
         loading: false,
       });
+      Cookies.set("marketplace", {
+        uri: this.state.uri,
+        type: this.state.uriType,
+        token: this.state.uriToken,
+      });
     }
   }
 
   private getProtocolList = async (uri: string, uriType: MarketplaceUriType) => {
+    const requestHeaders: HeadersInit = new Headers();
+    if (this.state.uriToken) {
+      requestHeaders.set(
+        "Authorization",
+        `Basic ${new Buffer(this.state.uriToken).toString("base64")}`,
+      );
+    }
     if (uriType === "GitHub") {
       try {
-        const res = await fetch(uri);
+        const res = await fetch(uri, {headers: requestHeaders});
         const data = await res.json();
         if (Array.isArray(data)) {
           const protocolList: IProtocolItem[] = [];
@@ -511,13 +549,47 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       } catch (err) {
         alert(err.message);
       }
+    } else if (uriType === "DevOps") {
+      try {
+        let res = await fetch(uri, {headers: requestHeaders});
+        let data = await res.json();
+        if (data.isFolder && "tree" in data._links) {
+          res = await fetch(data._links.tree.href, {headers: requestHeaders});
+          data = await res.json();
+        }
+        if ("treeEntries" in data && Array.isArray(data.treeEntries)) {
+          const protocolList: IProtocolItem[] = [];
+          for (const item of data.treeEntries) {
+            if (item.gitObjectType === "blob") {
+              protocolList.push({
+                name: item.relativePath,
+                uri: item.url,
+              });
+            }
+          }
+          return protocolList;
+        } else {
+          alert(`Cannot get ${uri}`);
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    } else {
+      alert(`Cannot recognize uri ${uri}`);
     }
     return null;
   }
 
   private getProtocolItem = async (uri: string) => {
+    const requestHeaders: HeadersInit = new Headers();
+    if (this.state.uriToken) {
+      requestHeaders.set(
+        "Authorization",
+        `Basic ${new Buffer(this.state.uriToken).toString("base64")}`,
+      );
+    }
     try {
-      const res = await fetch(uri);
+      const res = await fetch(uri, {headers: requestHeaders});
       const data = await res.text();
       const protocol = yaml.safeLoad(data);
       return {
