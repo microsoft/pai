@@ -28,6 +28,11 @@ import math
 import sqlite3
 import requests
 
+import flask
+from flask import Flask
+from flask import request
+from flask import Response
+
 logger = logging.getLogger(__name__)
 
 
@@ -104,10 +109,13 @@ class JobInfo(object):
                 mem_sec=self.mem_sec + o.mem_sec,
                 gpu_sec=self.gpu_sec + o.gpu_sec)
 
+    def values(self):
+        return [self.job_count, self.elapsed_time,
+                self.cpu_sec, self.mem_sec, self.gpu_sec]
+
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%d,%d,%d,%d,%d" % (self.job_count, self.elapsed_time,
-                self.cpu_sec, self.mem_sec, self.gpu_sec)
+        return ",".join(map(str, self.values()))
 
 
 class JobReportEntries(object):
@@ -122,17 +130,49 @@ class JobReportEntries(object):
         self.running_job_info = running_job_info
         self.waiting_job_info = waiting_job_info
 
+    def values(self):
+        result = [self.username, self.vc]
+        result.extend(self.total_job_info.values())
+        result.extend(self.success_job_info.values())
+        result.extend(self.failed_job_info.values())
+        result.extend(self.stopped_job_info.values())
+        result.extend(self.running_job_info.values())
+        result.extend(self.waiting_job_info.values())
+        return result
+
     def __repr__(self):
         # NOTE this is used to generate final report
-        return "%s,%s,%s,%s,%s,%s,%s,%s" % (
-                self.username,
-                self.vc,
-                self.total_job_info,
-                self.success_job_info,
-                self.failed_job_info,
-                self.stopped_job_info,
-                self.running_job_info,
-                self.waiting_job_info)
+        return ",".join(map(str, self.values()))
+
+
+class RawJob(object):
+    def __init__(self, user, vc, job,
+            start_time, finish_time, waiting_time, run_time,
+            retries, status, exit_code, cpu, mem, max_mem, gpu):
+        self.user = user
+        self.vc = vc
+        self.job = job
+        self.start_time = start_time
+        self.finish_time = finish_time
+        self.waiting_time = waiting_time
+        self.run_time = run_time
+        self.retries = retries
+        self.status = status
+        self.exit_code = exit_code
+        self.cpu = cpu
+        self.mem = mem
+        self.max_mem = max_mem
+        self.gpu = gpu
+
+    def values(self):
+        return [self.user, self.vc, self.job,
+                self.start_time, self.finish_time, self.waiting_time, self.run_time,
+                self.retries, self.status, self.exit_code,
+                self.cpu, self.mem, self.max_mem, self.gpu]
+
+    def __repr__(self):
+        # NOTE this is used to generate final report
+        return ",".join(map(str, self.values()))
 
 
 class Alert(object):
@@ -149,7 +189,6 @@ class Alert(object):
     src_mapping = {
             "NvidiaSmiEccError": lambda a: a["minor_number"],
             "NvidiaMemoryLeak": lambda a: a["minor_number"],
-            "NvidiaZombieProcess": lambda a: a["NvidiaZombieProcess"],
             "GpuUsedByExternalProcess": lambda a: a["minor_number"],
             "GpuUsedByZombieContainer": lambda a: a["minor_number"],
             "PaiJobsZombie": lambda a: a["minor_number"],
@@ -187,15 +226,17 @@ class Alert(object):
             r.append("%s:%s" % (k, v))
         return "|".join(r)
 
-    def __repr__(self):
-        # NOTE this is used to generate final report
-        return "%s,%s,%s,%s,%s,%s" % (
-                self.alert_name,
+    def values(self):
+        return [self.alert_name,
                 Alert.get_info(self.alert_name, self.labels, Alert.host_ip_mapping),
                 Alert.get_info(self.alert_name, self.labels, Alert.src_mapping),
                 format_time(self.start),
                 self.durtion,
-                self.labels_repr())
+                self.labels_repr()]
+
+    def __repr__(self):
+        # NOTE this is used to generate final report
+        return ",".join(map(str, self.values()))
 
 
 class DB(object):
@@ -605,6 +646,42 @@ def get_max_resource_usage(prometheus_url, since, until, query):
     return result
 
 
+def gen_raw_job(processed_apps):
+    result = []
+
+    for job_name, job in processed_apps.items():
+        if job.user == "unknown" or job.vc == "unknown":
+            # this is due to Framework do not have job info, but yarn have
+            continue
+
+        elapsed_time = job.elapsed_time
+        cpu = math.ceil(job.cpu_sec / elapsed_time)
+        mem = math.ceil(job.mem_sec / elapsed_time)
+        gpu = math.ceil(job.gpu_sec / elapsed_time)
+
+        if job.finished_time == 0:
+            waiting_time = 0 # Unable to generate waiting time
+        else:
+            waiting_time = job.finished_time - job.start_time - elapsed_time
+
+        result.append(RawJob(
+            job.user,
+            job.vc,
+            job_name,
+            format_time(job.start_time),
+            format_time(job.finished_time),
+            waiting_time,
+            job.elapsed_time,
+            job.retries,
+            job.status,
+            job.exit_code,
+            cpu,
+            mem,
+            job.max_mem_usage,
+            gpu))
+    return result
+
+
 def gen_report(database, prometheus_url, path, since, until):
     max_mem_usage = get_max_mem_usage(prometheus_url, since, until)
     job_report, processed_apps = get_job_report(database, since, until, max_mem_usage)
@@ -624,36 +701,8 @@ def gen_report(database, prometheus_url, path, since, until):
     with open(job_raw_file, "w") as f:
         f.write("user,vc,job,start_time,finish_time,waiting_time,run_time,retries,status,exit_code,cpu,mem,max_mem,gpu\n")
 
-        for job_name, job in processed_apps.items():
-            if job.user == "unknown" or job.vc == "unknown":
-                # this is due to Framework do not have job info, but yarn have
-                continue
-
-            elapsed_time = job.elapsed_time
-            cpu = math.ceil(job.cpu_sec / elapsed_time)
-            mem = math.ceil(job.mem_sec / elapsed_time)
-            gpu = math.ceil(job.gpu_sec / elapsed_time)
-
-            if job.finished_time == 0:
-                waiting_time = 0 # Unable to generate waiting time
-            else:
-                waiting_time = job.finished_time - job.start_time - elapsed_time
-
-            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
-                job.user,
-                job.vc,
-                job_name,
-                format_time(job.start_time),
-                format_time(job.finished_time),
-                waiting_time,
-                job.elapsed_time,
-                job.retries,
-                job.status,
-                job.exit_code,
-                cpu,
-                mem,
-                job.max_mem_usage,
-                gpu))
+        for r in gen_raw_job(processed_apps):
+            f.write("%s\n" % r)
 
     alert_report = get_alerts(prometheus_url, since, until)
     alert_file = "%s_alert.csv" % path
@@ -665,12 +714,92 @@ def gen_report(database, prometheus_url, path, since, until):
     logger.info("write csv file into %s, %s and %s",
             job_file, job_raw_file, alert_file)
 
+
+def translate_span(span):
+    if span is None or span == "week":
+        delta = datetime.timedelta(days=7)
+    elif span == "day":
+        delta = datetime.timedelta(days=1)
+    elif span == "month":
+        delta = datetime.timedelta(days=31)
+    else:
+        delta = datetime.timedelta(days=7)
+        logger.warning("unknown span %s, default to week", span)
+
+    now = datetime.datetime.now()
+
+    ago = int(datetime.datetime.timestamp(now - delta))
+    now = int(datetime.datetime.timestamp(now))
+
+    return ago, now
+
+
+def translate_to_map(keys, values):
+    result = []
+
+    for r in values:
+        element = {}
+        for i, value in enumerate(r.values()):
+            element[keys[i]] = value
+        result.append(element)
+
+    return result
+
+
+def serve(database, prometheus_url, port):
+    app = Flask(__name__)
+
+    @app.route("/usage", methods=["GET"])
+    def get_usage():
+        since, until = translate_span(request.args.get("span"))
+
+        max_mem_usage = get_max_mem_usage(prometheus_url, since, until)
+        job_report, processed_apps = get_job_report(database, since, until, max_mem_usage)
+
+        keys =["user", "vc",
+            "total_count", "total_time", "total_cpu_sec", "total_mem_sec", "total_gpu_sec",
+            "succ_count", "succ_time", "succ_cpu_sec", "succ_mem_sec", "succ_gpu_sec",
+            "fail_count", "fail_time", "fail_cpu_sec", "fail_mem_sec", "fail_gpu_sec",
+            "stop_count", "stop_time", "stop_cpu_sec", "stop_mem_sec", "stop_gpu_sec",
+            "run_count", "run_time", "run_cpu_sec", "run_mem_sec", "run_gpu_sec",
+            "wait_count", "wait_time", "wait_cpu_sec", "wait_mem_sec", "wait_gpu_sec"]
+
+        return flask.jsonify(translate_to_map(keys, job_report))
+
+    @app.route("/raw_job", methods=["GET"])
+    def get_raw_job():
+        since, until = translate_span(request.args.get("span"))
+
+        max_mem_usage = get_max_mem_usage(prometheus_url, since, until)
+        job_report, processed_apps = get_job_report(database, since, until, max_mem_usage)
+
+        keys = ["user", "vc", "job",
+                "start_time", "finish_time", "waiting_time", "run_time",
+                "retries", "status", "exit_code", "cpu", "mem", "max_mem", "gpu"]
+
+        return flask.jsonify(translate_to_map(keys, gen_raw_job(processed_apps)))
+
+    @app.route("/alert", methods=["GET"])
+    def get_alert():
+        since, until = translate_span(request.args.get("span"))
+
+        alert_report = get_alerts(prometheus_url, since, until)
+
+        keys = ["alert_name", "host_ip", "source", "start", "durtion", "labels"]
+
+        return flask.jsonify(translate_to_map(keys, alert_report))
+
+    app.run(host="0.0.0.0", port=port, debug=False)
+
+
 def main(args):
     if args.action == "refresh":
         delete_old_data(args.database, args.retain)
         refresh_cache(args.database, args.yarn_url, args.launcher_url)
     elif args.action == "report":
         gen_report(args.database, args.prometheus_url, args.file, args.since, args.until)
+    elif args.action == "serve":
+        serve(args.database, args.prometheus_url, args.port)
     else:
         sys.stderr.write("unknown action %s\n" % (args.action))
         sys.exit(1)
@@ -681,7 +810,7 @@ if __name__ == "__main__":
             level=logging.INFO)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["refresh", "report"])
+    parser.add_argument("action", choices=["refresh", "report", "serve"])
     parser.add_argument("--yarn_url", "-y", required=True,
             help="Yarn rest api address, eg: http://127.0.0.1:8088")
     parser.add_argument("--prometheus_url", "-p", required=True,
@@ -707,6 +836,9 @@ if __name__ == "__main__":
             help="start time for generating report")
     parser.add_argument("--until", "-u", type=int, default=now,
             help="end time for generating report")
+
+    parser.add_argument("--port", type=int, default=10240,
+            help="port to listen when action is serve")
 
     args = parser.parse_args()
 
