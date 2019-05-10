@@ -232,5 +232,5 @@ deployments:
           # Assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
           # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>".
 
-default:
+defaults:
   deployment: prod # Use prod deployment in job submission.
