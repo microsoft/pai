@@ -153,7 +153,7 @@ class Client:
         if append_pai_info:
             job_config.setdefault('jobEnvs', {}).update(self.to_envs())
 
-        code_dir = job.get_folder_path('code')
+        code_dir = job.get_workspace_folder('code')
         files_to_upload = job.sources if job.sources else []
         for file in files_to_upload:
             self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)

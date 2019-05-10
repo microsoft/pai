@@ -307,7 +307,9 @@ class Engine:
             self.scenes[k] = Scene(k, v[0], p, v[1])
 
     def process(self, a: list):
+        pai.__logger__.debug("Received arguments %s", a)
         args = self.parser.parse_args(a)
+        pai.__logger__.debug("Parsed arguments %s", args)
         return self.scenes[args.scene].process(args)
 
 

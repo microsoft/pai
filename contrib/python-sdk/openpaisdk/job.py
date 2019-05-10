@@ -64,11 +64,11 @@ class Job(JobSpec):
             self.to_file(Job.job_cache_file(self.job_name))
 
     @staticmethod
-    def job_cache_file(job_name: str):
-        return os.path.join(__jobs_cache__, job_name, 'cache.json')
+    def job_cache_file(job_name: str, fname: str = 'cache.json'):
+        return os.path.join(__jobs_cache__, job_name, fname)
 
     def get_config_file(self):
-        return os.path.join(__jobs_cache__, self.job_name, 'job_config.json')
+        return Job.job_cache_file(self.job_name, 'job_config.json')
 
     def get_cache_file(self):
         return Job.job_cache_file(self.job_name)
@@ -100,8 +100,8 @@ class Job(JobSpec):
         dic['extras']['userCommands'] = {t.task_role_name: t.commands for t in self.taskroles}
         if self.workspace:
             dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
-            dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_folder_path('output')
-            dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_folder_path('code'))
+            dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
+            dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
         if save_to_file:
             to_file(dic, save_to_file)
         return dic
@@ -126,5 +126,5 @@ class Job(JobSpec):
             taskroles.append(dic)
         return taskroles
 
-    def get_folder_path(self, folder: str='code'):
+    def get_workspace_folder(self, folder: str= 'code'):
         return '{}/{}/{}'.format(self.workspace, self.job_name, folder)

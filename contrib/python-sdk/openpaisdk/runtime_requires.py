@@ -29,7 +29,7 @@ class WebLinkRequirement(Requirement):
     __fields__ = {}
 
     def define(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(self, parser, ['--job-name', '--task-role-name', 'weblink', 'folder'])
+        cli_add_arguments(self, parser, ['--job-name', '--task-role-name', '--rename', 'weblink', 'folder'])
 
     def process(self):
-        web_download_to_folder(self.weblink, self.folder)
+        web_download_to_folder(self.weblink, self.folder, self.rename)
