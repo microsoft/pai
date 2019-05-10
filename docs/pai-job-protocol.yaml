@@ -31,8 +31,9 @@ parameters: # Optional, can be omitted.
 
 # If sensitive information including password or API key is needed in the protocol,
 # it should be specified here in secrets section and referenced as `$secrets`.
-# A system that supports PAI protocol should not keep information marked as secretes.
-# For example, the yaml file used for job cloning, the stdout/stderr should remove all information marked as secrets.
+# A system that supports PAI protocol should keep the secret information away from
+# unauthorized users (how to define unauthorized user is out of the scope of this protocol).
+# For example, the yaml file used for job cloning, the stdout/stderr should protect all information marked as secrets.
 secrets: # Optional, can be omitted.
   <secret1>: password # Specify name and value of all secrets that will be used in the whole job template.
   <secret2>: key # Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.
