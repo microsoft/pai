@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from "react";
+import Cookies from "js-cookie";
 import MarketplaceLayout from "./MarketplaceLayout";
 
 interface IProps {
@@ -26,12 +27,16 @@ interface IProps {
 }
 
 export default function App({api, user, token, submissionId}: IProps) {
+  const marketplaceCookie = Cookies.getJSON("marketplace");
   return (
     <MarketplaceLayout
       api={api}
       user={user}
       token={token}
       submissionId={submissionId}
+      defaultURI={marketplaceCookie ? marketplaceCookie.uri : undefined}
+      defaultURIType={marketplaceCookie ? marketplaceCookie.type : undefined}
+      defaultURIToken={marketplaceCookie ? marketplaceCookie.token : undefined}
     />
   );
 }

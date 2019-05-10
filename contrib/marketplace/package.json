@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "core-js": "^3.0.1",
+    "js-cookie": "^2.2.0",
     "js-yaml": "^3.13.1",
     "monaco-editor": "^0.17.0",
     "office-ui-fabric-react": "^6.162.1",
@@ -29,6 +30,7 @@
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
+    "@types/js-cookie": "^2.2.2",
     "@types/js-yaml": "^3.12.1",
     "@types/react": "^16.8.7",
     "@types/react-dom": "^16.8.2",

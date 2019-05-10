@@ -49,7 +49,7 @@ class InspectResult(object):
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
-        "PAI_TASK_INDEX"}
+        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
 
 
 def parse_docker_inspect(inspect_output):
@@ -79,14 +79,12 @@ def parse_docker_inspect(inspect_output):
     pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
 
     return InspectResult(
-            m.get("PAI_USER_NAME"),
-            m.get("PAI_JOB_NAME"),
+            m.get("PAI_USER_NAME") or m.get("DLWS_USER_NAME"),
+            m.get("PAI_JOB_NAME") or m.get("DLWS_JOB_ID"),
             m.get("PAI_CURRENT_TASK_ROLE_NAME"),
             m.get("PAI_TASK_INDEX"),
             m.get("GPU_ID"),
             pid)
-
-    return {"env": envs, "labels": labels, "pid": pid}
 
 def inspect(container_id, histogram, timeout):
     try:
