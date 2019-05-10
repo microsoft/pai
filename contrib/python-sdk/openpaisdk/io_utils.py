@@ -88,9 +88,11 @@ def safe_chdir(pth:str):
     currdir = os.getcwd()
     try:
         os.chdir(pth)
+        __logger__.info("changing directory to %s", pth)
         yield pth
     finally:
         os.chdir(currdir)
+        __logger__.info("changing directory back to %s", currdir)
 
 
 def safe_copy(src: str, dst: str):

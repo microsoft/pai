@@ -1,5 +1,5 @@
 import openpaisdk.runtime_requires as req
-from openpaisdk.utils import find_match
+from openpaisdk.io_utils import safe_chdir
 from openpaisdk.io_utils import from_file
 from subprocess import check_call
 import os
@@ -16,7 +16,8 @@ def runtime_deployment(job_config: dict, wdir: str=''):
 
 def runtime_execute(cfg_file: str, wdir: str=''):
     job_config = from_file(os.path.join(wdir, cfg_file))
-    runtime_deployment(job_config, wdir)
+    with safe_chdir(wdir) as d:
+        runtime_deployment(job_config, d)
     t_name = os.environ.get('PAI_CURRENT_TASK_ROLE_NAME', 'main')
     commands = job_config['extras']['userCommands'][t_name]
     return check_call(commands, cwd=wdir if wdir else None)
