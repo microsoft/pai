@@ -270,8 +270,26 @@ class ActionFactoryForStorage(ActionFactory):
     def define_arguments_status(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
 
+    def do_action_status(self, args):
+        return get_storage(args).status(args.remote_path)
+
     def define_arguments_delete(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--recursive', 'remote_path'])
+
+    def do_action_delete(self, args):
+        return get_storage(args).delete(args.remote_path, recursive=args.recursive)
+
+    def define_arguments_download(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path', 'local_path'])
+
+    def do_action_download(self, args):
+        return get_storage(args).download(remote_path=args.remote_path, local_path=args.remote_path)
+
+    def define_arguments_upload(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
+
+    def do_action_upload(self, args):
+        return get_storage(args).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=args.overwrite)
 
 
 __cluster_actions__ = {
