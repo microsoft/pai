@@ -17,19 +17,31 @@
 
 // module dependencies
 const axios = require('axios');
-const {readFileSync} = require('fs');
-const {Agent} = require('https');
 
-function initConfig(apiServerUri) {
-  const config = {
+function initConfig(winbindServerUrl) {
+  return {
     'requestConfig': {
-      'baseURL': `${apiServerUri}/api/v1/namespaces/`,
+      'baseURL': `${winbindServerUrl}/`,
       'maxRedirects': 0,
     },
   };
-  return config;
+}
+
+async function getUserGroupList(username, config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(`GetUserId?userName=${username}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    return response['groups'];
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = {
   initConfig,
+  getUserGroupList,
 };

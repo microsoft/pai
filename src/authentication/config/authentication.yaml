@@ -100,13 +100,13 @@ group-manager:
 
   # Admin group name and its user list
   admin-group:
-    - groupname: admingroup
-      description: "admin's group"
-      externalName: ""
-      # In admin group, you can manually add user to it. If you don't want to add a new admin user to OpenPAI,
-      # please remove this field.
-      userlist:
-        - openpai
+    groupname: admingroup
+    description: "admin's group"
+    externalName: ""
+    # In admin group, you can manually add user to it. If you don't want to add a new admin user to OpenPAI,
+    # please remove this field.
+    userlist:
+      - openpai
 
   # If the following groups are not in the data store, it will be created by default.
   grouplist:

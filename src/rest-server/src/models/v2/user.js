@@ -73,5 +73,17 @@ const getEncryptPassword = async (userValue) => {
   }
 };
 
+const createUserIfNonExistent = async (username, userValue) => {
+  try {
+    await getUser(username);
+  } catch (error) {
+    if (error.status === 404) {
+      await createUser(username, userValue);
+    } else {
+      throw error;
+    }
+  }
+};
+
 // module exports
-module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword};
+module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword, createUserIfNonExistent};

@@ -18,6 +18,7 @@
 // module dependencies
 const crudUtil = require('../../util/manager/group/crudUtil');
 const authConfig = require('../../config/authn');
+const secretConfig = require('../../config/secret');
 const adapter =  require('../../util/manager/group/adapter/externalUtil');
 const config = require('../../config/index');
 const userModel = require('./user');
@@ -37,6 +38,19 @@ const getGroup = async (groupname) => {
 const getAllGroup = async () => {
   try {
     return await crudGroup.readAll(crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserGrouplistFromExternal = async (username) => {
+  try {
+    const adapterType = authConfig.groupConfig.groupDataSource;
+    const groupAdapter = adapter.getStorageObject(adapterType);
+    if (adapterType === 'winbind') {
+      const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
+      return await groupAdapter.getUserGroupList(username, config);
+    }
   } catch (error) {
     throw error;
   }
@@ -66,41 +80,53 @@ const updateGroup = async (groupname, groupValue) => {
   }
 };
 
-const syncUserGroupList = async (user) => {
+const createGroupIfNonExistent = async (groupname, groupValue) => {
   try {
-
+    await getGroup(groupname);
   } catch (error) {
-    throw error;
+    if (error.status === 404) {
+      await createGroup(groupname, groupValue);
+    } else {
+      throw error;
+    }
   }
 };
 
-
-(async function() {
-  if (config.env !== 'test') {
-    for (const adminGroup of authConfig.groupConfig.adminGroup) {
-      const groupname = adminGroup.groupname;
-      try {
-        await crudGroup.read(groupname, crudConfig);
-      } catch (errorRead) {
-        if (errorRead.status === 404) {
-          try {
-            const groupValue = {
-              groupname: groupname,
-              description: adminGroup.description,
-              externalName: adminGroup.externalName,
-              extension: adminGroup.extension,
-            };
-            await crudGroup.create(groupname, groupValue, crudConfig);
-          } catch (errorCreate) {
-            throw new Error('Failed to add a new group to storage.');
-          }
-        } else {
-          throw new Error('Check group info storage base path failed.');
-        }
+if (config.env !== 'test') {
+  (async function() {
+    try {
+      const adminGroup = {
+        'groupname': authConfig.groupConfig.adminGroup.groupname,
+        'description': authConfig.groupConfig.adminGroup.description,
+        'externalName': authConfig.groupConfig.adminGroup.externalName,
+        'extension': authConfig.groupConfig.adminGroup.extension,
+      };
+      await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
+      for (const groupItem of authConfig.groupConfig.grouplist) {
+        await createGroupIfNonExistent(groupItem.groupname, groupItem);
       }
+    } catch (error) {
+      throw error;
     }
+  })();
+
+  if (authConfig.authnMethod !== 'OIDC') {
+    (async function() {
+      try {
+        const userValue = {
+          username: secretConfig.adminName,
+          email: '',
+          password: secretConfig.adminPass,
+          grouplist: [authConfig.groupConfig.adminGroup.groupname],
+          extension: {},
+        };
+        await userModel.createUserIfNonExistent(userValue.username, userValue);
+      } catch (error) {
+        throw error;
+      }
+    })();
   }
-})();
+}
 
 module.exports = {
   getGroup,
@@ -108,4 +134,5 @@ module.exports = {
   deleteGroup,
   createGroup,
   updateGroup,
+  getUserGrouplistFromExternal,
 };
