@@ -749,8 +749,8 @@ def translate_to_map(keys, values):
 def serve(database, prometheus_url, port):
     app = Flask(__name__)
 
-    @app.route("/usage", methods=["GET"])
-    def get_usage():
+    @app.route("/job", methods=["GET"])
+    def get_job():
         since, until = translate_span(request.args.get("span"))
 
         max_mem_usage = get_max_mem_usage(prometheus_url, since, until)

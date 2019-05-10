@@ -71,21 +71,27 @@ After you choose a node, please make sure you have following software installed:
 
 * python3
 * requests library
+* flask library
 
 If your node is ubuntu node, you can install these software using following commands:
 
 ``` sh
 sudo apt-get install -y python3 python3-pip
-pip3 install requests
+pip3 install -r $PAI_DIR/src/tools/reports_requirements.txt
 ```
 
 ## How to Setup
 
-The [script](../../src/tools/reports.py) has two actions, `refresh` and `report`.
+The [script](../../src/tools/reports.py) has thress actions, `refresh`, `report` and `serve`.
 
 The `refresh` action will tries to collect data from hadoop-resource-manager and framework-launcher, and save the data in sqlite3 DB for future process. The script needs to save data because hadoop-resource-manager will not retain job info too long, if we do not fetch them and save somewhere, we will not be able to generate correct report. We recommend admin run this script every 10 minutes using CRON job.
 
 The `report` action will query data about vc usage and job statistic from sqlite3 DB and generate vc/job/raw_job reports, it will also get data from Prometheus to generate alert reports. You can execute this action whenever you want the reports.
+
+The `serve` action will start a http server so outside world can query report through web server instead of using files.
+
+Both `serve` and `report` will need `refresh` being called periodically to fetch data
+from underlaying source.
 
 First, log into the node you choose, put the [script](../../src/tools/reports.py) somewhere, for example, I put it in directory `/home/core/report`, edit the crontab using
 
@@ -113,6 +119,10 @@ All available arguments and meanings can be viewed by executing script with `-h`
 
 The script will automatically delete old data, by default, it will retain 6 months of data. If this is too large for you, for example, if you only want to retain 1 months of data, you can add `-r 31` to above command to tell script delete data that's older than 31 days.
 
+You have two options to get report: `report` or `serve` action.
+
+### `report`
+
 Whenever you want an report, you can log into that node again and execute following command
 
 ``` sh
@@ -124,3 +134,25 @@ By default, the script will generate a monthly report, which means it will query
 ``` sh
 --since `date --date='-1 month' +"%s"` --until `date --date='-1 week' +"%s"`
 ```
+
+### `serve`
+
+Some external tools can query http server directly, so you can start serve process and issue http request when you want a report, without having to login node and execute a command.
+
+To setup serve process, execute following command
+
+``` sh
+nohup python3 /home/core/report/reports.py serve -y $yarn_url -p $prometheus_url -l $launcher_url -d /home/core/report/cluster.sqlite > serve.log 2> serve.err.log &
+```
+
+This will start a process in background and listen to default 10240 port, you can specify `--port` argument to change default port.
+
+With http server setup, you can now get those reports with the same name of csv file like:
+
+```
+http://$IP:10240/job
+http://$IP:10240/raw_job
+http://$IP:10240/alert
+```
+
+These end point all accept `span` argument, you can provide with value: `day`, `week` or `month`, which will generate report in that time span. The default span is week.
