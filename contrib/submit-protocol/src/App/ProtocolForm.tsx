@@ -21,6 +21,7 @@ import {
   Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
   initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
+import Cookies from "js-cookie";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
 import yaml from "js-yaml";
@@ -234,11 +235,15 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         key: "marketplace",
         text: "",
         onRenderField: (props?: IChoiceGroupOption, render?: IRenderFunction<IChoiceGroupOption>) => {
+          const marketplaceCookie = Cookies.getJSON("marketplace");
           return (
             <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
               <Label>Select from marketplace</Label>
               <MarketplaceForm
+                defaultURI={marketplaceCookie ? marketplaceCookie.uri : undefined}
+                defaultURIType={marketplaceCookie ? marketplaceCookie.type : undefined}
+                defaultURIToken={marketplaceCookie ? marketplaceCookie.token : undefined}
                 onSelectProtocol={this.onSelectProtocol}
                 disabled={props ? !props.checked : false}
               />
