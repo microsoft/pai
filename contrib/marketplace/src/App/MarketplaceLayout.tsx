@@ -437,13 +437,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
   }
 
   private closeConfigCallout = () => {
-    this.getProtocols(() => {
-      Cookies.set("marketplace", {
-        uri: this.state.uri,
-        type: this.state.uriType,
-        token: this.state.uriToken,
-      });
-    });
+    this.getProtocols();
     this.setState({uriConfigCallout: false});
   }
 
@@ -518,9 +512,11 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         protocols,
         loading: false,
       });
-      if (next) {
-        next();
-      }
+      Cookies.set("marketplace", {
+        uri: this.state.uri,
+        type: this.state.uriType,
+        token: this.state.uriToken,
+      });
     }
   }
 

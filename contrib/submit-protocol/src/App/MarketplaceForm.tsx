@@ -143,13 +143,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   }
 
   private closeConfigCallout = () => {
-    this.setProtocolOptions(() => {
-      Cookies.set("marketplace", {
-        uri: this.state.uri,
-        type: this.state.uriType,
-        token: this.state.uriToken,
-      });
-    });
+    this.setProtocolOptions();
     this.setState({uriConfigCallout: false});
   }
 
@@ -173,7 +167,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     }
   }
 
-  private setProtocolOptions = async (next?: () => void) => {
+  private setProtocolOptions = async () => {
     const protocolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protocolList) {
       const protocolOptions: IDropdownOption[] = [... defaultProtocolOptions];
@@ -185,9 +179,11 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
         });
       }
       this.setState({ protocolOptions });
-      if (next) {
-        next();
-      }
+      Cookies.set("marketplace", {
+        uri: this.state.uri,
+        type: this.state.uriType,
+        token: this.state.uriToken,
+      });
     }
   }
 
