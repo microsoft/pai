@@ -118,6 +118,7 @@ export default function Table() {
     name: 'Actions',
     headerClassName: FontClassNames.medium,
     columnActionsMode: ColumnActionsMode.disabled,
+    className: c([t.pa0, t.flex]),
     onRender(user) {
       /**
        * @param {React.MouseEvent} event
@@ -127,7 +128,7 @@ export default function Table() {
         editUser(user);
       }
       return (
-        <div className={c([t.dib, t.vMid, t.w100])} style={{margin: '-11px -8px -11px -12px'}} data-selection-disabled>
+        <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
           >

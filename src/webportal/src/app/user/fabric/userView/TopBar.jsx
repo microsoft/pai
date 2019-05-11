@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo, useState} from 'react';
 
-import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType} from 'office-ui-fabric-react';
+import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames} from 'office-ui-fabric-react';
 import {PropTypes} from 'prop-types';
 import {findIndex} from 'lodash';
 
@@ -349,7 +349,7 @@ function TopBar() {
       {active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: {backgroundColor: '#ECECEC'}}}
+        styles={{root: [ColorClassNames.neutralLightBackground]}}
       /> : null}
     </React.Fragment>
   );

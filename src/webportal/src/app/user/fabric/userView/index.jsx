@@ -33,9 +33,9 @@ import Ordering from './Ordering';
 import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
+import InfoEditor from './InfoEditor';
 import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
 
-const userEditModalComponent = require('./user-edit-modal-component.ejs');
 require('./user-edit-modal-component.scss');
 
 initTheme();
@@ -71,6 +71,7 @@ export default function UserView() {
 
   const [allUsers, setAllUsers] = useState([]);
   const refreshAllUsers = () => {
+    setAllUsers([]);
     getAllUsersRequest().then((data) => {
       setAllUsers(data);
     }).catch((err) => {
@@ -149,7 +150,6 @@ export default function UserView() {
               showMessageBox({
                 text: message,
                 dismissedCallback: () => {
-                  setAllUsers([]);
                   refreshAllUsers();
                 },
               });
@@ -159,22 +159,14 @@ export default function UserView() {
     });
   };
 
-  const [showEditInfo, setShowEditInfo] = useState({isOpen: false, innerHtml: ''});
+  const [showEditInfo, setShowEditInfo] = useState({isOpen: false, user: {}});
 
   const editUser = (user) => {
-    setShowEditInfo({
-      isOpen: true,
-      innerHtml: userEditModalComponent({
-        'username': user.username,
-        'isAdmin': user.admin,
-        'vcList': user.virtualCluster,
-        'hasGithubPAT': String(user.hasGithubPAT),
-      }),
-    });
+    setShowEditInfo({isOpen: true, user});
   };
 
   const hideEditUser = () => {
-    setShowEditInfo({isOpen: false, innerHtml: ''});
+    setShowEditInfo({isOpen: false, user: {}});
   };
 
   const updateUserInfoCallback = (data) => {
@@ -184,49 +176,30 @@ export default function UserView() {
       showMessageBox({
         text: 'Update user information successfully',
         dismissedCallback: () => {
-          setShowEditInfo({isOpen: false, innerHtml: ''});
-          setAllUsers([]);
+          hideEditUser();
           refreshAllUsers();
         },
       });
     }
   };
 
-  const updateUserVc = (username) => {
-    const virtualCluster = $('#form-update-virtual-cluster :input[name=virtualCluster]').val();
+  const updateUserVC = (username, virtualCluster) => {
     updateUserVcRequest(username, virtualCluster)
       .then(updateUserInfoCallback)
-      .catch((err) => {
-        $('#form-update-virtual-cluster').trigger('reset');
-        showMessageBox(err);
-      });
+      .catch(showMessageBox);
   };
 
-  const updateUserAccount = (username) => {
-    const password = $('#form-update-account :input[name=password]').val();
-    const admin = $('#form-update-account :input[name=admin]').is(':checked') ? true : false;
+  const updateUserAccount = (username, password, admin) => {
     updateUserAccountRequest(username, password, admin)
       .then(updateUserInfoCallback)
-      .catch((err) => {
-        $('#form-update-account').trigger('reset');
-        showMessageBox(err);
-      });
+      .catch(showMessageBox);
   };
 
-  const updateUserGithubPAT = (username) => {
-    const githubPAT = $('#form-update-github-token :input[name=githubPAT]').val();
+  const updateUserGithubPAT = (username, githubPAT) => {
     updateUserGithubPATRequest(username, githubPAT)
       .then(updateUserInfoCallback)
-      .catch((err) => {
-        $('#form-update-github-token').trigger('reset');
-        showMessageBox(err);
-      });
+      .catch(showMessageBox);
   };
-
-  window.updateUserVc = updateUserVc;
-  window.updateUserAccount = updateUserAccount;
-  window.updateUserGithubPAT = updateUserGithubPAT;
-  window.hideEditUser = hideEditUser;
 
   const context = {
     allUsers,
@@ -266,8 +239,14 @@ export default function UserView() {
       </Fabric>
       <Modal
         isOpen={showEditInfo.isOpen}
-        styles={{main: [t.mw8, t.w90]}}>
-        <div dangerouslySetInnerHTML={{__html: showEditInfo.innerHtml}} />
+        styles={{main: [{maxWidth: '600px'}, t.w90]}}>
+        {showEditInfo.isOpen &&
+          <InfoEditor
+            user={showEditInfo.user}
+            updateUserAccount={updateUserAccount}
+            updateUserVC={updateUserVC}
+            updateUserGithubPAT={updateUserGithubPAT}
+            hideEditUser={hideEditUser} />}
       </Modal>
       {loading.show && <MaskSpinnerLoading label={loading.text} />}
       {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
