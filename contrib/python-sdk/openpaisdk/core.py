@@ -6,7 +6,7 @@ from openpaisdk.utils import get_response
 from openpaisdk.cli_arguments import attach_args
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
-from openpaisdk import __jobs_cache__, __logger__
+from openpaisdk import __defaults__, __logger__
 
 
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
@@ -69,33 +69,6 @@ class Client:
         except:
             __logger__.error('Cannot find cluster named %s', alias)
 
-    def to_envs(self, exclude: list=['passwd'], prefix: str='PAI_SDK_CLIENT'):
-        """to_envs to pass necessary information to job container via environmental variables
-        
-        Keyword Arguments:
-            exclude {list} -- information will not be shared (default: {['passwd']})
-            prefix {str} -- variable prefix (default: {'PAI_SDK_CLIENT'})
-        
-        Returns:
-            [dict] -- environmental variables dictionary
-        """
-
-        return {'{}_{}'.format(prefix, k.upper()) : v for k, v in self.config.items() if k not in exclude}
-
-    @staticmethod
-    def from_envs(prefix: str='PAI_SDK_CLIENT', **kwargs):
-        """from_envs create a client form environmental variables starting with prefix+'_'
-        
-        Keyword Arguments:
-            prefix {str} -- [description] (default: {'PAI_SDK_CLIENT'})
-        
-        Returns:
-            [Client] -- [description]
-        """
-        dic = {k[len(prefix)+1:].lower(): v for k,v in os.environ.items() if k.startswith(prefix+'_')}
-        dic.update(kwargs)
-        return Client(**dic)
-
     @property
     def alias(self):
         return self.config['alias']
@@ -151,8 +124,8 @@ class Client:
             job_config = job.to_job_config_v1(save_to_file=job.get_config_file())
 
         if append_pai_info:
-            job_config.setdefault('jobEnvs', {}).update(self.to_envs())
-
+            job_config['extras']['__clusters__'] = [self.config]
+            job_config['extras']['__defaults__'] = __defaults__
         code_dir = job.get_workspace_folder('code')
         files_to_upload = job.sources if job.sources else []
         for file in files_to_upload:
