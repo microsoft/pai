@@ -20,7 +20,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [3.4. Add requirements (prerequisites) to job (or task role)](#34-add-requirements-prerequisites-to-job-or-task-role)
   - [3.5. Submit one-line job in command line](#35-submit-one-line-job-in-command-line)
   - [3.6. _InProgress_ Job management and fetching outputs](#36-inprogress-job-management-and-fetching-outputs)
-  - [3.7. _InProgress_ Storage access](#37-inprogress-storage-access)
+  - [3.7. Storage access](#37-storage-access)
   - [3.8. _InProgress_ Job cloning and batch submitting](#38-inprogress-job-cloning-and-batch-submitting)
 - [4. Python binding](#4-python-binding)
   - [4.1. Dectect your execution environment](#41-dectect-your-execution-environment)
@@ -106,11 +106,29 @@ opai default list
 opai default remove [variable-name]
 ```
 
-Here are some frequently used variables, such as `cluster-alias`, `worksapce`, `image` and so on.
+Here are some frequently used variables. 
+
+| Variable | Description |
+| -- | -- |
+| `cluster-alias` | the alias to select which cluster to connect |
+| `image` | docker image name (and tag) to use |
+| `workspace` | the root path in remote storage to store job information (`<workspace>/<job-name>`) |
+
+<font color=blue>_Note: some required arguments in below examples are set in defaults (and ignored in the examples), please refer to `help` information by `-h` or `--help`_</font>
 
 # 3. CLI tools
 
-The CLI provides functions like `cluster`, `job` ... and their sub commands.
+The command line tool `opai` provides several useful subcommands. 
+
+| Command | Subcommands | Description |
+| -- | -- | -- |
+| `opai cluster` | `list` | cluster configuration management |
+| `opai default` | `add`, `delete` | add or remove default variables |
+| `opai storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
+| `opai job` | `list`, `new`, `submit` | query, create and summit a job |
+| `opai task` | `add` | add a task role to a job |
+| `opai require` | `pip`, `weblink` | add requirements (prerequisites) to a job or task role |
+| `opai runtime` | `execute` | python SDK run as the runtime |
 
 ## 3.1. Query your existing jobs
 
@@ -136,7 +154,7 @@ To submit a job from sketch, user need to `create` the job (it would be cached i
 opai job new [-a <alias>] -j <job-name> [-i <image>] [-s <source-file>]
 opai task -t <name-1> [-n <num>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
 opai task -t <name-2> [-n <num>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] python ...
-opai job submit [--preview] [--export <config-file-name>]
+opai job submit [--preview]
 ```
 
 ## 3.4. Add requirements (prerequisites) to job (or task role)
@@ -189,7 +207,7 @@ opai output download [-j <job-name>] <output-name> [<output-name-1> [...]]
 opai output peek [-j <job-name>] [--stdout] [--stdin] [--save <local-copy-name>]
 ```
 
-## 3.7. _InProgress_ Storage access
+## 3.7. Storage access
 
 ```bash
 opai storage list <remote-path>
@@ -288,7 +306,7 @@ When submitting a job through the SDK (CLI or python binding), the SDK would be 
 
 ## 5.1. Reconstruct the client in job container
 
-The SDK has passed necessary information to job container through environmental variables, so it is easy to reconstruct the client by calling `Client.from_env()`.
+The SDK has passed necessary information to job container through the `__clusters__` and `__defaults__` items of the `extras` part in job config file, and the `runtime` command will save them to `~/.openpai/clusters.json` and `.opanpai/defaults.json` respectively.
 
 ## 5.2. User can customize callbacks before or after the command executation
 

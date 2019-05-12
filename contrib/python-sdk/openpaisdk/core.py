@@ -1,6 +1,6 @@
 import json
 import os
-
+from copy import deepcopy
 from openpaisdk.storage import Storage
 from openpaisdk.utils import get_response
 from openpaisdk.cli_arguments import attach_args
@@ -121,10 +121,10 @@ class Client:
         if not allow_job_in_job:
             assert not in_job_container(), 'not allowed submiting jobs inside a job'
         if not job_config:
-            job_config = job.to_job_config_v1(save_to_file=job.get_config_file())
+            job_config = job.to_job_config_v1(save_to_file=None)
 
         if append_pai_info:
-            job_config['extras']['__clusters__'] = [self.config]
+            job_config['extras']['__clusters__'] = [Client.desensitize(self.config)]
             job_config['extras']['__defaults__'] = __defaults__
         code_dir = job.get_workspace_folder('code')
         files_to_upload = job.sources if job.sources else []
@@ -132,6 +132,7 @@ class Client:
             self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)
         c_file = job.get_config_file()
         if os.path.isfile(c_file):
+            to_file(job_config, c_file)
             self.storage.upload(local_path=c_file, remote_path='{}/{}'.format(code_dir, os.path.basename(c_file)), overwrite=True)
 
         self.get_token().rest_api_submit(job_config)
@@ -180,3 +181,9 @@ class Client:
             body = job_config, 
             allowed_status=[202, 201]
         )
+
+    @staticmethod
+    def desensitize(cluster_cfg: dict):
+        dic = deepcopy(cluster_cfg)
+        dic['passwd'] = "******"
+        return dic

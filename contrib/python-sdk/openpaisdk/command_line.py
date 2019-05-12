@@ -105,10 +105,10 @@ class ActionFactoryForDefault(ActionFactory):
     def do_action_list(self, args):
         return pai.__defaults__
 
-    def define_arguments_remove(self, parser: argparse.ArgumentParser):
+    def define_arguments_delete(self, parser: argparse.ArgumentParser):
         parser.add_argument('variables', nargs='+', help='(variable=value) pair to be set as default')
 
-    def do_action_remove(self, args):
+    def do_action_delete(self, args):
         result = []
         for key in args.variables:
             value = pai.__defaults__.pop(key, None)
@@ -123,9 +123,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = {cluster['alias']: cluster for cluster in from_file(pai.__cluster_config_file__, default=[])}
-        for v in cfgs.values():
-            v['passwd'] = "******"
+        cfgs = {cluster['alias']: Client.desensitize(cluster) for cluster in from_file(pai.__cluster_config_file__, default=[])}
         return cfgs[args.cluster_alias] if args.cluster_alias else list(cfgs.keys()) if args.name else cfgs
 
 
@@ -299,13 +297,12 @@ __cluster_actions__ = {
 __default_actions__ = {
     "list": ["list existing default variables"],
     "add": ["add new variable-value pair"],
-    "remove": ["remove existing default variables"],
+    "delete": ["delete existing default variables"],
 }
 
 __job_actions__ = {
     "list": ["list existing jobs"],
     "new": ["create a job config cache for submitting"],
-    "require": ["add requirements (prerequisites) for job (or task)"],
     "submit": ["submit the job"],
     "abort": ["remove local cache of the job"],
     "fast": ["shortcut of submitting a job in one line"],
