@@ -5,9 +5,9 @@ winbindServerUrl: xxx.xxx.xxx.xxx:yyyy
 {%- endif %}
 
 adminGroup:
-  groupname: {{ group_item["groupname"] }}
-  description: {{ group_item["description"] }}
-  externalName: {{ group_item["externalName"] }}
+  groupname: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["groupname"] }}
+  description: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["description"] }}
+  externalName: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}
   extension: {}
 {%- if 'userlist' not in group_item %}
   userlist: []
