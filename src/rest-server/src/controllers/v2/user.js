@@ -94,7 +94,9 @@ const createUser = async (req, res, next) => {
       extension: userData.extension,
     };
     await userModel.createUser(username, userValue);
-    next();
+    return res.status(201).json({
+      message: 'group is created successfully',
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -150,6 +152,9 @@ const updateUserPassword = async (req, res, next) => {
       newUserValue['password'] = newPassword;
       newUserValue = await userModel.getEncryptPassword(newUserValue);
       await userModel.updateUser(username, newUserValue);
+      return res.status(201).json({
+        message: 'update user password successfully.',
+      });
     }
   } catch (error) {
     return next(createError.unknown((error)));
@@ -161,6 +166,9 @@ const deleteUser = async (req, res, next) => {
     const username = req.params.username;
     if (req.user.admin) {
       await userModel.deleteUser(username);
+      return res.status(200).json({
+        message: 'user is removed successfully',
+      });
     } else {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
