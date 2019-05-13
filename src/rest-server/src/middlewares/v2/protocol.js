@@ -129,9 +129,9 @@ const protocolValidate = (protocolYAML) => {
 
 const protocolRender = (protocolObj) => {
   // render auth for Docker image
-  for (let name of protocolObj.prerequisites.dockerimage) {
+  for (let name of Object.keys(protocolObj.prerequisites.dockerimage)) {
     if ('auth' in protocolObj.prerequisites.dockerimage[name]) {
-      for (let prop of protocolObj.prerequisites.dockerimage[name].auth) {
+      for (let prop of Object.keys(protocolObj.prerequisites.dockerimage[name].auth)) {
         protocolObj.prerequisites.dockerimage[name].auth[prop] = render(
           protocolObj.prerequisites.dockerimage[name].auth[prop],
           {'$secrets': protocolObj.secrets},
