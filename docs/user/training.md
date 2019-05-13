@@ -37,7 +37,7 @@ The **job** of OpenPAI defines how to execute command(s) in specified environmen
 
 Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
 
-1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input user name, password, once login page shows.
+1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input username, password, once login page shows.
 
    After that, OpenPAI will show job list as below.
 
@@ -80,7 +80,7 @@ Following this section to submit a very simple job like hello-world during learn
 
    ![job list](imgs/web_job_list.png)
 
-6. Click job name to view details. Job status will be changed to *Running*, and IP address is assigned in below pane of task role, once it starts to run. There are more details and actions, like status, tracking log and so on.
+6. Click job name to view details. Job status will be changed to *Running*, and IP address is assigned in below pane of task role once it starts to run. There are more details and actions, like status, tracking log and so on.
 
    ![job list](imgs/web_job_details.png)
 
@@ -92,7 +92,7 @@ With submitting a hello-world job, this section introduces more knowledge about 
 
 The **job configuration** is a JSON file, which is posted to OpenPAI. The hello-world job configuration uses below required key fields.
 
-There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specifies a command and its environment.
+There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specify a command and its environment.
 
 Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
 
@@ -144,7 +144,7 @@ After received job configuration, OpenPAI processes it as below steps.
 
 1. Wait for resource allocated. OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts very soon. If there is not enough resource, job is queued and wait on previous jobs.
 
-   Note, distributed jobs are marked as running in OpenPAI, once they start to wait resource. The job status is set to *Running* on OpenPAI as well.
+   Note, distributed jobs are marked as running in OpenPAI once they start to wait resource. The job status is set to *Running* on OpenPAI as well.
 
 2. Initialize docker container. OpenPAI pulls the docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the docker container.
 
