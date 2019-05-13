@@ -239,6 +239,20 @@ class Alert(object):
         return ",".join(map(str, self.values()))
 
 
+class GPUEntry(object):
+    def __init__(self, node_ip, gpu_id, avg_util):
+        self.node_ip = node_ip
+        self.gpu_id = gpu_id
+        self.avg_util = avg_util
+
+    def values(self):
+        return [self.node_ip, self.gpu_id, self.avg_util]
+
+    def __repr__(self):
+        # NOTE this is used to generate final report
+        return ",".join(map(str, self.values()))
+
+
 class DB(object):
     # If app is running, the finished_time is 0, should not delete it in delete_old_data
     CREATE_APPS_TABLE = """CREATE TABLE IF NOT EXISTS apps (
@@ -579,6 +593,51 @@ def get_alerts(prometheus_url, since, until):
     return result
 
 
+def get_gpu_util(prometheus_url, since, until):
+    args = urllib.parse.urlencode({
+        "query": "nvidiasmi_utilization_gpu",
+        "start": str(since),
+        "end": str(until),
+        "step": "10m",
+        })
+
+    url = urllib.parse.urljoin(prometheus_url,
+            "/prometheus/api/v1/query_range") + "?" + args
+
+    logger.debug("requesting %s", url)
+    result = []
+
+    obj = request_with_error_handling(url)
+
+    if walk_json_field_safe(obj, "status") != "success":
+        logger.warning("requesting %s failed, body is %s", url, obj)
+        return result
+
+    metrics = walk_json_field_safe(obj, "data", "result")
+
+    for metric in metrics:
+        node_ip = get_ip(walk_json_field_safe(metric, "metric", "instance"))
+        gpu_id = walk_json_field_safe(metric, "metric", "minor_number")
+
+        values = walk_json_field_safe(metric, "values")
+        sum_ = count = avg = 0
+        if values is not None and len(values) > 0:
+            for val in values:
+                sum_ += float(val[1])
+                count += 1
+            avg = sum_ / count
+        else:
+            logger.warning("unexpected no values in gpu utils %s, %s, default avg to 0",
+                    node_ip,
+                    gpu_id)
+
+        result.append(GPUEntry(node_ip, gpu_id, avg))
+
+    logger.info("get %d gpu entries", len(result))
+
+    return result
+
+
 def delete_old_data(database, days):
     db = DB(database)
     now = datetime.datetime.now()
@@ -711,8 +770,15 @@ def gen_report(database, prometheus_url, path, since, until):
         for r in alert_report:
             f.write("%s\n" % r)
 
-    logger.info("write csv file into %s, %s and %s",
-            job_file, job_raw_file, alert_file)
+    gpu_report = get_gpu_util(prometheus_url, since, until)
+    gpu_file = "%s_gpu.csv" % path
+    with open(gpu_file, "w") as f:
+        f.write("host_ip,gpu_id,avg\n")
+        for r in gpu_report:
+            f.write("%s\n" % r)
+
+    logger.info("write csv file into %s, %s, %s and %s",
+            job_file, job_raw_file, alert_file, gpu_file)
 
 
 def translate_span(span):
@@ -788,6 +854,16 @@ def serve(database, prometheus_url, port):
         keys = ["alert_name", "host_ip", "source", "start", "durtion", "labels"]
 
         return flask.jsonify(translate_to_map(keys, alert_report))
+
+    @app.route("/gpu", methods=["GET"])
+    def get_gpu():
+        since, until = translate_span(request.args.get("span"))
+
+        gpu_report = get_gpu_util(prometheus_url, since, until)
+
+        keys = ["host_ip", "gpu_id", "avg"]
+
+        return flask.jsonify(translate_to_map(keys, gpu_report))
 
     app.run(host="0.0.0.0", port=port, debug=False)
 

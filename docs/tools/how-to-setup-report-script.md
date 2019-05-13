@@ -6,7 +6,7 @@ But since not everyone is interested in this report, we do not maintain such a s
 
 ## What the script will report
 
-The reports will be 3 csv files `job.csv`, `alert.csv` and `raw_job.csv`.
+The reports will be 4 csv files `job.csv`, `alert.csv`, `raw_job.csv` and `gpu.csv`.
 
 ### job.csv
 
@@ -62,6 +62,16 @@ The file have following columns:
 * memory allocated: how much memory(GB) allocated to the job, this include the memory allocated to app master
 * max memory usage: maximum memory(GB) usage of this job
 * gpu allocated: how many gpu card allocated to the job
+
+### gpu.csv
+
+This file is about all gpu util info in cluster.
+
+The file have following columns:
+
+* host_ip: where this gpu installed
+* gpu_id: gpu minor number in the node
+* avg: avg utils during the time frame
 
 ## Prerequisite
 
@@ -153,6 +163,7 @@ With http server setup, you can now get those reports with the same name of csv 
 http://$IP:10240/job
 http://$IP:10240/raw_job
 http://$IP:10240/alert
+http://$IP:10240/gpu
 ```
 
 These end point all accept `span` argument, you can provide with value: `day`, `week` or `month`, which will generate report in that time span. The default span is week.
