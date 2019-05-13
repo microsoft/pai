@@ -119,6 +119,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
       jobName: frameworkName,
       userName: userName,
       image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
+      auth: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth,
       authFile: null,
       virtualCluster: frameworkDescription.platformSpecificParameters.queue,
     },
@@ -232,9 +233,11 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
     JSON.stringify(frameworkDescription, null, 2), userName, '644')
   );
   // upload original config file to hdfs
+  // mask password in config
+  const maskRawConfig = rawConfig.replace(/(\s+password: ).*?(\n)/, '$1******$2');
   hdfsPromises.push(
     upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
-    rawConfig, userName, '644')
+    maskRawConfig, userName, '644')
   );
 
   // generate ssh key
