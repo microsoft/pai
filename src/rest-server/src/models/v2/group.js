@@ -27,6 +27,8 @@ const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
 const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI);
 
+let externalName2Groupname = {};
+
 const getGroup = async (groupname) => {
   try {
     return await crudGroup.read(groupname, crudConfig);
@@ -47,10 +49,17 @@ const getUserGrouplistFromExternal = async (username) => {
   try {
     const adapterType = authConfig.groupConfig.groupDataSource;
     const groupAdapter = adapter.getStorageObject(adapterType);
+    let response = [];
     if (adapterType === 'winbind') {
       const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
-      return await groupAdapter.getUserGroupList(username, config);
+      const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
+      for (const externalGroupname of externalGrouplist) {
+        if (externalName2Groupname.has(externalGroupname)) {
+          response.push(externalName2Groupname[externalGroupname]);
+        }
+      }
     }
+    return response;
   } catch (error) {
     throw error;
   }
@@ -92,6 +101,18 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
   }
 };
 
+const updateExternalName2Groupname = async () => {
+  try {
+    const groupList = await getAllGroup();
+    externalName2Groupname.clear();
+    for (const groupItem of groupList) {
+      externalName2Groupname.set(groupItem.externalName, groupItem.groupname);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 if (config.env !== 'test') {
   (async function() {
     try {
@@ -125,6 +146,18 @@ if (config.env !== 'test') {
         throw error;
       }
     })();
+  } else {
+    setInterval( async function() {
+      try {
+        const groupList = await getAllGroup();
+        externalName2Groupname.clear();
+        for (const groupItem of groupList) {
+          externalName2Groupname.set(groupItem.externalName, groupItem.groupname);
+        }
+      } catch (error) {
+        throw error;
+      }
+    }, 600);
   }
 }
 
@@ -135,4 +168,5 @@ module.exports = {
   createGroup,
   updateGroup,
   getUserGrouplistFromExternal,
+  updateExternalName2Groupname,
 };

@@ -18,6 +18,8 @@
 // module dependencies
 const userModel = require('../../models/v2/user');
 const createError = require('../../util/error');
+const authConfig = require('../../config/authn');
+const groupModel = require('../../models/v2/group');
 
 const getUser = async (req, res, next) => {
   try {
@@ -42,19 +44,22 @@ const createUserIfUserNotExist = async (req, res, next) => {
   try {
     const userData = req.userData;
     const username = userData.username;
+    let grouplist = [];
+    if (authConfig.groupConfig.groupDataSource !== 'basic') {
+      grouplist = await groupModel.updateGroup(username);
+      req.grouplist = grouplist;
+      if (grouplist && grouplist.length === 0) {
+        return next(createError('Forbidden', 'NoUserError', 'No Permission.'));
+      }
+    }
     const userValue = {
       username: userData.username,
       email: userData.email,
-      // only used for token generate.
       password: userData.oid,
-      grouplist: [],
+      grouplist: grouplist,
       extension: {},
     };
     await userModel.createUser(username, userValue);
-    // const res = await userModel.createUserIfNotExists(username, userValue);
-    // TODO: sync group data from group manager.
-    // if (res.status === 200) {
-    // }
     next();
   } catch (error) {
     if (error.status === 409) {
@@ -62,6 +67,18 @@ const createUserIfUserNotExist = async (req, res, next) => {
     } else {
       return next(createError.unknown(error));
     }
+  }
+};
+
+const updateUserGroupListFromExternal = async (req, res, next) => {
+  try {
+    const username = req.userData.username;
+    let userInfo = await userModel.getUser(username);
+    userInfo['grouplist'] = req.grouplist;
+    await userModel.updateUser(username, userInfo);
+    next();
+  } catch (error) {
+    return next(createError.unknown((error)));
   }
 };
 
@@ -157,6 +174,7 @@ module.exports = {
   getUser,
   getAllUser,
   createUserIfUserNotExist,
+  updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserGroupList,
   deleteUser,
