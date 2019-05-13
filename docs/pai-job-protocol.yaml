@@ -24,14 +24,14 @@ prerequisites: # Optional
     uri: String or list, required # Only when the type is data can the uri be a list.
 
 # If specified, the whole parameters object can be referenced as `$parameters`.
-# Scope of reference `$parameters`: the reference is global and shared among all task roles.
+# Scope of reference `$parameters`: the reference is shared among all task roles.
 parameters: # Optional, can be omitted.
   <param1>: value1 # Specify name and value of all the referencable parameters that will be used in the whole job template.
   <param2>: value2 # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`.
 
 # If sensitive information including password or API key is needed in the protocol,
 # it should be specified here in secrets section and referenced as `$secrets`.
-# Scope of reference `$secrets`: the reference is global, shared among all task roles and docker image's `auth` field.
+# Scope of reference `$secrets`: the reference is shared among all task roles and docker image's `auth` field.
 # A system that supports PAI protocol should keep the secret information away from
 # unauthorized users (how to define unauthorized user is out of the scope of this protocol).
 # For example, the yaml file used for job cloning, the stdout/stderr should protect all information marked as secrets.
