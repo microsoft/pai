@@ -39,6 +39,27 @@ const prerequisiteFields = [
   'dockerImage',
 ];
 
+
+const render = (template, dict, tags=['<%', '%>']) => {
+  const tokens = mustacheWriter.parse(template, tags);
+  const context = new mustache.Context(dict);
+  let result = '';
+  for (let token of tokens) {
+    const symbol = token[0];
+    let tokenStr = token[1];
+    if (symbol === 'text') {
+      result += tokenStr;
+    } else if (symbol === 'name') {
+      tokenStr = tokenStr.replace(/\[(\d+)\]/g, '.$1');
+      const value = context.lookup(tokenStr);
+      if (value != null) {
+        result += value;
+      }
+    }
+  }
+  return result.trim();
+};
+
 const protocolValidate = (protocolYAML) => {
   const protocolObj = yaml.safeLoad(protocolYAML);
   if (!protocolSchema.validate(protocolObj)) {
@@ -107,6 +128,18 @@ const protocolValidate = (protocolYAML) => {
 };
 
 const protocolRender = (protocolObj) => {
+  // render auth for Docker image
+  for (let name of protocolObj.prerequisites.dockerimage) {
+    if ('auth' in protocolObj.prerequisites.dockerimage[name]) {
+      for (let prop of protocolObj.prerequisites.dockerimage[name].auth) {
+        protocolObj.prerequisites.dockerimage[name].auth[prop] = render(
+          protocolObj.prerequisites.dockerimage[name].auth[prop],
+          {'$secrets': protocolObj.secrets},
+        );
+      }
+    }
+  }
+  // render commands
   let deployment = null;
   if ('defaults' in protocolObj && 'deployment' in protocolObj.defaults) {
     deployment = protocolObj.deployments[protocolObj.defaults.deployment];
@@ -121,29 +154,15 @@ const protocolRender = (protocolObj) => {
         commands = commands.concat(deployment.taskRoles[taskRole].postCommands);
       }
     }
-    let entrypoint = '';
     commands = commands.map((command) => command.trim()).join(' && ');
-    const tokens = mustacheWriter.parse(commands, ['<%', '%>']);
-    const context = new mustache.Context({
+    const entrypoint = render(commands, {
       '$parameters': protocolObj.parameters,
+      '$secrets': protocolObj.secrets,
       '$script': protocolObj.prerequisites['script'][protocolObj.taskRoles[taskRole].script],
       '$output': protocolObj.prerequisites['output'][protocolObj.taskRoles[taskRole].output],
       '$data': protocolObj.prerequisites['data'][protocolObj.taskRoles[taskRole].data],
     });
-    for (let token of tokens) {
-      const symbol = token[0];
-      let tokenStr = token[1];
-      if (symbol === 'text') {
-        entrypoint += tokenStr;
-      } else if (symbol === 'name') {
-        tokenStr = tokenStr.replace(/\[(\d+)\]/g, '.$1');
-        const value = context.lookup(tokenStr);
-        if (value != null) {
-          entrypoint += value;
-        }
-      }
-    }
-    protocolObj.taskRoles[taskRole].entrypoint = entrypoint.trim();
+    protocolObj.taskRoles[taskRole].entrypoint = entrypoint;
   }
   return protocolObj;
 };
