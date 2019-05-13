@@ -9,11 +9,11 @@ adminGroup:
   description: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["description"] }}
   externalName: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}
   extension: {}
-{%- if 'userlist' not in group_item %}
+{%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
   userlist: []
 {%- else %}
   userlist:
-{%- for usernameValue in group_item["userlist"] %}
+{%- for usernameValue in cluster_cfg["authentication"]["group-manager"]["admin-group"]["userlist"] %}
     - {{ usernameValue }}
 {%- endfor %}
 {%- endif %}
