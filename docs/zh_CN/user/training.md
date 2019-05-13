@@ -39,17 +39,17 @@
 
 1. 浏览至 OpenPAI 的 Web 界面。 可从 OpenPAI 管理员那里获取 IP 地址或域名。 如果需要登录，点击 *login* 按钮，并输入用户名、密码。
   
-  After that, OpenPAI will show dashboard as below.
+  之后，OpenPAI 会显示如下的 Job 列表。
   
-  ![dashboard](imgs/web_dashboard.png)
+  ![仪表板](imgs/web_dashboard.png)
 
-2. Click **Submit Job** on the left pane and reach this page.
+2. 单击左边的的 **Submit Job** 并转到此页面。
   
-  ![submit job](imgs/web_submit_job.png)
+  ![提交作业](imgs/web_submit_job.png)
 
-3. Click **JSON** button. Clear existing content and paste below content in the popped text box, then click save.
+3. 点击 **JSON** 按钮。 在弹出的文本框中，清除现有内容并粘贴下面的内容，然后单击“保存”。
   
-  The content is introduced in next sections.
+  内容将在下一节中介绍。
   
       json
        {
@@ -67,19 +67,19 @@
        ]
        }
   
-  ![paste job](imgs/web_paste_json.png)
+  ![粘贴 Job](imgs/web_paste_json.png)
 
-4. It will show as below. Click **Submit** button to submit the job to OpenPAI platform.
+4. 将显示如下。 点击 **Submit** 按钮将作业提交到 OpenPAI 平台。
   
   ![click submit job](imgs/web_click_submit_job.png)
   
-  Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended to work with OpenPAI.
+  注意，Web 门户是提交 Job 的方法之一。 这不是最有效的方式，但是是开始学习 OpenPAI 最简单的方法。 建议使用 [OpenPAI VS Code 客户端](../../contrib/pai_vscode/VSCodeExt.md)。
 
-5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
+5. 提交后，页面重定向到作业列表，提交的作业在列表中为 **Waiting** 状态。 单击左边的 **Jobs** 也可以到达此页面。
   
   ![job list](imgs/web_job_list.png)
 
-6. Click job name to view job details. Keep refreshing the details page, until job status is changed to *Running*, and IP address is assigned in below pane of task role. There are more details and actions, like status, tracking log and so on.
+6. 单击 Job 名称以查看详细信息。 Keep refreshing the details page, until job status is changed to *Running*, and IP address is assigned in below pane of task role. There are more details and actions, like status, tracking log and so on.
   
   ![job list](imgs/web_job_details.png)
 
