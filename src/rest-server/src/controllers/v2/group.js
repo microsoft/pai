@@ -116,6 +116,25 @@ const updateGroupDescription = async (req, res, next) => {
   }
 };
 
+const updateGroupExternalName = async (req, res, next) => {
+  try {
+    const groupname = req.params.groupname;
+    const externalNameData = req.body.externalName;
+    if (req.user.admin) {
+      let groupInfo = await groupModel.getGroup(groupname);
+      groupInfo['externalName'] = externalNameData;
+      await groupModel.updateGroup(groupname, groupInfo);
+      return res.status(201).json({
+        message: 'update group externalNameData data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
 const deleteGroup = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -140,5 +159,6 @@ module.exports = {
   createGroup,
   updateGroupExtension,
   updateGroupDescription,
+  updateGroupExternalName,
   deleteGroup,
 };

@@ -18,36 +18,30 @@
 // module dependencies
 const Joi = require('joi');
 
-// define the input schema for the 'update user extension' api
-const userExtensionUpdateInputSchema = Joi.object().keys({
-  extension: Joi.object().pattern(/\w+/, Joi.required()),
+// define the input schema for the 'update group extension' api
+const groupExtensionUpdateInputSchema = Joi.object().keys({
+  extensionData: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
-// define the input schema for the 'update user grouplist' api
-const userGrouplistUpdateInputSchema = Joi.object().keys({
-  grouplist: Joi.array().items(Joi.string()).required(),
+// define the input schema for the 'update group description' api
+const groupDescriptionUpdateInputSchema = Joi.object().keys({
+  description: Joi.string().empty(''),
 });
 
-// define the input schema for the 'update user password' api
-const userPasswordUpdateInputSchema = Joi.Object().keys({
-  oldPassword: Joi.string().min(6).required(),
-  newPassword: Joi.string().min(6).required(),
+// define the input schema for the 'update group external name' api
+const groupExternalNameUpdateInputSchema = Joi.object().keys({
+  externalName: Joi.string().empty(''),
 });
 
-// define the input schema for the 'create user' api
-const userCreateInputSchema = Joi.Object().keys({
-  username: Joi.string()
+// define the input schema for the 'create group' api
+const groupCreateInputSchema = Joi.Object().keys({
+  groupname: Joi.string()
     .token()
     .required(),
-  email: Joi.string()
-    .email()
+  description: Joi.string()
     .empty(''),
-  grouplist: Joi.array()
-    .items(Joi.string())
-    .required(),
-  password: Joi.string()
-    .min(6)
-    .required(),
+  externalName: Joi.string()
+    .empty(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .required(),
@@ -55,8 +49,8 @@ const userCreateInputSchema = Joi.Object().keys({
 
 // module exports
 module.exports = {
-  userExtensionUpdateInputSchema,
-  userGrouplistUpdateInputSchema,
-  userPasswordUpdateInputSchema,
-  userCreateInputSchema,
+  groupExtensionUpdateInputSchema,
+  groupDescriptionUpdateInputSchema,
+  groupExternalNameUpdateInputSchema,
+  groupCreateInputSchema,
 };

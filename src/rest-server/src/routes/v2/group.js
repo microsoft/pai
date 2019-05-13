@@ -19,6 +19,8 @@
 const express = require('express');
 const groupController = require('../../controllers/v2/group');
 const token = require('../../middlewares/token');
+const param = require('../../middlewares/parameter');
+const groupInputSchema = require('../../config/v2/group');
 
 const router = new express.Router();
 
@@ -32,11 +34,11 @@ router.route('/get/')
 
 router.route('/update/:groupname/extension')
 /** Put /api/v2/group/update/:groupname/extension */
-  .put(token.check, groupController.updateGroupExtension);
+  .put(token.check, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
 
 router.route('/update/:groupname/description')
 /** Put /api/v2/group/update/:groupname/description */
-  .put(token.check, groupController.updateGroupDescription);
+  .put(token.check, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
 
 router.route('/delete/:groupname')
 /** Post /api/v2/group/delete/:groupname */
@@ -44,7 +46,11 @@ router.route('/delete/:groupname')
 
 router.route('/create')
 /** Create /api/v2/user/create */
-  .post(token.check, groupController.createGroup);
+  .post(token.check, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
+
+router.route('/update/:groupname/externalname')
+/** put /api/v2/group/update/:groupname/external' */
+  .put(token.check, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
 
 module.exports = router;
 
