@@ -16,35 +16,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Joi = require('joi');
-const yaml = require('js-yaml');
-const fs = require('fs');
+const express = require('express');
+const groupController = require('../../controllers/v2/group');
+const token = require('../../middlewares/token');
 
-let authnConfig = {
-  authnMethod: process.env.AUTHN_METHOD,
-  OIDCConfig: undefined,
-  groupConfig: undefined,
-};
+const router = new express.Router();
 
-if (authnConfig.authnMethod === 'OIDC') {
-  authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
-}
+router.route('/get/:groupname/')
+/** Get /api/v2/group/get/:groupname */
+  .get(groupController.getGroup);
 
-authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/grouplist.yaml', 'utf8'));
+router.route('/get/')
+/** Get /api/v2/group/get */
+  .get(groupController.getAllGroup);
 
-// define the schema for authn
-const authnSchema = Joi.object().keys({
-  authnMethod: Joi.string().empty('')
-    .valid('OIDC', 'basic'),
-  OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
-  groupConfig: Joi.object().pattern(/\w+/, Joi.required()),
-}).required();
+router.route('/update/:groupname/extension')
+/** Put /api/v2/group/update/:groupname/extension */
+  .put(token.check, groupController.updateGroupExtension);
+
+router.route('/update/:groupname/description')
+/** Put /api/v2/group/update/:groupname/description */
+  .put(token.check, groupController.updateGroupDescription);
+
+router.route('/delete/:groupname')
+/** Post /api/v2/group/delete/:groupname */
+  .delete(token.check, groupController.deleteGroup);
+
+router.route('/create')
+/** Create /api/v2/user/create */
+  .post(token.check, groupController.createGroup);
+
+module.exports = router;
 
 
-const {error, value} = Joi.validate(authnConfig, authnSchema);
-if (error) {
-  throw new Error(`config error\n${error}`);
-}
-authnConfig = value;
-
-module.exports = authnConfig;

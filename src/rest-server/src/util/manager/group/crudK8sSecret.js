@@ -33,7 +33,7 @@ const {Agent} = require('https');
 /**
  * @typedef Group
  * @property {string} username - username
- * @property {String} GID - GID
+ * @property {String} externalName - externalName
  * @property {string} description - description
  * @property {Object} extension - extension field
  */
@@ -87,7 +87,7 @@ async function read(key, config) {
     let groupInstance = Group.createGroup({
       'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
       'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
-      'GID': Buffer.from(groupData['data']['GID'], 'base64').toString(),
+      'externalName': Buffer.from(groupData['data']['externalName'], 'base64').toString(),
       'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
     });
     return groupInstance;
@@ -116,7 +116,7 @@ async function readAll(config) {
       let groupInstance = Group.createGroup({
         'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
         'description': Buffer.from(item['data']['description'], 'base64').toString(),
-        'GID': Buffer.from(item['data']['GID'], 'base64').toString(),
+        'externalName': Buffer.from(item['data']['externalName'], 'base64').toString(),
         'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
       });
       allGroupInstance.push(groupInstance);
@@ -142,7 +142,7 @@ async function create(key, value, config) {
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
-      'GID': value['GID'],
+      'externalName': value['externalName'],
       'extension': value['extension'],
     });
     let groupData = {
@@ -150,7 +150,7 @@ async function create(key, value, config) {
       'data': {
         'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
         'description': Buffer.from(groupInstance['description']).toString('base64'),
-        'GID': Buffer.from(groupInstance['GID']).toString('base64'),
+        'externalName': Buffer.from(groupInstance['externalName']).toString('base64'),
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
@@ -175,7 +175,7 @@ async function update(key, value, config) {
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
-      'GID': value['GID'],
+      'externalName': value['externalName'],
       'extension': value['extension'],
     });
     let groupData = {
@@ -183,7 +183,7 @@ async function update(key, value, config) {
       'data': {
         'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
         'description': Buffer.from(groupInstance['description']).toString('base64'),
-        'GID': Buffer.from(groupInstance['GID']).toString('base64'),
+        'externalName': Buffer.from(groupInstance['externalName']).toString('base64'),
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };

@@ -107,6 +107,7 @@ if (authnConfig.authnMethod === 'OIDC') {
         next();
       },
       userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
       tokenV2Controller.get
     );
 } else {

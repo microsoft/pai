@@ -16,35 +16,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Joi = require('joi');
-const yaml = require('js-yaml');
-const fs = require('fs');
+const axios = require('axios');
 
-let authnConfig = {
-  authnMethod: process.env.AUTHN_METHOD,
-  OIDCConfig: undefined,
-  groupConfig: undefined,
+function initConfig(winbindServerUrl) {
+  return {
+    'requestConfig': {
+      'baseURL': `${winbindServerUrl}/`,
+      'maxRedirects': 0,
+    },
+  };
+}
+
+async function getUserGroupList(username, config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(`GetUserId?userName=${username}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    return response['groups'];
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = {
+  initConfig,
+  getUserGroupList,
 };
-
-if (authnConfig.authnMethod === 'OIDC') {
-  authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
-}
-
-authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/grouplist.yaml', 'utf8'));
-
-// define the schema for authn
-const authnSchema = Joi.object().keys({
-  authnMethod: Joi.string().empty('')
-    .valid('OIDC', 'basic'),
-  OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
-  groupConfig: Joi.object().pattern(/\w+/, Joi.required()),
-}).required();
-
-
-const {error, value} = Joi.validate(authnConfig, authnSchema);
-if (error) {
-  throw new Error(`config error\n${error}`);
-}
-authnConfig = value;
-
-module.exports = authnConfig;

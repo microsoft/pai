@@ -1,6 +1,10 @@
 # If you set OIDC as the value false, the basic authentication will be applied to your cluster.
 OIDC: false
 
+#######################################################################################################################
+##########################################     OIDC Configuration    ##################################################
+#######################################################################################################################
+
 # If OIDC is set as the value true, you will have to configure the following properties.
 #OIDC-type: AAD
 #
@@ -80,3 +84,36 @@ OIDC: false
 #  # set the value to null.
 #  # Note that in order to get access_token, the responseType must be 'code', 'code id_token' or 'id_token code'.
 #  resourceURL: 'https://graph.windows.net'
+
+
+#######################################################################################################################
+####################################   Group ManagerConfiguration    ##################################################
+#######################################################################################################################
+
+group-manager:
+  # basic: If you set group-data-source as the value basic, admin should manually modify user's grouplist.
+  # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
+  group-data-source: basic
+
+  # If you set winbind as your data source, you should configure this configuraiton.
+  # winbind-server-address: xxxxxxx
+
+  # Admin group name and its user list
+  admin-group:
+    groupname: admingroup
+    description: "admin's group"
+    externalName: ""
+    # In admin group, you can manually add user to it. If you don't want to add a new admin user to OpenPAI,
+    # please remove this field.
+    userlist:
+      - openpai
+
+  # If the following groups are not in the data store, it will be created by default.
+  grouplist:
+    - groupname: for-example
+      # internal name
+      description: for-example
+      # description of the group
+      externalName: ""
+      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
+      # the result of winbind. If the group-data-source is basic, this field is useless.

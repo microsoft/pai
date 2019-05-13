@@ -21,6 +21,7 @@ const express = require('express');
 const controller = require('../../controllers/v2/index');
 const jobRouter = require('./job');
 const userRouter = require('./user');
+const groupRouter = require('./group');
 
 
 const router = new express.Router();
@@ -31,6 +32,8 @@ router.route('/')
 router.use('/jobs', jobRouter);
 
 router.use('/user', userRouter);
+
+router.use('/group', groupRouter);
 
 // module exports
 module.exports = router;
