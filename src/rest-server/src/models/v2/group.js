@@ -19,7 +19,7 @@
 const crudUtil = require('../../util/manager/group/crudUtil');
 const authConfig = require('../../config/authn');
 const secretConfig = require('../../config/secret');
-const adapter =  require('../../util/manager/group/adapter/externalUtil');
+const adapter = require('../../util/manager/group/adapter/externalUtil');
 const config = require('../../config/index');
 const userModel = require('./user');
 

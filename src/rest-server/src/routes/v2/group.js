@@ -17,7 +17,7 @@
 
 // module dependencies
 const express = require('express');
-const groupController = require('../../controllers/v2/group')
+const groupController = require('../../controllers/v2/group');
 const token = require('../../middlewares/token');
 
 const router = new express.Router();
