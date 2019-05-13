@@ -17,17 +17,34 @@
 
 // module dependencies
 const express = require('express');
-const groupController = require('../../controllers/v2/g')
+const groupController = require('../../controllers/v2/group')
 const token = require('../../middlewares/token');
-const authnConfig = require('../../config/authn');
 
 const router = new express.Router();
 
-router.route('/get/:username/')
-/** Get /api/v2/user/get/:username */
-  .get(userController.getUser);
+router.route('/get/:groupname/')
+/** Get /api/v2/group/get/:groupname */
+  .get(groupController.getGroup);
 
+router.route('/get/')
+/** Get /api/v2/group/get */
+  .get(groupController.getAllGroup);
 
+router.route('/update/:groupname/extension')
+/** Put /api/v2/group/update/:groupname/extension */
+  .put(token.check, groupController.updateGroupExtension);
+
+router.route('/update/:groupname/description')
+/** Put /api/v2/group/update/:groupname/description */
+  .put(token.check, groupController.updateGroupDescription);
+
+router.route('/delete/:groupname')
+/** Post /api/v2/group/delete/:groupname */
+  .delete(token.check, groupController.deleteGroup);
+
+router.route('/create')
+/** Create /api/v2/user/create */
+  .post(token.check, groupController.createGroup);
 
 module.exports = router;
 
