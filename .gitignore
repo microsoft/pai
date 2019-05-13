@@ -27,7 +27,3 @@ __pycache__
 *.pyproj.user
 *.pyproj
 *.vs
-/contrib/submit-nas-job
-*.gitignore
-/src/webportal/2.env
-/src/webportal/1.env
