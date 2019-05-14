@@ -33,8 +33,7 @@ class GetUserId(Resource):
                 ret = {}
 
                 if args["userName"] is not None and len(args["userName"].strip()) > 0:
-
-                        corpDomains = ['REDMOND','FAREAST','EUROPE','NTDEV','NORTHAMERICA','MIDDLEEAST']
+                        corpDomains = ['EUROPE','FAREAST','NORTHAMERICA','MIDDLEEAST','REDMOND','SOUTHAMERICA','SOUTHPACIFIC','AFRICA']
                         ret["uid"] = ""
 
                         for corpDomain in corpDomains:
@@ -53,49 +52,12 @@ class GetUserId(Resource):
                 resp.headers["Access-Control-Allow-Origin"] = "*"
                 resp.headers["dataType"] = "json"
 
-
                 return resp
 
 ##
 ## Actually setup the Api resource routing here
 ##
 api.add_resource(GetUserId, '/GetUserId')
-
-
-
-
-
-class VerifyUserinGroup(Resource):
-        def get(self):
-                parser.add_argument('userName')
-                parser.add_argument('gid')
-                args = parser.parse_args()
-                ret = {}
-                ret["authorized"] = False
-                if args["userName"] is not None and len(args["userName"].strip()) > 0:
-                        userName = str(args["userName"]).strip().split("@")[0]
-                        uid = cmd_exec("id -u REDMOND.%s" % userName)
-                        gid = cmd_exec("id -g REDMOND.%s" % userName)
-                        groups = cmd_exec("id -G REDMOND.%s" % userName).split(" ")
-
-                        ret["uid"] = uid
-                        ret["gid"] = gid
-                        ret["groups"] = groups
-                        ret["authorized"] = args['gid'] in groups
-
-                resp = jsonify(ret)
-                resp.headers["Access-Control-Allow-Origin"] = "*"
-                resp.headers["dataType"] = "json"
-
-                return resp
-##
-## Actually setup the Api resource routing here
-##
-api.add_resource(VerifyUserinGroup, '/VerifyUserinGroup')
-
-
-
-
 
 if __name__ == '__main__':
         app.run(debug=False,host="0.0.0.0",threaded=True)

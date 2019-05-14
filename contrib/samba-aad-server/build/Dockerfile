@@ -33,5 +33,7 @@ COPY run.sh /run.sh
 RUN chmod +x /run.sh
 COPY sambauserhomecreate /usr/bin/
 RUN chmod +x /usr/bin/sambauserhomecreate
+COPY sambadatacreate /usr/bin/
+RUN chmod +x /usr/bin/sambadatacreate
 
 CMD /run.sh
