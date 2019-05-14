@@ -25,9 +25,7 @@ RUN pip install flask \
 COPY smb.conf /etc/samba/smb.conf
 COPY default /etc/nginx/sites-available/default
 
-ENV SHARE_ROOT=/share/pai \
-    PAISMBUSER=paismb \
-    PAISMBPWD=Asdf1234
+ENV SHARE_ROOT=/share/pai
 
 ADD infosrv /infosrv
 RUN mkdir -p /infosrv/uwsgi
