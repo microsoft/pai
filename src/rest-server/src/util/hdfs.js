@@ -111,26 +111,25 @@ class Hdfs {
       });
   }
 
-  _createFilePromise(targetUrl, data) {
+  async _createFileAxios(targetUrl, data) {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
-    return new Promise((res, rej) => {
-      unirest.put(targetUrl)
-        .send(data)
-        .end((response) => {
-          if (response.status === 201) {
-            res({status: 'succeeded'});
-          } else if (response.status === 307) {
-            return this._createFolderPromise(
-              response.headers['x-location'] // X-Location header is created in unit test only.
-                ? response.headers['x-location']
-                : response.headers['location'],
-              data
-            );
-          } else {
-            rej(this._constructErrorObject(response));
-          }
-        });
-    });
+    try {
+      const response = await axios.get(targetUrl, data);
+      if (response.status === 201) {
+        return {status: 'succeeded'};
+      } else if (response.status === 307) {
+        return await this._createFileAxios(
+          response.headers['x-location'] // X-Location header is created in unit test only.
+            ? response.headers['x-location']
+            : response.headers['location'],
+            data,
+        );
+      } else {
+        return
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   _createFile(targetUrl, data, next) {
