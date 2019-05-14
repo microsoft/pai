@@ -715,7 +715,13 @@ class Job {
   }
 
 
-  async
+  async _prepareJobContextAsync(name, data) {
+    try {
+      const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   _prepareJobContext(name, data, next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);

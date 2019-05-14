@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const unirest = require('unirest');
+const axios = require('axios');
 
 class Hdfs {
   constructor(webHdfsRootUrl) {
@@ -108,6 +109,28 @@ class Hdfs {
           next(this._constructErrorObject(response));
         }
       });
+  }
+
+  _createFilePromise(targetUrl, data) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
+    return new Promise((res, rej) => {
+      unirest.put(targetUrl)
+        .send(data)
+        .end((response) => {
+          if (response.status === 201) {
+            res({status: 'succeeded'});
+          } else if (response.status === 307) {
+            return this._createFolderPromise(
+              response.headers['x-location'] // X-Location header is created in unit test only.
+                ? response.headers['x-location']
+                : response.headers['location'],
+              data
+            );
+          } else {
+            rej(this._constructErrorObject(response));
+          }
+        });
+    });
   }
 
   _createFile(targetUrl, data, next) {
