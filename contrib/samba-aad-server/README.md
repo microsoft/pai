@@ -32,9 +32,10 @@ A service that can query user groups through domain user name.
 
 - Start service 
 ```
-./start.sh <DOMAINUSER> <DOMAINPWD> <PAISMBUSER> <PAISMBPWD>
+./start.sh <DOMAIN> <DOMAINUSER> <DOMAINPWD> <PAISMBUSER> <PAISMBPWD>
 ```
-DOMAINUSER: Existing domain user name, the format is "domain\\username"(if use the default domain FAREAST, then the format is "username"). Will join domain with this account.
+DOMAIN: Domain to join, should be EUROPE|FAREAST|NORTHAMERICA|MIDDLEEAST|REDMOND|SOUTHAMERICA|SOUTHPACIFIC|AFRICA
+DOMAINUSER: Existing domain user name. Will join domain using this account.
 DOMAINPWD: Password for domain user.
 PAISMBUSER: Create new local samba account for PAI to use.
 PAISMBPWD: Password for new samba account.

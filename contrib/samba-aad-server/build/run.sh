@@ -1,5 +1,6 @@
 #!/bin/bash
 sed -i 's/%$(PAISMBUSER)/'$PAISMBUSER'/' /etc/samba/smb.conf
+sed -i 's/%$(DOMAIN)/'$DOMAIN'/' /etc/samba/smb.conf
 
 net ads join -U "$DOMAINUSER"%"$DOMAINPWD"
 service winbind restart
