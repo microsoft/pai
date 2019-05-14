@@ -19,6 +19,7 @@
 // module dependencies
 const crudUtil = require('../../util/manager/user/crudUtil');
 const user = require('../../util/manager/user/user');
+const authConfig = require('../../config/authn');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
@@ -85,5 +86,22 @@ const createUserIfNonExistent = async (username, userValue) => {
   }
 };
 
+
+const checkUserGroup = async (username, groupname) => {
+  try {
+    let ret = false;
+    const userInfo = await crudUser.read(username, crudConfig);
+    if (userInfo.grouplist.includes(groupname)) {
+      ret = true;
+    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      // admin has the permission of all groups.
+      ret = true;
+    }
+    return ret;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // module exports
-module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword, createUserIfNonExistent};
+module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword, createUserIfNonExistent, checkUserGroup};

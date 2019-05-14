@@ -34,6 +34,14 @@ class Hdfs {
     this._createFolder(this._constructTargetUrl(path, options, 'MKDIRS'), next);
   }
 
+  async createFolderAsync(path, options) {
+    try {
+      return await this._createFolderPromise(path, options);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   createFile(path, data, options, next) {
     this._createFile(this._constructTargetUrl(path, options, 'CREATE'), data, next);
   }
@@ -74,6 +82,20 @@ class Hdfs {
           next(this._constructErrorObject(response));
         }
       });
+  }
+
+  _createFolderPromise(targetUrl) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Make_a_Directory
+    return new Promise((res, rej) => {
+      unirest.put(targetUrl)
+        .end((response) => {
+          if (response.status === 200) {
+            res({status: 'succeeded'});
+          } else {
+            rej(this._constructErrorObject(response));
+          }
+        });
+    });
   }
 
   _createFolder(targetUrl, next) {

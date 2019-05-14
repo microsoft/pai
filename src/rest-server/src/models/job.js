@@ -212,6 +212,10 @@ class Job {
       });
   }
 
+  async putJobAsync(name, namespace, data) {
+
+  }
+
   putJob(name, namespace, data, next) {
     const frameworkName = namespace ? `${namespace}~${name}` : name;
     data.jobName = frameworkName;
@@ -666,6 +670,24 @@ class Job {
     });
   }
 
+  async _initializeJobContextRootFoldersAsync() {
+    try {
+      const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+      await Promise.all([
+        hdfs.createFolderAsync(
+          '/Output',
+          {'user.name': 'root', 'permission': '777'}
+          ),
+        hdfs.createFolderAsync(
+          '/Container',
+          {'user.name': 'root', 'permission': '777'}
+        ),
+      ]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   _initializeJobContextRootFolders(next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     async.parallel([
@@ -691,6 +713,9 @@ class Job {
       return next(parallelError);
     });
   }
+
+
+  async
 
   _prepareJobContext(name, data, next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
