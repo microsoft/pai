@@ -142,7 +142,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
     azRDMA: azureEnv.azRDMA === 'true' ? true : false,
     reqAzRDMA: false,
     inspectPidFormat: '{{.State.Pid}}',
-    inspectOOMKilledFormat: '{{.State.OOMKilled}}',
+    infoDefaultRuntimeFormat: '{{json .DefaultRuntime}}',
   });
   return yarnContainerScript;
 };
