@@ -13,7 +13,7 @@ Data Structure:
 root 
     -- data
     -- users 
-	     -- user1
+	 -- user1
          -- user2
          -- user3                 
 ```
@@ -34,13 +34,15 @@ A service that can query user groups through domain user name.
 ```
 ./start.sh <DOMAIN> <DOMAINUSER> <DOMAINPWD> <PAISMBUSER> <PAISMBPWD>
 ```
-DOMAIN: Domain to join, should be EUROPE|FAREAST|NORTHAMERICA|MIDDLEEAST|REDMOND|SOUTHAMERICA|SOUTHPACIFIC|AFRICA
-DOMAINUSER: Existing domain user name. Will join domain using this account.
-DOMAINPWD: Password for domain user.
-PAISMBUSER: Create new local samba account for PAI to use.
-PAISMBPWD: Password for new samba account.
+Variable|Spec
+--|:--:
+DOMAIN|Domain to join, e.g. FAREAST
+DOMAINUSER|Existing domain user name. Will join domain using this account
+DOMAINPWD|Password for domain user
+PAISMBUSER|Create new local samba account for PAI to use
+PAISMBPWD|Password for new samba account
 
-- Access samba in domain-joined windows system
+- Access samba in domain-joined windows system. In windows file explorer, input:
 ```
 \\<server address>
 ```
