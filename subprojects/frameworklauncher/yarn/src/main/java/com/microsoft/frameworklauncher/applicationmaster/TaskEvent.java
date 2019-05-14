@@ -27,8 +27,8 @@ import java.util.Map;
 public class TaskEvent {
   private ContainerRequest containerRequest;
   private Container container;
-  private Integer containerExitCode;
-  private String containerExitDiagnostics;
+  private Integer containerRawExitCode;
+  private String containerRawExitDiagnostics;
   private RetryPolicyState newRetryPolicyState;
   private Map<String, Ports> portDefinitions;
 
@@ -50,21 +50,21 @@ public class TaskEvent {
     return this;
   }
 
-  public Integer getContainerExitCode() {
-    return containerExitCode;
+  public Integer getContainerRawExitCode() {
+    return containerRawExitCode;
   }
 
-  public TaskEvent setContainerExitCode(Integer containerExitCode) {
-    this.containerExitCode = containerExitCode;
+  public TaskEvent setContainerRawExitCode(Integer containerRawExitCode) {
+    this.containerRawExitCode = containerRawExitCode;
     return this;
   }
 
-  public String getContainerExitDiagnostics() {
-    return containerExitDiagnostics;
+  public String getContainerRawExitDiagnostics() {
+    return containerRawExitDiagnostics;
   }
 
-  public TaskEvent setContainerExitDiagnostics(String containerExitDiagnostics) {
-    this.containerExitDiagnostics = containerExitDiagnostics;
+  public TaskEvent setContainerRawExitDiagnostics(String containerRawExitDiagnostics) {
+    this.containerRawExitDiagnostics = containerRawExitDiagnostics;
     return this;
   }
 

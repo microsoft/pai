@@ -25,40 +25,58 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-public class NMClientCallbackHandler implements NMClientAsync.CallbackHandler {
+public class NMClientCallbackHandler extends NMClientAsync.AbstractCallbackHandler {
   private final ApplicationMaster am;
 
   public NMClientCallbackHandler(ApplicationMaster am) {
     this.am = am;
   }
 
+  @Override
   public void onContainerStarted(ContainerId containerId, Map<String, ByteBuffer> allServiceResponse) {
     am.onContainerStarted(containerId, allServiceResponse);
   }
 
+  @Override
   public void onStartContainerError(ContainerId containerId, Throwable e) {
     am.onStartContainerError(containerId, e);
   }
 
+  @Override
   public void onContainerStopped(ContainerId containerId) {
     am.onContainerStopped(containerId);
   }
 
+  @Override
   public void onStopContainerError(ContainerId containerId, Throwable e) {
     am.onStopContainerError(containerId, e);
   }
 
+  @Override
   public void onContainerStatusReceived(ContainerId containerId, ContainerStatus containerStatus) {
     am.onContainerStatusReceived(containerId, containerStatus);
   }
 
+  @Override
   public void onGetContainerStatusError(ContainerId containerId, Throwable e) {
     am.onGetContainerStatusError(containerId, e);
   }
 
+  @Deprecated
+  @Override
   public void onContainerResourceIncreased(ContainerId containerId, Resource resource) {
   }
 
+  @Deprecated
+  @Override
   public void onIncreaseContainerResourceError(ContainerId containerId, Throwable t) {
+  }
+
+  @Override
+  public void onContainerResourceUpdated(ContainerId containerId, Resource resource) {
+  }
+
+  @Override
+  public void onUpdateContainerResourceError(ContainerId containerId, Throwable t) {
   }
 }

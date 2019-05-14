@@ -31,6 +31,7 @@ This guide introduces the details of job submission.
     - [Environment variables](#environment-variables)
     - [A complete example](#a-complete-example)
   - [Learn more job examples](#learn-more-job-examples)
+  - [Job exit spec](#job-exit-spec)
 
 ## Quick start: submit a hello-world job
 
@@ -240,3 +241,7 @@ A distributed TensorFlow job is listed below as an example:
 ## Learn more job examples
 
 For more examples, please refer to [job examples directory](../examples).
+
+## Job exit spec
+
+For the **specification of each job exitcode**, please refer to [PAI Job Exit Spec User Manual](../src/job-exit-spec/config/user-manual.md).

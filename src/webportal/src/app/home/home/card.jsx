@@ -15,34 +15,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const logger = require('../config/logger');
+import PropTypes from 'prop-types';
+import {ColorClassNames, Stack} from 'office-ui-fabric-react';
+import React from 'react';
 
-/**
- * For compatible user job URL rewrite use
- *
- * GET /user/foo/jobs => GET /jobs?username=foo
- * GET /user/foo/jobs/bar/* => GET /jobs/foo~bar/*
- * GET /user/foo/jobs/bar~baz/* => GET /jobs/bar~baz/*
- * POST /user/foo/jobs => POST /jobs?username=foo (to distinguish with legacy POST /jobs)
- * PUT /user/foo/jobs/bar/* => POST /jobs/foo~bar/*
- * PUT /user/foo/jobs/bar~baz/* => POST /jobs/bar~baz/*
- */
-const userJob = (req, res, next) => {
-  const {username, jobName} = req.params;
-  const remains = req.params[0];
-  const url = req.url;
-  if (jobName === undefined) {
-    if (req.query.username === undefined) {
-      req.query.username = username;
-    }
-    req.url = '/jobs';
-  } else {
-    const rewritedJobName = jobName.indexOf('~') === -1 ? `${username}~${jobName}` : jobName;
-    const rewritedRemains = remains === undefined ? '' : `/${remains}`;
-    req.url = `/jobs/${rewritedJobName}${rewritedRemains}`;
-  }
-  logger.info('Rewrite %s to %s', url, req.url);
-  return next('route');
+const Card = ({className, style, children}) => (
+  <Stack
+    styles={{root: [ColorClassNames.whiteBackground, className, style]}}
+    padding='l1 l2'
+  >
+    {children}
+  </Stack>
+);
+
+Card.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  children: PropTypes.node,
 };
 
-module.exports = {userJob};
+export default Card;

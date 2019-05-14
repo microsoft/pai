@@ -15,11 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const express = require('express');
-const rewriteController = require('../controllers/rewrite');
+import 'core-js/stable';
 
-const router = module.exports = new express.Router();
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-router.all('/user/:username/jobs', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName', rewriteController.userJob);
-router.all('/user/:username/jobs/:jobName/*', rewriteController.userJob);
+import BatchRegister from './batchRegister';
+
+const contentWrapper = document.getElementById('content-wrapper');
+
+ReactDOM.render(<BatchRegister />, contentWrapper);
+
+document.getElementById('sidebar-menu--cluster-view--user-management').classList.add('active');
+
+function layout() {
+  setTimeout(function() {
+    contentWrapper.style.height = contentWrapper.style.minHeight;
+  }, 10);
+}
+
+window.addEventListener('resize', layout);
+window.addEventListener('load', layout);

@@ -16,7 +16,7 @@ index 8801b4a940f..30d33086516 100644
     */
    Pattern GPU_INFO_FORMAT =
 -      Pattern.compile("\\s+([0-9]{1,2})\\s+[\\s\\S]*\\s+(0|1|N/A|Off)\\s+");
-+      Pattern.compile("\\s+([0-9]{1,2})\\s+[\\s\\S]*\\s+(\\d+|N/A|Off)\\s+");
++      Pattern.compile("[|]\\s+([0-9]{1,2})[^|]*[|][^|]*[|]\\s+(\\d+|N/A|Off)\\s+[|]");
    Pattern GPU_MEM_FORMAT =
        Pattern.compile("([0-9]+)MiB\\s*/\\s*([0-9]+)MiB");
  
@@ -36,7 +36,7 @@ index 8801b4a940f..30d33086516 100644
                  gpuAttributeCapacity |= (1L << index);
                } else {
 -                LOG.error("ignored error: gpu " + index + " ECC code is 1, will make this gpu unavailable");
-+                LOG.error("ignored error: gpu " + index + " ECC code is " + mat.group(2) + ", will make this gpu unavailable");
++                LOG.error("GPU error: gpu " + index + " ECC code is " + mat.group(2) + ", will make this gpu unavailable");
                }
              }
            }

@@ -15,18 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames} from '@uifabric/styling';
+import {FontClassNames, ColorClassNames, getTheme} from '@uifabric/styling';
 import c from 'classnames';
-import {IconButton} from 'office-ui-fabric-react/lib/Button';
+import {Icon, IconButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
-import {statusColorMapping} from '../util';
 import TaskRoleContainerList from './task-role-container-list';
+import {statusColorMapping} from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
@@ -94,17 +94,22 @@ export default class TaskRole extends React.Component {
   }
 
   render() {
-    const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
+    const {className, taskInfo, taskConfig, jobStatus, sshInfo, isFailed} = this.props;
     const {containerListExpanded} = this.state;
     const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
-
+    const {semanticColors} = getTheme();
     return (
-      <div className={className}>
+      <div className={c(t.bgWhite, className)}>
         {/* summary */}
-        <Card>
+        <Card style={{backgroundColor: isFailed ? semanticColors.errorBackground : undefined}}>
           <div className={c(t.pv3, t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: 32, paddingRight: 32}}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
+              {isFailed && (
+                <div className={c(t.mr3, FontClassNames.large)}>
+                  <Icon style={{color: semanticColors.errorText}} iconName='ErrorBadge' />
+                </div>
+              )}
               <div className={c(FontClassNames.large)}>
                 <span >Task Role:</span>
                 <span className={t.ml3}>{name}</span>
@@ -150,4 +155,5 @@ TaskRole.propTypes = {
   jobStatus: PropTypes.string.isRequired,
   taskConfig: PropTypes.object,
   sshInfo: PropTypes.object,
+  isFailed: PropTypes.bool,
 };

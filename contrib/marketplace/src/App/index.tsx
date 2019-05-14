@@ -15,30 +15,28 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames} from '@uifabric/styling';
-import c from 'classnames';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
-import React from 'react';
+import React from "react";
+import Cookies from "js-cookie";
+import MarketplaceLayout from "./MarketplaceLayout";
 
-import t from '../../tachyons.css';
+interface IProps {
+  api: string;
+  user: string;
+  token: string;
+  submissionId?: string;
+}
 
-import loadingGif from '../../../../../../assets/img/loading.gif';
-
-export const Loading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
-      <img className={t.o50} src={loadingGif} />
-    </div>
-  </div>
-);
-
-export const SpinnerLoading = () => (
-  <div className={c(t.absolute, t.top0, t.left0, t.w100, t.h100, t.bgWhite30)}>
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
-      <div className={c(t.flex, t.itemsCenter)}>
-        <Spinner size={SpinnerSize.large} />
-        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
-      </div>
-    </div>
-  </div>
-);
+export default function App({api, user, token, submissionId}: IProps) {
+  const marketplaceCookie = Cookies.getJSON("marketplace");
+  return (
+    <MarketplaceLayout
+      api={api}
+      user={user}
+      token={token}
+      submissionId={submissionId}
+      defaultURI={marketplaceCookie ? marketplaceCookie.uri : undefined}
+      defaultURIType={marketplaceCookie ? marketplaceCookie.type : undefined}
+      defaultURIToken={marketplaceCookie ? marketplaceCookie.token : undefined}
+    />
+  );
+}

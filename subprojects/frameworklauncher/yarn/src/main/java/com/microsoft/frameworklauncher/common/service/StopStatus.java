@@ -18,27 +18,27 @@
 package com.microsoft.frameworklauncher.common.service;
 
 public class StopStatus {
-  private final Integer code;
+  private final int code;
   private final Boolean needUnregister;
-  private final String diagnostics;
+  private final String unregisterDiagnostics;
   private final Exception exception;
 
-  public StopStatus(Integer code) {
+  public StopStatus(int code) {
     this(code, true, null, null);
   }
 
-  public StopStatus(int code, Boolean needUnregister, String diagnostics) {
-    this(code, needUnregister, diagnostics, null);
+  public StopStatus(int code, Boolean needUnregister, String unregisterDiagnostics) {
+    this(code, needUnregister, unregisterDiagnostics, null);
   }
 
-  public StopStatus(Integer code, Boolean needUnregister, String diagnostics, Exception exception) {
+  public StopStatus(int code, Boolean needUnregister, String unregisterDiagnostics, Exception exception) {
     this.code = code;
     this.needUnregister = needUnregister;
-    this.diagnostics = diagnostics;
+    this.unregisterDiagnostics = unregisterDiagnostics;
     this.exception = exception;
   }
 
-  public Integer getCode() {
+  public int getCode() {
     return code;
   }
 
@@ -46,8 +46,8 @@ public class StopStatus {
     return needUnregister;
   }
 
-  public String getDiagnostics() {
-    return diagnostics;
+  public String getUnregisterDiagnostics() {
+    return unregisterDiagnostics;
   }
 
   public Exception getException() {
@@ -56,7 +56,7 @@ public class StopStatus {
 
   public String toString() {
     return String.format(
-        "code = [%s], needUnregister = [%s], diagnostics = [%s], Exception = [%s]",
-        code, needUnregister, diagnostics, exception);
+        "code = [%s], needUnregister = [%s], unregisterDiagnostics = [%s], Exception = [%s]",
+        code, needUnregister, unregisterDiagnostics, exception);
   }
 }

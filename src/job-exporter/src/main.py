@@ -63,7 +63,12 @@ def config_environ():
             os.path.join(driver_path, "lib") + os.pathsep + \
             os.path.join(driver_path, "lib64")
 
-    logger.debug("LD_LIBRARY_PATH is %s", os.environ["LD_LIBRARY_PATH"])
+    driver_bin_path = os.path.join(driver_path, "bin")
+    os.environ["PATH"] = os.environ["PATH"] + ":" + driver_bin_path
+
+    logger.debug("LD_LIBRARY_PATH is %s, PATH is %s",
+            os.environ["LD_LIBRARY_PATH"],
+            os.environ["PATH"])
 
 
 def try_remove_old_prom_file(path):
@@ -82,16 +87,17 @@ def get_gpu_count(path):
 
     logger.debug("hostname is %s, ip is %s", hostname, ip)
 
-    with open(path) as f:
-        gpu_config = json.load(f)
+    if os.path.isfile(path):
+        with open(path) as f:
+            gpu_config = json.load(f)
 
-    if hostname is not None and gpu_config["nodes"].get(hostname) is not None:
-        return gpu_config["nodes"][hostname]["gpuCount"]
-    elif ip is not None and gpu_config["nodes"].get(ip) is not None:
-        return gpu_config["nodes"][ip]["gpuCount"]
-    else:
-        logger.warning("failed to find gpu count from config %s", gpu_config)
-        return 0
+        if hostname is not None and gpu_config["nodes"].get(hostname) is not None:
+            return gpu_config["nodes"][hostname]["gpuCount"]
+        elif ip is not None and gpu_config["nodes"].get(ip) is not None:
+            return gpu_config["nodes"][ip]["gpuCount"]
+
+    logger.warning("failed to find gpu count from config %s", path)
+    return 0
 
 
 def register_stack_trace_dump():

@@ -2,8 +2,8 @@
 
 [logo]: ./pailogo.jpg "OpenPAI"
 
-[![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai)
-[![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master)
+[![Build Status](https://travis-ci.org/microsoft/pai.svg?branch=master)](https://travis-ci.org/microsoft/pai)
+[![Coverage Status](https://coveralls.io/repos/github/microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/microsoft/pai?branch=master)
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
@@ -48,11 +48,12 @@ OpenPAI is a most complete solution for deep learning, support virtual cluster, 
 
 ## Related Projects
 
-Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) had also released few other open source projects.
+Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) had also released few other open source projects.
 
 * [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
 We encourage researchers and students leverage these projects to accelerate the AI development and research.
 * [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
+* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : A NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
 
 ## Get started
 
@@ -101,7 +102,7 @@ After deployment, it's recommended to [validate key components of OpenPAI](docs/
 
 The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users  can learn from [Train models](#train-models). But below part of training models is for various scenarios and maybe users doesn't need all of them. So, administrators can create simplified documents as users' actual scenarios.
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users  can learn from [Train models](#train-models). But below part of training models is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
 
 ### FAQ
 
@@ -117,11 +118,11 @@ Note, OpenPAI also supports to allocate dedicated resource besides queuing jobs.
 
 ### Submit training jobs
 
-Follow [submitting a hello-world job](docs/user/training.md), and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job configuration and familiar with Web UI.
+Follow [submitting a hello-world job](docs/user/training.md) and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job configuration and familiar with Web UI.
 
-### OpenPAI VS Code Client
+### Client tool
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate job running locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ### Troubleshooting job failure
 
