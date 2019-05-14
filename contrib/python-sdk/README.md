@@ -33,6 +33,8 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [5.3. User can customize callbacks when exception raised](#53-user-can-customize-callbacks-when-exception-raised)
   - [5.4. Implementation](#54-implementation)
 - [6. Notebook tutorials](#6-notebook-tutorials)
+- [7. Make contributions](#7-make-contributions)
+  - [7.1. Debug the SDK](#71-debug-the-sdk)
 
 # 1. Overview
 
@@ -55,8 +57,8 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
 We provide installing method leveraging `pip install`
 
 ```bash
-pip install -U pip
-pip install -U -e "git+https://github.com/Microsoft/pai@yuqyang/sdk#egg=openpaisdk&subdirectory=contrib/python-sdk"
+python -m pip install --upgrade pip
+pip install -U -e "git+https://github.com/Microsoft/pai@sdk-preview-v0.2#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
 After installing, please verify by CLI or python binding
@@ -120,7 +122,7 @@ Here are some frequently used variables.
 
 The command line tool `opai` provides several useful subcommands. 
 
-| Command | Subcommands | Description |
+| Scene | Action | Description |
 | -- | -- | -- |
 | `opai cluster` | `list` | cluster configuration management |
 | `opai default` | `add`, `delete` | add or remove default variables |
@@ -187,16 +189,18 @@ opai job fast -j <job-name> [-a <alias>] [-i <your-image>] python script.py arg1
 
 The SDK provides simple job management based folder structure on _remote_ storage. It is recommended to upload user logging or results to the output directory. 
 
-```bash
-workspace
-    └─job-name-1
-        ├─code
-        └─output
-    └─job-name-2
-        ├─code
-        └─output
-```
 
+```bash
+workspace (remote storage)
+    └─jobs
+        └─job-name-1
+            ├─code
+            └─output
+        └─job-name-2
+            ├─code
+            └─output
+```
+|
 The `workspace` and output directory path would be passed to job container by `PAI_SDK_JOB_WORKSPACE` and `PAI_SDK_JOB_OUTPUT_DIR`.
 
 User can use below commands to fetch the outputs. 
@@ -374,3 +378,16 @@ To show the user stories, we prepare some `Jupyter` notebook tutorials. Below is
 - [x] [Submit jobs with multiple taskroles](examples/1-submit-and-query-via-command-line.ipynb)
 - [ ] [Runtime - fetch user stdout and stderr seperatedly]()
 - [ ] [Runtime - debug experience enhancement]()
+
+# 7. Make contributions
+
+User may open issues and feature requests on [Github](). 
+
+## 7.1. Debug the SDK
+
+For users those want to improve the functions themselves, you may create the branch of `OpenPAI` project, and make modifications locally. And then set your own branch to the SDK installation source by 
+
+```bash
+opai default add sdk-branch=<your/branch>
+```
+
