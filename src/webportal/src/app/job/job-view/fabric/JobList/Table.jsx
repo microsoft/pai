@@ -6,6 +6,9 @@ import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsLi
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
 import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
+import StatusBadge from '../job-detail/components/status-badge';
+import c from 'classnames';
+import t from '../tachyons.css';
 
 import {DateTime, Duration} from 'luxon';
 
@@ -33,7 +36,6 @@ export default function Table() {
       },
     });
   }, []);
-
   /**
    * @param {React.MouseEvent<HTMLElement>} event
    * @param {import('office-ui-fabric-react').IColumn} column
@@ -158,41 +160,10 @@ export default function Table() {
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
       const statusText = getStatusText(job);
-      /** @type {MessageBarType} */
-      const messageBarType = {
-        Waiting: MessageBarType.warning,
-        Running: MessageBarType.success,
-        Stopping: MessageBarType.severeWarning,
-        Succeeded: MessageBarType.success,
-        Failed: MessageBarType.remove,
-        Stopped: MessageBarType.blocked,
-      }[statusText];
-      const rootStyle = {
-        backgroundColor: {
-          Waiting: '#FCD116',
-          Running: '#0071BC',
-          Stopping: '#0071BC',
-          Succeeded: '#7FBA00',
-          Failed: '#E81123',
-          Stopped: '#B1B5B8',
-        }[statusText],
-      };
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconContainerStyle = {marginTop: 8, marginBottom: 8, marginLeft: 8};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const iconStyle = {color: 'white'};
-      /** @type {import('@uifabric/styling').IStyle} */
-      const textStyle = {marginTop: 8, marginRight: 8, marginBottom: 8, color: 'white'};
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)}>
-          <MessageBar
-            messageBarType={messageBarType}
-            styles={{root: rootStyle, iconContainer: iconContainerStyle, icon: iconStyle, text: textStyle}}
-          >
-            {statusText}
-          </MessageBar>
+        <div style={Object.assign(zeroPaddingRowFieldStyle) } className={c(t.w1, t.dib, t.vMid)}>
+          <StatusBadge status={statusText} />
         </div>
       );
     },
@@ -216,14 +187,12 @@ export default function Table() {
         stopJob(job);
       }
       /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
-
       const statusText = getStatusText(job);
       const disabled = statusText !== 'Waiting' && statusText !== 'Running';
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)} data-selection-disabled>
+        <div style={Object.assign(zeroPaddingRowFieldStyle)} className={c(t.w1, t.dib, t.vMid)} data-selection-disabled>
           <DefaultButton
-            iconProps={{iconName: 'StopSolid'}}
+            iconProps={{iconName: 'StatusCircleBlock'}}
             disabled={disabled}
             onClick={onClick}
           >

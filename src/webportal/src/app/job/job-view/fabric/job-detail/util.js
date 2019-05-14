@@ -106,3 +106,20 @@ export function getTaskConfig(jobConfig, name) {
     return null;
   }
 }
+
+export const statusColorMapping = {
+  Waiting: '#F9B61A',
+  Running: '#579AE6',
+  Stopping: '#579AE6',
+  Succeeded: '#54D373',
+  Failed: '#E06260',
+  Stopped: '#B1B5B8',
+};
+export const spacing = {
+  s1: 8,
+  s2: 4,
+  m: 16,
+  l1: 20,
+  l2: 32,
+  l3: 64,
+}

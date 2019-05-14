@@ -17,6 +17,7 @@
 
 import React from 'react';
 import {ActionButton} from 'office-ui-fabric-react/lib/Button';
+import {spacing} from '../util';
 
 import t from '../../../../../components/tachyons.scss';
 
@@ -26,6 +27,7 @@ const Top = () => (
       <ActionButton
         iconProps={{iconName: 'revToggleKey'}}
         href='/job-list.html'
+        styles={{root: {paddingLeft: spacing.m}}}
       >
         Back to Jobs
       </ActionButton>

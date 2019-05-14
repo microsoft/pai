@@ -107,7 +107,7 @@ class JobDetail extends React.Component {
       return Object.keys(jobInfo.taskRoles).map((key) => (
         <TaskRole
           key={key}
-          className={t.mt3}
+          // className={t.mt3}
           taskInfo={jobInfo.taskRoles[key]}
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
@@ -121,7 +121,6 @@ class JobDetail extends React.Component {
         return Object.keys(jobConfig.taskRoles).map((key) => (
           <TaskRole
             key={key}
-            className={t.mt3}
             jobStatus='Waiting'
             sshInfo={sshInfo}
             taskConfig={jobConfig[key]}
@@ -131,7 +130,6 @@ class JobDetail extends React.Component {
         return jobConfig.taskRoles.map((config) => (
           <TaskRole
             key={config.name}
-            className={t.mt3}
             jobStatus='Waiting'
             sshInfo={sshInfo}
             taskConfig={config}
@@ -159,7 +157,6 @@ class JobDetail extends React.Component {
             </div>
           )}
           <Summary
-            className={t.mt3}
             jobInfo={jobInfo}
             jobConfig={jobConfig}
             reloading={reloading}
