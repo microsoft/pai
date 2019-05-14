@@ -36,22 +36,6 @@
 </property>
 
 <property>
-  <name>hadoop.http.cross-origin.enabled</name>
-  <value>true</value>
-  <description>
-         Enables cross origin support for all web-services
-  </description>
-</property>
-
-<property>
-  <name>hadoop.http.filter.initializers</name>
-  <value>org.apache.hadoop.security.HttpCrossOriginFilterInitializer</value>
-  <description>
-         Add to this property the org.apache.hadoop.security.AuthenticationFilterInitializer initializer class.
-  </description>
-</property>
-
-<property>
   <name>ipc.server.max.response.size</name>
   <value>5242880</value>
   <description>
