@@ -64,16 +64,6 @@ class Job(JobSpec):
             self.to_file(Job.job_cache_file(self.job_name))
 
     @staticmethod
-    def job_cache_file(job_name: str, fname: str = 'cache.json'):
-        return os.path.join(__jobs_cache__, job_name, fname)
-
-    def get_config_file(self):
-        return Job.job_cache_file(self.job_name, 'job_config.json')
-
-    def get_cache_file(self):
-        return Job.job_cache_file(self.job_name)
-
-    @staticmethod
     def restore(job_name):
         fname = Job.job_cache_file(job_name)
         if os.path.isfile(fname):
@@ -126,5 +116,17 @@ class Job(JobSpec):
             taskroles.append(dic)
         return taskroles
 
+    # storage based job management
+
     def get_workspace_folder(self, folder: str= 'code'):
-        return '{}/{}/{}'.format(self.workspace, self.job_name, folder)
+        return '{}/jobs/{}/{}'.format(self.workspace, self.job_name, folder)
+
+    @staticmethod
+    def job_cache_file(job_name: str, fname: str = 'cache.json'):
+        return os.path.join(__jobs_cache__, job_name, fname)
+
+    def get_config_file(self):
+        return Job.job_cache_file(self.job_name, 'job_config.json')
+
+    def get_cache_file(self):
+        return Job.job_cache_file(self.job_name)

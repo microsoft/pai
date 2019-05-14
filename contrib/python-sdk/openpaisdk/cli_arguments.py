@@ -60,10 +60,14 @@ class Namespace(argparse.Namespace):
             parser.parse_known_args(argv, self)
         return self
 
-    def from_dict(self, dic: dict, ignore_unkown: bool = False):
+    def from_dict(self, dic: dict, ignore_unkown: bool = False, **kwargs):
+        if isinstance(dic, argparse.Namespace):
+            dic = vars(dic)
         for k, v in dic.items():
             if ignore_unkown and not hasattr(self, k):
                 continue
+            setattr(self, k, v)
+        for k, v in kwargs.items():
             setattr(self, k, v)
         return self
 
@@ -98,7 +102,7 @@ class ArgumentFactory:
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
 
         # task role
-        self.add_argument('--task-role-name', '-t', help='task role name')
+        self.add_argument('--task-role-name', '-t', default='main', help='task role name')
         self.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
         self.add_argument('--cpu', type=int, default=__defaults__.get('cpu', 1), help='cpu number per instance')
         self.add_argument('--gpu', type=int, default=__defaults__.get('gpu', 0), help='gpu number per instance')

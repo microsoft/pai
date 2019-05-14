@@ -2,12 +2,13 @@ import argparse
 import json, yaml
 import os, sys
 import openpaisdk as pai
+from openpaisdk import __logger__
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.core import Client
 from openpaisdk.job import TaskRole, JobSpec, Job
-from openpaisdk.job import cli_add_arguments
 import openpaisdk.runtime_requires as req
 from openpaisdk.runtime import runtime_execute
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments
 
 def pprint(s, fmt: str='yaml', **kwargs):
     if fmt == 'json':
@@ -60,6 +61,16 @@ class ActionFactory(Action):
         self.define_arguments = getattr(self, "define_arguments_" + suffix, super().define_arguments)
         self.do_action = getattr(self, "do_action_" + suffix, None)
 
+    def restore(self, args):
+        if getattr(args, 'job_name', None):
+            self.__job__ = Job.restore(args.job_name)
+        return self
+
+    def store(self, args):
+        if getattr(self, '__job__', None):
+            self.__job__.store()
+        return self
+
 
 class Scene:
 
@@ -79,6 +90,7 @@ class Scene:
                 self.actions[a.action] = a
 
     def process(self, args):
+        __logger__.debug('Parsed arguments to %s', args)
         actor = self if self.single_action else self.actions[args.action]
         actor.check_arguments(args)
         actor.restore(args)
@@ -124,16 +136,14 @@ class ActionFactoryForCluster(ActionFactory):
 
     def do_action_list(self, args):
         cfgs = {cluster['alias']: Client.desensitize(cluster) for cluster in from_file(pai.__cluster_config_file__, default=[])}
-        return cfgs[args.cluster_alias] if args.cluster_alias else list(cfgs.keys()) if args.name else cfgs
+        if args.name:
+            return list(cfgs.keys())
+        elif args.cluster_alias:
+            return cfgs[args.cluster_alias]
+        return cfgs
 
 
 class ActionFactoryForJob(ActionFactory):
-
-    def restore(self, args):
-        self.__job__ = Job.restore(args.job_name)
-
-    def store(self, args):
-        self.__job__.store()
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
@@ -150,14 +160,12 @@ class ActionFactoryForJob(ActionFactory):
 
     def define_arguments_new(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
-        cli_add_arguments(None, parser, ['--update', '--dont-set-as-default'])
+        cli_add_arguments(None, parser, ['--dont-set-as-default'])
 
     def do_action_new(self, args):
         if os.path.isfile(Job.job_cache_file(args.job_name)): 
-            if not getattr(args, 'update', False):
-                raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
+            raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
         self.__job__.from_dict(vars(args), ignore_unkown=True)
-        self.__job__.store()
         if not args.dont_set_as_default:
             Engine().process(['default', 'add', 'job-name={}'.format(args.job_name)]) 
         return self.__job__.to_dict()
@@ -167,10 +175,10 @@ class ActionFactoryForJob(ActionFactory):
 
     def do_action_submit(self, args):
         client = get_client(args.cluster_alias)
-        if args.config:
+        if getattr(args, 'config', None):
             return client.get_token().rest_api_submit(from_file(args.config))
         job_config = self.__job__.to_job_config_v1(save_to_file=self.__job__.get_config_file())
-        if args.preview:
+        if getattr(args, 'preview', False):
             return job_config
         client.submit(self.__job__, job_config)
         return client.get_job_link(args.job_name)
@@ -178,23 +186,20 @@ class ActionFactoryForJob(ActionFactory):
     def define_arguments_fast(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
         TaskRole().define(parser)
-        cli_add_arguments(None, parser, ['--dont-set-as-default'])
+        cli_add_arguments(None, parser, ['--pip-flags'])
+        cli_add_arguments(None, parser, ['--dont-set-as-default', '--preview'])
 
     def do_action_fast(self, args):
-        self.do_action_create(args)
-        if not getattr(args, 'task_role_name', None):
-            args.task_role_name = 'main'
-        self.do_action_task(args)
-        return self.do_action_submit(args)
+        self.do_action_new(args)
+        self.store(args)
+        args_task = TaskRole().from_dict(vars(args), ignore_unkown=True, scene='task', action='add')
+        Engine().process_args(args_task)
+        if getattr(args, 'pip_flags', None):
+            Engine().process(['require', 'pip'] + args.pip_flags)
+        return Engine().process_args(Namespace().from_dict(args, scene='job', action='submit'))
 
 
 class ActionFactoryForTaskRole(ActionFactory):
-
-    def restore(self, args):
-        self.__job__ = Job.restore(args.job_name)
-
-    def store(self, args):
-        self.__job__.store()
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         TaskRole().define(parser)
@@ -211,17 +216,10 @@ class ActionFactoryForTaskRole(ActionFactory):
             self.__job__.taskroles.append(TaskRole())
             elem = self.__job__.taskroles[-1]
         elem.from_dict(vars(args), ignore_unkown=True)
-        self.__job__.store()
         return elem.to_dict()
 
 
 class ActionFactoryForRequirement(ActionFactory):
-
-    def restore(self, args):
-        self.__job__ = Job.restore(args.job_name)
-
-    def store(self, args):
-        self.__job__.store()
 
     def do_action_common(self, args: argparse.Namespace, r_type: req.Requirement):
         dic = dict(r_type().from_dict(vars(args), ignore_unkown=True).to_dict())
@@ -371,8 +369,12 @@ class Engine:
             self.scenes[k] = Scene(k, v[0], p, v[1])
 
     def process(self, a: list):
+        __logger__.debug('Received arguments %s', a)
         pai.__logger__.debug("Received arguments %s", a)
         args = self.parser.parse_args(a)
+        return self.process_args(args)
+
+    def process_args(self, args):
         pai.__logger__.debug("Parsed arguments %s", args)
         return self.scenes[args.scene].process(args)
 
