@@ -19,9 +19,9 @@
 // module dependencies
 const util = require('util');
 const yaml = require('js-yaml');
-const HDFS = require('../../util/hdfs');
-const createError = require('../../util/error');
-const launcherConfig = require('../../config/launcher');
+const HDFS = require('./hdfs');
+const createError = require('./error');
+const launcherConfig = require('../config/launcher');
 
 const prerequisiteMapping = {
   data: 'dataDir',
@@ -154,5 +154,5 @@ const protocolConvert = async (jobConfig) => {
 
 // module exports
 module.exports = {
-  convert: protocolConvert,
+  protocolConvert,
 };
