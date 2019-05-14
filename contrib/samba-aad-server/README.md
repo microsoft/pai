@@ -45,14 +45,14 @@ PAISMBPWD: Password for new samba account.
 ```
 This will show two folders: data and home. Data folder is a shared folder for all users, and home folder is private folder for current AD user.
 
-- Mount samba to local
+- Mount samba using personal account
 ```
 mount -t cifs //<server address>/<folder> <mount point> -o username=<domain user name>,password=<domain user password>,domain=<domain>
 ```
 
-- Mount samba in PAI
+- Mount samba using PAI account
 ```
-mount -t cifs //<server address>/<folder> <mount point> -o username=<pai smb user>,password=<pai smb password>
+mount -t cifs //<server address>/<folder> <mount point> -o username=<pai smb user>,password=<pai smb password>,domain=local
 ```
 
 - Query user groups
