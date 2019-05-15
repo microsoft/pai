@@ -20,6 +20,7 @@ import c from 'classnames';
 import {Icon, IconButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import yaml from 'js-yaml';
 
 import t from '../../../../../components/tachyons.scss';
 
@@ -115,7 +116,7 @@ export default class TaskRole extends React.Component {
                 <span className={t.ml3}>{name}</span>
               </div>
               {taskConfig && (
-                <MonacoCallout language='json' value={JSON.stringify(taskConfig, null, 2)}>
+                <MonacoCallout language='yaml' value={yaml.safeDump(taskConfig)}>
                   <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}} />
                 </MonacoCallout>
               )}

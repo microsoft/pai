@@ -111,7 +111,7 @@ class JobDetail extends React.Component {
           taskInfo={jobInfo.taskRoles[key]}
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
-          taskConfig={jobConfig.taskRoles[key]}
+          taskConfig={jobConfig && jobConfig.taskRoles[key]}
           isFailed={failedTaskRole && key === failedTaskRole}
         />
       ));
