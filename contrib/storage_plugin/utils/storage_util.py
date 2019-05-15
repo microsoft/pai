@@ -83,7 +83,7 @@ def update_configmap(name, data_dict, namespace):
                 api_response = api_instance.create_namespaced_config_map(namespace, body)
                 logger.info("Configmap named {0} is created".format(name))
             except ApiException as ie:
-                logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(e)))
+                logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(ie)))
                 sys.exit(1)
         else:
             logger.error("Exception when calling CoreV1Api->patch_namespaced_config_map: {0}".format(str(e)))
@@ -128,7 +128,7 @@ def patch_secret(name, data_dict, namespace):
                 api_response = api_instance.create_namespaced_secret(namespace, body)
                 logger.info("Secret named {0} is created".format(name))
             except ApiException as ie:
-                logger.error("Exception when calling CoreV1Api->create_namespaced_secret: {0}".format(str(e)))
+                logger.error("Exception when calling CoreV1Api->create_namespaced_secret: {0}".format(str(ie)))
                 sys.exit(1)
         else:
             logger.error("Exception when calling CoreV1Api->patch_namespaced_secret: {0}".format(str(e)))

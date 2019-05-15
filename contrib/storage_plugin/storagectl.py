@@ -91,18 +91,28 @@ def server_set(args):
 
 
 def config_set(args):
-    content_dict = dict()
-    content_dict["name"] = args.name
-    content_dict["gpn"] = args.gpn
-    content_dict["servers"] = args.servers
-    content_dict["default"] = args.default
-    if args.mount_info is not None:
-        mount_infos = []
-        for info_data in args.mount_info:
-            info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
-            mount_infos.append(info)
-        content_dict["mountInfos"] = mount_infos
-    save_secret("storage-config", args.name, content_dict)
+    try:
+        content_dict = dict()
+        content_dict["name"] = args.name
+        content_dict["gpn"] = args.gpn
+        content_dict["servers"] = args.servers
+        content_dict["default"] = args.default
+        if args.mount_info is not None:
+            mount_infos = []
+            for info_data in args.mount_info:
+                # Verify mount point, mountPoint should starts with "/" and path should not
+                if not info_data[0].startswith("/"):
+                    raise NameError("MOUNT_POINT should be absolute path and starts with \'/\'")
+                elif info_data[2].startswith("/"):
+                    raise NameError("PATH should be relative path and not starts with \'/\'")
+                else:
+                    info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
+                    mount_infos.append(info)
+            content_dict["mountInfos"] = mount_infos
+    except NameError as e:
+        logger.error(e)
+    else:
+        save_secret("storage-config", args.name, content_dict)
 
 
 def user_set(args):
