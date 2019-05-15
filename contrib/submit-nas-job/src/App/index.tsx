@@ -109,33 +109,41 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
   const onSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
     if (job === null) { return; }
-    const jobObject = convert();
-    window.fetch(`${api}/api/v1/user/${user}/jobs`, {
-      body: JSON.stringify(jobObject),
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    }).then((response) => {
-      if (response.status >= 400) {
-        return response.json().then((body) => {
-          throw Error(body.message);
-        });
-      } else {
-        window.location.href = `/job-detail.html?username=${user}&jobName=${jobObject.jobName}`;
-        return Promise.resolve();
-      }
-    }).catch((error) => {
-      window.alert(error.message);
-    });
+    try {
+      const jobObject = convert();
+      window.fetch(`${api}/api/v1/user/${user}/jobs`, {
+        body: JSON.stringify(jobObject),
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      }).then((response) => {
+        if (response.status >= 400) {
+          return response.json().then((body) => {
+            throw Error(body.message);
+          });
+        } else {
+          window.location.href = `/job-detail.html?username=${user}&jobName=${jobObject.jobName}`;
+          return Promise.resolve();
+        }
+      }).catch((error) => {
+        window.alert(error.message);
+      });
+    }  catch (e) {
+      window.alert(e.message);
+    }
   }, [job, name]);
 
   const onAdvancedClick = useCallback(() => {
     if (job === null) { return; }
-    const jobObject = convert();
-    window.sessionStorage.setItem("init-job", JSON.stringify(jobObject));
-    window.location.href = "/submit.html?op=init";
+    try {
+      const jobObject = convert();
+      window.sessionStorage.setItem("init-job", JSON.stringify(jobObject));
+      window.location.href = "/submit.html?op=init";
+    }  catch (e) {
+      window.alert(e.message);
+    }
   }, [job, name]);
 
   useEffect(() => {

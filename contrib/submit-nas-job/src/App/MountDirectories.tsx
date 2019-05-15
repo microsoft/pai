@@ -48,7 +48,7 @@ interface IConfig {
 }
 
 interface IMountInfo {
-  readonly mountPoint: string;
+  mountPoint: string;
   readonly server: string;
   readonly path: string;
 }
@@ -105,6 +105,8 @@ export default class MountDirectories {
       }
     }
 
+    const mountPoints: string[] = [];
+
     for (const spn in serverMountDict) {
       if (serverMountDict.hasOwnProperty(spn)) {
         const mountInfos = serverMountDict[spn];
@@ -129,6 +131,13 @@ export default class MountDirectories {
           }
 
           for (const mountInfo of mountInfos) {
+            // Check duplicated mount points
+            if (mountPoints.includes(mountInfo.mountPoint)) {
+              throw new Error("Mount point error! More than one mount point [" + mountInfo.mountPoint + "]!");
+            } else {
+              mountPoints.push(mountInfo.mountPoint);
+            }
+
             // Create folder on server root path
             returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`);
             returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`);
@@ -352,7 +361,13 @@ export function MountDirectoriesForm({
             if (config.gpn !== gpn) {
               continue;
             } else {
-              newConfigs.push(config);
+              const selectedConfig = selectedConfigs.find((conf) => conf.name === config.name);
+              if (selectedConfig === undefined) {
+                newConfigs.push(config);
+              } else {
+                newConfigs.push(selectedConfig);
+              }
+
               if (config.servers !== undefined) {
                 for (const serverName of config.servers) {
                   if (serverNames.indexOf(serverName) === -1) {
@@ -480,12 +495,27 @@ export function MountDirectoriesForm({
         return selectedConfig.mountInfos.map((mountInfo, index) => {
           return (
           <tr key={selectedConfig.name + "_" + index}>
-            <td>{mountInfo.mountPoint}</td>
+            <td>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="data-path"
+                  defaultValue={mountInfo.mountPoint}
+// tslint:disable-next-line: jsx-no-lambda
+                  onChange={(newValue) => {mountInfo.mountPoint = newValue.target.value; }}
+                />
+              </div>
+            </td>
             <td>
               <Tooltip title={getServerPath(mountInfo.server)} placement="left">
               <Button>{"[" + mountInfo.server + "]"}</Button>
               </Tooltip>
-              /{normalizePath(mountInfo.path)}</td>
+              /{normalizePath(mountInfo.path)}
+            </td>
+            <td>
+              {selectedConfig.name}
+            </td>
           </tr>
           );
         });
@@ -519,6 +549,7 @@ export function MountDirectoriesForm({
             <tr>
               <th scope="col" style={mountPointTableDataStyle}>MountPoint</th>
               <th scope="col">ServerPath</th>
+              <th scope="col">Config</th>
             </tr>
           </thead>
           <tbody>
