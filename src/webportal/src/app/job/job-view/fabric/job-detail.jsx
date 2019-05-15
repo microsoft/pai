@@ -55,7 +55,7 @@ class JobDetail extends React.Component {
     void this.reload(true);
   }
 
-  async reload(alert) {
+  async reload(alertFlag) {
     this.setState({
       reloading: true,
     });
@@ -87,7 +87,7 @@ class JobDetail extends React.Component {
         error: null,
       });
     }).catch((err) => {
-      if (alert === true) {
+      if (alertFlag === true) {
         alert(err);
       } else {
         this.setState({error: err.message});
