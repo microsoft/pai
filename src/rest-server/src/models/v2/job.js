@@ -25,6 +25,7 @@ const mustache = require('mustache');
 const userModel = require('../user');
 const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
+const protocolSecret = require('../../util/protocolSecret');
 const logger = require('../../config/logger');
 const azureEnv = require('../../config/azure');
 const paiConfig = require('../../config/paiConfig');
@@ -234,12 +235,9 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   );
   // upload original config file to hdfs
   // mask secrets field before uploading
-  let maskRawConfig = rawConfig + '\nZ';
-  maskRawConfig = maskRawConfig.replace(/(^secrets:)[^]*?(^\w)/m, '$1 ******\n$2');
-  maskRawConfig = maskRawConfig.slice(0, -2);
   hdfsPromises.push(
     upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
-    maskRawConfig, userName, '644')
+    protocolSecret.mask(rawConfig), userName, '644')
   );
 
   // generate ssh key
