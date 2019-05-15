@@ -86,23 +86,7 @@ export function parseGpuAttr(attr) {
   return res;
 }
 
-export function isJobV2(jobConfig) {
-  return !isNil(jobConfig.protocolVersion);
-}
-
 export function isClonable(jobConfig) {
   // disable clone for old yaml job
   return !isNil(jobConfig) && isNil(jobConfig.protocol_version);
-}
-
-export function getTaskConfig(jobConfig, name) {
-  if (jobConfig && jobConfig.taskRoles) {
-    if (isJobV2(jobConfig)) {
-      return jobConfig.taskRoles[name];
-    } else {
-      return jobConfig.taskRoles.find((x) => x.name === name);
-    }
-  } else {
-    return null;
-  }
 }

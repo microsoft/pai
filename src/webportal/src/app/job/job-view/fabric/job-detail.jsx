@@ -32,7 +32,7 @@ import Summary from './job-detail/components/summary';
 import {SpinnerLoading} from '../../../components/loading';
 import TaskRole from './job-detail/components/task-role';
 import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError} from './job-detail/conn';
-import {getHumanizedJobStateString, getTaskConfig, isJobV2} from './job-detail/util';
+import {getHumanizedJobStateString} from './job-detail/util';
 
 initializeIcons();
 
@@ -111,33 +111,20 @@ class JobDetail extends React.Component {
           taskInfo={jobInfo.taskRoles[key]}
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}
-          taskConfig={getTaskConfig(jobConfig, key)}
+          taskConfig={jobConfig.taskRoles[key]}
           isFailed={failedTaskRole && key === failedTaskRole}
         />
       ));
     } else if (jobConfig && jobConfig.taskRoles) {
-      // render mock task roles
-      if (isJobV2(jobConfig)) {
-        return Object.keys(jobConfig.taskRoles).map((key) => (
-          <TaskRole
-            key={key}
-            className={t.mt3}
-            jobStatus='Waiting'
-            sshInfo={sshInfo}
-            taskConfig={jobConfig[key]}
-          />
-        ));
-      } else {
-        return jobConfig.taskRoles.map((config) => (
-          <TaskRole
-            key={config.name}
-            className={t.mt3}
-            jobStatus='Waiting'
-            sshInfo={sshInfo}
-            taskConfig={config}
-          />
-        ));
-      }
+      return Object.keys(jobConfig.taskRoles).map((key) => (
+        <TaskRole
+          key={key}
+          className={t.mt3}
+          jobStatus='Waiting'
+          sshInfo={sshInfo}
+          taskConfig={jobConfig.taskRoles[key]}
+        />
+      ));
     } else {
       return null;
     }

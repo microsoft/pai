@@ -140,8 +140,8 @@ export default class Summary extends React.Component {
   showJobConfig() {
     const {jobConfig} = this.props;
     this.showEditor('Job Config', {
-      language: 'json',
-      value: JSON.stringify(jobConfig, null, 2),
+      language: 'yaml',
+      value: yaml.safeDump(jobConfig),
     });
   }
 
@@ -392,7 +392,7 @@ export default class Summary extends React.Component {
             <div>
               <DefaultButton
                 text='Clone'
-                onClick={() => cloneJob(jobConfig)}
+                onClick={() => cloneJob()}
                 disabled={!isClonable(jobConfig)}
               />
               <DefaultButton
