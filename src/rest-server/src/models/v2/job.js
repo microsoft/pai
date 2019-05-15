@@ -22,7 +22,9 @@ const axios = require('axios');
 const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
+const yaml = require('js-yaml');
 const userModel = require('../user');
+const {protocolConvert} = require('../../util/converter');
 const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
 const logger = require('../../config/logger');
@@ -256,35 +258,54 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   return frameworkDescription;
 };
 
-
-class Job {
-  constructor(jobName, userName) {
-    this.jobName = jobName;
-    this.userName = userName;
-    this.frameworkName = `${this.userName}~${this.jobName}`;
-  }
-}
-
-Job.prototype.put = async function(config, rawConfig) {
+async function put(frameworkName, config, rawConfig) {
+  const [userName] = frameworkName.split('~');
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  await util.promisify(userModel.checkUserVc)(this.userName, virtualCluster);
+  await util.promisify(userModel.checkUserVc)(userName, virtualCluster);
 
   // generate framework description and prepare container scripts on hdfs
-  const frameworkDescription = await prepareContainerScripts(this.frameworkName, this.userName, config, rawConfig);
+  const frameworkDescription = await prepareContainerScripts(frameworkName, userName, config, rawConfig);
 
   // send request to framework launcher
   const response = await axios({
     method: 'put',
-    url: launcherConfig.frameworkPath(this.frameworkName),
-    headers: launcherConfig.webserviceRequestHeaders(this.userName),
+    url: launcherConfig.frameworkPath(frameworkName),
+    headers: launcherConfig.webserviceRequestHeaders(userName),
     data: frameworkDescription,
   });
   if (response.status !== status('Accepted')) {
     throw createError(response.status, 'UnknownError', response.data.raw_body);
   }
-};
+}
+
+async function getJobConfig(frameworkName) {
+  const [userName, jobName] = frameworkName.split('~');
+  const hdfs = new HDFS(launcherConfig.webhdfsUri);
+  const readFile = async (path) => {
+    return util.promisify(hdfs.readFile.bind(hdfs))(path, null);
+  };
+
+  // try to get v2
+  try {
+    const res = await readFile(`/Container/${userName}/${jobName}/JobConfig.yaml`);
+    return yaml.safeLoad(res.content);
+  } catch (e) {
+    // pass
+  }
+
+  // fallback to v1
+  try {
+    const res = await readFile(`/Container/${userName}/${jobName}/JobConfig.json`);
+    return protocolConvert(yaml.safeLoad(res.content));
+  } catch (e) {
+    throw e;
+  }
+}
 
 // module exports
-module.exports = Job;
+module.exports = {
+  getJobConfig,
+  put,
+};
