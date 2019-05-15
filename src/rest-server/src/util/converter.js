@@ -39,7 +39,7 @@ const readFile = async (path) => {
 const protocolConvert = async (jobConfig) => {
   const protocolObj = {
     protocolVersion: '2',
-    name: jobConfig.name,
+    name: jobConfig.jobName,
     type: 'job',
     prerequisites: [
       {
@@ -48,7 +48,7 @@ const protocolConvert = async (jobConfig) => {
         uri: jobConfig.image,
       },
     ],
-    jobRetryCount: jobConfig.retryCount,
+    jobRetryCount: jobConfig.retryCount || 0,
     taskRoles: {},
     deployments: [
       {
@@ -57,7 +57,7 @@ const protocolConvert = async (jobConfig) => {
       },
     ],
     default: {
-      virtualCluster: jobConfig.virtualCluster,
+      virtualCluster: jobConfig.virtualCluster || 'default',
       deployment: 'default',
     },
   };
@@ -149,7 +149,11 @@ const protocolConvert = async (jobConfig) => {
     protocolObj.deployments[0].taskRoles[taskRole.name] = {preCommands};
   }
 
-  return yaml.safeDump(protocolObj);
+  return yaml.safeDump(protocolObj, {
+    skipInvalid: true,
+    lineWidth: 200,
+    noRefs: true,
+  });
 };
 
 // module exports
