@@ -559,6 +559,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectPidFormat': '{{.State.Pid}}',
+          'infoDefaultRuntimeFormat': '{{json .DefaultRuntime}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
