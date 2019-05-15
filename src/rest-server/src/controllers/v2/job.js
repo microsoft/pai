@@ -17,23 +17,42 @@
 
 
 // module dependencies
+const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('../../middlewares/v2/asyncHandler');
-const Job = require('../../models/v2/job');
+const {put, getJobConfig} = require('../../models/v2/job');
+const createError = require('../../util/error');
 
 
 const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
   const userName = req.user.username;
-  const job = new Job(jobName, userName);
-  await job.put(res.locals.protocol, req.body);
+  const frameworkName = `${userName}~${jobName}`;
+  await put(frameworkName, userName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
   });
 });
 
+const getConfig = asyncHandler(async (req, res) => {
+  const [userName, jobName] = req.params.frameworkName.split('~');
+  try {
+    const data = await getJobConfig(userName, jobName);
+    const type = req.accepts(['json', 'yaml']) || 'json';
+    const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
+    return res.status(200).type(type).send(body);
+  } catch (error) {
+    if (error.message.startsWith('[WebHDFS] 404')) {
+      throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`);
+    } else {
+      throw createError.unknown(error);
+    }
+  }
+});
+
 // module exports
 module.exports = {
   update,
+  getConfig,
 };
