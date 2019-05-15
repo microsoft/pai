@@ -27,7 +27,7 @@ import t from './tachyons.scss';
 import {statusColor} from './theme';
 
 export const Badge = ({children, className}) => (
-  <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>
+  <div className={c(FontClassNames.small, t.ph2, t.pv1, mergeStyles({width: '85px'}), className)}>
     {children}
   </div>
 );

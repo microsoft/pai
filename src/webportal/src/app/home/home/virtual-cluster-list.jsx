@@ -66,7 +66,7 @@ const VirtualClusterItem = ({name, info, totalGpu}) => {
             <div className={c(t.flex, t.itemsCenter)}>
               <div
                 className={FontClassNames.xLarge}
-                style={{color, width: '2rem', marginRight: spacing.l1}}
+                style={{color, width: '20px', marginRight: spacing.l1}}
               >
                 {availableGpu}
               </div>
