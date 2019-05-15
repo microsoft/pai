@@ -123,34 +123,35 @@ const update = (req, res, next) => {
   });
 };
 
+const newJob = (name, namespace) => {
+  return new Promise(function(res, rej) {
+    new Job(name, namespace, (job, err) => {
+      if (err) {
+        rej(err);
+      } else {
+        res(job);
+      }
+    });
+  });
+};
+
 /**
  * Async API. Submit or update job
  */
-
 const updateAsync = async (req, res, next) => {
   try {
     const name = req.job.name;
     let data = req.body;
     data.originalData = req.originalBody;
     data.userName = req.user.username;
-    data.jobName = data.userName ? `${data.userName}~${name}` : name;
-    if (!data.originalData.outputDir) {
-      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
-    }
-    for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
-      data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
-      data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
-      data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
-    }
-    const vcList = await vcModel.prototype.getVcListAsyc();
-    if (!vcList.includes(data.virtualCluster)) {
-      return next(createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`));
-    }
-    const hasPermission = await userModelV2.checkUserGroup(data.userName, data.virtualCluster);
-    if (!hasPermission) {
-      return next(createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`));
-    }
-    await
+    await Job.prototype.putJobAsync(name, req.params.username, data);
+    let location = url.format({
+      protocol: req.protocol,
+      host: req.get('Host'),
+      pathname: req.baseUrl + '/' + name,
+    });
+    let job = await newJob(name, req.params.username);
+    return res.status(201).location(location).json(job);
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -241,6 +242,7 @@ module.exports = {
   list,
   get,
   update,
+  updateAsync,
   remove,
   execute,
   getConfig,

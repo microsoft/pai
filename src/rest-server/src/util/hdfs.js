@@ -37,7 +37,7 @@ class Hdfs {
 
   async createFolderAsync(path, options) {
     try {
-      return await this._createFolderPromise(path, options);
+      return await this._createFolderAxios(this._constructTargetUrl(path, options, 'MKDIRS'));
     } catch (error) {
       throw error;
     }
@@ -45,6 +45,14 @@ class Hdfs {
 
   createFile(path, data, options, next) {
     this._createFile(this._constructTargetUrl(path, options, 'CREATE'), data, next);
+  }
+
+  async createFileAsync(path, data, options) {
+    try {
+      return await this._createFileAxios(this._constructTargetUrl(path, options, 'CREATE'), data )
+    } catch (error) {
+      throw error;
+    }
   }
 
   readFile(path, options, next) {
@@ -85,18 +93,16 @@ class Hdfs {
       });
   }
 
-  _createFolderPromise(targetUrl) {
+  async _createFolderAxios(targetUrl) {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Make_a_Directory
-    return new Promise((res, rej) => {
-      unirest.put(targetUrl)
-        .end((response) => {
-          if (response.status === 200) {
-            res({status: 'succeeded'});
-          } else {
-            rej(this._constructErrorObject(response));
-          }
-        });
-    });
+    try {
+      const response = await axios.put(targetUrl);
+      if (response.status === 2000) {
+        return {status: 'succeeded'};
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   _createFolder(targetUrl, next) {
@@ -114,20 +120,19 @@ class Hdfs {
   async _createFileAxios(targetUrl, data) {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
     try {
-      const response = await axios.get(targetUrl, data);
+      const response = await axios.put(targetUrl, data);
       if (response.status === 201) {
         return {status: 'succeeded'};
-      } else if (response.status === 307) {
-        return await this._createFileAxios(
-          response.headers['x-location'] // X-Location header is created in unit test only.
-            ? response.headers['x-location']
-            : response.headers['location'],
-            data,
-        );
-      } else {
-        return
       }
     } catch (error) {
+      if (error.response.status === 307) {
+        return await this._createFileAxios(
+          error.response.headers['x-location'] // X-Location header is created in unit test only.
+            ? error.response.headers['x-location']
+            : error.response.headers['location'],
+          data,
+        );
+      }
       throw error;
     }
   }
