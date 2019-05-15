@@ -258,7 +258,8 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   return frameworkDescription;
 };
 
-async function put(frameworkName, userName, config, rawConfig) {
+async function put(frameworkName, config, rawConfig) {
+  const [userName] = frameworkName.split('~');
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
@@ -279,7 +280,8 @@ async function put(frameworkName, userName, config, rawConfig) {
   }
 }
 
-async function getJobConfig(userName, jobName) {
+async function getJobConfig(frameworkName) {
+  const [userName, jobName] = frameworkName.split('~');
   const hdfs = new HDFS(launcherConfig.webhdfsUri);
   const readFile = async (path) => {
     return util.promisify(hdfs.readFile.bind(hdfs))(path, null);

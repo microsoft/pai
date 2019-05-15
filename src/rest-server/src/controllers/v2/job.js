@@ -28,7 +28,7 @@ const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
   const userName = req.user.username;
   const frameworkName = `${userName}~${jobName}`;
-  await put(frameworkName, userName, res.locals.protocol, req.body);
+  await put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
@@ -36,9 +36,8 @@ const update = asyncHandler(async (req, res) => {
 });
 
 const getConfig = asyncHandler(async (req, res) => {
-  const [userName, jobName] = req.params.frameworkName.split('~');
   try {
-    const data = await getJobConfig(userName, jobName);
+    const data = await getJobConfig(req.param.frameworkName);
     const type = req.accepts(['json', 'yaml']) || 'json';
     const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
     return res.status(200).type(type).send(body);
