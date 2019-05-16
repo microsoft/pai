@@ -53,7 +53,7 @@ function MessageBox(props) {
             </div>
           }
         >
-          {text}
+          <span style={{whiteSpace: 'pre'}}>{text}</span>
         </MessageBar>
       </div>
     </Modal >

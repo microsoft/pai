@@ -20,6 +20,7 @@ import c from 'classnames';
 import {isEqual, isNil} from 'lodash';
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 import React, {useLayoutEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 
 import t from './tachyons.scss';
 
@@ -35,7 +36,7 @@ export const Loading = () => (
 
 // min-height issue hack
 // https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
-export const SpinnerLoading = () => {
+export const SpinnerLoading = ({label = 'Loading...'}) => {
   const [style, setStyle] = useState({});
   useLayoutEffect(() => {
     function layout() {
@@ -67,19 +68,27 @@ export const SpinnerLoading = () => {
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.fixed)} style={style}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
-        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+        <div className={c(t.ml4, FontClassNames.xLarge)}>{label}</div>
       </div>
     </div>
   );
 };
 
-export const MaskSpinnerLoading = () => (
+SpinnerLoading.propTypes = {
+  label: PropTypes.string,
+};
+
+export const MaskSpinnerLoading = ({label = 'Loading...'}) => (
   <div className={c(t.fixed, t.absoluteFill, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
-        <div className={c(t.ml4, FontClassNames.xLarge)}>Loading...</div>
+        <div className={c(t.ml4, FontClassNames.xLarge)}>{label}</div>
       </div>
     </div>
   </div>
 );
+
+MaskSpinnerLoading.propTypes = {
+  label: PropTypes.string,
+};
