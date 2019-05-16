@@ -37,7 +37,6 @@ function createGroup(value) {
   if (res['error']) {
     throw new Error('Group schema error\n${error}');
   }
-  console.log(res);
   return res['value'];
 }
 

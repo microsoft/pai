@@ -141,24 +141,12 @@ async function create(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = key ? Buffer.from(key).toString('hex') : '';
-    console.log('Testing.............');
-    console.log(value);
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
       'externalName': value['externalName'],
       'extension': value['extension'],
     });
-    const a = {
-      'data': {
-        'groupname': groupInstance['groupname'],
-        'description': groupInstance['description'],
-        'externalName': groupInstance['externalName'],
-        'extension': JSON.stringify(groupInstance['extension']),
-      },
-    };
-    console.log('Testing aaaaa.............');
-    console.log(a);
     let groupData = {
       'metadata': {'name': hexKey},
       'data': {
@@ -170,9 +158,6 @@ async function create(key, value, config) {
     };
     return await request.post(`${config.namespace}/secrets`, groupData);
   } catch (error) {
-    console.log('-----------------------------------------------');
-    console.log(error);
-    console.log('-----------------------------------------------');
     throw error.response;
   }
 }
