@@ -265,15 +265,5 @@ const getUserList = (next) => {
   });
 };
 
-const setDefaultAdmin = () => {
-  update(secretConfig.adminName, secretConfig.adminPass, true, false, (err, res) => {
-    if (err) {
-      throw new Error('unable to set default admin');
-    } else {
-      logger.info('Create default admin succeed');
-    }
-  });
-};
-
 // module exports
 module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT};
