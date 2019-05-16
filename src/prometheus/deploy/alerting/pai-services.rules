@@ -43,7 +43,7 @@ groups:
           summary: "{{$labels.pai_service_name}} in {{$labels.instance}} not up detected"
 
       - alert: JobExporterHangs
-        expr: irate(collector_iteration_count_total[5m]) == 0
+        expr: rate(collector_iteration_count_total[10m]) == 0
         for: 5m
         labels:
           type: pai_service

@@ -27,6 +27,7 @@ const userModel = require('../user');
 const {protocolConvert} = require('../../util/converter');
 const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
+const protocolSecret = require('../../util/protocolSecret');
 const logger = require('../../config/logger');
 const azureEnv = require('../../config/azure');
 const paiConfig = require('../../config/paiConfig');
@@ -121,6 +122,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
       jobName: frameworkName,
       userName: userName,
       image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
+      auth: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth,
       authFile: null,
       virtualCluster: frameworkDescription.platformSpecificParameters.queue,
     },
@@ -234,9 +236,10 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
     JSON.stringify(frameworkDescription, null, 2), userName, '644')
   );
   // upload original config file to hdfs
+  // mask secrets field before uploading
   hdfsPromises.push(
     upload(`${pathPrefix}/${launcherConfig.jobConfigFileName}`.replace(/json$/, 'yaml'),
-    rawConfig, userName, '644')
+    protocolSecret.mask(rawConfig), userName, '644')
   );
 
   // generate ssh key

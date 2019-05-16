@@ -320,6 +320,13 @@ if [[ -d "/dev/infiniband" ]]; then
   infiniband_flags+='--cap-add=IPC_LOCK --device=/dev/infiniband'
 fi
 
+{{# jobData.auth }}
+set +x
+docker login --username {{ jobData.auth.username }} --password {{ jobData.auth.password }} {{ jobData.auth.registryuri }} \
+  || { echo 'Authorized failed' ; exit 1; }
+set -x
+{{/ jobData.auth }}
+
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
   eval 'cred=($(hdfs dfs -cat {{ jobData.authFile }}))' \
