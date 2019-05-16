@@ -22,9 +22,11 @@ const groupSchema = Joi.object().keys({
     .token()
     .required(),
   description: Joi.string()
-    .empty(''),
+    .empty('')
+    .default(''),
   externalName: Joi.string()
-    .empty(''),
+    .empty('')
+    .default(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .required(),
