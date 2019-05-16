@@ -24,7 +24,7 @@ const userSchema = Joi.object().keys({
     .required(),
   email: Joi.string()
     .email()
-    .empty(''),
+    .empty('')
     .default(''),
   grouplist: Joi
     .array()

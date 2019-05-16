@@ -157,6 +157,8 @@ if (config.env !== 'test') {
           extension: {},
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
+        // eslint-disable-next-line no-console
+        console.log('Create admin user account successfully.');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log('Failed to create admin user account configured in configuration.');
