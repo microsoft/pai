@@ -42,6 +42,8 @@ spec:
         - mountPath: /auth-configuration
           name: auth-configuration-rest-server
 {% endif %}
+        - mountPath: /group-configuration
+          name: group-configuration-rest-server
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
         env:
@@ -113,3 +115,6 @@ spec:
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+      - name: group-configuration-rest-server
+        configMap:
+          name: group-configuration

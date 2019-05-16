@@ -30,7 +30,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
 }
 
-authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/group.yaml', 'utf8'));
+authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/group-configuration/group.yaml', 'utf8'));
 
 // define the schema for authn
 const authnSchema = Joi.object().keys({
