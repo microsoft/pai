@@ -141,6 +141,8 @@ async function create(key, value, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = key ? Buffer.from(key).toString('hex') : '';
+    console.log('Testing.............');
+    console.log(value);
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
       'description': value['description'],
