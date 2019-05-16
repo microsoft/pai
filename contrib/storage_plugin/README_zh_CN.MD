@@ -6,18 +6,18 @@ A tool to manage external storage in PAI.
 - [ Team wise storage usages ](#Usages)
     - [ Setup server ](#Usages_setup_server)	
     - [ Create storage server in PAI ](#Usages_server)
-	  - [ Create storage config in PAI ](#Usages_config)
+    - [ Create storage config in PAI ](#Usages_config)
     - [ Create storage user in PAI(optional) ](#Usages_user)
     - [ Use Storage in PAI ](#Usages_job)
-		- [ Example ](#Usages_example)
+    - [ Example ](#Usages_example)
 - [ Storage data structure ](#Data_structure)
-  - [ Server data structure ](#Server_data)
-		- [ Nfs Server data structure ](#Nfs_data)
-		- [ Samba Server data structure ](#Samba_data)
-		- [ Azurefile Server data structure ](#Azurfile_data)
-		- [ Azureblob Server data structure ](#Azureblob_data)
-	- [ Config data structure ](#Config_data)
-  - [ User data structure ](#User_data)
+    - [ Server data structure ](#Server_data)
+        - [ Nfs Server data structure ](#Nfs_data)
+        - [ Samba Server data structure ](#Samba_data)
+        - [ Azurefile Server data structure ](#Azurfile_data)
+        - [ Azureblob Server data structure ](#Azureblob_data)
+    - [ Config data structure ](#Config_data)
+    - [ User data structure ](#User_data)
 
 ## Team wise storage usages <a name="Usages"></a>
 
@@ -94,19 +94,18 @@ The structure of samba server is as follows:
 ```
 -- root
     -- data
-		-- users
-		    -- user1
-				-- user2
-				...
+        -- users
+            -- user1
+            -- user2
+            ...
 ```
 Now we want all members of "paigroup" mount server's data folder to /data, and user's data (e.g user1) to /user by default. The admin should setup storage config in PAI using:
 ```bash
 ./storagectl.py server set smbserver samba 10.0.0.1 root paismb paipwd local
 ./storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver users/%USER -d
 ```
-Then when "paiuser" from "paigroup" use "Submit NAS Job" plugin to submit job, the following page will be shown:
- 
-
+Then when "paiuser" from "paigroup" use "Submit NAS Job" plugin to submit job, the following page will be shown: <br/>
+![SUBMIT_NAS_JOB](SubmitNASJob.png)
 
 ## Team wise storage data structures <a name="Data_structure"></a>
 
@@ -193,9 +192,7 @@ Then when "paiuser" from "paigroup" use "Submit NAS Job" plugin to submit job, t
 ```json
 {
 	"servers": [
-		"servername1",
-		"servername2",
-		...
+		"servername",
 	]
 }
 ```
