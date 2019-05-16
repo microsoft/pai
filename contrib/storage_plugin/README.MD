@@ -3,6 +3,7 @@
 A tool to manage external storage in PAI.
 
 ## Index
+- [ What is team wise storage](#Team_storage)
 - [ Team wise storage usages ](#Usages)
     - [ Setup server ](#Usages_setup_server)	
     - [ Create storage server in PAI ](#Usages_server)
@@ -18,6 +19,14 @@ A tool to manage external storage in PAI.
         - [ Azureblob Server data structure ](#Azureblob_data)
     - [ Config data structure ](#Config_data)
     - [ User data structure ](#User_data)
+
+## What is team wise storage <a name="Team_storage"></a>
+Team wise storage is a solution that helps admin to manage NAS(network attached storage) by team/group. After admin configured team wise storage settings, users can easily use NAS in their jobs.<br/>
+Team wise storage solution offers:
+- Multiple NAS support, including NFS, Samba, Azurefile and Azureblob
+- Configurable mount structure settings
+- Mixed usage for different NAS
+- Configuration for Team/Group scope
 
 ## Team wise storage usages <a name="Usages"></a>
 
