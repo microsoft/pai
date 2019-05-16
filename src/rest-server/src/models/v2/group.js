@@ -102,6 +102,7 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
     console.log('error happens');
     console.log(error);
     if (error.status === 404) {
+      console.log(`begein to create a new group for ${groupname}`)
       await createGroup(groupname, groupValue);
     } else {
       throw error;
