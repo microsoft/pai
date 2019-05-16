@@ -158,6 +158,9 @@ async function create(key, value, config) {
     };
     return await request.post(`${config.namespace}/secrets`, groupData);
   } catch (error) {
+    console.log('-----------------------------------------------');
+    console.log(error);
+    console.log('-----------------------------------------------');
     throw error.response;
   }
 }

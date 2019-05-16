@@ -77,13 +77,8 @@ const deleteGroup = async (groupname) => {
 
 const createGroup = async (groupname, groupValue) => {
   try {
-    console.log('-------------------------------------------------------');
-    console.log(groupname);
-    console.log(groupValue);
     return await crudGroup.create(groupname, groupValue, crudConfig);
   } catch (error) {
-    console.log(error);
-    console.log('-------------------------------------------------------');
     throw error;
   }
 };
