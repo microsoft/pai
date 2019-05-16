@@ -17,9 +17,10 @@
 
 import os
 import sys
-import common
-import logging
 import time
+import common
+import readline
+import logging
 import logging.config
 
 
