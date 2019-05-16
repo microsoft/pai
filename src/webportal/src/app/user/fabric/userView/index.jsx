@@ -34,7 +34,7 @@ import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
 import InfoEditor from './InfoEditor';
-import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
+import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserRequest, updateUserGithubPATRequest} from '../conn';
 
 require('./user-edit-modal-component.scss');
 
@@ -190,7 +190,7 @@ export default function UserView() {
   };
 
   const updateUserAccount = (username, password, admin) => {
-    updateUserAccountRequest(username, password, admin)
+    updateUserRequest(username, password, admin)
       .then(updateUserInfoCallback)
       .catch(showMessageBox);
   };

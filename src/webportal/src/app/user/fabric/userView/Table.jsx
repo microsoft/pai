@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo} from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton} from 'office-ui-fabric-react';
+import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -131,6 +131,7 @@ export default function Table() {
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
+            styles={{root: ColorClassNames.neutralQuaternaryAltBackground}}
           >
             Edit
           </DefaultButton>

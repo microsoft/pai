@@ -17,15 +17,18 @@
 
 import React, {useContext} from 'react';
 
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
-import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
+import {PrimaryButton, CommandBar, getTheme} from 'office-ui-fabric-react';
+
+import t from '../../../components/tachyons.scss';
 
 import Context from './Context';
 
 function BottomBar() {
   const {submit} = useContext(Context);
 
-  const buttonPrimaryStyles = {margin: '1rem'};
+  const {spacing} = getTheme();
+
+  const buttonPrimaryStyles = {margin: spacing.l1};
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -44,7 +47,7 @@ function BottomBar() {
     <React.Fragment>
       <CommandBar
         farItems={[getSubmit()]}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: t.bgTransparent}}
       />
     </React.Fragment>
   );

@@ -17,9 +17,10 @@
 
 import React, {useState, useEffect} from 'react';
 
-import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
-import {Fabric, Stack} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, getTheme} from 'office-ui-fabric-react';
 import {countBy, findIndex} from 'lodash';
+
+import t from '../../../components/tachyons.scss';
 
 import Context from './Context';
 import BackButton from '../components/Back';
@@ -28,11 +29,12 @@ import Table from './Table';
 import BottomBar from './BottomBar';
 import MessageBox from '../components/MessageBox';
 import {toBool, isFinished} from './utils';
+import {getAllUsersRequest, getAllVcsRequest, createUserRequest, updateUserGithubPATRequest, updateUserVcRequest} from '../conn';
 
-import Loading from '../components/Loading';
+import {MaskSpinnerLoading} from '../../../components/loading';
+import {initTheme} from '../../../components/theme';
 
-import webportalConfig from '../../../config/webportal.config';
-import userAuth from '../../user-auth/user-auth.component';
+import {checkAdmin} from '../../user-auth/user-auth.component';
 
 const csvParser = require('papaparse');
 const stripBom = require('strip-bom-string');
@@ -42,6 +44,7 @@ const columnAdmin = 'admin';
 const columnVC = 'virtual cluster';
 const columnGithubPAT = 'githubPAT';
 
+initTheme();
 initializeIcons();
 
 export default function BatchRegister() {
@@ -51,30 +54,15 @@ export default function BatchRegister() {
   const [allUsers, setAllUsers] = useState([]);
 
   const refreshAllVcs = () => {
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters`,
-      type: 'GET',
-      dataType: 'json',
-      success: (data) => {
-        setVirtualClusters(Object.keys(data).sort());
-      },
+    getAllVcsRequest().then((data) => {
+      setVirtualClusters(Object.keys(data).sort());
     });
   };
   useEffect(refreshAllVcs, []);
 
   const refreshAllUsers = () => {
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user`,
-        type: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: (data) => {
-          setAllUsers(data.map((user) => user.username));
-        },
-      });
+    getAllUsersRequest().then((data) => {
+      setAllUsers(data.map((user) => user.username));
     });
   };
   useEffect(refreshAllUsers, []);
@@ -141,6 +129,7 @@ export default function BatchRegister() {
             }
           }
         }
+        user[columnVC] = parsedVCs.join(',');
       }
     }
     return true;
@@ -197,128 +186,79 @@ export default function BatchRegister() {
     fileInput.click();
   };
 
-  const addUser = (username, password, admin, vc, githubPAT) => {
-    let deferredObject = new $.Deferred();
-    userAuth.checkToken((token) => {
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/user`,
-        data: {
-          username,
-          password,
-          admin: toBool(admin),
-          modify: false,
-        },
-        type: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        dataType: 'json',
-        success: () => {
-          let githubPATReq = null;
-          if (githubPAT) {
-            githubPATReq = $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
-              data: {
-                githubPAT: githubPAT,
-              },
-              type: 'PUT',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              dataType: 'json',
-            });
-          }
-          $.when(githubPATReq).then(
-            () => {
-              let vcReq = null;
-              // Admin user VC update will be executed in rest-server
-              if (!toBool(admin) && vc) {
-                vcReq = $.ajax({
-                  url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-                  data: {
-                    virtualClusters: vc,
-                  },
-                  type: 'PUT',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                  dataType: 'json',
-                });
-              }
-              $.when(vcReq).then(
-                () => {
-                  deferredObject.resolve({
-                    isSuccess: true,
-                    message: `User ${username} created successfully`,
-                  });
-                },
-                (xhr) => {
-                  const res = JSON.parse(xhr.responseText);
-                  deferredObject.resolve({
-                    isSuccess: true,
-                    message: `User ${username} created successfully but failed when update virtual clusters: ${res.message}`,
-                  });
-                }
-              );
-            },
-            (xhr) => {
-              const res = JSON.parse(xhr.responseText);
-              deferredObject.resolve({
-                isSuccess: true,
-                message: `User ${username} created successfully but failed when update githubPAT: ${res.message}`,
-              });
-            }
-          );
-        },
-        error: (xhr) => {
-          const res = JSON.parse(xhr.responseText);
-          deferredObject.resolve({
-            isSuccess: false,
-            message: `User ${username} created failed: ${res.message}`,
-          });
-        },
-      });
-    });
-    return deferredObject.promise();
-  };
+  const submit = async () => {
+    showLoading('Processing...');
+    for (let i = 0; i < userInfos.length; i++) {
+      const userInfo = userInfos[i];
 
-  const addUserRecursively = (index) => {
-    if (index == 0) {
-      showLoading('Processing...');
-    }
-    if (index >= userInfos.length) {
-      refreshAllUsers();
-      refreshAllVcs();
-      hideLoading();
-      setTimeout(() => {
-        const finishedStatus = countBy(userInfos, 'status.isSuccess');
-        if (finishedStatus.false) {
-          showMessageBox(`Create users finished with ${finishedStatus.false} failed.`);
-        } else {
-          showMessageBox('Create users finished.');
-        }
-      }, 100);
-    } else {
-      let userInfo = userInfos[index];
       if (isFinished(userInfo)) {
-        addUserRecursively(++index);
-      } else {
-        addUser(userInfo[columnUsername],
-          userInfo[columnPassword],
-          userInfo[columnAdmin],
-          userInfo[columnVC],
-          userInfo[columnGithubPAT])
-          .then((result) => {
-            userInfo.status = result;
-            setUserInfos(userInfos.slice());
-            addUserRecursively(++index);
+        continue;
+      }
+
+      const successResult = {
+        isSuccess: true,
+        message: `User ${userInfo[columnUsername]} created successfully`,
+      };
+
+      let result = await createUserRequest(
+        userInfo[columnUsername],
+        userInfo[columnPassword],
+        toBool(userInfo[columnAdmin])).then(() => {
+          return successResult;
+        }).catch((err) => {
+          return {
+            isSuccess: false,
+            message: `User ${userInfo[columnUsername]} created failed: ${String(err)}`,
+          };
+        });
+      if (!result.isSuccess) {
+        userInfo.status = result;
+        setUserInfos(userInfos.slice());
+        continue;
+      }
+
+      if (userInfo[columnGithubPAT]) {
+        result = await updateUserGithubPATRequest(
+          userInfo[columnUsername],
+          userInfo[columnGithubPAT]).then(() => {
+            return successResult;
+          }).catch((err) => {
+            return {
+              isSuccess: true,
+              message: `User ${userInfo[columnUsername]} created successfully but failed when update githubPAT: ${String(err)}`,
+            };
           });
       }
-    }
-  };
 
-  const submit = () => {
-    addUserRecursively(0);
+      // Admin user VC update will be executed in rest-server
+      if (!toBool(userInfo[columnAdmin]) && userInfo[columnVC]) {
+        result = await updateUserVcRequest(
+          userInfo[columnUsername],
+          userInfo[columnVC]).then(() => {
+            return successResult;
+          }).catch((err) => {
+            return {
+              isSuccess: true,
+              message: `User ${userInfo[columnUsername]} created successfully but failed when update virtual clusters: ${String(err)}`,
+            };
+          });
+      }
+
+      userInfo.status = result;
+      setUserInfos(userInfos.slice());
+    }
+
+    refreshAllUsers();
+    refreshAllVcs();
+    hideLoading();
+    setTimeout(() => {
+      const finishedStatus = countBy(userInfos, 'status.isSuccess');
+      if (finishedStatus.false) {
+        showMessageBox(`Create users finished with ${finishedStatus.false} failed.`);
+      } else {
+        showMessageBox('Create users finished.');
+      }
+    }, 100);
   };
 
   const addNew = () => {
@@ -357,6 +297,8 @@ export default function BatchRegister() {
       setMessageBox({text: ''});
     } else if (typeof value === 'string') {
       setMessageBox({text: value});
+    } else if (!value.hasOwnProperty('text')) {
+      setMessageBox({text: String(value)});
     } else {
       setMessageBox(value);
     }
@@ -369,33 +311,33 @@ export default function BatchRegister() {
   };
 
   useEffect(() => {
-    userAuth.checkToken(() => {
-      if (!userAuth.checkAdmin()) {
-        showMessageBox({
-          text: 'Non-admin is not allowed to do this operation.',
-          dismissedCallback: () => {
-            window.location.href = '/';
-          },
-        });
-      }
-    });
+    if (!checkAdmin()) {
+      showMessageBox({
+        text: 'Non-admin is not allowed to do this operation.',
+        dismissedCallback: () => {
+          window.location.href = '/';
+        },
+      });
+    }
   }, []);
 
   const hideSubmit = findIndex(userInfos, (userInfo) => {
     return userInfo.status == undefined || userInfo.status.isSuccess == false;
   }) == -1;
 
+  const {spacing} = getTheme();
+
   return (
     <Context.Provider value={context}>
-      <Fabric style={{height: '100%'}}>
-        <Stack verticalFill styles={{root: {position: 'relative', padding: '2rem'}}} gap='1rem'>
+      <Fabric className={t.h100}>
+        <Stack verticalFill styles={{root: [t.relative, {padding: spacing.l1}]}} gap={spacing.s2}>
           <Stack.Item>
             <BackButton />
           </Stack.Item>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
-          <Stack.Item grow styles={{root: {overflow: 'auto', backgroundColor: 'white', padding: '1rem'}}}>
+          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {paddingTop: spacing.s2}]}}>
             <Table />
           </Stack.Item>
           <Stack.Item>
@@ -403,7 +345,7 @@ export default function BatchRegister() {
           </Stack.Item>
         </Stack>
       </Fabric>
-      {loading.show && <Loading label={loading.text} />}
+      {loading.show && <MaskSpinnerLoading label={loading.text} />}
       {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
     </Context.Provider>
   );
