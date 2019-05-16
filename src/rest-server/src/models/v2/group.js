@@ -123,7 +123,7 @@ if (config.env !== 'test') {
       // eslint-disable-next-line no-console
       console.log('Create admin group configured in configuration.');
       // eslint-disable-next-line no-console
-      console.log(authConfig.groupConfig)
+      console.log(authConfig.groupConfig);
       const adminGroup = {
         'groupname': authConfig.groupConfig.adminGroup.groupname,
         'description': authConfig.groupConfig.adminGroup.description,
