@@ -29,13 +29,13 @@ const userGrouplistUpdateInputSchema = Joi.object().keys({
 });
 
 // define the input schema for the 'update user password' api
-const userPasswordUpdateInputSchema = Joi.Object().keys({
+const userPasswordUpdateInputSchema = Joi.object().keys({
   oldPassword: Joi.string().min(6).required(),
   newPassword: Joi.string().min(6).required(),
 });
 
 // define the input schema for the 'create user' api
-const userCreateInputSchema = Joi.Object().keys({
+const userCreateInputSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
