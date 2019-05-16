@@ -93,6 +93,7 @@ async function read(key, config) {
     });
     return groupInstance;
   } catch (error) {
+    console.log(error);
     throw error.response;
   }
 }
