@@ -99,6 +99,7 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
     console.log(groupValue);
     await getGroup(groupname);
   } catch (error) {
+    console.log(error);
     if (error.status === 404) {
       await createGroup(groupname, groupValue);
     } else {
