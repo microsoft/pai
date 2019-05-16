@@ -326,7 +326,7 @@ export function MountDirectoriesForm({
 
   const { api, user } = useContext(Context);
 
-  const [userGroups, setUserGroups] = useState<string[]>(["PAI"]);
+  const [userGroups, setUserGroups] = useState<string[]>([]);
   const [serverNames, setServerNames] = useState<string[]>([]);
   const [configs, setConfigs] = useState<IConfig[]>([]);
   const [selectedConfigs, setSelectedConfigs] = useState<IConfig[]>(get(defaultValue, "selectedConfigs", []));
@@ -476,7 +476,7 @@ export function MountDirectoriesForm({
           returnValue = server.address + ":" + server.rootPath;
           break;
         case "samba":
-          returnValue = "//" + server.address + server.rootPath;
+          returnValue = "//" + server.address + "/" + server.rootPath;
           break;
         case "azurefile":
           returnValue = server.dataStore + "/" + server.fileShare;
@@ -489,7 +489,53 @@ export function MountDirectoriesForm({
     return returnValue;
   }, [servers]);
 
-  const showMountInfos = (selectedConfig: IConfig) => {
+  const showConfigSets = () => {
+    if (userGroups.length === 0) {
+      return null;
+    } else {
+      return (
+        <div>
+          <label htmlFor="job-nas">
+            <span className="text-danger">*</span> Network attached storage:
+          </label>
+          <div>
+            <label>
+              Group NAS Config Sets :
+            </label>
+          </div>
+          {configs.map((config, index) => showConfigs(config, index))}
+        </div>
+      );
+    }
+  };
+
+  const showMountDiv = () => {
+    if (selectedConfigs.length === 0) {
+      return null;
+    } else {
+      return (
+        <div>
+          <label>
+            Mount Info:
+          </label>
+          <table className="table table-striped table-dark">
+            <thead>
+              <tr>
+                <th scope="col" style={mountPointTableDataStyle}>MountPoint</th>
+                <th scope="col">ServerPath</th>
+                <th scope="col">Config</th>
+              </tr>
+            </thead>
+            <tbody>
+            {selectedConfigs.map((selectedConfig) => showConfigMounts(selectedConfig))}
+            </tbody>
+          </table>
+        </div>
+        );
+    }
+  };
+
+  const showConfigMounts = (selectedConfig: IConfig) => {
     {
       if (selectedConfig.mountInfos !== undefined) {
         return selectedConfig.mountInfos.map((mountInfo, index) => {
@@ -527,36 +573,8 @@ export function MountDirectoriesForm({
 
   return (
     <div>
-      <div>
-        <label htmlFor="job-name">
-          <span className="text-danger">*</span> Mounts
-        </label>
-      </div>
-
-      <div>
-        <label>
-          Mount Config Sets :
-        </label>
-      </div>
-      {configs.map((config, index) => showConfigs(config, index))}
-
-      <div>
-        <label>
-          Mount Info:
-        </label>
-        <table className="table table-striped table-dark">
-          <thead>
-            <tr>
-              <th scope="col" style={mountPointTableDataStyle}>MountPoint</th>
-              <th scope="col">ServerPath</th>
-              <th scope="col">Config</th>
-            </tr>
-          </thead>
-          <tbody>
-          {selectedConfigs.map((selectedConfig) => showMountInfos(selectedConfig))}
-          </tbody>
-        </table>
-      </div>
+      {showConfigSets()}
+      {showMountDiv()}
     </div>
   );
 }
