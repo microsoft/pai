@@ -77,8 +77,13 @@ const deleteGroup = async (groupname) => {
 
 const createGroup = async (groupname, groupValue) => {
   try {
+    console.log('-------------------------------------------------------');
+    console.log(groupname);
+    console.log(groupValue);
     return await crudGroup.create(groupname, groupValue, crudConfig);
   } catch (error) {
+    console.log(error);
+    console.log('-------------------------------------------------------');
     throw error;
   }
 };
@@ -93,14 +98,8 @@ const updateGroup = async (groupname, groupValue) => {
 
 const createGroupIfNonExistent = async (groupname, groupValue) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log(groupname);
-    // eslint-disable-next-line no-console
-    console.log(groupValue);
     await getGroup(groupname);
   } catch (error) {
-    console.log('error happens');
-    console.log(error);
     if (error.status === 404) {
       console.log(`begein to create a new group for ${groupname}`)
       await createGroup(groupname, groupValue);
