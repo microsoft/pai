@@ -91,6 +91,10 @@ const updateGroup = async (groupname, groupValue) => {
 
 const createGroupIfNonExistent = async (groupname, groupValue) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log(groupname);
+    // eslint-disable-next-line no-console
+    console.log(groupValue);
     await getGroup(groupname);
   } catch (error) {
     if (error.status === 404) {
