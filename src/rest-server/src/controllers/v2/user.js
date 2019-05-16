@@ -27,6 +27,9 @@ const getUser = async (req, res, next) => {
     const userInfo = await userModel.getUser(username);
     return res.status(200).json(userInfo);
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -49,7 +52,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist = await groupModel.updateGroup(username);
       req.grouplist = grouplist;
       if (grouplist && grouplist.length === 0) {
-        return next(createError('Forbidden', 'NoUserError', 'No Permission.'));
+        return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
       }
     }
     const userValue = {

@@ -38,6 +38,7 @@ class Authentication:
     def run(self):
         if self.service_configuration["OIDC"] is False:
             return self.service_configuration
+        print self.service_configuration
         return self.service_configuration
 
     def validation_post(self, cluster_object_model):

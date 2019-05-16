@@ -113,7 +113,7 @@ if (authnConfig.authnMethod === 'OIDC') {
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenV2Controller.get);
 }
 
 // module exports
