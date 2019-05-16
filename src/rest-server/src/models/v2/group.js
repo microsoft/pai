@@ -116,6 +116,8 @@ const updateExternalName2Groupname = async () => {
 if (config.env !== 'test') {
   (async function() {
     try {
+      // eslint-disable-next-line no-console
+      console.log('Create admin group configured in configuration.');
       const adminGroup = {
         'groupname': authConfig.groupConfig.adminGroup.groupname,
         'description': authConfig.groupConfig.adminGroup.description,
@@ -127,13 +129,18 @@ if (config.env !== 'test') {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);
       }
     } catch (error) {
-      throw error;
+      // eslint-disable-next-line no-console
+      console.log('Failed to create admin group configured in configuration.');
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   })();
 
   if (authConfig.authnMethod !== 'OIDC') {
     (async function() {
       try {
+        // eslint-disable-next-line no-console
+        console.log('Create admin user account configured in configuration.');
         const userValue = {
           username: secretConfig.adminName,
           email: '',
@@ -143,7 +150,10 @@ if (config.env !== 'test') {
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
       } catch (error) {
-        throw error;
+        // eslint-disable-next-line no-console
+        console.log('Failed to create admin user account configured in configuration.');
+        // eslint-disable-next-line no-console
+        console.log(error);
       }
     })();
   } else {
