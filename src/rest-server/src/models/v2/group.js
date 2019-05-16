@@ -129,9 +129,15 @@ if (config.env !== 'test') {
         'extension': authConfig.groupConfig.adminGroup.extension,
       };
       await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
+      // eslint-disable-next-line no-console
+      console.log('Create admin group successfully.');
+      // eslint-disable-next-line no-console
+      console.log('Create non-admin group configured in configuration.');
       for (const groupItem of authConfig.groupConfig.grouplist) {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);
       }
+      // eslint-disable-next-line no-console
+      console.log('Create non-admin group successfully.');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('Failed to create admin group configured in configuration.');
