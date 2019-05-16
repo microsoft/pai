@@ -131,7 +131,7 @@ export default function Table() {
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
-            styles={{root: ColorClassNames.neutralQuaternaryAltBackground}}
+            styles={{root: ColorClassNames.neutralQuaternaryBackground}}
           >
             Edit
           </DefaultButton>

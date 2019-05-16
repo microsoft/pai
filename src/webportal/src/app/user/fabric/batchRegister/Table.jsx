@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import styled from 'styled-components';
@@ -310,13 +310,12 @@ export default function Table() {
         removeRow(userInfo);
       }
       return (
-        <div className={c([t.dib, t.vMid, t.w80])}>
           <DefaultButton
             onClick={onClick}
+            styles={{root: ColorClassNames.neutralQuaternaryBackground}}
           >
             Remove
           </DefaultButton>
-        </div>
       );
     },
   };
