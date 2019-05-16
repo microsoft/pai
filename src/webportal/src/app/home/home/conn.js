@@ -56,7 +56,11 @@ export async function listVirtualClusters() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'UnauthorizedUserError') {
+      window.location.replace('/index.html');
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 
