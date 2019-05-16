@@ -151,10 +151,10 @@ async function create(key, value, config) {
     });
     const a = {
       'data': {
-        'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
-        'description': Buffer.from(groupInstance['description']).toString('base64'),
-        'externalName': Buffer.from(groupInstance['externalName']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
+        'groupname': groupInstance['groupname'],
+        'description': groupInstance['description'],
+        'externalName': groupInstance['externalName'],
+        'extension': JSON.stringify(groupInstance['extension']),
       },
     };
     console.log('Testing aaaaa.............');
