@@ -34,7 +34,7 @@ import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
 import InfoEditor from './InfoEditor';
-import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
+import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest} from '../conn';
 
 require('./user-edit-modal-component.scss');
 
@@ -195,12 +195,6 @@ export default function UserView() {
       .catch(showMessageBox);
   };
 
-  const updateUserGithubPAT = (username, githubPAT) => {
-    updateUserGithubPATRequest(username, githubPAT)
-      .then(updateUserInfoCallback)
-      .catch(showMessageBox);
-  };
-
   const context = {
     allUsers,
     refreshAllUsers,
@@ -245,7 +239,6 @@ export default function UserView() {
             user={showEditInfo.user}
             updateUserAccount={updateUserAccount}
             updateUserVC={updateUserVC}
-            updateUserGithubPAT={updateUserGithubPAT}
             hideEditUser={hideEditUser} />}
       </Modal>
       {loading.show && <MaskSpinnerLoading label={loading.text} />}
