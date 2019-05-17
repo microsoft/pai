@@ -86,15 +86,32 @@ export function parseGpuAttr(attr) {
   return res;
 }
 
-export function isClonable(jobConfig) {
+export function isJobV2(rawJobConfig) {
+  return !isNil(rawJobConfig.protocol_version) || !isNil(rawJobConfig.protocolVersion);
+}
+
+export function isClonable(rawJobConfig) {
   // disable clone for old yaml job
-  if (isNil(jobConfig)) {
+  if (isNil(rawJobConfig)) {
     return false;
-  } else if (!isNil(jobConfig.protocol_version)) {
+  } else if (!isNil(rawJobConfig.protocol_version)) {
     return false;
-  } else if (!isNil(jobConfig.protocolVersion)) {
-    return !isNil(get(jobConfig, 'extras.submitFrom'));
+  } else if (!isNil(rawJobConfig.protocolVersion)) {
+    return !isNil(get(rawJobConfig, 'extras.submitFrom'));
   } else {
     return true;
   }
+}
+
+export function getTaskConfig(rawJobConfig, name) {
+  if (rawJobConfig && rawJobConfig.taskRoles) {
+    if (isJobV2(rawJobConfig)) {
+      // v2
+      return rawJobConfig.taskRoles[name];
+    } else {
+      // v1
+      return rawJobConfig.taskRoles.find((x) => x.name === name);
+    }
+  }
+  return null;
 }
