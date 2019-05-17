@@ -9,9 +9,8 @@ OpenPAI VS Code Client is an extension to connect PAI clusters, submit AI jobs, 
     - [Prerequisites](#prerequisites)
     - [Steps](#steps)
     - [Limitations](#limitations)
-  - [Manual](#manual)
+  - [Reference](#reference)
     - [GUI](#gui)
-  - [Commands](#commands)
     - [Command Palette](#command-palette)
     - [PAI Cluster Explorer](#pai-cluster-explorer)
     - [Settings](#settings)
@@ -86,7 +85,7 @@ As local simulation is a close but still different environment with OpenPAI clus
 - The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
 - Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
 
-## Manual
+## Reference
 
 ### GUI
 
@@ -105,8 +104,6 @@ There are two parts in the side bar.
     You can view jobs in OpenPAI cluster. The lists refresh periodically, and the icon shows the status of each job. You can open a job in browser with double clicking it.
 
 ![job list](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
-
-## Commands
 
 ### Command Palette
 
