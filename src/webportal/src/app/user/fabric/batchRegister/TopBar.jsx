@@ -25,7 +25,7 @@ function TopBar() {
   const {importFromCSV, downloadTemplate, addNew} = useContext(Context);
 
   const {spacing} = getTheme();
-  const buttonMarginStyle = {margin: `0 ${spacing.s1}`};
+  const buttonMarginStyle = {marginRight: spacing.m};
   const buttonNormalBackgroundStyle = ColorClassNames.neutralQuaternaryBackground;
 
   /**
@@ -37,7 +37,7 @@ function TopBar() {
     iconProps: {
       iconName: 'OpenFolderHorizontal',
     },
-    buttonStyles: {root: [buttonMarginStyle, {marginLeft: `-${spacing.s1}`}]},
+    buttonStyles: {root: [buttonMarginStyle]},
     commandBarButtonAs: PrimaryButton,
     onClick: importFromCSV,
   };
@@ -76,7 +76,7 @@ function TopBar() {
     <React.Fragment>
       <CommandBar
         items={topBarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {backgroundColor: 'transparent', paddingLeft: spacing.s1, paddingRight: spacing.s1}}}
       />
     </React.Fragment>
   );
