@@ -18,6 +18,7 @@
 from ..clusterObjectModel import cluster_object_model
 from ..k8sPaiLibrary.maintainlib import common
 import sys
+import readline
 import logging
 import logging.config
 
