@@ -238,7 +238,7 @@ export default function Table() {
     minWidth: 100,
     maxWidth: 100,
     name: 'Status',
-    className: c([FontClassNames.mediumPlus, t.pa0, t.flex, t.itemsCenter]),
+    className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
 
@@ -253,9 +253,11 @@ export default function Table() {
         return undefined;
       }
       return (
-        <TooltipHost content={message}>
-          <StatusBadge status={statusText} />
-        </TooltipHost>
+        <div className={c(t.flex, t.itemsCenter, t.h100)}>
+          <TooltipHost content={message}>
+            <StatusBadge status={statusText} />
+          </TooltipHost>
+        </div>
       );
     },
   };
