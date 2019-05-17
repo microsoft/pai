@@ -19,8 +19,6 @@ import React, {useContext} from 'react';
 
 import {PrimaryButton, CommandBar, getTheme} from 'office-ui-fabric-react';
 
-import t from '../../../components/tachyons.scss';
-
 import Context from './Context';
 
 function BottomBar() {
@@ -47,7 +45,7 @@ function BottomBar() {
     <React.Fragment>
       <CommandBar
         farItems={[getSubmit()]}
-        styles={{root: t.bgTransparent}}
+        styles={{root: {background: 'transparent'}}}
       />
     </React.Fragment>
   );
