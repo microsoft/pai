@@ -219,7 +219,7 @@ export default function UserView() {
   return (
     <Context.Provider value={context}>
       <Fabric className={t.h100}>
-        <Stack verticalFill styles={{root: [t.relative]}}>
+        <Stack verticalFill styles={{root: [t.relative, {padding: `0 ${spacing.l1} ${spacing.l1}`}]}}>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
