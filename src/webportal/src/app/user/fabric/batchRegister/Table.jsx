@@ -19,7 +19,6 @@ import React, {useContext} from 'react';
 import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 
 import c from 'classnames';
-import styled from 'styled-components';
 import t from '../../../components/tachyons.scss';
 import {StatusBadge} from '../../../components/status-badge';
 
@@ -95,13 +94,7 @@ export default function Table() {
     },
   };
 
-  const DropdownDisabledDiv = styled.div`
-    background-color: #ffffff;
-    border: 1px solid #a6a6a6;
-    margin-left: -12px;
-    margin-right: -32px;
-    padding-left: 12px;
-  `;
+  const dropdownTitleStyle = [t.bgWhite, {border: '1px solid #a6a6a6'}];
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -128,17 +121,15 @@ export default function Table() {
         <Dropdown
           options={options}
           disabled={finished}
+          styles={{title: dropdownTitleStyle}}
           defaultSelectedKey={String(toBool(admin))}
           onChange={(_event, option, _index) => {
             userInfo.admin = option.key;
           }}
           onRenderTitle={(options) => {
-            const FixedDiv = finished ? DropdownDisabledDiv : styled.div``;
             const [{text}] = options;
             return (
-              <FixedDiv>
-                <span className={t.black}>{text}</span>
-              </FixedDiv>
+              <span className={t.black}>{text}</span>
             );
           }}
         />
@@ -171,20 +162,6 @@ export default function Table() {
           return [];
         }
       };
-      const getDisplayVirtualClusterString = (virtualClusterString) => {
-        const displayVCs = parseVirtualClusterString(virtualClusterString);
-        let displayText;
-        if (displayVCs.length == 0) {
-          displayText = <span className={c([t.black, t.h100])}>&nbsp;</span>;
-        } else {
-          let innerText = displayVCs[0];
-          if (displayVCs.length > 1) {
-            innerText = innerText + ` (+${displayVCs.length - 1})`;
-          }
-          displayText = <span className={c([t.black, t.h100])}>{innerText}</span>;
-        }
-        return displayText;
-      };
       let vcs = [];
       const parsedVCs = parseVirtualClusterString(userInfo['virtual cluster']);
       parsedVCs.forEach((vc) => {
@@ -195,45 +172,35 @@ export default function Table() {
         }
       });
       const finished = isFinished(userInfo);
-      if (finished) {
-        return (
-          <Dropdown
-            disabled
-            options={options}
-            defaultSelectedKey={options[0].key}
-            onRenderTitle={(_options) => {
-              return (
-                <DropdownDisabledDiv>
-                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
-                </DropdownDisabledDiv>
-              );
-            }}
-          />
-        );
-      } else {
-        return (
-          <Dropdown
-            multiSelect
-            options={options}
-            defaultSelectedKeys={vcs}
-            onChange={(_event, option, _index) => {
-              if (option.selected) {
-                vcs.push(option.text);
-              } else {
-                vcs.splice(vcs.indexOf(option.text), 1);
+      return (
+        <Dropdown
+          disabled={finished}
+          styles={{title: dropdownTitleStyle}}
+          multiSelect
+          options={options}
+          defaultSelectedKeys={vcs}
+          onChange={(_event, option, _index) => {
+            if (option.selected) {
+              vcs.push(option.text);
+            } else {
+              vcs.splice(vcs.indexOf(option.text), 1);
+            }
+            userInfo['virtual cluster'] = vcs.join(',');
+          }}
+          onRenderTitle={(_options) => {
+            const displayVCs = parseVirtualClusterString(userInfo['virtual cluster']);
+            if (displayVCs.length == 0) {
+              return null;
+            } else {
+              let innerText = displayVCs[0];
+              if (displayVCs.length > 1) {
+                innerText = innerText + ` (+${displayVCs.length - 1})`;
               }
-              userInfo['virtual cluster'] = vcs.join(',');
-            }}
-            onRenderTitle={(_options) => {
-              return (
-                <div>
-                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
-                </div>
-              );
-            }}
-          />
-        );
-      }
+              return <span className={t.black}>{innerText}</span>;
+            }
+          }}
+        />
+      );
     },
   };
 
@@ -287,7 +254,7 @@ export default function Table() {
       }
       return (
         <TooltipHost content={message}>
-            <StatusBadge status={statusText} />
+          <StatusBadge status={statusText} />
         </TooltipHost>
       );
     },
@@ -310,12 +277,12 @@ export default function Table() {
         removeRow(userInfo);
       }
       return (
-          <DefaultButton
-            onClick={onClick}
-            styles={{root: ColorClassNames.neutralQuaternaryBackground}}
-          >
-            Remove
-          </DefaultButton>
+        <DefaultButton
+          onClick={onClick}
+          styles={{root: ColorClassNames.neutralQuaternaryBackground}}
+        >
+          Remove
+        </DefaultButton>
       );
     },
   };

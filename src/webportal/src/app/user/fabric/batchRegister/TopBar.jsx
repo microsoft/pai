@@ -37,7 +37,7 @@ function TopBar() {
     iconProps: {
       iconName: 'OpenFolderHorizontal',
     },
-    buttonStyles: {root: [buttonMarginStyle, {marginLeft: '-8px'}]},
+    buttonStyles: {root: [buttonMarginStyle, {marginLeft: `-${spacing.s1}`}]},
     commandBarButtonAs: PrimaryButton,
     onClick: importFromCSV,
   };
