@@ -25,4 +25,6 @@ kubectl create configmap  auth-configuration --from-file=auth-configmap/ --dry-r
 
 kubectl create configmap  group-configuration --from-file=group-configmap/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
+kubectl create configmap  job-exit-spec-configuration --from-file=job-exit-spec-config/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+
 popd > /dev/null
