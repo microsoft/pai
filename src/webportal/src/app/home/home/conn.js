@@ -17,6 +17,7 @@
 
 import {get, isNil} from 'lodash';
 import querystring from 'querystring';
+import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 
@@ -30,7 +31,11 @@ export async function listJobs() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'UnauthorizedUserError') {
+      userLogout();
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 
@@ -45,7 +50,11 @@ export async function getUserInfo() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'UnauthorizedUserError') {
+      userLogout();
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 
@@ -56,7 +65,11 @@ export async function listVirtualClusters() {
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    if (json.code === 'UnauthorizedUserError') {
+      userLogout();
+    } else {
+      throw new Error(json.message);
+    }
   }
 }
 

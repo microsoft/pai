@@ -21,8 +21,6 @@ import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorCl
 import {PropTypes} from 'prop-types';
 import {findIndex} from 'lodash';
 
-import t from '../../../components/tachyons.scss';
-
 import Context from './Context';
 import Filter from './Filter';
 import {toBool} from './utils';
@@ -56,7 +54,7 @@ function KeywordSearchBox() {
     <SearchBox
       underlined
       placeholder="Filter by keyword"
-      styles={{root: [t.bgTransparent, t.selfCenter, {width: '220px'}]}}
+      styles={{root: {width: '220px', background: 'transparent', alignSelf: 'center'}}}
       value={filter.keyword}
       onChange={onKeywordChange}
     />
@@ -86,7 +84,7 @@ function TopBar() {
     return {admins, virtualClusters};
   }, [allUsers]);
 
-  const transparentStyles = {root: [t.bgTransparent]};
+  const transparentStyles = {root: {background: 'transparent'}};
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -179,7 +177,7 @@ function TopBar() {
   const btnClear = {
     key: 'clear',
     name: 'Clear',
-    buttonStyles: {root: [t.bgTransparent, t.h100]},
+    buttonStyles: {root: {background: 'transparent', height: '100%'}},
     iconOnly: true,
     iconProps: {
       iconName: 'Cancel',
