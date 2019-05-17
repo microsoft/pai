@@ -306,6 +306,26 @@ gpu_id=$(echo $gpu_id | sed "s/,$//g")
 printf "%s %s\n%s\n\n" "[INFO]" "GPU_ID" "$gpu_id"
 printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 
+nvidia_flags=''
+# check docker runtime
+default_runtime=$(docker info --format {{{ infoDefaultRuntimeFormat }}})
+if [ "$default_runtime" = "nvidia" ]; then
+  nvidia_flags+="--runtime=nvidia --env NVIDIA_VISIBLE_DEVICES=$gpu_id"
+else
+  nvidia_flags+="--runtime=runc --env NVIDIA_VISIBLE_DEVICES=void $nvidia_devices"
+fi
+
+infiniband_flags=''
+if [[ -d "/dev/infiniband" ]]; then
+  infiniband_flags+='--cap-add=IPC_LOCK --device=/dev/infiniband'
+fi
+
+{{# jobData.auth }}
+set +x
+docker login --username {{ jobData.auth.username }} --password {{ jobData.auth.password }} {{ jobData.auth.registryuri }} \
+  || { echo 'Authorized failed' ; exit 1; }
+set -x
+{{/ jobData.auth }}
 
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
@@ -508,7 +528,7 @@ mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
 container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/appcache/$APP_ID/$CONTAINER_ID
 
-# Pull docker image and run
+# pull docker image and run
 docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
 
@@ -518,7 +538,6 @@ docker run --name $docker_name \
   --init \
   --tty \
   --rm \
-  --runtime=runc \
   --privileged=false \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
@@ -528,7 +547,8 @@ docker run --name $docker_name \
   --cpus={{ taskData.cpuNumber }} \
   --memory={{ taskData.memoryMB }}m \
   --shm-size={{ taskData.shmMB }}m \
-  $nvidia_devices \
+  $nvidia_flags \
+  $infiniband_flags \
   --device=/dev/fuse \
 {{# isDebug }}
   --cap-add=SYS_PTRACE \
@@ -539,8 +559,6 @@ docker run --name $docker_name \
 {{# azRDMA }}
   --volume /var/lib/hyperv:/var/lib/hyperv \
   --volume /etc/dat.conf:/etc/dat.conf \
-  --device=/dev/infiniband/rdma_cm \
-  --device=/dev/infiniband/uverbs0 \
   --ulimit memlock=-1  \
 {{/ azRDMA }}
 {{/ reqAzRDMA }}
@@ -558,7 +576,6 @@ docker run --name $docker_name \
   --label PAI_JOB_VC_NAME={{ jobData.virtualCluster }} \
   --label PAI_USER_NAME={{ jobData.userName }} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{ taskData.name }} \
-  --env NVIDIA_VISIBLE_DEVICES=void \
   --env-file $ENV_LIST \
   --entrypoint="" \
    {{ jobData.image }} \

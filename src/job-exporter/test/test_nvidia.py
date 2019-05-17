@@ -36,9 +36,9 @@ class TestNvidia(base.TestBase):
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
 
         zero = nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError(),
-                "0", "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b")
+                "0", "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b", 60.0)
         one = nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError(),
-                "1", "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6")
+                "1", "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6", 59.0)
 
         target_smi_info = {"1": one, "0": zero, "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b": zero, "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6": one}
 
@@ -51,9 +51,9 @@ class TestNvidia(base.TestBase):
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
 
         zero = nvidia.NvidiaGpuStatus(0.000, 0.000, [], nvidia.EccError(),
-                "0", "GPU-57567e11-0be2-381b-5132-2ad95c262e58")
+                "0", "GPU-57567e11-0be2-381b-5132-2ad95c262e58", 24.0)
         one = nvidia.NvidiaGpuStatus(0.000, 0.000, [], nvidia.EccError(),
-                "1", "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8")
+                "1", "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8", 24.0)
 
         target_smi_info = {"0": zero, "GPU-57567e11-0be2-381b-5132-2ad95c262e58": zero, "1": one, "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8": one}
 
