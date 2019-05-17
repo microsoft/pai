@@ -29,7 +29,7 @@ import Table from './Table';
 import BottomBar from './BottomBar';
 import MessageBox from '../components/MessageBox';
 import {toBool, isFinished} from './utils';
-import {getAllUsersRequest, getAllVcsRequest, createUserRequest, updateUserGithubPATRequest, updateUserVcRequest} from '../conn';
+import {getAllUsersRequest, getAllVcsRequest, createUserRequest, updateUserVcRequest} from '../conn';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
 import {initTheme} from '../../../components/theme';
@@ -42,7 +42,6 @@ const columnUsername = 'username';
 const columnPassword = 'password';
 const columnAdmin = 'admin';
 const columnVC = 'virtual cluster';
-const columnGithubPAT = 'githubPAT';
 
 initTheme();
 initializeIcons();
@@ -73,7 +72,6 @@ export default function BatchRegister() {
       [columnPassword]: '111111',
       [columnAdmin]: false,
       [columnVC]: 'default',
-      [columnGithubPAT]: '',
     }]);
     let universalBOM = '\uFEFF';
     let filename = 'userinfo.csv';
@@ -215,19 +213,6 @@ export default function BatchRegister() {
         userInfo.status = result;
         setUserInfos(userInfos.slice());
         continue;
-      }
-
-      if (userInfo[columnGithubPAT]) {
-        result = await updateUserGithubPATRequest(
-          userInfo[columnUsername],
-          userInfo[columnGithubPAT]).then(() => {
-            return successResult;
-          }).catch((err) => {
-            return {
-              isSuccess: true,
-              message: `User ${userInfo[columnUsername]} created successfully but failed when update githubPAT: ${String(err)}`,
-            };
-          });
       }
 
       // Admin user VC update will be executed in rest-server

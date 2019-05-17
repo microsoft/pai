@@ -28,7 +28,7 @@ import {statusColorMapping} from '../../components/theme';
 
 import t from '../../components/tachyons.scss';
 
-const GpuChart = ({className, gpuPerNode}) => {
+const GpuChart = ({style, gpuPerNode}) => {
   const maxVal = Math.max(...Object.values(gpuPerNode));
   const data = Array(maxVal + 1).fill(0);
   for (const key of Object.keys(gpuPerNode)) {
@@ -92,8 +92,8 @@ const GpuChart = ({className, gpuPerNode}) => {
   });
 
   return (
-    <Card className={className}>
-      <Stack styles={{root: [t.h100]}} gap='l1'>
+    <Card style={style}>
+      <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             Available GPU nodes
@@ -110,7 +110,7 @@ const GpuChart = ({className, gpuPerNode}) => {
 };
 
 GpuChart.propTypes = {
-  className: PropTypes.string,
+  style: PropTypes.object,
   gpuPerNode: PropTypes.object.isRequired,
 };
 

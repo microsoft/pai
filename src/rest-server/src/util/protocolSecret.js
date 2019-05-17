@@ -16,10 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const changeGithubPATComponent = require('./how-to-config-github-pat.component.ejs');
+const mask = (protocolYAML) => {
+  let maskYAML = protocolYAML + '\nZ';
+  maskYAML = maskYAML.replace(/(^secrets:)[^]*?(^\w)/m, '$1 ******\n$2');
+  maskYAML = maskYAML.slice(0, -2);
+  return maskYAML;
+};
 
-$('#content-wrapper').html(changeGithubPATComponent);
-
-$('#sidebar-menu--documents').addClass('active');
-$('#sidebar-menu--documents--how-to-config-github-pat').addClass('active');
+// module exports
+module.exports = {
+  mask,
+};

@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -207,32 +207,6 @@ export default function Table() {
   /**
    * @type {import('office-ui-fabric-react').IColumn}
    */
-  const githubPATColumn = {
-    key: 'githubPAT',
-    minWidth: 80,
-    maxWidth: 200,
-    name: 'Github PAT',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender: (userInfo) => {
-      const {githubPAT} = userInfo;
-      return (
-        <TextField
-          readOnly={isFinished(userInfo)}
-          defaultValue={githubPAT}
-          onChange={(_event, newValue) => {
-            userInfo.githubPAT = newValue;
-          }}
-        />
-      );
-    },
-  };
-  githubPATColumn.onRender.displayName = 'onRenderGithubPATColumn';
-
-  /**
-   * @type {import('office-ui-fabric-react').IColumn}
-   */
   const statusColumn = {
     key: 'status',
     minWidth: 100,
@@ -295,7 +269,6 @@ export default function Table() {
     passwordColumn,
     adminColumn,
     virtualClusterColumn,
-    githubPATColumn,
     actionColumn,
   ];
 

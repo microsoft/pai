@@ -31,21 +31,6 @@
             <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
       </form>
     <% } %>
-    <div class="box-header with-border user-edit-border">
-        <h3 class="box-title">Update Github PAT</h3>
-    </div>
-    <form id="form-update-github-token" class="form-register" onsubmit="updateUserGithubPAT('<%= username %>'); return false;">
-        <label for="inputGithubPAT" class="sr-only">GithubPAT</label>
-        <input type="text" name="githubPAT" id="update-github-token-input-githubPAT" class="form-control"
-          placeholder=
-          <% if (hasGithubPAT === 'true') { %>
-            "******"
-          <% } else { %>
-            "N/A"
-          <% } %>
-        >
-        <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserGithubPAT('<%= username %>')">Update Github PAT</button>
-    </form>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-default" onclick="hideEditUser()">Close</button>

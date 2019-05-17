@@ -82,18 +82,6 @@ export const updateUserRequest = async (username, password, admin) => {
   return await createOrUpdateUserRequest(username, password, admin, true);
 };
 
-export const updateUserGithubPATRequest = async (username, githubPAT) => {
-  const url = `${config.restServerUri}/api/v1/user/${username}/githubPAT`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify({githubPAT}),
-  });
-};
-
 export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v1/virtual-clusters`;
   return await fetchWrapper(url);
