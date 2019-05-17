@@ -22,6 +22,7 @@ import sys
 import subprocess
 import jinja2
 import argparse
+import readline
 import logging
 import logging.config
 
