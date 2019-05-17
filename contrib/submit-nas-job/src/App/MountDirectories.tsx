@@ -339,8 +339,6 @@ export function MountDirectoriesForm({
           setUserGroups(groupList);
         });
       } else {
-        // TODO: Remove after AD intgration.
-        setUserGroups(["PAI"]);
         throw Error(`HTTP ${response.status}`);
       }
     });
