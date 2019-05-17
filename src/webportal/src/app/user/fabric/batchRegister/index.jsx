@@ -40,7 +40,6 @@ const columnUsername = 'username';
 const columnPassword = 'password';
 const columnAdmin = 'admin';
 const columnVC = 'virtual cluster';
-const columnGithubPAT = 'githubPAT';
 
 initializeIcons();
 
@@ -85,7 +84,6 @@ export default function BatchRegister() {
       [columnPassword]: '111111',
       [columnAdmin]: false,
       [columnVC]: 'default',
-      [columnGithubPAT]: '',
     }]);
     let universalBOM = '\uFEFF';
     let filename = 'userinfo.csv';
@@ -197,7 +195,7 @@ export default function BatchRegister() {
     fileInput.click();
   };
 
-  const addUser = (username, password, admin, vc, githubPAT) => {
+  const addUser = (username, password, admin, vc) => {
     let deferredObject = new $.Deferred();
     userAuth.checkToken((token) => {
       $.ajax({
@@ -214,12 +212,13 @@ export default function BatchRegister() {
         },
         dataType: 'json',
         success: () => {
-          let githubPATReq = null;
-          if (githubPAT) {
-            githubPATReq = $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
+          let vcReq = null;
+          // Admin user VC update will be executed in rest-server
+          if (!toBool(admin) && vc) {
+            vcReq = $.ajax({
+              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
               data: {
-                githubPAT: githubPAT,
+                virtualClusters: vc,
               },
               type: 'PUT',
               headers: {
@@ -228,44 +227,18 @@ export default function BatchRegister() {
               dataType: 'json',
             });
           }
-          $.when(githubPATReq).then(
+          $.when(vcReq).then(
             () => {
-              let vcReq = null;
-              // Admin user VC update will be executed in rest-server
-              if (!toBool(admin) && vc) {
-                vcReq = $.ajax({
-                  url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-                  data: {
-                    virtualClusters: vc,
-                  },
-                  type: 'PUT',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                  dataType: 'json',
-                });
-              }
-              $.when(vcReq).then(
-                () => {
-                  deferredObject.resolve({
-                    isSuccess: true,
-                    message: `User ${username} created successfully`,
-                  });
-                },
-                (xhr) => {
-                  const res = JSON.parse(xhr.responseText);
-                  deferredObject.resolve({
-                    isSuccess: true,
-                    message: `User ${username} created successfully but failed when update virtual clusters: ${res.message}`,
-                  });
-                }
-              );
+              deferredObject.resolve({
+                isSuccess: true,
+                message: `User ${username} created successfully`,
+              });
             },
             (xhr) => {
               const res = JSON.parse(xhr.responseText);
               deferredObject.resolve({
                 isSuccess: true,
-                message: `User ${username} created successfully but failed when update githubPAT: ${res.message}`,
+                message: `User ${username} created successfully but failed when update virtual clusters: ${res.message}`,
               });
             }
           );
@@ -306,8 +279,7 @@ export default function BatchRegister() {
         addUser(userInfo[columnUsername],
           userInfo[columnPassword],
           userInfo[columnAdmin],
-          userInfo[columnVC],
-          userInfo[columnGithubPAT])
+          userInfo[columnVC])
           .then((result) => {
             userInfo.status = result;
             setUserInfos(userInfos.slice());

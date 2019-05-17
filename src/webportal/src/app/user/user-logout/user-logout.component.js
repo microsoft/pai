@@ -21,7 +21,6 @@ const userLogout = () => {
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
-  cookies.remove('hasGitHubPAT');
   cookies.remove('my-jobs');
   if (webportalConfig.authnMethod === 'basic') {
     window.location.replace('/index.html');

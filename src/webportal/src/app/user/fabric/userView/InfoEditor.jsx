@@ -19,11 +19,10 @@ import React, {useRef} from 'react';
 
 import PropTypes from 'prop-types';
 
-export default function InfoEditor({user: {username = '', admin = '', virtualCluster = '', hasGithubPAT = false}, updateUserAccount, updateUserVC, updateUserGithubPAT, hideEditUser}) {
+export default function InfoEditor({user: {username = '', admin = '', virtualCluster = ''}, updateUserAccount, updateUserVC, hideEditUser}) {
   const inputPassword = useRef(null);
   const chkAdmin = useRef(null);
   const chkVc = useRef(null);
-  const chkGithubPAT = useRef(null);
 
   const handleUpdateAccount = (event) => {
     const password = inputPassword.current.value;
@@ -35,12 +34,6 @@ export default function InfoEditor({user: {username = '', admin = '', virtualClu
   const handleUpdateUserVC = (event) => {
     const vcList = chkVc.current.value;
     updateUserVC(username, vcList);
-    event.preventDefault();
-  };
-
-  const handleUpdateGithubPAT = (event) => {
-    const githubPAT = chkGithubPAT.current.value;
-    updateUserGithubPAT(username, githubPAT);
     event.preventDefault();
   };
 
@@ -78,15 +71,6 @@ export default function InfoEditor({user: {username = '', admin = '', virtualClu
             </form>
           </React.Fragment>
         }
-        <div className="box-header with-border user-edit-border">
-          <h3 className="box-title">Update Github PAT</h3>
-        </div>
-        <form id="form-update-github-token" className="form-register" onSubmit={handleUpdateGithubPAT}>
-          <label htmlFor="inputGithubPAT" className="sr-only">GithubPAT</label>
-          <input type="text" name="githubPAT" ref={chkGithubPAT} id="update-github-token-input-githubPAT" className="form-control"
-            placeholder={hasGithubPAT ? '******' : 'N/A'} />
-          <button className="btn btn-lg btn-primary btn-block" type="button" onClick={handleUpdateGithubPAT}>Update Github PAT</button>
-        </form>
       </div>
       <div className="modal-footer">
         <button type="button" className="btn btn-default" onClick={hideEditUser}>Close</button>
@@ -100,10 +84,8 @@ InfoEditor.propTypes = {
     username: PropTypes.string,
     admin: PropTypes.string,
     virtualCluster: PropTypes.string,
-    hasGithubPAT: PropTypes.bool,
   }),
   updateUserAccount: PropTypes.func,
   updateUserVC: PropTypes.func,
-  updateUserGithubPAT: PropTypes.func,
   hideEditUser: PropTypes.func,
 };

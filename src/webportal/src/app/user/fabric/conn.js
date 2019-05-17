@@ -78,15 +78,3 @@ export const updateUserAccountRequest = async (username, password, admin) => {
     }),
   });
 };
-
-export const updateUserGithubPATRequest = async (username, githubPAT) => {
-  const url = `${config.restServerUri}/api/v1/user/${username}/githubPAT`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify({githubPAT}),
-  });
-};
