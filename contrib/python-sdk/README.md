@@ -8,8 +8,8 @@ By providing a bag of APIs, the SDK can facilitate users access `OpenPAI` servic
 Users can import the SDK as a `python` package in their own scripts, or use the command line interface (CLI) provided. 
 
 - [1. Overview](#1-overview)
-  - [1.1. Who should consider the SDK and CLI tools](#11-who-should-consider-the-sdk-and-cli-tools)
-- [2. Installation and Cluster management](#2-installation-and-cluster-management)
+  - [1.1. Target audience](#11-target-audience)
+- [2. Get started](#2-get-started)
   - [2.1. Installation](#21-installation)
   - [2.2. Define your cluster](#22-define-your-cluster)
   - [2.3. Set default values](#23-set-default-values)
@@ -17,7 +17,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
   - [3.1. Query your existing jobs](#31-query-your-existing-jobs)
   - [3.2. Submit a job with an existing config file](#32-submit-a-job-with-an-existing-config-file)
   - [3.3. Submit a job step by step from sketch up](#33-submit-a-job-step-by-step-from-sketch-up)
-  - [3.4. Add requirements (prerequisites) to job (or task role)](#34-add-requirements-prerequisites-to-job-or-task-role)
+  - [3.4. Add requirements (prerequisites)](#34-add-requirements-prerequisites)
   - [3.5. Submit one-line job in command line](#35-submit-one-line-job-in-command-line)
   - [3.6. _InProgress_ Job management and fetching outputs](#36-inprogress-job-management-and-fetching-outputs)
   - [3.7. Storage access](#37-storage-access)
@@ -40,7 +40,7 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
 
 `OpenPAI` provides multiple ways to handle jobs and do other operations, such as web portal, extension of Visual Studio Code. The SDK and CLI tools make it easy in specific scenarios.
 
-## 1.1. Who should consider the SDK and CLI tools
+## 1.1. Target audience
 
 - Users who prefer command line interface (e.g. former users of the platform `LSF`)
 
@@ -50,7 +50,9 @@ Users can import the SDK as a `python` package in their own scripts, or use the 
 
 - Users who want to reuse their codes inside or outside `OpenPAI`
 
-# 2. Installation and Cluster management
+# 2. Get started
+
+This section will give guidance about installation, cluster management and setting up the variables frequently used. Refer to [examples/0-install-sdk-specify-openpai-cluster.ipynb](examples/0-install-sdk-specify-openpai-cluster.ipynb) for more details.
 
 ## 2.1. Installation
 
@@ -58,10 +60,10 @@ We provide installing method leveraging `pip install`
 
 ```bash
 python -m pip install --upgrade pip
-pip install -U -e "git+https://github.com/Microsoft/pai@sdk-preview-v0.2#egg=openpaisdk&subdirectory=contrib/python-sdk"
+pip install -U -e "git+https://github.com/Microsoft/pai@<sdk-brach>#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
-After installing, please verify by CLI or python binding
+The `<sdk-branch>` (e.g. `sdk-preview-v0.3`) is the branch name which containing the source code of SDK. After installing, please verify by CLI or python binding
 
 ```bash
 opai -h
@@ -96,8 +98,6 @@ Now below command shows all your clusters would be displayed.
 opai cluster list [--name] [-a <cluster-alias>]
 ```
 
-_Note: `-a <alias>` could be omitted if only one cluster is defined_
-
 ## 2.3. Set default values
 
 It is annoying that specify some arguments every time, (e.g. `-a <alias>` or `-i <image>`). During the workflow, user may often reference some variables without changing. For example, it is usually to use the same docker image for multiple jobs, and the storage root doesn't change either. To simplify, it is suggested setting them by `default` command, which would be stored in `.opanpai/defaults.json` in current working directory.
@@ -114,7 +114,7 @@ Here are some frequently used variables.
 | -- | -- |
 | `cluster-alias` | the alias to select which cluster to connect |
 | `image` | docker image name (and tag) to use |
-| `workspace` | the root path in remote storage to store job information (`<workspace>/<job-name>`) |
+| `workspace` | the root path in remote storage to store job information (`<workspace>/jobs/<job-name>`) |
 
 <font color=blue>_Note: some required arguments in below examples are set in defaults (and ignored in the examples), please refer to `help` information by `-h` or `--help`_</font>
 
@@ -124,13 +124,13 @@ The command line tool `opai` provides several useful subcommands.
 
 | Scene | Action | Description |
 | -- | -- | -- |
-| `opai cluster` | `list` | cluster configuration management |
-| `opai default` | `add`, `delete` | add or remove default variables |
-| `opai storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
-| `opai job` | `list`, `new`, `submit` | query, create and summit a job |
-| `opai task` | `add` | add a task role to a job |
-| `opai require` | `pip`, `weblink` | add requirements (prerequisites) to a job or task role |
-| `opai runtime` | `execute` | python SDK run as the runtime |
+| `cluster` | `list` | cluster configuration management |
+| `default` | `add`, `delete` | add or remove default variables |
+| `storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
+| `job` | `list`, `new`, `submit` | query, create and summit a job |
+| `task` | `add` | add a task role to a job |
+| `require` | `pip`, `weblink` | add requirements (prerequisites) to a job or task role |
+| `runtime` | `execute` | python SDK run as the runtime |
 
 ## 3.1. Query your existing jobs
 
@@ -159,9 +159,9 @@ opai task -t <name-2> [-n <num>] [--gpu <gpu>] [--cpu <cpu>] [--mem <memMB>] pyt
 opai job submit [--preview]
 ```
 
-## 3.4. Add requirements (prerequisites) to job (or task role)
+## 3.4. Add requirements (prerequisites)
 
-It is common scenarios that users would prepare their environments by add requirements, such as installing python packages, mapping data storages. 
+It is common scenarios that users would prepare their environments by add requirements, such as installing python packages, mapping data storages. The prerequisites can apply to a specific task role (if both `--job-name, -j` and `--task-role-name, -t` specified) or to all task roles in the job (if only `--job-name` specified).
 
 ```bash
 opai require pip ...
@@ -369,15 +369,7 @@ _Note: the RunTime may only be triggered when in_job_container() is true, or som
 
 # 6. Notebook tutorials
 
-To show the user stories, we prepare some `Jupyter` notebook tutorials. Below is a brief summary of how-to tutorials (some are to be added). 
-
-- [x] [Installation and specify OpenPAI cluster information](examples/0-install-sdk-specify-openpai-cluster.ipynb)
-- [x] [Submit and query job via command line interface from local environment](examples/1-submit-and-query-via-command-line.ipynb)
-- [x] [Submit job from notebook running in local environment](examples/2-submit-job-from-local-notebook.ipynb)
-- [ ] [Access data storage via CLI or code from local and job container]()
-- [x] [Submit jobs with multiple taskroles](examples/1-submit-and-query-via-command-line.ipynb)
-- [ ] [Runtime - fetch user stdout and stderr seperatedly]()
-- [ ] [Runtime - debug experience enhancement]()
+To show the user stories, we prepare some `Jupyter` notebook tutorials. Refer to the directory `examples` for more information.
 
 # 7. Make contributions
 
