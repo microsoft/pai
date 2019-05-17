@@ -33,12 +33,12 @@ describe('User model k8s secret get function test', () => {
 
     // Mock for case1 return all userinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets')
+      .get('/api/v1/namespaces/pai-user-v2/secrets')
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/',
           'resourceVersion': '1062682'
         },
         'items': [
@@ -73,7 +73,7 @@ describe('User model k8s secret get function test', () => {
 
     // mock for case3 username=paitest
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/70616974657374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/70616974657374')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -92,7 +92,7 @@ describe('User model k8s secret get function test', () => {
 
     // mock for case2 username=non_exist
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/6e6f6e5f6578697374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f6578697374')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -147,7 +147,7 @@ describe('User model k8s secret set function test', () => {
   beforeEach(() => {
     // Mock for case2 username=existuser
     nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/657869737475736572', {
+      .put('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572', {
         'metadata':{'name':'657869737475736572'},
         'data': {
           'username': 'ZXhpc3R1c2Vy',
@@ -162,8 +162,8 @@ describe('User model k8s secret set function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'name': '657869737475736572',
-          'namespace': 'pai-user',
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/657869737475736572',
+          'namespace': 'pai-user-v2',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
           'creationTimestamp': '2018-12-07T02:21:42Z'
@@ -180,7 +180,7 @@ describe('User model k8s secret set function test', () => {
 
     // Mock for case1 username=newuser
     nock(apiServerRootUri)
-      .post('/api/v1/namespaces/pai-user/secrets', {
+      .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e657775736572'},
         'data': {
           'username': 'bmV3dXNlcg==',
@@ -195,8 +195,8 @@ describe('User model k8s secret set function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'name': '6e657775736572',
-          'namespace': 'pai-user',
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/6e657775736572',
+          'namespace': 'pai-user-v2',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e657775736572',
           'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
           'resourceVersion': '1116114',
           'creationTimestamp': '2018-12-07T02:29:47Z'
@@ -253,7 +253,7 @@ describe('User Model k8s secret delete function test', () => {
 
     // Mock for case1 username=existuser
     nock(apiServerRootUri)
-      .delete('/api/v1/namespaces/pai-user/secrets/657869737475736572')
+      .delete('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572')
       .reply(200, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -268,7 +268,7 @@ describe('User Model k8s secret delete function test', () => {
 
     // Mock for case2 username=nonexistuser
     nock(apiServerRootUri)
-      .delete('/api/v1/namespaces/pai-user/secrets/6e6f6e657869737475736572')
+      .delete('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e657869737475736572')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',

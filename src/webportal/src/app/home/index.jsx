@@ -30,9 +30,10 @@ import {login} from './index/conn';
 import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
 import {checkToken} from '../user/user-auth/user-auth.component';
-
+import config from '../config/webportal.config';
 import t from 'tachyons-sass/tachyons.scss';
 import url from 'url';
+
 const loginTarget = '/home.html';
 
 if (checkToken(false)) {
