@@ -34,7 +34,7 @@ import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
 import InfoEditor from './InfoEditor';
-import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserAccountRequest, updateUserGithubPATRequest} from '../conn';
+import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserRequest} from '../conn';
 
 require('./user-edit-modal-component.scss');
 
@@ -190,13 +190,7 @@ export default function UserView() {
   };
 
   const updateUserAccount = (username, password, admin) => {
-    updateUserAccountRequest(username, password, admin)
-      .then(updateUserInfoCallback)
-      .catch(showMessageBox);
-  };
-
-  const updateUserGithubPAT = (username, githubPAT) => {
-    updateUserGithubPATRequest(username, githubPAT)
+    updateUserRequest(username, password, admin)
       .then(updateUserInfoCallback)
       .catch(showMessageBox);
   };
@@ -225,7 +219,7 @@ export default function UserView() {
   return (
     <Context.Provider value={context}>
       <Fabric className={t.h100}>
-        <Stack verticalFill styles={{root: [t.relative]}}>
+        <Stack verticalFill styles={{root: [t.relative, {padding: `0 ${spacing.l1} ${spacing.l1}`}]}}>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
@@ -245,7 +239,6 @@ export default function UserView() {
             user={showEditInfo.user}
             updateUserAccount={updateUserAccount}
             updateUserVC={updateUserVC}
-            updateUserGithubPAT={updateUserGithubPAT}
             hideEditUser={hideEditUser} />}
       </Modal>
       {loading.show && <MaskSpinnerLoading label={loading.text} />}

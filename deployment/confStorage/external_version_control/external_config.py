@@ -19,6 +19,7 @@
 import os
 import sys
 import yaml
+import readline
 import logging
 import logging.config
 

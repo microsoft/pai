@@ -17,16 +17,16 @@
 
 import React, {useContext} from 'react';
 
-import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
-import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
+import {DefaultButton, PrimaryButton, CommandBar, getTheme, ColorClassNames} from 'office-ui-fabric-react';
 
 import Context from './Context';
 
 function TopBar() {
   const {importFromCSV, downloadTemplate, addNew} = useContext(Context);
 
-  const buttonPrimaryStyles = {margin: '0 1rem 0 -1rem'};
-  const buttonDefaultStyles = {margin: '0 1rem', backgroundColor: '#DADADA'};
+  const {spacing} = getTheme();
+  const buttonMarginStyle = {marginRight: spacing.m};
+  const buttonNormalBackgroundStyle = ColorClassNames.neutralQuaternaryBackground;
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -37,7 +37,7 @@ function TopBar() {
     iconProps: {
       iconName: 'OpenFolderHorizontal',
     },
-    buttonStyles: {root: buttonPrimaryStyles},
+    buttonStyles: {root: [buttonMarginStyle]},
     commandBarButtonAs: PrimaryButton,
     onClick: importFromCSV,
   };
@@ -51,7 +51,7 @@ function TopBar() {
     iconProps: {
       iconName: 'Download',
     },
-    buttonStyles: {root: buttonDefaultStyles},
+    buttonStyles: {root: [buttonMarginStyle, buttonNormalBackgroundStyle]},
     commandBarButtonAs: DefaultButton,
     onClick: downloadTemplate,
   };
@@ -65,7 +65,7 @@ function TopBar() {
     iconProps: {
       iconName: 'Add',
     },
-    buttonStyles: {root: buttonDefaultStyles},
+    buttonStyles: {root: [buttonMarginStyle, buttonNormalBackgroundStyle]},
     commandBarButtonAs: DefaultButton,
     onClick: addNew,
   };
@@ -76,7 +76,7 @@ function TopBar() {
     <React.Fragment>
       <CommandBar
         items={topBarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {backgroundColor: 'transparent', paddingLeft: spacing.s1, paddingRight: spacing.s1}}}
       />
     </React.Fragment>
   );

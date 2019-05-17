@@ -99,7 +99,7 @@ const Home = () => {
             <ResponsiveGap />
             <ResponsiveItem>
               <VirtualClusterList
-                className={t.h100}
+                style={{height: '100%'}}
                 userInfo={userInfo}
                 totalGpu={totalGpu}
                 virtualClusters={virtualClusters}
@@ -107,7 +107,7 @@ const Home = () => {
             </ResponsiveItem>
             <ResponsiveGap />
             <ResponsiveItem>
-              <GpuChart gpuPerNode={gpuPerNode} className={t.h100} />
+              <GpuChart gpuPerNode={gpuPerNode} style={{height: '100%'}} />
             </ResponsiveItem>
           </div>
         </Stack.Item>
