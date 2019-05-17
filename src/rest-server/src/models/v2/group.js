@@ -22,6 +22,7 @@ const secretConfig = require('../../config/secret');
 const adapter = require('../../util/manager/group/adapter/externalUtil');
 const config = require('../../config/index');
 const userModel = require('./user');
+const logger = require('../../config/logger');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
@@ -118,8 +119,7 @@ const updateExternalName2Groupname = async () => {
 if (config.env !== 'test') {
   (async function() {
     try {
-      // eslint-disable-next-line no-console
-      console.log('Create admin group configured in configuration.');
+      logger.info('Create admin group configured in configuration.');
       const adminGroup = {
         'groupname': authConfig.groupConfig.adminGroup.groupname,
         'description': authConfig.groupConfig.adminGroup.description,
@@ -127,18 +127,14 @@ if (config.env !== 'test') {
         'extension': authConfig.groupConfig.adminGroup.extension,
       };
       await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
-      // eslint-disable-next-line no-console
-      console.log('Create admin group successfully.');
-      // eslint-disable-next-line no-console
-      console.log('Create non-admin group configured in configuration.');
+      logger.info('Create admin group successfully.');
+      logger.info('Create non-admin group configured in configuration.');
       for (const groupItem of authConfig.groupConfig.grouplist) {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);
       }
-      // eslint-disable-next-line no-console
-      console.log('Create non-admin group successfully.');
+      logger.info('Create non-admin group successfully.');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('Failed to create admin group configured in configuration.');
+      logger.error('Failed to create admin group configured in configuration.');
       // eslint-disable-next-line no-console
       console.log(error);
     }
@@ -147,8 +143,7 @@ if (config.env !== 'test') {
   if (authConfig.authnMethod !== 'OIDC') {
     (async function() {
       try {
-        // eslint-disable-next-line no-console
-        console.log('Create admin user account configured in configuration.');
+        logger.info('Create admin user account configured in configuration.');
         const userValue = {
           username: secretConfig.adminName,
           email: '',
@@ -157,11 +152,9 @@ if (config.env !== 'test') {
           extension: {},
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
-        // eslint-disable-next-line no-console
-        console.log('Create admin user account successfully.');
+        logger.info('Create admin user account successfully.');
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('Failed to create admin user account configured in configuration.');
+        logger.error('Failed to create admin user account configured in configuration.');
         // eslint-disable-next-line no-console
         console.log(error);
       }
