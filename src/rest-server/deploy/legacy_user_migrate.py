@@ -27,6 +27,8 @@ class TransferClient:
         self.flag_path = '/v2/keys/transferFlag'
         self.etcd_prefix = '/users/'
         self.secret_ns = "pai-user"
+        self.secret_ns_user_V2 = "pai-user-v2"
+        self.secret_ns_group_v2 = "pai-group"
 
     def etcd_data_parse(self):
         etcd_result = http_get(self.etcd_conn, "/v2/keys/users?recursive=true")
@@ -94,6 +96,39 @@ class TransferClient:
         else:
             logger.error("Connect k8s cluster failed")
             sys.exit(1)
+
+    def prepare_secret_base_path_v2(self):
+        ok = 0
+        ns_res_user_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_user_V2))
+        if ns_res_user_v2['code'] == 200:
+            ok = ok + 1
+        elif ns_res_user_v2['code'] == 404:
+            payload = {"metadata": {"name": self.secret_ns_user_V2}}
+            res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
+            if res['code'] == 201:
+                logger.info("Create user info namespace (pai-user-v2) successfully")
+            else:
+                logger.error("create user info namespace (pai-user-v2) failed")
+                sys.exit(1)
+        else:
+            logger.error("Connect k8s cluster failed when creating user ns v2")
+            sys.exit(1)
+
+        ns_res_group_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_group_v2))
+        if ns_res_group_v2['code'] == 200:
+            ok = ok + 1
+        elif ns_res_group_v2['code'] == 404:
+            payload = {"metadata": {"name": self.secret_ns_group_v2}}
+            res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
+            if res['code'] == 201:
+              logger.info("Create group info namespace (pai-group) successfully")
+            else:
+              logger.error("create group info namespace (pai-group) failed")
+              sys.exit(1)
+        else:
+            logger.error("Connect k8s cluster failed when creating group ns")
+            sys.exit(1)
+
 
     def create_secret_user(self, payload):
         check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns, payload['metadata']['name']))
@@ -165,20 +200,21 @@ def main():
 
     transferCli = TransferClient(etcd_uri, args.k8sUri.replace('http://',''))
 
-    if transferCli.check_transfer_flag():
-        logger.info("Etcd data has already been transferred to k8s secret")
-        return
-
-    etcd_user_list = transferCli.etcd_data_parse()
-    if etcd_user_list:
-        transferCli.prepare_secret_base_path()
-        for user in etcd_user_list:
-            secret_post_data = transferCli.secret_data_prepare(user)
-            transferCli.create_secret_user(secret_post_data)
+    if transferCli.check_transfer_flag() is False:
+      etcd_user_list = transferCli.etcd_data_parse()
+      if etcd_user_list:
+          transferCli.prepare_secret_base_path()
+          for user in etcd_user_list:
+              secret_post_data = transferCli.secret_data_prepare(user)
+              transferCli.create_secret_user(secret_post_data)
+      else:
+          logger.info("No legacy data found")
+      http_post(transferCli.etcd_conn, transferCli.flag_path)
+      logger.info('Legacy user data transfer from etcd to kubernetes secret (pai-user namespace) successfully')
     else:
-        logger.info("No legacy data found")
+      logger.info("Etcd data has already been transferred to k8s secret")
 
-    http_post(transferCli.etcd_conn, transferCli.flag_path)
+
 
     logger.info('Legacy user data transfer from etcd to kubernetes secret successfully')
 
