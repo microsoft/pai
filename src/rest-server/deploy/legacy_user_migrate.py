@@ -114,8 +114,8 @@ class TransferClient:
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
             'email': '',
-            'grouplist': str(base64.b64encode(json.dumps(grouplist)), 'utf-8'),
-            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+            'grouplist': str(base64.b64encode(str(json.dumps(grouplist)).encode('utf-8')), 'utf-8'),
+            'extension': str(base64.b64encode(str(json.dumps(extension)).encode('utf-8')), 'utf-8')
         }
 
         post_data_dict = {}
