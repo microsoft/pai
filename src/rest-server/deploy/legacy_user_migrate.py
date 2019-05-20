@@ -58,14 +58,16 @@ class TransferClient:
         return user_list
 
     def namespace_v1_data_prepare(self):
+        user_list = []
         nsv1_result = http_get(self.k8s_conn, '/api/v1/namespaces/pai-user/secrets/', {'Accept': 'application/json'})
         if nsv1_result['code'] == 200:
-            return json.loads(nsv1_result['data']['items'])
+            user_list = json.loads(nsv1_result['data']['items'])
         elif nsv1_result['code'] == 404:
             logger.info("No ledacy user data found in k8s namespace pai-user")
         else:
             logger.error("Check user data in k8s namespace pai-user")
             sys.exit(1)
+        return user_list
 
     def secret_data_prepare(self, user_info):
         post_data_dict = dict()
@@ -197,7 +199,7 @@ class TransferClient:
     def create_secret_user_v2(self, payload):
         check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_user_v2, payload['metadata']['name']))
         if check_res['code'] == 404:
-            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
+            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns_user_v2), json.dumps(payload))
             if post_res['code'] != 201:
                 logger.error("Create user in k8s secret failed")
                 sys.exit(1)
@@ -205,10 +207,10 @@ class TransferClient:
     def create_secret_group_v2(self, payload):
         check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_group_v2,payload['metadata']['name']))
         if check_res['code'] == 404:
-            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns),
+            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns_group_v2),
                              json.dumps(payload))
             if post_res['code'] != 201:
-                logger.error("Create user in k8s secret failed")
+                logger.error("Create group in k8s secret failed")
                 sys.exit(1)
 
     def check_transfer_flag(self):
