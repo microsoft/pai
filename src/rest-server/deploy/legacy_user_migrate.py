@@ -96,7 +96,6 @@ class TransferClient:
         return post_data_dict
 
     def secret_data_prepare_v2(self, user_info_item):
-        print(user_info_item)
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
 
@@ -108,7 +107,7 @@ class TransferClient:
             grouplist.append(vc_name)
 
         extension = {}
-        if user_info_item['data']['githubPAT'] != '':
+        if 'githubPAT' not in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
 
         user_dict = {
