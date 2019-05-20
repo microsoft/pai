@@ -128,12 +128,12 @@ class TransferClient:
         meta_dict = dict()
         meta_dict['name'] = (''.join([hex(ord(c)).replace('0x', '') for c in groupname]))
 
-        extension = {}
+        extension = '{}'
         group_dict = {
             'groupname': str(base64.b64encode(groupname), 'utf-8'),
             'description': str(base64.b64encode('vc {0}\'s group'.format(groupname)), 'utf-8'),
             'externalName': str(base64.b64encode(''), 'utf-8'),
-            'extension': str(base64.b64encode(str(json.dumps(extension)).encode('utf-8')), 'utf-8'),
+            'extension': str(base64.b64encode(extension.encode('utf-8')), 'utf-8'),
         }
 
         post_data_dict = {}
