@@ -102,7 +102,7 @@ class TransferClient:
         grouplist = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
-        for vc_name in user_info_item['data']['virtualCluster'].split(','):
+        for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
 
@@ -114,8 +114,8 @@ class TransferClient:
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
             'email': '',
-            'grouplist': str(base64.b64encode(str(json.dumps(grouplist)).encode('utf-8')), 'utf-8'),
-            'extension': str(base64.b64encode(str(json.dumps(extension)).encode('utf-8')), 'utf-8')
+            'grouplist': str(base64.b64encode(json.dumps(grouplist)), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
         }
 
         post_data_dict = {}
@@ -128,12 +128,12 @@ class TransferClient:
         meta_dict = dict()
         meta_dict['name'] = (''.join([hex(ord(c)).replace('0x', '') for c in groupname]))
 
-        extension = '{}'
+        extension = {}
         group_dict = {
             'groupname': str(base64.b64encode(groupname), 'utf-8'),
             'description': str(base64.b64encode('vc {0}\'s group'.format(groupname)), 'utf-8'),
             'externalName': str(base64.b64encode(''), 'utf-8'),
-            'extension': str(base64.b64encode(extension.encode('utf-8')), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
         }
 
         post_data_dict = {}
@@ -302,7 +302,6 @@ def main():
           transferCli.create_secret_user_v2(secret_post_data)
       vc_set = transferCli.vc_set
       for vc in vc_set:
-          print(vc)
           secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
           transferCli.create_secret_group_v2(secret_post_data)
       logger.info('Legacy user data transfer from namespace v1 to namespace v2 successfully')
