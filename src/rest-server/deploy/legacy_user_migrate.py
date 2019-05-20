@@ -133,7 +133,7 @@ class TransferClient:
             'groupname': str(base64.b64encode(groupname), 'utf-8'),
             'description': str(base64.b64encode('vc {0}\'s group'.format(groupname)), 'utf-8'),
             'externalName': str(base64.b64encode(''), 'utf-8'),
-            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+            'extension': str(base64.b64encode(str(json.dumps(extension)).encode('utf-8')), 'utf-8'),
         }
 
         post_data_dict = {}
