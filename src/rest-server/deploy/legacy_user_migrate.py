@@ -28,7 +28,7 @@ class TransferClient:
         self.flag_path = '/v2/keys/transferFlag'
         self.etcd_prefix = '/users/'
         self.secret_ns = "pai-user"
-        self.secret_ns_user_V2 = "pai-user-v2"
+        self.secret_ns_user_v2 = "pai-user-v2"
         self.secret_ns_group_v2 = "pai-group"
         self.vc_set = set()
 
@@ -61,7 +61,7 @@ class TransferClient:
         nsv1_result = http_get(self.k8s_conn, '/api/v1/namespaces/pai-user/secrets/', {'Accept': 'application/json'})
         if nsv1_result['code'] == 200:
             return json.loads(nsv1_result['data']['items'])
-        elif etcd_result['code'] == 404:
+        elif nsv1_result['code'] == 404:
             logger.info("No ledacy user data found in k8s namespace pai-user")
         else:
             logger.error("Check user data in k8s namespace pai-user")
@@ -157,9 +157,9 @@ class TransferClient:
 
     def prepare_secret_base_path_v2(self):
         status = [0, 0]
-        ns_res_user_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_user_V2))
+        ns_res_user_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_user_v2))
         if ns_res_user_v2['code'] == 404:
-            payload = {"metadata": {"name": self.secret_ns_user_V2}}
+            payload = {"metadata": {"name": self.secret_ns_user_v2}}
             res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
             if res['code'] == 201:
                 logger.info("Create user info namespace (pai-user-v2) successfully")
@@ -195,7 +195,7 @@ class TransferClient:
                 sys.exit(1)
 
     def create_secret_user_v2(self, payload):
-        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_user_V2, payload['metadata']['name']))
+        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_user_v2, payload['metadata']['name']))
         if check_res['code'] == 404:
             post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
             if post_res['code'] != 201:
