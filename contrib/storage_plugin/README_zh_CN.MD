@@ -17,13 +17,14 @@ A tool to manage external storage in PAI.
         - [ Samba Server data structure ](#Samba_data)
         - [ Azurefile Server data structure ](#Azurfile_data)
         - [ Azureblob Server data structure ](#Azureblob_data)
+        - [ Hdfs Server data structure ](#Hdfs_data)
     - [ Config data structure ](#Config_data)
     - [ User data structure ](#User_data)
 
 ## What is team wise storage <a name="Team_storage"></a>
 Team wise storage is a solution that helps admin to manage NAS(network attached storage) by team/group. After admin configured team wise storage settings, users can easily use NAS in their jobs.<br/>
 Team wise storage solution offers:
-- Multiple NAS support, including NFS, Samba, Azurefile and Azureblob
+- Multiple NAS support, including NFS, Samba, Azurefile, Azureblob and HDFS
 - Configurable mount structure settings
 - Mixed usage for different NAS
 - Configuration for Team/Group scope
@@ -75,6 +76,11 @@ Create server config using command:
 - Azureblob:
 ``` 
 ./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
+```
+
+- HDFS:
+``` 
+./storagectl.py server set NAME hdfs NAMENODE PORT
 ```
 
 ### Create storage config in PAI <a name="Usages_config"></a>  
@@ -172,6 +178,15 @@ Then when "paiuser" from "paigroup" use "Submit NAS Job" plugin to submit job, t
 }
 ```
 
+#### Hdfs Server data structure <a name="Hdfs_data"></a>
+```json
+{
+	"spn": "servername",
+	"type": "hdfs",
+	"namenode": "namenode",
+	"port": "port",
+}
+```
 
 ### Config data structure <a name="Config_data"></a>
 ```json
