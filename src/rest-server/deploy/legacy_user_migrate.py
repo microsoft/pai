@@ -302,6 +302,7 @@ def main():
           transferCli.create_secret_user_v2(secret_post_data)
       vc_set = transferCli.vc_set
       for vc in vc_set:
+          print(vc)
           secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
           transferCli.create_secret_group_v2(secret_post_data)
       logger.info('Legacy user data transfer from namespace v1 to namespace v2 successfully')
