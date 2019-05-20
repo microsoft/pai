@@ -48,6 +48,7 @@ const load = (req, res, next, jobName) => {
 const init = (req, res, next) => {
   const jobName = req.body.jobName;
   new Job(jobName, req.params.username, (job, error) => {
+
     if (error) {
       if (error.code === 'NoJobError') {
         req.job = job;

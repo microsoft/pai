@@ -45,6 +45,7 @@ const submission = [
 
 const query = (req, res, next) => {
   const query = {};
+
   if (req.query.username) {
     query.username = req.query.username;
   }
@@ -52,6 +53,7 @@ const query = (req, res, next) => {
     query.username = req.params.username;
   }
   req._query = query;
+  console.log(query)
   next();
 };
 // module exports
