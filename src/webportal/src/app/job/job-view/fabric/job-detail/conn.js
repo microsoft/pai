@@ -21,7 +21,7 @@ import qs from 'querystring';
 
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
-import {getDurationString, getHumanizedJobStateString} from "./util";
+// import {getDurationString, getHumanizedJobStateString} from "./util";
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
@@ -87,7 +87,7 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl(getHumanizedJobStateString,jobInfo) {
+export function getJobMetricsUrl(getHumanizedJobStateString , jobInfo) {
   let from = jobInfo.jobStatus.createdTime;
   let to = '';
   let status = getHumanizedJobStateString(jobInfo);
