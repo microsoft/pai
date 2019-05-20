@@ -18,7 +18,7 @@
 import React from "react";
 import {
   Callout, DefaultButton, Dropdown, DropdownMenuItemType,
-  Fabric, IDropdownOption, Stack, TextField,
+  Fabric, IDropdownOption, Stack, PrimaryButton, TextField,
   mergeStyleSets,
 } from "office-ui-fabric-react";
 import Cookies from "js-cookie";
@@ -113,7 +113,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
             <Callout
               role="alertdialog"
               target={this.uriConfigCalloutBtn.current}
-              onDismiss={this.closeConfigCallout}
+              onDismiss={this.toggleConfigCallout}
               setInitialFocus={true}
               hidden={!this.state.uriConfigCallout}
             >
@@ -131,6 +131,10 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
                   value={this.state.uriToken}
                   onChange={this.setMarketplaceURIToken}
                 />
+                <Stack gap={20} padding="15px auto 0" horizontalAlign="center" horizontal={true}>
+                  <PrimaryButton text="Apply" onClick={this.applyConfigCallout} />
+                  <DefaultButton text="Discard" onClick={this.discardConfigCallout} />
+                </Stack>
               </Stack>
             </Callout>
           </Stack>
@@ -140,16 +144,31 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   }
 
   private toggleConfigCallout = () => {
-    if (this.state.uriConfigCallout) {
-      this.closeConfigCallout();
-    } else {
-      this.setState({uriConfigCallout: true});
-    }
+    this.setState({uriConfigCallout: !this.state.uriConfigCallout});
   }
 
-  private closeConfigCallout = () => {
+  private applyConfigCallout = () => {
     this.setProtocolOptions();
     this.setState({uriConfigCallout: false});
+  }
+
+  private discardConfigCallout = () => {
+    const marketplaceCookie = Cookies.getJSON("marketplace");
+    if (marketplaceCookie) {
+      this.setState({
+        uri: marketplaceCookie.uri,
+        uriType: marketplaceCookie.type,
+        uriToken: marketplaceCookie.token,
+        uriConfigCallout: false,
+      });
+    } else {
+      this.setState({
+        uri: this.props.defaultURI,
+        uriType: this.props.defaultURIType,
+        uriToken: this.props.defaultURIToken,
+        uriConfigCallout: false,
+      });
+    }
   }
 
   private setMarketplaceURI = (event: React.FormEvent<HTMLElement>, uri?: string) => {
