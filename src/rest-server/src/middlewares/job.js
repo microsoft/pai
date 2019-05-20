@@ -53,7 +53,6 @@ const query = (req, res, next) => {
     query.username = req.params.username;
   }
   req._query = query;
-  console.log(query)
   next();
 };
 // module exports
