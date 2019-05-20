@@ -1,4 +1,3 @@
-
 import sys
 sys.path.append("../..")
 from deployment.paiLibrary.common.kubernetes_handler import get_configmap, update_configmap

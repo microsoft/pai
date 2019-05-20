@@ -40,10 +40,10 @@ class KubernetesOperatorTestCase(unittest.TestCase):
 
         nodes = self.kubernetesOperator.get_nodes()
 
-        self.assertEqual(nodes, {"10.0.0.1", "10.0.0.2"})
+        self.assertSetEqual(nodes, {"10.0.0.1", "10.0.0.2"})
 
     @patch('operator_wrapper.kubernetes_operator.update_configmap')
-    def test_get_nodes(self, update_configmap_mock):
+    def test_set_nodes(self, update_configmap_mock):
         nodes = {"10.0.0.3", "10.0.0.4"}
         nodes_str = "\n".join(nodes)
 

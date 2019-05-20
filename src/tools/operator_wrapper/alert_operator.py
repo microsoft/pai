@@ -1,6 +1,7 @@
-import requests
 import logging
 import sys
+
+from utility.common import request_without_exception
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +17,8 @@ class AlertOperator(object):
         self.alert_manager_url = "http://{}:{}/prometheus/api/v1/query?query=ALERTS".format(prometheus_ip, prometheus_port)
 
     def get_gpu_alert_nodes(self):
-        try:
-            response = requests.get(self.alert_manager_url, timeout=10)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
+        response = request_without_exception(self.alert_manager_url)
+        if response is None:
             sys.exit(1)
 
         if response.json()["status"] != "success":

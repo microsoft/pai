@@ -1,9 +1,10 @@
-import requests
 import logging
 import sys
 import os
-import subprocess
 import re
+import json
+
+from utility.common import request_without_exception, command_without_exception, safe_get
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +33,8 @@ class YarnOperator(object):
 
     def get_node_status(self):
         yarn_nodes_url = "http://{}:8088/ws/v1/cluster/nodes".format(self.master_ip)
-        try:
-            response = requests.get(yarn_nodes_url, timeout=10)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
+        response = request_without_exception(yarn_nodes_url)
+        if response is None:
             sys.exit(1)
 
         nodes_info = response.json()
@@ -48,10 +46,8 @@ class YarnOperator(object):
 
     def decommission_nodes(self):
         command = "yarn --config {} rmadmin -refreshNodes -g -server".format(self.yarn_config_path)
-        try:
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        output = command_without_exception(command)
+        if output is None:
             sys.exit(1)
 
     def get_cluster_label(self):
@@ -59,11 +55,9 @@ class YarnOperator(object):
         # Sample output: "Node Labels: "
         command = "yarn --config {} cluster --list-node-labels".format(self.yarn_config_path)
 
-        try:
-            command_output = subprocess.check_output(command, shell=True).decode("utf8")
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
-            return {}
+        command_output = command_without_exception(command)
+        if command_output is None:
+            sys.exit(1)
 
         lines = command_output.split("\n")
         labels = dict()  # key: label name, value: exclusivity
@@ -93,20 +87,16 @@ class YarnOperator(object):
         labels_str = ",".join(labels_list)
 
         command = "yarn --config {} rmadmin -addToClusterNodeLabels \"{}\"".format(self.yarn_config_path, labels_str)
-        try:
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf8")
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        command_output = command_without_exception(command)
+        if command_output is None:
             sys.exit(1)
 
     def remove_cluster_label(self, labels):
         labels_str = ",".join(labels)   # Labels could be list, set or dict
 
         command = "yarn --config {} rmadmin -removeFromClusterNodeLabels {}".format(self.yarn_config_path, labels_str)
-        try:
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf8")
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        command_output = command_without_exception(command)
+        if command_output is None:
             sys.exit(1)
 
     def label_nodes(self, nodes):
@@ -121,10 +111,8 @@ class YarnOperator(object):
         # yarn rmadmin -replaceLabelsOnNode "node1[:port]=label1 node2=label2" [-failOnUnknownNodes]
         command = "yarn --config {} rmadmin -replaceLabelsOnNode \"{}\" -failOnUnknownNodes"\
             .format(self.yarn_config_path, nodes_str)
-        try:
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf8")
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        command_output = command_without_exception(command)
+        if command_output is None:
             sys.exit(1)
 
     def unlabel_nodes(self, nodes):
@@ -138,19 +126,14 @@ class YarnOperator(object):
 
         command = "yarn --config {} rmadmin -replaceLabelsOnNode \"{}\" -failOnUnknownNodes" \
             .format(self.yarn_config_path, nodes_str)
-        try:
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf8")
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        command_output = command_without_exception(command)
+        if command_output is None:
             sys.exit(1)
 
     def get_node_label(self):
         yarn_nodes_url = "http://{}:8088/ws/v1/cluster/nodes".format(self.master_ip)
-        try:
-            response = requests.get(yarn_nodes_url, timeout=10)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
+        response = request_without_exception(yarn_nodes_url)
+        if response is None:
             sys.exit(1)
 
         nodes_info = response.json()
@@ -161,5 +144,55 @@ class YarnOperator(object):
             current_nodes[host] = node_label
         return current_nodes
 
-    def _generate_queue_xml(self, g):
+    def get_queue_info(self):
+        yarn_scheduler_url = "http://{}:8088/ws/v1/cluster/scheduler".format(self.master_ip)
+        response = request_without_exception(yarn_scheduler_url)
+        if response is None:
+            sys.exit(1)
+
+        scheduler_info = response.json()
+
+        def traverse(queue_info, result_dict):
+            if queue_info["type"] == "capacitySchedulerLeafQueueInfo":
+                result_dict[queue_info["queueName"]] = {
+                    "capacity": queue_info["absoluteCapacity"],
+                    "maxCapacity": queue_info["absoluteMaxCapacity"],
+                    "usedCapacity": queue_info["absoluteUsedCapacity"],
+                    "numActiveJobs": queue_info["numActiveApplications"],
+                    "numJobs": queue_info["numApplications"],
+                    "numPendingJobs": queue_info["numPendingApplications"],
+                    "resourcesUsed": queue_info["resourcesUsed"],
+                    "state": queue_info["state"],
+                    "nodeLabels": queue_info["nodeLabels"],
+                    "capacities": {
+                        partitionCapacities["partitionName"]: {
+                            "capacity": partitionCapacities["absoluteCapacity"],
+                            "maxCapacity": partitionCapacities["absoluteMaxCapacity"],
+                            "usedCapacity": partitionCapacities["absoluteUsedCapacity"],
+                        }
+                        for partitionCapacities in queue_info["capacities"]["queueCapacitiesByPartition"]
+                    },
+                    "preemptionDisabled": queue_info.get("preemptionDisabled", False),
+                    "defaultNodeLabelExpression": queue_info.get("defaultNodeLabelExpression", ""),
+                }
+            elif queue_info["type"] == "capacityScheduler":
+                for queue in queue_info["queues"]["queue"]:
+                    traverse(queue, result_dict)
+            else:
+                logger.error("unsupported scheduler type: {}".format(queue_info["type"]))
+                return
+
+        queues = {}
+        traverse(scheduler_info["scheduler"]["schedulerInfo"], queues)
+        return queues
+
+    def get_partition_resource(self):
         pass
+
+    def _generate_queue_update_xml(self, g):
+        pass
+
+
+if __name__ == "__main__":
+    yarn_op = YarnOperator("10.151.40.133")
+    print(json.dumps(yarn_op.get_queue_info(), indent=2))

@@ -1,0 +1,6 @@
+<configuration>
+            <property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>10.151.40.133</value>
+            </property>
+        </configuration>
