@@ -19,9 +19,10 @@ class EtcdUser:
 
 class TransferClient:
 
-    def __init__(self, etcd_uri, k8s_uri):
+    def __init__(self, etcd_uri, k8s_uri, admin_groupname):
         self.etcd_uri = etcd_uri
         self.k8s_uri = k8s_uri
+        self.admin_group = admin_groupname
         self.etcd_conn = http.client.HTTPConnection(self.etcd_uri)
         self.k8s_conn = http.client.HTTPConnection(self.k8s_uri)
         self.flag_path = '/v2/keys/transferFlag'
@@ -29,6 +30,7 @@ class TransferClient:
         self.secret_ns = "pai-user"
         self.secret_ns_user_V2 = "pai-user-v2"
         self.secret_ns_group_v2 = "pai-group"
+        self.vc_set = set()
 
     def etcd_data_parse(self):
         etcd_result = http_get(self.etcd_conn, "/v2/keys/users?recursive=true")
@@ -54,6 +56,16 @@ class TransferClient:
             logger.error("Check user data in etcd failed")
             sys.exit(1)
         return user_list
+
+    def namespace_v1_data_prepare(self):
+        nsv1_result = http_get(self.k8s_conn, '/api/v1/namespaces/pai-user/secrets/', {'Accept': 'application/json'})
+        if nsv1_result['code'] == 200:
+            return json.loads(nsv1_result['data']['items'])
+        elif etcd_result['code'] == 404:
+            logger.info("No ledacy user data found in k8s namespace pai-user")
+        else:
+            logger.error("Check user data in k8s namespace pai-user")
+            sys.exit(1)
 
     def secret_data_prepare(self, user_info):
         post_data_dict = dict()
@@ -81,6 +93,52 @@ class TransferClient:
 
         return post_data_dict
 
+    def secret_data_prepare_v2(self, user_info_item):
+        meta_dict = dict()
+        meta_dict['name'] = user_info_item['metadata']['name']
+
+        grouplist = []
+        if base64.b64decode(user_info_item['data']['admin']) == 'true':
+            grouplist.append(self.admin_group)
+        for vc_name in user_info_item['metadata']['virtualCluster'].split(','):
+            self.vc_set.add(vc_name)
+            grouplist.append(vc_name)
+
+        extension = {}
+        if user_info_item['data']['githubPAT'] != '':
+            extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
+
+        user_dict = {
+            'username': user_info_item['data']['username'],
+            'password': user_info_item['data']['password'],
+            'email': '',
+            'grouplist': str(base64.b64encode(json.dumps(grouplist)), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+        }
+
+        post_data_dict = {}
+        post_data_dict['metadata'] = meta_dict
+        post_data_dict['data'] = user_dict
+
+        return post_data_dict
+
+    def secret_data_prepare_v2_group(self, groupname):
+        meta_dict = dict()
+        meta_dict['name'] = (''.join([hex(ord(c)).replace('0x', '') for c in groupname]))
+
+        extension = {}
+        group_dict = {
+            'groupname': str(base64.b64encode(groupname), 'utf-8'),
+            'description': str(base64.b64encode('vc {0}\'s group'.format(groupname)), 'utf-8'),
+            'externalName': str(base64.b64encode(''), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+        }
+
+        post_data_dict = {}
+        post_data_dict['metadata'] = meta_dict
+        post_data_dict['data'] = group_dict
+        return post_data_dict
+
     def prepare_secret_base_path(self):
         ns_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns))
         if ns_res['code'] == 200:
@@ -98,42 +156,57 @@ class TransferClient:
             sys.exit(1)
 
     def prepare_secret_base_path_v2(self):
-        ok = 0
+        status = [0, 0]
         ns_res_user_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_user_V2))
-        if ns_res_user_v2['code'] == 200:
-            ok = ok + 1
-        elif ns_res_user_v2['code'] == 404:
+        if ns_res_user_v2['code'] == 404:
             payload = {"metadata": {"name": self.secret_ns_user_V2}}
             res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
             if res['code'] == 201:
                 logger.info("Create user info namespace (pai-user-v2) successfully")
+                status[0] = 1
             else:
                 logger.error("create user info namespace (pai-user-v2) failed")
                 sys.exit(1)
-        else:
+        elif ns_res_user_v2['code'] != 200:
             logger.error("Connect k8s cluster failed when creating user ns v2")
             sys.exit(1)
 
         ns_res_group_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_group_v2))
-        if ns_res_group_v2['code'] == 200:
-            ok = ok + 1
-        elif ns_res_group_v2['code'] == 404:
+        if ns_res_group_v2['code'] == 404:
             payload = {"metadata": {"name": self.secret_ns_group_v2}}
             res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
             if res['code'] == 201:
               logger.info("Create group info namespace (pai-group) successfully")
+              status[1] = 1
             else:
               logger.error("create group info namespace (pai-group) failed")
               sys.exit(1)
-        else:
+        elif ns_res_group_v2['code'] != 200:
             logger.error("Connect k8s cluster failed when creating group ns")
             sys.exit(1)
-
+        return status
 
     def create_secret_user(self, payload):
         check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns, payload['metadata']['name']))
         if check_res['code'] == 404:
             post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
+            if post_res['code'] != 201:
+                logger.error("Create user in k8s secret failed")
+                sys.exit(1)
+
+    def create_secret_user_v2(self, payload):
+        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_user_V2, payload['metadata']['name']))
+        if check_res['code'] == 404:
+            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
+            if post_res['code'] != 201:
+                logger.error("Create user in k8s secret failed")
+                sys.exit(1)
+
+    def create_secret_group_v2(self, payload):
+        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_group_v2,payload['metadata']['name']))
+        if check_res['code'] == 404:
+            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns),
+                             json.dumps(payload))
             if post_res['code'] != 201:
                 logger.error("Create user in k8s secret failed")
                 sys.exit(1)
@@ -185,6 +258,10 @@ def http_post(conn, url, payload=None, headers={}):
 def main():
     parser = argparse.ArgumentParser(description="pai build client")
     parser.add_argument(
+        '-a', '--adminGroup',
+        type=str,
+        required=True)
+    parser.add_argument(
         '-e', '--etcdUri',
         type=str,
         required=True)
@@ -195,10 +272,11 @@ def main():
     args = parser.parse_args()
 
     etcd_uri = args.etcdUri.split(',')[0].replace('http://','')
+    admin_group_name = args.adminGroup
 
     logger.info('Starts to migrate legacy user data from etcd to kubernetes secrets')
 
-    transferCli = TransferClient(etcd_uri, args.k8sUri.replace('http://',''))
+    transferCli = TransferClient(etcd_uri, args.k8sUri.replace('http://',''), admin_group_name)
 
     if transferCli.check_transfer_flag() is False:
       etcd_user_list = transferCli.etcd_data_parse()
@@ -214,9 +292,19 @@ def main():
     else:
       logger.info("Etcd data has already been transferred to k8s secret")
 
-
-
-    logger.info('Legacy user data transfer from etcd to kubernetes secret successfully')
+    res = transferCli.prepare_secret_base_path_v2()
+    if res[0] == 1 and res[1] == 1:
+      ns_pai_user_list = transferCli.namespace_v1_data_prepare()
+      for user in ns_pai_user_list:
+          secret_post_data = transferCli.secret_data_prepare_v2(user)
+          transferCli.create_secret_user_v2(secret_post_data)
+      vc_set = transferCli.vc_set
+      for vc in vc_set:
+          secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
+          transferCli.create_secret_group_v2(secret_post_data)
+      logger.info('Legacy user data transfer from namespace v1 to namespace v2 successfully')
+    else:
+      logger.info("Legacy data has already been transferred from v1 to v2. Skip it.")
 
 if __name__ == "__main__":
     main()
