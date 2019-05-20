@@ -34,12 +34,6 @@ const styles = mergeStyleSets({
     fontWeight: "600",
   },
 
-  subTitle: {
-    fontSize: "16px",
-    fontWeight: "300",
-    color: DefaultPalette.neutralSecondary,
-  },
-
   textfiled: {
     width: 480,
   },
@@ -138,6 +132,7 @@ interface IProtocol {
   contributor: string;
   description: string;
   prerequisitesNum: number;
+  itemKey: string;
   raw: string;
 }
 
@@ -179,7 +174,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     showEditor: false,
     uriConfigCallout: false,
     editorYAML: "",
-    layout: "list" as LayoutType,
+    layout: "grid" as LayoutType,
   };
 
   private uriConfigCalloutBtn = React.createRef<HTMLDivElement>();
@@ -194,7 +189,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         <Stack>
           <Stack horizontal={true} horizontalAlign="center" padding={15}>
             <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
-              Marketplace <span className={styles.subTitle}>Protocol Preview</span>
+              Marketplace
             </Text>
           </Stack>
           {this.state.loading ? this.renderLoading() : this.renderContent()}
@@ -362,12 +357,6 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
                   ariaLabel="Submit protocol job"
                   onClick={this.submitProtocol(protocol)}
                 />
-                <IconButton
-                  iconProps={{ iconName: "FavoriteStar" }}
-                  title="Star protocol job"
-                  ariaLabel="Star protocol job"
-                  onClick={this.starProtocol}
-                />
               </Stack>
               <Persona
                 size={PersonaSize.size32}
@@ -406,11 +395,6 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         iconProps: { iconName: "Share" },
         ariaLabel: "Submit protocol job",
         onClick: this.submitProtocol(protocol),
-      },
-      {
-        iconProps: { iconName: "FavoriteStar" },
-        ariaLabel: "Star protocol job",
-        onClick: this.starProtocol,
       },
     ];
 
@@ -472,13 +456,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     if (this.props.submissionId == null) {
       alert("Cannot find protocol submission plugin.");
     } else {
+      sessionStorage.setItem("protocolItemKey", protocol.itemKey);
       sessionStorage.setItem("protocolYAML", protocol.raw);
       window.open(`/plugin.html?op=init&index=${this.props.submissionId}`);
     }
-  }
-
-  private starProtocol = () => {
-    window.open("https://github.com/Microsoft/pai/tree/master/marketplace-v2");
   }
 
   private closeEditor = () => {
@@ -505,7 +486,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     const protcolList = await this.getProtocolList(this.state.uri, this.state.uriType);
     if (protcolList !== null) {
       let protocols = await Promise.all(protcolList.map(async (item: IProtocolItem) => {
-        return await this.getProtocolItem(item.uri);
+        return await this.getProtocolItem(item);
       }));
       protocols = await protocols.filter((x) => x != null);
       this.setState({
@@ -580,7 +561,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     return null;
   }
 
-  private getProtocolItem = async (uri: string) => {
+  private getProtocolItem = async (item: IProtocolItem) => {
     const requestHeaders: HeadersInit = new Headers();
     if (this.state.uriToken) {
       requestHeaders.set(
@@ -589,7 +570,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       );
     }
     try {
-      const res = await fetch(uri, {headers: requestHeaders});
+      const res = await fetch(item.uri, {headers: requestHeaders});
       const data = await res.text();
       const protocol = yaml.safeLoad(data);
       return {
@@ -597,6 +578,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         contributor: protocol.contributor,
         description: protocol.description,
         prerequisitesNum: protocol.prerequisites.length,
+        itemKey: item.name,
         raw: data,
       } as IProtocol;
     } catch (err) {

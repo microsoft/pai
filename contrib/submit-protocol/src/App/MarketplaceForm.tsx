@@ -34,6 +34,7 @@ interface IMarketplaceProps {
   defaultURI: string;
   defaultURIType: MarketplaceUriType;
   defaultURIToken: string;
+  defaultOption: string | number | undefined;
   onSelectProtocol: ((text: string) => void);
   disabled: boolean;
 }
@@ -42,6 +43,7 @@ interface IMarketplaceState {
   uri: string;
   uriType: MarketplaceUriType;
   uriToken: string;
+  selectedOption: string | number | undefined;
   protocolOptions: IDropdownOption[];
   uriConfigCallout: boolean;
 }
@@ -66,6 +68,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     defaultURI: "https://api.github.com/repos/Microsoft/pai/contents/marketplace-v2",
     defaultURIType: "GitHub",
     defaultURIToken: "",
+    defaultOption: undefined,
     disabled: false,
   };
 
@@ -73,6 +76,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     uri: this.props.defaultURI,
     uriType: this.props.defaultURIType,
     uriToken: this.props.defaultURIToken,
+    selectedOption: this.props.defaultOption,
     protocolOptions: defaultProtocolOptions,
     uriConfigCallout: false,
   };
@@ -91,6 +95,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
             <Dropdown
               className={styles.dropdown}
               placeholder="Select a protocol config file"
+              selectedKey={this.state.selectedOption}
               options={this.state.protocolOptions}
               onChange={this.selectProtocol}
               disabled={this.props.disabled}
@@ -201,6 +206,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
           const res = await fetch(option.data, {headers: requestHeaders});
           const data = await res.text();
           this.props.onSelectProtocol(data);
+          this.setState({selectedOption: option.key});
         } catch (err) {
           alert(`Cannot get ${option.data}`);
         }
