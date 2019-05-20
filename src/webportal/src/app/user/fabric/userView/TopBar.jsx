@@ -63,7 +63,7 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allUsers, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, importCSV, removeUsers} = useContext(Context);
+  const {allUsers, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, importCSV, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
 
   const {admins, virtualClusters} = useMemo(() => {
     const admins = Object.create(null);
@@ -123,6 +123,47 @@ function TopBar() {
       iconName: 'UserRemove',
     },
     onClick: removeUsers,
+  };
+
+  /**
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  const btnEdit = {
+    key: 'edit',
+    name: 'Edit',
+    buttonStyles: transparentStyles,
+    iconProps: {
+      iconName: 'EditContact',
+    },
+    onClick: () => {
+      editUser(getSelectedUsers()[0]);
+    },
+  };
+
+  /**
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  const btnBatchEditPassword = {
+    key: 'batchEditPassword',
+    name: 'Batch Edit Passwords',
+    buttonStyles: transparentStyles,
+    iconProps: {
+      iconName: 'EditStyle',
+    },
+    onClick: showBatchPasswordEditor,
+  };
+
+  /**
+   * @type {import('office-ui-fabric-react').ICommandBarItemProps}
+   */
+  const btnBatchEditVirtualClusters = {
+    key: 'BatchEditVirtualClusters',
+    name: 'Batch Edit Virtual Clusters',
+    buttonStyles: transparentStyles,
+    iconProps: {
+      iconName: 'FullWidthEdit',
+    },
+    onClick: showBatchVirtualClustersEditor,
   };
 
   /**
@@ -322,10 +363,31 @@ function TopBar() {
     };
   }
 
-  const topBarItems = [btnAddUser, btnImportCSV];
+  const topBarItems = [];
   const selectedUsers = getSelectedUsers();
-  if (selectedUsers.length > 0 && findIndex(selectedUsers, (user) => toBool(user.admin)) == -1) {
-    topBarItems.push(btnRemove);
+  const selected = selectedUsers.length > 0;
+  const selectedMulti = selectedUsers.length > 1;
+  const selectedAdmin = findIndex(selectedUsers, (user) => toBool(user.admin)) != -1;
+  if (selected) {
+    if (selectedMulti) {
+      if (selectedAdmin) {
+        topBarItems.push(Object.assign(btnBatchEditPassword, {disabled: true}));
+        topBarItems.push(Object.assign(btnBatchEditVirtualClusters, {disabled: true}));
+      } else {
+        topBarItems.push(btnBatchEditPassword);
+        topBarItems.push(btnBatchEditVirtualClusters);
+      }
+    } else {
+      topBarItems.push(btnEdit);
+    }
+    if (selectedAdmin) {
+      topBarItems.push(Object.assign(btnRemove, {disabled: true}));
+    } else {
+      topBarItems.push(btnRemove);
+    }
+  } else {
+    topBarItems.push(btnAddUser);
+    topBarItems.push(btnImportCSV);
   }
   topBarItems.push(btnRefresh);
   const topBarFarItems = [btnFilters];

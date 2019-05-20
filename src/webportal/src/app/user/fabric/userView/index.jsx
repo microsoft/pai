@@ -17,7 +17,7 @@
 
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 
-import {Fabric, Stack, initializeIcons, Modal, getTheme} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, getTheme} from 'office-ui-fabric-react';
 import {debounce} from 'lodash';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
@@ -33,10 +33,10 @@ import Ordering from './Ordering';
 import Filter from './Filter';
 import Pagination from './Pagination';
 import Paginator from './Paginator';
-import InfoEditor from './InfoEditor';
-import {getAllUsersRequest, removeUserRequest, updateUserVcRequest, updateUserRequest} from '../conn';
-
-require('./user-edit-modal-component.scss');
+import UserEditor from './UserEditor';
+import BatchPasswordEditor from './BatchPasswordEditor';
+import BatchVirtualClustersEditor from './BatchVirtualClustersEditor';
+import {getAllUsersRequest, getAllVcsRequest, removeUserRequest} from '../conn';
 
 initTheme();
 initializeIcons();
@@ -50,23 +50,23 @@ export default function UserView() {
     setLoading({'show': false});
   };
 
-  const [messageBox, setMessageBox] = useState({text: '', confirm: false, dismissedCallback: undefined, okCallback: undefined, cancelCallback: undefined});
+  const [messageBox, setMessageBox] = useState({text: '', confirm: false, resolve: null});
   const showMessageBox = (value) => {
-    if (value == undefined || value == null) {
-      setMessageBox({text: ''});
-    } else if (typeof value === 'string') {
-      setMessageBox({text: value});
-    } else if (!value.hasOwnProperty('text')) {
-      setMessageBox({text: String(value)});
-    } else {
-      setMessageBox(value);
-    }
+    return new Promise((resolve, _reject) => {
+      setMessageBox({text: String(value), resolve});
+    });
   };
-  const hideMessageBox = () => {
-    if (messageBox.dismissedCallback) {
-      messageBox.dismissedCallback();
-    }
+  const showMessageBoxWithConfirm = (value) => {
+    return new Promise((resolve, _reject) => {
+      setMessageBox({text: String(value), resolve, confirm: true});
+    });
+  };
+  const hideMessageBox = (value) => {
+    const resolve = messageBox.resolve;
     setMessageBox({text: ''});
+    if (resolve) {
+      resolve(value);
+    }
   };
 
   const [allUsers, setAllUsers] = useState([]);
@@ -75,15 +75,20 @@ export default function UserView() {
     getAllUsersRequest().then((data) => {
       setAllUsers(data);
     }).catch((err) => {
-      showMessageBox({
-        text: String(err),
-        dismissedCallback: () => {
-          window.location.href = '/';
-        },
+      showMessageBox(err).then(() => {
+        window.location.href = '/';
       });
     });
   };
   useEffect(refreshAllUsers, []);
+
+  const [allVCs, setAllVCs] = useState([]);
+  const refreshAllVCs = () => {
+    getAllVcsRequest().then((data) => {
+      setAllVCs(Object.keys(data).sort());
+    });
+  };
+  useEffect(refreshAllVCs, []);
 
   const initialFilter = useMemo(() => {
     const filter = new Filter();
@@ -118,86 +123,70 @@ export default function UserView() {
 
   const [ordering, setOrdering] = useState(new Ordering());
 
-  const addUser = () => {
-    window.location.href = '/register.html';
-  };
-
   const importCSV = () => {
     window.location.href = '/batch-register.html';
   };
 
   const removeUsers = () => {
     const selected = getSelectedUsers();
-    showMessageBox({
-      text: `Are you sure to remove ${selected.length == 1 ? 'the user' : 'these users'}?`,
-      confirm: true,
-      okCallback: () => {
-        showLoading('Processing...');
-        Promise.all(selected.map((user) => removeUserRequest(user.username).catch((err) => err)))
-          .then((results) => {
-            hideLoading();
-            const errors = results.filter((result) => result instanceof Error);
-            let message = `Remove ${selected.length == 1 ? 'user' : 'users'} `;
-            if (errors.length == 0) {
-              message += 'successfully.';
-            } else {
-              message += `with ${errors.length} failed.`;
-              errors.forEach((error) => {
-                message += `\n${String(error)}`;
-              });
-            }
-            setTimeout(() => {
-              showMessageBox({
-                text: message,
-                dismissedCallback: () => {
+    showMessageBoxWithConfirm(`Are you sure to remove ${selected.length == 1 ? 'the user' : 'these users'}?`)
+      .then((confirmed) => {
+        if (confirmed) {
+          showLoading('Processing...');
+          Promise.all(selected.map((user) => removeUserRequest(user.username).catch((err) => err)))
+            .then((results) => {
+              hideLoading();
+              const errors = results.filter((result) => result instanceof Error);
+              let message = `Remove ${selected.length == 1 ? 'user' : 'users'} `;
+              if (errors.length == 0) {
+                message += 'successfully.';
+              } else {
+                message += `with ${errors.length} failed.`;
+                errors.forEach((error) => {
+                  message += `\n${String(error)}`;
+                });
+              }
+              setTimeout(() => {
+                showMessageBox(message).then(() => {
                   refreshAllUsers();
-                },
-              });
-            }, 100);
-          });
-      },
-    });
-  };
-
-  const [showEditInfo, setShowEditInfo] = useState({isOpen: false, user: {}});
-
-  const editUser = (user) => {
-    setShowEditInfo({isOpen: true, user});
-  };
-
-  const hideEditUser = () => {
-    setShowEditInfo({isOpen: false, user: {}});
-  };
-
-  const updateUserInfoCallback = (data) => {
-    if (data.error) {
-      showMessageBox(data.message);
-    } else {
-      showMessageBox({
-        text: 'Update user information successfully',
-        dismissedCallback: () => {
-          hideEditUser();
-          refreshAllUsers();
-        },
+                });
+              }, 100);
+            });
+        }
       });
-    }
   };
 
-  const updateUserVC = (username, virtualCluster) => {
-    updateUserVcRequest(username, virtualCluster)
-      .then(updateUserInfoCallback)
-      .catch(showMessageBox);
+  const [userEditor, setUserEditor] = useState({isOpen: false, isCreate: true, user: {}});
+  const addUser = () => {
+    setUserEditor({isOpen: true, isCreate: true, user: {}});
+  };
+  const editUser = (user) => {
+    setUserEditor({isOpen: true, isCreate: false, user});
+  };
+  const hideAddOrEditUser = () => {
+    setUserEditor({isOpen: false, isCreate: true, user: {}});
   };
 
-  const updateUserAccount = (username, password, admin) => {
-    updateUserRequest(username, password, admin)
-      .then(updateUserInfoCallback)
-      .catch(showMessageBox);
+  const [batchPasswordEditor, setBatchPasswordEditor] = useState({isOpen: false});
+  const showBatchPasswordEditor = () => {
+    setBatchPasswordEditor({isOpen: true});
+  };
+  const hideBatchPasswordEditor = () => {
+    setBatchPasswordEditor({isOpen: false});
+  };
+
+  const [batchVirtualClustersEditor, setBatchVirtualClustersEditor] = useState({isOpen: false, user: {}});
+  const showBatchVirtualClustersEditor = () => {
+    setBatchVirtualClustersEditor({isOpen: true});
+  };
+  const hideBatchVirtualClustersEditor = () => {
+    setBatchVirtualClustersEditor({isOpen: false});
   };
 
   const context = {
     allUsers,
     refreshAllUsers,
+    allVCs,
     filteredUsers,
     ordering,
     setOrdering,
@@ -212,6 +201,9 @@ export default function UserView() {
     importCSV,
     removeUsers,
     editUser,
+    showBatchPasswordEditor,
+    showBatchVirtualClustersEditor,
+    showMessageBox,
   };
 
   const {spacing} = getTheme();
@@ -231,18 +223,25 @@ export default function UserView() {
           </Stack.Item>
         </Stack>
       </Fabric>
-      <Modal
-        isOpen={showEditInfo.isOpen}
-        styles={{main: [{maxWidth: '600px'}, t.w90]}}>
-        {showEditInfo.isOpen &&
-          <InfoEditor
-            user={showEditInfo.user}
-            updateUserAccount={updateUserAccount}
-            updateUserVC={updateUserVC}
-            hideEditUser={hideEditUser} />}
-      </Modal>
+      {userEditor.isOpen && <UserEditor
+        isOpen={userEditor.isOpen}
+        isCreate={userEditor.isCreate}
+        user={userEditor.user}
+        hide={hideAddOrEditUser}
+      />
+      }
+      {batchPasswordEditor.isOpen && <BatchPasswordEditor
+        isOpen={batchPasswordEditor.isOpen}
+        hide={hideBatchPasswordEditor}
+      />
+      }
+      {batchVirtualClustersEditor.isOpen && <BatchVirtualClustersEditor
+        isOpen={batchVirtualClustersEditor.isOpen}
+        hide={hideBatchVirtualClustersEditor}
+      />
+      }
       {loading.show && <MaskSpinnerLoading label={loading.text} />}
-      {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
+      {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} />}
     </Context.Provider>
   );
 }

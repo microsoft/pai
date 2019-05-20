@@ -15,44 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-.form-register {
-  max-width: 360px;
-  padding: 30px;
-  margin: 0 auto;
-}
+const Joi = require('joi-browser');
 
-.form-register .form-register-heading,
-.form-register .checkbox {
-  margin-bottom: 10px;
-}
+const usernameSchema = Joi.string().token().required();
+export const checkUsername = (value) => {
+  const {error} = Joi.validate(value, usernameSchema);
+  if (error) {
+    return error.message.replace('"value"', 'User name');
+  } else {
+    return error;
+  }
+};
 
-.form-register .checkbox {
-  font-weight: normal;
-}
-
-.form-register .form-control {
-  position: relative;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
-}
-
-.form-register .form-control:focus {
-  z-index: 2;
-}
-
-.form-register input[type="password"] {
-  margin-bottom: -1px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.form-register input[id="update-virtual-cluster-input-virtualCluster"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.user-edit-border {
-  padding:15px;
-}
+const passwordSchema = Joi.string().min(6).required();
+export const checkPassword = (value) => {
+  const {error} = Joi.validate(value, passwordSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Password');
+  } else {
+    return error;
+  }
+};

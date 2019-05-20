@@ -1,0 +1,268 @@
+// Copyright (c) Microsoft Corporation
+// All rights reserved.
+//
+// MIT License
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import React, {useRef, useContext, useState, useEffect} from 'react';
+import {Modal, TextField, FontClassNames, PrimaryButton, DefaultButton, Stack, StackItem, Checkbox, Dropdown, mergeStyles, getTheme} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import {isEmpty} from 'lodash';
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
+
+import {createUserRequest, updateUserRequest, updateUserVcRequest} from '../conn';
+import {checkUsername, checkPassword} from '../utils';
+
+import {toBool} from './utils';
+import Context from './Context';
+
+export default function UserEditor({user: {username = '', admin = '', virtualCluster = ''}, isOpen = false, isCreate = true, hide}) {
+  const {allVCs, showMessageBox, refreshAllUsers} = useContext(Context);
+
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const adminRef = useRef(null);
+
+  const oldAdmin = toBool(admin);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    setIsAdmin(oldAdmin);
+  }, []);
+
+  const handleAdminChanged = (_event, checked) => {
+    setIsAdmin(checked);
+  };
+
+  const parseVirtualClusterString = (virtualClusterString) => {
+    let vcs = [];
+    if (virtualClusterString) {
+      virtualClusterString.split(',').map((vc) => vc.trim()).forEach((vc) => {
+        if (vc) {
+          if (allVCs.indexOf(vc) != -1) {
+            vcs.push(vc);
+          }
+        }
+      });
+    }
+    return vcs.sort();
+  };
+  const [newVCs, setNewVCs] = useState([]);
+  useEffect(() => {
+    setNewVCs(parseVirtualClusterString(virtualCluster));
+  }, []);
+
+  const handleVCsChanged = (_event, option, _index) => {
+    if (option.selected) {
+      newVCs.push(option.text);
+    } else {
+      newVCs.splice(newVCs.indexOf(option.text), 1);
+    }
+    setNewVCs(newVCs.slice());
+  };
+
+  const [lock, setLock] = useState(false);
+  const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLock(true);
+
+    const newUsername = usernameRef.current.value;
+    const newPassword = passwordRef.current.value;
+    const newAdmin = adminRef.current.checked;
+
+    if (isCreate) {
+      const errorMessage = checkUsername(newUsername);
+      if (errorMessage) {
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
+      }
+    }
+
+    if (!isEmpty(newPassword) || isCreate) {
+      const errorMessage = checkPassword(newPassword);
+      if (errorMessage) {
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
+      }
+    }
+
+    const request = isCreate ? createUserRequest : updateUserRequest;
+    const result = await request(newUsername, newPassword, newAdmin)
+      .then(() => {
+        setNeedRefreshAllUsers(true);
+        return {success: true};
+      })
+      .catch((err) => {
+        return {success: false, message: String(err)};
+      });
+    if (!result.success) {
+      await showMessageBox(result.message);
+      setLock(false);
+      return;
+    }
+
+    // Admin user VC update will be executed in rest-server
+    if (!newAdmin) {
+      const newVirtualCluster = newVCs.sort().join(',');
+      const result = await updateUserVcRequest(newUsername, newVirtualCluster)
+        .then(() => {
+          setNeedRefreshAllUsers(true);
+          return {success: true};
+        })
+        .catch((err) => {
+          return {success: false, message: String(err)};
+        });
+      if (!result.success) {
+        await showMessageBox(result.message);
+        setLock(false);
+        return;
+      }
+    }
+
+    await showMessageBox(isCreate ? 'Add new user successfully' : 'Update user information successfully');
+    setLock(false);
+    hide();
+    refreshAllUsers();
+  };
+
+  const handleCancel = () => {
+    hide();
+    if (needRefreshAllUsers) {
+      refreshAllUsers();
+    }
+  };
+
+  const tdPaddingStyle = c(t.pa3);
+  const tdLabelStyle = c(tdPaddingStyle, t.tr);
+
+  /**
+   * @type {import('office-ui-fabric-react').IDropdownOption[]}
+   */
+  const vcsOptions = allVCs.map((vc) => {
+    return {key: vc, text: vc};
+  });
+
+  const {spacing} = getTheme();
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      containerClassName={mergeStyles({maxWidth: '430px'}, t.w90)}
+    >
+      <div className={c(t.pa4)}>
+        <form onSubmit={handleSubmit}>
+          <div className={c(FontClassNames.mediumPlus)}>
+            {isCreate ? 'Add new user' : 'Edit user'}
+          </div>
+          <div style={{margin: `${spacing.l1} 0px`}}>
+            <table className={c(t.mlAuto, t.mrAuto)}>
+              <tbody>
+                <tr>
+                  <td className={tdLabelStyle}>
+                    Name
+                </td>
+                  <td className={tdPaddingStyle} style={{width: '270px'}}>
+                    <TextField
+                      componentRef={usernameRef}
+                      disabled={!isCreate}
+                      defaultValue={username}
+                      placeholder={isCreate ? 'Enter user name' : ''}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdLabelStyle}>
+                    Password
+                  </td>
+                  <td className={tdPaddingStyle}>
+                    <TextField
+                      componentRef={passwordRef}
+                      type='password'
+                      placeholder={isCreate ? 'Enter password' : '******'}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdLabelStyle}>
+                    Virtual clusters
+                  </td>
+                  <td className={tdPaddingStyle}>
+                    <Dropdown
+                      multiSelect
+                      options={vcsOptions}
+                      selectedKeys={newVCs}
+                      disabled={isAdmin ? true : false}
+                      onChange={handleVCsChanged}
+                      placeholder='Select an option'
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdLabelStyle}>
+                    Admin user
+                  </td>
+                  <td className={tdPaddingStyle}>
+                    <Stack horizontal={true} gap={spacing.m}>
+                      <StackItem>
+                        <Checkbox
+                          componentRef={adminRef}
+                          defaultChecked={oldAdmin}
+                          onChange={handleAdminChanged}
+                        />
+                      </StackItem>
+                      <StackItem>
+                        <span className={c(FontClassNames.xSmall, t.i)}>
+                          Admin user default own all virtual clusters
+                        </span>
+                      </StackItem>
+                    </Stack>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
+            <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
+              <StackItem>
+                <PrimaryButton type="submit" disabled={lock}>
+                  {isCreate ? 'Add' : 'Save'}
+                </PrimaryButton>
+              </StackItem>
+              <StackItem>
+                <DefaultButton disabled={lock} onClick={handleCancel}>
+                  Cancel
+                </DefaultButton>
+              </StackItem>
+            </Stack>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+}
+
+UserEditor.propTypes = {
+  user: PropTypes.shape({
+    username: PropTypes.string,
+    admin: PropTypes.string,
+    virtualCluster: PropTypes.string,
+  }),
+  isOpen: PropTypes.bool,
+  isCreate: PropTypes.bool,
+  hide: PropTypes.func,
+};

@@ -276,32 +276,24 @@ export default function BatchRegister() {
     setLoading({'show': false});
   };
 
-  const [messageBox, setMessageBox] = useState({text: '', confirm: false, dismissedCallback: undefined, okCallback: undefined, cancelCallback: undefined});
+  const [messageBox, setMessageBox] = useState({text: '', confirm: false, resolve: null});
   const showMessageBox = (value) => {
-    if (value == undefined || value == null) {
-      setMessageBox({text: ''});
-    } else if (typeof value === 'string') {
-      setMessageBox({text: value});
-    } else if (!value.hasOwnProperty('text')) {
-      setMessageBox({text: String(value)});
-    } else {
-      setMessageBox(value);
-    }
+    return new Promise((resolve, _reject) => {
+      setMessageBox({text: String(value), resolve});
+    });
   };
-  const hideMessageBox = () => {
-    if (messageBox.dismissedCallback) {
-      messageBox.dismissedCallback();
-    }
+  const hideMessageBox = (value) => {
+    const resolve = messageBox.resolve;
     setMessageBox({text: ''});
+    if (resolve) {
+      resolve(value);
+    }
   };
 
   useEffect(() => {
     if (!checkAdmin()) {
-      showMessageBox({
-        text: 'Non-admin is not allowed to do this operation.',
-        dismissedCallback: () => {
-          window.location.href = '/';
-        },
+      showMessageBox('Non-admin is not allowed to do this operation.').then(() => {
+        window.location.href = '/';
       });
     }
   }, []);
@@ -331,7 +323,7 @@ export default function BatchRegister() {
         </Stack>
       </Fabric>
       {loading.show && <MaskSpinnerLoading label={loading.text} />}
-      {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} onOK={messageBox.okCallback} onCancel={messageBox.cancelCallback} />}
+      {messageBox.text && <MessageBox text={messageBox.text} onDismiss={hideMessageBox} confirm={messageBox.confirm} />}
     </Context.Provider>
   );
 }
