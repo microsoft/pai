@@ -3,7 +3,7 @@ import os
 from copy import deepcopy
 from openpaisdk.storage import Storage
 from openpaisdk.utils import get_response
-from openpaisdk.cli_arguments import attach_args
+from openpaisdk.cli_arguments import get_args
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
 from openpaisdk import __defaults__, __logger__
@@ -37,7 +37,7 @@ class Client:
             passwd {str} -- password (default: {None})
             hdfs_web_uri {str} -- format http://x.x.x.x:yyyy (default: {None})
         """
-        self.config = attach_args()
+        self.config = get_args()
         self.storages, self.default_storage_alias = dict(), 'default'
         for i, cfg in enumerate(storages):
             self.add_storage(**cfg)

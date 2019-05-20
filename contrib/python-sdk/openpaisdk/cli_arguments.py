@@ -6,32 +6,38 @@ from copy import deepcopy
 from openpaisdk import __defaults__
 
 
-def attach_args(target=None, expand: list = ['kwargs'], ignore: list = ['self']):
+def get_args(
+    expand=['kwargs'], # type: list
+    ignore=['self'] # type: list
+):
+    # type (...) -> dict
+    """if used at the first of a function, will return its arguments"""
     caller = inspect.currentframe().f_back
     dic = {k: v for k, v in caller.f_locals.items() if k not in ignore and not k.startswith('__')}
     for k in expand:
         v = dic.pop(k, {})
         dic.update(v)
-    if target:
-        for k, v in dic.items():
-            setattr(target, k, v)
     return dic
 
 
 class Namespace(argparse.Namespace):
-    __type__ = 'prerequisite'
+    __type__ = ''
     __fields__ = dict(
         # field_name: (description, default)
     )
 
     def __init__(self, **kwargs):
-        self.type = self.__type__
+        if self.__type__:
+            self.type = self.__type__
         self.from_argv()
-        dic = {k: deepcopy(v[1]) for k, v in self.__fields__.items()}
+        dic = {k: deepcopy(v) for k, v in self.__fields__.items()}
         dic.update(kwargs)
         self.from_dict(dic)
 
-    def add_argument(self, parser: argparse.ArgumentParser, *args, **kwargs):
+    def add_argument(self,
+                     parser, #type: argparse.ArgumentParser
+                     *args, **kwargs):
+        assert isinstance(parser, argparse.ArgumentParser), "wrong type %s of parser" % type(parser)
         if args[0][2:].replace('-', '_') in [a.dest for a in parser._actions]:
             return None
         parser.add_argument(*args, **kwargs)
@@ -45,7 +51,9 @@ class Namespace(argparse.Namespace):
                 dic[k] = [x.to_dict() for x in v]
         return dic
 
-    def define(self, parser: argparse.ArgumentParser):
+    def define(self,
+               parser, #type: argparse.ArgumentParser
+               ):
         pass
 
     def from_argv(self, argv: list = []):
