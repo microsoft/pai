@@ -586,7 +586,7 @@ def requestor(args, services_ref):
                     s.path)
             try:
                 with service_response_histogram.labels(s.name, s.ip).time():
-                    resp = requests.get(url)
+                    resp = requests.get(url, timeout=s.timeout)
                 code = str(resp.status_code)
             except Exception as e:
                 logger.exception("requesting %s failed", url)

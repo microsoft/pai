@@ -167,5 +167,34 @@ class TestJobExporter(unittest.TestCase):
         for gauge in gauges[1:]:
             self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
 
+    def test_parse_monitor_response_time(self):
+        obj = json.loads(self.get_data_test_input("data/pods_with_response_time_monitor.json"))
+
+        pod_gauge = watchdog.gen_pai_pod_gauge()
+        container_gauge = watchdog.gen_pai_container_gauge()
+        pod_info = collections.defaultdict(lambda : [])
+        endpoints = []
+
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, endpoints)
+
+        self.assertEqual(2, len(endpoints))
+        endpoint0 = endpoints[0]
+        endpoint1 = endpoints[1]
+
+        self.assertEqual("job-exporter", endpoint0.name)
+        self.assertEqual("job-exporter", endpoint1.name)
+
+        self.assertEqual("10.151.40.231", endpoint0.ip)
+        self.assertEqual("10.151.40.227", endpoint1.ip)
+
+        self.assertEqual(9102, endpoint0.port)
+        self.assertEqual(9102, endpoint1.port)
+
+        self.assertEqual("/healthz", endpoint0.path)
+        self.assertEqual("/healthz", endpoint1.path)
+
+        self.assertEqual(10, endpoint0.timeout)
+        self.assertEqual(10, endpoint1.timeout)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,446 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/pods",
+    "resourceVersion": "25956571"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "job-exporter-2cm8j",
+        "generateName": "job-exporter-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/job-exporter-2cm8j",
+        "uid": "87b37216-7863-11e9-9e00-000d3ab38724",
+        "resourceVersion": "25164752",
+        "creationTimestamp": "2019-05-17T05:20:48Z",
+        "labels": {
+          "app": "job-exporter",
+          "controller-revision-hash": "590349042",
+          "pod-template-generation": "2"
+        },
+        "annotations": {
+          "monitor.watchdog/path": "/healthz",
+          "monitor.watchdog/port": "9102",
+          "prometheus.io/path": "/metrics",
+          "prometheus.io/port": "9102",
+          "prometheus.io/scrape": "true"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "job-exporter",
+            "uid": "b06ece04-77d1-11e9-9e00-000d3ab38724",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "docker-socket",
+            "hostPath": {
+              "path": "/var/run/docker.sock",
+              "type": ""
+            }
+          },
+          {
+            "name": "device-mount",
+            "hostPath": {
+              "path": "/dev",
+              "type": ""
+            }
+          },
+          {
+            "name": "driver-path",
+            "hostPath": {
+              "path": "/var/drivers/nvidia/current",
+              "type": ""
+            }
+          },
+          {
+            "name": "collector-mount",
+            "hostPath": {
+              "path": "/datastorage/prometheus",
+              "type": ""
+            }
+          },
+          {
+            "name": "gpu-config",
+            "configMap": {
+              "name": "gpu-configuration",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "job-exporter",
+            "image": "openpai.azurecr.io/paiclusterint/job-exporter:protocol",
+            "command": [
+              "python",
+              "/job_exporter/main.py",
+              "--port",
+              "9102",
+              "--interval",
+              "30",
+              "--interface",
+              "eth0,eno2"
+            ],
+            "ports": [
+              {
+                "name": "main",
+                "hostPort": 9102,
+                "containerPort": 9102,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "HOST_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.hostIP"
+                  }
+                }
+              },
+              {
+                "name": "LOGGING_LEVEL",
+                "value": "INFO"
+              },
+              {
+                "name": "NV_DRIVER",
+                "value": "/var/drivers/nvidia/current"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "all"
+              }
+            ],
+            "resources": {
+              "limits": {
+                "memory": "512Mi"
+              },
+              "requests": {
+                "memory": "512Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "docker-socket",
+                "mountPath": "/var/run/docker.sock"
+              },
+              {
+                "name": "device-mount",
+                "mountPath": "/dev"
+              },
+              {
+                "name": "driver-path",
+                "mountPath": "/var/drivers/nvidia/current"
+              },
+              {
+                "name": "collector-mount",
+                "mountPath": "/datastorage/prometheus"
+              },
+              {
+                "name": "gpu-config",
+                "mountPath": "/gpu-config"
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 9102,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 30,
+              "timeoutSeconds": 10,
+              "periodSeconds": 30,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always",
+            "securityContext": {
+              "privileged": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "nodeName": "10.151.40.231",
+        "hostNetwork": true,
+        "hostPID": true
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:21:24Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:21:27Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:21:27Z"
+          }
+        ],
+        "hostIP": "10.151.40.231",
+        "podIP": "10.151.40.231",
+        "startTime": "2019-05-17T05:21:24Z",
+        "containerStatuses": [
+          {
+            "name": "job-exporter",
+            "state": {
+              "running": {
+                "startedAt": "2019-05-17T05:21:26Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "openpai.azurecr.io/paiclusterint/job-exporter:protocol",
+            "imageID": "docker-pullable://openpai.azurecr.io/paiclusterint/job-exporter@sha256:5a79610923edca24d940a4b66bc6ec5d47b05ac2a91a441959e424de7edc54c1",
+            "containerID": "docker://75b8eeab86b363b9dcd5d4d531db8933beee6a05a5f747f25d77806e93c5181b"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "job-exporter-4w8jt",
+        "generateName": "job-exporter-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/job-exporter-4w8jt",
+        "uid": "d5d681af-7863-11e9-9e00-000d3ab38724",
+        "resourceVersion": "25165492",
+        "creationTimestamp": "2019-05-17T05:22:59Z",
+        "labels": {
+          "app": "job-exporter",
+          "controller-revision-hash": "590349042",
+          "pod-template-generation": "2"
+        },
+        "annotations": {
+          "monitor.watchdog/path": "/healthz",
+          "monitor.watchdog/port": "9102",
+          "prometheus.io/path": "/metrics",
+          "prometheus.io/port": "9102",
+          "prometheus.io/scrape": "true"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "job-exporter",
+            "uid": "b06ece04-77d1-11e9-9e00-000d3ab38724",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "docker-socket",
+            "hostPath": {
+              "path": "/var/run/docker.sock",
+              "type": ""
+            }
+          },
+          {
+            "name": "device-mount",
+            "hostPath": {
+              "path": "/dev",
+              "type": ""
+            }
+          },
+          {
+            "name": "driver-path",
+            "hostPath": {
+              "path": "/var/drivers/nvidia/current",
+              "type": ""
+            }
+          },
+          {
+            "name": "collector-mount",
+            "hostPath": {
+              "path": "/datastorage/prometheus",
+              "type": ""
+            }
+          },
+          {
+            "name": "gpu-config",
+            "configMap": {
+              "name": "gpu-configuration",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "job-exporter",
+            "image": "openpai.azurecr.io/paiclusterint/job-exporter:protocol",
+            "command": [
+              "python",
+              "/job_exporter/main.py",
+              "--port",
+              "9102",
+              "--interval",
+              "30",
+              "--interface",
+              "eth0,eno2"
+            ],
+            "ports": [
+              {
+                "name": "main",
+                "hostPort": 9102,
+                "containerPort": 9102,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "HOST_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.hostIP"
+                  }
+                }
+              },
+              {
+                "name": "LOGGING_LEVEL",
+                "value": "INFO"
+              },
+              {
+                "name": "NV_DRIVER",
+                "value": "/var/drivers/nvidia/current"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "all"
+              }
+            ],
+            "resources": {
+              "limits": {
+                "memory": "512Mi"
+              },
+              "requests": {
+                "memory": "512Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "docker-socket",
+                "mountPath": "/var/run/docker.sock"
+              },
+              {
+                "name": "device-mount",
+                "mountPath": "/dev"
+              },
+              {
+                "name": "driver-path",
+                "mountPath": "/var/drivers/nvidia/current"
+              },
+              {
+                "name": "collector-mount",
+                "mountPath": "/datastorage/prometheus"
+              },
+              {
+                "name": "gpu-config",
+                "mountPath": "/gpu-config"
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 9102,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 30,
+              "timeoutSeconds": 10,
+              "periodSeconds": 30,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always",
+            "securityContext": {
+              "privileged": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "nodeName": "10.151.40.227",
+        "hostNetwork": true,
+        "hostPID": true,
+        "schedulerName": "default-scheduler"
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:23:25Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:23:27Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-05-17T05:23:27Z"
+          }
+        ],
+        "hostIP": "10.151.40.227",
+        "podIP": "10.151.40.227",
+        "startTime": "2019-05-17T05:23:25Z",
+        "containerStatuses": [
+          {
+            "name": "job-exporter",
+            "state": {
+              "running": {
+                "startedAt": "2019-05-17T05:23:26Z"
+              }
+            },
+            "lastState": {
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "openpai.azurecr.io/paiclusterint/job-exporter:protocol",
+            "imageID": "docker-pullable://openpai.azurecr.io/paiclusterint/job-exporter@sha256:5a79610923edca24d940a4b66bc6ec5d47b05ac2a91a441959e424de7edc54c1",
+            "containerID": "docker://ebe3632e4bd5573cea1adfccf55b0e37a3d5ba202dc8115c52c02f1c76a43736"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    }
+  ]
+}
