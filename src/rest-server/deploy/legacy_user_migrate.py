@@ -60,9 +60,8 @@ class TransferClient:
     def namespace_v1_data_prepare(self):
         user_list = []
         nsv1_result = http_get(self.k8s_conn, '/api/v1/namespaces/pai-user/secrets/', {'Accept': 'application/json'})
-        print(nsv1_result)
         if nsv1_result['code'] == 200:
-            user_list = json.loads(nsv1_result['data']['items'])
+            user_list = json.loads(nsv1_result['data'])['items']
         elif nsv1_result['code'] == 404:
             logger.info("No ledacy user data found in k8s namespace pai-user")
         else:
