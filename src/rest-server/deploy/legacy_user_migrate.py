@@ -102,7 +102,7 @@ class TransferClient:
         grouplist = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
-        for vc_name in user_info_item['metadata']['virtualCluster'].split(','):
+        for vc_name in user_info_item['data']['virtualCluster'].split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
 
