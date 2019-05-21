@@ -87,7 +87,7 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl(getHumanizedJobStateString , jobInfo) {
+export function getJobMetricsUrl(getHumanizedJobStateString, jobInfo) {
   let from = jobInfo.jobStatus.createdTime;
   let to = '';
   let status = getHumanizedJobStateString(jobInfo);
