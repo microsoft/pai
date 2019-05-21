@@ -18,7 +18,6 @@
 // module dependencies
 const express = require('express');
 const tokenConfig = require('../config/token');
-const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
 const passport = require('passport');

@@ -76,7 +76,6 @@ function initConfig(apiServerUri, option = {}) {
  */
 async function read(key, config) {
   try {
-    console.log(`read api.${key}`)
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
     const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
@@ -93,7 +92,6 @@ async function read(key, config) {
     });
     return groupInstance;
   } catch (error) {
-    console.log(error);
     throw error.response;
   }
 }

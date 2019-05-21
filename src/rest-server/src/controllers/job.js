@@ -21,9 +21,6 @@ const url = require('url');
 const Job = require('../models/job');
 const createError = require('../util/error');
 const logger = require('../config/logger');
-const launcherConfig = require('../config/launcher');
-const userModelV2 = require('../models/v2/user' );
-const vcModel = require('../models/vc');
 
 /**
  * Load job and append to req.
