@@ -3,10 +3,14 @@ import sys
 import os
 import re
 import json
+from bs4 import BeautifulSoup
+import xmltodict
+import dicttoxml
 
 from utility.common import request_without_exception, command_without_exception, safe_get
 
 logger = logging.getLogger(__name__)
+
 
 
 class YarnOperator(object):
@@ -72,7 +76,7 @@ class YarnOperator(object):
                 if match:
                     label_name, exclusivity = match.groups()
                     exclusivity = exclusivity == "true"
-                    labels[label_name] = exclusivity
+                    labels[label_name] = {"exclusive": exclusivity}
 
         return labels
 
@@ -140,7 +144,7 @@ class YarnOperator(object):
         current_nodes = {}
         for node in nodes_info["nodes"]["node"]:
             host = node["nodeHostName"]
-            node_label = node.get("nodeLabels", "")
+            node_label = node.get("nodeLabels", [""])[0]
             current_nodes[host] = node_label
         return current_nodes
 
@@ -187,12 +191,96 @@ class YarnOperator(object):
         return queues
 
     def get_partition_resource(self):
+        yarn_nodelabel_url = "http://{}:8088/cluster/nodelabels".format(self.master_ip)
+        response = request_without_exception(yarn_nodelabel_url)
+        if response is None:
+            sys.exit(1)
+
+        soup = BeautifulSoup(response.text, features="lxml")
+        result = soup.find("table", id="nodelabels")
+        tbody = result.find("tbody")
+        labels = tbody.find_all("tr")
+        labels_dict = {}
+        for label in labels:
+            label_dict = {}
+
+            label_name_raw, exclusive_raw, active_nm_raw, resources_raw = label.find_all("td")
+            label_name = label_name_raw.string.strip()
+            if label_name == "<DEFAULT_PARTITION>":
+                label_name = ""
+
+            exclusive = exclusive_raw.string.strip()
+            if exclusive == "Exclusive Partition":
+                label_dict["exclusive"] = True
+            elif exclusive == "Non Exclusive Partition":
+                label_dict["exclusive"] = False
+            else:
+                logger.error("unknown exclusivity: {}".format(exclusive))
+                sys.exit(1)
+
+            if active_nm_raw.find('a'):
+                active_nm = active_nm_raw.find('a').string.strip()
+            else:
+                active_nm = active_nm_raw.string.strip()
+            label_dict["active_nm"] = int(active_nm)
+
+            resources = resources_raw.string.strip()
+            r_dict = {}
+            for resource in resources.strip("<>").split(","):
+                r_type, r_quota = resource.split(":")
+                r_dict[r_type.strip()] = int(r_quota)
+            label_dict["resource"] = r_dict
+            labels_dict[label_name] = label_dict
+        return labels_dict
+
+    def add_dedicated_queue(self, label_name):
         pass
 
-    def _generate_queue_update_xml(self, g):
+    def remove_dedicated_queue(self, label_name):
         pass
+
+
+
+    def generate_queue_update_xml(self, g_dict):
+        return dicttoxml.dicttoxml(g_dict, attr_type=False, custom_root="sched-conf", item_func=lambda x: "entry")
+
+    def post_queue_update_xml(self, update_xml):
+        yarn_scheduler_conf_url = "http://{}:8088/ws/v1/cluster/scheduler-conf".format(self.master_ip)
+        headers = {"Content-Type": "application/xml"}
+        request_without_exception(yarn_scheduler_conf_url, method="put", headers=headers, data=update_xml)
 
 
 if __name__ == "__main__":
     yarn_op = YarnOperator("10.151.40.133")
-    print(json.dumps(yarn_op.get_queue_info(), indent=2))
+    # yarn_op.get_partition_resource()
+    # print(json.dumps(yarn_op.get_queue_info(), indent=2))
+    from collections import OrderedDict
+    raw_dict = OrderedDict([
+        ("global-updates", [
+            OrderedDict([("key", "yarn.scheduler.capacity.root.default.default-node-label-expression"),
+                        ("value", "label_non")]),
+            OrderedDict([("key", "yarn.scheduler.capacity.root.default.accessible-node-labels.label_ex.capacity"),
+                         ("value", 0)]),
+
+        ])
+    ])
+
+    # raw_dict = {
+    #     "global-updates":
+    #         [
+    #
+    #             {
+    #                 "key": "yarn.scheduler.capacity.root.default.default-node-label-expression",
+    #                 "value": "label_non"
+    #             },
+    #             {
+    #                 "key": "yarn.scheduler.capacity.root.default.accessible-node-labels.label_ex.capacity",
+    #                 "value": 0
+    #             }
+    #
+    #         ]
+    # }
+    from xml.dom.minidom import parseString
+
+    dom = parseString(yarn_op.generate_queue_update_xml(raw_dict))
+    print(dom.toprettyxml())

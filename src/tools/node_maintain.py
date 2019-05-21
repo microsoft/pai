@@ -2,6 +2,7 @@ import logging
 import argparse
 import time
 import re
+import json
 
 from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator
 
@@ -119,6 +120,39 @@ def convert_nodes(nodes_str):
     return set()
 
 
+def is_dedicated_vc(queue_name, queue_attr):
+    # print(json.dumps(queue_attr, indent=2))
+    if queue_name == "" or queue_name == "*" or queue_attr["defaultNodeLabelExpression"] != queue_name:
+        return False
+    if queue_name not in queue_attr["capacities"] or queue_attr["capacities"][queue_name]["maxCapacity"] != 100:
+        return False
+    return True
+
+
+def get_dedicate_vc(args):
+    yarn_operator = YarnOperator(args.resource_manager_ip)
+    queues_info = yarn_operator.get_queue_info()
+    dedicate_queues = {queue_name: {"resource": 0, "nodes": []} for queue_name, queue_info in queues_info.items() if
+                       is_dedicated_vc(queue_name, queue_info)}
+    if len(dedicate_queues) == 0:
+        print("No dedicated vc found")
+        return
+    labeled_resources = yarn_operator.get_partition_resource()
+    labeled_nodes = yarn_operator.get_node_label()
+
+    for partition in labeled_resources:
+        if partition in dedicate_queues:
+            dedicate_queues[partition]["resource"] = labeled_resources[partition]["resource"]
+    for node in labeled_nodes:
+        if labeled_nodes[node] in dedicate_queues:
+            dedicate_queues[labeled_nodes[node]]["nodes"].append(node)
+    for queue_name, queue_attr in dedicate_queues.items():
+        print(queue_name + ":")
+        print("\tNodes: " + ",".join(queue_attr["nodes"]))
+        print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"]["vCores"], queue_attr["resource"]["memory"], queue_attr["resource"]["GPUs"]))
+
+
+
 def setup_parser():
     top_parser = argparse.ArgumentParser()
     sub_parser = top_parser.add_subparsers(dest="subcommands")
@@ -166,12 +200,19 @@ def setup_parser():
                                                     help="enforce yarn to gracefully decommission nodes in blacklist")
     parser_refresh.set_defaults(func=refresh_yarn_nodes)
 
+    # dedicated vc parser
+    dedicated_vc_parser = sub_parser.add_parser("dedicated-vc", help="operate dedicated vc")
+    dedicated_vc_subparsers = dedicated_vc_parser.add_subparsers(dest="action")
+
+    parser_get = dedicated_vc_subparsers.add_parser("get", parents=[parent_parser], help="get dedicate vc info")
+    parser_get.set_defaults(func=get_dedicate_vc)
+
     return top_parser
 
 
 def main():
     parser = setup_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
