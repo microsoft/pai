@@ -401,7 +401,7 @@ export default class Summary extends React.Component {
             <div>
               <DefaultButton
                 text='Clone'
-                onClick={() => cloneJob()}
+                onClick={() => cloneJob(rawJobConfig)}
                 disabled={!isClonable(rawJobConfig)}
               />
               <DefaultButton
