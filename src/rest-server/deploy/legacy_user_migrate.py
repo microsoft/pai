@@ -98,21 +98,15 @@ class TransferClient:
     def secret_data_prepare_v2(self, user_info_item):
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
-
         grouplist = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
         for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
-
         extension = {}
         if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
-        print(grouplist)
-        print(json.dumps(grouplist))
-        print(base64.b64encode(json.dumps(grouplist).encode('utf-8')))
-        print(str(base64.b64encode(json.dumps(grouplist).encode('utf-8')), 'utf-8'))
         user_dict = {
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
@@ -120,7 +114,6 @@ class TransferClient:
             'grouplist': str(base64.b64encode(json.dumps(grouplist).encode('utf-8')), 'utf-8'),
             'extension': str(base64.b64encode(json.dumps(extension).encode('utf-8')), 'utf-8'),
         }
-        print(user_dict)
         post_data_dict = {}
         post_data_dict['metadata'] = meta_dict
         post_data_dict['data'] = user_dict
@@ -130,7 +123,6 @@ class TransferClient:
     def secret_data_prepare_v2_group(self, groupname):
         meta_dict = dict()
         meta_dict['name'] = (''.join([hex(ord(c)).replace('0x', '') for c in groupname]))
-
         extension = {}
         group_dict = {
             'groupname': str(base64.b64encode(groupname.encode('utf-8')), 'utf-8'),
@@ -138,8 +130,6 @@ class TransferClient:
             'externalName': str(base64.b64encode(''.encode('utf-8')), 'utf-8'),
             'extension': str(base64.b64encode(json.dumps(extension).encode('utf-8')), 'utf-8'),
         }
-        print(group_dict)
-
         post_data_dict = {}
         post_data_dict['metadata'] = meta_dict
         post_data_dict['data'] = group_dict
