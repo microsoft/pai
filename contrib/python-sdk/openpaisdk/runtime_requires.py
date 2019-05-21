@@ -13,8 +13,7 @@ class Requirement(Namespace):
 
 class PipRequirement(Requirement):
     __type__ = 'pip-requirement'
-    __fields__ = {
-    }
+    __fields__ = {}
 
     def define(self, parser: argparse.ArgumentParser):
         cli_add_arguments(self, parser, ['--job-name', '--task-role-name', 'pip_flags'])

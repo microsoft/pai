@@ -9,7 +9,7 @@ import os
 class JobSpec(Namespace):
     __type__ = 'job-common-spec'
     __fields__ = {
-        "requirements": ["prerequisites", []],
+        "requirements": [], # prerequisites
     }
 
     def define(self, parser: argparse.ArgumentParser):
@@ -51,11 +51,12 @@ __known_executables__ = ['python', 'python3', 'shell', 'sh', 'bash', 'ksh', 'csh
 class Job(JobSpec):
     __type__ = 'job'
     __fields__ = merge_two_object(JobSpec.__fields__, {
-        "taskroles": ["taskrole definitions", []]
+        "taskroles": [] # taskrole definitions
     })
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        print(self.taskroles)
         t_objs = [TaskRole(**t) for t in self.taskroles]
         self.taskroles = t_objs
 

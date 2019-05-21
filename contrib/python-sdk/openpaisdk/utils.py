@@ -4,6 +4,7 @@ common functions to
 import importlib
 from copy import deepcopy
 from requests import Response, request
+import subprocess
 from openpaisdk import __logger__
 
 
@@ -57,3 +58,10 @@ def get_response(
             break
     assert successful, (response.status_code, response.reason)
     return response
+
+def run_command(commands, # type: Union[list, str]
+                cwd=None, # type: str
+                ):
+    if isinstance(commands, str):
+        commands = commands.split(" ")
+    return subprocess.check_call(commands, cwd=cwd if cwd else None)

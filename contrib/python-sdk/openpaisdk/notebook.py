@@ -4,10 +4,9 @@ import re
 import ipykernel
 import requests
 import uuid
-from subprocess import check_call
 
-from openpaisdk.core import Client, Job
 from openpaisdk.command_line import Engine
+from openpaisdk.utils import run_command
 
 from requests.compat import urljoin
 from notebook.notebookapp import list_running_servers
@@ -73,7 +72,7 @@ def submit_notebook(
 
     # conver to script
     script_name = name + '.py'
-    check_call(['ipython', 'nbconvert', '--to', 'script', fname], cwd=d)
+    run_command(['ipython', 'nbconvert', '--to', 'script', fname], cwd=d)
     commands.extend(['-s', script_name])
     commands.extend(['ipython', script_name])
 
