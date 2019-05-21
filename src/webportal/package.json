@@ -108,8 +108,15 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --progress --profile --mode production",
+    "devstart": "envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
+    "ts-loader": "^6.0.1",
+    "typescript": "^3.4.5"
   }
 }

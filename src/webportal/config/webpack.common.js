@@ -70,13 +70,14 @@ const config = (env, argv) => ({
     'k8s': './src/app/cluster-view/k8s/k8s.component.js',
     'docs': './src/app/job/job-docs/job-docs.component.js',
     'plugin': './src/app/plugin/plugin.component.js',
+    'plugins/jobsubmission': './src/plugins/job-submission',
   },
   output: {
     path: helpers.root('dist'),
     filename: 'scripts/[name].bundle.js',
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.js', '.jsx', '.json', '.tsx', '.ts'],
     modules: [helpers.root('node_modules'), helpers.root('src')],
   },
   module: {
@@ -232,6 +233,11 @@ const config = (env, argv) => ({
             },
           },
         ],
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
     ],
   },

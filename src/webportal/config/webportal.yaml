@@ -16,3 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 server-port: 9286
+plugins:
+  - title: JobSubmission
+    uri: /scripts/plugins/jobsubmission.bundle.js
