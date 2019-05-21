@@ -62,12 +62,12 @@ Besides sharing, the files can be accessed in docker container by copying, or bu
 
 It builds a connection between storage and docker container, and the connection usual keeps alive during the whole job lifecycle.
 
-- **Advantage**.
+- **Advantage**
   - It doesn't transfer data, until the data is accessed. So, it's ok to sharing a folder with large size of files. Only used files will be transferred to docker containers.
   - If a remote folder is mounted into docker container, it looks like a local folder. So the code logic is the same as accessing local files.
   - The read/write operations happen on remote files immediately. So that it can reflect changes in the shared folder quickly.
 
-- **Shortcoming**.
+- **Shortcoming**
   - As the sharing connection keeps alive long time. So, if network is unstable during job running, the job may be failed.
   - If some files are read multiple times, they may spend more network IO than other approaches.
   - Most sharing protocols is not easy to pass through firewall. So it's hard to use sharing crossing network boundaries.
@@ -75,14 +75,14 @@ It builds a connection between storage and docker container, and the connection 
   - If sharing storage is centralized, and there are many jobs accesses files, network or disk IO of the central storage may be the bottleneck.
   - It may cause corrupt files, if multiple jobs save back on same files.
 
-- **Applicable scenarios**.
+- **Applicable scenarios**
   - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is good to handle concurrency.
   - If shared folder contains a lot of files, but many of them won't be accessed during job running. Sharing can save traffic of these files.
   - There is no much small files, and no needed to save or load files multiple times.
 
-- **How-to use**. Above example uses CIFS, which can access shared folder of Windows.
+- **How-to use**
 
-  If the storage installs Linux, it can use NFS also. The sharing part can be replaced like `apt update && apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models`.
+  Above example uses CIFS, which can access shared folder of Windows. If a storage is Linux, it can use NFS or CIFS. The sharing part of command field can be replaced like `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models`, if it's using NFS.
 
   Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command.
 
@@ -90,35 +90,82 @@ It builds a connection between storage and docker container, and the connection 
 
 Copy builds a connection when it needs to transfer files. Once copy completes, the connection can be closed.
 
-- **Advantage**.
+- **Advantage**
   - It doesn't need to keep a connection long time. If network is unstable, copy has higher chance to get needed files.
   - After copied, files are accessed locally, so the IO performance is much better than remotely. If some files need to be written multiple times, it's also much quickly.
   - There are many mature protocols to copy files, including SSH, SFTP, HTTP, SMB and so on. Some of them can pass firewall easily.
 
-- **Shortcoming**.
+- **Shortcoming**
   - If only part of files are needed in a folder, copy may need some logic to choose copied files to save network IO and docker disk space.
   - If the job is failed with unexpected reason, there may not have a chance to copy any content out.
   - As the storage limitation of the docker container, if needed files is large size, it's not suitable to copy all of them to the docker container.
   - Most copy protocols are low performance with may small files. If data is plenty of small files, it may significant slow down the copy procedure.
 
-- **Applicable scenarios**.
+- **Applicable scenarios**
   - If copied files are not in large size, which causes the size of docker container isn't enough.
   - If copied files need high IO performance, and accessed multiple times.
   - There is no much small files.
 
-- **How-to use**.
+- **How-to use**
 
   Copy is an general approach, not a specified tool. So all commands that can copy files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
 
+  This is an example of command field, it uses `smbclient` and has the same functionality as the sharing example. It copies all files to docker container, run the training procedure, and then copy output back to shared folder.
+
+  ```bash
+  apt update && apt install -y smbclient && mkdir /models && cd /models && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;recurse ON;mask *.py;mget *" -m=SMB2 && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;cd /output;lcd /tmp/output;recurse ON;mput *" -m=SMB2
+  ```
+
+  For more information about other tools, refer to corresponding manual.
+
 #### Docker Built-in
 
-- **Advantage**.
+- **Advantage**
+  - As docker images are cached locally, so it saves time to copy files for each running. It isn't like sharing and copy.
+  - As all files are packed in docker images, it has good IO performance, when there are many small files.
+  - As it saves time on file transferring, once docker image is cached, the job runs faster than other approaches.
 
-- **Shortcoming**.
+- **Shortcoming**
+  - If any file should be copied out from the docker container, it needs sharing or copy approach.
+  - Every time the files are updated, the docker needs to be built again. All docker caches are expired also, and need to be downloaded again.
+  - It's not suitable for large size files. In general, the docker image is about 2~4 GB. So, if files is more than 1GB, it's not suitable built into docker image.
 
-- **Applicable scenarios**.
+- **Applicable scenarios**
+  - The files are not changed frequently, and size is no more than 1GB.
+  - The files are many small files.
 
-- **How-to use**.
+- **How-to use**
+
+  Below is an example like hello-world, but it uses `smbclient` to copy output out from the docker images.
+
+  1. Refer to [here](https://docs.docker.com/docker-hub/) for more details about building a docker image, and push it to hub.docker.com.
+
+     ```docker
+     FROM tensorflow/tensorflow:1.12.0-gpu-py3
+
+     RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
+     ```
+
+  2. Change the job config like below.
+
+     ```json
+     {
+       "jobName": "tensorflow-cifar10",
+       "image": "<your image name>",
+       "taskRoles": [
+        {
+          "name": "default",
+          "taskNumber": 1,
+          "cpuNumber": 4,
+          "memoryMB": 8192,
+          "gpuNumber": 1,
+          "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+       }
+       ]
+     }
+     ```
+
+     Note, this example isn't like sharing and copy approaches, as it doesn't transfer output files out.
 
 ## Considerations
 
