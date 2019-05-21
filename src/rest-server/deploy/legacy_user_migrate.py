@@ -111,16 +111,16 @@ class TransferClient:
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
         print(grouplist)
         print(json.dumps(grouplist))
-        print(base64.b64encode(json.dumps(grouplist)))
-        print(str(base64.b64encode(json.dumps(grouplist)), 'utf-8'))
+        print(base64.b64encode(json.dumps(grouplist).encode('utf-8')))
+        print(str(base64.b64encode(json.dumps(grouplist).encode('utf-8')), 'utf-8'))
         user_dict = {
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
             'email': '',
-            'grouplist': str(base64.b64encode(json.dumps(grouplist)), 'utf-8'),
-            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+            'grouplist': str(base64.b64encode(json.dumps(grouplist).encode('utf-8')), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension).encode('utf-8')), 'utf-8'),
         }
-
+        print(user_dict)
         post_data_dict = {}
         post_data_dict['metadata'] = meta_dict
         post_data_dict['data'] = user_dict
@@ -133,11 +133,12 @@ class TransferClient:
 
         extension = {}
         group_dict = {
-            'groupname': str(base64.b64encode(groupname), 'utf-8'),
-            'description': str(base64.b64encode('vc {0}\'s group'.format(groupname)), 'utf-8'),
-            'externalName': str(base64.b64encode(''), 'utf-8'),
-            'extension': str(base64.b64encode(json.dumps(extension)), 'utf-8'),
+            'groupname': str(base64.b64encode(groupname.encode('utf-8')), 'utf-8'),
+            'description': str(base64.b64encode('vc {0}\'s group'.format(groupname).encode('utf-8')), 'utf-8'),
+            'externalName': str(base64.b64encode(''.encode('utf-8')), 'utf-8'),
+            'extension': str(base64.b64encode(json.dumps(extension).encode('utf-8')), 'utf-8'),
         }
+        print(group_dict)
 
         post_data_dict = {}
         post_data_dict['metadata'] = meta_dict
