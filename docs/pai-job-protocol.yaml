@@ -19,15 +19,25 @@ prerequisites: # Optional
     description: String, optional
     auth: Object, optional # Only available when the type is dockerimage.
       username: String, optional
-      passward: String, optional
+      password: String, optional # If a password is needed, it should be referenced as a secret
       registryuri: String, optional
     uri: String or list, required # Only when the type is data can the uri be a list.
 
 # If specified, the whole parameters object can be referenced as `$parameters`.
-# Scope of reference `$parameters`: the refercen is global and shared among all task roles.
+# Scope of reference `$parameters`: the reference is shared among all task roles.
 parameters: # Optional, can be omitted.
   <param1>: value1 # Specify name and value of all the referencable parameters that will be used in the whole job template.
   <param2>: value2 # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`.
+
+# If sensitive information including password or API key is needed in the protocol,
+# it should be specified here in secrets section and referenced as `$secrets`.
+# Scope of reference `$secrets`: the reference is shared among all task roles and docker image's `auth` field.
+# A system that supports PAI protocol should keep the secret information away from
+# unauthorized users (how to define unauthorized user is out of the scope of this protocol).
+# For example, the yaml file used for job cloning, the stdout/stderr should protect all information marked as secrets.
+secrets: # Optional, can be omitted.
+  <secret1>: password # Specify name and value of all secrets that will be used in the whole job template.
+  <secret2>: key # Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.
 
 jobRetryCount: Integer, optional # Default is 0.
 # Task roles are different types of task in the protocol.
@@ -95,8 +105,8 @@ prerequisites:
     contributor: Alice
     description: python3.5, tensorflow
     auth:
-      username: 81f1fd6a-2844-4072-982d-62371fa37bd3
-      passward: user1
+      username: user
+      password: <% $secrets.docker_password %>
       registryuri: openpai.azurecr.io
     uri: openpai/pai.example.tensorflow
   - protocolVersion: 2
@@ -112,7 +122,7 @@ prerequisites:
     version: 84820935288cab696c9c2ac409cbd46a1f24723d
     contributor: MaggieQi
     description: tensorflow benchmarks
-    uri: https://github.com/MaggieQi/benchmarks
+    uri: github.com/MaggieQi/benchmarks
   - protocolVersion: 2
     name: cifar10
     type: data
@@ -125,6 +135,10 @@ prerequisites:
 parameters:
   model: resnet20
   batchsize: 32
+
+secrets:
+  docker_password: password
+  github_token: cGFzc3dvcmQ=
 
 jobRetryCount: 1
 taskRoles:
@@ -203,14 +217,14 @@ deployments:
         preCommands:
           - wget <% $data.uri[0] %> -P data_<% $data.name %> # If local data cache deployed, one can copy data from local cache, only wget in case of cache miss.
           - >
-            git clone <% $script.uri %> script_<% $script.name %> &&
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
             # Then the system will go ahead to execute worker's command.
       ps_server:
         preCommands:
           - wget <% $data.uri[0] %> -P data_<% $data.name %>
           - >
-            git clone <% $script.uri %> script_<% $script.name %> &&
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
             # Then the system will go ahead to execute ps_server's command.
         postCommands:
@@ -219,5 +233,5 @@ deployments:
           # Assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
           # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>".
 
-default:
+defaults:
   deployment: prod # Use prod deployment in job submission.

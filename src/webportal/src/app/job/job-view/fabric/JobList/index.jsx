@@ -25,7 +25,6 @@ import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
 import {Overlay} from 'office-ui-fabric-react/lib/Overlay';
 import {Stack} from 'office-ui-fabric-react/lib/Stack';
-import {spacing} from '../job-detail/util';
 
 import Context from './Context';
 import Filter from './Filter';
@@ -37,12 +36,9 @@ import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
-// import t from '../tachyons.css';
 import t from '../../../../components/tachyons.scss';
-
-// import {spacing} from '../job-detail/util';
 import c from 'classnames';
-
+import {spacing} from '../job-detail/util';
 initializeIcons();
 
 function getError(error) {

@@ -85,15 +85,32 @@ const updateUserVc = (req, res, next) => {
 };
 
 /**
- * Update user virtual clusters.
+ * Get user list
  */
 const getUserList = (req, res, next) => {
-  if (req.user.admin) {
+  userModel.getUserList((err, userList) => {
+    if (err) {
+      return next(createError.unknown(err));
+    }
+    return res.status(200).json(userList);
+  });
+};
+
+/**
+ * Get user info
+ */
+const getUserInfo = (req, res, next) => {
+  const username = req.params.username;
+  if (req.user.admin || req.user.username === username) {
     userModel.getUserList((err, userList) => {
       if (err) {
         return next(createError.unknown(err));
       }
-      return res.status(200).json(userList);
+      const item = userList.find((x) => x.username === username);
+      if (!item) {
+        return next(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
+      }
+      return res.status(200).json(item);
     });
   } else {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
@@ -122,4 +139,4 @@ const updateUserGithubPAT =(req, res, next) => {
 };
 
 // module exports
-module.exports = {update, remove, updateUserVc, getUserList, updateUserGithubPAT};
+module.exports = {update, remove, updateUserVc, getUserInfo, getUserList, updateUserGithubPAT};

@@ -34,8 +34,7 @@ import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
-import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable} from '../util';
-import {spacing} from '../util';
+import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, spacing} from '../util';
 
 import { HoverCard } from 'office-ui-fabric-react';
 

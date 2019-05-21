@@ -107,7 +107,6 @@ class JobDetail extends React.Component {
       return Object.keys(jobInfo.taskRoles).map((key) => (
         <TaskRole
           key={key}
-          // className={t.mt3}
           taskInfo={jobInfo.taskRoles[key]}
           jobStatus={getHumanizedJobStateString(jobInfo)}
           sshInfo={sshInfo}

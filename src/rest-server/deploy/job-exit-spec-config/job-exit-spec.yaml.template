@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,19 +15,47 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap  job-exit-spec-configuration --from-file=job-exit-spec-config/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+{% for spec_item in cluster_cfg['job-exit-spec']['spec'] %}
+- code: {{ spec_item['code'] }}
+{%- if 'phrase' in spec_item %}
+  phrase: {{ spec_item['phrase'] }}
+{%- endif %}
+{%- if 'issuer' in spec_item %}
+  issuer: {{ spec_item['issuer'] }}
+{%- endif %}
+{%- if 'causer' in spec_item %}
+  causer: {{ spec_item['causer'] }}
+{%- endif %}
+{%- if 'type' in spec_item %}
+  type: {{ spec_item['type'] }}
+{%- endif %}
+{%- if 'stage' in spec_item %}
+  stage: {{ spec_item['stage'] }}
+{%- endif %}
+{%- if 'behavior' in spec_item %}
+  behavior: {{ spec_item['behavior'] }}
+{%- endif %}
+{%- if 'reaction' in spec_item %}
+  reaction: {{ spec_item['reaction'] }}
+{%- endif %}
+{%- if 'reason' in spec_item %}
+  reason: "{{ spec_item['reason'] }}"
+{%- endif %}
+{%- if 'repro' in spec_item %}
+  repro:
+{%- for str_val in spec_item['repro'] %}
+    - "{{ str_val }}"
+{%- endfor %}
+{%- endif %}
+{%- if 'solution' in spec_item %}
+  solution:
+{%- for str_val in spec_item['solution'] %}
+    - "{{ str_val }}"
+{%- endfor %}
+{%- endif %}
+{%- if 'pattern' in spec_item %}
+  pattern: "{{ spec_item['pattern'] }}"
+{%- endif %}
 
-# Check whether has etcd-uri in cluster config if so need to transfer user-data
-{% if cluster_cfg['rest-server']['etcd-uris'] -%}
-python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }} || exit $?
-{% endif -%}
-
-kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
-
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rest-server || exit $?
-
-popd > /dev/null
+{% endfor %}

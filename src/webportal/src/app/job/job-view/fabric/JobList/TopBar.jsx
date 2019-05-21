@@ -26,7 +26,6 @@ import Context from './Context';
 import Filter from './Filter';
 import {spacing} from '../job-detail/util';
 import c from 'classnames';
-// import t from '../tachyons.css';
 import t from '../../../../components/tachyons.scss';
 
 import webportalConfig from '../../../../config/webportal.config';
