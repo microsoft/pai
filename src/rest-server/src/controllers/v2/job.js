@@ -37,13 +37,13 @@ const update = asyncHandler(async (req, res) => {
 
 const getConfig = asyncHandler(async (req, res) => {
   try {
-    const data = await getJobConfig(req.param.frameworkName);
+    const data = await getJobConfig(req.params.frameworkName);
     const type = req.accepts(['json', 'yaml']) || 'json';
     const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
     return res.status(200).type(type).send(body);
   } catch (error) {
     if (error.message.startsWith('[WebHDFS] 404')) {
-      throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`);
+      throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.params.frameworkName} is not found.`);
     } else {
       throw createError.unknown(error);
     }

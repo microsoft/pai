@@ -66,21 +66,29 @@ const Home = () => {
   } else {
     const {spacing} = getTheme();
 
-    const ResponsiveGap = styled.div` {
+    const breakpoint = '1400px';
+
+    const ResponsiveFlexBox = styled.div`
+      @media screen and (min-width: ${breakpoint}) {
+        display:flex;
+      }
+    `;
+
+    const ResponsiveGap = styled.div`
       height: 0;
       width: ${spacing.l2};
-      @media screen and (max-width: 64em) {
+      @media screen and (max-width: ${breakpoint}) {
         height: ${spacing.l2};
         width: 0;
       }
-    }`;
+    `;
 
     const ResponsiveItem = styled.div`
       width: 33%;
       height: auto;
-      @media screen and (max-width: 64em) {
+      @media screen and (max-width: ${breakpoint}) {
         width: 100%;
-        height: 32rem;
+        height: 320px;
       }
     `;
 
@@ -92,7 +100,7 @@ const Home = () => {
       >
         {/* top */}
         <Stack.Item>
-          <div className={c(t.flexL)}>
+          <ResponsiveFlexBox>
             <ResponsiveItem>
               <JobStatus jobs={jobs} />
             </ResponsiveItem>
@@ -109,7 +117,7 @@ const Home = () => {
             <ResponsiveItem>
               <GpuChart gpuPerNode={gpuPerNode} style={{height: '100%'}} />
             </ResponsiveItem>
-          </div>
+          </ResponsiveFlexBox>
         </Stack.Item>
         {/* recent jobs */}
         <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
