@@ -719,7 +719,9 @@ def gen_raw_job(processed_apps):
         gpu = math.ceil(job.gpu_sec / elapsed_time)
 
         if job.finished_time == 0:
-            waiting_time = 0 # Unable to generate waiting time
+            now = datetime.datetime.now()
+            now = int(datetime.datetime.timestamp(now))
+            waiting_time = now - job.start_time - elapsed_time
         else:
             waiting_time = job.finished_time - job.start_time - elapsed_time
 
