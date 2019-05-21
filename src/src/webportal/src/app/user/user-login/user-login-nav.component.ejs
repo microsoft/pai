@@ -1,0 +1,19 @@
+<% if (cookies.get("token")) { %>
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+      <!-- img src="" class="user-image" alt="User Image" -->
+      <span class="hidden-xs">Welcome, <%= cookies.get("user") %></span>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="#" onclick="window.location.replace('/change-password.html')">Change password</a></li>
+      <li><a href="#" onclick="userLogout()">Logout</a></li>
+    </ul>
+  </li>
+<% } else { %>
+  <li>
+    <a href="#" data-toggle="control-sidebar" onclick="window.location.replace('/login.html')">
+      <i class="fa fa-sign-in"></i>
+      <span>Login</span>
+    </a>
+  </li>
+<% } %>

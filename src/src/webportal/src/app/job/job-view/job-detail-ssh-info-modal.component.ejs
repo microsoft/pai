@@ -1,0 +1,22 @@
+<!-- Modal -->
+<div id="sshInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">SSH to <%= containerId %></h4>
+      </div>
+      <div class="modal-body">
+        <p>Step 1. Open a Bash shell terminal.</p>
+        <p>Step 2: Download the <a href='<%= keyPair.privateKeyDirectDownloadLink %>'>private key</a>:</p>
+        <pre><code>wget <%= keyPair.privateKeyDirectDownloadLink %> -O <%= keyPair.privateKeyFileName %></code></pre>
+        <p>Step 3: Set correct permission for the key file:</p>
+        <pre><code>chmod 600 <%= keyPair.privateKeyFileName %></code></pre>
+        <p>Step 4: Connect to the container:</p>
+        <pre><code>ssh -i <%= keyPair.privateKeyFileName %> -p <%= sshPort %> root@<%= sshIp %></code></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

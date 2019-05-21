@@ -1,0 +1,104 @@
+.metric-cell {
+  width: 80px;
+  text-align: center
+}
+
+.metric-span {
+  width: 14px;
+  height: 14px;
+}
+
+.metric-icon {
+  top: -7px;
+}
+
+.metric-icon-loading {
+  color: silver;
+}
+
+.add-vc-btn{
+  margin: 10px 0 20px 0;
+}
+
+ul, li{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.modal-vc-content{
+  max-width: 390px;
+  padding: 30px;
+  margin: 0 auto;
+  .edit-group{
+    position: relative;
+    .edit-group-item{
+      position: absolute;
+      top: 10px;
+      left: -76px;
+    }
+  }
+  .add-vc-fild{
+    position: relative;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+  }
+  .remarks{
+    display: block;
+    margin-top: -8px;
+    padding-bottom: 20px;
+    font-size: 12px;
+    color: #666;
+  }
+}
+
+.vc-user-head{
+  padding-bottom: 6px;
+  font-weight: bold;
+  border-bottom: 1px solid #d2d2d2;
+}
+.vc-user-body{
+  .change{
+    background: #d1d1d1;
+  }
+  .vc-user-item{
+    padding: 4px 0;
+    .center{
+      text-align: center;
+    }
+  }
+}
+#vc-table{
+  .state-vc{
+    display: inline-block;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+    cursor: pointer;
+  }
+  .state-vc-ordinary{
+    cursor: default;
+  }
+  .state-running{
+    background: #3c8dbc;
+    color: #fff;
+  }
+  .state-stopped{
+    background: #d2d6de;
+    color: #444;
+  }
+  .item-btn{
+    cursor: pointer;
+  }
+  .default{
+    color: #c0c0c0;
+    cursor: default;
+  }
+}

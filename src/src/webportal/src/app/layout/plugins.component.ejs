@@ -1,0 +1,9 @@
+<li class="header">PLUGINS</li>
+<% for (var i = 0, l = plugins.length; i < l; i++) { var plugin = plugins[i]; %>
+<li class="plugin-<%= i %>">
+  <a href="/plugin.html?index=<%= i %>">
+    <i class="fa fa-puzzle-piece fa-lg"></i>
+    <span><%= plugin.title %></span>
+  </a>
+</li>
+<% } %>

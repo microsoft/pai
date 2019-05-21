@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title><%= htmlWebpackPlugin.options.title %></title>
+
+  <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
+
+</head>
+
+<body class="hold-transition skin-blue fixed sidebar-mini">
+
+  <div class="wrapper">
+
+    <header class="main-header">
+      <a href="/" class="logo">
+        <span class="logo-mini">
+          <img src="/favicon.ico" alt="PAI" class="main-logo-icon"></img>
+        </span>
+        <span class="logo-lg">
+          <img src="/favicon.ico" alt="PAI" class="main-logo-icon"></img>
+          <b>&nbsp;&nbsp;Platform for AI&nbsp;</b>
+        </span>
+      </a>
+      <nav class="navbar navbar-static-top" role="navigation">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+          <span class="sr-only">Toggle navigation</span>
+        </a>
+        <div class="navbar-custom-menu">
+          <ul id="navbar" class="nav navbar-nav"></ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Left Side Column -->
+    <aside class="main-sidebar">
+      <section class="sidebar">
+        <ul class="sidebar-menu" data-widget="tree">
+          <li id="sidebar-menu--home">
+            <a href="/home.html">
+              <i class="fa fa-home"></i>
+              <span>Home</span>
+            </a>
+          </li>
+          <li id="sidebar-menu--dashboard">
+            <a href="/dashboard.html">
+              <i class="fa fa-tachometer"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li id="sidebar-menu--submit-job">
+            <a href="/submit.html">
+              <i class="fa fa-plus-circle"></i>
+              <span>Submit Job</span>
+            </a>
+          </li>
+          <li id="sidebar-menu--job-view">
+            <a href="/job-list.html">
+              <i class="fa fa-rocket"></i>
+              <span>Jobs</span>
+            </a>
+          </li>
+          <li id="sidebar-menu--vc">
+            <a href="/virtual-clusters.html">
+              <i class="fa fa-cubes"></i>
+              <span>Virtual Clusters</span>
+            </a>
+          </li>
+          <li class="treeview" id="sidebar-menu--cluster-view">
+            <a href="">
+              <i class="fa fa-cogs"></i>
+              <span>Administration</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li id="sidebar-menu--cluster-view--services">
+                <a href="/cluster-view/services.html">
+                  <span>&bull;&nbsp;&nbsp;&nbsp; Services</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--cluster-view--hardware">
+                <a href="/cluster-view/hardware.html">
+                  <span>&bull;&nbsp;&nbsp;&nbsp; Hardware</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--cluster-view--k8s">
+                <a href="/cluster-view/k8s.html">
+                  <span>&bull;&nbsp;&nbsp;&nbsp; K8s Dashboard</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--cluster-view--user-management">
+                <a href="/user-view.html">
+                  <span>&bull;&nbsp;&nbsp;&nbsp; User Management</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="treeview" id="sidebar-menu--documents">
+            <a href="">
+              <i class="fa fa-book"></i>
+              <span>Documents</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li id="sidebar-menu--documents--getting-started">
+                <a href="/docs.html">
+                  <span>&bull;&nbsp;&nbsp;&nbsp; Getting Started</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li id="sidebar-menu--feedback">
+            <a href="https://github.com/Microsoft/pai/issues/new?title=[Feedback%20v<%=
+              encodeURIComponent(htmlWebpackPlugin.options.version)
+            %>]" target="_blank">
+              <i class="fa fa-comments"></i>
+              <span>Feedback</span>
+              <span class="pull-right-container">
+                <small class="label pull-right bg-blue">v<%= htmlWebpackPlugin.options.version %></small>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="content-wrapper" style="height:100%"></div>
+
+    <div class="control-sidebar-bg"></div>
+
+  </div>
+  <script>window.PAI_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.version)%></script>
+  <script src="/scripts/env.js"></script>
+</body>
+</html>

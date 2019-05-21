@@ -1,0 +1,11 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "Jobs" }) %></section>
+
+<section class="content">
+  <div class="box">
+    <div id="modalPlaceHolder" class="box-body" />
+    <div id="view-table" class="box-body">
+      <%= jobTable({ jobs: [] }) %>
+    </div>
+  </div>
+  <%= loading() %>
+</section>

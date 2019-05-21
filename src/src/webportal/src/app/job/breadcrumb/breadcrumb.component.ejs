@@ -1,0 +1,24 @@
+<h1><%= breadcrumbTitle %></h1>
+<ol class="breadcrumb">
+  <li>
+    <a href="/"><i class="fa fa-home"></i>Home</a>
+  </li>
+<%
+  if (pages == null || pages.length == 0) {
+    var pages = [{'path': '', 'title': breadcrumbTitle}];
+  }
+  for (let i = 0; i < pages.length; i++) {
+    if (i < pages.length - 1) {
+%>
+  <li>
+    <a href='<%= pages[i].path %>'><%= pages[i].title %></a>
+  </li>
+<%
+    } else {
+%>
+  <li class="active"><%= pages[i].title %></li>
+<%
+    }
+  }
+%>
+</ol>
