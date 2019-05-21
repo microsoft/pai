@@ -86,6 +86,7 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
   return (
     <Modal
       isOpen={isOpen}
+      isBlocking={true}
       containerClassName={mergeStyles({maxWidth: '430px'}, t.w90)}
     >
       <div className={c(t.pa4)}>

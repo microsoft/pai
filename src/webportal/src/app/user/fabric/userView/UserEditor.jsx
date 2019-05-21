@@ -162,6 +162,7 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
   return (
     <Modal
       isOpen={isOpen}
+      isBlocking={true}
       containerClassName={mergeStyles({maxWidth: '430px'}, t.w90)}
     >
       <div className={c(t.pa4)}>
