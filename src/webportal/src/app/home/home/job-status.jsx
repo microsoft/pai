@@ -94,7 +94,7 @@ const JobStatus = ({className, jobs}) => {
           </div>
         </Stack.Item>
         <Stack.Item>
-          <Stack>
+          <div className={t.overflowXAuto}>
             <StatusItem
               className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
               icon='Clock'
@@ -144,7 +144,7 @@ const JobStatus = ({className, jobs}) => {
                 user: cookies.get('user'),
               })}`}
             />
-          </Stack>
+          </div>
         </Stack.Item>
       </Stack>
     </Card>
