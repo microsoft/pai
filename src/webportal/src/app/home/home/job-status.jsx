@@ -36,26 +36,26 @@ const StatusItem = ({className, icon, name, count, link}) => {
       horizontalAlign='space-between'
       verticalAlign='center'
       padding='s1'
+      gap='m'
     >
       <Stack.Item>
         <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
           <div>
             <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
           </div>
-          <div>
-            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '10rem', marginLeft: spacing.m}}>
-              {name}
-            </div>
-          </div>
-          <div>
-            <div className={c(FontClassNames.xLarge)} style={{marginLeft: spacing.l3}}>
-              {count}
-            </div>
+          <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '80px', marginLeft: spacing.m}}>
+            {name}
           </div>
         </div>
       </Stack.Item>
       <Stack.Item>
+        <div className={c(FontClassNames.xLarge)}>
+          {count}
+        </div>
+      </Stack.Item>
+      <Stack.Item>
         <DefaultButton
+          styles={{root: [{width: 100}]}}
           text='View all'
           href={link}
         />
