@@ -103,9 +103,7 @@ export function getJobMetricsUrl() {
   return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
 }
 
-export async function cloneJob() {
-  // use raw job config to clone
-  const jobConfig = await fetchRawJobConfig();
+export async function cloneJob(rawJobConfig) {
   const query = {
     op: 'resubmit',
     type: 'job',
@@ -114,7 +112,7 @@ export async function cloneJob() {
   };
 
   // plugin
-  const pluginId = get(jobConfig, 'extras.submitFrom');
+  const pluginId = get(rawJobConfig, 'extras.submitFrom');
   if (!isNil(pluginId)) {
     const plugins = window.PAI_PLUGINS;
     const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
