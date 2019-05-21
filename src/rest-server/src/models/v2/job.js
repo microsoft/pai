@@ -23,7 +23,7 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModel = require('../user');
+const userModelV2 = require('./user');
 const {protocolConvert} = require('../../util/converter');
 const HDFS = require('../../util/hdfs');
 const createError = require('../../util/error');
@@ -266,7 +266,10 @@ async function put(frameworkName, config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  await util.promisify(userModel.checkUserVc)(userName, virtualCluster);
+  const flag = await userModelV2.checkUserGroup(userName, virtualCluster);
+  if (flag === false) {
+    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+  }
 
   // generate framework description and prepare container scripts on hdfs
   const frameworkDescription = await prepareContainerScripts(frameworkName, userName, config, rawConfig);
