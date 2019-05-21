@@ -25,9 +25,9 @@ import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import MonacoCallout from './monaco-callout';
-import {statusColorMapping, spacing} from '../util';
+import {spacing} from '../util';
 import TaskRoleContainerList from './task-role-container-list';
-
+import {statusColorMapping} from '../../../../../components/theme';
 export default class TaskRole extends React.Component {
   constructor(props) {
     super(props);

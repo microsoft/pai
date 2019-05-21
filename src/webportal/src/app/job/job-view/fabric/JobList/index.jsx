@@ -37,7 +37,9 @@ import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
-import t from '../tachyons.css';
+// import t from '../tachyons.css';
+import t from '../../../../components/tachyons.scss';
+
 // import {spacing} from '../job-detail/util';
 import c from 'classnames';
 

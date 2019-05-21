@@ -8,7 +8,8 @@ import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsL
 import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
 import StatusBadge from '../job-detail/components/status-badge';
 import c from 'classnames';
-import t from '../tachyons.css';
+// import t from '../tachyons.css';
+import t from '../../../../components/tachyons.scss';
 
 import {DateTime, Duration} from 'luxon';
 

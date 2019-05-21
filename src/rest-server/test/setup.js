@@ -16,8 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const env = require('../src/util/env');
-
+// environment variables
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
@@ -31,8 +30,8 @@ process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
 process.env.AZ_RDMA = 'false';
 process.env.DEBUGGING_RESERVATION_SECONDS = '604800';
 
-process.env[env.exitSpecPath] = 'test/data/exit-spec.yaml';
 
+// module dependencies
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
 const nock = require('nock');

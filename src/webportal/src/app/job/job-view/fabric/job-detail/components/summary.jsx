@@ -43,6 +43,19 @@ const StoppableStatus = [
   'Running',
   'Waiting',
 ];
+const HintItem = ({header, children}) => (
+  <div className={c(t.flex, t.justifyStart)}>
+    <div style={{width: '16rem', minWidth: '16rem', fontWeight: FontWeights.semibold}}>
+      {header}
+    </div>
+    <div>{children}</div>
+  </div>
+);
+
+HintItem.propTypes = {
+  header: PropTypes.string.isRequired,
+  children: PropTypes.node,
+};
 
 export default class Summary extends React.Component {
   constructor(props) {

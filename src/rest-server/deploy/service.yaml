@@ -22,7 +22,6 @@ prerequisite:
 template-list:
   - rest-server.yaml
   - start.sh
-  - job-exit-spec-config/job-exit-spec.yaml
 
 start-script: start.sh
 stop-script: stop.sh

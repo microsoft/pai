@@ -38,8 +38,6 @@ spec:
         volumeMounts:
         - mountPath: /pai-cluster-config
           name: pai-configuration-rest-server
-        - mountPath: /job-exit-spec-configuration
-          name: job-exit-spec-rest-server
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
@@ -94,6 +92,3 @@ spec:
       - name: pai-configuration-rest-server
         configMap:
           name: pai-configuration
-      - name: job-exit-spec-rest-server
-        configMap:
-          name: job-exit-spec-configuration

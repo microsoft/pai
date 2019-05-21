@@ -20,62 +20,27 @@
 
 # Bootstrap script for docker container.
 
-exec 17>/pai/log/runtime.docker.pai.log
+exec 17>/pai/log/DockerContainerDebug.log
 BASH_XTRACEFD=17
-
-RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
-RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
-USER_STDOUT=/pai/log/user.pai.stdout
-USER_STDERR=/pai/log/user.pai.stderr
-DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
-
-# create runtime docker log here. Since multi shell IO block will write to the files,
-# we just append lines to the log file to avoid flush exits contents.
-touch $RUNTIME_DOCKER_ERR_LOG
-touch $RUNTIME_DOCKER_LOG
-
-# This function is duplicate between dockerContainerScript and yarnContainerScript\
-# Need to remove one if we discard the shell scirpt
-function log_runtime_error()
-{
-  local level=$1
-  local message_type=$2
-  local error_message=$3
-  local timestamp=$(date +%s)
-
-  printf "%s\n" "$timestamp $level $message_type $error_message" >> $RUNTIME_DOCKER_ERR_LOG
-}
-
-
-function sigterm_handler()
-{
-  rc=$?
-  printf "[DEBUG] SIGTERM received, job will be killed\n"
-  log_runtime_error "ERROR" "REASON" "\"Container receive signal SIGTERM\""
-  exit $rc
-} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
-
 
 function exit_handler()
 {
-  rc=$?
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
-  if [[ $rc -eq 0 ]]; then
-    exit 0
-  fi
+}
 
-  log_runtime_error "ERROR" "REASON" "\"User process exited with code: $rc\""
-  exit $rc
-} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
-
-
+# The cleaner will send SIGUSR1(10) to container to kill it. Trap the signal here and exit with code 1.
+function kill_handler()
 {
+  printf "%s %s\n" \
+    "[INFO]" "Docker container killed by cleaner due to disk pressure."
+  exit 1
+}
 
 set -x
 PS4="+[\t] "
 trap exit_handler EXIT
-trap sigterm_handler SIGTERM
+trap kill_handler 10
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 
@@ -83,26 +48,23 @@ touch "/alive/docker_$PAI_CONTAINER_ID"
 export PAI_WORK_DIR="$(pwd)"
 PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
+export CLASSPATH="$(hadoop classpath --glob)"
 # Make all GPUs allocated to the container accessible
 export NVIDIA_VISIBLE_DEVICES=all
 
 task_role_no={{ idx }}
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-CODE_DIR=/pai/code
-if [[ -d "$CODE_DIR" && ! -z "$(ls $CODE_DIR)" ]]; then
-  cp -r $CODE_DIR/* ./
-fi
+cp -r /pai/code/* ./
 
 function webhdfs_create_file()
 {
   webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=CREATE"
-  redirectResponse=$(curl -i -s -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url}' '%{http_code})
-
+  redirectResponse=$(curl -i -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url}' '%{http_code})
   redirectCode=$(cut -d ' ' -f 2 <<< ${redirectResponse})
   if [[ ${redirectCode} = "307" ]]; then
     redirectUri=$(cut -d ' ' -f 1 <<< ${redirectResponse})
-    createResponse=$(curl -i -sS -X PUT ${redirectUri})
+    createResponse=$(curl -i -S -X PUT ${redirectUri})
   else
     printf "%s %s\n %s %s\n %s %s\n" \
       "[WARNING]" "Webhdfs creates folder failed" \
@@ -115,7 +77,7 @@ function webhdfs_download_file()
 {
   webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=OPEN"
   localPath=${2}
-  downloadResponse=$(curl -sS -L ${webHdfsRequestPath} -o ${localPath} -w %{http_code})
+  downloadResponse=$(curl -S -L ${webHdfsRequestPath} -o ${localPath} -w %{http_code})
   if [[ ${downloadResponse} = "200" ]]; then
     printf "%s %s\n" \
       "[INFO]" "Webhdfs downloads file succeed"
@@ -226,38 +188,11 @@ function run_user_command()
   exit 0
 }
 
-run_user_command >$USER_STDOUT 2>$USER_STDERR &
-
+run_user_command &
 user_command_pid=$!
-
-function grep_kill_command_from_file()
-{
-  local file_name=$1
-  local rc=0
-
-  if [[ -f $file_name ]]; then
-    grep "ACTION \"KILL\"" $file_name 2>&1 > /dev/null
-    rc=$?
-  fi
-  return $rc
-}
-
-function handle_exit_command()
-{
-  if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
-    grep_kill_command_from_file $DISK_CLEANER_ERROR_FILE
-    if [[ $? -eq 0 ]]; then
-      printf "[INFO] Docker container killed by cleaner due to disk pressure.\n"
-      log_runtime_error "ERROR" "REASON" "\"docker container killed by disk cleaner\""
-      exit 1
-    fi
-  fi
-}
-
 
 while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
         kill -0 $user_command_pid 2>/dev/null; do
-  handle_exit_command
   sleep 20
 done
 
@@ -268,7 +203,6 @@ else
   wait $user_command_pid
   user_command_exitcode=$?
   echo "job has finished with exit code $user_command_exitcode"
-
 {{# isDebug }}
   if [[ $user_command_exitcode -ne 0 ]]; then
     echo "============================================================================="
@@ -289,4 +223,4 @@ else
 {{/ isDebug }}
   exit $user_command_exitcode
 fi
-} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+

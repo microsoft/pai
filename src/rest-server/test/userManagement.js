@@ -1007,41 +1007,41 @@ describe('get user info list : get /api/v1/user', () => {
   // Get a valid token that expires in 60 seconds.
   //
 
-  // const validToken = global.jwt.sign({ username: 'admin_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
-  // const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
-  // const invalidToken = '';
+  const validToken = global.jwt.sign({ username: 'admin_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const invalidToken = '';
 
   // //
   // // Positive cases
   // //
 
-  // it('Case 1 (Positive): should get user info successfully with admin valid token', (done) => {
-  //   global.chai.request(global.server)
-  //     .get('/api/v1/user')
-  //     .set('Authorization', 'Bearer ' + validToken)
-  //     .end((err, res) => {
-  //       global.chai.expect(res, 'status code').to.have.status(200);
-  //       global.chai.expect(res, 'response format').be.json;
-  //       global.chai.expect(res.body.length, 'job list length').to.equal(2);
-  //       done();
-  //     });
-  // });
+  it('Case 1 (Positive): should get user info successfully with admin valid token', (done) => {
+    global.chai.request(global.server)
+      .get('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(200);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.length, 'job list length').to.equal(2);
+        done();
+      });
+  });
 
   //
   // Negative cases
   //
 
-  // it('Case 1 (Negative): should fail to get user list with non-admin token', (done) => {
-  //   global.chai.request(global.server)
-  //     .get('/api/v1/user')
-  //     .set('Authorization', 'Bearer ' + nonAdminToken)
-  //     .end((err, res) => {
-  //       global.chai.expect(res, 'status code').to.have.status(403);
-  //       global.chai.expect(res, 'response format').be.json;
-  //       global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
-  //       done();
-  //     });
-  // });
+  it('Case 1 (Negative): should fail to get user list with non-admin token', (done) => {
+    global.chai.request(global.server)
+      .get('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
+        done();
+      });
+  });
 
 });
 

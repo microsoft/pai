@@ -24,7 +24,7 @@ import React from 'react';
 
 import t from '../../../../../components/tachyons.scss';
 
-import {statusColorMapping} from '../../../../../components/theme';
+import {statusColorMapping} from '../util';
 
 export const Badge = ({children, className}) => (
   <div className={c(FontClassNames.mediumPlus, mergeStyles({width: '8.5rem'}), className)}>
@@ -116,7 +116,7 @@ StoppedBadge.propTypes = {
 };
 
 export const UnknownBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleQuestionMark']}>{children || 'Unknown'}</IconBadge>
+  <IconBadge icons={['SkypeCircleClock']}>{children || 'Unknown'}</IconBadge>
 );
 
 UnknownBadge.propTypes = {

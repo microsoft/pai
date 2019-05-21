@@ -19,8 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap  job-exit-spec-configuration --from-file=job-exit-spec-config/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-
 # Check whether has etcd-uri in cluster config if so need to transfer user-data
 {% if cluster_cfg['rest-server']['etcd-uris'] -%}
 python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }} || exit $?
