@@ -16,23 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from 'react';
-import {PropTypes} from 'prop-types';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 
-const Loading = (props) => {
-  return (
-    <div style={{height: '100%', width: '100%', position: 'absolute', backgroundColor: 'hsla(0,0%,100%,.3)', left: '0', top: '0'}}>
-      <div style={{height: '100%', justifyContent: 'center', alignItems: 'center', display: 'flex'}}>
-        <div style={{alignItems: 'center', display: 'flex'}}>
-          <Spinner size={SpinnerSize.large} label={props.label} ariaLive="assertive" labelPosition="right" />
-        </div>
-      </div>
-    </div>
-  );
-};
+const Context = React.createContext({
+  jobConfig: null,
+  rawJobConfig: null,
+  sshInfo: null,
+});
 
-Loading.propTypes = {
-  label: PropTypes.string.isRequired,
-};
-
-export default Loading;
+export default Context;

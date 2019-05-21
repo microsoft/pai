@@ -20,6 +20,8 @@ import {PropTypes} from 'prop-types';
 
 import {Modal, MessageBar, MessageBarButton} from 'office-ui-fabric-react';
 
+import t from '../../../components/tachyons.scss';
+
 function MessageBox(props) {
   const {text, onDismiss, onOK, onCancel, confirm} = props;
 
@@ -42,7 +44,7 @@ function MessageBox(props) {
       isOpen={true}
       onDismiss={closeModal}
       isBlocking={false}
-      styles={{main: {minWidth: '300px', maxWidth: '80vw', display: 'flex', flexFlow: 'column nowrap', alighItems: 'stretch'}}}
+      styles={{main: [{minWidth: '300px', maxWidth: '80vw'}, t.flex, t.flexColumn, t.flexNowrap, t.itemsStretch]}}
     >
       <div>
         <MessageBar
@@ -53,7 +55,7 @@ function MessageBox(props) {
             </div>
           }
         >
-          <span style={{whiteSpace: 'pre'}}>{text}</span>
+          <span className={t.pre}>{text}</span>
         </MessageBar>
       </div>
     </Modal >
