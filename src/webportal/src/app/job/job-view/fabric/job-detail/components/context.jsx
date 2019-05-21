@@ -15,11 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import React from 'react';
 
-// module dependencies
-const changeGithubPATComponent = require('./how-to-config-github-pat.component.ejs');
+const Context = React.createContext({
+  jobConfig: null,
+  rawJobConfig: null,
+  sshInfo: null,
+});
 
-$('#content-wrapper').html(changeGithubPATComponent);
-
-$('#sidebar-menu--documents').addClass('active');
-$('#sidebar-menu--documents--how-to-config-github-pat').addClass('active');
+export default Context;

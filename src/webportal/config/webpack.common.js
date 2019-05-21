@@ -70,11 +70,7 @@ const config = (env, argv) => ({
     'hardwareDetail': './src/app/cluster-view/hardware/hardware-detail.component.js',
     'k8s': './src/app/cluster-view/k8s/k8s.component.js',
     'docs': './src/app/job/job-docs/job-docs.component.js',
-    'jobSubmit': './src/app/marketplace/job-submit/job-submit.component.js',
-    'changeGitHubPAT': './src/app/user/change-github-pat/change-github-pat.component.js',
-    'howToConfigGitHubPAT': './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
     'plugin': './src/app/plugin/plugin.component.js',
-    'plugins/marketplace': './src/plugins/marketplace',
   },
   output: {
     path: helpers.root('dist'),
@@ -340,18 +336,6 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'docs.html',
       chunks: ['layout', 'docs'],
-    }),
-    generateHtml({
-      filename: 'submit-v2.html',
-      chunks: ['layout', 'jobSubmit'],
-    }),
-    generateHtml({
-      filename: 'change-github-pat.html',
-      chunks: ['layout', 'changeGitHubPAT'],
-    }),
-    generateHtml({
-      filename: 'how-to-config-github-pat.html',
-      chunks: ['layout', 'howToConfigGitHubPAT'],
     }),
     generateHtml({
       filename: 'plugin.html',

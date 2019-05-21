@@ -37,7 +37,6 @@ $(document).ready(() => {
     const username = $('#form-register :input[name=username]').val();
     const password = $('#form-register :input[name=password]').val();
     const virtualClusters = $('#form-register :input[name=virtualCluster]').val();
-    const githubPAT = $('#form-register :input[name=githubPAT]').val();
     const admin = $('#form-register :input[name=admin]').is(':checked') ? true : false;
     userAuth.checkToken((token) => {
       $.ajax({
@@ -58,51 +57,22 @@ $(document).ready(() => {
             alert(data.message);
           } else {
             $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
+              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
               data: {
-                githubPAT: githubPAT,
+                virtualClusters: virtualClusters,
               },
               type: 'PUT',
               headers: {
                 Authorization: `Bearer ${token}`,
               },
               dataType: 'json',
-              success: (updateGithubPATData) => {
-                if (updateGithubPATData.error) {
-                  alert(updateGithubPATData.message);
+              success: (updateVcData) => {
+                $('#form-register').trigger('reset');
+                if (updateVcData.error) {
+                  alert(updateVcData.message);
                 } else {
-                  if (admin) {
-                    // Admin user VC update will be executed in rest-server
-                    $('#form-register').trigger('reset');
-                    alert('Add new user successfully');
-                    window.location.href = '/user-view.html';
-                  } else {
-                    $.ajax({
-                      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-                      data: {
-                        virtualClusters: virtualClusters,
-                      },
-                      type: 'PUT',
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                      dataType: 'json',
-                      success: (updateVcData) => {
-                        $('#form-register').trigger('reset');
-                        if (updateVcData.error) {
-                          alert(updateVcData.message);
-                        } else {
-                          alert('Add new user successfully');
-                          window.location.href = '/user-view.html';
-                        }
-                      },
-                      error: (xhr, textStatus, error) => {
-                        $('#form-register').trigger('reset');
-                        const res = JSON.parse(xhr.responseText);
-                        alert(res.message);
-                      },
-                    });
-                  }
+                  alert('Add new user successfully');
+                  window.location.href = '/user-view.html';
                 }
               },
               error: (xhr, textStatus, error) => {

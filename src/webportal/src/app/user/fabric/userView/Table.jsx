@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo} from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton} from 'office-ui-fabric-react';
+import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, ColorClassNames, mergeStyles} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -118,7 +118,7 @@ export default function Table() {
     name: 'Actions',
     headerClassName: FontClassNames.medium,
     columnActionsMode: ColumnActionsMode.disabled,
-    className: c([t.pa0, t.flex]),
+    className: mergeStyles({paddingTop: '0px !important', paddingBottom: '0px !important', display: 'flex !important'}),
     onRender(user) {
       /**
        * @param {React.MouseEvent} event
@@ -131,6 +131,7 @@ export default function Table() {
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
+            styles={{root: ColorClassNames.neutralQuaternaryBackground}}
           >
             Edit
           </DefaultButton>

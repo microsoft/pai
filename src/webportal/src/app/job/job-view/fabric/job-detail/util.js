@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {isNil} from 'lodash';
+import {get, isNil} from 'lodash';
 import {DateTime, Interval} from 'luxon';
 
 export function getHumanizedJobStateString(jobInfo) {
@@ -86,23 +86,32 @@ export function parseGpuAttr(attr) {
   return res;
 }
 
-export function isJobV2(jobConfig) {
-  return !isNil(jobConfig.protocolVersion);
+export function isJobV2(rawJobConfig) {
+  return !isNil(rawJobConfig.protocol_version) || !isNil(rawJobConfig.protocolVersion);
 }
 
-export function isClonable(jobConfig) {
+export function isClonable(rawJobConfig) {
   // disable clone for old yaml job
-  return !isNil(jobConfig) && isNil(jobConfig.protocol_version);
+  if (isNil(rawJobConfig)) {
+    return false;
+  } else if (!isNil(rawJobConfig.protocol_version)) {
+    return false;
+  } else if (!isNil(rawJobConfig.protocolVersion)) {
+    return !isNil(get(rawJobConfig, 'extras.submitFrom'));
+  } else {
+    return true;
+  }
 }
 
-export function getTaskConfig(jobConfig, name) {
-  if (jobConfig && jobConfig.taskRoles) {
-    if (isJobV2(jobConfig)) {
-      return jobConfig.taskRoles[name];
+export function getTaskConfig(rawJobConfig, name) {
+  if (rawJobConfig && rawJobConfig.taskRoles) {
+    if (isJobV2(rawJobConfig)) {
+      // v2
+      return rawJobConfig.taskRoles[name];
     } else {
-      return jobConfig.taskRoles.find((x) => x.name === name);
+      // v1
+      return rawJobConfig.taskRoles.find((x) => x.name === name);
     }
-  } else {
-    return null;
   }
+  return null;
 }
