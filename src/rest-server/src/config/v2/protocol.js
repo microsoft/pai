@@ -164,6 +164,10 @@ const protocolSchema = {
       type: 'object',
       additionalProperties: true,
     },
+    secrets: {
+      type: 'object',
+      additionalProperties: true,
+    },
     jobRetryCount: {
       type: 'integer',
       minimum: 0,

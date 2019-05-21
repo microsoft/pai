@@ -33,11 +33,9 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production \
     SERVER_PORT=8080
 
-COPY package.json ./
+COPY . .
 
 RUN yarn install
-
-COPY . .
 
 RUN dos2unix src/templates/*
 

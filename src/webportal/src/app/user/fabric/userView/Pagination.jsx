@@ -15,11 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+export default class Pagination {
+  /**
+   * @param {number} itemsPerPage
+   * @param {number} pageIndex
+   */
+  constructor(
+    itemsPerPage = 20,
+    pageIndex = 0,
+  ) {
+    this.itemsPerPage = itemsPerPage;
+    this.pageIndex = pageIndex;
+  }
 
-// module dependencies
-const changeGithubPATComponent = require('./how-to-config-github-pat.component.ejs');
-
-$('#content-wrapper').html(changeGithubPATComponent);
-
-$('#sidebar-menu--documents').addClass('active');
-$('#sidebar-menu--documents--how-to-config-github-pat').addClass('active');
+  /**
+   * @param {any[]} items
+   * @returns {any[]}
+   */
+  apply(items) {
+    const {itemsPerPage, pageIndex} = this;
+    const start = itemsPerPage * pageIndex;
+    const end = itemsPerPage * (pageIndex + 1);
+    return items.slice(start, end).map((item) => {
+      item.key = item.username;
+      return item;
+    });
+  }
+}

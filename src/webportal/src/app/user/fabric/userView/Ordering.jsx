@@ -15,27 +15,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import {getVirtualCluster} from './utils';
 
-// module dependencies
-const express = require('express');
-const token = require('../../middlewares/token');
-const controller = require('../../controllers/v2/job');
-const protocol = require('../../middlewares/v2/protocol');
+export default class Ordering {
+  /**
+   * @param {"username" | "admin" | "virtualCluster"} field
+   * @param {boolean | undefined} descending
+   */
+  constructor(field, descending = false) {
+    this.field = field;
+    this.descending = descending;
+  }
 
-
-const router = new express.Router();
-
-router.route('/')
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
-
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
-
-// module exports
-module.exports = router;
+  apply(users) {
+    const {field, descending} = this;
+    if (field == null) {
+      return users;
+    }
+    let comparator;
+    if (field === 'virtualCluster') {
+      comparator = descending
+        ? (a, b) => String(getVirtualCluster(b)).localeCompare(getVirtualCluster(a))
+        : (a, b) => String(getVirtualCluster(a)).localeCompare(getVirtualCluster(b));
+    } else {
+      comparator = descending
+        ? (a, b) => (String(b[field]).localeCompare(a[field]))
+        : (a, b) => (String(a[field]).localeCompare(b[field]));
+    }
+    return users.slice().sort(comparator);
+  }
+}

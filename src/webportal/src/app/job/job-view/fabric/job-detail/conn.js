@@ -46,18 +46,31 @@ export async function fetchJobInfo() {
   }
 }
 
-export async function fetchJobConfig() {
+export async function fetchRawJobConfig() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
-  if (typeof(json) == 'string') {
-    // pai rest api sometimes returns a escaped string.
-    // So we need parse it twice. (safeLoad will unescape the string if it is escaped)
-    json = yaml.safeLoad(json);
+  if (res.ok) {
+    return json;
+  } else {
+    if (json.code === 'NoJobConfigError') {
+      throw new NotFoundError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
   }
+}
+
+export async function fetchJobConfig() {
+  const url = namespace
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
+  const res = await fetch(url);
+  const text = await res.text();
+  let json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
   } else {
@@ -90,7 +103,9 @@ export function getJobMetricsUrl() {
   return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
 }
 
-export function cloneJob(jobConfig) {
+export async function cloneJob() {
+  // use raw job config to clone
+  const jobConfig = await fetchRawJobConfig();
   const query = {
     op: 'resubmit',
     type: 'job',
@@ -105,9 +120,9 @@ export function cloneJob(jobConfig) {
     const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
     if (pluginIndex === -1) {
       alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+      return;
     }
     window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
-    return;
   }
 
   window.location.href = `/submit.html?${qs.stringify(query)}`;

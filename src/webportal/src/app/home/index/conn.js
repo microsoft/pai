@@ -37,7 +37,6 @@ export async function login(username, password, expiration = 7 * 24 * 60 * 60) {
       cookies.set('user', data.user, {expires: expiration});
       cookies.set('token', data.token, {expires: expiration});
       cookies.set('admin', data.admin, {expires: expiration});
-      cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
     }
   } else {
     const data = await res.json();

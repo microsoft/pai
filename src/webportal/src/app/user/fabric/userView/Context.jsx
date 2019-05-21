@@ -15,27 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import React from 'react';
 
-// module dependencies
-const express = require('express');
-const token = require('../../middlewares/token');
-const controller = require('../../controllers/v2/job');
-const protocol = require('../../middlewares/v2/protocol');
-
-
-const router = new express.Router();
-
-router.route('/')
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
-
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
-
-// module exports
-module.exports = router;
+export default React.createContext({
+});

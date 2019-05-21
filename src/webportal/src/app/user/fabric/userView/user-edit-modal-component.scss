@@ -15,27 +15,44 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+.form-register {
+  max-width: 360px;
+  padding: 30px;
+  margin: 0 auto;
+}
 
-// module dependencies
-const express = require('express');
-const token = require('../../middlewares/token');
-const controller = require('../../controllers/v2/job');
-const protocol = require('../../middlewares/v2/protocol');
+.form-register .form-register-heading,
+.form-register .checkbox {
+  margin-bottom: 10px;
+}
 
+.form-register .checkbox {
+  font-weight: normal;
+}
 
-const router = new express.Router();
+.form-register .form-control {
+  position: relative;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
 
-router.route('/')
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
+.form-register .form-control:focus {
+  z-index: 2;
+}
 
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
+.form-register input[type="password"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 
-// module exports
-module.exports = router;
+.form-register input[id="update-virtual-cluster-input-virtualCluster"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.user-edit-border {
+  padding:15px;
+}
