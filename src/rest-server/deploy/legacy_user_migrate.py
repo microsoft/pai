@@ -96,17 +96,13 @@ class TransferClient:
         return post_data_dict
 
     def secret_data_prepare_v2(self, user_info_item):
-        print(user_info_item)
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
 
         grouplist = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
-        print(user_info_item['data']['virtualCluster'])
-        print(base64.b64decode(user_info_item['data']['virtualCluster']))
-        print(base64.b64decode(user_info_item['data']['virtualCluster']).split(','))
-        for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).split(','):
+        for vc_name in str(base64.b64decode(user_info_item['data']['virtualCluster'])).split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
 
