@@ -18,11 +18,9 @@
 
 // module dependencies
 const crypto = require('crypto');
-const config = require('../config/index');
 const dbUtility = require('../util/dbUtil');
 const secretConfig = require('../config/secret');
 const createError = require('../util/error');
-const logger = require('../config/logger');
 const VirtualCluster = require('./vc');
 const util = require('util');
 
@@ -264,46 +262,6 @@ const getUserList = (next) => {
     next(null, userInfoList);
   });
 };
-
-const setDefaultAdmin = () => {
-  update(secretConfig.adminName, secretConfig.adminPass, true, false, (err, res) => {
-    if (err) {
-      throw new Error('unable to set default admin');
-    } else {
-      logger.info('Create default admin succeed');
-    }
-  });
-};
-
-if (config.env !== 'test') {
-  const dbCheckBasePath = util.callbackify(db.checkBasePath.bind(db));
-  dbCheckBasePath((err, res) => {
-    if (err) {
-      if (err.status === 404) {
-        const dbPrepareBasePath = util.callbackify(db.prepareBasePath.bind(db));
-        dbPrepareBasePath((err, res) => {
-          if (err) {
-            throw new Error('build storage base path failed');
-          }
-          setDefaultAdmin();
-        });
-      } else {
-        throw new Error('Check user info storage base path failed');
-      }
-    } else {
-      getUserList((errMsg, userInfoList) => {
-        if (errMsg) {
-          logger.warn('get user list failed', errMsg);
-        } else {
-          logger.warn('users:', userInfoList);
-          if (userInfoList.length === 0) {
-            setDefaultAdmin();
-          }
-        }
-      });
-    }
-  });
-}
 
 // module exports
 module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT};

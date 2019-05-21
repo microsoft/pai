@@ -27,6 +27,7 @@ const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
+const vcModel = require('./vc');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 const createError = require('../util/error');
@@ -35,6 +36,8 @@ const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
 const paiConfig = require('../config/paiConfig');
 const env = require('../util/env');
+const axios = require('axios');
+const userModelV2 = require('./v2/user' );
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -210,6 +213,36 @@ class Job {
           next(null, error);
         }
       });
+  }
+
+  async putJobAsync(name, namespace, data) {
+    try {
+      const frameworkName = namespace ? `${namespace}~${name}` : name;
+      data.jobName = frameworkName;
+      if (!data.originalData.outputDir) {
+        data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
+      }
+      for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
+        data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
+        data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
+        data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
+      }
+      const vcList = await vcModel.prototype.getVcListAsyc();
+      if (!vcList.includes(data.virtualCluster)) {
+        throw createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`);
+      }
+      const hasPermission = await userModelV2.checkUserGroup(data.userName, data.virtualCluster);
+      if (!hasPermission) {
+        throw createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`);
+      }
+      await this._initializeJobContextRootFoldersAsync();
+      await this._prepareJobContextAsync(name);
+      await axios.put(launcherConfig.frameworkPath(frameworkName), this.generateFrameworkDescription(data), {
+        headers: launcherConfig.webserviceRequestHeaders(namespace || data.userName),
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   putJob(name, namespace, data, next) {
@@ -652,6 +685,23 @@ class Job {
     return frameworkDescription;
   }
 
+  generateSshKeyFilesPromise(name) {
+    return new Promise(function(res, rej) {
+      keygen({
+        location: name,
+        read: true,
+        destroy: true,
+      }, (err, key) => {
+        if (err) {
+          rej(err);
+        } else {
+          let sshKeyFiles = [{'content': key.pubKey, 'fileName': name+'.pub'}, {'content': key.key, 'fileName': name}];
+          res(sshKeyFiles);
+        }
+      });
+    });
+  }
+
   generateSshKeyFiles(name, next) {
     keygen({
       location: name,
@@ -665,6 +715,24 @@ class Job {
         next(null, sshKeyFiles);
       }
     });
+  }
+
+  async _initializeJobContextRootFoldersAsync() {
+    try {
+      const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+      await Promise.all([
+        hdfs.createFolderAsync(
+          '/Output',
+          {'user.name': 'root', 'permission': '777'}
+          ),
+        hdfs.createFolderAsync(
+          '/Container',
+          {'user.name': 'root', 'permission': '777'}
+        ),
+      ]);
+    } catch (error) {
+      throw error;
+    }
   }
 
   _initializeJobContextRootFolders(next) {
@@ -691,6 +759,110 @@ class Job {
     ], (parallelError) => {
       return next(parallelError);
     });
+  }
+
+
+  async _prepareJobContextAsync(name, data) {
+    try {
+      const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+      const p1 = async () => {
+        if (!data.originalData.outputDir) {
+          try {
+            await hdfs.createFolderAsync(
+              `/Output/${data.userName}/${name}`,
+              {'user.name': data.userName, 'permission': '755'},
+            );
+          } catch (error) {
+            throw error;
+          }
+        }
+      };
+
+      const p2 = async () => {
+        try {
+          for (const item of ['log', 'tmp']) {
+            await hdfs.createFolderAsync(
+              `/Container/${data.userName}/${name}/` + item,
+              {'user.name': data.userName, 'permission': '755'}
+            );
+          }
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      const p3 = async () => {
+        try {
+          for (const item of [...Array(data.taskRoles.length).keys()]) {
+            await hdfs.createFileAsync(
+              `/Container/${data.userName}/${name}/YarnContainerScripts/${item}.sh`,
+              this.generateYarnContainerScript(data, item),
+              {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+            );
+          }
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      const p4 = async () => {
+        try {
+          for (const item of [...Array(data.taskRoles.length).keys()]) {
+            await hdfs.createFileAsync(
+              `/Container/${data.userName}/${name}/DockerContainerScripts/${item}.sh`,
+              this.generateDockerContainerScript(data, item),
+              {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+            );
+          }
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      const p5 = async () => {
+        try {
+          await hdfs.createFileAsync(
+            `/Container/${data.userName}/${name}/${launcherConfig.jobConfigFileName}`,
+            JSON.stringify(data.originalData, null, 2),
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+          );
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      const p6 = async () => {
+        try {
+          await hdfs.createFileAsync(
+            `/Container/${data.userName}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
+            JSON.stringify(this.generateFrameworkDescription(data), null, 2),
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+          );
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      const p7 = async () => {
+        try {
+          if (process.platform.toUpperCase() === 'LINUX') {
+            const sshKeyFile = await this.generateSshKeyFilesPromise(name);
+            for (const item of sshKeyFile) {
+              await hdfs.createFileAsync(
+                `/Container/${data.userName}/${name}/ssh/keyFiles/${item.fileName}`,
+                item.content,
+                {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
+              );
+            }
+          }
+        } catch (error) {
+          throw error;
+        }
+      };
+      await Promise.all([p1, p2, p3, p4, p5, p6, p7]);
+    } catch (error) {
+      throw error;
+    }
   }
 
   _prepareJobContext(name, data, next) {

@@ -19,6 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
+if kubectl get daemonset | grep -q "rest-server-ds"; then
+    kubectl delete ds rest-server-ds || exit $?
+fi
 
 if kubectl get configmap | grep -q "auth-configuration"; then
     kubectl delete configmap auth-configuration || exit $?
@@ -28,8 +31,9 @@ if kubectl get configmap | grep -q "job-exit-spec-configuration"; then
     kubectl delete configmap job-exit-spec-configuration || exit $?
 fi
 
-if kubectl get daemonset | grep -q "rest-server-ds"; then
-    kubectl delete ds rest-server-ds || exit $?
+if kubectl get configmap | grep -q "group-configuration"; then
+    kubectl delete configmap group-configuration || exit $?
 fi
+
 
 popd > /dev/null

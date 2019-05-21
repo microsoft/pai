@@ -120,6 +120,40 @@ const update = (req, res, next) => {
   });
 };
 
+const newJob = (name, namespace) => {
+  return new Promise(function(res, rej) {
+    new Job(name, namespace, (job, err) => {
+      if (err) {
+        rej(err);
+      } else {
+        res(job);
+      }
+    });
+  });
+};
+
+/**
+ * Async API. Submit or update job
+ */
+const updateAsync = async (req, res, next) => {
+  try {
+    const name = req.job.name;
+    let data = req.body;
+    data.originalData = req.originalBody;
+    data.userName = req.user.username;
+    await Job.prototype.putJobAsync(name, req.params.username, data);
+    let location = url.format({
+      protocol: req.protocol,
+      host: req.get('Host'),
+      pathname: req.baseUrl + '/' + name,
+    });
+    let job = await newJob(name, req.params.username);
+    return res.status(201).location(location).json(job);
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
 /**
  * Remove job.
  */
@@ -205,6 +239,7 @@ module.exports = {
   list,
   get,
   update,
+  updateAsync,
   remove,
   execute,
   getConfig,

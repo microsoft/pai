@@ -15,29 +15,42 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// module dependencies
 const Joi = require('joi');
 
-const groupSchema = Joi.object().keys({
+// define the input schema for the 'update group extension' api
+const groupExtensionUpdateInputSchema = Joi.object().keys({
+  extensionData: Joi.object().pattern(/\w+/, Joi.required()),
+}).required();
+
+// define the input schema for the 'update group description' api
+const groupDescriptionUpdateInputSchema = Joi.object().keys({
+  description: Joi.string().empty(''),
+});
+
+// define the input schema for the 'update group external name' api
+const groupExternalNameUpdateInputSchema = Joi.object().keys({
+  externalName: Joi.string().empty(''),
+});
+
+// define the input schema for the 'create group' api
+const groupCreateInputSchema = Joi.object().keys({
   groupname: Joi.string()
     .token()
     .required(),
   description: Joi.string()
-    .empty('')
-    .default(''),
+    .empty(''),
   externalName: Joi.string()
-    .empty('')
-    .default(''),
+    .empty(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .required(),
-}).required();
+});
 
-function createGroup(value) {
-  const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error('Group schema error\n${error}');
-  }
-  return res['value'];
-}
-
-module.exports = {createGroup};
+// module exports
+module.exports = {
+  groupExtensionUpdateInputSchema,
+  groupDescriptionUpdateInputSchema,
+  groupExternalNameUpdateInputSchema,
+  groupCreateInputSchema,
+};

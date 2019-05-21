@@ -15,29 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const Joi = require('joi');
+// module dependencies
+const winbindAdapter = require('./winbindAdapter');
 
-const groupSchema = Joi.object().keys({
-  groupname: Joi.string()
-    .token()
-    .required(),
-  description: Joi.string()
-    .empty('')
-    .default(''),
-  externalName: Joi.string()
-    .empty('')
-    .default(''),
-  extension: Joi.object()
-    .pattern(/\w+/, Joi.required())
-    .required(),
-}).required();
-
-function createGroup(value) {
-  const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error('Group schema error\n${error}');
+const getStorageObject = (type) => {
+  if (type === 'winbind') {
+    return winbindAdapter;
   }
-  return res['value'];
-}
+};
 
-module.exports = {createGroup};
+module.exports = {getStorageObject};

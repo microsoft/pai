@@ -18,23 +18,90 @@
 
 // module dependencies
 const crudUtil = require('../../util/manager/user/crudUtil');
-const createError = require('../../util/error');
+const user = require('../../util/manager/user/user');
+const authConfig = require('../../config/authn');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
 const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
-const getUser = async (username, next) => {
+const getUser = async (username) => {
   try {
     return await crudUser.read(username, crudConfig);
   } catch (error) {
+    throw error;
+  }
+};
+
+const getAllUser = async () => {
+  try {
+    return await crudUser.readAll(crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createUser = async (username, value) => {
+  try {
+    return await crudUser.create(username, value, crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateUser = async (username, value) => {
+  try {
+    return await crudUser.update(username, value, crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteUser = async (username) => {
+  try {
+    return await crudUser.remove(username, crudConfig);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getEncryptPassword = async (userValue) => {
+  try {
+    await user.encryptUserPassword(userValue);
+    return userValue;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createUserIfNonExistent = async (username, userValue) => {
+  try {
+    await getUser(username);
+  } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+      await createUser(username, userValue);
     } else {
-      return next(error);
+      throw error;
     }
   }
 };
 
+
+const checkUserGroup = async (username, groupname) => {
+  try {
+    let ret = false;
+    const userInfo = await crudUser.read(username, crudConfig);
+    if (userInfo.grouplist.includes(groupname)) {
+      ret = true;
+    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      // admin has the permission of all groups.
+      ret = true;
+    }
+    return ret;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // module exports
-module.exports = {getUser};
+module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword, createUserIfNonExistent, checkUserGroup};

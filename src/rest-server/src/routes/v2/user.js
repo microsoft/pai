@@ -17,11 +17,45 @@
 
 // module dependencies
 const express = require('express');
+const token = require('../../middlewares/token');
 const userController = require('../../controllers/v2/user');
+const userInputSchema = require('../../config/v2/user');
+const param = require('../../middlewares/parameter');
+const jobRouter = require('../job');
+const authnConfig = require('../../config/authn');
 
 const router = new express.Router();
 
-router.route('/:username/')
+router.route('/get/:username/')
+  /** Get /api/v2/user/get/:username */
   .get(userController.getUser);
+
+router.route('/get/')
+  /** Get /api/v2/user/get */
+  .get(userController.getAllUser);
+
+router.route('/update/:username/extension')
+  /** Put /api/v2/user/update/:username/extension */
+  .put(token.check, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
+
+if (authnConfig.authnMethod === 'basic') {
+  router.route('/delete/:user')
+  /** Delete /api/v2/user/delete/:username */
+    .delete(token.check, userController.deleteUser);
+
+  router.route('/update/:username/grouplist')
+  /** Update /api/v2/user/update/:username/grouplist */
+    .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
+
+  router.route('/update/:username/password')
+  /** Update /api/v2/user/:username/password */
+    .put(token.check, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
+
+  router.route('/create')
+  /** Create /api/v2/user/create */
+    .post(token.check, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
+}
+
+router.use('/:username/jobs', jobRouter);
 
 module.exports = router;

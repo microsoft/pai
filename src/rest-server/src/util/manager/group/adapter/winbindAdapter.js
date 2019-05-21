@@ -15,29 +15,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const Joi = require('joi');
+// module dependencies
+const axios = require('axios');
 
-const groupSchema = Joi.object().keys({
-  groupname: Joi.string()
-    .token()
-    .required(),
-  description: Joi.string()
-    .empty('')
-    .default(''),
-  externalName: Joi.string()
-    .empty('')
-    .default(''),
-  extension: Joi.object()
-    .pattern(/\w+/, Joi.required())
-    .required(),
-}).required();
-
-function createGroup(value) {
-  const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error('Group schema error\n${error}');
-  }
-  return res['value'];
+function initConfig(winbindServerUrl) {
+  return {
+    'requestConfig': {
+      'baseURL': `${winbindServerUrl}/`,
+      'maxRedirects': 0,
+    },
+  };
 }
 
-module.exports = {createGroup};
+async function getUserGroupList(username, config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get(`GetUserId?userName=${username}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    return response['groups'];
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = {
+  initConfig,
+  getUserGroupList,
+};

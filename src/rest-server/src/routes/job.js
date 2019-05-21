@@ -32,14 +32,14 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(token.check, jobParam.submission, jobController.init, jobController.update);
+    .post(token.check, jobParam.submission, jobController.init, jobController.updateAsync);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(token.check, jobParam.submission, jobController.update)
+    .put(token.check, jobParam.submission, jobController.updateAsync)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(token.check, jobController.remove);

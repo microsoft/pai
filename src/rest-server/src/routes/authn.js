@@ -18,25 +18,31 @@
 // module dependencies
 const express = require('express');
 const tokenConfig = require('../config/token');
-const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
 const passport = require('passport');
+const userController = require('../controllers/v2/user');
+const tokenV2Controller = require('../controllers/v2/token');
 
 const router = new express.Router();
 
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
-    .get( function(req, res, next) {
-      passport.authenticate('azuread-openidconnect', {
-          response: res,
-          resourceURL: authnConfig.OIDCConfig.resourceURL,
-          customState: 'my_state',
-          failureRedirect: '/',
-        }
-      )(req, res, next);
-    });
+    .get(
+      function(req, res, next) {
+        passport.authenticate('azuread-openidconnect', {
+            response: res,
+            resourceURL: authnConfig.OIDCConfig.resourceURL,
+            customState: 'my_state',
+            failureRedirect: '/',
+          }
+        )(req, res, next);
+      },
+      function(req, res) {
+        res.redirect('/');
+      }
+    );
 
   router.route('/oidc/logout')
   /** POST /api/v1/auth/oidc/logout */
@@ -60,9 +66,21 @@ if (authnConfig.authnMethod === 'OIDC') {
           }
         )(req, res, next);
       },
-      function(req, res) {
-          // TODO，check user name and return token
-      }
+      function(req, res, next) {
+        // TODO，check user name and return token
+        const email = req._json.email;
+        const username = email.substring(0, email.lastIndexOf('@'));
+        const oid = req._json.oid;
+        const userBasicInfo = {
+          email: email,
+          username: username,
+          oid: oid,
+        };
+        req.userData = userBasicInfo;
+        next();
+      },
+      userController.createUserIfUserNotExist,
+      tokenV2Controller.get
     )
     /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
     .post(
@@ -74,14 +92,27 @@ if (authnConfig.authnMethod === 'OIDC') {
           }
         )(req, res, next);
       },
-      function(req, res) {
+      function(req, res, next) {
         // TODO，check user name and return token
-      }
+        const email = req._json.email;
+        const username = email.substring(0, email.lastIndexOf('@'));
+        const oid = req._json.oid;
+        const userBasicInfo = {
+          email: email,
+          username: username,
+          oid: oid,
+        };
+        req.userData = userBasicInfo;
+        next();
+      },
+      userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
+      tokenV2Controller.get
     );
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenV2Controller.get);
 }
 
 // module exports

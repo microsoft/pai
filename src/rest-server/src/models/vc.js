@@ -72,6 +72,24 @@ class VirtualCluster {
       });
   }
 
+  getVcListPromise() {
+    return new Promise((res, rej) => {
+      unirest.get(yarnConfig.yarnVcInfoPath)
+        .headers(yarnConfig.webserviceRequestHeaders)
+        .end((response) => {
+          if (response.error) {
+            rej(response.error);
+          } else {
+            res(response.body);
+          }
+        });
+    });
+  }
+
+  async getVcListAsyc() {
+    return await this.getVcListPromise();
+  }
+
   generateUpdateInfo(updateData) {
     let jsonBuilder = new xml2js.Builder({rootName: 'sched-conf'});
     let data = [];

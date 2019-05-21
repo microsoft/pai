@@ -15,29 +15,48 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// module dependencies
 const Joi = require('joi');
 
-const groupSchema = Joi.object().keys({
-  groupname: Joi.string()
+// define the input schema for the 'update user extension' api
+const userExtensionUpdateInputSchema = Joi.object().keys({
+  extension: Joi.object().pattern(/\w+/, Joi.required()),
+}).required();
+
+// define the input schema for the 'update user grouplist' api
+const userGrouplistUpdateInputSchema = Joi.object().keys({
+  grouplist: Joi.array().items(Joi.string()).required(),
+});
+
+// define the input schema for the 'update user password' api
+const userPasswordUpdateInputSchema = Joi.object().keys({
+  oldPassword: Joi.string().min(6).required(),
+  newPassword: Joi.string().min(6).required(),
+});
+
+// define the input schema for the 'create user' api
+const userCreateInputSchema = Joi.object().keys({
+  username: Joi.string()
     .token()
     .required(),
-  description: Joi.string()
-    .empty('')
-    .default(''),
-  externalName: Joi.string()
-    .empty('')
-    .default(''),
+  email: Joi.string()
+    .email()
+    .empty(''),
+  grouplist: Joi.array()
+    .items(Joi.string())
+    .required(),
+  password: Joi.string()
+    .min(6)
+    .required(),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .required(),
-}).required();
+});
 
-function createGroup(value) {
-  const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error('Group schema error\n${error}');
-  }
-  return res['value'];
-}
-
-module.exports = {createGroup};
+// module exports
+module.exports = {
+  userExtensionUpdateInputSchema,
+  userGrouplistUpdateInputSchema,
+  userPasswordUpdateInputSchema,
+  userCreateInputSchema,
+};
