@@ -14,7 +14,7 @@
 -->
 
 <configuration>
-   
+
     <property>
         <name>yarn.nodemanager.resource.cpu-vcores</name>
         <value>{cpu_vcores}</value>
@@ -103,11 +103,11 @@
     <property>
       <name>yarn.nodemanager.hostname</name>
       <value>{POD_IP}</value>
-    </property>  
+    </property>
 
-    <property>  
-      <name>yarn.nodemanager.aux-services</name>  
-      <value>mapreduce_shuffle</value>  
+    <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
     </property>
 
     <property>
@@ -139,12 +139,12 @@
       <name>yarn.log.server.web-service.url</name>
       <value>http://{LOGSERVER_ADDRESS}:8188/ws/v1/applicationhistory</value>
     </property>
-    
+
     <property>
       <name>yarn.nodemanager.recovery.enabled</name>
       <value>true</value>
     </property>
-    
+
     <property>
       <name>yarn.nodemanager.recovery.dir</name>
       <value>/var/lib/yarn/yarn-nm-recovery</value>
@@ -321,7 +321,7 @@
     <name>yarn.gpu_not_ready_memory_threshold-mb</name>
     <value>20</value>
   </property>
-  
+
   <property>
     <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
     <value>1500000</value>
@@ -408,6 +408,14 @@ jobs are started with the DockerContainerExecutor.
   <property>
     <name>yarn.nodemanager.sleep-delay-before-sigkill.ms</name>
     <value>65000</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.process-kill-wait.ms</name>
+    <value>30000</value>
+    <description>
+      Max time to wait for a process to come up when trying to cleanup a container.
+    </description>
   </property>
 
 </configuration>

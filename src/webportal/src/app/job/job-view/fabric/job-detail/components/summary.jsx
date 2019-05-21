@@ -30,11 +30,12 @@ import yaml from 'js-yaml';
 import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
+import Context from './context';
 import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
-import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable} from '../util';
+import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
 
 const StoppableStatus = [
   'Running',
@@ -138,11 +139,18 @@ export default class Summary extends React.Component {
   }
 
   showJobConfig() {
-    const {jobConfig} = this.props;
-    this.showEditor('Job Config', {
-      language: 'json',
-      value: JSON.stringify(jobConfig, null, 2),
-    });
+    const {rawJobConfig} = this.context;
+    if (isJobV2(rawJobConfig)) {
+      this.showEditor('Job Config', {
+        language: 'yaml',
+        value: yaml.safeDump(rawJobConfig),
+      });
+    } else {
+      this.showEditor('Job Config', {
+        language: 'json',
+        value: JSON.stringify(rawJobConfig, null, 2),
+      });
+    }
   }
 
   getUserFailureHintItems(jobInfo) {
@@ -259,7 +267,8 @@ export default class Summary extends React.Component {
 
   render() {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
-    const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
+    const {className, jobInfo, reloading, onStopJob, onReload} = this.props;
+    const {rawJobConfig} = this.context;
     const hintMessage = this.renderHintMessage();
 
     return (
@@ -358,7 +367,7 @@ export default class Summary extends React.Component {
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
-                disabled={isNil(jobConfig)}
+                disabled={isNil(rawJobConfig)}
                 onClick={this.showJobConfig}
               >
                 View Job Config
@@ -392,8 +401,8 @@ export default class Summary extends React.Component {
             <div>
               <DefaultButton
                 text='Clone'
-                onClick={() => cloneJob(jobConfig)}
-                disabled={!isClonable(jobConfig)}
+                onClick={() => cloneJob()}
+                disabled={!isClonable(rawJobConfig)}
               />
               <DefaultButton
                 className={c(t.ml3)}
@@ -418,10 +427,11 @@ export default class Summary extends React.Component {
   }
 }
 
+Summary.contextType = Context;
+
 Summary.propTypes = {
   className: PropTypes.string,
   jobInfo: PropTypes.object.isRequired,
-  jobConfig: PropTypes.object,
   reloading: PropTypes.bool.isRequired,
   onStopJob: PropTypes.func.isRequired,
   onReload: PropTypes.func.isRequired,

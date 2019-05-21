@@ -284,7 +284,7 @@ async function put(frameworkName, config, rawConfig) {
 }
 
 async function getJobConfig(frameworkName) {
-  const [userName, jobName] = frameworkName.split('~');
+  const [userName] = frameworkName.split('~');
   const hdfs = new HDFS(launcherConfig.webhdfsUri);
   const readFile = async (path) => {
     return util.promisify(hdfs.readFile.bind(hdfs))(path, null);
@@ -292,7 +292,7 @@ async function getJobConfig(frameworkName) {
 
   // try to get v2
   try {
-    const res = await readFile(`/Container/${userName}/${jobName}/JobConfig.yaml`);
+    const res = await readFile(`/Container/${userName}/${frameworkName}/JobConfig.yaml`);
     return yaml.safeLoad(res.content);
   } catch (e) {
     // pass
@@ -300,7 +300,7 @@ async function getJobConfig(frameworkName) {
 
   // fallback to v1
   try {
-    const res = await readFile(`/Container/${userName}/${jobName}/JobConfig.json`);
+    const res = await readFile(`/Container/${userName}/${frameworkName}/JobConfig.json`);
     return protocolConvert(yaml.safeLoad(res.content));
   } catch (e) {
     throw e;

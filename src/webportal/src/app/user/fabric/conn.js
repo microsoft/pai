@@ -62,7 +62,7 @@ export const updateUserVcRequest = async (username, virtualClusters) => {
   });
 };
 
-export const updateUserAccountRequest = async (username, password, admin) => {
+const createOrUpdateUserRequest = async (username, password, admin, modify) => {
   const url = `${config.restServerUri}/api/v1/user`;
   const token = checkToken();
   return await fetchWrapper(url, {
@@ -70,11 +70,19 @@ export const updateUserAccountRequest = async (username, password, admin) => {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      username,
-      password,
-      admin,
-      modify: true,
-    }),
+    body: JSON.stringify({username, password, admin, modify}),
   });
+};
+
+export const createUserRequest = async (username, password, admin) => {
+  return await createOrUpdateUserRequest(username, password, admin, false);
+};
+
+export const updateUserRequest = async (username, password, admin) => {
+  return await createOrUpdateUserRequest(username, password, admin, true);
+};
+
+export const getAllVcsRequest = async () => {
+  const url = `${config.restServerUri}/api/v1/virtual-clusters`;
+  return await fetchWrapper(url);
 };
