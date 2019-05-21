@@ -109,7 +109,10 @@ class TransferClient:
         extension = {}
         if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
-
+        print(grouplist)
+        print(json.dumps(grouplist))
+        print(base64.b64encode(json.dumps(grouplist)))
+        print(str(base64.b64encode(json.dumps(grouplist)), 'utf-8'))
         user_dict = {
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
