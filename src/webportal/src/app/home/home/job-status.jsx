@@ -31,7 +31,7 @@ const StatusItem = ({className, icon, name, count, link}) => {
   const {spacing} = getTheme();
   return (
     <Stack
-      styles={{root: [className]}}
+      styles={{root: [{minWidth: 280}, className]}}
       horizontal
       horizontalAlign='space-between'
       verticalAlign='center'
@@ -43,7 +43,7 @@ const StatusItem = ({className, icon, name, count, link}) => {
           <div>
             <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
           </div>
-          <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '80px', marginLeft: spacing.m}}>
+          <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '80px', marginLeft: spacing.s2}}>
             {name}
           </div>
         </div>
