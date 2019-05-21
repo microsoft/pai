@@ -50,7 +50,7 @@ interface IMarketplaceState {
 
 const styles = mergeStyleSets({
   dropdown: {
-    width: 240,
+    width: 200,
   },
   textfiled: {
     width: 480,
@@ -90,7 +90,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
   public render() {
     return (
       <Fabric>
-        <Stack gap={5} horizontal={true} verticalAlign="center">
+        <Stack gap={5} wrap={true} horizontal={true} verticalAlign="center">
           <Stack>
             <Dropdown
               className={styles.dropdown}

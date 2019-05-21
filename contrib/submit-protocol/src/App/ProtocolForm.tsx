@@ -69,6 +69,11 @@ const styles = mergeStyleSets({
     paddingRight: "20%",
   },
 
+  fileItem: {
+    width: "80%",
+    paddingRight: "5%",
+  },
+
   fileLabel: {
     width: "25%",
     position: "relative",
@@ -296,7 +301,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
               </Text>
             </Stack>
-            <Stack className={styles.item}>
+            <Stack className={styles.fileItem}>
               <ChoiceGroup
                 selectedKey={this.state.fileOption}
                 options={uploadOptions}
