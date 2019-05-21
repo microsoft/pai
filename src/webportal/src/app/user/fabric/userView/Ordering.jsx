@@ -15,23 +15,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
-import {spacing} from '../util';
-import t from '../../../../../components/tachyons.scss';
+import {getVirtualCluster} from './utils';
 
-const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{iconName: 'revToggleKey'}}
-        href='/job-list.html'
-        styles={{root: {paddingLeft: spacing.m}}}
-      >
-        Back to Jobs
-      </ActionButton>
-    </div>
-  </div>
-);
+export default class Ordering {
+  /**
+   * @param {"username" | "admin" | "virtualCluster"} field
+   * @param {boolean | undefined} descending
+   */
+  constructor(field, descending = false) {
+    this.field = field;
+    this.descending = descending;
+  }
 
-export default Top;
+  apply(users) {
+    const {field, descending} = this;
+    if (field == null) {
+      return users;
+    }
+    let comparator;
+    if (field === 'virtualCluster') {
+      comparator = descending
+        ? (a, b) => String(getVirtualCluster(b)).localeCompare(getVirtualCluster(a))
+        : (a, b) => String(getVirtualCluster(a)).localeCompare(getVirtualCluster(b));
+    } else {
+      comparator = descending
+        ? (a, b) => (String(b[field]).localeCompare(a[field]))
+        : (a, b) => (String(a[field]).localeCompare(b[field]));
+    }
+    return users.slice().sort(comparator);
+  }
+}

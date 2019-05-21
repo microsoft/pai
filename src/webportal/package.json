@@ -1,6 +1,6 @@
 {
   "name": "pai-webportal",
-  "version": "0.8.0",
+  "version": "0.0.0",
   "description": "Webportal for Microsoft Platform for AI",
   "keywords": [
     "webportal",
@@ -36,7 +36,7 @@
     "classnames": "^2.2.6",
     "compression": "~1.7.1",
     "cookie-parser": "~1.4.3",
-    "copy-webpack-plugin": "~5.0.2",
+    "copy-webpack-plugin": "~5.0.1",
     "core-js": "^3.0.1",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",
@@ -46,7 +46,7 @@
     "datatables.net-select-bs": "^1.2.7",
     "dotenv": "~4.0.0",
     "ejs-loader": "~0.3.0",
-    "envsub": "~3.0.9",
+    "envsub": "3.0.9",
     "eslint": "~4.17.0",
     "eslint-config-google": "~0.9.1",
     "eslint-plugin-react": "^7.12.4",
@@ -58,7 +58,7 @@
     "handlebars": "~4.0.11",
     "handlebars-loader": "~1.6.0",
     "html-loader": "~0.5.1",
-    "html-webpack-plugin": "~4.0.0-beta.5",
+    "html-webpack-plugin": "^4.0.0-beta.5",
     "joi": "~13.0.2",
     "joi-browser": "^13.4.0",
     "jquery": "~3.4.0",
@@ -68,14 +68,13 @@
     "json-loader": "~0.5.7",
     "luxon": "^1.11.3",
     "markdown-loader": "~2.0.1",
-    "marked": "~0.3.19",
-    "mini-css-extract-plugin": "~0.5.0",
-    "mkdirp": "~0.5.1",
-    "mkdirp-promise": "~5.0.1",
+    "marked": "~0.3.9",
+    "mini-css-extract-plugin": "^0.5.0",
+    "mkdirp": "^0.5.1",
     "monaco-editor": "~0.16.1",
-    "monaco-editor-webpack-plugin": "~1.7.0",
+    "monaco-editor-webpack-plugin": "^1.7.0",
     "morgan": "~1.9.0",
-    "node-sass": "~4.11.0",
+    "node-sass": "~4.7.2",
     "office-ui-fabric-react": "^6.143.0",
     "papaparse": "^4.6.3",
     "postcss-import": "^12.0.1",
@@ -86,7 +85,7 @@
     "react-dom": "^16.8.3",
     "react-monaco-editor": "^0.25.1",
     "regenerator-runtime": "^0.13.2",
-    "rimraf": "~2.6.3",
+    "rimraf": "^2.6.3",
     "sass-loader": "~6.0.6",
     "serve-favicon": "~2.5.0",
     "slick-carousel": "~1.8.1",
@@ -97,10 +96,11 @@
     "tachyons-sass": "^4.9.5",
     "terser-webpack-plugin": "^1.2.3",
     "util": "~0.10.3",
-    "webpack-cli": "~3.3.0",
+    "webpack": "~4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1",
     "whatwg-fetch": "^3.0.0",
-    "winston": "~2.4.0",
-    "yarn": "~1.15.2"
+    "winston": "~2.4.0"
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx src",
@@ -111,9 +111,5 @@
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
-  },
-  "devDependencies": {
-    "webpack": "~4.29.6",
-    "webpack-dev-server": "~3.3.1"
   }
 }

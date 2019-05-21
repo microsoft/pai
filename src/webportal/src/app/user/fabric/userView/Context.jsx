@@ -16,22 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
-import {spacing} from '../util';
-import t from '../../../../../components/tachyons.scss';
 
-const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{iconName: 'revToggleKey'}}
-        href='/job-list.html'
-        styles={{root: {paddingLeft: spacing.m}}}
-      >
-        Back to Jobs
-      </ActionButton>
-    </div>
-  </div>
-);
-
-export default Top;
+export default React.createContext({
+});

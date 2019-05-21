@@ -27,8 +27,8 @@ import Filter from './Filter';
 import {spacing} from '../job-detail/util';
 import c from 'classnames';
 import t from '../../../../components/tachyons.scss';
-
 import webportalConfig from '../../../../config/webportal.config';
+
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
   const {subMenuProps: {items}} = props;
@@ -51,13 +51,7 @@ function KeywordSearchBox() {
   }
 
   /** @type {import('office-ui-fabric-react').IStyle} */
-  const rootStyles = {
-    backgroundColor: 'transparent', 
-    alignSelf: 'center', 
-    width: 220,
-    padding: 0,
-    border: 'none'
-  };
+  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
   return (
     <SearchBox
       underlined
@@ -125,13 +119,7 @@ function TopBar() {
     return {
       key: 'stop',
       name: 'Stop',
-      buttonStyles: {root: {
-        backgroundColor: 'transparent', 
-        height: '100%',
-        paddingLeft: spacing.s1,
-        paddingRight: spacing.s1,
-        marginRight: spacing.s1,
-      }},
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
       iconProps: {
         iconName: 'StopSolid',
       },
@@ -148,13 +136,7 @@ function TopBar() {
     return {
       key: 'new',
       name: 'New',
-      buttonStyles: {root: {
-        backgroundColor: 'transparent', 
-        height: '100%',
-        paddingLeft: spacing.s1,
-        paddingRight: spacing.s1,
-        marginRight: spacing.s1
-    }},
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
       iconProps: {
         iconName: 'Add',
       },
@@ -169,12 +151,7 @@ function TopBar() {
     return {
       key: 'refresh',
       name: 'Refresh',
-      buttonStyles: {root: {
-        backgroundColor: 'transparent', 
-        height: '100%',
-        paddingLeft: spacing.s1,
-        paddingRight: spacing.s1,
-      }},
+      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
       iconProps: {
         iconName: 'Refresh',
       },

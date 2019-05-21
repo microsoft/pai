@@ -36,12 +36,11 @@ import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, spacing} from '../util';
 
-import { HoverCard } from 'office-ui-fabric-react';
-
 const StoppableStatus = [
   'Running',
   'Waiting',
 ];
+
 const HintItem = ({header, children}) => (
   <div className={c(t.flex, t.justifyStart)}>
     <div style={{width: '16rem', minWidth: '16rem', fontWeight: FontWeights.semibold}}>
@@ -257,15 +256,16 @@ export default class Summary extends React.Component {
       }
     }
   }
+
   render() {
     const {autoReloadInterval, modalTitle, monacoProps} = this.state;
     const {className, jobInfo, jobConfig, reloading, onStopJob, onReload} = this.props;
     const hintMessage = this.renderHintMessage();
-    /** @type {import('@uifabric/styling').IStyle} */
+
     return (
       <div className={className}>
         {/* summary */}
-        <Card style={{paddingLeft: spacing.l2, paddingRight: spacing.l2, paddingTop: spacing.l1, paddingBottom: spacing.l1, marginBottom: spacing.m}}>
+        <Card  style={{paddingLeft: spacing.l2, paddingRight: spacing.l2, paddingTop: spacing.l1, paddingBottom: spacing.l1, marginBottom: spacing.m}}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
             <div
@@ -304,11 +304,11 @@ export default class Summary extends React.Component {
             </div>
           </div>
           {/* summary-row-2 */}
-          <div className={c(t.flex, t.itemsStart)} style={{marginTop: spacing.l1}}>
+          <div className={c(t.flex, t.itemsStart)}  style={{marginTop: spacing.l1}}>
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
               <div style={{marginTop: spacing.m}}>
-              <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
+                <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
               </div>
             </div>
             <div className={t.ml5}>
@@ -320,7 +320,6 @@ export default class Summary extends React.Component {
             <div className={t.ml5}>
               <div className={c(t.gray, FontClassNames.medium)}>User</div>
               <div className={c(FontClassNames.mediumPlus)} style={{marginTop: spacing.m}}>
-
                 {jobInfo.jobStatus.username}
               </div>
             </div>

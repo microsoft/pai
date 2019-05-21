@@ -106,7 +106,6 @@ export function getTaskConfig(jobConfig, name) {
     return null;
   }
 }
-
 export const statusColorMapping = {
   Waiting: '#F9B61A',
   Running: '#579AE6',

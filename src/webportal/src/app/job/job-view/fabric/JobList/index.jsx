@@ -72,7 +72,7 @@ export default function JobList() {
       if (query['user']) {
         queryFilter.users = new Set([query['user']]);
       }
-      setFilter(queryFilter);
+      return queryFilter;
     } else {
       const initialFilterUsers = (username && !admin) ? new Set([username]) : undefined;
       let filter = new Filter(undefined, initialFilterUsers);

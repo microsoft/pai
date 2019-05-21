@@ -1,0 +1,38 @@
+<!-- Modal -->
+<div class="modal-content">
+  <div class="modal-header">
+    <h4 class="modal-title">Edit information of <%= username %></h4>
+  </div>
+  <div class="modal-body">
+    <div class="box-header with-border user-edit-border">
+      <h3 class="box-title">Change Userinfo</h3>
+    </div>
+    <form id="form-update-account" class="form-register" onsubmit="updateUserAccount('<%= username %>'); return false;">
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" name="password" id="update-account-input-password" class="form-control" placeholder="******">
+      <div class="checkbox">
+        <label>
+          <% if (isAdmin === 'true') { %>
+          <input type="checkbox" name="admin" checked="checked" >Admin user</label>
+          <% } else { %>
+            <input type="checkbox" name="admin">Admin user</label>
+          <% } %>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserAccount('<%= username %>')">Change Userinfo</button>
+    </form>
+    <% if (isAdmin !== 'true') { %>
+      <div class="box-header with-border user-edit-border">
+          <h3 class="box-title">Update Virtual Clusters</h3>
+      </div>
+      <form id="form-update-virtual-cluster" class="form-register" onsubmit="updateUserVc('<%= username %>'); return false;">
+          <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
+          <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
+            placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
+      </form>
+    <% } %>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" onclick="hideEditUser()">Close</button>
+  </div>
+</div>

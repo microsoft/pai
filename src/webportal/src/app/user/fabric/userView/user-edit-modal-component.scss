@@ -15,23 +15,44 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
-import {spacing} from '../util';
-import t from '../../../../../components/tachyons.scss';
+.form-register {
+  max-width: 360px;
+  padding: 30px;
+  margin: 0 auto;
+}
 
-const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{iconName: 'revToggleKey'}}
-        href='/job-list.html'
-        styles={{root: {paddingLeft: spacing.m}}}
-      >
-        Back to Jobs
-      </ActionButton>
-    </div>
-  </div>
-);
+.form-register .form-register-heading,
+.form-register .checkbox {
+  margin-bottom: 10px;
+}
 
-export default Top;
+.form-register .checkbox {
+  font-weight: normal;
+}
+
+.form-register .form-control {
+  position: relative;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-register .form-control:focus {
+  z-index: 2;
+}
+
+.form-register input[type="password"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-register input[id="update-virtual-cluster-input-virtualCluster"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.user-edit-border {
+  padding:15px;
+}

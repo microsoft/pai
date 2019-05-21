@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
+import {isNil} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme} from 'office-ui-fabric-react';
 import React from 'react';
@@ -111,12 +112,12 @@ VirtualClusterItem.propTypes = {
   totalGpu: PropTypes.number.isRequired,
 };
 
-const VirtualCluster = ({className, userInfo, virtualClusters, totalGpu}) => {
-  const vcNames = userInfo.virtualCluster.split(',');
+const VirtualCluster = ({style, userInfo, virtualClusters, totalGpu}) => {
+  const vcNames = userInfo.virtualCluster.split(',').filter((name) => !isNil(virtualClusters[name]));
   const {spacing} = getTheme();
   return (
-    <Card className={className} style={{paddingRight: spacing.m}}>
-      <Stack styles={{root: [t.h100]}} gap='l1'>
+    <Card style={{paddingRight: spacing.m, ...style}}>
+      <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             {`My virtual clusters (${vcNames.length})`}
@@ -143,7 +144,7 @@ const VirtualCluster = ({className, userInfo, virtualClusters, totalGpu}) => {
 };
 
 VirtualCluster.propTypes = {
-  className: PropTypes.string,
+  style: PropTypes.object,
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
   totalGpu: PropTypes.number.isRequired,
