@@ -21,6 +21,7 @@ import qs from 'querystring';
 
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
+import {getDurationString} from "./util";
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
@@ -91,7 +92,7 @@ export function getJobMetricsUrl(getHumanizedJobStateString, jobInfo) {
   let to = '';
   const status = getHumanizedJobStateString(jobInfo);
   if (status === 'Running') {
-    to = new Date().getTime();
+    to = Date.now();
   } else {
     to = jobInfo.jobStatus.completedTime;
   }
