@@ -181,7 +181,7 @@ const deleteUser = async (req, res, next) => {
 };
 
 
-const checkUserPassword = async(req, res, next) => {
+const checkUserPassword = async (req, res, next) => {
   try {
     const username = req.body.username;
     const password = req.body.password;
