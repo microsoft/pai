@@ -120,6 +120,76 @@ class Job {
     }
   }
 
+  async asyncGetJobList(query, namespace) {
+    let reqPath = launcherConfig.frameworksPath();
+    if (namespace) {
+      reqPath = `${reqPath}?UserName=${namespace}`;
+    } else if (query.username) {
+      reqPath = `${reqPath}?UserName=${query.username}`;
+    }
+    try {
+      const response = axios.get(reqPath, {
+        headers: launcherConfig.webserviceRequestHeaders(namespace),
+      });
+      const resJson = typeof response.body === 'object'?
+        response.body : JSON.parse(response.body);
+      if (response.status !== 200) {
+        throw createError(response.status, 'UnknownError', response.raw_body);
+      }
+      let jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
+        // 1. transientNormalRetriedCount
+        //    Failed, and it can ensure that it will success within a finite retry times:
+        //    such as dependent components shutdown, machine error, network error,
+        //    configuration error, environment error...
+        // 2. transientConflictRetriedCount
+        //    A special TRANSIENT_NORMAL which indicate the exit due to resource conflict
+        //    and cannot get required resource to run.
+        // 3. unKnownRetriedCount
+        //    Usually caused by user's code.
+        const platformRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
+        const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
+        const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
+        const job = {
+          name: frameworkInfo.frameworkName,
+          username: frameworkInfo.userName,
+          state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
+          subState: frameworkInfo.frameworkState,
+          executionType: frameworkInfo.executionType,
+          retries: platformRetries + resourceRetries + userRetries,
+          retryDetails: {
+            user: userRetries,
+            platform: platformRetries,
+            resource: resourceRetries,
+          },
+          createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
+          completedTime: frameworkInfo.frameworkCompletedTimestamp,
+          appExitCode: frameworkInfo.applicationExitCode,
+          virtualCluster: frameworkInfo.queue,
+          totalGpuNumber: frameworkInfo.totalGpuNumber,
+          totalTaskNumber: frameworkInfo.totalTaskNumber,
+          totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
+        };
+        const tildeIndex = job.name.indexOf('~');
+        if (tildeIndex > -1) {
+          const namespace = job.name.slice(0, tildeIndex);
+          if (namespace !== job.username) {
+            logger.warn('Found a job with different namespace and username: ', job.name, job.username);
+            job.namespace = namespace;
+          }
+          job.name = job.name.slice(tildeIndex + 1);
+        } else {
+          job.legacy = true;
+        }
+        return job;
+        }
+      );
+      jobList.sort((a, b) => b.createdTime - a.createdTime);
+      return jobList;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   getJobList(query, namespace, next) {
     let reqPath = launcherConfig.frameworksPath();
     if (namespace) {

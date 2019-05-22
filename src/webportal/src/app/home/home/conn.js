@@ -40,7 +40,7 @@ export async function listJobs() {
 }
 
 export async function getUserInfo() {
-  const res = await fetch(`${config.restServerUri}/api/v1/user/${username}`, {
+  const res = await fetch(`${config.restServerUri}/api/v2/user/get/${username}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

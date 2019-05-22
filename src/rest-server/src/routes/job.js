@@ -29,7 +29,7 @@ const router = new express.Router({mergeParams: true});
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
-    .get(jobParam.query, jobController.list)
+    .get(jobParam.query, jobController.asyncList)
 
     /** POST /api/v1/jobs - Update job */
     .post(token.check, jobParam.submission, jobController.init, jobController.updateAsync);
