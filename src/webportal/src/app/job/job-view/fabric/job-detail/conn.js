@@ -86,11 +86,11 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl(getHumanizedJobStateString, jobInfo) {
+export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
-  const status = getHumanizedJobStateString(jobInfo);
-  if (status === 'Running') {
+  const {state} = jobInfo.jobStatus;
+  if (state === 'RUNNING') {
     to = Date.now();
   } else {
     to = jobInfo.jobStatus.completedTime;
