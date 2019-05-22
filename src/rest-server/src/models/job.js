@@ -298,11 +298,7 @@ class Job {
         data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
       }
       const vcList = await vcModel.prototype.getVcListAsyc();
-      // eslint-disable-next-line no-console
-      console.log(data.virtualCluster);
-      // eslint-disable-next-line no-console
-      console.log(vcList);
-      if (data.virtualCluster in vcList) {
+      if (!(data.virtualCluster in vcList)) {
         throw createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`);
       }
       const hasPermission = await userModelV2.checkUserGroup(data.userName, data.virtualCluster);
