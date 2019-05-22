@@ -38,7 +38,7 @@ function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
  */
 const get = async (req, res, next) => {
   try {
-    const username = req.userData.username;
+    const username = req.body.username;
     const userInfo = await userModel.getUser(username);
     let admin = false;
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
