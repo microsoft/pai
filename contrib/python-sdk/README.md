@@ -77,24 +77,7 @@ We provide pre- and post- commands in current implementation, however, the SDK w
 
 In the new implementation, the [job protocol]() would bridge user specification and the real execution of the job. The SDK is one of the implementations of the protocol, which includes functions to organize, edit, parse and execute the protocol as user's expectation. 
 
-```mermaid
-sequenceDiagram
-    participant FE as Front End or Plugins
-    participant Launcher as OpenPAI Core
-    participant RT as Runtime (in container)
-    Note left of FE: User
-    FE->>FE: prepare data & codes *
-    FE->>Launcher: submit a job *
-    Launcher->>+RT: pass info through Protocol
-    Note right of RT: parse protocol *
-    Note over RT, Storage: access data (if any) *
-    Note right of RT: execute cmds *
-    Note right of RT: callbacks *
-    RT->>Storage: save annotated files *
-    RT->>-Launcher: exit container
-    FE->>Launcher: query job info *
-    FE->>Storage: fetch job outputs *
-```
+![program model](docs/medias/programming_model.svg)
 
 _*: the functions provided by the SDK or CLI_
 
