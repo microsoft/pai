@@ -56,7 +56,6 @@ const config = (env, argv) => ({
     'index': './src/app/home/index.jsx',
     'home': './src/app/home/home.jsx',
     'layout': './src/app/layout/layout.component.js',
-    'register': './src/app/user/user-register/user-register.component.js',
     'userView': './src/app/user/fabric/user-view.jsx',
     'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
@@ -280,10 +279,6 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'home.html',
       chunks: ['layout', 'home'],
-    }),
-    generateHtml({
-      filename: 'register.html',
-      chunks: ['layout', 'register'],
     }),
     generateHtml({
       filename: 'user-view.html',

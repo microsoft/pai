@@ -24,7 +24,8 @@ import {StatusBadge} from '../../../components/status-badge';
 
 import TableTextField from './TableTextField';
 import Context from './Context';
-import {toBool, isFinished, checkUsername, checkPassword} from './utils';
+import {toBool, isFinished} from './utils';
+import {checkUsername, checkPassword} from '../utils';
 
 export default function Table() {
   const {userInfos, virtualClusters, removeRow, allUsers} = useContext(Context);
