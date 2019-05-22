@@ -89,17 +89,11 @@ class VirtualCluster {
   async getVcListAsyc() {
     try {
       const response = await this.getVcListPromise();
-      // eslint-disable-next-line no-console
-      console.log(response);
       const resJson = typeof response === 'object' ?
         response : JSON.parse(response);
-      // eslint-disable-next-line no-console
-      console.log(resJson);
       const schedulerInfo = resJson.scheduler.schedulerInfo;
       if (schedulerInfo.type === 'capacityScheduler') {
         const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
-        // eslint-disable-next-line no-console
-        console.log(vcInfo);
         return vcInfo;
       } else {
         throw createError('Internal Server Error', 'BadConfigurationError',
