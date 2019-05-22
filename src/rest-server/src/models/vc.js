@@ -80,8 +80,6 @@ class VirtualCluster {
           if (response.error) {
             rej(response.error);
           } else {
-            // eslint-disable-next-line no-console
-            console.log(response.body);
             res(response.body);
           }
         });
@@ -89,7 +87,21 @@ class VirtualCluster {
   }
 
   async getVcListAsyc() {
-    return await this.getVcListPromise();
+    try {
+      const response = await this.getVcListPromise();
+      const resJson = typeof response.body === 'object' ?
+        response.body : JSON.parse(response.body);
+      const schedulerInfo = resJson.scheduler.schedulerInfo;
+      if (schedulerInfo.type === 'capacityScheduler') {
+        const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+        return vcInfo;
+      } else {
+        throw createError('Internal Server Error', 'BadConfigurationError',
+          `Scheduler type ${schedulerInfo.type} is not supported.`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   generateUpdateInfo(updateData) {
