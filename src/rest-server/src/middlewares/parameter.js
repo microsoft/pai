@@ -25,14 +25,10 @@ const createError = require('../util/error');
  */
 const validate = (schema) => {
   return (req, res, next) => {
-    // eslint-disable-next-line no-console
-    console.log(req.body);
     Joi.validate(req.body, schema, (err, value) => {
       if (err) {
         next(createError('Bad Request', 'InvalidParametersError', err.message));
       } else {
-        // eslint-disable-next-line no-console
-        console.log(value);
         req.originalBody = req.body;
         req.body = value;
         next();
