@@ -303,7 +303,7 @@ __job_actions__ = {
     "new": ["create a job config cache for submitting"],
     "submit": ["submit the job"],
     "abort": ["remove local cache of the job"],
-    "fast": ["shortcut of submitting a job in one line"],
+    "sub": ["shortcut of submitting a job in one line"],
 }
 
 __task_actions__ = {
