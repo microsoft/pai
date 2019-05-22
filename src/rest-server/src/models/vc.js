@@ -80,6 +80,8 @@ class VirtualCluster {
           if (response.error) {
             rej(response.error);
           } else {
+            // eslint-disable-next-line no-console
+            console.log(response.body);
             res(response.body);
           }
         });
