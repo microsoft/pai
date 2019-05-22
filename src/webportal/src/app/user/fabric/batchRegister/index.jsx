@@ -276,17 +276,17 @@ export default function BatchRegister() {
     setLoading({'show': false});
   };
 
-  const [messageBox, setMessageBox] = useState({text: '', confirm: false, resolve: null});
+  const [messageBox, setMessageBox] = useState({text: '', confirm: false, onClose: null});
   const showMessageBox = (value) => {
     return new Promise((resolve, _reject) => {
-      setMessageBox({text: String(value), resolve});
+      setMessageBox({text: String(value), onClose: resolve});
     });
   };
   const hideMessageBox = (value) => {
-    const resolve = messageBox.resolve;
+    const {onClose} = messageBox;
     setMessageBox({text: ''});
-    if (resolve) {
-      resolve(value);
+    if (onClose) {
+      onClose(value);
     }
   };
 

@@ -50,22 +50,22 @@ export default function UserView() {
     setLoading({'show': false});
   };
 
-  const [messageBox, setMessageBox] = useState({text: '', confirm: false, resolve: null});
+  const [messageBox, setMessageBox] = useState({text: '', confirm: false, onClose: null});
   const showMessageBox = (value) => {
     return new Promise((resolve, _reject) => {
-      setMessageBox({text: String(value), resolve});
+      setMessageBox({text: String(value), onClose: resolve});
     });
   };
   const showMessageBoxWithConfirm = (value) => {
     return new Promise((resolve, _reject) => {
-      setMessageBox({text: String(value), resolve, confirm: true});
+      setMessageBox({text: String(value), onClose: resolve, confirm: true});
     });
   };
   const hideMessageBox = (value) => {
-    const resolve = messageBox.resolve;
+    const {onClose} = messageBox;
     setMessageBox({text: ''});
-    if (resolve) {
-      resolve(value);
+    if (onClose) {
+      onClose(value);
     }
   };
 
