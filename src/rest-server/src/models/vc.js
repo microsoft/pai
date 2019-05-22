@@ -89,8 +89,12 @@ class VirtualCluster {
   async getVcListAsyc() {
     try {
       const response = await this.getVcListPromise();
+      // eslint-disable-next-line no-console
+      console.log(response);
       const resJson = typeof response.body === 'object' ?
         response.body : JSON.parse(response.body);
+      // eslint-disable-next-line no-console
+      console.log(resJson);
       const schedulerInfo = resJson.scheduler.schedulerInfo;
       if (schedulerInfo.type === 'capacityScheduler') {
         const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
