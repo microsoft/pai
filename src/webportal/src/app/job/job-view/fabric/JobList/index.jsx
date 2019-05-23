@@ -173,10 +173,12 @@ export default function JobList() {
         <Stack
           verticalFill
           styles={{root: {position: 'relative', padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}}}
-          gap='s1'
         >
           <Stack.Item>
             <TopBar/>
+          </Stack.Item>
+          <Stack.Item>
+            <div style={{height: spacing.s1}}></div>
           </Stack.Item>
           <Stack.Item grow styles={{root: {height: 0, overflow: 'auto', backgroundColor: 'white', padding: spacing.l1}}}>
             <Table/>
