@@ -306,9 +306,7 @@ class Job {
         throw createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`);
       }
       await this._initializeJobContextRootFoldersAsync();
-      console.log('_prepareJobContextAsync Begin');
       await this._prepareJobContextAsync(frameworkName, data);
-      console.log('_prepareJobContextAsync Done');
       await axios.put(launcherConfig.frameworkPath(frameworkName), this.generateFrameworkDescription(data), {
         headers: launcherConfig.webserviceRequestHeaders(namespace || data.userName),
       });
@@ -838,23 +836,19 @@ class Job {
     try {
       const hdfs = new Hdfs(launcherConfig.webhdfsUri);
       const p1 = async () => {
-        console.log('p1 Begin');
         if (!data.originalData.outputDir) {
           try {
             await hdfs.createFolderAsync(
               `/Output/${data.userName}/${name}`,
               {'user.name': data.userName, 'permission': '755'},
             );
-            console.log('p1 Done');
           } catch (error) {
-            console.log('p1 Failed');
             throw error;
           }
         }
       };
 
       const p2 = async () => {
-        console.log('p2 Begin');
         try {
           for (const item of ['log', 'tmp']) {
             await hdfs.createFolderAsync(
@@ -862,16 +856,13 @@ class Job {
               {'user.name': data.userName, 'permission': '755'}
             );
           }
-          console.log('p2 Done');
         } catch (error) {
-          console.log('p2 Failed');
           throw error;
         }
       };
 
       const p3 = async () => {
         try {
-          console.log('p3 Begin');
           for (const item of [...Array(data.taskRoles.length).keys()]) {
             await hdfs.createFileAsync(
               `/Container/${data.userName}/${name}/YarnContainerScripts/${item}.sh`,
@@ -879,16 +870,13 @@ class Job {
               {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
             );
           }
-          console.log('p3 Done');
         } catch (error) {
-          console.log('p3 Failed');
           throw error;
         }
       };
 
       const p4 = async () => {
         try {
-          console.log('p4 Begin');
           for (const item of [...Array(data.taskRoles.length).keys()]) {
             await hdfs.createFileAsync(
               `/Container/${data.userName}/${name}/DockerContainerScripts/${item}.sh`,
@@ -896,46 +884,37 @@ class Job {
               {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
             );
           }
-          console.log('p4 Done');
         } catch (error) {
-          console.log('p4 Failed');
           throw error;
         }
       };
 
       const p5 = async () => {
         try {
-          console.log('p5 Begin');
           await hdfs.createFileAsync(
             `/Container/${data.userName}/${name}/${launcherConfig.jobConfigFileName}`,
             JSON.stringify(data.originalData, null, 2),
             {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
           );
-          console.log('p5 Done');
         } catch (error) {
-          console.log('p5 Failed');
           throw error;
         }
       };
 
       const p6 = async () => {
         try {
-          console.log('p6 Begin');
           await hdfs.createFileAsync(
             `/Container/${data.userName}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
             JSON.stringify(this.generateFrameworkDescription(data), null, 2),
             {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
           );
-          console.log('p6 Done');
         } catch (error) {
-          console.log('p6 Failed');
           throw error;
         }
       };
 
       const p7 = async () => {
         try {
-          console.log('p7 Begin');
           if (process.platform.toUpperCase() === 'LINUX') {
             const sshKeyFile = await this.generateSshKeyFilesPromise(name);
             for (const item of sshKeyFile) {
@@ -946,9 +925,7 @@ class Job {
               );
             }
           }
-          console.log('p7 Done');
         } catch (error) {
-          console.log('p7 Failed');
           throw error;
         }
       };
