@@ -45,8 +45,19 @@ class Hdfs {
 
   async createFolderAsync(path, options) {
     try {
-      return await this._createFolderAxios(this._constructTargetUrl(path, options, 'MKDIRS'));
+      // eslint-disable-next-line no-console
+      console.log('createFodlerAsync');
+      // eslint-disable-next-line no-console
+      console.log(path);
+      // eslint-disable-next-line no-console
+      console.log(options);
+      const res = await this._createFolderAxios(this._constructTargetUrl(path, options, 'MKDIRS'));
+      // eslint-disable-next-line no-console
+      console.log(res);
+      return res;
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
       throw error;
     }
   }

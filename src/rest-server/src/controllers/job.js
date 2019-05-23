@@ -170,6 +170,17 @@ const updateAsync = async (req, res, next) => {
     let job = await newJob(name, req.params.username);
     return res.status(201).location(location).json(job);
   } catch (error) {
+    if (error.code && error.code === 'NoJobError') {
+      const name = req.job.name;
+      let location = url.format({
+        protocol: req.protocol,
+        host: req.get('Host'),
+        pathname: req.baseUrl + '/' + name,
+      });
+      return res.status(202).location(location).json({
+        message: `update job ${name} successfully`,
+      });
+    }
     return next(createError.unknown(error));
   }
 };
