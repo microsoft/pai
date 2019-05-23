@@ -305,9 +305,7 @@ class Job {
       if (!hasPermission) {
         throw createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`);
       }
-      console.log('_initializeJobContextRootFoldersAsync Begin');
       await this._initializeJobContextRootFoldersAsync();
-      console.log('_initializeJobContextRootFoldersAsync Done');
       console.log('_prepareJobContextAsync Begin');
       await this._prepareJobContextAsync(frameworkName, data);
       console.log('_prepareJobContextAsync Done');
@@ -837,7 +835,6 @@ class Job {
 
 
   async _prepareJobContextAsync(name, data) {
-    console.log(data);
     try {
       const hdfs = new Hdfs(launcherConfig.webhdfsUri);
       const p1 = async () => {
@@ -955,7 +952,116 @@ class Job {
           throw error;
         }
       };
-      await Promise.all([p1, p2, p3, p4, p5, p6, p7]);
+      await Promise.all([
+        async function() {
+          console.log('p1 Begin');
+          if (!data.originalData.outputDir) {
+            try {
+              await hdfs.createFolderAsync(
+                `/Output/${data.userName}/${name}`,
+                {'user.name': data.userName, 'permission': '755'},
+              );
+              console.log('p1 Done');
+            } catch (error) {
+              console.log('p1 Failed');
+              throw error;
+            }
+          }
+        },
+        async function() {
+          console.log('p2 Begin');
+          try {
+            for (const item of ['log', 'tmp']) {
+              await hdfs.createFolderAsync(
+                `/Container/${data.userName}/${name}/` + item,
+                {'user.name': data.userName, 'permission': '755'}
+              );
+            }
+            console.log('p2 Done');
+          } catch (error) {
+            console.log('p2 Failed');
+            throw error;
+          }
+        },
+        async function() {
+          try {
+            console.log('p3 Begin');
+            for (const item of [...Array(data.taskRoles.length).keys()]) {
+              await hdfs.createFileAsync(
+                `/Container/${data.userName}/${name}/YarnContainerScripts/${item}.sh`,
+                this.generateYarnContainerScript(data, item),
+                {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+              );
+            }
+            console.log('p3 Done');
+          } catch (error) {
+            console.log('p3 Failed');
+            throw error;
+          }
+        },
+        async function() {
+          try {
+            console.log('p4 Begin');
+            for (const item of [...Array(data.taskRoles.length).keys()]) {
+              await hdfs.createFileAsync(
+                `/Container/${data.userName}/${name}/DockerContainerScripts/${item}.sh`,
+                this.generateDockerContainerScript(data, item),
+                {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+              );
+            }
+            console.log('p4 Done');
+          } catch (error) {
+            console.log('p4 Failed');
+            throw error;
+          }
+        },
+        async function() {
+          try {
+            console.log('p5 Begin');
+            await hdfs.createFileAsync(
+              `/Container/${data.userName}/${name}/${launcherConfig.jobConfigFileName}`,
+              JSON.stringify(data.originalData, null, 2),
+              {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+            );
+            console.log('p5 Done');
+          } catch (error) {
+            console.log('p5 Failed');
+            throw error;
+          }
+        },
+        async function() {
+          try {
+            console.log('p6 Begin');
+            await hdfs.createFileAsync(
+              `/Container/${data.userName}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
+              JSON.stringify(this.generateFrameworkDescription(data), null, 2),
+              {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'}
+            );
+            console.log('p6 Done');
+          } catch (error) {
+            console.log('p6 Failed');
+            throw error;
+          }
+        },
+        async function() {
+          try {
+            console.log('p7 Begin');
+            if (process.platform.toUpperCase() === 'LINUX') {
+              const sshKeyFile = await this.generateSshKeyFilesPromise(name);
+              for (const item of sshKeyFile) {
+                await hdfs.createFileAsync(
+                  `/Container/${data.userName}/${name}/ssh/keyFiles/${item.fileName}`,
+                  item.content,
+                  {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
+                );
+              }
+            }
+            console.log('p7 Done');
+          } catch (error) {
+            console.log('p7 Failed');
+            throw error;
+          }
+        }]);
     } catch (error) {
       throw error;
     }
