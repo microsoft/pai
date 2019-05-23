@@ -952,7 +952,7 @@ class Job {
           throw error;
         }
       };
-      await Promise.all([p1, p2, p3, p4, p5, p6, p7]);
+      await Promise.all([p1(), p2(), p3(), p4(), p5(), p6(), p7()]);
     } catch (error) {
       throw error;
     }
