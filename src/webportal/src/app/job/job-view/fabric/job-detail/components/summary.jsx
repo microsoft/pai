@@ -19,7 +19,7 @@ import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {get, isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
-import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
+import {ActionButton, DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -32,7 +32,7 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import MonacoPanel from './monaco-panel';
-import StatusBadge from './status-badge';
+import StatusBadge from '../../../../../components/status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
@@ -399,7 +399,7 @@ export default class Summary extends React.Component {
               </Link>
             </div>
             <div>
-              <DefaultButton
+              <PrimaryButton
                 text='Clone'
                 onClick={() => cloneJob(rawJobConfig)}
                 disabled={!isClonable(rawJobConfig)}

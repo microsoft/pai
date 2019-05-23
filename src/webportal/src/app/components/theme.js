@@ -50,8 +50,10 @@ export const color = {
 
 export const statusColorMapping = {
   waiting: color.yellow,
-  failed: color.red,
   running: color.blue,
+  stopping: color.gray,
   succeeded: color.green,
+  failed: color.red,
+  stopped: color.gray,
   unknown: color.gray,
 };

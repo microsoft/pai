@@ -29,7 +29,7 @@ import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
 import MonacoPanel from './monaco-panel';
-import StatusBadge from './status-badge';
+import StatusBadge from '../../../../../components/status-badge';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
