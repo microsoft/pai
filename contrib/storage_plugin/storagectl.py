@@ -84,9 +84,6 @@ def server_set(args):
         content_dict["containerName"] = args.container_name
         content_dict["accountName"] = args.account_name
         content_dict["key"] = args.key
-    elif args.server_type == "hdfs":
-        content_dict["namenode"] = args.namenode
-        content_dict["port"] = args.port
     else:
         logger.error("Unknow storage type")
         sys.exit(1)
@@ -181,11 +178,6 @@ def main():
     server_set_azureblob_parser.add_argument("account_name", metavar="accountname", help="Azureblob account name")
     server_set_azureblob_parser.add_argument("key", metavar="key", help="Azureblob share key")
     server_set_azureblob_parser.set_defaults(func=server_set, server_type="azureblob")
-    # ./storagectl.py server set NAME hdfs NAMENODE PORT
-    server_set_hdfs_parser = server_set_subparsers.add_parser("hdfs")
-    server_set_hdfs_parser.add_argument("namenode", metavar="namenode", help="HDFS name node")
-    server_set_hdfs_parser.add_argument("port", metavar="port", help="HDFS name node port")
-    server_set_hdfs_parser.set_defaults(func=server_set, server_type="hdfs")
     # ./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
     server_list_parser = server_subparsers.add_parser("list")
     server_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")

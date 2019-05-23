@@ -9,7 +9,6 @@ A tool to manage your storage config.
         - [ Set samba server ](#Server_set_samba)
         - [ Set azurefile server ](#Server_set_azurefile)
         - [ Set azureblob server ](#Server_set_azureblob)
-        - [ Set hdfs server ](#Server_set_hdfs)
     - [ List server ](#Server_list) 
     - [ Delete server ](#Server_delete) 
 
@@ -46,11 +45,6 @@ Manage server in PAI. Server how PAI access a nas server.
 #### Set azureblob server <a name="Server_set_azureblob"></a> 
 ```
 ./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
-```
-
-#### Set hdfs server <a name="Server_set_hdfs"></a> 
-```
-./storagectl.py server set NAME hdfs NAMENODE PORT
 ```
 
 ### List server <a name="Server_list"></a> 
