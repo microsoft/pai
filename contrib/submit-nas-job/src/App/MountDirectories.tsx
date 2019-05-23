@@ -28,6 +28,7 @@ import Context from "./Context";
 
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
+import { readlink } from "fs";
 
 const configDivStyle: React.CSSProperties = {
   width: "300px",
@@ -67,6 +68,8 @@ interface IServer {
   readonly containerName?: string;
   readonly key?: string;
   readonly proxy?: string[];
+  readonly namenode?: string;
+  readonly port?: string;
 }
 
 export interface IMountDirectoriesObject {
@@ -217,6 +220,18 @@ export default class MountDirectories {
         `mkdir --parents ${tmpFolder}`,
         ];
         break;
+      case "hdfs":
+        returnValue = [
+        "apt-get install -y git fuse golang",
+        "git clone --recursive https://github.com/Microsoft/hdfs-mount.git",
+        "cd hdfs-mount",
+        "make",
+        "cp hdfs-mount /bin",
+        "cd ..",
+        "rm -rf hdfs-mount",
+        `mkdir --parents ${tmpFolder}`,
+        ];
+        break;
       default:
         break;
     }
@@ -239,6 +254,8 @@ export default class MountDirectories {
       case "azureblob":
         // Use ln for azure blob, does not mount folder separately
         // Can use 'fusermount -u </path/to/mountpoint>' to unmount. fusermount is from fuse package
+        break;
+      case "hdfs":
         break;
     }
     return returnValue;
@@ -275,14 +292,23 @@ export default class MountDirectories {
               ];
         }
       case "azureblob":
+      case "hdfs":
         if (mountPoint === tmpFolder) {
-          // Mount azureblob endpoint
-          const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
-          const cfgFile = `/${serverData.spn}.cfg`;
-          return [
-            `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 ` +
-            `-o entry_timeout=240 -o negative_timeout=120`,
-          ];
+          if (serverType === "azureblob") {
+            // Mount azureblob endpoint
+            const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
+            const cfgFile = `/${serverData.spn}.cfg`;
+            return [
+              `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 ` +
+              `-o entry_timeout=240 -o negative_timeout=120`,
+            ];
+          } else if (serverType === "hdfs") {
+            return [
+              `(hdfs-mount ${serverData.namenode}:${serverData.port} ${mountPoint} &)`,
+              // sleep to wait until mount
+              "sleep 3",
+            ];
+          }
         } else {
           // ln azureblob sub folder
           return [
@@ -339,6 +365,7 @@ export function MountDirectoriesForm({
           setUserGroups(groupList);
         });
       } else {
+        setUserGroups(["paigroup"]);
         throw Error(`HTTP ${response.status}`);
       }
     });

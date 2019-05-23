@@ -134,7 +134,7 @@ matrix:
 
     - language: node_js
       node_js: node
-      before_install: cd contrib/submit-nfs-job
+      before_install: cd contrib/submit-nas-job
       install: yarn --frozen-lockfiles
       script: yarn build
 

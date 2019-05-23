@@ -6,7 +6,7 @@ A web portal plugin to submit job with data on NFS.
 
 ```bash
 git clone https://github.com/Microsoft/pai.git
-cd pai/contrib/submit-nfs-job
+cd pai/contrib/submit-nas-job
 yarn
 yarn build
 ```
@@ -26,8 +26,8 @@ Append the following plugin configuration to the `webportal.plugins` section of 
 ```yaml
 webportal:
   plugins:
-  - id: submit-nfs-job
-    title: Submit NFS Job
+  - id: submit-nas-job
+    title: Submit NAS Job
     uri: # URL of the deployed plugin file.
 ```
 
@@ -39,7 +39,7 @@ See <https://github.com/Microsoft/pai/wiki/Simplified-Job-Submission-for-OpenPAI
 
 ```bash
 git clone https://github.com/Microsoft/pai.git
-cd pai/contrib/submit-nfs-job
+cd pai/contrib/submit-nas-job
 yarn
 yarn start
 ```
