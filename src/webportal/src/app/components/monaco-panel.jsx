@@ -25,7 +25,7 @@ import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 import {monacoHack} from './monaco-hack.scss';
-import t from '../../../../../components/tachyons.scss';
+import t from './tachyons.scss';
 
 export default class MonacoPanel extends React.Component {
   constructor(props) {

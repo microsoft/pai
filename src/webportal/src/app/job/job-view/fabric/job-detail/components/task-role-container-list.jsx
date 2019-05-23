@@ -28,11 +28,11 @@ import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
-import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
+import MonacoPanel from '../../../../../components/monaco-panel';
 
 const theme = createTheme({
   palette: {

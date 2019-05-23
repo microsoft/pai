@@ -31,11 +31,11 @@ import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import Context from './context';
-import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
+import MonacoPanel from '../../../../../components/monaco-panel';
 
 const StoppableStatus = [
   'Running',
