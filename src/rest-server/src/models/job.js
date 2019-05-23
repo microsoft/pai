@@ -305,8 +305,12 @@ class Job {
       if (!hasPermission) {
         throw createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`);
       }
+      console.log('_initializeJobContextRootFoldersAsync Begin');
       await this._initializeJobContextRootFoldersAsync();
+      console.log('_initializeJobContextRootFoldersAsync Done');
+      console.log('_prepareJobContextAsync Begin');
       await this._prepareJobContextAsync(name);
+      console.log('_prepareJobContextAsync Done');
       await axios.put(launcherConfig.frameworkPath(frameworkName), this.generateFrameworkDescription(data), {
         headers: launcherConfig.webserviceRequestHeaders(namespace || data.userName),
       });
