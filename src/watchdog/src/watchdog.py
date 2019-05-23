@@ -57,9 +57,6 @@ api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
 
-list_ns_histogram = Histogram("k8s_api_list_ns_latency_seconds",
-        "Response latency for list namespaces from k8s api (seconds)")
-
 list_nodes_histogram = Histogram("k8s_api_list_nodes_latency_seconds",
         "Response latency for list nodes from k8s api (seconds)")
 
@@ -182,12 +179,13 @@ class PodInfo(object):
     def __repr__(self):
         return "%s: %s" % (self.name, self.gpu)
 
-def parse_pod_item(pod, namespace, pai_pod_gauge, pai_container_gauge, pods_info):
+def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
 
     pod_name = pod["metadata"]["name"]
+    namespace = walk_json_field_safe(pod, "metadata", "namespace") or "default"
     host_ip = walk_json_field_safe(pod, "status", "hostIP") or "unscheduled"
 
     used_gpu = 0
@@ -262,14 +260,13 @@ def parse_pod_item(pod, namespace, pai_pod_gauge, pai_container_gauge, pods_info
                 namespace, container_state, host_ip, str(ready).lower()], 1)
 
 
-def process_pods_status(pods_object, namespace, pai_pod_gauge, pai_container_gauge,
+def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
         pods_info):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
                 "catch exception when parsing pod item",
                 None,
                 item,
-                namespace,
                 pai_pod_gauge, pai_container_gauge,
                 pods_info)
 
@@ -408,33 +405,19 @@ def process_nodes_status(nodes_object, pods_info):
 
 
 def process_pods(k8s_api_addr, ca_path, headers, pods_info):
-    list_namespace_url = "{}/api/v1/namespaces".format(k8s_api_addr)
-
-    ns_object = request_with_histogram(list_namespace_url, list_ns_histogram,
-            ca_path, headers)
-
-    namespaces = []
-
-    ns_items = walk_json_field_safe(ns_object, "items")
-    if ns_items is not None:
-        for ns in ns_items:
-            ns_name = walk_json_field_safe(ns, "metadata", "name")
-            if ns_name is not None:
-                namespaces.append(ns_name)
+    list_pods_url = "{}/api/v1/pods".format(k8s_api_addr)
 
     pai_pod_gauge = gen_pai_pod_gauge()
     pai_container_gauge = gen_pai_container_gauge()
 
-    for ns in namespaces:
-        list_pods_url = "{}/api/v1/namespaces/{}/pods".format(k8s_api_addr, ns)
-        try:
-            pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
-                    ca_path, headers)
-            process_pods_status(pods_object, ns, pai_pod_gauge, pai_container_gauge,
-                    pods_info)
-        except Exception as e:
-            error_counter.labels(type="parse").inc()
-            logger.exception("failed to process pods from namespace %s", ns)
+    try:
+        pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
+                ca_path, headers)
+        process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
+                pods_info)
+    except Exception as e:
+        error_counter.labels(type="parse").inc()
+        logger.exception("failed to process pods from namespace %s", ns)
 
     return [pai_pod_gauge, pai_container_gauge]
 

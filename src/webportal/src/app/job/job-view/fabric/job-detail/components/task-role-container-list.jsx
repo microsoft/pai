@@ -27,6 +27,7 @@ import React from 'react';
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
+import Context from './context';
 import MonacoPanel from './monaco-panel';
 import StatusBadge from './status-badge';
 import Timer from './timer';
@@ -120,7 +121,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   showSshInfo(id) {
-    const {sshInfo} = this.props;
+    const {sshInfo} = this.context;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
       this.setState({
@@ -151,7 +152,6 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   getColumns() {
-    const {jobStatus} = this.props;
     const columns = [
       {
         key: 'number',
@@ -264,7 +264,7 @@ export default class TaskRoleContainerList extends React.Component {
               iconProps={{iconName: 'CommandPrompt'}}
               text='View SSH Info'
               onClick={() => this.showSshInfo(item.containerId)}
-              disabled={isNil(item.containerId) || jobStatus !== 'Running'}
+              disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
             />
             <CommandBarButton
               className={FontClassNames.mediumPlus}
@@ -322,16 +322,6 @@ export default class TaskRoleContainerList extends React.Component {
     }}}/>;
   }
 
-  generateDummyTasks() {
-    const {jobStatus, taskConfig} = this.props;
-    if (isNil(taskConfig) || isNil(taskConfig.taskNumber)) {
-      return null;
-    }
-    return Array.from({length: taskConfig.taskNumber}, (v, idx) => ({
-      status: jobStatus,
-    }));
-  }
-
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
@@ -363,11 +353,10 @@ export default class TaskRoleContainerList extends React.Component {
   }
 }
 
+TaskRoleContainerList.contextType = Context;
+
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  taskConfig: PropTypes.object,
   taskInfo: PropTypes.object,
-  jobStatus: PropTypes.string.isRequired,
-  sshInfo: PropTypes.object,
 };

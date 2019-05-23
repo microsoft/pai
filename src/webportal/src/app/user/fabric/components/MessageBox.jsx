@@ -20,21 +20,21 @@ import {PropTypes} from 'prop-types';
 
 import {Modal, MessageBar, MessageBarButton} from 'office-ui-fabric-react';
 
+import t from '../../../components/tachyons.scss';
+
 function MessageBox(props) {
-  const {text, onDismiss, onOK, onCancel, confirm} = props;
+  const {text, onDismiss, confirm} = props;
 
   const closeModal = () => {
-    if (onDismiss) onDismiss();
+    if (onDismiss) onDismiss(confirm ? false : true);
   };
 
   const onClickOK = () => {
-    closeModal();
-    if (onOK) onOK();
+    if (onDismiss) onDismiss(true);
   };
 
   const onClickCancel = () => {
-    closeModal();
-    if (onCancel) onCancel();
+    if (onDismiss) onDismiss(false);
   };
 
   return (
@@ -42,7 +42,7 @@ function MessageBox(props) {
       isOpen={true}
       onDismiss={closeModal}
       isBlocking={false}
-      styles={{main: {minWidth: '300px', maxWidth: '80vw', display: 'flex', flexFlow: 'column nowrap', alighItems: 'stretch'}}}
+      styles={{main: [{minWidth: '300px', maxWidth: '80vw'}, t.flex, t.flexColumn, t.flexNowrap, t.itemsStretch]}}
     >
       <div>
         <MessageBar
@@ -53,7 +53,7 @@ function MessageBox(props) {
             </div>
           }
         >
-          {text}
+          <span className={t.pre}>{text}</span>
         </MessageBar>
       </div>
     </Modal >
@@ -63,8 +63,6 @@ function MessageBox(props) {
 MessageBox.propTypes = {
   text: PropTypes.string,
   onDismiss: PropTypes.func,
-  onOK: PropTypes.func,
-  onCancel: PropTypes.func,
   confirm: PropTypes.bool,
 };
 

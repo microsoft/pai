@@ -209,7 +209,7 @@ $(document).ready(() => {
             if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
               name = name.slice(0, -9);
             }
-            name = `${name}_${Date.now().toString(16).substr(0, 6)}`;
+            name = `${name}_${Date.now().toString(16).substr(-6)}`;
             name = name + getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));

@@ -15,24 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import {PropTypes} from 'prop-types';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
+const Joi = require('joi-browser');
 
-const Loading = (props) => {
-  return (
-    <div style={{height: '100%', width: '100%', position: 'absolute', backgroundColor: 'hsla(0,0%,100%,.3)', left: '0', top: '0'}}>
-      <div style={{height: '100%', justifyContent: 'center', alignItems: 'center', display: 'flex'}}>
-        <div style={{alignItems: 'center', display: 'flex'}}>
-          <Spinner size={SpinnerSize.large} label={props.label} ariaLive="assertive" labelPosition="right" />
-        </div>
-      </div>
-    </div>
-  );
+const usernameSchema = Joi.string().token().required();
+export const checkUsername = (value) => {
+  const {error} = Joi.validate(value, usernameSchema);
+  if (error) {
+    return error.message.replace('"value"', 'User name');
+  } else {
+    return error;
+  }
 };
 
-Loading.propTypes = {
-  label: PropTypes.string.isRequired,
+const passwordSchema = Joi.string().min(6).required();
+export const checkPassword = (value) => {
+  const {error} = Joi.validate(value, passwordSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Password');
+  } else {
+    return error;
+  }
 };
-
-export default Loading;
