@@ -1,22 +1,14 @@
-import logging
 import argparse
 import time
 import re
-import json
+import logging
+from utility import log
+log.setup_logging()
 
 from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator
 
+logger = logging.getLogger(__name__)
 
-def setup_logger():
-    global logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    return logger
 
 
 def get_unready_nodes(decommissioned_nodes, current_status):
@@ -152,6 +144,52 @@ def get_dedicate_vc(args):
         print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"]["vCores"], queue_attr["resource"]["memory"], queue_attr["resource"]["GPUs"]))
 
 
+def add_dedicate_vc(args):
+    yarn_operator = YarnOperator(args.resource_manager_ip)
+    vc_name = args.vc_name
+    nodes = args.nodes
+
+    logger.debug("Adding cluster label...")
+    existing_labels = yarn_operator.get_cluster_label()
+    if vc_name in existing_labels:
+        logger.warning("Label already exists: {}".format(vc_name))
+    else:
+        yarn_operator.add_cluster_label(vc_name)
+        time.sleep(5)
+
+    logger.debug("Adding dedicated vc...")
+    queues_info = yarn_operator.get_queue_info()
+    if vc_name in queues_info:
+        logger.warning("VC {} already exists, will add node to this VC".format(vc_name))
+    else:
+        yarn_operator.add_dedicated_queue(vc_name)
+
+    logger.debug("Labeling node...")
+    yarn_operator.label_nodes(nodes, vc_name)
+
+
+def remove_dedicate_vc(args):
+    yarn_operator = YarnOperator(args.resource_manager_ip)
+    vc_name = args.vc_name
+
+    logger.debug("Removing dedicated vc...")
+    queues_info = yarn_operator.get_queue_info()
+    if vc_name not in queues_info:
+        logger.warning("VC {} not found, will only unlabel nodes".format(vc_name))
+    else:
+        yarn_operator.remove_dedicated_queue(vc_name)
+
+    logger.debug("Unlabeling node...")
+    nodes = []
+    labeled_nodes = yarn_operator.get_node_label()
+    for node in labeled_nodes:
+        if labeled_nodes[node] == vc_name:
+            nodes.append(node)
+    yarn_operator.label_nodes(nodes, "")
+
+    logger.debug("Removing cluster label...")
+    yarn_operator.remove_cluster_label(vc_name)
+
 
 def setup_parser():
     top_parser = argparse.ArgumentParser()
@@ -207,12 +245,24 @@ def setup_parser():
     parser_get = dedicated_vc_subparsers.add_parser("get", parents=[parent_parser], help="get dedicate vc info")
     parser_get.set_defaults(func=get_dedicate_vc)
 
+    parser_add = dedicated_vc_subparsers.add_parser("add", parents=[parent_parser], help="add dedicate vc")
+    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', default="")
+    parser_add.add_argument("-v", "--vc-name", help='support comma-delimited node list', required=True)
+    parser_add.set_defaults(func=add_dedicate_vc)
+
+    parser_remove = dedicated_vc_subparsers.add_parser("remove", parents=[parent_parser], help="remove dedicate vc")
+    parser_remove.add_argument("-v", "--vc-name", help='support comma-delimited node list', required=True)
+    parser_remove.set_defaults(func=remove_dedicate_vc)
+
     return top_parser
 
 
 def main():
     parser = setup_parser()
-    args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
+    # args = parser.parse_args(["dedicated-vc", "-h"])
+    # args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
+    args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
@@ -220,5 +270,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = setup_logger()
     main()

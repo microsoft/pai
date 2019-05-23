@@ -6,6 +6,7 @@ import json
 from bs4 import BeautifulSoup
 import xmltodict
 import dicttoxml
+import time
 
 from utility.common import request_without_exception, command_without_exception, safe_get
 
@@ -80,34 +81,46 @@ class YarnOperator(object):
 
         return labels
 
-    def add_cluster_label(self, labels):
-        labels_list = []
+    def add_cluster_label(self, label, exclusivity=True):
 
-        for label_name in labels:
-            exclusivity = "true" if labels[label_name] else "false"
-            label_str = "{}(exclusive={})".format(label_name, exclusivity)
-            labels_list.append(label_str)
+        label_str = "{}(exclusive={})".format(label, "true" if exclusivity else "false")
 
-        labels_str = ",".join(labels_list)
-
-        command = "yarn --config {} rmadmin -addToClusterNodeLabels \"{}\"".format(self.yarn_config_path, labels_str)
+        command = "yarn --config {} rmadmin -addToClusterNodeLabels \"{}\"".format(self.yarn_config_path, label_str)
         command_output = command_without_exception(command)
         if command_output is None:
             sys.exit(1)
 
-    def remove_cluster_label(self, labels):
-        labels_str = ",".join(labels)   # Labels could be list, set or dict
+    def remove_cluster_label(self, label):
 
-        command = "yarn --config {} rmadmin -removeFromClusterNodeLabels {}".format(self.yarn_config_path, labels_str)
+        command = "yarn --config {} rmadmin -removeFromClusterNodeLabels {}".format(self.yarn_config_path, label)
         command_output = command_without_exception(command)
         if command_output is None:
             sys.exit(1)
 
-    def label_nodes(self, nodes):
+    def _is_nodes_with_label(self, nodes, label):
+        current_nodes_label = self.get_node_label()
+        for node in nodes:
+            if node not in current_nodes_label:
+                logger.warn("unknown node: {}".format(node))
+                continue
+            if current_nodes_label[node] != label:
+                return False
+        return True
+
+    def check_yarn_ready(self):
+        yarn_nodes_url = "http://{}:8088/ws/v1/cluster/info".format(self.master_ip)
+        command_output = request_without_exception(yarn_nodes_url, log_flag=False)
+        return command_output is not None
+
+
+    def label_nodes(self, nodes, label):
+        if isinstance(nodes, str):
+            nodes = [nodes]
+
         nodes_list = []
 
         for node in nodes:
-            node_str = "{}={}".format(node, nodes[node])
+            node_str = "{}={}".format(node, label)
             nodes_list.append(node_str)
 
         nodes_str = " ".join(nodes_list)
@@ -115,24 +128,13 @@ class YarnOperator(object):
         # yarn rmadmin -replaceLabelsOnNode "node1[:port]=label1 node2=label2" [-failOnUnknownNodes]
         command = "yarn --config {} rmadmin -replaceLabelsOnNode \"{}\" -failOnUnknownNodes"\
             .format(self.yarn_config_path, nodes_str)
-        command_output = command_without_exception(command)
-        if command_output is None:
-            sys.exit(1)
 
-    def unlabel_nodes(self, nodes):
-        nodes_list = []
+        while not (self.check_yarn_ready() and self._is_nodes_with_label(nodes, label)):
+            if self.check_yarn_ready():
+                command_without_exception(command)
+                logger.debug("Labeling nodes...")
+            time.sleep(5)
 
-        for node in nodes:
-            node_str = "{}=".format(node)
-            nodes_list.append(node_str)
-
-        nodes_str = " ".join(nodes_list)
-
-        command = "yarn --config {} rmadmin -replaceLabelsOnNode \"{}\" -failOnUnknownNodes" \
-            .format(self.yarn_config_path, nodes_str)
-        command_output = command_without_exception(command)
-        if command_output is None:
-            sys.exit(1)
 
     def get_node_label(self):
         yarn_nodes_url = "http://{}:8088/ws/v1/cluster/nodes".format(self.master_ip)
@@ -142,10 +144,11 @@ class YarnOperator(object):
 
         nodes_info = response.json()
         current_nodes = {}
-        for node in nodes_info["nodes"]["node"]:
-            host = node["nodeHostName"]
-            node_label = node.get("nodeLabels", [""])[0]
-            current_nodes[host] = node_label
+        if safe_get(nodes_info, "nodes", "node"):
+            for node in nodes_info["nodes"]["node"]:
+                host = node["nodeHostName"]
+                node_label = node.get("nodeLabels", [""])[0]
+                current_nodes[host] = node_label
         return current_nodes
 
     def get_queue_info(self):
@@ -234,17 +237,91 @@ class YarnOperator(object):
         return labels_dict
 
     def add_dedicated_queue(self, label_name):
-        pass
+        create_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+              <sched-conf>
+                <add-queue>
+                  <queue-name>root.{vc_name}</queue-name>
+                  <params>
+                    <entry>
+                      <key>capacity</key>
+                      <value>0</value>
+                    </entry>
+                    <entry>
+                      <key>maximum-capacity</key>
+                      <value>0</value>
+                    </entry>
+                    <entry>
+                      <key>default-node-label-expression</key>
+                      <value>{vc_name}</value>
+                    </entry>
+                    <entry>
+                      <key>accessible-node-labels</key>
+                      <value>{vc_name}</value>
+                    </entry>
+                    <entry>
+                      <key>disable_preemption</key>
+                      <value>true</value>
+                    </entry>
+                    <entry>
+                      <key>maximum-applications</key>
+                      <value>10000</value>
+                    </entry>
+                    <entry>
+                      <key>user-limit-factor</key>
+                      <value>100</value>
+                    </entry>           
+                  </params>        
+                </add-queue>
+                <global-updates>
+                  <entry>
+                    <key>yarn.scheduler.capacity.root.accessible-node-labels.{vc_name}.capacity</key>
+                    <value>100</value>
+                  </entry>
+                  <entry>
+                    <key>yarn.scheduler.capacity.root.{vc_name}.accessible-node-labels.{vc_name}.capacity</key>
+                    <value>100</value>
+                  </entry>
+                </global-updates>                                                                                      
+              </sched-conf>
+            '''.format(vc_name=label_name)
+
+        self.put_queue_update_xml(create_xml)
 
     def remove_dedicated_queue(self, label_name):
-        pass
+        delete_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+              <sched-conf>
+                <update-queue>
+                  <queue-name>root.{vc_name}</queue-name>
+                  <params>
+                    <entry>
+                      <key>state</key>
+                      <value>STOPPED</value>
+                    </entry>
+                  </params>
+                </update-queue>
+              </sched-conf>
+                '''.format(vc_name=label_name)
 
+        self.put_queue_update_xml(delete_xml)
 
+        delete_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+              <sched-conf>
+                <global-updates>
+                  <entry>
+                    <key>yarn.scheduler.capacity.root.accessible-node-labels.{vc_name}.capacity</key>
+                    <value>0</value>
+                  </entry>
+                </global-updates>
+                <remove-queue>root.{vc_name}</remove-queue>
+              </sched-conf>
+                '''.format(vc_name=label_name)
+
+        self.put_queue_update_xml(delete_xml)
 
     def generate_queue_update_xml(self, g_dict):
         return dicttoxml.dicttoxml(g_dict, attr_type=False, custom_root="sched-conf", item_func=lambda x: "entry")
 
-    def post_queue_update_xml(self, update_xml):
+    def put_queue_update_xml(self, update_xml):
         yarn_scheduler_conf_url = "http://{}:8088/ws/v1/cluster/scheduler-conf".format(self.master_ip)
         headers = {"Content-Type": "application/xml"}
         request_without_exception(yarn_scheduler_conf_url, method="put", headers=headers, data=update_xml)
