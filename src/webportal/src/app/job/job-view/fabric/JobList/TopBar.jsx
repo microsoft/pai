@@ -17,6 +17,7 @@
 
 import React, {useContext, useState, useEffect} from 'react';
 
+import {getTheme, ColorClassNames} from '@uifabric/styling';
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
 import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
@@ -439,17 +440,19 @@ function TopBar() {
     getClear(),
   ];
 
+  const {spacing} = getTheme();
+
   return (
     <React.Fragment>
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {backgroundColor: 'transparent', padding: 0}}}
       />
       { active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: {backgroundColor: '#ECECEC'}}}
+        styles={{root: [ColorClassNames.neutralLightBackground, {marginTop: spacing.s2}]}}
       /> : null }
     </React.Fragment>
   );

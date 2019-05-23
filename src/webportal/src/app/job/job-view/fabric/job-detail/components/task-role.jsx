@@ -28,6 +28,7 @@ import Card from './card';
 import Context from './context';
 import MonacoCallout from './monaco-callout';
 import TaskRoleContainerList from './task-role-container-list';
+import {getTaskConfig} from '../util';
 import {statusColor} from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
@@ -103,7 +104,7 @@ export default class TaskRole extends React.Component {
       <div className={c(t.bgWhite, className)}>
         {/* summary */}
         <Card style={{backgroundColor: isFailed ? semanticColors.errorBackground : undefined}}>
-          <div className={c(t.pv3, t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: 32, paddingRight: 32}}>
+          <div className={c(t.pv3, t.ph5, t.flex, t.itemsCenter, t.justifyBetween)}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
               {isFailed && (

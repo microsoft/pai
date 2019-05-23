@@ -31,7 +31,7 @@ export function initTheme() {
         fontWeight: FontWeights.semibold,
       },
       large: {
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: FontWeights.regular,
       },
     },

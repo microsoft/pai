@@ -32,10 +32,10 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import MonacoPanel from './monaco-panel';
-import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
+import StatusBadge from '../../../../../components/status-badge';
 
 const StoppableStatus = [
   'Running',
@@ -44,7 +44,7 @@ const StoppableStatus = [
 
 const HintItem = ({header, children}) => (
   <div className={c(t.flex, t.justifyStart)}>
-    <div style={{width: '16rem', minWidth: '16rem', fontWeight: FontWeights.semibold}}>
+    <div style={{width: '160px', minWidth: '160px', fontWeight: FontWeights.semibold}}>
       {header}
     </div>
     <div>{children}</div>

@@ -29,10 +29,10 @@ import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
 import MonacoPanel from './monaco-panel';
-import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
+import StatusBadge from '../../../../../components/status-badge';
 
 const theme = createTheme({
   palette: {
@@ -254,60 +254,62 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 300,
         maxWidth: 340,
         onRender: (item) => (
-          <div className={c(t.flex, t.h3)}>
-            <CommandBarButton
-              className={c(FontClassNames.mediumPlus)}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'CommandPrompt'}}
-              text='View SSH Info'
-              onClick={() => this.showSshInfo(item.containerId)}
-              disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'TextDocument'}}
-              text='Stdout'
-              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
-              disabled={isNil(item.containerId)}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'Error'}}
-              text='Stderr'
-              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
-              disabled={isNil(item.containerId)}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              menuIconProps={{iconName: 'More'}}
-              menuProps={{
-                items: [
-                  {
-                    key: 'yarnTrackingPage',
-                    name: 'Go to Yarn Tracking Page',
-                    iconProps: {iconName: 'Link'},
-                    href: item.containerLog,
-                    target: '_blank',
-                  },
-                ],
-              }}
-              disabled={isNil(item.containerId)}
-            />
+          <div className={c(t.h100, t.flex, t.justifyCenter, t.itemsCenter)}>
+            <div className={c(t.flex, t.h3)}>
+              <CommandBarButton
+                className={c(FontClassNames.mediumPlus)}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'CommandPrompt'}}
+                text='View SSH Info'
+                onClick={() => this.showSshInfo(item.containerId)}
+                disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'TextDocument'}}
+                text='Stdout'
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
+                disabled={isNil(item.containerId)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'Error'}}
+                text='Stderr'
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
+                disabled={isNil(item.containerId)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                menuIconProps={{iconName: 'More'}}
+                menuProps={{
+                  items: [
+                    {
+                      key: 'yarnTrackingPage',
+                      name: 'Go to Yarn Tracking Page',
+                      iconProps: {iconName: 'Link'},
+                      href: item.containerLog,
+                      target: '_blank',
+                    },
+                  ],
+                }}
+                disabled={isNil(item.containerId)}
+              />
+            </div>
           </div>
         ),
       },
