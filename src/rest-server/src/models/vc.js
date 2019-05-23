@@ -87,7 +87,21 @@ class VirtualCluster {
   }
 
   async getVcListAsyc() {
-    return await this.getVcListPromise();
+    try {
+      const response = await this.getVcListPromise();
+      const resJson = typeof response === 'object' ?
+        response : JSON.parse(response);
+      const schedulerInfo = resJson.scheduler.schedulerInfo;
+      if (schedulerInfo.type === 'capacityScheduler') {
+        const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+        return vcInfo;
+      } else {
+        throw createError('Internal Server Error', 'BadConfigurationError',
+          `Scheduler type ${schedulerInfo.type} is not supported.`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   generateUpdateInfo(updateData) {

@@ -62,6 +62,26 @@ const init = (req, res, next) => {
 };
 
 /**
+ *  Async api of getting list of jobs.
+ */
+const asyncList = async (req, res, next) => {
+  try {
+    const jobList = await Job.prototype.asyncGetJobList(req._query, req.params.username);
+    if (jobList === undefined) {
+      logger.warn('list jobs error, no job found');
+      return res.status(500).json({
+        error: 'JobListNotFound',
+        message: 'could not find job list',
+      });
+    } else {
+      return res.status(200).json(jobList);
+    }
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
+/**
  * Get list of jobs.
  */
 const list = (req, res, next) => {
@@ -150,6 +170,17 @@ const updateAsync = async (req, res, next) => {
     let job = await newJob(name, req.params.username);
     return res.status(201).location(location).json(job);
   } catch (error) {
+    if (error.code && error.code === 'NoJobError') {
+      const name = req.job.name;
+      let location = url.format({
+        protocol: req.protocol,
+        host: req.get('Host'),
+        pathname: req.baseUrl + '/' + name,
+      });
+      return res.status(202).location(location).json({
+        message: `update job ${name} successfully`,
+      });
+    }
     return next(createError.unknown(error));
   }
 };
@@ -236,6 +267,7 @@ const getSshInfo = (req, res, next) => {
 module.exports = {
   load,
   init,
+  asyncList,
   list,
   get,
   update,

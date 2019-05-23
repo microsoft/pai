@@ -190,7 +190,7 @@ class Hdfs {
     try {
       const response = await axios.get(targetUrl);
       return {
-        status: 'scceeded',
+        status: 'succeeded',
         content: response.body,
       };
     } catch (error) {

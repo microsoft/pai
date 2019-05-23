@@ -34,6 +34,9 @@ router.route('/get/')
   /** Get /api/v2/user/get */
   .get(userController.getAllUser);
 
+router.route('/:username/')
+  .get(token.check, userController.getUser);
+
 router.route('/update/:username/extension')
   /** Put /api/v2/user/update/:username/extension */
   .put(token.check, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);

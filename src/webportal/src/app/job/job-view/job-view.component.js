@@ -375,7 +375,7 @@ const stopJob = (namespace, jobName, force = false) => {
   const res = force || confirm('Are you sure to stop the job?');
   if (res) {
     const url = namespace
-      ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      ? `${webportalConfig.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/executionType`
       : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     userAuth.checkToken((token) => {
       $.ajax({
@@ -394,7 +394,7 @@ const stopJob = (namespace, jobName, force = false) => {
             return window.location.reload(false);
           } else {
             const url = namespace
-              ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+              ? `${webportalConfig.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}`
               : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
             // Table view: replace current row
             const api = $jobTable.dataTable().api();
@@ -443,7 +443,7 @@ const loadJobDetail = (namespace, jobName) => {
   configInfo = null;
   sshInfo = null;
   const url = namespace
-    ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    ? `${webportalConfig.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}`
     : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
   $.ajax({
     url: url,

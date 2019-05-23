@@ -180,6 +180,25 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+
+const checkUserPassword = async (req, res, next) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+    let userValue = await userModel.getUser(username);
+    let newUserValue = userValue;
+    newUserValue['password'] = password;
+    newUserValue = await userModel.getEncryptPassword(newUserValue);
+    if (newUserValue['password'] !== userValue['password']) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+    }
+    next();
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+
 // module exports
 module.exports = {
   getUser,
@@ -191,4 +210,5 @@ module.exports = {
   deleteUser,
   updateUserPassword,
   createUser,
+  checkUserPassword,
 };

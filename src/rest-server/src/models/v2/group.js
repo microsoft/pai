@@ -32,8 +32,6 @@ let externalName2Groupname = {};
 
 const getGroup = async (groupname) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log('get group api');
     return await crudGroup.read(groupname, crudConfig);
   } catch (error) {
     throw error;
