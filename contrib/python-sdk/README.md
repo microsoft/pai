@@ -23,7 +23,7 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
 
 - **User can easily access `OpenPAI` resources in scripts (`Python` or `Shell`) and `Jupyter` notebooks**
 
-The SDK provides classes to describe the clusters (`openpaisdk.core.Client`) and jobs (`openpaisdk.job.Job`). The Client class wraps necessary [REST APIs]() for convenient operations. The Job class is an implementation of the [protocol](), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration. 
+The SDK provides classes to describe the clusters (`openpaisdk.core.Cluster`) and jobs (`openpaisdk.job.Job`). The Cluster class wraps necessary [REST APIs]() for convenient operations. The Job class is an implementation of the [protocol](), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration. 
 
 Besides the wrapping of APIs, the SDK also provides functions to facilitate user to utilize `OpenPAI`. Such functions includes *cluster management*, *storage accessing*, *execution environment detection (local or in a job container)*.
 
@@ -147,7 +147,7 @@ Refer to [the doc](docs/command-line-references.md) and tutorials under [example
 
 ## 2.4. Python binding
 
-See more descriptions about the `Client` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().
+See more descriptions about the `Cluster` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().
 
 ## 2.5. Runtime supports
 

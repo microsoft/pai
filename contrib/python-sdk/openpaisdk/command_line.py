@@ -4,7 +4,7 @@ import os, sys
 import openpaisdk as pai
 from openpaisdk import __logger__
 from openpaisdk.io_utils import from_file, to_file
-from openpaisdk.core import Client
+from openpaisdk.core import Cluster
 from openpaisdk.job import TaskRole, JobSpec, Job
 import openpaisdk.runtime_requires as req
 from openpaisdk.runtime import runtime_execute
@@ -18,7 +18,7 @@ def pprint(s, fmt: str='yaml', **kwargs):
 
 
 def get_client(alias):
-    client, _ = Client.from_json(pai.__cluster_config_file__, alias)
+    client, _ = Cluster.from_json(pai.__cluster_config_file__, alias)
     return client
 
 
@@ -135,7 +135,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = {cluster['alias']: Client.desensitize(cluster) for cluster in from_file(pai.__cluster_config_file__, default=[])}
+        cfgs = {cluster['alias']: Cluster.desensitize(cluster) for cluster in from_file(pai.__cluster_config_file__, default=[])}
         if args.name:
             return list(cfgs.keys())
         elif args.cluster_alias:

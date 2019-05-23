@@ -1,6 +1,71 @@
-# Overview
+# Release Plan
 
-## Release pace
+## Version 0.5.00 (End May 2019)
+
+For the preview release, we will provide a basic functions of the command line tools and python SDK for below scenarios
+
+1. Command line
+
+- [x] User can submit and query jobs
+```bash
+opai job list <job-name> [config/ssh/stdout/stderr]
+opai job submit --config <job-config-file> (json or yaml)
+```
+
+- [x] User can submit a simple job with shortcut
+
+```bash
+opai job sub [--gpu 1] python a/b/c.py arg1 arg2 …
+```
+
+- [ ] User can specify which cluster to interact with
+
+```bash
+opai cluster add --pai-uri http://x.x.x.x --user myuser && opai job list <job-name> [config/ssh/stdout/stderr]
+opai cluster add --pai-uri http://x.x.x.x --user myuser && opai job submit --config <job-config-file> (json or yaml)
+```
+
+- [x] User can access storage (only support hdfs for this release)
+
+```bash
+opai storage upload local_path remote_path
+opai storage download remote_path local_path
+opai storage list/status/delete remote_path
+```
+
+2. python binding (SDK)
+
+- [x] User can describe a cluster with `openpaisdk.core.Cluster` class
+
+```python
+cluster = Cluster(pai_uri=xx, user=xx, ...)
+cluster = Cluster.from_json(json_file)
+```
+
+- [x] the `Cluster` class has methods to query and submit jobs
+
+```python
+Cluster(...).list_jobs(job_name)
+Cluster(...).submit(job_config)
+```
+
+- [x] the `Cluster` class has methods to access storage (through WebHDFS only for this version)
+
+```python
+Cluster(...).storage.upload/download(...)
+```
+
+- [x] User can describe a job with `openpaisdk.job.Job` class
+
+```python
+job = Job(...)
+job.add_task(...)
+Cluster(...).submit(job)
+```
+
+- [ ] the `Job` class is an implementation of v2 protocol
+
+# Action items
 
 ### Version 0.3.01
  

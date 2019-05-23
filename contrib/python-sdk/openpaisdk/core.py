@@ -24,10 +24,10 @@ def in_job_container(varname: str='PAI_CONTAINER_ID'):
     return True
 
 
-class Client:
+class Cluster:
 
     def __init__(self, pai_uri: str, user: str=None, passwd: str=None, storages: list=[], **kwargs):
-        """Client create an openpai client from necessary information
+        """Cluster create an openpai client from necessary information
         
         Arguments:
             pai_uri {str} -- format: http://x.x.x.x
@@ -53,14 +53,14 @@ class Client:
             alias {str} -- [description] (default: {None})
         
         Returns:
-            Client -- 
-                a specific Client (if alias is valid or only one cluster specified)
+            Cluster --
+                a specific Cluster (if alias is valid or only one cluster specified)
             str -- 
                 cluster alias
         """
         with open(pai_json) as fn:
             cfgs = json.load(fn)
-        clients = [Client(**c) for c in cfgs]
+        clients = [Cluster(**c) for c in cfgs]
         if alias is None:
             return clients[0], clients[0].alias
         try:
@@ -124,7 +124,7 @@ class Client:
             job_config = job.to_job_config_v1(save_to_file=None)
 
         if append_pai_info:
-            job_config['extras']['__clusters__'] = [Client.desensitize(self.config)]
+            job_config['extras']['__clusters__'] = [Cluster.desensitize(self.config)]
             job_config['extras']['__defaults__'] = __defaults__
         code_dir = job.get_workspace_folder('code')
         files_to_upload = job.sources if job.sources else []
