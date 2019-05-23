@@ -66,7 +66,7 @@ const init = (req, res, next) => {
  */
 const asyncList = async (req, res, next) => {
   try {
-    const jobList = await Job.prototype.asyncGetJobList(req._query, req.params.username)
+    const jobList = await Job.prototype.asyncGetJobList(req._query, req.params.username);
     if (jobList === undefined) {
       logger.warn('list jobs error, no job found');
       return res.status(500).json({
