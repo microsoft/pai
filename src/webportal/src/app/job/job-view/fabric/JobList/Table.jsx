@@ -198,6 +198,7 @@ export default function Table() {
         <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}} data-selection-disabled>
           <DefaultButton
             iconProps={{iconName: 'StopSolid'}}
+            styles={{icon: {fontSize: 12}}}
             disabled={disabled}
             onClick={onClick}
           >

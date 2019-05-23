@@ -173,6 +173,7 @@ export default function JobList() {
         <Stack
           verticalFill
           styles={{root: {position: 'relative', padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}}}
+          gap='s1'
         >
           <Stack.Item>
             <TopBar/>

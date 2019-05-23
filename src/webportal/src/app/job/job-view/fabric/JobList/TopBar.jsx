@@ -118,7 +118,10 @@ function TopBar() {
     return {
       key: 'stop',
       name: 'Stop',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {
+        root: {backgroundColor: 'transparent', height: '100%'},
+        icon: {fontSize: 14},
+      },
       iconProps: {
         iconName: 'StopSolid',
       },
@@ -452,7 +455,10 @@ function TopBar() {
       { active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: [ColorClassNames.neutralLightBackground, {marginTop: spacing.s2}]}}
+        styles={{root: [
+          ColorClassNames.neutralLightBackground,
+          {marginTop: spacing.s2, paddingTop: spacing.m, paddingBottom: spacing.m, height: 'auto'},
+        ]}}
       /> : null }
     </React.Fragment>
   );
