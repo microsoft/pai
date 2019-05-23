@@ -952,6 +952,7 @@ class Job {
           throw error;
         }
       };
+      console.log('promise all begin');
       await Promise.all([
         async function() {
           console.log('p1 Begin');
@@ -1062,6 +1063,7 @@ class Job {
             throw error;
           }
         }]);
+      console.log('promise all done');
     } catch (error) {
       throw error;
     }
