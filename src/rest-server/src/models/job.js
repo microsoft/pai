@@ -831,7 +831,6 @@ class Job {
     });
   }
 
-
   async _prepareJobContextAsync(name, data) {
     try {
       const hdfs = new Hdfs(launcherConfig.webhdfsUri);
