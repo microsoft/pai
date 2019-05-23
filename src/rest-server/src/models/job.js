@@ -309,7 +309,7 @@ class Job {
       await this._initializeJobContextRootFoldersAsync();
       console.log('_initializeJobContextRootFoldersAsync Done');
       console.log('_prepareJobContextAsync Begin');
-      await this._prepareJobContextAsync(name);
+      await this._prepareJobContextAsync(frameworkName, data);
       console.log('_prepareJobContextAsync Done');
       await axios.put(launcherConfig.frameworkPath(frameworkName), this.generateFrameworkDescription(data), {
         headers: launcherConfig.webserviceRequestHeaders(namespace || data.userName),
