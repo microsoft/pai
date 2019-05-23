@@ -57,6 +57,8 @@ class Hdfs {
       return res;
     } catch (error) {
       // eslint-disable-next-line no-console
+      console.log('error in create Folder Async');
+      // eslint-disable-next-line no-console
       console.log(error);
       throw error;
     }
@@ -112,8 +114,6 @@ class Hdfs {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#List_a_Directory
     try {
       const response = await axios.get(targetUrl);
-      // eslint-disable-next-line no-console
-      console.log(response);
       return {status: 'succeeded', content: response.body};
     } catch (error) {
       throw error;
@@ -136,8 +136,6 @@ class Hdfs {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Make_a_Directory
     try {
       const response = await axios.put(targetUrl);
-      // eslint-disable-next-line no-console
-      console.log(response);
       if (response.status === 2000) {
         return {status: 'succeeded'};
       }
@@ -162,8 +160,6 @@ class Hdfs {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
     try {
       const response = await axios.put(targetUrl, data);
-      // eslint-disable-next-line no-console
-      console.log(response);
       if (response.status === 201) {
         return {status: 'succeeded'};
       }
@@ -206,8 +202,6 @@ class Hdfs {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Open_and_Read_a_File
     try {
       const response = await axios.get(targetUrl);
-      // eslint-disable-next-line no-console
-      console.log(response);
       return {
         status: 'succeeded',
         content: response.body,
