@@ -24,10 +24,10 @@ import React from 'react';
 
 import t from './tachyons.scss';
 
-import {statusColorMapping} from './theme';
+import {statusColor} from './theme';
 
 export const Badge = ({children, className}) => (
-  <div className={c(FontClassNames.mediumPlus, t.ph2, t.pv1, mergeStyles({width: '8.5rem'}), className)}>
+  <div className={c(FontClassNames.mediumPlus, mergeStyles({width: '100%'}), className)}>
     {children}
   </div>
 );
@@ -48,12 +48,13 @@ export const IconBadge = ({children, className, icons}) => (
             <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill, t.tc, t.vMid, t.lhSolid)} 
             styles={{root: {
               color: idx === 0 ?  {
-                Waiting: statusColorMapping.waiting,
-                Running: statusColorMapping.running,
-                Stopping: statusColorMapping.stopping,
-                Succeeded: statusColorMapping.succeeded,
-                Failed: statusColorMapping.failed,
-                Stopped: statusColorMapping.stopped,
+                Waiting: statusColor.waiting,
+                Running: statusColor.running,
+                Stopping: statusColor.stopping,
+                Succeeded: statusColor.succeeded,
+                Failed: statusColor.failed,
+                Stopped: statusColor.stopped,
+                Unknown: statusColor.unknown,
             }[children] : 'white',
             transform: children == 'Failed' ? 'rotate(90deg)' : 'none',
             margin: 'auto',
@@ -76,7 +77,6 @@ IconBadge.propTypes = {
 };
 
 
-
 export const SucceededBadge = ({children}) => (
   <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']}>{children}</IconBadge>
 );
@@ -94,7 +94,7 @@ PrimaryBadge.propTypes = {
 };
 
 export const WaitingBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'Clock']}>{children}</IconBadge>
+  <IconBadge icons={['SkypeCircleClock']}>{children}</IconBadge>
 );
 
 WaitingBadge.propTypes = {
@@ -118,7 +118,7 @@ StoppedBadge.propTypes = {
 };
 
 export const UnknownBadge = ({children}) => (
-  <IconBadge icons={['SkypeCircleClock']}>{children || 'Unknown'}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleQuestionMark']}>{children || 'Unknown'}</IconBadge>
 );
 
 UnknownBadge.propTypes = {

@@ -1,10 +1,10 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useLayoutEffect} from 'react';
 
 import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
 import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
-import {FontClassNames} from 'office-ui-fabric-react/lib/Styling';
+import {FontClassNames, mergeStyles} from 'office-ui-fabric-react/lib/Styling';
 
 import {DateTime, Duration} from 'luxon';
 
@@ -12,17 +12,22 @@ import {getModified, getDuration, getStatusText} from './utils';
 import Context from './Context';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
-import c from 'classnames';
-import t from '../../../../components/tachyons.scss';
-const zeroPaddingRowFieldStyle = {
-  marginTop: -11,
-  marginBottom: -11,
-  marginLeft: -12,
-  marginRight: -8,
-};
+
+const zeroPaddingClass = mergeStyles({
+  paddingTop: '0px !important',
+  paddingLeft: '0px !important',
+  paddingRight: '0px !important',
+  paddingBottom: '0px !important',
+});
 
 export default function Table() {
   const {allJobs, stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination} = useContext(Context);
+
+  // workaround for fabric's bug
+  // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
+  useLayoutEffect(() => {
+    window.dispatchEvent(new Event('resize'));
+  });
 
   /**
    * @type {import('office-ui-fabric-react').Selection}
@@ -155,14 +160,14 @@ export default function Table() {
     minWidth: 100,
     name: 'Status',
     headerClassName: FontClassNames.medium,
+    className: zeroPaddingClass,
     isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       /** @type {React.CSSProperties} */
-      const statusText = getStatusText(job);
       return (
-        <div style={Object.assign(zeroPaddingRowFieldStyle)} className={c(t.w1, t.dib, t.vMid)}>
-          <StatusBadge status={statusText} />
+        <div style={{height: '100%', width: '100%', display: 'flex', alignItems: 'center'}}>
+          <StatusBadge status={getStatusText(job)} />
         </div>
       );
     },
@@ -176,6 +181,7 @@ export default function Table() {
     minWidth: 100,
     name: 'Actions',
     headerClassName: FontClassNames.medium,
+    className: zeroPaddingClass,
     columnActionsMode: ColumnActionsMode.disabled,
     onRender(job) {
       /**
@@ -185,15 +191,14 @@ export default function Table() {
         event.stopPropagation();
         stopJob(job);
       }
-      /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '100%'};
 
       const statusText = getStatusText(job);
       const disabled = statusText !== 'Waiting' && statusText !== 'Running';
       return (
-        <div style={Object.assign(wrapperStyle, zeroPaddingRowFieldStyle)} data-selection-disabled>
+        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}} data-selection-disabled>
           <DefaultButton
             iconProps={{iconName: 'StatusCircleBlock'}}
+            styles={{icon: {fontSize: 15}, root: {fontSize: '15px'}}}
             disabled={disabled}
             onClick={onClick}
           >
