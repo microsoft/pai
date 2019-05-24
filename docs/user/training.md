@@ -157,4 +157,4 @@ When a job is submitted to OpenPAI, the job's status changes from waiting, to ru
 - [Full spec of job configuration](../job_tutorial.md)
 - [Examples](../../examples)
 - [Troubleshooting job failure](troubleshooting_job.md)
-- [How to use storage](docs/user/storage.md)
+- [How to use storage](storage.md)
