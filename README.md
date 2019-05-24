@@ -53,7 +53,7 @@ Targeting at openness and advancing state-of-art technology, [Microsoft Research
 * [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
 We encourage researchers and students leverage these projects to accelerate the AI development and research.
 * [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
-* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : A NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
+* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : An NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
 
 ## Get started
 
@@ -112,21 +112,21 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 ## Train models
 
-Like all machine learning platforms, OpenPAI is a productive tool. To maximize utilization of resources, it's recommended to submit training jobs and let OpenPAI to allocate resource and run it. If there are too many jobs, some jobs may be queued until enough resource available. This is different with run code on dedicated servers, and it needs a bit more knowledge about how to submit/manage training jobs on OpenPAI.
+As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. If there are too many jobs, some jobs may be queued until enough resource available. This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
 
-Note, OpenPAI also supports to allocate dedicated resource besides queuing jobs. Users can use SSH or Jupyter to connect and use like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to resources, but it also saves cost on setup and managing environments on physical servers.
+Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### Submit training jobs
 
-Follow [submitting a hello-world job](docs/user/training.md) and learn more about training models on OpenPAI. It's a very simple job and used to understand OpenPAI job configuration and familiar with Web UI.
+Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### Client tool
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ### Troubleshooting job failure
 
-Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH into environment for debugging.
+Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH for debugging.
 
 Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure.
 
@@ -138,14 +138,18 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 ## Reference
 
+### Users
+
+* [Client tool](contrib/pai_vscode/VSCodeExt.md)
+* [Use Storage](docs/user/storage.md)
 * [Job configuration](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
-* Design documents could be found [here](docs).
+* Design documents could be found [here](docs) if you are curious.
 
 ## Get involved
 
 * [Stack Overflow](./docs/stackoverflow.md): If you have questions about OpenPAI, please submit question at Stack Overflow under tag: openpai
-* [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in microsoft/pai conversation.
+* [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in Microsoft/pai conversation.
 * [Create an issue or feature request](https://github.com/Microsoft/pai/issues/new/choose): If you have issue/ bug/ new feature, please submit it to GitHub.
 
 ## How to contribute

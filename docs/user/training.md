@@ -27,15 +27,17 @@
     - [Job workflow](#job-workflow)
   - [Reference](#reference)
 
-This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
+This document is for beginners, and it provides the must to know knowledge to train models or execute other kinds of commands.
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+It assumes that you have IP address or domain name and have an account of an OpenPAI cluster already. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
 ## Submit a hello-world job
 
 The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
 
-Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
+Follow to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
+
+**Note**, Web portal is one of ways to submit jobs. It's the simplest way to begin, but's not most efficient way to submit and manage jobs. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended, as it provides best experience.
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input username, password, once login page shows.
 
@@ -73,8 +75,6 @@ Following this section to submit a very simple job like hello-world during learn
 4. Then click **Submit** button to submit the job to OpenPAI.
 
    ![click submit job](imgs/web_click_submit_job.png)
-
-   Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin learning OpenPAI. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended.
 
 5. After submitted, the page redirects to job list, and the submitted job is in list as **Waiting** status. Click **Jobs** on left pane can also reach this page.
 
@@ -128,13 +128,11 @@ Below is required fields and [full spec of job configuration](../job_tutorial.md
 
 ### Transfer files in/out
 
-Most model training and other kinds of jobs need to transfer files between a docker container and outside. Files include dataset, code, scripts, trained model, and so on.
+Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
 
-OpenPAI creates a clean docker container each time. Some files can be built into docker image directly if they are changed rarely.
+OpenPAI manages computing resources, but it doesn't provide persistent storage. The [how to use storage](storage.md) is prepared for OpenPAI users.
 
-If it needs to transfer files at runtime, the command field, which is in job configuration, is needed to start the files transfers. For example, use `git`, `wget`, `scp`, `sftp`, other commands, code or scripts to copy files in and out. If a command doesn't exist, it can be installed by `apt install ...` or `python -m pip install ...` in the command.
-
-It's better to check with administrator of the OpenPAI cluster about how to transfer files, since there may be suggested approaches and examples already.
+It's better to check with administrator of the OpenPAI cluster about how to transfer files, since they may choose most suitable approaches and examples for you.
 
 ### Job workflow
 
@@ -159,3 +157,4 @@ When a job is submitted to OpenPAI, the job's status changes from waiting, to ru
 - [Full spec of job configuration](../job_tutorial.md)
 - [Examples](../../examples)
 - [Troubleshooting job failure](troubleshooting_job.md)
+- [How to use storage](docs/user/storage.md)

@@ -2,31 +2,30 @@
 
 - [How to use storage](#how-to-use-storage)
   - [Why care about storage](#why-care-about-storage)
-  - [Practice](#practice)
-    - [General practice](#general-practice)
-    - [Approaches](#approaches)
-      - [Sharing](#sharing)
-      - [Copy](#copy)
-      - [Docker Built-in](#docker-built-in)
-  - [Considerations](#considerations)
-    - [Performance](#performance)
-    - [Firewall](#firewall)
-    - [Large number of files](#large-number-of-files)
-    - [tricks](#tricks)
+  - [General practice](#general-practice)
+  - [Approaches](#approaches)
+    - [Sharing](#sharing)
+    - [Copy](#copy)
+    - [Docker Built-in](#docker-built-in)
+  - [In cloud (Azure)](#in-cloud-azure)
+  - [Many small files](#many-small-files)
+  - [Large file size](#large-file-size)
+  - [HDFS in OpenPAI](#hdfs-in-openpai)
 
 ## Why care about storage
 
-The OpenPAI manages computing resources, but it doesn't provide persistent storage for data, code, or model files. And as a cluster, OpenPAI schedules training jobs on a docker container, which is a fresh environment, there may not have all needed data, code, or model. So, a job of OpenPAI should prepare files first, and after core part finished, may save files back to storage. Files are usual stored in a remote place, not in the fresh environment.
+OpenPAI manages computing resources, but it doesn't offer persistent storage for data, code, or model files. Training jobs on OpenPAI runs in docker containers, which are fresh environments and will be destroyed once completed. So, a job of OpenPAI should prepare files first, and may save output files out before the environment destroyed.
 
-When using remote files, besides file size, the IO performance should be considered also. It will be discussed in later sections.
+This article introduces how to access files on OpenPAI, and it's no difference with general Docker practice.
 
-## Practice
+## General practice
 
-### General practice
+Below job configuration is similar with the [hello-world example](training.md#submit-a-hello-world-job), except the command field. The command field uses code in a shared folder instead from GitHub and it saves outputs back to the storage.
 
-Below is an job configuration, which bases on [the hello-world example](training.md#submit-a-hello-world-job). The only difference is the command field. It uses storage instead of cloning code from GitHub, and saves back trained outputs.
+Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
 
-Note, this configuration mounts a windows shared folder into docker container. If you'd like to have a try, All statements are surrounded by `<>` should be replaced to actual value, and it needs to clone [corresponding code](https://github.com/tensorflow/models) into the shared folder. Statements include server name, shared folder name, user name and password.
+  1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
+  2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
 
 ```json
 {
@@ -39,106 +38,113 @@ Note, this configuration mounts a windows shared folder into docker container. I
     "cpuNumber": 4,
     "memoryMB": 8192,
     "gpuNumber": 1,
-    "command": "apt update && apt install -y cifs-utils && mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && cp -rf /tmp/output /models/output"
+    "command": "apt update && apt install -y cifs-utils && mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<Username>,password=<Password> && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && cp -rf /tmp/output /models/output"
     }
 ]
 }
 ```
 
-The example demonstrated below general steps to run a job in the command field.
+The command field can be split to below general steps.
 
-1. **Prepare environment**. The docker container is used to prepare most dependencies of the environment. But if it needs other components like `apt update && apt install -y cifs-utils` above, they can be installed by apt, pip or else. It recommends to include all needed dependencies in docker image, and it would save time to download them when running job. But it's also cost to update docker image frequently. So, it can be balanced about when to install a dependency.
-2. **Prepare files**. If files may be different each running, or it's too big or too many. They are not appropriate to build into docker image. In this example, the command, `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password>`, mounts a shared folder, which contains the code. So, the code doesn't need to be cloned from GitHub.
-3. **Run core logic**. The commands, `cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000` is almost the same as [the hello-world example](training.md#submit-a-hello-world-job). So, this example is and the hello-world example has the same core training logic also.
-4. **Save output**. The docker container will be destroyed, once job completed. So, if any file is necessary, it should be saved out of the docker container. The command, `cp -rf /tmp/output /models/output`, copies the trained model and checkpoints back to the shared folder.
+1. **Prepare environment**. The docker image prepares most dependencies. But if the job needs more components, it can be installed by apt, pip or other command. In this example, `apt update && apt install -y cifs-utils` installs `cifs-utils` to mount the code folder.
 
-Note, this example put all steps in commands field, and they can be in a bash or python script also. The command can start the script.
+   If all dependencies are included into the docker image, it can save time to download and install them during each running. But if dependencies are updated frequently, or various for different job types, they can be installed during job running.
 
-### Approaches
+2. **Prepare files**. `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim`, mounts a shared folder, which contains the code. If other folders contain data or model, they can be mounted as this place also.
 
-Besides sharing, the files can be accessed in docker container by copying, or building into the docker image directly. The three approaches have different fitness. Below introduces how to choose one of approaches, and their advantages and shortcomings.
+3. **Run core logic**. The commands, `python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000`, are the same as in [the hello-world example](training.md#submit-a-hello-world-job).
 
-#### Sharing
+4. **Save outputs**. The docker container will be destroyed once job completed. So, if any result file is needed, it should be saved out of the docker container. The command, `cp -rf /tmp/output /models/output`, copies the trained model and checkpoints back to the shared folder.
 
-It builds a connection between storage and docker container, and the connection usual keeps alive during the whole job lifecycle.
+Note, this example put all steps in the command field. Some steps can be in a bash or python script, and use a command starts it, so that the script can handle more complex logic.
 
-- **Advantage**
-  - It doesn't transfer data, until the data is accessed. So, it's ok to sharing a folder with large size of files. Only used files will be transferred to docker containers.
-  - If a remote folder is mounted into docker container, it looks like a local folder. So the code logic is the same as accessing local files.
-  - The read/write operations happen on remote files immediately. So that it can reflect changes in the shared folder quickly.
+## Approaches
 
-- **Shortcoming**
-  - As the sharing connection keeps alive long time. So, if network is unstable during job running, the job may be failed.
-  - If some files are read multiple times, they may spend more network IO than other approaches.
-  - Most sharing protocols is not easy to pass through firewall. So it's hard to use sharing crossing network boundaries.
-  - Most sharing protocols are low performance with many small files. If data is plenty of small files, it may significant slow down the job.
-  - If sharing storage is centralized, and there are many jobs accesses files, network or disk IO of the central storage may be the bottleneck.
-  - It may cause corrupt files, if multiple jobs save back on same files.
+Besides sharing, files can be built into the docker image directly or copied in/out. The three approaches have different fitness. Below introduce their advantages, shortcomings, and how-to.
 
-- **Applicable scenarios**
-  - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is good to handle concurrency.
-  - If shared folder contains a lot of files, but many of them won't be accessed during job running. Sharing can save traffic of these files.
-  - There is no much small files, and no needed to save or load files multiple times.
+### Sharing
 
-- **How-to use**
+It maintains a connection between storage and docker container, and usual keeps alive during the whole lifecycle of job.
 
-  Above example uses CIFS, which can access shared folder of Windows. If a storage is Linux, it can use NFS or CIFS. The sharing part of command field can be replaced like `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models`, if it's using NFS.
+- Advantage
+  - It doesn't transfer data until needed. So, it can share a large size folder without extra performance impact.
+  - It's easy to use. A mounted folder supports the same code logic as a local folder.
+  - The write operations happen on shared files immediately. So that it can reflect changes quickly.
 
-  Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command.
+- Shortcoming
+  - If network is unstable during job running, the job may be failed, as the shared file may be accessed any time.
+  - If files are read/write multiple times, they may spend multiple times of network IO than other approaches.
+  - Most sharing protocols cannot pass through firewall.
+  - Most sharing protocols are significant low performance when accessing many small files.
+  - The disk or network IO may be bottleneck if the shared folder is accessed by many jobs.
+  - It may cause corrupt files if multiple jobs save back on a file at the same time.
 
-#### Copy
+- Applicable scenarios
+  - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is enough to handle concurrent jobs.
+  - If shared folder contains files, which won't be accessed during job running.
+  - There are not many small files, and no needed to save files concurrently.
 
-Copy builds a connection when it needs to transfer files. Once copy completes, the connection can be closed.
+- How-to use
 
-- **Advantage**
-  - It doesn't need to keep a connection long time. If network is unstable, copy has higher chance to get needed files.
-  - After copied, files are accessed locally, so the IO performance is much better than remotely. If some files need to be written multiple times, it's also much quickly.
-  - There are many mature protocols to copy files, including SSH, SFTP, HTTP, SMB and so on. Some of them can pass firewall easily.
+  The [general practice](#general-practice) uses sharing and it's a good demonstration of SMB protocol. [NFS](https://en.wikipedia.org/wiki/Network_File_System) is also a popular sharing protocol. `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` can be used to install and mount NFS folder.
 
-- **Shortcoming**
-  - If only part of files are needed in a folder, copy may need some logic to choose copied files to save network IO and docker disk space.
-  - If the job is failed with unexpected reason, there may not have a chance to copy any content out.
-  - As the storage limitation of the docker container, if needed files is large size, it's not suitable to copy all of them to the docker container.
-  - Most copy protocols are low performance with may small files. If data is plenty of small files, it may significant slow down the copy procedure.
+  Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command and other types of sharing protocol.
 
-- **Applicable scenarios**
-  - If copied files are not in large size, which causes the size of docker container isn't enough.
-  - If copied files need high IO performance, and accessed multiple times.
-  - There is no much small files.
+### Copy
 
-- **How-to use**
+It only creates a connection when transferring files, and caches files locally.
 
-  Copy is an general approach, not a specified tool. So all commands that can copy files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
+- Advantage
+  - The disk IO performance is much higher than shared remote files, as files are copied to local. If some files need to be read/written multiple times, it's also much quickly.
+  - Some transferring protocols can pass firewall. Many mature protocols can transfer files, including SSH, SFTP, HTTP, SMB and so on.
+  - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
 
-  This is an example of command field, it uses `smbclient` and has the same functionality as the sharing example. It copies all files to docker container, run the training procedure, and then copy output back to shared folder.
+- Shortcoming
+  - It needs logic to copy files selectively, if partial files is needed.
+  - There may not have a chance to copy outputs out, if the job is failed unexpectedly.
+  - There may not have enough disk space to copy files to local.
+  - Most protocols are significant low performance when accessing many small files.
+
+- Applicable scenarios
+  - The disk size of docker container is enough to copied files.
+  - Copied files need high IO performance, or accessed multiple times.
+  - There are not many small files.
+
+- How-to use
+
+  Copy is a general approach, not a specified tool or protocol. So, all commands that can transfer files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
+
+  This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
+
+  Note, if you'd like to have a try, the prerequisites are the same as the [general practice](#general-practice).
 
   ```bash
   apt update && apt install -y smbclient && mkdir /models && cd /models && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;recurse ON;mask *.py;mget *" -m=SMB2 && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;cd /output;lcd /tmp/output;recurse ON;mput *" -m=SMB2
   ```
 
-  For more information about other tools, refer to corresponding manual.
+  For more information about other protocols and tools, refer to corresponding documents.
 
-#### Docker Built-in
+### Docker Built-in
 
-- **Advantage**
-  - As docker images are cached locally, so it saves time to copy files for each running. It isn't like sharing and copy.
-  - As all files are packed in docker images, it has good IO performance, when there are many small files.
-  - As it saves time on file transferring, once docker image is cached, the job runs faster than other approaches.
+- Advantage
+  - It saves time and IO to copy files for each running, as docker images are cached locally.
+  - It has good IO performance like copy as all files are at local.
+  - It can handle many small files, as files are in the docker image blob.
 
-- **Shortcoming**
-  - If any file should be copied out from the docker container, it needs sharing or copy approach.
-  - Every time the files are updated, the docker needs to be built again. All docker caches are expired also, and need to be downloaded again.
-  - It's not suitable for large size files. In general, the docker image is about 2~4 GB. So, if files is more than 1GB, it's not suitable built into docker image.
+- Shortcoming
+  - It needs sharing or copy approach, if output files need to be persistent.
+  - It needs to rebuilt docker image, if files are updated. All docker caches are expired also and need to be downloaded again.
+  - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
 
-- **Applicable scenarios**
-  - The files are not changed frequently, and size is no more than 1GB.
+- Applicable scenarios
+  - The files are not changed frequently, and the size is no more than 1GB.
   - The files are many small files.
 
-- **How-to use**
+- How-to use
 
-  Below is an example like hello-world, but it uses `smbclient` to copy output out from the docker images.
+  Below is an example more like hello-world, since it doesn't copy outputs out.
 
-  1. Refer to [here](https://docs.docker.com/docker-hub/) for more details about building a docker image, and push it to hub.docker.com.
+  1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
 
      ```docker
      FROM tensorflow/tensorflow:1.12.0-gpu-py3
@@ -146,7 +152,7 @@ Copy builds a connection when it needs to transfer files. Once copy completes, t
      RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
      ```
 
-  2. Change the job config like below.
+  2. Change the job config like below. Besides the command field, the image field is also different. The image field needs the location of the docker image, which contains code.
 
      ```json
      {
@@ -165,31 +171,24 @@ Copy builds a connection when it needs to transfer files. Once copy completes, t
      }
      ```
 
-     Note, this example isn't like sharing and copy approaches, as it doesn't transfer output files out.
+## In cloud (Azure)
 
-## Considerations
+If OpenPAI is deployed in Azure, [Azure Files](https://azure.microsoft.com/en-us/services/storage/files/) and [Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) uses to store files.
 
-### Performance
+Azure Files offers fully managed file shares in the cloud that are accessible via the industry standard SMB protocol. It supports to [share by mount](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux) command or copy files by [Python SDK](https://docs.microsoft.com/en-us/azure/storage/files/storage-python-how-to-use-file-storage). A GUI tool, [Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-files), can manage files on Windows, Linux and macOS.
 
-file
+Azure Blob storage is Microsoft's object storage solution for the cloud. Blob storage is optimized for storing massive amounts of unstructured data. It supports [a lot of approaches](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#move-data-to-blob-storage) to access files, for example, [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy data, [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) to mount for sharing. It also supports [Python SDK](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python) and [Storage Explorer](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-storage-explorer) as Azure Files.
 
-- Mount
+## Many small files
 
-means to mount a remote folder
-big data, save copy time.
+In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low, if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
 
-- Copy
+## Large file size
 
-shorter time, stable, faster
-Built into Docker image
+If need files is in terabytes, it needs to avoid exhausting local disk space. It's a common challenge, and jobs on OpenPAI have the same challenge also. A better hardware infrastructure or algorithm is needed to mitigate the challenge.
 
-### Firewall
+## HDFS in OpenPAI
 
-### Large number of files
-### tricks
+OpenPAI has a HDFS service to save logs and other files. This HDFS can be used to store files, BUT it's **NOT** recommended to use. As the storage doesn't guarantee quality, due to servers may leave/join OpenPAI cluster frequently, and disk space may not be enough.
 
-many files copy performance, zip
-
-HDFS not to use
-
-accessible
+For some very small clusters, if administrators are users also, they may use the HDFS to simplify deployment. But above risks should be in mind.
