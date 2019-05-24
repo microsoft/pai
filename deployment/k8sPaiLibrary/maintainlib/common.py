@@ -185,6 +185,9 @@ def sftp_paramiko(src, dst, filename, host_config):
     password = None
     if 'password' in host_config:
         password = str(host_config['password'])
+    passphrase = None
+    if 'ssh-secret-name' in host_config:
+        passphrase = host_config['ssh-secret-name']
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -199,7 +202,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     # First make sure the folder exist.
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, passphrase=passphrase)
 
     stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
     password = password if password is not None else ''
@@ -214,7 +217,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     transport = paramiko.Transport((hostip, port))
     pkey = None
     if key_filename is not None:
-        pkey = paramiko.RSAKey.from_private_key_file(key_filename)
+        pkey = paramiko.RSAKey.from_private_key_file(key_filename, password=passphrase)
     transport.connect(username=username, pkey=pkey, password=password)
 
     sftp = paramiko.SFTPClient.from_transport(transport)
@@ -250,6 +253,9 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     password = None
     if 'password' in host_config:
         password = str(host_config['password'])
+    passphrase = None
+    if 'ssh-secret-name' in host_config:
+        passphrase = host_config['ssh-secret-name']
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -263,7 +269,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
             logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, passphrase=passphrase)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
@@ -298,6 +304,9 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     password = None
     if 'password' in host_config:
         password = str(host_config['password'])
+    passphrase = None
+    if 'ssh-secret-name' in host_config:
+        passphrase = host_config['ssh-secret-name']
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
@@ -312,7 +321,7 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, passphrase=passphrase)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     password = password if password is not None else ''
     stdin.write(password + '\n')
