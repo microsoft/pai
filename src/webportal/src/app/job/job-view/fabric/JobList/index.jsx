@@ -20,7 +20,7 @@ import * as querystring from 'querystring';
 import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
 import {debounce, isEmpty} from 'lodash';
 
-import {getTheme} from '@uifabric/styling';
+import {ColorClassNames, getTheme} from '@uifabric/styling';
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -45,9 +45,11 @@ initializeIcons();
 function getError(error) {
   return (
     <Overlay>
-      <MessageBar messageBarType={MessageBarType.blocked}>
-        {error}
-      </MessageBar>
+      <div className={ColorClassNames.whiteBackground}>
+        <MessageBar messageBarType={MessageBarType.blocked}>
+          {error}
+        </MessageBar>
+      </div>
     </Overlay>
   );
 }
