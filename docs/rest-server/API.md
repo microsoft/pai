@@ -1036,7 +1036,7 @@ Status: 500
 
 ### `POST jobs`
 
-Submit a protocol job in the system.
+Submit a job v2 in the system.
 
 *Request*
 ```
