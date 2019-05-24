@@ -456,7 +456,16 @@ class ContainerCollector(Collector):
         "job-exporter",
         "yarn-exporter",
         "nvidia-drivers",
-        "docker-cleaner"
+        "docker-cleaner",
+
+        # Below are DLTS services
+        "nginx",
+        "restfulapi",
+        "weave",
+        "weave-npc",
+        "nvidia-device-plugin-ctr",
+        "mysql",
+        "jobmanager",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
