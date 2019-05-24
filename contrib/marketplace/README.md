@@ -4,7 +4,7 @@ A web portal plugin for marketplace on OpenPAI.
 
 ## Usage
 
-This plugin is used to browse shared protocol jobs in marketplace. The marketplace can be either public (e.g. public GitHub repo) or private (e.g. private Azure DevOps repo).
+This plugin is used to browse shared v2 jobs in marketplace. The marketplace can be either public (e.g. public GitHub repo) or private (e.g. private Azure DevOps repo).
 
 User can configure the marketplace with a URI and a token:
   * GitHub
@@ -14,7 +14,7 @@ User can configure the marketplace with a URI and a token:
     * URI: directory uri of shared marketplace on Azure DevOps
     * token: if the uri needs authentication to read, you need to [create a personal access token on Azure DevOps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops), then set marketplace token field to `your_devops_username:your_personal_access_token`
 
-After correct configuration, user can browse all protocol jobs in marketplace, view each job's protocol yaml, or clone and submit a job in marketplace.
+After correct configuration, user can browse all v2 jobs in marketplace, view each job's protocol yaml, or clone and submit a job in marketplace.
 
 ## Build
 
