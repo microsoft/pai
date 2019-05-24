@@ -867,6 +867,32 @@ def serve(database, prometheus_url, port):
 
         return flask.jsonify(translate_to_map(keys, gpu_report))
 
+    @app.route("/proxy", methods=["GET"])
+    def proxy():
+        since, until = translate_span(request.args.get("span"))
+        query = request.args.get("query")
+        if query is None:
+            return flask.jsonify({"error": "expect query parameter"})
+
+        args = urllib.parse.urlencode({
+            "query": query,
+            "start": str(since),
+            "end": str(until),
+            "step": "10m",
+            })
+
+        url = urllib.parse.urljoin(prometheus_url,
+                "/prometheus/api/v1/query_range") + "?" + args
+
+        logger.debug("requesting %s", url)
+        result = []
+
+        obj = request_with_error_handling(url)
+
+        if walk_json_field_safe(obj, "status") != "success":
+            logger.warning("requesting %s failed, body is %s", url, obj)
+        return flask.jsonify(obj)
+
     app.run(host="0.0.0.0", port=port, debug=False)
 
 
