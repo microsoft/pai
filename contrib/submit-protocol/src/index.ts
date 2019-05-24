@@ -43,16 +43,15 @@ declare interface IWindow {
 class ProtocolPluginElement extends HTMLElement {
   public connectedCallback() {
     const api = this.getAttribute("pai-rest-server-uri") as string;
-    const user = this.getAttribute("pai-user");
-    const token = this.getAttribute("pai-rest-server-token");
-    if (user === null || token === null) {
-      window.location.href = "/login.html";
-      return;
-    }
+    const user = this.getAttribute("pai-user") as string;
+    const token = this.getAttribute("pai-rest-server-token") as string;
 
     const params = new URLSearchParams(window.location.search);
     const source = Object(null);
-    if (params.get("op") === "resubmit") {
+    if (params.get("op") === "init") {
+      source.protocolYAML = sessionStorage.getItem("protocolYAML") || "";
+      sessionStorage.removeItem("protocolYAML");
+    } else if (params.get("op") === "resubmit") {
       const sourceJobName = params.get("jobname") || "";
       const sourceUser = params.get("user") || "";
       if (sourceJobName && sourceUser) {

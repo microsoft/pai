@@ -33,5 +33,9 @@ router.route('/')
     controller.update
   );
 
+router.route('/:frameworkName/config')
+  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
+  .get(controller.getConfig);
+
 // module exports
 module.exports = router;

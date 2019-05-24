@@ -139,6 +139,60 @@ const validprotocolObjs = {
     },
     'deployments': {},
   },
+
+  secret_example: {
+    'protocolVersion': 2,
+    'name': 'secret_example',
+    'type': 'job',
+    'version': '1.0',
+    'contributor': 'OpenPAI',
+    'secrets': {
+      'registry': {
+        'username': 'testuser',
+        'password': 'testpass',
+      },
+    },
+    'prerequisites': {
+      'data': {},
+      'output': {},
+      'script': {},
+      'dockerimage': {
+        'secret_example': {
+          'protocolVersion': 2,
+          'name': 'secret_example',
+          'type': 'dockerimage',
+          'version': '1.0',
+          'contributor': 'OpenPAI',
+          'description': 'caffe',
+          'auth': {
+            'username': 'testuser',
+            'password': 'testpass',
+            'registryuri': 'docker.io',
+          },
+          'uri': 'openpai/pai.example.caffe',
+        },
+      },
+    },
+    'taskRoles': {
+      'train': {
+        'instances': 1,
+        'completion': {
+          'minSucceededTaskCount': 1,
+        },
+        'dockerImage': 'secret_example',
+        'resourcePerInstance': {
+          'cpu': 4,
+          'memoryMB': 8192,
+          'gpu': 1,
+        },
+        'commands': [
+          'exit',
+        ],
+        'entrypoint': 'exit',
+      },
+    },
+    "deployments": {},
+  },
 };
 
 const validProtocolYAMLs = {
@@ -221,6 +275,42 @@ taskRoles:
         --epochs <% $parameters.epochs %>
         --lr <% $parameters.lr %>
         --batch-size <% $parameters.batchsize %>
+  `,
+
+  secret_example: `
+protocolVersion: 2
+name: secret_example
+type: job
+version: !!str 1.0
+contributor: OpenPAI
+secrets:
+  registry:
+    username: testuser
+    password: testpass
+prerequisites:
+  - protocolVersion: 2
+    name: secret_example
+    type: dockerimage
+    version: !!str 1.0
+    contributor: OpenPAI
+    description: caffe
+    auth:
+      username: <% $secrets.registry.username %>
+      password: <% $secrets.registry.password %>
+      registryuri: docker.io
+    uri : openpai/pai.example.caffe
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: secret_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - exit
   `,
 };
 

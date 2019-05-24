@@ -16,13 +16,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, TextField, Dropdown, DefaultButton} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
 import {StatusBadge} from '../../../components/status-badge';
 
 import TableTextField from './TableTextField';
 import Context from './Context';
-import {toBool, isFinished, checkUsername, checkPassword} from './utils';
+import {toBool, isFinished} from './utils';
+import {checkUsername, checkPassword} from '../utils';
 
 export default function Table() {
   const {userInfos, virtualClusters, removeRow, allUsers} = useContext(Context);
@@ -92,6 +95,8 @@ export default function Table() {
     },
   };
 
+  const dropdownTitleStyle = [t.bgWhite, {border: '1px solid #a6a6a6'}];
+
   /**
    * @type {import('office-ui-fabric-react').IColumn}
    */
@@ -113,23 +118,19 @@ export default function Table() {
       ];
       const {admin} = userInfo;
       const finished = isFinished(userInfo);
-      /** @type {import('@uifabric/styling').IStyle} */
-      const disableStyle = {backgroundColor: '#ffffff', border: '1px solid #a6a6a6', marginLeft: -12, marginRight: -32, paddingLeft: 12};
       return (
         <Dropdown
           options={options}
           disabled={finished}
+          styles={{title: dropdownTitleStyle}}
           defaultSelectedKey={String(toBool(admin))}
           onChange={(_event, option, _index) => {
             userInfo.admin = option.key;
           }}
           onRenderTitle={(options) => {
-            const fixStyle = finished ? disableStyle : null;
             const [{text}] = options;
             return (
-              <div style={fixStyle}>
-                <span style={{color: '#000000'}}>{text}</span>
-              </div>
+              <span className={t.black}>{text}</span>
             );
           }}
         />
@@ -162,20 +163,6 @@ export default function Table() {
           return [];
         }
       };
-      const getDisplayVirtualClusterString = (virtualClusterString) => {
-        const displayVCs = parseVirtualClusterString(virtualClusterString);
-        let displayText;
-        if (displayVCs.length == 0) {
-          displayText = <span style={{color: '#000000', height: '100%'}}>&nbsp;</span>;
-        } else {
-          let innerText = displayVCs[0];
-          if (displayVCs.length > 1) {
-            innerText = innerText + ` (+${displayVCs.length - 1})`;
-          }
-          displayText = <span style={{color: '#000000', height: '100%'}}>{innerText}</span>;
-        }
-        return displayText;
-      };
       let vcs = [];
       const parsedVCs = parseVirtualClusterString(userInfo['virtual cluster']);
       parsedVCs.forEach((vc) => {
@@ -186,75 +173,37 @@ export default function Table() {
         }
       });
       const finished = isFinished(userInfo);
-      if (finished) {
-        /** @type {import('@uifabric/styling').IStyle} */
-        const disableStyle = {backgroundColor: '#ffffff', border: '1px solid #a6a6a6', marginLeft: -12, marginRight: -32, paddingLeft: 12};
-        return (
-          <Dropdown
-            disabled
-            options={options}
-            defaultSelectedKey={options[0].key}
-            onRenderTitle={(_options) => {
-              return (
-                <div style={disableStyle}>
-                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
-                </div>
-              );
-            }}
-          />
-        );
-      } else {
-        return (
-          <Dropdown
-            multiSelect
-            options={options}
-            defaultSelectedKeys={vcs}
-            onChange={(_event, option, _index) => {
-              if (option.selected) {
-                vcs.push(option.text);
-              } else {
-                vcs.splice(vcs.indexOf(option.text), 1);
-              }
-              userInfo['virtual cluster'] = vcs.join(',');
-            }}
-            onRenderTitle={(_options) => {
-              return (
-                <div>
-                  {getDisplayVirtualClusterString(userInfo['virtual cluster'])}
-                </div>
-              );
-            }}
-          />
-        );
-      }
-    },
-  };
-
-  /**
-   * @type {import('office-ui-fabric-react').IColumn}
-   */
-  const githubPATColumn = {
-    key: 'githubPAT',
-    minWidth: 80,
-    maxWidth: 200,
-    name: 'Github PAT',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender: (userInfo) => {
-      const {githubPAT} = userInfo;
       return (
-        <TextField
-          readOnly={isFinished(userInfo)}
-          defaultValue={githubPAT}
-          onChange={(_event, newValue) => {
-            userInfo.githubPAT = newValue;
+        <Dropdown
+          disabled={finished}
+          styles={{title: dropdownTitleStyle}}
+          multiSelect
+          options={options}
+          defaultSelectedKeys={vcs}
+          onChange={(_event, option, _index) => {
+            if (option.selected) {
+              vcs.push(option.text);
+            } else {
+              vcs.splice(vcs.indexOf(option.text), 1);
+            }
+            userInfo['virtual cluster'] = vcs.join(',');
+          }}
+          onRenderTitle={(_options) => {
+            const displayVCs = parseVirtualClusterString(userInfo['virtual cluster']);
+            if (displayVCs.length == 0) {
+              return null;
+            } else {
+              let innerText = displayVCs[0];
+              if (displayVCs.length > 1) {
+                innerText = innerText + ` (+${displayVCs.length - 1})`;
+              }
+              return <span className={t.black}>{innerText}</span>;
+            }
           }}
         />
       );
     },
   };
-  githubPATColumn.onRender.displayName = 'onRenderGithubPATColumn';
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -279,11 +228,11 @@ export default function Table() {
         return undefined;
       }
       return (
-        <TooltipHost content={message}>
-          <div style={{marginTop: '0.5rem'}}>
+        <div className={c(t.flex, t.itemsCenter, t.h100)}>
+          <TooltipHost content={message}>
             <StatusBadge status={statusText} />
-          </div>
-        </TooltipHost>
+          </TooltipHost>
+        </div>
       );
     },
   };
@@ -304,16 +253,13 @@ export default function Table() {
         event.stopPropagation();
         removeRow(userInfo);
       }
-      /** @type {React.CSSProperties} */
-      const wrapperStyle = {display: 'inline-block', verticalAlign: 'middle', width: '80%'};
       return (
-        <div style={wrapperStyle}>
-          <DefaultButton
-            onClick={onClick}
-          >
-            Remove
-          </DefaultButton>
-        </div>
+        <DefaultButton
+          onClick={onClick}
+          styles={{root: ColorClassNames.neutralQuaternaryBackground}}
+        >
+          Remove
+        </DefaultButton>
       );
     },
   };
@@ -324,7 +270,6 @@ export default function Table() {
     passwordColumn,
     adminColumn,
     virtualClusterColumn,
-    githubPATColumn,
     actionColumn,
   ];
 

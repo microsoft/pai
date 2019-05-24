@@ -37,6 +37,8 @@ window.userLogout = userLogoutComponent.userLogout;
 $('#navbar').html(userLoginNavHtml);
 userAuthComponent.checkToken();
 if (!userAuthComponent.checkAdmin()) {
+  $('#sidebar-menu--dashboard').hide();
+  $('#sidebar-menu--vc').hide();
   $('#sidebar-menu--cluster-view').hide();
 }
 

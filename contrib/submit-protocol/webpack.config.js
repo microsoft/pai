@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const { resolve } = require("path");
+const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const SRC_PATH = resolve(__dirname, "src");
@@ -76,6 +77,10 @@ const configuration = {
     extensions: [".tsx", ".ts", ".js", ".json"],
   },
   plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^esprima$/,
+      contextRegExp: /js-yaml/,
+    }),
     new MonacoWebpackPlugin({
       languages: ["yaml"],
       features: ["folding"],

@@ -18,7 +18,7 @@
 import {ThemeProvider} from '@uifabric/foundation';
 import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
-import {isEmpty, isNil} from 'lodash';
+import {capitalize, isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
@@ -27,7 +27,9 @@ import React from 'react';
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
+import Context from './context';
 import MonacoPanel from './monaco-panel';
+import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
@@ -119,7 +121,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   showSshInfo(id) {
-    const {sshInfo} = this.props;
+    const {sshInfo} = this.context;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
       this.setState({
@@ -150,7 +152,6 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   getColumns() {
-    const {jobStatus} = this.props;
     const columns = [
       {
         key: 'number',
@@ -237,6 +238,15 @@ export default class TaskRoleContainerList extends React.Component {
         },
       },
       {
+        key: 'status',
+        name: 'Status',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 100,
+        isResizable: true,
+        onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
+      },
+      {
         key: 'info',
         name: 'Info',
         className: localCss.pa0I,
@@ -254,7 +264,7 @@ export default class TaskRoleContainerList extends React.Component {
               iconProps={{iconName: 'CommandPrompt'}}
               text='View SSH Info'
               onClick={() => this.showSshInfo(item.containerId)}
-              disabled={isNil(item.containerId) || jobStatus !== 'Running'}
+              disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
             />
             <CommandBarButton
               className={FontClassNames.mediumPlus}
@@ -264,7 +274,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'TextDocument'}}
               text='Stdout'
-              onClick={() => this.showContainerLog(`${item.containerLog}stdout`, 'Standard Output (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
@@ -275,7 +285,7 @@ export default class TaskRoleContainerList extends React.Component {
               }}
               iconProps={{iconName: 'Error'}}
               text='Stderr'
-              onClick={() => this.showContainerLog(`${item.containerLog}stderr`, 'Standard Error (Last 4096 bytes)')}
+              onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
               disabled={isNil(item.containerId)}
             />
             <CommandBarButton
@@ -312,16 +322,6 @@ export default class TaskRoleContainerList extends React.Component {
     }}}/>;
   }
 
-  generateDummyTasks() {
-    const {jobStatus, taskConfig} = this.props;
-    if (isNil(taskConfig) || isNil(taskConfig.taskNumber)) {
-      return null;
-    }
-    return Array.from({length: taskConfig.taskNumber}, (v, idx) => ({
-      status: jobStatus,
-    }));
-  }
-
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
@@ -353,11 +353,10 @@ export default class TaskRoleContainerList extends React.Component {
   }
 }
 
+TaskRoleContainerList.contextType = Context;
+
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  taskConfig: PropTypes.object,
   taskInfo: PropTypes.object,
-  jobStatus: PropTypes.string.isRequired,
-  sshInfo: PropTypes.object,
 };
