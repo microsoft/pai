@@ -28,13 +28,13 @@ import ReactDOM from "react-dom";
 import { parse } from "querystring";
 import { App } from './components/App'
 
-declare interface IWindow {
-  PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
-}
+// declare interface IWindow {
+//   PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
+// }
 
 class PAIPluginElement extends HTMLElement {
-  public connectedCallback() {
-    const api = this.getAttribute("pai-rest-server-uri") as string;
+  connectedCallback() {
+    const api = this.getAttribute("pai-rest-server-uri");
     const user = this.getAttribute("pai-user");
     const token = this.getAttribute("pai-rest-server-token");
     if (user === null || token === null) {
@@ -43,13 +43,11 @@ class PAIPluginElement extends HTMLElement {
     }
 
     const query = parse(window.location.search.replace(/^\?/, ""));
-    const pluginIndex = Number(query.index) || 0;
-    const plugins = (window as unknown as IWindow).PAI_PLUGINS;
 
     ReactDOM.render(React.createElement(App), this);
   }
 
-  public disconnectedCallback() {
+  disconnectedCallback() {
     ReactDOM.unmountComponentAtNode(this);
   }
 }

@@ -22,6 +22,8 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
+    "@uifabric/fluent-theme": "^0.16.9",
+    "@uifabric/merge-styles": "^6.17.4",
     "@webcomponents/custom-elements": "^1.2.1",
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
@@ -112,11 +114,5 @@
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
-  },
-  "devDependencies": {
-    "@types/react": "^16.8.18",
-    "@types/react-dom": "^16.8.4",
-    "ts-loader": "^6.0.1",
-    "typescript": "^3.4.5"
   }
 }
