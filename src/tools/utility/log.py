@@ -10,7 +10,7 @@ def setup_logging(default_path='config/logging.yaml', default_level=logging.INFO
         path = value
     if os.path.exists(path):
         with open(path, 'rt') as f:
-            config = yaml.full_load(f.read())
+            config = yaml.load(f.read())
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)

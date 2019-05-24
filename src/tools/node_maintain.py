@@ -9,8 +9,6 @@ from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator
 
 logger = logging.getLogger(__name__)
 
-
-
 def get_unready_nodes(decommissioned_nodes, current_status):
     unready_nodes = {}
     for node, state in current_status.items():
@@ -91,7 +89,8 @@ def refresh_yarn_nodes(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     while True:
         yarn_operator.decommission_nodes()
-        current_status = yarn_operator.get_node_status()
+        node_info = yarn_operator.get_nodes_info()
+        current_status = {k: v["state"] for k, v in node_info.iteritems()}
         decommissioned_nodes = k8s_operator.get_nodes()
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
@@ -123,25 +122,26 @@ def is_dedicated_vc(queue_name, queue_attr):
 
 def get_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
-    queues_info = yarn_operator.get_queue_info()
+    queues_info = yarn_operator.get_queues_info()
     dedicate_queues = {queue_name: {"resource": 0, "nodes": []} for queue_name, queue_info in queues_info.items() if
                        is_dedicated_vc(queue_name, queue_info)}
     if len(dedicate_queues) == 0:
         print("No dedicated vc found")
         return
-    labeled_resources = yarn_operator.get_partition_resource()
-    labeled_nodes = yarn_operator.get_node_label()
 
+    labeled_resources = yarn_operator.get_resource_by_label()
     for partition in labeled_resources:
         if partition in dedicate_queues:
             dedicate_queues[partition]["resource"] = labeled_resources[partition]["resource"]
+
+    labeled_nodes = yarn_operator.get_nodes_info()
     for node in labeled_nodes:
-        if labeled_nodes[node] in dedicate_queues:
-            dedicate_queues[labeled_nodes[node]]["nodes"].append(node)
+        if labeled_nodes[node]["nodeLabel"] in dedicate_queues:
+            dedicate_queues[labeled_nodes[node]["nodeLabel"]]["nodes"].append(node)
     for queue_name, queue_attr in dedicate_queues.items():
         print(queue_name + ":")
         print("\tNodes: " + ",".join(queue_attr["nodes"]))
-        print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"]["vCores"], queue_attr["resource"]["memory"], queue_attr["resource"]["GPUs"]))
+        print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"]["cpus"], queue_attr["resource"]["memory"], queue_attr["resource"]["gpus"]))
 
 
 def add_dedicate_vc(args):
@@ -150,7 +150,7 @@ def add_dedicate_vc(args):
     nodes = args.nodes
 
     logger.debug("Adding cluster label...")
-    existing_labels = yarn_operator.get_cluster_label()
+    existing_labels = yarn_operator.get_cluster_labels()
     if vc_name in existing_labels:
         logger.warning("Label already exists: {}".format(vc_name))
     else:
@@ -158,7 +158,7 @@ def add_dedicate_vc(args):
         time.sleep(5)
 
     logger.debug("Adding dedicated vc...")
-    queues_info = yarn_operator.get_queue_info()
+    queues_info = yarn_operator.get_queues_info()
     if vc_name in queues_info:
         logger.warning("VC {} already exists, will add node to this VC".format(vc_name))
     else:
@@ -171,21 +171,22 @@ def add_dedicate_vc(args):
 def remove_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     vc_name = args.vc_name
+    nodes = args.nodes
 
-    logger.debug("Removing dedicated vc...")
-    queues_info = yarn_operator.get_queue_info()
-    if vc_name not in queues_info:
-        logger.warning("VC {} not found, will only unlabel nodes".format(vc_name))
-    else:
-        yarn_operator.remove_dedicated_queue(vc_name)
+    if nodes is None:
+        logger.debug("Removing dedicated vc...")
+        queues_info = yarn_operator.get_queues_info()
+        if vc_name not in queues_info:
+            logger.warning("VC {} not found, will only unlabel nodes".format(vc_name))
+        else:
+            yarn_operator.remove_dedicated_queue(vc_name)
 
     logger.debug("Unlabeling node...")
-    nodes = []
-    labeled_nodes = yarn_operator.get_node_label()
-    for node in labeled_nodes:
-        if labeled_nodes[node] == vc_name:
-            nodes.append(node)
-    yarn_operator.label_nodes(nodes, "")
+    labeled_nodes = yarn_operator.get_nodes_info()
+    if nodes is None:
+        nodes = set(labeled_nodes.keys())
+    t_nodes = [node for node in nodes if labeled_nodes[node]["nodeLabel"] == vc_name]
+    yarn_operator.label_nodes(t_nodes, "")
 
     logger.debug("Removing cluster label...")
     yarn_operator.remove_cluster_label(vc_name)
@@ -252,6 +253,7 @@ def setup_parser():
 
     parser_remove = dedicated_vc_subparsers.add_parser("remove", parents=[parent_parser], help="remove dedicate vc")
     parser_remove.add_argument("-v", "--vc-name", help='support comma-delimited node list', required=True)
+    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
     parser_remove.set_defaults(func=remove_dedicate_vc)
 
     return top_parser
@@ -260,9 +262,9 @@ def setup_parser():
 def main():
     parser = setup_parser()
     # args = parser.parse_args(["dedicated-vc", "-h"])
-    # args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
+    args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
     args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
-    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
+    args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip

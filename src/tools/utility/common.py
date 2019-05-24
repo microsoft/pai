@@ -6,9 +6,9 @@ logger = logging.getLogger(__name__)
 
 
 def request_without_exception(url, log_flag=True, method="get", timeout=10,  **kwargs):
-    # if not hasattr(requests, method):
-    #     logger.error("unknown http method: {}".format(method))
-    #     return None
+    if not hasattr(requests, method):
+        logger.error("unknown http method: {}".format(method))
+        return None
     logger.debug("{}: {}".format(method, url))
     func = getattr(requests, method)
     try:
