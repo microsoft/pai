@@ -205,8 +205,11 @@ export default class MountDirectories {
         const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
         const cfgFile = `/${serverData.spn}.cfg`;
         returnValue = [
-        // "wget https://packages.microsoft.com/config/ubuntu/14.04/packages-microsoft-prod.deb",
-        "wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb",
+        "apt-get install --assume-yes lsb-release apt-transport-https",
+        "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
+        "release=`lsb_release -r | cut -f 2`",
+        "if [[ ! ${valid_release[@]} =~ ${release} ]]; then echo \"Invalid OS version for Azureblob!\"; exit 1; fi",
+        "wget https://packages.microsoft.com/config/ubuntu/${release}/packages-microsoft-prod.deb",
         "dpkg -i packages-microsoft-prod.deb",
         "apt-get update",
         "apt-get install --assume-yes blobfuse fuse",  // blob to mount and fuse to unmount
@@ -365,7 +368,7 @@ export function MountDirectoriesForm({
           setUserGroups(groupList);
         });
       } else {
-        setUserGroups(["paigroup"]);
+        // setUserGroups(["paigroup"]);
         throw Error(`HTTP ${response.status}`);
       }
     });
