@@ -100,8 +100,8 @@ It only creates a connection when transferring files, and caches files locally.
   - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
 
 - Shortcoming
-  - It needs logic to copy files selectively, if partial files is needed.
-  - There may not have a chance to copy outputs out, if the job is failed unexpectedly.
+  - It needs logic to copy files selectively if partial files are needed.
+  - There may not have a chance to copy outputs out if the job is failed unexpectedly.
   - There may not have enough disk space to copy files to local.
   - Most protocols are significant low performance when accessing many small files.
 
@@ -132,8 +132,8 @@ It only creates a connection when transferring files, and caches files locally.
   - It can handle many small files, as files are in the docker image blob.
 
 - Shortcoming
-  - It needs sharing or copy approach, if output files need to be persistent.
-  - It needs to rebuilt docker image, if files are updated. All docker caches are expired also and need to be downloaded again.
+  - It needs sharing or copy approach if output files need to be persistent.
+  - It needs to rebuild docker image if files are updated. All docker caches are expired also and need to be downloaded again.
   - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
 
 - Applicable scenarios
@@ -142,7 +142,7 @@ It only creates a connection when transferring files, and caches files locally.
 
 - How-to use
 
-  Below is an example more like hello-world, since it doesn't copy outputs out.
+  Below is an example more like hello-world since it doesn't copy outputs out.
 
   1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
 
@@ -181,7 +181,7 @@ Azure Blob storage is Microsoft's object storage solution for the cloud. Blob st
 
 ## Many small files
 
-In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low, if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
+In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
 
 ## Large file size
 
