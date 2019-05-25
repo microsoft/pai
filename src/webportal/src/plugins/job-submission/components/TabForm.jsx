@@ -1,6 +1,6 @@
 import React from 'react'
-import { Pivot, PivotItem, IconButton, Stack } from 'office-ui-fabric-react';
-import { getFormClassNames } from './formStyle'
+import { Pivot, PivotItem, Icon, IconButton, Stack } from 'office-ui-fabric-react';
+import { getFormClassNames, getFromStyle } from './formStyle'
 
 export class TabForm extends React.Component {
   constructor(props) {
@@ -25,7 +25,8 @@ export class TabForm extends React.Component {
       const element = (<PivotItem key={item.key}
                                   itemKey={item.key}
                                   headerText={item.label}
-                                  onRenderItemLink={this._onRenderItem.bind(this)}/>);
+                                  onRenderItemLink={this._onRenderItem.bind(this)}
+                                  />);
       pivotItems.push(element);
     }
 
@@ -37,8 +38,12 @@ export class TabForm extends React.Component {
       return null;
     }
   
-    const element = defaultRender(itemPros);
-    return element;
+    const {tabIconStyle} = getFromStyle();
+    return (
+    <span>
+      { defaultRender(itemPros) }
+      <Icon iconName="Cancel" styles={ tabIconStyle } />
+    </span>);
   }
 
 
@@ -123,15 +128,18 @@ export class TabForm extends React.Component {
       return (<Pivot></Pivot>);
     }
 
-    const { topForm, topFormBody } = getFormClassNames();
+    const { topForm, formTabBar } = getFormClassNames();
+    const { tabStyle } = getFromStyle();
     const elements = this._renderItems(this.state.itemsMap);
     return (
       <div className={topForm}>
-          <Pivot onLinkClick={this._onLinkClick.bind(this)}>
-            {elements} 
-            <PivotItem itemIcon='Emoji2' headerText='Add new task role'></PivotItem>
-          </Pivot>
-          {selectedKey !== ''? itemsMap.get(selectedKey).children: null}
+        <div className={formTabBar}>
+            <Pivot onLinkClick={this._onLinkClick.bind(this)} styles={{text: tabStyle.text, root: tabStyle.root}}>
+             {elements}
+            </Pivot>
+            {/* <IconButton iconProps={{iconName: 'cancel'}}/> */}
+        </div>
+        {selectedKey !== ''? itemsMap.get(selectedKey).children: null}
       </div>
     );
   }
