@@ -164,16 +164,18 @@ def add_dedicate_vc(args):
     else:
         yarn_operator.add_dedicated_queue(vc_name)
 
-    logger.debug("Labeling node...")
-    yarn_operator.label_nodes(nodes, vc_name)
+    if len(nodes) > 0:
+        logger.debug("Labeling node...")
+        yarn_operator.label_nodes(nodes, vc_name)
 
 
 def remove_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     vc_name = args.vc_name
     nodes = args.nodes
+    remove_queue_flag = nodes is None
 
-    if nodes is None:
+    if remove_queue_flag:
         logger.debug("Removing dedicated vc...")
         queues_info = yarn_operator.get_queues_info()
         if vc_name not in queues_info:
@@ -186,10 +188,12 @@ def remove_dedicate_vc(args):
     if nodes is None:
         nodes = set(labeled_nodes.keys())
     t_nodes = [node for node in nodes if labeled_nodes[node]["nodeLabel"] == vc_name]
-    yarn_operator.label_nodes(t_nodes, "")
+    if len(t_nodes) > 0:
+        yarn_operator.label_nodes(t_nodes, "")
 
-    logger.debug("Removing cluster label...")
-    yarn_operator.remove_cluster_label(vc_name)
+    if remove_queue_flag:
+        logger.debug("Removing cluster label...")
+        yarn_operator.remove_cluster_label(vc_name)
 
 
 def setup_parser():
@@ -265,6 +269,7 @@ def main():
     args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
     args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
     args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
