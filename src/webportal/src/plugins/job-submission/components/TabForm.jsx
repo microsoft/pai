@@ -7,19 +7,29 @@ export class TabForm extends React.Component {
     super(props);
 
     this._number = 0;
+    const _itemsMap = new Map();
+
+    props.items.forEach((item)=> {
+      _itemsMap.set(item.key, item)
+    });
+
     this.state = {
-      items: props.items,
+      itemsMap: _itemsMap,
+      selectedKey: ""
     }
   }
 
   _renderItems(items) {
-    const priotItems = items.map((item) => {
-      return (
-        <PivotItem itemKey={item.key} headerText={item.label} onRenderItemLink={this._onRenderItem.bind(this)}>
-          {item.children}
-        </PivotItem>);
-    });
-    return priotItems;
+    const pivotItems = [];
+    for (const item of items.values()) {
+      const element = (<PivotItem key={item.key}
+                                  itemKey={item.key}
+                                  headerText={item.label}
+                                  onRenderItemLink={this._onRenderItem.bind(this)}/>);
+      pivotItems.push(element);
+    }
+
+    return pivotItems;
   }
 
   _onRenderItem(itemPros, defaultRender) {
@@ -28,17 +38,7 @@ export class TabForm extends React.Component {
     }
   
     const element = defaultRender(itemPros);
-    if (element === undefined) {
-      return null;
-    }
-  
-    return (
-      <Stack horizontal>
-        <Stack.Item align='center'>
-          {element}
-          {/* <IconButton iconProps={{ iconName: 'Cancel' }} title='delete' ariaLabel='delete' onClick={this._onItemDelete.bind(this, itemPros.itemKey)} /> */}
-        </Stack.Item>
-      </Stack>);
+    return element;
   }
 
 
@@ -110,19 +110,28 @@ export class TabForm extends React.Component {
     return udpatedItems;
   }
 
+  _onLinkClick(item) {
+    this.setState({
+      selectedKey: item.props.itemKey
+    });
+  }
+
   render() {
-    if (this.state.items === undefined) {
+    const {selectedKey, itemsMap} = this.state;
+
+    if (this.state.itemsMap.size === 0) {
       return (<Pivot></Pivot>);
     }
 
     const { topForm, topFormBody } = getFormClassNames();
-    const items = this._renderItems(this.state.items);
+    const elements = this._renderItems(this.state.itemsMap);
     return (
       <div className={topForm}>
-          <Pivot>
-            {items}
-            <PivotItem itemIcon='Emoji2' headerText='Add new task role' onRenderItemLink={this._onAddItemRender.bind(this)}></PivotItem>
+          <Pivot onLinkClick={this._onLinkClick.bind(this)}>
+            {elements} 
+            <PivotItem itemIcon='Emoji2' headerText='Add new task role'></PivotItem>
           </Pivot>
+          {selectedKey !== ''? itemsMap.get(selectedKey).children: null}
       </div>
     );
   }
