@@ -24,7 +24,16 @@ prerequisites:
     contributor : OpenPAI
     description: |
       This is an [example MXNet Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/mxnet).
-    uri : openpai/pai.example.mxnet
+    uri: openpai/pai.example.mxnet
+  - protocolVersion: 2
+    name: mnist_data
+    type: data
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is MNIST original dataset for scikit-learn.
+    uri:
+      - https://raw.githubusercontent.com/amplab/datascience-sp14/master/lab7/mldata/mnist-original.mat
 
 taskRoles:
   train:
@@ -32,6 +41,7 @@ taskRoles:
     completion:
       minSucceededTaskCount: 1
     dockerImage: mxnet_example
+    data: mnist_data
     resourcePerInstance:
       cpu: 4
       memoryMB: 8192
@@ -44,7 +54,8 @@ deployments:
     taskRoles:
       train:
         preCommands:
-          - pip install scipy scikit-learn
+          - pip install scipy==1.1.0 scikit-learn==0.19.2
+          - wget <% $data.uri[0] %> -O incubator-mxnet/data/mldata/mnist-original.mat
           - cd incubator-mxnet/example/autoencoder
 
 defaults:

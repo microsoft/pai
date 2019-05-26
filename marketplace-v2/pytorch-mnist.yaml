@@ -11,8 +11,8 @@ description: |
   ```
 
 parameters:
-  epochs: 10
-  batchsize: 32
+  epochs: 1
+  batchsize: 64
   lr: 0.01
 
 prerequisites:
@@ -37,7 +37,7 @@ taskRoles:
       gpu: 1
     commands:
       - >
-        python pytorch_examples/mnist/main.py
+        python examples/mnist/main.py
         --epochs <% $parameters.epochs %>
         --lr <% $parameters.epochs %>
         --batch-size <% $parameters.epochs %>
