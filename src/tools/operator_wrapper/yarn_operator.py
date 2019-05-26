@@ -7,10 +7,19 @@ from bs4 import BeautifulSoup
 import dicttoxml
 dicttoxml.LOG.setLevel(logging.ERROR)
 import time
+import attr
+from attr.validators import instance_of
+
 
 from base_operator import BaseOperator
 
 logger = logging.getLogger(__name__)
+
+@attr.s
+class Resource(object):
+    cpus = attr.ib(converter=float, validator=instance_of(float))
+    gpus = attr.ib(converter=float, validator=instance_of(float))
+    memory = attr.ib(converter=float, validator=instance_of(float))
 
 
 class YarnOperator(BaseOperator):
@@ -43,9 +52,15 @@ class YarnOperator(BaseOperator):
             host = node["nodeHostName"]
             state = node["state"]
             node_label = node.get("nodeLabels", [""])[0]
+            resource = {
+                "cpus": node["usedVirtualCores"] + node["availableVirtualCores"],
+                "memory": node["usedMemoryMB"] + node["availMemoryMB"],
+                "gpus": node["usedGPUs"] + node["availableGPUs"]
+            }
             current_nodes[host] = {
                 "state":  state,
-                "nodeLabel": node_label
+                "nodeLabel": node_label,
+                "resource": resource
             }
         return current_nodes
 
@@ -279,6 +294,9 @@ class YarnOperator(BaseOperator):
 
         self.put_queue_update_xml(request_xml)
 
+    def update_queue_capacity(self, update_dict):
+        pass
+
 
     def generate_queue_update_xml(self, g_dict):
         return dicttoxml.dicttoxml(g_dict, attr_type=False, custom_root="sched-conf", item_func=lambda x: "entry")
@@ -294,8 +312,16 @@ class YarnOperator(BaseOperator):
 
 
 if __name__ == "__main__":
+    a = Resource(1,1,2)
+    b = Resource(2,2,3)
+    print(a>b)
+
     yarn_op = YarnOperator("10.151.40.133")
-    print yarn_op.execute("yarn")
+    try:
+        yarn_op.execute("yarn")
+    except Exception as e:
+        print e.output
+    sys.exit(0)
     # yarn_op.get_partition_resource()
     # print(json.dumps(yarn_op.get_queue_info(), indent=2))
     from collections import OrderedDict

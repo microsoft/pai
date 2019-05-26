@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 from mock import patch
 import unittest
-import requests
+from requests.exceptions import HTTPError
 import json
 import requests_mock
 
@@ -86,11 +86,12 @@ class AlertOperatorTestCase(unittest.TestCase):
 
     def test__init__(self):
         op = AlertOperator("127.0.0.1", "5000")
-        self.assertEqual(op.alert_manager_url, "http://127.0.0.1:5000/prometheus/api/v1/query?query=ALERTS")
+        self.assertEqual(op.master_ip, "127.0.0.1")
+        self.assertEqual(op.port, "5000")
 
     def test_get_gpu_alert_nodes_success(self):
         with requests_mock.mock() as requests_get_mock:
-            requests_get_mock.get(self.alertOperator.alert_manager_url, text=json.dumps(self.success_response()))
+            requests_get_mock.get("http://localhost:9091/prometheus/api/v1/query?query=ALERTS", text=json.dumps(self.success_response()))
 
             alerts = self.alertOperator.get_gpu_alert_nodes()
 
@@ -99,17 +100,16 @@ class AlertOperatorTestCase(unittest.TestCase):
 
     def test_get_gpu_alert_nodes_bad_request(self):
         with requests_mock.mock() as requests_get_mock:
-            requests_get_mock.get(self.alertOperator.alert_manager_url, status_code=404)
+            requests_get_mock.get("http://localhost:9091/prometheus/api/v1/query?query=ALERTS", status_code=404)
 
-            with self.assertRaises(SystemExit) as cm:
+            with self.assertRaises(HTTPError) as cm:
                 alerts = self.alertOperator.get_gpu_alert_nodes()
 
             self.assertTrue(requests_get_mock.called)
-            self.assertEqual(cm.exception.code, 1)
 
     def test_get_gpu_alert_nodes_fail_request(self):
         with requests_mock.mock() as requests_get_mock:
-            requests_get_mock.get(self.alertOperator.alert_manager_url, text=json.dumps(self.failure_response()))
+            requests_get_mock.get("http://localhost:9091/prometheus/api/v1/query?query=ALERTS", text=json.dumps(self.failure_response()))
 
             with self.assertRaises(SystemExit) as cm:
                 alerts = self.alertOperator.get_gpu_alert_nodes()

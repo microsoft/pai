@@ -26,7 +26,6 @@ class BaseOperator(object):
     def execute(self, command, redirect_stderr=True, shell=True, **kwargs):
         logger.debug(command)
         stderr = subprocess.STDOUT if redirect_stderr else None
-        output = subprocess.check_output(command, stderr=stderr, shell=shell, **kwargs).decode("utf8")
-        logger.debug(output)
+        output = subprocess.check_output(command, stderr=stderr, shell=shell,  executable="/usr/local/bin/zsh", **kwargs).decode("utf8")
         return output
 

@@ -2,6 +2,9 @@ import argparse
 import time
 import re
 import logging
+import copy
+import sys
+
 from utility import log
 log.setup_logging()
 
@@ -111,6 +114,12 @@ def convert_nodes(nodes_str):
     return set()
 
 
+def validate_vc_name(vc_name_str):
+    if re.match(r"^[A-Za-z0-9_]+$", vc_name_str) is None:
+        raise argparse.ArgumentTypeError("invalid vc name: {}. Only alphanumeric and _ allowed".format(vc_name_str))
+    return vc_name_str
+
+
 def is_dedicated_vc(queue_name, queue_attr):
     # print(json.dumps(queue_attr, indent=2))
     if queue_name == "" or queue_name == "*" or queue_attr["defaultNodeLabelExpression"] != queue_name:
@@ -126,7 +135,7 @@ def get_dedicate_vc(args):
     dedicate_queues = {queue_name: {"resource": 0, "nodes": []} for queue_name, queue_info in queues_info.items() if
                        is_dedicated_vc(queue_name, queue_info)}
     if len(dedicate_queues) == 0:
-        print("No dedicated vc found")
+        logger.info("No dedicated vc found")
         return
 
     labeled_resources = yarn_operator.get_resource_by_label()
@@ -143,13 +152,46 @@ def get_dedicate_vc(args):
         print("\tNodes: " + ",".join(queue_attr["nodes"]))
         print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"]["cpus"], queue_attr["resource"]["memory"], queue_attr["resource"]["gpus"]))
 
+def convert_percentage_to_gpus(queues_info, partition_resource):
+    new_queues_info = copy.deepcopy(queues_info)
+    for queue, info in new_queues_info.iteritems():
+        p = info["capacity"] / float(100)
+        info["gpus"] = partition_resource["gpus"] * p
+    return new_queues_info
+
+def convert_gpus_to_percentage(queues_info, partition_resource):
+    new_queues_info = copy.deepcopy(queues_info)
+    for queue, info in new_queues_info.iteritems():
+        gpus = info["gpus"]
+        info["capacity"] = float(gpus) / partition_resource["gpus"] * 100
+    return new_queues_info
+
+def normalize_percentage(queues_info):
+    new_queues_info = copy.deepcopy(queues_info)
+    sum_percentage = 0
+    for queue, info in new_queues_info.iteritems():
+        sum_percentage += info["capacity"]
+
+    if sum_percentage != 100:
+        logger.warning("Renormalize percentage to 100%, current: {}%".format(sum_percentage))
+    new_queues_info["default"]["capacity"] -= sum_percentage - 100
+
+    for queue, info in new_queues_info.iteritems():
+        if queue == "default":
+            info["maxCapacity"] = max(info["maxCapacity"], info["capacity"])
+        else:
+            info["maxCapacity"] = info["capacity"]
+
+    return new_queues_info
+
+
 
 def add_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     vc_name = args.vc_name
     nodes = args.nodes
 
-    logger.debug("Adding cluster label...")
+    logger.info("Adding cluster label...")
     existing_labels = yarn_operator.get_cluster_labels()
     if vc_name in existing_labels:
         logger.warning("Label already exists: {}".format(vc_name))
@@ -157,15 +199,61 @@ def add_dedicate_vc(args):
         yarn_operator.add_cluster_label(vc_name)
         time.sleep(5)
 
-    logger.debug("Adding dedicated vc...")
+    logger.info("Adding dedicated vc...")
     queues_info = yarn_operator.get_queues_info()
     if vc_name in queues_info:
-        logger.warning("VC {} already exists, will add node to this VC".format(vc_name))
+        logger.warning("Virtual cluster already exists: {}. Adding node to it".format(vc_name))
     else:
         yarn_operator.add_dedicated_queue(vc_name)
 
+    nodes_info = yarn_operator.get_nodes_info().iteritems()
     if len(nodes) > 0:
-        logger.debug("Labeling node...")
+        logger.info("Labeling node...")
+        added_resource = {"cpus": 0, "memory": 0, "gpus": 0}
+        for node, info in nodes_info:
+            if node in nodes and info["nodeLabel"] == "":
+
+                added_resource["cpus"] += info["resource"]["cpus"]
+                added_resource["gpus"] += info["resource"]["gpus"]
+                added_resource["memory"] += info["resource"]["memory"]
+
+        default_partition_resource = yarn_operator.get_resource_by_label()[""]["resource"]
+        default_vc_percentage = queues_info["default"]["capacity"] / 100
+        default_vc_resource = {
+            "cpus": default_partition_resource["cpus"] * default_vc_percentage,
+            "gpus": default_partition_resource["gpus"] * default_vc_percentage,
+            "memory": default_partition_resource["memory"] * default_vc_percentage
+        }
+
+        if default_vc_resource["cpus"] < added_resource["cpus"] \
+            or default_vc_resource["gpus"] < added_resource["gpus"] \
+                or default_vc_resource["memory"] < added_resource["memory"]:
+            logger.error("Default vc resource isn't enough for the dedicated vc, please free some resource")
+            return
+
+        new_default_partition_resource = copy.deepcopy(default_partition_resource)
+        new_default_vc_resource = copy.deepcopy(default_vc_resource)
+
+        new_default_partition_resource["cpus"] -= added_resource["cpus"]
+        new_default_partition_resource["gpus"] -= added_resource["gpus"]
+        new_default_partition_resource["memory"] -= added_resource["memory"]
+
+        new_default_vc_resource["cpus"] -= added_resource["cpus"]
+        new_default_vc_resource["gpus"] -= added_resource["gpus"]
+        new_default_vc_resource["memory"] -= added_resource["memory"]
+
+        queues_info_with_gpus = convert_percentage_to_gpus(queues_info, default_partition_resource)
+        queues_info_with_gpus["default"]["gpus"] = new_default_vc_resource["gpus"]
+        new_queues_percentage = convert_gpus_to_percentage(queues_info_with_gpus, new_default_partition_resource)
+        new_queues_percentage = normalize_percentage(new_queues_percentage)
+        updated_dict = {}
+        for queue, info in new_queues_percentage.iteritems():
+            updated_dict[queue] = {
+                "capacity": info["capacity"],
+                "maximum-capacity": info["maxCapacity"]
+            }
+        yarn_operator.update_queue_capacity(updated_dict)
+
         yarn_operator.label_nodes(nodes, vc_name)
 
 
@@ -175,25 +263,67 @@ def remove_dedicate_vc(args):
     nodes = args.nodes
     remove_queue_flag = nodes is None
 
-    if remove_queue_flag:
-        logger.debug("Removing dedicated vc...")
-        queues_info = yarn_operator.get_queues_info()
-        if vc_name not in queues_info:
-            logger.warning("VC {} not found, will only unlabel nodes".format(vc_name))
-        else:
-            yarn_operator.remove_dedicated_queue(vc_name)
-
-    logger.debug("Unlabeling node...")
-    labeled_nodes = yarn_operator.get_nodes_info()
+    logger.info("Unlabeling node...")
+    nodes_info = yarn_operator.get_nodes_info()
+    queues_info = yarn_operator.get_queues_info()
     if nodes is None:
-        nodes = set(labeled_nodes.keys())
-    t_nodes = [node for node in nodes if labeled_nodes[node]["nodeLabel"] == vc_name]
+        nodes = set(nodes_info.keys())
+    t_nodes = [node for node in nodes if nodes_info[node]["nodeLabel"] == vc_name]
     if len(t_nodes) > 0:
+
+        removed_resource = {"cpus": 0, "memory": 0, "gpus": 0}
+        for node, info in nodes_info.iteritems():
+            if node in nodes and info["nodeLabel"] == vc_name:
+                removed_resource["cpus"] += info["resource"]["cpus"]
+                removed_resource["gpus"] += info["resource"]["gpus"]
+                removed_resource["memory"] += info["resource"]["memory"]
+
+        default_partition_resource = yarn_operator.get_resource_by_label()[""]["resource"]
+        default_vc_percentage = queues_info["default"]["capacity"] / 100
+        default_vc_resource = {
+            "cpus": default_partition_resource["cpus"] * default_vc_percentage,
+            "gpus": default_partition_resource["gpus"] * default_vc_percentage,
+            "memory": default_partition_resource["memory"] * default_vc_percentage
+        }
+
+        new_default_partition_resource = copy.deepcopy(default_partition_resource)
+        new_default_vc_resource = copy.deepcopy(default_vc_resource)
+
+        new_default_partition_resource["cpus"] += removed_resource["cpus"]
+        new_default_partition_resource["gpus"] += removed_resource["gpus"]
+        new_default_partition_resource["memory"] += removed_resource["memory"]
+
+        new_default_vc_resource["cpus"] += removed_resource["cpus"]
+        new_default_vc_resource["gpus"] += removed_resource["gpus"]
+        new_default_vc_resource["memory"] += removed_resource["memory"]
+
+        queues_info_with_gpus = convert_percentage_to_gpus(queues_info, default_partition_resource)
+        queues_info_with_gpus["default"]["gpus"] = new_default_vc_resource["gpus"]
+        new_queues_percentage = convert_gpus_to_percentage(queues_info_with_gpus, new_default_partition_resource)
+        new_queues_percentage = normalize_percentage(new_queues_percentage)
+        updated_dict = {}
+        for queue, info in new_queues_percentage.iteritems():
+            updated_dict[queue] = {
+                "capacity": info["capacity"],
+                "maximum-capacity": info["maxCapacity"]
+            }
+        yarn_operator.update_queue_capacity(updated_dict)
+
         yarn_operator.label_nodes(t_nodes, "")
 
     if remove_queue_flag:
-        logger.debug("Removing cluster label...")
-        yarn_operator.remove_cluster_label(vc_name)
+        logger.info("Removing dedicated vc...")
+        if vc_name not in queues_info:
+            logger.warning("Virtual cluster not found: {}.".format(vc_name))
+        else:
+            yarn_operator.remove_dedicated_queue(vc_name)
+
+        logger.info("Removing cluster label...")
+        if vc_name not in yarn_operator.get_cluster_labels():
+            logger.warning("Cluster label not found: {}".format(vc_name))
+        else:
+            yarn_operator.remove_cluster_label(vc_name)
+
 
 
 def setup_parser():
@@ -252,11 +382,11 @@ def setup_parser():
 
     parser_add = dedicated_vc_subparsers.add_parser("add", parents=[parent_parser], help="add dedicate vc")
     parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', default="")
-    parser_add.add_argument("-v", "--vc-name", help='support comma-delimited node list', required=True)
+    parser_add.add_argument("-v", "--vc-name", type=validate_vc_name, required=True)
     parser_add.set_defaults(func=add_dedicate_vc)
 
     parser_remove = dedicated_vc_subparsers.add_parser("remove", parents=[parent_parser], help="remove dedicate vc")
-    parser_remove.add_argument("-v", "--vc-name", help='support comma-delimited node list', required=True)
+    parser_remove.add_argument("-v", "--vc-name", type=validate_vc_name, required=True)
     parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
     parser_remove.set_defaults(func=remove_dedicate_vc)
 
@@ -267,13 +397,16 @@ def main():
     parser = setup_parser()
     # args = parser.parse_args(["dedicated-vc", "-h"])
     args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
-    args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
-    args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test-vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
-    args.func(args)
+    try:
+        args.func(args)
+    except Exception as e:
+        logger.exception(e)
 
 
 if __name__ == "__main__":

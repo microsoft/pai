@@ -1,0 +1,6 @@
+<configuration>
+            <property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>127.0.0.1</value>
+            </property>
+        </configuration>

@@ -16,7 +16,7 @@ class YarnOperatorTestCase(unittest.TestCase):
     @patch("operator_wrapper.yarn_operator.YarnOperator.setup_yarn_configfile")
     def test__init__(self, setup_yarn_configfile):
         YarnOperator("127.0.0.1")
-        setup_yarn_configfile.assert_called_with("127.0.0.1")
+        setup_yarn_configfile.assert_called_with()
 
 
     def test_generate_queue_update_xml(self):
