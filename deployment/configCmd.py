@@ -38,7 +38,6 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         if "ssh-password" in quick_start_config_raw:
             machine["password"] = quick_start_config_raw["ssh-password"]
         else:
-            machine["ssh-keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
             machine["keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
             machine["ssh-secret-name"] = quick_start_config_raw["ssh-secret-name"]
         machine["ssh-port"] = 22 if "ssh-port" not in quick_start_config_raw else quick_start_config_raw["ssh-port"]
