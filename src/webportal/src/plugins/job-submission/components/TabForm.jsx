@@ -1,33 +1,59 @@
 import React from 'react'
-import { Pivot, PivotItem, Icon, IconButton, Stack } from 'office-ui-fabric-react';
+import { Pivot, PivotItem, Icon, ActionButton, Stack } from 'office-ui-fabric-react';
 import { getFormClassNames, getFromStyle } from './formStyle'
+
+const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this._number = 0;
-    const _itemsMap = new Map();
+    const itemsMap = new Map();
+    let itemSeq = 0;
+    let selectedKey = null;
 
-    props.items.forEach((item)=> {
-      _itemsMap.set(item.key, item)
-    });
+    if (props.minCount !== undefined) {
+      for (let index = 0; index < props.minCount; index++) {
+        const label = this._generateLabel(props.headerTemplate, index);
+        const itemKey = TAB_ITEM_KEY_PREFIX + itemSeq++;
+        const item = {itemKey: itemKey, label: label, children: props.pageTemplate};
+        itemsMap.set(itemKey, item);
+      }
+    }
+
+    if (itemsMap.size > 0) {
+      selectedKey = TAB_ITEM_KEY_PREFIX + 0;
+    }
 
     this.state = {
-      itemsMap: _itemsMap,
-      selectedKey: ""
+      itemsMap: itemsMap,
+      selectedKey: selectedKey,
+      itemSeq: itemSeq
     }
   }
 
-  _renderItems(items) {
+
+  _generateLabel(headerTemplate, index) {
+    if (headerTemplate !== undefined) {
+      return headerTemplate + " " + (index + 1);
+    }
+    return (index + 1);
+  }
+
+  _renderItems() {
     const pivotItems = [];
-    for (const item of items.values()) {
-      const element = (<PivotItem key={item.key}
-                                  itemKey={item.key}
-                                  headerText={item.label}
-                                  onRenderItemLink={this._onRenderItem.bind(this)}
-                                  />);
+    const {itemsMap} = this.state;
+    const {headerTemplate} = this.props;
+    let index = 0;
+
+    for (const item of itemsMap.values()) {
+      const label = headerTemplate !== undefined? this._generateLabel(headerTemplate, index): item.label;
+      const element = (<PivotItem key={item.itemKey}
+                                  itemKey={item.itemKey}
+                                  headerText={label}
+                                  onRenderItemLink={this._onRenderItem.bind(this)}/>);
       pivotItems.push(element);
+      index++;
     }
 
     return pivotItems;
@@ -42,80 +68,73 @@ export class TabForm extends React.Component {
     return (
     <span>
       { defaultRender(itemPros) }
-      <Icon iconName="Cancel" styles={ tabIconStyle } />
+      <Icon iconName="Cancel" styles={ tabIconStyle } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
     </span>);
   }
 
-
   _onItemDelete(itemKey, event) {
-    const {enableDeleteItem, onItemDelete} = this.props;
-    if (enableDeleteItem === undefined || enableDeleteItem === false) {
-      return
-    }
-
-    const {items} = this.state;
-    if (itemKey === undefined || items === undefined) {
+    const {onItemDelete} = this.props;
+    const {itemsMap, selectedKey} = this.state;
+    if (itemKey === undefined || itemsMap === undefined) {
       return;
     }
 
-    let updatedItem;
+    let updatedItemsMap;
     if (onItemDelete === undefined) {
-      updatedItem = this._defaultOnItemDelete(itemKey, items);
+      updatedItemsMap = this._defaultOnItemDelete(itemKey, itemsMap);
     } else {
-      updatedItem = onItemDelete(itemKey, items);
+      updatedItemsMap = onItemDelete(itemKey, itemsMap);
+    }
+
+    let newSelectedKey;
+    if (selectedKey == itemKey && updatedItemsMap.size > 0) {
+      newSelectedKey = Array.from(updatedItemsMap.keys())[updatedItemsMap.size - 1];
+    } else if (updatedItemsMap.size == 0) {
+      newSelectedKey = null;
+    } else {
+      newSelectedKey = selectedKey;
     }
 
     this.setState({
-      items: updatedItem
+      itemsMap: updatedItemsMap,
+      selectedKey: newSelectedKey
     });
     event.stopPropagation();
   }
 
-  _defaultOnItemDelete(itemKey, currentItems) {
-    const updatedItem = currentItems.filter((item)=>item.key !== itemKey);
-    return updatedItem;
-  }
-
-  _onAddItemRender(itemPros, defaultRender) {
-    if (itemPros === undefined) {
-      return null;
-    }
-
-    const { itemIcon } = itemPros;
-    return (
-      <span>
-        {/* <IconButton iconProps={{iconName: itemIcon}} onClick={this._onAddItem.bind(this)}/> */}
-      </span>
-    );
+  _defaultOnItemDelete(itemKey, itemsMap) {
+    const updatedItemMap = new Map(itemsMap);
+    updatedItemMap.delete(itemKey);
+    return updatedItemMap;
   }
 
   _onAddItem(event) {
     const {headerTemplate, pageTemplate, onItemAdd} = this.props;
-    const {items} = this.state;
-    let updatedItems = undefined;
+    const {itemsMap, itemSeq} = this.state;
+    let newItem;
     if (onItemAdd !== undefined) {
-      updatedItems = onItemAdd(items, headerTemplate, pageTemplate);
+      newItem = onItemAdd(itemsMap, headerTemplate, pageTemplate);
     } else {
-      updatedItems = this._defaultOnItemAdd(items, headerTemplate, pageTemplate);
+      newItem = this._defaultOnItemAdd(itemsMap, headerTemplate, pageTemplate);
     }
+    newItem.itemKey = TAB_ITEM_KEY_PREFIX + itemSeq;
+
+    itemsMap.set(newItem.itemKey, newItem);
     this.setState({
-      items: updatedItems
+      itemsMap: itemsMap,
+      selectedKey: newItem.itemKey,
+      itemSeq: itemSeq + 1,
     });
-    event.stopPropagation();
   }
 
-  _defaultOnItemAdd(items, headerTemplate, pageTemplate) {
-    let udpatedItems = [];
-    const item = {key: "k-new" + this._number, label: headerTemplate + "ss", children: pageTemplate};
-    this._number++;
-    if (items !== undefined) {
-      udpatedItems = udpatedItems.concat(items);
-    }
-    udpatedItems.push(item);
-    return udpatedItems;
+  _defaultOnItemAdd(itemsMap, headerTemplate, pageTemplate) {
+    const label = this._generateLabel(headerTemplate, itemsMap.size);
+    const children = pageTemplate === undefined? null: pageTemplate;
+    const item = {label: label, children: children};
+    return item;
   }
 
-  _onLinkClick(item) {
+  _onLinkClick(item, event) {
     this.setState({
       selectedKey: item.props.itemKey
     });
@@ -124,22 +143,20 @@ export class TabForm extends React.Component {
   render() {
     const {selectedKey, itemsMap} = this.state;
 
-    if (this.state.itemsMap.size === 0) {
-      return (<Pivot></Pivot>);
-    }
-
     const { topForm, formTabBar } = getFormClassNames();
     const { tabStyle } = getFromStyle();
-    const elements = this._renderItems(this.state.itemsMap);
+    const elements = this._renderItems();
     return (
       <div className={topForm}>
         <div className={formTabBar}>
-            <Pivot onLinkClick={this._onLinkClick.bind(this)} styles={{text: tabStyle.text, root: tabStyle.root}}>
+            <Pivot onLinkClick={this._onLinkClick.bind(this)}
+                   styles={{text: tabStyle.text, root: tabStyle.root}}
+                   selectedKey={selectedKey}>
              {elements}
             </Pivot>
-            {/* <IconButton iconProps={{iconName: 'cancel'}}/> */}
+            <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
         </div>
-        {selectedKey !== ''? itemsMap.get(selectedKey).children: null}
+        {selectedKey !== null? itemsMap.get(selectedKey).children: null}
       </div>
     );
   }

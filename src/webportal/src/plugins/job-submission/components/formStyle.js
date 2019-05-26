@@ -1,4 +1,5 @@
 import { mergeStyleSets  } from '@uifabric/merge-styles'
+import { FontSizes, IconFontSizes } from 'office-ui-fabric-react/lib/Styling';
 
 const marginSize = {
   l1: '20px',
@@ -29,7 +30,7 @@ export const getFromStyle = () => {
   return ({
     tabStyle: {
       text: {
-        fontSize: '16px'
+        fontSize: FontSizes.icon
       },
       root: {
         background: 'white'
@@ -37,7 +38,7 @@ export const getFromStyle = () => {
     },
     tabIconStyle: {
       root: {
-        fontSize: '16px',
+        fontSize: IconFontSizes.medium,
         margin: `0, ${marginSize.s1}`
       }
     }
