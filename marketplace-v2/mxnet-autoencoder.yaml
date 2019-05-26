@@ -55,7 +55,7 @@ deployments:
       train:
         preCommands:
           - pip install scipy==1.1.0 scikit-learn==0.19.2
-          - wget <% $data.uri[0] %> -O incubator-mxnet/data/mldata/mnist-original.mat
+          - wget <% $data.uri[0] %> -P /root/incubator-mxnet/data/mldata/
           - cd incubator-mxnet/example/autoencoder
 
 defaults:
