@@ -161,9 +161,10 @@ def convert_percentage_to_gpus(queues_info, partition_resource):
 
 def convert_gpus_to_percentage(queues_info, partition_resource):
     new_queues_info = copy.deepcopy(queues_info)
-    for queue, info in new_queues_info.iteritems():
-        gpus = info["gpus"]
-        info["capacity"] = float(gpus) / partition_resource["gpus"] * 100
+    if partition_resource["gpus"] > 0:
+        for queue, info in new_queues_info.iteritems():
+            gpus = info["gpus"]
+            info["capacity"] = float(gpus) / partition_resource["gpus"] * 100
     return new_queues_info
 
 def normalize_percentage(queues_info):
@@ -397,8 +398,8 @@ def main():
     parser = setup_parser()
     # args = parser.parse_args(["dedicated-vc", "-h"])
     args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
-    # args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
-    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test-vc"])
+    args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
