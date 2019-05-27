@@ -20,7 +20,6 @@ import * as querystring from 'querystring';
 import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
 import {debounce, isEmpty} from 'lodash';
 
-
 import {ColorClassNames, getTheme} from '@uifabric/styling';
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';

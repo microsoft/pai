@@ -73,7 +73,5 @@ export const statusColor = {
   failed: palette.red,
   running: palette.blue,
   succeeded: palette.greenLight,
-  stopping: palette.neutralTertiary,
-  stopped: palette.neutralTertiary,
   unknown: palette.neutralTertiary,
 };

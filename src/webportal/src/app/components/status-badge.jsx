@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, mergeStyles} from '@uifabric/styling';
+import {FontClassNames, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {isEmpty} from 'lodash';
 import {Icon} from 'office-ui-fabric-react/lib/Icon';
@@ -27,7 +27,7 @@ import t from './tachyons.scss';
 import {statusColor} from './theme';
 
 export const Badge = ({children, className}) => (
-  <div className={c(FontClassNames.mediumPlus, mergeStyles({width: '100%'}), className)}>
+  <div className={c(FontClassNames.mediumPlus, className)}>
     {children}
   </div>
 );
@@ -38,34 +38,27 @@ Badge.propTypes = {
   icons: PropTypes.array,
 };
 
-export const IconBadge = ({children, className, icons}) => (
+export const IconBadge = ({children, className, icons, outerColor}) => (
   <Badge className={c(className)}>
     <div className={c(t.flex)}>
       {
-        icons && <div className={c(t.relative, t.w1)} style={{width: '15px'}}>
+        icons && <div className={c(t.relative, t.w1)}>
         {
           icons.map((iconName, idx) => (
-            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill, t.tc, t.vMid, t.lhSolid)}
-            styles={{root: {
-              color: idx === 0 ? {
-                Waiting: statusColor.waiting,
-                Running: statusColor.running,
-                Stopping: statusColor.stopping,
-                Succeeded: statusColor.succeeded,
-                Failed: statusColor.failed,
-                Stopped: statusColor.stopped,
-                Unknown: statusColor.unknown,
-            }[children] : 'white',
-            transform: children == 'Failed' ? 'rotate(90deg)' : 'none',
-            margin: 'auto',
-            width: 15,
-            height: 15,
-          }}} iconName={iconName}/>
+            <Icon
+              key={`icon-${idx}-${iconName}`}
+              className={c(t.absolute, t.absoluteFill)}
+              styles={{root: {
+                color: idx === 0 ? outerColor || statusColor.unknown : 'white',
+                fontSize: FontSizes.mediumPlus,
+              }}}
+              iconName={iconName}
+            />
           ))
         }
         </div>
       }
-      <div className={c({[t.ml2]: !isEmpty(icons)}, FontClassNames.mediumPlus)}>{children}</div>
+      <div className={c({[t.ml3]: !isEmpty(icons)}, FontClassNames.mediumPlus)}>{children}</div>
     </div>
   </Badge>
 );
@@ -74,10 +67,11 @@ IconBadge.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   icons: PropTypes.array,
+  outerColor: PropTypes.string,
 };
 
 export const SucceededBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']}>{children}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']} outerColor={statusColor.succeeded}>{children}</IconBadge>
 );
 
 SucceededBadge.propTypes = {
@@ -85,7 +79,7 @@ SucceededBadge.propTypes = {
 };
 
 export const PrimaryBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']}>{children}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']} outerColor={statusColor.running}>{children}</IconBadge>
 );
 
 PrimaryBadge.propTypes = {
@@ -93,7 +87,7 @@ PrimaryBadge.propTypes = {
 };
 
 export const WaitingBadge = ({children}) => (
-  <IconBadge icons={['SkypeCircleClock']}>{children}</IconBadge>
+  <IconBadge icons={['SkypeCircleClock']} outerColor={statusColor.waiting}>{children}</IconBadge>
 );
 
 WaitingBadge.propTypes = {
@@ -101,7 +95,7 @@ WaitingBadge.propTypes = {
 };
 
 export const FailedBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleBlock']}>{children}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleErrorX']} outerColor={statusColor.failed}>{children}</IconBadge>
 );
 
 FailedBadge.propTypes = {
@@ -109,7 +103,7 @@ FailedBadge.propTypes = {
 };
 
 export const StoppedBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleBlock2']}>{children}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleBlock2']} outerColor={statusColor.unknown}>{children}</IconBadge>
 );
 
 StoppedBadge.propTypes = {
@@ -117,7 +111,7 @@ StoppedBadge.propTypes = {
 };
 
 export const UnknownBadge = ({children}) => (
-  <IconBadge icons={['StatusCircleOuter', 'StatusCircleQuestionMark']}>{children || 'Unknown'}</IconBadge>
+  <IconBadge icons={['StatusCircleOuter', 'StatusCircleQuestionMark']} outerColor={statusColor.unknown}>{children || 'Unknown'}</IconBadge>
 );
 
 UnknownBadge.propTypes = {

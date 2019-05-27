@@ -164,9 +164,8 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
-      /** @type {React.CSSProperties} */
       return (
-        <div style={{height: '100%', width: '100%', display: 'flex', alignItems: 'center'}}>
+        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'start'}}>
           <StatusBadge status={getStatusText(job)} />
         </div>
       );
@@ -197,8 +196,12 @@ export default function Table() {
       return (
         <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}} data-selection-disabled>
           <DefaultButton
-            iconProps={{iconName: 'StatusCircleBlock'}}
-            styles={{icon: {fontSize: 15}, root: {fontSize: '15px'}}}
+            iconProps={{iconName: 'StopSolid'}}
+            styles={{
+              root: {backgroundColor: '#e5e5e5'},
+              rootFocused: {backgroundColor: '#e5e5e5'},
+              icon: {fontSize: 12},
+            }}
             disabled={disabled}
             onClick={onClick}
           >
