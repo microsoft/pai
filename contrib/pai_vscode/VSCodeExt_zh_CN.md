@@ -12,7 +12,7 @@ OpenPAI VS Code Client 是专用于 OpenPAI 的客户端工具。 它是 [Visual
 
 2. 启动 Visual Studio Code 后，单击左侧的 *Extensions* 图标。 并输入 *openpai* 来搜索 OpenPAI VS Code Client。
     
-    ![Extension](assets/ext-install-1.png)
+    ![扩展](assets/ext-install-1.png)
 
 3. 点击 **Install** 按钮，并等待完成安装。
 
