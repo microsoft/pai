@@ -76,7 +76,6 @@ IconBadge.propTypes = {
   icons: PropTypes.array,
 };
 
-
 export const SucceededBadge = ({children}) => (
   <IconBadge icons={['StatusCircleOuter', 'StatusCircleCheckmark']}>{children}</IconBadge>
 );
