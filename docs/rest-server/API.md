@@ -795,6 +795,12 @@ Status: 200
    "vCores":0,
    "GPUs":0
   },
+  "resourcesTotal":{
+   "memory":0,
+   "vCores":0,
+   "GPUs":0
+  },
+  "dedicated": true/false
   "state":"running"
 }
 ```
