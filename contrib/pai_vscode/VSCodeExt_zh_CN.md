@@ -1,8 +1,8 @@
-# OpenPAI VS Code Client
+# OpenPAI VS Code 客户端
 
-OpenPAI VS Code Client is the dedicated client tool for OpenPAI. It's an extension of [Visual Studio Code](https://code.visualstudio.com/). Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
+OpenPAI VS Code 客户端是专用于 OpenPAI 的客户端工具。 它是 [Visual Studio Code](https://code.visualstudio.com/) 的扩展组件。 Visual Studio Code 是一个轻量级但功能强大的源代码编辑器，可在主流桌面平台上运行，支持 Windows，macOS 和 Linux。
 
-With OpenPAI VS Code Client, you can submit jobs, simulate jobs locally, or manage files, etc. OpenPAI VS Code Client also supports Windows, macOS, and Linux.
+使用 OpenPAI VS Code 客户端，可以提交作业，在本地模拟作业，管理文件等。 OpenPAI VS Code Client also supports Windows, macOS, and Linux.
 
 ## Installation
 
