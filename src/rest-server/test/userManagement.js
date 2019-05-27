@@ -47,6 +47,18 @@ const schedulerResponse = {
                         "maxAMLimitPercentage": 0
                       }
                     ]
+                  },
+                  "resources": {
+                    "resourceUsagesByPartition": [
+                      {
+                        "partitionName": "",
+                        "used": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                      }
+                    ]
                   }
                 },
                 {
@@ -69,6 +81,18 @@ const schedulerResponse = {
                         "maxAMLimitPercentage": 0
                       }
                     ]
+                  },
+                  "resources": {
+                    "resourceUsagesByPartition": [
+                      {
+                        "partitionName": "",
+                        "used": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                      }
+                    ]
                   }
                 },
                 {
@@ -89,6 +113,18 @@ const schedulerResponse = {
                         "absoluteUsedCapacity": 0,
                         "absoluteMaxCapacity": 100,
                         "maxAMLimitPercentage": 0
+                      }
+                    ]
+                  },
+                  "resources": {
+                    "resourceUsagesByPartition": [
+                      {
+                        "partitionName": "",
+                        "used": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
                       }
                     ]
                   }
