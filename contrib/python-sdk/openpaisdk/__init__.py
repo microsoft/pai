@@ -18,9 +18,7 @@ def from_json_file(fname: str, default={}):
         return default
 
 
-__version__ = '0.3.0'
-
-__cluster_config_file__ = os.path.join(os.path.expanduser('~'), '.openpai', 'clusters.json')
+__cluster_config_file__ = os.path.join(os.path.expanduser('~'), '.openpai', 'clusters.yaml')
 __cache__ = '.openpai'
 __local_default_file__ = os.path.join(__cache__, 'defaults.json')
 __jobs_cache__ = os.path.join(__cache__, 'jobs')
@@ -28,7 +26,9 @@ __jobs_cache__ = os.path.join(__cache__, 'jobs')
 
 __defaults__ = from_json_file(__local_default_file__)
 
-__sdk_branch__ = __defaults__.get('sdk-branch', 'sdk-preview-v0.3')
+__version__ = '0.4.00'
+
+__sdk_branch__ = __defaults__.get('sdk-branch', 'sdk-release-v0.4.00')
 
 __install__ = '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(__sdk_branch__)
 

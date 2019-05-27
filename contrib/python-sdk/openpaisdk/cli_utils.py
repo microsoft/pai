@@ -206,8 +206,8 @@ class Scene:
         self.scene, self.help_s  = scene, help_s
         self.single_action = len(action_list) == 1 and scene == action_list[0].action
         if self.single_action:
-            action_list[0].define_arguments(parser)
-            self.do_action = action_list[0].do_action
+            self.actor = action_list[0]
+            self.actor.define_arguments(parser)
         else:
             self.actions, subparsers = dict(), parser.add_subparsers(dest='action', help=help_s)
             for a in action_list:
@@ -217,7 +217,7 @@ class Scene:
 
     def process(self, args):
         __logger__.debug('Parsed arguments to %s', args)
-        actor = self if self.single_action else self.actions[args.action]
+        actor = self.actor if self.single_action else self.actions[args.action]
         actor.check_arguments(args)
         actor.restore(args)
         result = actor.do_action(args)

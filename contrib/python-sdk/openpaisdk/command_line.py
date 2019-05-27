@@ -43,28 +43,27 @@ def get_storage(args):
 
 class ActionFactoryForDefault(ActionFactory):
 
-    def define_arguments_add(self, parser: argparse.ArgumentParser):
-        parser.add_argument('contents', nargs='+', help='(variable=value) pair to be set as default')
+    def define_arguments_set(self, parser: argparse.ArgumentParser):
+        parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
-    def do_action_add(self, args):
+    def do_action_set(self, args):
+        if not args.contents:
+            return pai.__defaults__
         for kv in args.contents:
             key, value = kv.split('=')
             pai.__defaults__[key] = value
         to_file(pai.__defaults__, pai.__local_default_file__)
         return pai.__defaults__
 
-    def define_arguments_list(self, parser: argparse.ArgumentParser):
-        pass
-
-    def do_action_list(self, args):
-        return pai.__defaults__
-
-    def define_arguments_delete(self, parser: argparse.ArgumentParser):
+    def define_arguments_unset(self, parser: argparse.ArgumentParser):
         parser.add_argument('variables', nargs='+', help='(variable=value) pair to be set as default')
 
-    def do_action_delete(self, args):
+    def do_action_unset(self, args):
         result = []
         for key in args.variables:
+            if key not in pai.__defaults__:
+                result.append("cannot unset default variable %s because it doesnot exist" % key)
+                continue
             value = pai.__defaults__.pop(key, None)
             result.append("default variable {} (previously {}) deleted".format(key, value))
         to_file(pai.__defaults__, pai.__local_default_file__)
@@ -272,12 +271,6 @@ __cluster_actions__ = {
     "attach-hdfs": ["attach hdfs storage to cluster"],
 }
 
-__default_actions__ = {
-    "list": ["list existing default variables"],
-    "add": ["add new variable-value pair"],
-    "delete": ["delete existing default variables"],
-}
-
 __job_actions__ = {
     "list": ["list existing jobs"],
     "new": ["create a job config cache for submitting"],
@@ -314,17 +307,25 @@ def factory(af: type(ActionFactory), actions: dict):
 
 
 __cli_structure__ = {
+    # for release version 0.4
     "cluster": [
         "cluster management", factory(ActionFactoryForCluster, __cluster_actions__)
     ],
     "job": [
         "job operations", factory(ActionFactoryForJob, __job_actions__),
     ],
+    "storage": [
+        "storage operation", factory(ActionFactoryForStorage, __storage_actions__)
+    ],
+    "set": [
+        "set a (default) variable for cluster and job", [ActionFactoryForDefault("set", {"set": ["set"]})]
+    ],
+    "unset": [
+        "un-set a (default) variable for cluster and job", [ActionFactoryForDefault("unset", {"unset": ["unset"]})]
+    ],
+    # for future version
     "require": [
         "add requirements to job or task", factory(ActionFactoryForRequirement, __require_actions__)
-    ],
-    "default": [
-        "set or show defaults", factory(ActionFactoryForDefault, __default_actions__)
     ],
     "runtime": [
         "runtime", factory(ActionFactoryForRuntime, __runtime_actions__)
@@ -332,9 +333,7 @@ __cli_structure__ = {
     "task": [
         "configure task role", factory(ActionFactoryForTaskRole, __task_actions__)
     ],
-    "storage": [
-        "storage operation", factory(ActionFactoryForStorage, __storage_actions__)
-    ]
+
 }
 
 
