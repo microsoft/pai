@@ -40,7 +40,7 @@ Badge.propTypes = {
 
 export const IconBadge = ({children, className, icons}) => (
   <Badge className={c(className)}>
-    <div className={c(t.flex)} >
+    <div className={c(t.flex)}>
       {
         icons && <div className={c(t.relative, t.w1)} style={{width: '15px'}}>
         {

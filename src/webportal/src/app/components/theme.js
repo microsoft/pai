@@ -68,7 +68,6 @@ export function initTheme() {
 }
 
 const {palette} = getTheme();
-
 export const statusColor = {
   waiting: palette.yellowLight,
   failed: palette.red,
