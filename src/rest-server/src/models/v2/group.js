@@ -29,6 +29,7 @@ const crudGroup = crudUtil.getStorageObject(crudType);
 const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI);
 
 let externalName2Groupname = {};
+let deletedGroup = [];
 
 const getGroup = async (groupname) => {
   try {
@@ -69,31 +70,9 @@ const getUserGrouplistFromExternal = async (username) => {
 const deleteGroup = async (groupname) => {
   try {
     const ret = await crudGroup.remove(groupname, crudConfig);
-    const groupList = await getAllGroup();
-    let userList = userModel.getAllUser();
-    let updateUserList = [];
-    logger.info('Init user list to update.');
-    for (let userItem of userList) {
-      let updateUser = false;
-      let userGrouplist = [];
-      for (let groupname of userItem['grouplist']) {
-        if (groupList.includes(groupname)) {
-          userGrouplist.push(groupname);
-        } else {
-          updateUser = true;
-        }
-      }
-      if (updateUser) {
-        const newUserInfo = userItem;
-        newUserInfo['grouplist'] = userGrouplist;
-        updateUserList.push(newUserInfo);
-      }
+    if (!deletedGroup.includes(groupname)) {
+      deletedGroup.push(groupname);
     }
-    logger.info('User list to be updated has been prepared.');
-    await Promise.all(updateUserList.map( async (userData) => {
-      await userModel.updateUser(userData['username'], userData);
-    }));
-    logger.info('User\'s grouplist has been updated');
     return ret;
   } catch (error) {
     throw error;
@@ -102,7 +81,11 @@ const deleteGroup = async (groupname) => {
 
 const createGroup = async (groupname, groupValue) => {
   try {
-    return await crudGroup.create(groupname, groupValue, crudConfig);
+    const ret = await crudGroup.create(groupname, groupValue, crudConfig);
+    if (deletedGroup.includes(groupname)) {
+      deletedGroup.slice(deletedGroup.indexOf(groupname), 1);
+    }
+    return ret;
   } catch (error) {
     throw error;
   }
@@ -216,6 +199,38 @@ if (config.env !== 'test') {
       }
     }, 600 * 1000);
   }
+  setInterval(async function() {
+    try {
+      logger.info('Init user list to update.');
+      let userList = await userModel.getAllUser();
+      let updateUserList = [];
+      for (let userItem of userList) {
+        let updateUser = false;
+        let userGroupList = [];
+        for (let groupname of userItem['grouplist']) {
+          if (deletedGroup.includes(groupname)) {
+            updateUser = true;
+          } else {
+            userGroupList.push(groupname);
+          }
+        }
+        if (updateUser) {
+          let newUserInfo = userItem;
+          newUserInfo['grouplist'] = userGroupList;
+          updateUserList.push(newUserInfo);
+        }
+      }
+      logger.info('User list to be updated has been prepared.');
+      logger.info('Begin to update user\' group list.');
+      await Promise.all(updateUserList.map( async (userData) => {
+        await userModel.updateUser(userData['username'], userData);
+      }));
+      logger.info('Update group info successfully.');
+    } catch (error) {
+      logger.info('Failed to update group info.');
+      throw error;
+    }
+  }, 600 * 1000);
 }
 
 module.exports = {
