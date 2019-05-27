@@ -718,10 +718,101 @@ Status: 404
 
 Status: 500
 
+{ "code": "UnknownError", "message": "*Upstream error messages*" }
+
+    <br /><br />## API v2
+    
+    ### `POST jobs`
+    
+    Submit a job v2 in the system.
+    
+    *Request*
+    
+
+POST /api/v2/jobs Content-Type: text/yaml Authorization: Bearer <access_token>
+
+    <br />*Parameters*
+    
+    [job protocol yaml](../pai-job-protocol.yaml)
+    
+    *Response if succeeded*
+    
+
+Status: 202
+
+{ "message": "update job $jobName successfully" }
+
+    <br />*Response if the virtual cluster does not exist.*
+    
+
+Status: 400
+
+{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+
+    <br />*Response if user has no permission*
+    
+
+Status: 403
+
+{ "code": "ForbiddenUserError", "message": "User $username is not allowed to add job to $vcname }
+
+    <br />*Response if there is a duplicated job submission*
+    
+
+Status: 409
+
+{ "code": "ConflictJobError", "message": "Job name $jobname already exists." }
+
+    <br />*Response if a server error occured*
+    
+
+Status: 500
+
+{ "code": "UnknownError", "message": "*Upstream error messages*" }
+
+    <br />### `GET jobs/:frameworkName/config`
+    
+    Get job config JSON or YAML content.
+    
+    *Request*
+    
+
+GET /api/v2/jobs/:frameworkName/config Accept: json (for v1 jobs) Accept: yaml (for v2 jobs)
+
+    <br />*Response if succeeded*
+    
+
+Status: 200
+
+{ "jobName": "test", "image": "pai.run.tensorflow", ... }
+
+or
+
+jobName: test protocolVersion: 2 ...
+
+    <br />*Response if the job does not exist*
+    
+
+Status: 404
+
+{ "code": "NoJobError", "message": "Job $jobname is not found." }
+
+    <br />*Response if the job config does not exist*
+    
+
+Status: 404
+
+{ "code": "NoJobConfigError", "message": "Config of job $jobname is not found." }
+
+    <br />*Response if a server error occured*
+    
+
+Status: 500
+
 { "code": "UnknownError", "message": "*Upstream error messages*" } ```
 
 ## About legacy jobs
 
-从此版本开始，会启用 [Framework ACL](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL_zh_CN.md#Framework_ACL) ，Job 的命名空间会包含创建者的用户名。 jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version, jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
 
 In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced job as soon as possible.
