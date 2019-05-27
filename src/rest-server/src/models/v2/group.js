@@ -29,7 +29,6 @@ const crudGroup = crudUtil.getStorageObject(crudType);
 const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI);
 
 let externalName2Groupname = {};
-let grouplistExistedInSystem = [];
 
 const getGroup = async (groupname) => {
   try {
@@ -69,7 +68,28 @@ const getUserGrouplistFromExternal = async (username) => {
 
 const deleteGroup = async (groupname) => {
   try {
-    return await crudGroup.remove(groupname, crudConfig);
+    const ret = await crudGroup.remove(groupname, crudConfig);
+    const groupList = await getAllGroup();
+    let userList = userModel.getAllUser();
+    let promiseList = [];
+    for (let userItem of userList) {
+      let updateUser = false;
+      let userGrouplist = [];
+      for (let groupname of userItem['grouplist']) {
+        if (groupList.includes(groupname)) {
+          userGrouplist.push(groupname);
+        } else {
+          updateUser = true;
+        }
+      }
+      if (updateUser) {
+        const newUserInfo = userItem;
+        newUserInfo['grouplist'] = userGrouplist;
+        promiseList.push(userModel.updateUser(newUserInfo['username'], newUserInfo));
+      }
+    }
+    await Promise.all(promiseList);
+    return ret;
   } catch (error) {
     throw error;
   }
@@ -158,62 +178,39 @@ if (config.env !== 'test') {
         console.log(error);
       }
     })();
-  }
-
-  setInterval( async function() {
-    try {
-      logger.info('Begin to update group info.');
-      const groupList = await getAllGroup();
-      let newExternalName2Groupname = {};
-      let newGrouplistExistedInSystem = [];
-      let update = false;
-      for (const groupItem of groupList) {
-        newExternalName2Groupname.set(groupItem.externalName, groupItem.groupname);
-        newGrouplistExistedInSystem.push(groupItem.groupname);
-      }
-      if (newExternalName2Groupname.size !== externalName2Groupname.size) {
-        update = true;
-      }
-      for (const [key, val] of newExternalName2Groupname) {
-        if (! externalName2Groupname.has(key)) {
-          update = true;
-        } else if (externalName2Groupname[key] !== val) {
+  } else {
+    setInterval(async function() {
+      try {
+        logger.info('Begin to update group info.');
+        const groupList = await getAllGroup();
+        let newExternalName2Groupname = {};
+        let update = false;
+        for (const groupItem of groupList) {
+          newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
+        }
+        if (newExternalName2Groupname.size !== externalName2Groupname.size) {
           update = true;
         }
-        if (update) {
-          break;
-        }
-      }
-      if (update) {
-        externalName2Groupname = newExternalName2Groupname;
-        grouplistExistedInSystem = newGrouplistExistedInSystem;
-      }
-      logger.info('Update group info successfully.');
-      logger.info('Begin to update user grouplist.');
-      let userList = userModel.getAllUser();
-      let promiseList = [];
-      for (let userItem of userList) {
-        let updateUser = false;
-        let userGrouplist = []
-        for (let groupname of userItem['grouplist']) {
-          if (grouplistExistedInSystem.includes(groupname)) {
-            userGrouplist.push(groupname);
-          } else {
-            updateUser = true;
+        for (const [key, val] of newExternalName2Groupname) {
+          if (!externalName2Groupname.has(key)) {
+            update = true;
+          } else if (externalName2Groupname[key] !== val) {
+            update = true;
+          }
+          if (update) {
+            break;
           }
         }
-        if (updateUser) {
-          const newUserInfo = userItem;
-          newUserInfo['grouplist'] = userGrouplist;
-          promiseList.push(userModel.updateUser(newUserInfo['username'], newUserInfo));
+        if (update) {
+          externalName2Groupname = newExternalName2Groupname;
         }
+        logger.info('Update group info successfully.');
+      } catch (error) {
+        logger.info('Failed to update group info.');
+        throw error;
       }
-      await Promise.all(promiseList);
-    } catch (error) {
-      logger.info('Failed to update group info.');
-      throw error;
-    }
-  }, 600);
+    }, 600 * 1000);
+  }
 }
 
 module.exports = {
