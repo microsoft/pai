@@ -1,6 +1,6 @@
 # OpenPAI VS Code Client
 
-OpenPAI VS Code Client is an extension to connect PAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
+OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client)
   - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
@@ -22,18 +22,18 @@ OpenPAI VS Code Client is an extension to connect PAI clusters, submit AI jobs, 
 
 Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster.
 
-Notice, it needs the version OpenPAI cluster >= 0.8.0
+Notice, the version of OpenPAI cluster must equal or greater than 0.8.0.
 
 1. Use shortcut key Ctrl+Shift+P to open command palette.
 2. Input and look for *PAI: Add PAI Cluster* as below.
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
 
-3. Press *Enter*, and it asks to input the host of OpenPAI. It can be domain name or IP Address. After that, press enter again.
+3. Press *Enter*, and input the host of an OpenPAI cluster. It can be domain name or IP Address. After that, press *Enter* again.
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster_host.png)
 
-4. A configuration file is opened, and you need to update username and password field at least. Once it completes, click *Finish* button at right bottom corner. Notice, it won't be effect, if you save and close the file directly.
+4. A configuration file is opened, and username and password fields are needed at least. Once it completes, click *Finish* button at right bottom corner. Notice, it won't be effect, if you save and close the file directly.
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
 
