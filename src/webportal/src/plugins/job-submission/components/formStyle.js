@@ -1,5 +1,5 @@
 import { mergeStyleSets  } from '@uifabric/merge-styles'
-import { FontSizes, IconFontSizes } from 'office-ui-fabric-react/lib/Styling';
+import { FontSizes, IconFontSizes, FontWeights } from 'office-ui-fabric-react/lib/Styling';
 
 const marginSize = {
   l1: '20px',
@@ -40,6 +40,27 @@ export const getFromStyle = () => {
       root: {
         fontSize: IconFontSizes.medium,
         margin: `0, ${marginSize.s1}`
+      }
+    }
+  });
+}
+
+export const getFromTextFieldStyle = () => {
+  return ({
+    root: {
+      marginLeft: marginSize.s1,
+      marginTop: marginSize.m
+    },
+    label: {
+      root: {
+        fontSize: FontSizes.icon,
+        fontWeight: FontWeights.regular,
+        width: '20%'
+      }
+    },
+    textFiled: {
+      root: {
+        width: '60%'
       }
     }
   });

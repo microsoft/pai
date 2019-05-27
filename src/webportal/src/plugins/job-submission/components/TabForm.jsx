@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pivot, PivotItem, Icon, ActionButton, Stack } from 'office-ui-fabric-react';
+import { Pivot, PivotItem, Icon, ActionButton } from 'office-ui-fabric-react';
 import { getFormClassNames, getFromStyle } from './formStyle'
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
