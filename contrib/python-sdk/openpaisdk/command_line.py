@@ -4,11 +4,13 @@ import os, sys
 import openpaisdk as pai
 from openpaisdk import __logger__
 from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.utils import list2dict
 from openpaisdk.core import Cluster
 from openpaisdk.job import TaskRole, JobSpec, Job
 import openpaisdk.runtime_requires as req
 from openpaisdk.runtime import runtime_execute
-from openpaisdk.cli_utils import Namespace, cli_add_arguments, EngineFactory, ActionFactory, Scene, Action
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk.cli_factory import EngineFactory, ActionFactory, Scene, Action
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -76,7 +78,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = {cluster['cluster_alias']: cluster for cluster in get_client_cfg(None)[1]}
+        cfgs = list2dict(get_client_cfg(None)[1], "cluster_alias")
         if args.name:
             return list(cfgs.keys())
         return cfgs
@@ -102,7 +104,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['cluster_alias'])
 
     def do_action_select(self, args):
-        return Engine().process(['default', 'add', 'cluster-alias=%s' % args.cluster_alias])
+        return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
 
     def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
@@ -121,6 +123,7 @@ class ActionFactoryForCluster(ActionFactory):
 
 class ActionFactoryForJob(ActionFactory):
 
+    # basic commands
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
         parser.add_argument('job_name', metavar='job name', nargs='?')
@@ -131,8 +134,28 @@ class ActionFactoryForJob(ActionFactory):
         result = client.rest_api_jobs(args.job_name, args.query)
         if args.name:
             assert not args.query, 'cannot use --name with query at the same time'
-            result = [j['name'] for j in result]
+            result = list2dict(result, 'name')
         return result                
+
+    def define_arguments_submit(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--rename', 'config'])
+
+    def do_action_submit(self, args):
+        if not getattr(args, 'config', None):
+            args.config = Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1"))
+        job_config = from_file(args.config)
+        if getattr(args, 'rename', True):
+            job_config["name"] = args.job_name
+        if not getattr(args, "job_name", None) in [None, "null"]:
+            args.job_name = job_config["name"]
+        assert args.job_name == job_config["name"], "job name mismatch %s <> %s" % (args.job_name, job_config["name"])
+        
+        if args.config != Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")):
+            to_file(job_config, Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")))
+
+        client = get_client(args.cluster_alias)
+        client.get_token().rest_api_submit(job_config, use_v2=args.v2)
+        return client.get_job_link(args.job_name)
 
     def define_arguments_new(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
@@ -143,36 +166,43 @@ class ActionFactoryForJob(ActionFactory):
             raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
         self.__job__.from_dict(vars(args), ignore_unkown=True)
         if not args.dont_set_as_default:
-            Engine().process(['default', 'add', 'job-name={}'.format(args.job_name)]) 
+            Engine().process(['set', 'job-name={}'.format(args.job_name)]) 
         return self.__job__.to_dict()
 
-    def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--preview', 'config'])
+    def define_arguments_preview(self, parser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--job-name', '--v2', 'config'])
 
-    def do_action_submit(self, args):
-        client = get_client(args.cluster_alias)
-        if getattr(args, 'config', None):
-            return client.get_token().rest_api_submit(from_file(args.config))
-        job_config = self.__job__.to_job_config_v1(save_to_file=self.__job__.get_config_file())
-        if getattr(args, 'preview', False):
-            return job_config
-        client.submit(self.__job__, job_config)
-        return client.get_job_link(args.job_name)
+    def do_action_preview(self, args):
+        fname = Job.default_job_config_filename("2" if args.v2 else "1")
+        if args.v2:
+            raise NotImplementedError
+        else:
+            job_config = self.__job__.to_job_config_v1(save_to_file=fname)
+        client = get_client(getattr(args, "cluster_alias", None))
+        if client:
+            pass
+        if hasattr(args, "config") and args.config:
+            to_file(job_config, args.config)
+            return "write job config to %s" % args.config
+        return job_config
 
-    def define_arguments_fast(self, parser: argparse.ArgumentParser):
+    def define_arguments_sub(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
         TaskRole().define(parser)
         cli_add_arguments(None, parser, ['--pip-flags'])
-        cli_add_arguments(None, parser, ['--dont-set-as-default', '--preview'])
+        cli_add_arguments(None, parser, ['--dont-set-as-default', '--v2', '--preview'])
 
-    def do_action_fast(self, args):
+    def do_action_sub(self, args):
         self.do_action_new(args)
         self.store(args)
         args_task = TaskRole().from_dict(vars(args), ignore_unkown=True, scene='task', action='add')
         Engine().process_args(args_task)
         if getattr(args, 'pip_flags', None):
             Engine().process(['require', 'pip'] + args.pip_flags)
-        return Engine().process_args(Namespace().from_dict(args, scene='job', action='submit'))
+        result = Engine().process_args(Namespace().from_dict(args, action="preview", config=None))
+        if args.preview:
+            return result
+        return Engine().process_args(Namespace().from_dict(args, action="submit", config=None))
 
 
 class ActionFactoryForTaskRole(ActionFactory):
@@ -231,7 +261,7 @@ class ActionFactoryForStorage(ActionFactory):
 
     def do_action_list_storage(self, args):
         client = get_client(args.cluster_alias)
-        return client.config['storages']
+        return list2dict(client.config['storages'], 'storage_alias')
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
@@ -264,6 +294,10 @@ class ActionFactoryForStorage(ActionFactory):
         return get_storage(args).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=args.overwrite)
 
 
+def is_beta_version():
+    return not pai.__sdk_branch__.startswith("sdk-release-")
+
+
 __cluster_actions__ = {
     "list": ["list clusters in config file %s" % pai.__cluster_config_file__],
     "add": ["add a cluster to config file %s" % pai.__cluster_config_file__],
@@ -274,8 +308,8 @@ __cluster_actions__ = {
 __job_actions__ = {
     "list": ["list existing jobs"],
     "new": ["create a job config cache for submitting"],
+    "preview": ["preview job config"],
     "submit": ["submit the job"],
-    "abort": ["remove local cache of the job"],
     "sub": ["shortcut of submitting a job in one line"],
 }
 

@@ -3,7 +3,7 @@ import os
 from copy import deepcopy
 from openpaisdk.storage import Storage
 from openpaisdk.utils import get_response
-from openpaisdk.cli_utils import get_args, cli_add_arguments, Namespace
+from openpaisdk.cli_arguments import get_args, cli_add_arguments, Namespace
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
 from openpaisdk import __defaults__, __logger__
@@ -12,10 +12,10 @@ from openpaisdk import __defaults__, __logger__
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
     """in_job_container check whether it is inside a job container (by checking environmental variables)
 
-    
+
     Keyword Arguments:
         varname {str} -- the variable to test (default: {'PAI_CONTAINER_ID'})
-    
+
     Returns:
         [bool] -- return True is os.environ[varname] is set
     """
@@ -40,7 +40,7 @@ class Cluster(Namespace):
             if i==0:
                 self.default_storage_alias = cfg.get('alias')
 
-    def define(self, 
+    def define(self,
         parser # type: argparse.ArgumentParser
         ):
         cli_add_arguments(self, parser, [
@@ -50,12 +50,12 @@ class Cluster(Namespace):
     @property
     def storage(self):
         return self.storage_clients.get(self.default_storage_alias, None)
-             
+
     def add_storage(self, protocol: str=None, storage_lias: str=None, **kwargs):
         "initialize the connection information"
         func = 'add_storage_%s' % protocol.lower()
         return getattr(self, func)(storage_lias, **kwargs)
-    
+
     def add_storage_webhdfs(self, storage_lias, web_hdfs_uri: str, **kwargs):
         self.storage_clients[storage_lias] = Storage(protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
         return self
@@ -64,7 +64,7 @@ class Cluster(Namespace):
         """
         [summary]
             expiration (int, optional): Defaults to 3600. [description]
-        
+
         Returns:
             OpenPAIClient: self
         """
@@ -75,11 +75,11 @@ class Cluster(Namespace):
     def submit(self, job: Job, job_config: dict=None, allow_job_in_job: bool=False, append_pai_info: bool=True):
         """
         [summary]
-        
+
         Args:
             job (Job): job config
             allow_job_in_job (bool, optional): Defaults to False. [description]
-        
+
         Returns:
             [str]: job name
         """
@@ -112,7 +112,7 @@ class Cluster(Namespace):
         query the list of jobs
             jobName (str, optional): Defaults to None. [description]
             name_only (bool, optional): Defaults to False. [description]
-        
+
         Returns:
             [type]: [description]
         """
@@ -131,20 +131,20 @@ class Cluster(Namespace):
 
     def rest_api_token(self, expiration=3600):
         return get_response(
-            '{}/rest-server/api/v1/token'.format(self.pai_uri), 
+            '{}/rest-server/api/v1/token'.format(self.pai_uri),
             body={
                 'username': self.user, 'password': self.config['passwd'], 'expiration': expiration
             }
         ).json()['token']
 
-    def rest_api_submit(self, job_config: dict):
+    def rest_api_submit(self, job_config: dict, use_v2: bool=False):
         return get_response(
-            '{}/rest-server/api/v1/user/{}/jobs'.format(self.pai_uri, self.user),
+            '{}/rest-server/api/{}/user/{}/jobs'.format(self.pai_uri, "v2" if use_v2 else "v1", self.user),
             headers = {
                 'Authorization': 'Bearer {}'.format(self.token),
                 'Content-Type': 'application/json'
             },
-            body = job_config, 
+            body = job_config,
             allowed_status=[202, 201]
         )
 

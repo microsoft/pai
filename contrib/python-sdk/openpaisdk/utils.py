@@ -15,6 +15,10 @@ def find_match(lst: iter, key: str=None, attr: str=None, target=None):
         return [x for x in lst if getattr(x, attr) == target]
 
 
+def list2dict(lst: list, key: str, skip_key_err: bool=True):
+    return {x[key]:x for x in lst if key in x}
+
+
 def merge_two_object(a: dict, b: dict):
     y = deepcopy(a)
     y.update(b)

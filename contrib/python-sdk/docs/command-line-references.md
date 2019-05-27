@@ -4,56 +4,15 @@ This section will give guidance about installation, cluster management and setti
 
 ## 1.1. Installation
 
-We provide installing method leveraging `pip install`
+Refer to [README](../README.md) for how to install the sdk and specify your cluster information.
 
-```bash
-python -m pip install --upgrade pip
-pip install -U -e "git+https://github.com/Microsoft/pai@<sdk-brach>#egg=openpaisdk&subdirectory=contrib/python-sdk"
-```
-
-The `<sdk-branch>` (e.g. `sdk-preview-v0.3`) is the branch name which containing the source code of SDK. After installing, please verify by CLI or python binding
-
-```bash
-opai -h
-python -c "from openpaisdk import __version__; print(__version__)"
-```
-
-## 1.2. Define your cluster
-
-Please store your cluster information into `~/.openpai/clusters.json`. Every cluster would have an alias for calling, and you may save more than one cluster in the file.
-
-```json
-[
-    {
-        "alias": "cluster-alias-1",
-        "pai_uri": "http://x.x.x.x",
-        "user": "user name",
-        "passwd": "password",
-        "storages":[
-            {
-                "alias": "default",
-                "protocol": "webHDFS",
-                "hdfs_web_uri": "http://x.x.x.x:yyyy"
-            }
-        ]
-    }
-]
-```
-
-Now below command shows all your clusters would be displayed.
-
-```bash
-opai cluster list [--name] [-a <cluster-alias>]
-```
-
-## 1.3. Set default values
+## 1.2. Set default values
 
 It is annoying that specify some arguments every time, (e.g. `-a <alias>` or `-i <image>`). During the workflow, user may often reference some variables without changing. For example, it is usually to use the same docker image for multiple jobs, and the storage root doesn't change either. To simplify, it is suggested setting them by `default` command, which would be stored in `.opanpai/defaults.json` in current working directory.
 
 ```bash
-opai default add <variable>=<value> [<var2>=<val2> [...]] 
-opai default list
-opai default remove [variable-name]
+opai set [<variable1>=<value1> [<var2>=<val2> [...]]] 
+opai set <variable1> [<var2> [...]]
 ```
 
 Here are some frequently used variables. 
@@ -73,7 +32,6 @@ The command line tool `opai` provides several useful subcommands.
 | Scene | Action | Description |
 | -- | -- | -- |
 | `cluster` | `list` | cluster configuration management |
-| `default` | `add`, `delete` | add or remove default variables |
 | `storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
 | `job` | `list`, `new`, `submit`, `sub` | query, create and summit a job |
 | `task` | `add` | add a task role to a job |

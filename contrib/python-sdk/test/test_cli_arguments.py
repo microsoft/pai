@@ -1,7 +1,7 @@
 import unittest
 import argparse
 from copy import deepcopy
-from openpaisdk.cli_utils import get_args, Namespace
+from openpaisdk.cli_arguments import get_args, Namespace
 
 
 def foo(a, b, **kwargs):

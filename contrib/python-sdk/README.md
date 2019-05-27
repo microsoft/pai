@@ -147,7 +147,6 @@ The command line tool `opai` provides several useful subcommands.
 | `storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
 | `require` | `pip`, `weblink` | add requirements (prerequisites) to a job or task role |
 | `runtime` | `execute` | python SDK run as the runtime |
-| `default` | `add`, `delete` | add or remove default variables |
 
 Refer to [the doc](docs/command-line-references.md) and tutorials under [examples](examples/) for more details. 
 

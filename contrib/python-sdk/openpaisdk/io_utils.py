@@ -44,7 +44,7 @@ def from_file(fname: str, default={}, fmt=None, **kwargs):
         if not fmt:
             _, ext = os.path.splitext(fname)
             if ext in __json_exts__:
-                fmt = json, 
+                fmt = json
             elif ext in __yaml_exts__:
                 import yaml
                 fmt = yaml
@@ -57,7 +57,7 @@ def from_file(fname: str, default={}, fmt=None, **kwargs):
     except Exception as e:
         if default == '==FATAL==':
             __logger__.error('IO Err: %s', e, exc_info=True)
-        __logger__.debug('Deserializing failed, return default')
+        __logger__.debug('Deserializing %s failed (%s), return default', fname, e)
         return default 
 
 

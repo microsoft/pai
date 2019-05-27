@@ -1,4 +1,4 @@
-from openpaisdk.cli_utils import Namespace, cli_add_arguments
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import merge_two_object
 from openpaisdk import __jobs_cache__, __install__, __logger__
@@ -56,7 +56,6 @@ class Job(JobSpec):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print(self.taskroles)
         t_objs = [TaskRole(**t) for t in self.taskroles]
         self.taskroles = t_objs
 
@@ -126,8 +125,15 @@ class Job(JobSpec):
     def job_cache_file(job_name: str, fname: str = 'cache.json'):
         return os.path.join(__jobs_cache__, job_name, fname)
 
-    def get_config_file(self):
-        return Job.job_cache_file(self.job_name, 'job_config.json')
+    @staticmethod
+    def default_job_config_filename(protocolVersion: str="2"):
+        protocolVersion = str(protocolVersion)
+        if protocolVersion == "2" or protocolVersion.startswith("2."):
+            return "job_config.yaml"
+        return "job_config.json"
+
+    def get_config_file(self, protocolVersion: str="1"):
+        return Job.job_cache_file(self.job_name, Job.default_job_config_filename(protocolVersion))
 
     def get_cache_file(self):
         return Job.job_cache_file(self.job_name)
