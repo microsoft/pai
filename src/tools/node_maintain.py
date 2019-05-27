@@ -253,9 +253,12 @@ def add_dedicate_vc(args):
                 "capacity": info["capacity"],
                 "maximum-capacity": info["maxCapacity"]
             }
-        yarn_operator.update_queue_capacity(updated_dict)
 
         yarn_operator.label_nodes(nodes, vc_name)
+
+        yarn_operator.update_queue_capacity(updated_dict)
+
+
 
 
 def remove_dedicate_vc(args):
@@ -308,9 +311,12 @@ def remove_dedicate_vc(args):
                 "capacity": info["capacity"],
                 "maximum-capacity": info["maxCapacity"]
             }
-        yarn_operator.update_queue_capacity(updated_dict)
 
         yarn_operator.label_nodes(t_nodes, "")
+
+        yarn_operator.update_queue_capacity(updated_dict)
+
+
 
     if remove_queue_flag:
         logger.info("Removing dedicated vc...")
@@ -398,7 +404,7 @@ def main():
     parser = setup_parser()
     # args = parser.parse_args(["dedicated-vc", "-h"])
     args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
-    args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip

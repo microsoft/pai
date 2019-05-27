@@ -30,15 +30,36 @@ class VirtualCluster {
 
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
+        let queueDefaultLabel = queueInfo.defaultNodeLabelExpression;
+        if (typeof(queueDefaultLabel) === 'undefined' || queueDefaultLabel === '<DEFAULT_PARTITION>') {
+          queueDefaultLabel = '';
+        }
+        let defaultPartitionInfo = null;
+        for (let partition of queueInfo.capacities.queueCapacitiesByPartition) {
+          if (partition.partitionName === queueDefaultLabel) {
+            defaultPartitionInfo = partition;
+            break;
+          }
+        }
+        let defaultPartitionResource = null;
+        for (let partition of queueInfo.resources.resourceUsagesByPartition) {
+          if (partition.partitionName === queueDefaultLabel) {
+            defaultPartitionResource = partition;
+            break;
+          }
+        }
+
         queueDict[queueInfo.queueName] = {
-          capacity: Math.round(queueInfo.absoluteCapacity),
-          maxCapacity: Math.round(queueInfo.absoluteMaxCapacity),
-          usedCapacity: queueInfo.absoluteUsedCapacity,
+          capacity: Math.round(defaultPartitionInfo.absoluteCapacity),
+          maxCapacity: Math.round(defaultPartitionInfo.absoluteMaxCapacity),
+          usedCapacity: defaultPartitionInfo.absoluteUsedCapacity,
           numActiveJobs: queueInfo.numActiveApplications,
           numJobs: queueInfo.numApplications,
           numPendingJobs: queueInfo.numPendingApplications,
-          resourcesUsed: queueInfo.resourcesUsed,
+          resourcesUsed: defaultPartitionResource.used,
           status: queueInfo.state,
+          defaultLabel: queueDefaultLabel,
+          dedicated: queueDefaultLabel !== '',
         };
       } else {
         for (let i = 0; i < queueInfo.queues.queue.length; i++) {
@@ -51,6 +72,56 @@ class VirtualCluster {
     return queues;
   }
 
+  getResourceByLabel(nodeInfo) {
+    let resourceByLabel = {};
+    for (let node of nodeInfo) {
+      let nodeLabel = node.nodeLabels || [''];
+      nodeLabel = nodeLabel[0];
+      if (!resourceByLabel.hasOwnProperty(nodeLabel)) {
+        resourceByLabel[nodeLabel] = {
+          vCores: 0,
+          memory: 0,
+          GPUs: 0,
+        };
+      }
+      resourceByLabel[nodeLabel].vCores += node.usedVirtualCores + node.availableVirtualCores;
+      resourceByLabel[nodeLabel].memory += node.usedMemoryMB + node.availMemoryMB;
+      resourceByLabel[nodeLabel].GPUs += node.usedGPUs + node.availableGPUs;
+    }
+    return resourceByLabel;
+  }
+
+  addDedicatedInfo(vcInfo, next) {
+    unirest.get(yarnConfig.yarnNodeInfoPath)
+      .headers(yarnConfig.webserviceRequestHeaders)
+      .end((res) => {
+        try {
+          const resJson = typeof res.body === 'object' ?
+            res.body : JSON.parse(res.body);
+          const nodeInfo = resJson.nodes.node;
+          let labeledResource = this.getResourceByLabel(nodeInfo);
+          for (let vcName of Object.keys(vcInfo)) {
+            let resourcesTotal = {
+              vCores: 0,
+              memory: 0,
+              GPUs: 0,
+            };
+            let vcLabel = vcInfo[vcName].defaultLabel;
+            if (labeledResource.hasOwnProperty(vcLabel)) {
+              let p = vcInfo[vcName].capacity;
+              resourcesTotal.vCores = labeledResource[vcLabel].vCores * p / 100;
+              resourcesTotal.memory = labeledResource[vcLabel].memory * p / 100;
+              resourcesTotal.GPUs = labeledResource[vcLabel].GPUs * p / 100;
+            }
+            vcInfo[vcName].resourcesTotal = resourcesTotal;
+          }
+          next(vcInfo, null);
+        } catch (error) {
+          next(null, error);
+        }
+    });
+  }
+
   getVcList(next) {
     unirest.get(yarnConfig.yarnVcInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -60,8 +131,9 @@ class VirtualCluster {
             res.body : JSON.parse(res.body);
           const schedulerInfo = resJson.scheduler.schedulerInfo;
           if (schedulerInfo.type === 'capacityScheduler') {
-            const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
-            next(vcInfo, null);
+            let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+            // next(vcInfo, null);
+            this.addDedicatedInfo(vcInfo, next);
           } else {
             next(null, createError('Internal Server Error', 'BadConfigurationError',
               `Scheduler type ${schedulerInfo.type} is not supported.`));

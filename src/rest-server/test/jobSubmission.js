@@ -15,6 +15,124 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const schedulerResponse = {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
+                  "capacities": {
+                    "queueCapacitiesByPartition": [
+                      {
+                        "partitionName": "",
+                        "capacity": 30.000002,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 30.000002,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                      }
+                    ]
+                  }
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                  "capacities": {
+                    "queueCapacitiesByPartition": [
+                      {
+                        "partitionName": "",
+                        "capacity": 30.000002,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 30.000002,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                      }
+                    ]
+                  }
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                  "capacities": {
+                    "queueCapacitiesByPartition": [
+                      {
+                        "partitionName": "",
+                        "capacity": 30.000002,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 30.000002,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      };
+
+const nodeResponse = {
+      "nodes": {
+        "node": [
+          {
+            "rack": "/default-rack",
+            "state": "RUNNING",
+            "id": "10.151.40.132:8041",
+            "nodeHostName": "10.151.40.132",
+            "nodeHTTPAddress": "10.151.40.132:8042",
+            "numContainers": 2,
+            "usedMemoryMB": 3072,
+            "availMemoryMB": 205824,
+            "usedVirtualCores": 2,
+            "availableVirtualCores": 22,
+            "usedGPUs": 1,
+            "availableGPUs": 3,
+            "availableGPUAttribute": 14,
+            "nodeLabels": [
+                "test_vc"
+            ],
+          },
+          {
+            "rack": "/default-rack",
+            "state": "RUNNING",
+            "id": "10.151.40.131:8041",
+            "nodeHostName": "10.151.40.131",
+            "nodeHTTPAddress": "10.151.40.131:8042",
+            "numContainers": 2,
+            "usedMemoryMB": 3072,
+            "availMemoryMB": 205824,
+            "usedVirtualCores": 2,
+            "availableVirtualCores": 22,
+            "usedGPUs": 1,
+            "availableGPUs": 3,
+            "availableGPUAttribute": 14,
+          }
+        ]
+      }
+    };
+
 describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
@@ -174,42 +292,10 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
-  }
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
+  };
 
   const prepareNockForCaseN06 = (namespace, jobName) => {
     global.nock(global.launcherWebserviceUri)
@@ -221,41 +307,9 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     //
     // Mock k8s secret return result
@@ -276,7 +330,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         },
         'type': 'Opaque'
     });
-  }
+  };
 
   const prepareNockForCaseN08 = (namespace, jobName) => {
       global.nock(global.launcherWebserviceUri)
@@ -288,42 +342,10 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
-  }
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
+};
 
   const prepareNockForCaseN09 = prepareNockForCaseN03;
 
