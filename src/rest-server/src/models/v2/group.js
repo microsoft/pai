@@ -29,7 +29,6 @@ const crudGroup = crudUtil.getStorageObject(crudType);
 const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI);
 
 let externalName2Groupname = {};
-// eslint-disable-next-line no-unused-vars
 let grouplistExistedInSystem = [];
 
 const getGroup = async (groupname) => {
