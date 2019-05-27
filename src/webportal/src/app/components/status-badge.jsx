@@ -45,9 +45,9 @@ export const IconBadge = ({children, className, icons}) => (
         icons && <div className={c(t.relative, t.w1)} style={{width: '15px'}}>
         {
           icons.map((iconName, idx) => (
-            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill, t.tc, t.vMid, t.lhSolid)} 
+            <Icon key={`icon-${idx}-${iconName}`} className={c(t.absolute, t.absoluteFill, t.tc, t.vMid, t.lhSolid)}
             styles={{root: {
-              color: idx === 0 ?  {
+              color: idx === 0 ? {
                 Waiting: statusColor.waiting,
                 Running: statusColor.running,
                 Stopping: statusColor.stopping,
