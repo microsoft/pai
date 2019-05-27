@@ -226,6 +226,7 @@ if (config.env !== 'test') {
         await userModel.updateUser(userData['username'], userData);
       }));
       logger.info('Update group info successfully.');
+      deletedGroup = [];
     } catch (error) {
       logger.info('Failed to update group info.');
       throw error;
