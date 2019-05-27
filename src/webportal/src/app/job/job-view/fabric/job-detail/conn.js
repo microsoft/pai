@@ -99,8 +99,16 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl() {
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
+export function getJobMetricsUrl(jobInfo) {
+  const from = jobInfo.jobStatus.createdTime;
+  let to = '';
+  const {state} = jobInfo.jobStatus;
+  if (state === 'RUNNING') {
+    to = Date.now();
+  } else {
+    to = jobInfo.jobStatus.completedTime;
+  }
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}&from=${from}&to=${to}`;
 }
 
 export async function cloneJob(rawJobConfig) {

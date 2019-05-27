@@ -20,6 +20,7 @@ import * as querystring from 'querystring';
 import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
 import {debounce, isEmpty} from 'lodash';
 
+import {ColorClassNames, getTheme} from '@uifabric/styling';
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -36,15 +37,19 @@ import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
 import userAuth from '../../../../user/user-auth/user-auth.component';
+import {initTheme} from '../../../../components/theme';
 
+initTheme();
 initializeIcons();
 
 function getError(error) {
   return (
     <Overlay>
-      <MessageBar messageBarType={MessageBarType.blocked}>
-        {error}
-      </MessageBar>
+      <div className={ColorClassNames.whiteBackground}>
+        <MessageBar messageBarType={MessageBarType.blocked}>
+          {error}
+        </MessageBar>
+      </div>
     </Overlay>
   );
 }
@@ -162,17 +167,25 @@ export default function JobList() {
     setPagination,
   };
 
+  const {spacing} = getTheme();
+
   return (
     <Context.Provider value={context}>
       <Fabric style={{height: '100%'}}>
-        <Stack verticalFill styles={{root: {position: 'relative', padding: '0 20px 20px'}}}>
+        <Stack
+          verticalFill
+          styles={{root: {position: 'relative', padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}}}
+        >
           <Stack.Item>
             <TopBar/>
           </Stack.Item>
-          <Stack.Item grow styles={{root: {height: 1, overflow: 'auto', backgroundColor: 'white', paddingTop: 15}}}>
+          <Stack.Item>
+            <div style={{height: spacing.s1}}></div>
+          </Stack.Item>
+          <Stack.Item grow styles={{root: {height: 0, overflow: 'auto', backgroundColor: 'white', padding: spacing.l1}}}>
             <Table/>
           </Stack.Item>
-          <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: 15}}}>
+          <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: spacing.l1}}}>
             <Paginator/>
           </Stack.Item>
           {error !== null ? getError(error) : null}

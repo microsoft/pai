@@ -24,7 +24,7 @@ import {Stack, FontClassNames} from 'office-ui-fabric-react';
 import React, {useEffect, useRef} from 'react';
 
 import Card from './card';
-import {statusColorMapping} from '../../components/theme';
+import {statusColor} from '../../components/theme';
 
 import t from '../../components/tachyons.scss';
 
@@ -43,7 +43,7 @@ const GpuChart = ({style, gpuPerNode}) => {
       data: {
         labels: range(maxVal + 1),
         datasets: [{
-          backgroundColor: statusColorMapping.succeeded,
+          backgroundColor: statusColor.succeeded,
           label: 'nodeCount',
           data: data,
         }],
