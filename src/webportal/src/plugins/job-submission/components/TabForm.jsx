@@ -9,18 +9,14 @@ export class TabForm extends React.Component {
     super(props);
 
     const itemsMap = new Map();
-    let itemSeq = 0;
-    let selectedKey = null;
+    const {items} = props;
 
-    if (props.minCount !== undefined) {
-      for (let index = 0; index < props.minCount; index++) {
-        const label = this._generateLabel(props.headerTemplate, index);
-        const itemKey = TAB_ITEM_KEY_PREFIX + itemSeq++;
-        const item = {itemKey: itemKey, label: label, children: props.pageTemplate};
-        itemsMap.set(itemKey, item);
-      }
+    let itemSeq = 0;
+    if (items !== undefined) {
+      items.forEach(item=>this._insertItemToMap(item, itemSeq++, itemsMap));
     }
 
+    let selectedKey = null;
     if (itemsMap.size > 0) {
       selectedKey = TAB_ITEM_KEY_PREFIX + 0;
     }
@@ -32,28 +28,22 @@ export class TabForm extends React.Component {
     }
   }
 
-
-  _generateLabel(headerTemplate, index) {
-    if (headerTemplate !== undefined) {
-      return headerTemplate + " " + (index + 1);
-    }
-    return (index + 1);
+  _insertItemToMap(item, itemSeq, itemsMap) {
+    const itemKey = TAB_ITEM_KEY_PREFIX + itemSeq;
+    const newItem = {...item, itemKey: itemKey};
+    itemsMap.set(itemKey, newItem);
   }
 
   _renderItems() {
     const pivotItems = [];
     const {itemsMap} = this.state;
-    const {headerTemplate} = this.props;
-    let index = 0;
 
     for (const item of itemsMap.values()) {
-      const label = headerTemplate !== undefined? this._generateLabel(headerTemplate, index): item.label;
       const element = (<PivotItem key={item.itemKey}
                                   itemKey={item.itemKey}
-                                  headerText={label}
+                                  headerText={item.headerText}
                                   onRenderItemLink={this._onRenderItem.bind(this)}/>);
       pivotItems.push(element);
-      index++;
     }
 
     return pivotItems;
@@ -79,22 +69,25 @@ export class TabForm extends React.Component {
       return;
     }
 
-    let updatedItemsMap;
+    const currentItems = Array.from(itemsMap.values());
+    const itemIndex = currentItems.findIndex(item=>item.itemKey === itemKey);
+    if (itemIndex === -1) {
+      console.warn('Can not get on delete item index');
+      return;
+    }
+
+    let updatedItems;
     if (onItemDelete === undefined) {
-      updatedItemsMap = this._defaultOnItemDelete(itemKey, itemsMap);
+      updatedItems = this._defaultOnItemDelete(itemIndex, currentItems);
     } else {
-      updatedItemsMap = onItemDelete(itemKey, itemsMap);
+      updatedItems = onItemDelete(itemIndex, currentItems);
     }
 
-    let newSelectedKey;
-    if (selectedKey == itemKey && updatedItemsMap.size > 0) {
-      newSelectedKey = Array.from(updatedItemsMap.keys())[updatedItemsMap.size - 1];
-    } else if (updatedItemsMap.size == 0) {
-      newSelectedKey = null;
-    } else {
-      newSelectedKey = selectedKey;
-    }
+    let itemSeq = 0;
+    const updatedItemsMap = new Map();
+    updatedItems.forEach(item => this._insertItemToMap(item, itemSeq++, updatedItemsMap));
 
+    const newSelectedKey = this._getUpdatedSelectedKey(itemIndex, updatedItems.length);
     this.setState({
       itemsMap: updatedItemsMap,
       selectedKey: newSelectedKey
@@ -102,21 +95,34 @@ export class TabForm extends React.Component {
     event.stopPropagation();
   }
 
-  _defaultOnItemDelete(itemKey, itemsMap) {
-    const updatedItemMap = new Map(itemsMap);
-    updatedItemMap.delete(itemKey);
-    return updatedItemMap;
+  _getUpdatedSelectedKey(itemIndex, updatedItemsSize) {
+    if (updatedItemsSize === 0) {
+      return null;
+    }
+
+    const isRemoveLastItem = (itemIndex === updatedItemsSize);
+    if (isRemoveLastItem) {
+      return TAB_ITEM_KEY_PREFIX + (itemIndex - 1);
+    }
+
+    return TAB_ITEM_KEY_PREFIX + itemIndex;
   }
 
-  _onAddItem(event) {
-    const {headerTemplate, pageTemplate, onItemAdd} = this.props;
+  _defaultOnItemDelete(itemIndex, currentItems) {
+    const targetKey = currentItems[itemIndex].itemKey;
+    return currentItems.filter(item=>item.itemKey !== targetKey)
+  }
+
+  _onAddItem() {
+    const {onItemAdd} = this.props;
     const {itemsMap, itemSeq} = this.state;
     let newItem;
-    if (onItemAdd !== undefined) {
-      newItem = onItemAdd(itemsMap, headerTemplate, pageTemplate);
-    } else {
-      newItem = this._defaultOnItemAdd(itemsMap, headerTemplate, pageTemplate);
+    if (onItemAdd === undefined) {
+      return;
     }
+
+    const currentItems = Array.from(itemsMap.values);
+    newItem = onItemAdd(currentItems);
     newItem.itemKey = TAB_ITEM_KEY_PREFIX + itemSeq;
 
     itemsMap.set(newItem.itemKey, newItem);
@@ -127,14 +133,7 @@ export class TabForm extends React.Component {
     });
   }
 
-  _defaultOnItemAdd(itemsMap, headerTemplate, pageTemplate) {
-    const label = this._generateLabel(headerTemplate, itemsMap.size);
-    const children = pageTemplate === undefined? null: pageTemplate;
-    const item = {label: label, children: children};
-    return item;
-  }
-
-  _onLinkClick(item, event) {
+  _onLinkClick(item) {
     this.setState({
       selectedKey: item.props.itemKey
     });
@@ -156,7 +155,7 @@ export class TabForm extends React.Component {
             </Pivot>
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
         </div>
-        {selectedKey !== null? itemsMap.get(selectedKey).children: null}
+        {selectedKey !== null? itemsMap.get(selectedKey).content: null}
       </div>
     );
   }

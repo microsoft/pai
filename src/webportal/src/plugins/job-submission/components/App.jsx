@@ -8,10 +8,11 @@ import { initializeIcons } from '@uifabric/icons';
 initializeIcons();
 
 export const App = () => {
-  const items = [{label: 'Task role 1', children: <Label>Label</Label>}];
+  const items = [{headerText: 'Task role 1', content: <Label>Label</Label>},
+                 {headerText: 'Task role 2', content: <Label>Label 2</Label>}];
   return (
     <Customizer {...FluentCustomizations}>
-      <TabForm  headerTemplate='Task role' minCount={2} pageTemplate={<Label>Label</Label>} />
+      <TabForm items={items} onItemAdd={()=>{return {headerText: 'Task role x', content: <Label>Label</Label>}}} />
     </Customizer>
   );
 }
