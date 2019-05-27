@@ -3,7 +3,7 @@ import os
 from copy import deepcopy
 from openpaisdk.storage import Storage
 from openpaisdk.utils import get_response
-from openpaisdk.cli_arguments import get_args
+from openpaisdk.cli_utils import get_args, cli_add_arguments, Namespace
 from openpaisdk.job import Job
 from openpaisdk.io_utils import to_file
 from openpaisdk import __defaults__, __logger__
@@ -24,74 +24,40 @@ def in_job_container(varname: str='PAI_CONTAINER_ID'):
     return True
 
 
-class Cluster:
+class Cluster(Namespace):
+    __type__ = "cluster-spec"
+    __fields__ = dict(
+        storage_clients = dict(),
+        default_storage_alias = 'default',
+    )
 
-    def __init__(self, pai_uri: str, user: str=None, passwd: str=None, storages: list=[], **kwargs):
-        """Cluster create an openpai client from necessary information
-        
-        Arguments:
-            pai_uri {str} -- format: http://x.x.x.x
-        
-        Keyword Arguments:
-            user {str} -- user name (default: {None})
-            passwd {str} -- password (default: {None})
-            hdfs_web_uri {str} -- format http://x.x.x.x:yyyy (default: {None})
-        """
+    def __init__(self, pai_uri: str=None, user: str=None, passwd: str=None, storages: list=[], **kwargs):
         self.config = get_args()
-        self.storages, self.default_storage_alias = dict(), 'default'
+        __logger__.debug('creating cluster from info %s', self.config)
+        super().__init__(**self.config)
         for i, cfg in enumerate(storages):
             self.add_storage(**cfg)
             if i==0:
                 self.default_storage_alias = cfg.get('alias')
 
-    @staticmethod
-    def from_json(pai_json: str, alias: str=None):
-        """from_json create client from openpai json config file
-        
-        Arguments:
-            pai_json {str} -- file path of json file
-            alias {str} -- [description] (default: {None})
-        
-        Returns:
-            Cluster --
-                a specific Cluster (if alias is valid or only one cluster specified)
-            str -- 
-                cluster alias
-        """
-        with open(pai_json) as fn:
-            cfgs = json.load(fn)
-        clients = [Cluster(**c) for c in cfgs]
-        if alias is None:
-            return clients[0], clients[0].alias
-        try:
-            c = [c for c in clients if c.alias == alias][0]
-            return c, alias
-        except:
-            __logger__.error('Cannot find cluster named %s', alias)
-
-    @property
-    def alias(self):
-        return self.config['alias']
-
-    @property
-    def user(self):
-        return self.config['user']
-    
-    @property
-    def pai_uri(self):
-        return self.config['pai_uri']
+    def define(self, 
+        parser # type: argparse.ArgumentParser
+        ):
+        cli_add_arguments(self, parser, [
+            '--cluster-alias', '--pai-uri', '--user', '--passwd',
+        ])
 
     @property
     def storage(self):
-        return self.storages.get(self.default_storage_alias, None)
+        return self.storage_clients.get(self.default_storage_alias, None)
              
-    def add_storage(self, protocol: str=None, alias: str=None, **kwargs):
+    def add_storage(self, protocol: str=None, storage_lias: str=None, **kwargs):
         "initialize the connection information"
         func = 'add_storage_%s' % protocol.lower()
-        return getattr(self, func)(alias, **kwargs)
+        return getattr(self, func)(storage_lias, **kwargs)
     
-    def add_storage_webhdfs(self, alias, hdfs_web_uri: str, **kwargs):
-        self.storages[alias] = Storage(protocol='webHDFS', url=hdfs_web_uri, user=kwargs.get('user', self.user))
+    def add_storage_webhdfs(self, storage_lias, web_hdfs_uri: str, **kwargs):
+        self.storage_clients[storage_lias] = Storage(protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
         return self
 
     def get_token(self, expiration=3600):

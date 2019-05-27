@@ -1,4 +1,4 @@
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk.cli_utils import Namespace, cli_add_arguments
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import merge_two_object
 from openpaisdk import __jobs_cache__, __install__, __logger__

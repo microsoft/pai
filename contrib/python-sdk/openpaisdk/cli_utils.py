@@ -3,7 +3,7 @@
 import argparse
 import inspect
 from copy import deepcopy
-from openpaisdk import __defaults__
+from openpaisdk import __defaults__, __logger__
 
 
 def get_args(
@@ -87,6 +87,15 @@ class ArgumentFactory:
 
         # cluster
         self.add_argument('--cluster-alias', '-a', default=__defaults__.get('cluster-alias', None), help='cluster alias to select')
+        self.add_argument('cluster_alias', help='cluster alias to select')
+
+        self.add_argument('--pai-uri', help="uri of openpai cluster, in format of http://x.x.x.x")
+        self.add_argument('--user', help='username')
+        self.add_argument('--passwd', help="password")
+
+        # storage
+        self.add_argument('--storage-alias', help='storage alias')
+        self.add_argument('--web-hdfs-uri', help="uri of web hdfs, in format of http://x.x.x.x:port")
 
         # job spec
         self.add_argument('--job-name', '-j', help='job name', default=__defaults__.get('job-name', None))
@@ -146,3 +155,94 @@ def cli_add_arguments(target: Namespace, parser: argparse.ArgumentParser, args: 
             parser.add_argument(*args, **kwargs)
         else:
             target.add_argument(parser, *args, **kwargs)
+
+
+class Action:
+
+    def __init__(self, action: str, help_s: str):
+        self.action, self.help_s = action, help_s
+    
+    def define_arguments(self, parser: argparse.ArgumentParser):
+        pass
+
+    def check_arguments(self, args):
+        pass
+
+    def restore(self, args):
+        pass
+
+    def store(self, args):
+        pass
+
+    def do_action(self, args):
+        raise NotImplementedError
+
+
+class ActionFactory(Action): 
+
+    def __init__(self, action: str, allowed_actions: dict):
+        assert action in allowed_actions, ("unsupported action of job", action)
+        super().__init__(action, allowed_actions[action][0])
+        suffix = action.replace('-', '_')
+        self.define_arguments = getattr(self, "define_arguments_" + suffix, super().define_arguments)
+        self.do_action = getattr(self, "do_action_" + suffix, None)
+
+    def restore(self, args):
+        if getattr(args, 'job_name', None):
+            self.__job__ = Job.restore(args.job_name)
+        return self
+
+    def store(self, args):
+        if getattr(self, '__job__', None):
+            self.__job__.store()
+        return self
+
+
+class Scene:
+
+    def __init__(self, scene: str, help_s: str, parser: argparse.ArgumentParser,
+        action_list # type: list[Action]
+        ):
+        self.scene, self.help_s  = scene, help_s
+        self.single_action = len(action_list) == 1 and scene == action_list[0].action
+        if self.single_action:
+            action_list[0].define_arguments(parser)
+            self.do_action = action_list[0].do_action
+        else:
+            self.actions, subparsers = dict(), parser.add_subparsers(dest='action', help=help_s)
+            for a in action_list:
+                p = subparsers.add_parser(a.action, help=a.help_s)
+                a.define_arguments(p)
+                self.actions[a.action] = a
+
+    def process(self, args):
+        __logger__.debug('Parsed arguments to %s', args)
+        actor = self if self.single_action else self.actions[args.action]
+        actor.check_arguments(args)
+        actor.restore(args)
+        result = actor.do_action(args)
+        actor.store(args)
+        return result
+
+
+class EngineFactory:
+
+    def __init__(self, cli_structure):
+        self.parser = argparse.ArgumentParser(description='command line interface for OpenPAI')
+        subparsers = self.parser.add_subparsers(dest='scene', help='openpai cli working scenarios')
+        self.scenes = dict()
+        for k, v in cli_structure.items():
+            p = subparsers.add_parser(k, help=v[0])
+            self.scenes[k] = Scene(k, v[0], p, v[1])
+
+    def process(self, a: list):
+        __logger__.debug('Received arguments %s', a)
+        __logger__.debug("Received arguments %s", a)
+        args = self.parser.parse_args(a)
+        return self.process_args(args)
+
+    def process_args(self, args):
+        __logger__.debug("Parsed arguments %s", args)
+        if not args.scene:
+            return self.parser.print_help()
+        return self.scenes[args.scene].process(args)

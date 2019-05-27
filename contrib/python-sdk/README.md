@@ -10,10 +10,11 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
 - [2. Get started](#2-get-started)
   - [2.1. Installation](#21-installation)
   - [2.2. Define your cluster](#22-define-your-cluster)
-  - [2.3. CLI tools](#23-cli-tools)
-  - [2.4. Python binding](#24-python-binding)
-  - [2.5. Runtime supports](#25-runtime-supports)
-  - [2.6. Notebook tutorials](#26-notebook-tutorials)
+  - [2.3. Define cluster in command line](#23-define-cluster-in-command-line)
+  - [2.4. CLI tools](#24-cli-tools)
+  - [2.5. Python binding](#25-python-binding)
+  - [2.6. Runtime supports](#26-runtime-supports)
+  - [2.7. Notebook tutorials](#27-notebook-tutorials)
 - [3. Make contributions](#3-make-contributions)
   - [3.1. Debug the SDK](#31-debug-the-sdk)
 
@@ -35,8 +36,10 @@ This SDK provides a command line interface with prefix (`opai`). User can comple
 ```bash
 # query jobs
 opai job list
+# submit an existing job config file
+opai job submit --config your/job/config/file
 # submit a job in one line
-opai job sub --gpu 1 some/commands
+opai job sub --image your/docker/image --gpu 1 some/commands
 # storage access
 opai storage upload/download/list ...
 ```
@@ -103,24 +106,17 @@ python -c "from openpaisdk import __version__; print(__version__)"
 
 ## 2.2. Define your cluster
 
-Please store your cluster information into `~/.openpai/clusters.json`. Every cluster would have an alias for calling, and you may save more than one cluster in the file.
+Please store your cluster information into `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the file.
 
-```json
-[
-    {
-        "alias": "cluster-alias-1",
-        "pai_uri": "http://x.x.x.x",
-        "user": "user name",
-        "passwd": "password",
-        "storages":[
-            {
-                "alias": "default",
-                "protocol": "webHDFS",
-                "hdfs_web_uri": "http://x.x.x.x:yyyy"
-            }
-        ]
-    }
-]
+```yaml
+- cluster_alias: myalias
+  pai_uri: http://x.x.x.x
+  user: myuser
+  passwd: '******'
+  storages:
+  - storage_alias: default
+    protocol: webHDFS
+    web_hdfs_uri: http://x.x.x.x:port
 ```
 
 Now below command shows all your clusters would be displayed.
@@ -129,13 +125,23 @@ Now below command shows all your clusters would be displayed.
 opai cluster list [--name] [-a <cluster-alias>]
 ```
 
-## 2.3. CLI tools
+## 2.3. Define cluster in command line
+
+In some cases, user may want to define the cluster information without writing a file manually. Below commands will do the same thing as above section.
+
+```bash
+opai cluster add --cluster-alias myalias --pai-uri http://x.x.x.x --user myuser
+opai cluster select myalias 
+opai cluster attach-hdfs --storage-alias default --web-hdfs-uri http://x.x.x.x:port
+```
+
+## 2.4. CLI tools
 
 The command line tool `opai` provides several useful subcommands. 
 
 | Scene | Action | Description |
 | -- | -- | -- |
-| `cluster` | `list` | cluster configuration management |
+| `cluster` | `list`, `add`, `select` | cluster configuration management |
 | `job` | `list`, `new`, `submit`, `sub` | query, create and summit a job |
 | `task` | `add` | add a task role to a job |
 | `storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
@@ -145,15 +151,15 @@ The command line tool `opai` provides several useful subcommands.
 
 Refer to [the doc](docs/command-line-references.md) and tutorials under [examples](examples/) for more details. 
 
-## 2.4. Python binding
+## 2.5. Python binding
 
 See more descriptions about the `Cluster` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().
 
-## 2.5. Runtime supports
+## 2.6. Runtime supports
 
 See how to specify the callbacks and other runtime supports in [docs/runtime-references.md](docs/runtime-references.md) and tutorials under [examples]().
 
-## 2.6. Notebook tutorials
+## 2.7. Notebook tutorials
 
 To show the user stories, we prepare some `Jupyter` notebook tutorials. Refer to the directory `examples` for more information.
 

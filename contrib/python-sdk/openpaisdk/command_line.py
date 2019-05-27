@@ -8,7 +8,8 @@ from openpaisdk.core import Cluster
 from openpaisdk.job import TaskRole, JobSpec, Job
 import openpaisdk.runtime_requires as req
 from openpaisdk.runtime import runtime_execute
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk.cli_utils import Namespace, cli_add_arguments, EngineFactory, ActionFactory, Scene, Action
+
 
 def pprint(s, fmt: str='yaml', **kwargs):
     if fmt == 'json':
@@ -17,9 +18,18 @@ def pprint(s, fmt: str='yaml', **kwargs):
         print(yaml.dump(s, default_flow_style=False))
 
 
+def get_client_cfg(alias):
+    cfgs = from_file(pai.__cluster_config_file__, default=[])
+    f = [(c,i) for i, c in enumerate(cfgs) if not alias or c['cluster_alias'] == alias]
+    return f[0][0] if f else None, cfgs, f[0][1] if f else -1
+
+
 def get_client(alias):
-    client, _ = Cluster.from_json(pai.__cluster_config_file__, alias)
-    return client
+    try:
+        cfg = get_client_cfg(alias)[0]
+        return Cluster(**cfg)
+    except:
+        __logger__.error('Cannot find cluster named %s', alias, exc_info=1)
 
 
 def get_storage(args):
@@ -29,74 +39,6 @@ def get_storage(args):
         return client.storage
     else:
         return client.storages[s_a]
-
-
-class Action:
-
-    def __init__(self, action: str, help_s: str):
-        self.action, self.help_s = action, help_s
-    
-    def define_arguments(self, parser: argparse.ArgumentParser):
-        pass
-
-    def check_arguments(self, args):
-        pass
-
-    def restore(self, args):
-        pass
-
-    def store(self, args):
-        pass
-
-    def do_action(self, args):
-        raise NotImplementedError
-
-
-class ActionFactory(Action): 
-
-    def __init__(self, action: str, allowed_actions: dict):
-        assert action in allowed_actions, ("unsupported action of job", action)
-        super().__init__(action, allowed_actions[action][0])
-        suffix = action.replace('-', '_')
-        self.define_arguments = getattr(self, "define_arguments_" + suffix, super().define_arguments)
-        self.do_action = getattr(self, "do_action_" + suffix, None)
-
-    def restore(self, args):
-        if getattr(args, 'job_name', None):
-            self.__job__ = Job.restore(args.job_name)
-        return self
-
-    def store(self, args):
-        if getattr(self, '__job__', None):
-            self.__job__.store()
-        return self
-
-
-class Scene:
-
-    def __init__(self, scene: str, help_s: str, parser: argparse.ArgumentParser,
-        action_list # type: list[Action]
-        ):
-        self.scene, self.help_s  = scene, help_s
-        self.single_action = len(action_list) == 1 and scene == action_list[0].action
-        if self.single_action:
-            action_list[0].define_arguments(parser)
-            self.do_action = action_list[0].do_action
-        else:
-            self.actions, subparsers = dict(), parser.add_subparsers(dest='action', help=help_s)
-            for a in action_list:
-                p = subparsers.add_parser(a.action, help=a.help_s)
-                a.define_arguments(p)
-                self.actions[a.action] = a
-
-    def process(self, args):
-        __logger__.debug('Parsed arguments to %s', args)
-        actor = self if self.single_action else self.actions[args.action]
-        actor.check_arguments(args)
-        actor.restore(args)
-        result = actor.do_action(args)
-        actor.store(args)
-        return result
 
 
 class ActionFactoryForDefault(ActionFactory):
@@ -135,12 +77,47 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = {cluster['alias']: Cluster.desensitize(cluster) for cluster in from_file(pai.__cluster_config_file__, default=[])}
+        cfgs = {cluster['cluster_alias']: cluster for cluster in get_client_cfg(None)[1]}
         if args.name:
             return list(cfgs.keys())
-        elif args.cluster_alias:
-            return cfgs[args.cluster_alias]
         return cfgs
+
+    def define_arguments_add(self, parser: argparse.ArgumentParser):
+        Cluster().define(parser)
+
+    def do_action_add(self, args):
+        _, cfgs, idx = get_client_cfg(args.cluster_alias)
+        cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
+        __logger__.debug('new cluster info is %s', cfg_new)
+        result = []
+        if idx == -1:
+            cfgs.append(cfg_new)
+            result.append('cluster %s added to %s' % (args.cluster_alias, pai.__cluster_config_file__))
+        else:
+            result.append('cluster %s already exists in %s, overwrite its config' % (args.cluster_alias, pai.__cluster_config_file__))
+            cfgs[idx] = cfg_new
+        to_file(cfgs, pai.__cluster_config_file__)
+        return result
+
+    def define_arguments_select(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['cluster_alias'])
+
+    def do_action_select(self, args):
+        return Engine().process(['default', 'add', 'cluster-alias=%s' % args.cluster_alias])
+
+    def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
+
+    def do_action_attach_hdfs(self, args):
+        c, cfgs, _ = get_client_cfg(args.cluster_alias)
+        c.setdefault('storages', []).append({
+            "storage_alias": args.storage_alias,
+            "protocol": "webHDFS",
+            "web_hdfs_uri": args.web_hdfs_uri,
+            "user": args.user if args.user else c['user'],
+        })
+        to_file(cfgs, pai.__cluster_config_file__)
+        return "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
 
 
 class ActionFactoryForJob(ActionFactory):
@@ -289,7 +266,10 @@ class ActionFactoryForStorage(ActionFactory):
 
 
 __cluster_actions__ = {
-    "list": ["list clusters in config file %s" % pai.__cluster_config_file__]
+    "list": ["list clusters in config file %s" % pai.__cluster_config_file__],
+    "add": ["add a cluster to config file %s" % pai.__cluster_config_file__],
+    "select": ["select a cluster as default"],
+    "attach-hdfs": ["attach hdfs storage to cluster"],
 }
 
 __default_actions__ = {
@@ -335,7 +315,7 @@ def factory(af: type(ActionFactory), actions: dict):
 
 __cli_structure__ = {
     "cluster": [
-        "cluster management", [ActionFactoryForCluster('list', __cluster_actions__)]
+        "cluster management", factory(ActionFactoryForCluster, __cluster_actions__)
     ],
     "job": [
         "job operations", factory(ActionFactoryForJob, __job_actions__),
@@ -358,30 +338,17 @@ __cli_structure__ = {
 }
 
 
-class Engine:
+class Engine(EngineFactory):
 
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description='command line interface for OpenPAI')
-        subparsers = self.parser.add_subparsers(dest='scene', help='openpai cli working scenarios')
-        self.scenes = dict()
-        for k, v in __cli_structure__.items():
-            p = subparsers.add_parser(k, help=v[0])
-            self.scenes[k] = Scene(k, v[0], p, v[1])
-
-    def process(self, a: list):
-        __logger__.debug('Received arguments %s', a)
-        pai.__logger__.debug("Received arguments %s", a)
-        args = self.parser.parse_args(a)
-        return self.process_args(args)
-
-    def process_args(self, args):
-        pai.__logger__.debug("Parsed arguments %s", args)
-        return self.scenes[args.scene].process(args)
+        super().__init__(__cli_structure__)
 
 
 def main():
     eng = Engine()
-    pprint(eng.process(sys.argv[1:]))
+    result = eng.process(sys.argv[1:])
+    if result:
+        pprint(result)
 
 
 if __name__ == '__main__':

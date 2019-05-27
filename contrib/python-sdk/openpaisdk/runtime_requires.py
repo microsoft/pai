@@ -1,4 +1,4 @@
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk.cli_utils import Namespace, cli_add_arguments
 from openpaisdk.io_utils import web_download_to_folder
 import sys
 import argparse

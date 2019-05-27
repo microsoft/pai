@@ -39,20 +39,21 @@ def web_download_to_folder(url: str, folder: str, filename: str=None):
         __logger__.error("failed to download", exc_info=True)
 
 
-def from_file(fname: str, default={}, fmt=None):
+def from_file(fname: str, default={}, fmt=None, **kwargs):
     try:
         if not fmt:
             _, ext = os.path.splitext(fname)
             if ext in __json_exts__:
-                fmt = json
+                fmt = json, 
             elif ext in __yaml_exts__:
                 import yaml
                 fmt = yaml
+                kwargs.setdefault('Loader', yaml.FullLoader)
             else:
                 __logger__.error('unrecognized file extension %s', ext, exc_info=True)
         with open(fname) as fn:
             __logger__.debug('Deserializing from %s', fname)
-            return fmt.load(fn)
+            return fmt.load(fn, **kwargs)
     except Exception as e:
         if default == '==FATAL==':
             __logger__.error('IO Err: %s', e, exc_info=True)
