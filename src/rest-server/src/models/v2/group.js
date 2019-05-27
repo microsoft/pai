@@ -200,6 +200,7 @@ if (config.env !== 'test') {
     }, 600 * 1000);
   }
   setInterval(async function() {
+    let group2Delete = [];
     try {
       logger.info('Init user list to update.');
       let userList = await userModel.getAllUser();
@@ -222,13 +223,18 @@ if (config.env !== 'test') {
       }
       logger.info('User list to be updated has been prepared.');
       logger.info('Begin to update user\' group list.');
+      group2Delete = deletedGroup;
+      deletedGroup = [];
       await Promise.all(updateUserList.map( async (userData) => {
         await userModel.updateUser(userData['username'], userData);
       }));
       logger.info('Update group info successfully.');
-      deletedGroup = [];
     } catch (error) {
-      logger.info('Failed to update group info.');
+      logger.error('Failed to update user grouplist info.');
+      logger.error('Recover grouplist to delete.');
+      for (const groupname of group2Delete) {
+        deletedGroup.push(groupname);
+      }
       throw error;
     }
   }, 600 * 1000);
