@@ -1,21 +1,21 @@
 # OpenPAI VS Code 客户端
 
-OpenPAI VS Code 客户端是专用于 OpenPAI 的客户端工具。 它是 [Visual Studio Code](https://code.visualstudio.com/) 的扩展组件。 Visual Studio Code 是一个轻量级但功能强大的源代码编辑器，可在主流桌面平台上运行，支持 Windows，macOS 和 Linux。
+OpenPAI VS Code Client 是专用于 OpenPAI 的客户端工具。 它是 [Visual Studio Code](https://code.visualstudio.com/) 的扩展组件。 Visual Studio Code 是一个轻量级但功能强大的源代码编辑器，可在主流桌面平台上运行，支持 Windows，macOS 和 Linux。
 
-使用 OpenPAI VS Code 客户端，可以提交作业，在本地模拟作业，管理文件等。 OpenPAI VS Code Client also supports Windows, macOS, and Linux.
+使用 OpenPAI VS Code Client，可以提交作业，在本地模拟作业，管理文件等。 OpenPAI VS Code 也支持 Windows，macOS 和 Linux。
 
-## Installation
+## 安装
 
-1. Install and launch [Visual Studio Code](https://code.visualstudio.com). Click green button to download and install Visual Studio Code if it's not installed.
+1. 安装并运行 [Visual Studio Code](https://code.visualstudio.com)。 如果还未安装，请单击绿色按钮以下载并安装 Visual Studio Code。
     
-    ![Download vs code](assets/download_vscode.png)
+    ![下载 VS Code](assets/download_vscode.png)
 
-2. Click the *Extensions* icon on left side, after Visual Studio Code launched. And input *openpai* to search OpenPAI VS Code Client.
+2. 启动 Visual Studio Code 后，单击左侧的 *Extensions* 图标。 并输入 *openpai* 来搜索 OpenPAI VS Code Client。
     
     ![Extension](assets/ext-install-1.png)
 
-3. Click the **Install** button, and wait installation completes.
+3. 点击 **Install** 按钮，并等待完成安装。
 
-## Next steps
+## 使用指南
 
-Learn how to [use OpenPAI VS Code Client](./README.md)
+了解如何[使用 OpenPAI VS Code Client](./README.md)。
