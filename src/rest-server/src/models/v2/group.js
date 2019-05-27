@@ -71,7 +71,8 @@ const deleteGroup = async (groupname) => {
     const ret = await crudGroup.remove(groupname, crudConfig);
     const groupList = await getAllGroup();
     let userList = userModel.getAllUser();
-    let promiseList = [];
+    let updateUserList = [];
+    logger.info('Init user list to update.');
     for (let userItem of userList) {
       let updateUser = false;
       let userGrouplist = [];
@@ -85,10 +86,14 @@ const deleteGroup = async (groupname) => {
       if (updateUser) {
         const newUserInfo = userItem;
         newUserInfo['grouplist'] = userGrouplist;
-        promiseList.push(userModel.updateUser(newUserInfo['username'], newUserInfo));
+        updateUserList.push(newUserInfo);
       }
     }
-    await Promise.all(promiseList);
+    logger.info('User list to be updated has been prepared.');
+    await Promise.all(updateUserList.map( async (userData) => {
+      await userModel.updateUser(userData['username'], userData);
+    }));
+    logger.info('User\'s grouplist has been updated');
     return ret;
   } catch (error) {
     throw error;
