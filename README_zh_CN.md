@@ -47,11 +47,11 @@ OpenPAI 是一个支持深度学习，通过虚拟集群管理，兼容 Hadoop/K
 
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
-* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
+* [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : An NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
 
 ## 入门
 
-OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 通过 Docker 技术，硬件计算资源与软件相分离。这样，用户能轻松的进行分布式计算，在不同的深度学习框架间切换，也能在完全一致的环境中重复运行作业。
+OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
 
 作为平台，OpenPAI 需要[部署](#deploy-a-cluster)后才能使用。 OpenPAI 也支持单机部署。
 
@@ -96,7 +96,7 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后再开始执行。 这和每个人在自己的服务器上运行是不同的。 用户可能会觉得，与在自己的机器上训练相比，这样无法管理计算资源，而且还需要学习如何使用 OpenPAI。 但通过 OpenPAI 来共享资源能够提高资源利用率，并显著节省维护运行的时间。
 
-对于 OpenPAI 的管理员来说，部署成功只是第一步，而第二步是让用户理解 OpenPAI 带来的好处，并学会使用它。 用户可以从[训练模型](#train-models)来开始学习。 虽然下面训练模型的章节覆盖了各种场景下的方案，但用户通常不需要了解所有的方法。 因此，管理员可以根据用户的实际场景来创建更简单的文档。
+对于 OpenPAI 的管理员来说，部署成功只是第一步，而第二步是让用户理解 OpenPAI 带来的好处，并学会使用它。 用户可以从[训练模型](#train-models)来开始学习。 But below section of training models is for various scenarios and maybe users don't need all of them. 因此，管理员可以根据用户的实际场景来创建更简单的文档。
 
 ### 常见问答
 
@@ -106,21 +106,21 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ## 训练模型
 
-和所有机器学习平台一样，OpenPAI 是一个提高生产力的工具。 为了提高资源利用率，建议用户提交训练 Job，并让 OpenPAI 来分配资源并运行 Job。 如果 Job 太多，一些 Job 会排队等待资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
+As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. 如果 Job 太多，一些 Job 会排队等待资源。 This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
 
-另外，除了 Job 队列，OpenPAI 也支持分配专用的资源。 用户可以像直接使用物理服务器一样，通过 SSH 或 Jupyter 来连接使用，参考[这里](examples/jupyter/README_zh_CN.md)了解详情。 虽然这样对资源的利用不会高效，但也节省了在物理服务器上配置管理环境的投入。
+Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### 提交训练作业
 
-参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
+Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### 客户端
 
-[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
-Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
+Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH for debugging.
 
 有关调研 Job 错误的详细信息参考[这里](docs/zh_CN/user/troubleshooting_job.md)。
 
@@ -132,19 +132,23 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ## 参考手册
 
-* [Job 配置](docs/zh_CN/job_tutorial.md)
-* [RESTful API](docs/zh_CN/rest-server/API.md)
-* 可以在[这里](docs)查看设计文档。
+### Users
+
+* [Client tool](contrib/pai_vscode/VSCodeExt.md)
+* [Use Storage](docs/user/storage.md)
+* [Job configuration](docs/job_tutorial.md)
+* [RESTful API](docs/rest-server/API.md)
+* Design documents could be found [here](docs) if you are curious.
 
 ## 寻求帮助
 
 * [Stack Overflow](./docs/zh_CN/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
-* [Gitter Chat](https://gitter.im/Microsoft/pai)：也可以在 Gitter 中提问。
+* [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in Microsoft/pai conversation.
 * [提交问题或功能请求](https://github.com/Microsoft/pai/issues/new/choose)：如果发现了错误，或有新功能的需求，可提交到 GitHub。
 
 ## 参与贡献
 
-### 贡献者许可协议
+### Contributor License Agreement
 
 本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
 
@@ -152,20 +156,20 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息，请参阅[行为守则常见问题解答](https://opensource.microsoft.com/codeofconduct/faq/)或联系 opencode@microsoft.com 咨询问题或评论。
 
-### 征集意见建议
+### Call for contribution
 
 当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
 
 * OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
 * OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
-### 谁应该考虑为 OpenPAI 做贡献
+### Who should consider contributing to OpenPAI
 
 * 希望添加对其它机器学习或深度学习框架的支持
 * 希望 OpenPAI 成为更强大的 AI 平台（例如，支持更多的机器学习流程，超参调优)
 * 希望写作教程和博客文章，来展示如何使用 OpenPAI 解决 AI 问题
 
-### 贡献者
+### Contributors
 
 OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
 
