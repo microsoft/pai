@@ -160,7 +160,6 @@ export default function Table() {
     minWidth: 100,
     name: 'Status',
     headerClassName: FontClassNames.medium,
-    className: zeroPaddingClass,
     isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
