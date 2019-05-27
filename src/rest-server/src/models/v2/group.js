@@ -188,7 +188,7 @@ if (config.env !== 'test') {
         for (const groupItem of groupList) {
           newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
         }
-        if (newExternalName2Groupname.size !== externalName2Groupname.size) {
+        if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
           update = true;
         }
         for (const [key, val] of newExternalName2Groupname) {
