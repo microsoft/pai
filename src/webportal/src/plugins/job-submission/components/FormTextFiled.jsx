@@ -1,20 +1,36 @@
-import React from 'react'
+import React from 'react';
 import { getId } from 'office-ui-fabric-react/lib/Utilities';
-import { Stack, Label, TextField, Button } from 'office-ui-fabric-react';
-import { getFromTextFieldStyle }  from './formStyle';
+import { Label, TextField, PrimaryButton } from 'office-ui-fabric-react';
+import { FormSection, FormFirstColumn, FormSecondColunm } from './FormPage';
 
 export const FormTextFiled = (props) => {
   const {label, required, placeholder} = props;
   const textFieldId = getId('textField');
-  const formTextFieldStyle = getFromTextFieldStyle();
 
   return (
-    <Stack horizontal styles={{root: formTextFieldStyle.root}}>
-        <Label htmlFor={textFieldId} required={required} styles={formTextFieldStyle.label}>{label}</Label>
-        <Stack.Item styles={{root: {width: '60%'}}}>
+    <FormSection>
+      <FormFirstColumn>
+        <Label htmlFor={textFieldId} required={required} >{label}</Label>
+      </FormFirstColumn>
+      <FormSecondColunm>
         <TextField id={textFieldId} placeholder={placeholder}/>
-        <Button>Auth</Button>
-        </Stack.Item>
-    </Stack>
+      </FormSecondColunm>
+    </FormSection>
+  );
+}
+
+export const FormDockerSection = () => {
+  const textFieldId = getId('textField');
+
+  return (
+    <FormSection>
+      <FormFirstColumn>
+        <Label htmlFor={textFieldId} required>Docker</Label>
+      </FormFirstColumn>
+      <FormSecondColunm>
+        <TextField id={textFieldId} placeholder='Enter docker uri...'/>
+        <span><PrimaryButton>Auth</PrimaryButton></span>
+      </FormSecondColunm>
+    </FormSection>
   );
 }

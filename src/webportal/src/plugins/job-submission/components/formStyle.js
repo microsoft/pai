@@ -45,6 +45,26 @@ export const getFromStyle = () => {
   });
 }
 
+export const getFormPageSytle = () => {
+  return ({
+    FormPageStyle: {
+      root: {
+        marginLeft: marginSize.s1
+      }
+    },
+    FormFirstColumnSytle: {
+      root: {
+        width: '20%'
+      }
+    },
+    FormSecondColunmStyle: {
+      root: {
+        width: '60%'
+      }
+    }
+  });
+}
+
 export const getFromTextFieldStyle = () => {
   return ({
     root: {
