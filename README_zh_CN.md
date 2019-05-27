@@ -22,16 +22,16 @@ OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理�
 
 1. 在团队间共享强大的 AI 计算资源（例如，GPU、FPGA 集群）。
 2. 在组织内共享或重用 AI 资产（如模型、数据、运行环境等) 。
-3. 构建易于 IT 运维的 AI 计算平台。
+3. 构建易于 IT 运维管理的 AI 计算平台。
 4. 在同一个环境中完成模型训练过程。
 
 ## 特点
 
-OpenPAI 采用了成熟的设计，已在微软的大规模生产环境中，通过多年持续运行的验证。
+OpenPAI 的设计成熟可靠。在微软的大规模部署中，得到了多年持续运行的验证。
 
-### 易于本地部署
+### 易于部署
 
-OpenPAI 是全栈的解决方案。 OpenPAI 不仅支持本地、公有云及混合云中的部署，还支持单机部署，让用户便于试用。
+OpenPAI 是全栈的解决方案。 不仅支持本地、公有云及混合云中的部署，还支持单机试用的部署。
 
 ### 支持流行的 AI 框架和异构硬件
 
@@ -96,7 +96,7 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后再开始执行。 这和每个人在自己的服务器上运行是不同的。 用户可能会觉得，与在自己的机器上训练相比，这样无法管理计算资源，而且还需要学习如何使用 OpenPAI。 但通过 OpenPAI 来共享资源能够提高资源利用率，并显著节省维护运行的时间。
 
-对于 OpenPAI 的管理员来说，部署成功只是第一步，而第二步是让用户理解 OpenPAI 带来的好处，并学会使用它。 用户可以从[训练模型](#train-models)来开始学习。 But below part of training models is for various scenarios and maybe users don't need all of them. 因此，管理员可以根据用户的实际场景来创建更简单的文档。
+对于 OpenPAI 的管理员来说，部署成功只是第一步，而第二步是让用户理解 OpenPAI 带来的好处，并学会使用它。 用户可以从[训练模型](#train-models)来开始学习。 虽然下面训练模型的章节覆盖了各种场景下的方案，但用户通常不需要了解所有的方法。 因此，管理员可以根据用户的实际场景来创建更简单的文档。
 
 ### 常见问答
 
@@ -112,11 +112,11 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 提交训练作业
 
-Follow [submitting a hello-world job](docs/user/training.md) and learn more about training models on OpenPAI. 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
+参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是一个非常简单的 Job，可以帮助理解 OpenPAI 的 Job 配置，并熟悉 Web 界面。
 
-### Client tool
+### 客户端
 
-[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code 客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)是 OpenPAI 易用的客户端工具。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
