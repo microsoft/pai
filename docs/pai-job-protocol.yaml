@@ -77,14 +77,17 @@ deployments:
     taskRoles:
       <name>: String, required # Should be in taskRoles
         preCommands:
-          - String, required # execute before the taskRole's command
+          - String, required # Execute before the taskRole's command
         postCommands:
-          - String, required # execute after the taskRole's command
+          - String, required # Execute after the taskRole's command
 
 
-defaults: # optional, default cluster specific settings
+defaults: # Optional, default cluster specific settings
   virtualCluster: String, optional
   deployment: String, optional # Should reference to deployment defined in deployments
+
+extras: # Optional, extra field, object, save any information that plugin may use
+  submitFrom: String, optional
 
 
 ---
