@@ -179,7 +179,7 @@ if (config.env !== 'test') {
         if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
           update = true;
         }
-        for (const [key, val] of newExternalName2Groupname) {
+        for (const [key, val] of Object.entries(newExternalName2Groupname)) {
           if (!externalName2Groupname.has(key)) {
             update = true;
           } else if (externalName2Groupname[key] !== val) {
