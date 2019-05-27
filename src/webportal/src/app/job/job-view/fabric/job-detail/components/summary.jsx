@@ -392,7 +392,7 @@ export default class Summary extends React.Component {
               <div className={c(t.bl, t.mh3)}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
-                href={getJobMetricsUrl()}
+                href={getJobMetricsUrl(jobInfo)}
                 target="_blank"
               >
                 Go to Job Metrics Page
