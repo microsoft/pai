@@ -1,7 +1,7 @@
 import { mergeStyleSets  } from '@uifabric/merge-styles'
 import { FontSizes, IconFontSizes, FontWeights } from 'office-ui-fabric-react/lib/Styling';
 
-const marginSize = {
+export const marginSize = {
   l1: '20px',
   l2: '32px',
   m: '16px',

@@ -2,7 +2,8 @@ import React from 'react';
 import { getId } from 'office-ui-fabric-react/lib/Utilities';
 import { Label, TextField, PrimaryButton, Stack, Text } from 'office-ui-fabric-react';
 import { FormSection, FormColumn } from './FormPage';
-import { getFormPageSytle, getFromComponentsStyle } from './formStyle';
+import { getFormPageSytle, getFromComponentsStyle, marginSize } from './formStyle';
+import { KeyValueList } from './KeyValueList';
 
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
@@ -17,7 +18,7 @@ export const FormTextFiled = (props) => {
         <Label htmlFor={textFieldId} required={required} styles={formComponentsStyles.label}>{label}</Label>
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
-        <Stack horizontal gap={'8px'}>
+        <Stack horizontal gap={marginSize.s1}>
           <TextField id={textFieldId} placeholder={placeholder} styles={formComponentsStyles.textFiled}/>
           <Text styles={formComponentsStyles.suffixText}>{suffixText}</Text>
         </Stack>
@@ -37,6 +38,20 @@ export const FormDockerSection = () => {
       <FormColumn styles={formPageStyle.formSecondColunm}>
         <TextField id={textFieldId} placeholder='Enter docker uri...' styles={formComponentsStyles.textFiled}/>
         <span><PrimaryButton>Auth</PrimaryButton></span>
+      </FormColumn>
+    </FormSection>
+  );
+}
+
+export const FormPortsList = (props) => {
+  const { items } = props;
+  return (
+    <FormSection>
+      <FormColumn styles={formPageStyle.formFirstColumn}>
+        <Label styles={formComponentsStyles.label}>Ports</Label>
+      </FormColumn>
+      <FormColumn styles={formPageStyle.formSecondColunm}>
+        <KeyValueList items={items}/>
       </FormColumn>
     </FormSection>
   );

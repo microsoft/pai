@@ -58,7 +58,7 @@ export class TabForm extends React.Component {
     return (
     <span>
       { defaultRender(itemPros) }
-      <Icon iconName="Cancel" styles={ tabFormStyle.tab } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
+      <Icon iconName="Cancel" styles={ tabFormStyle.tabIcon } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
     </span>);
   }
 
@@ -148,7 +148,7 @@ export class TabForm extends React.Component {
       <div className={topForm}>
         <div className={formTabBar}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
-                   styles={{text: tabFormStyle.text, root: tabFormStyle.tab.root}}
+                   styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
                    selectedKey={selectedKey}>
              {elements}
             </Pivot>
