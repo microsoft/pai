@@ -22,7 +22,7 @@ taskRoles:
     instances: 1
     completion:
       minSucceededTaskCount: 1
-    dockerImage: pytorch_example
+    dockerImage: sklearn_example
     resourcePerInstance:
       cpu: 4
       memoryMB: 8192

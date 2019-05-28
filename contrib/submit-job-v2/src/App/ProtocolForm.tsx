@@ -69,6 +69,11 @@ const styles = mergeStyleSets({
     paddingRight: "20%",
   },
 
+  fileItem: {
+    width: "80%",
+    paddingRight: "5%",
+  },
+
   fileLabel: {
     width: "25%",
     position: "relative",
@@ -138,6 +143,7 @@ interface IProtocolProps {
   source?: {
     jobName: string;
     user: string;
+    protocolItemKey: string | undefined;
     protocolYAML: string;
   };
   pluginId?: string;
@@ -147,6 +153,8 @@ interface IProtocolState {
   jobName: string;
   protocol: any;
   protocolYAML: string;
+  fileOption: string | number | undefined;
+  marketplaceOption: string | number | undefined;
   loading: boolean;
   showParameters: boolean;
   showEditor: boolean;
@@ -157,6 +165,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     jobName: "",
     protocol: Object.create(null),
     protocolYAML: "",
+    fileOption: "local",
+    marketplaceOption: undefined,
     loading: true,
     showParameters: true,
     showEditor: false,
@@ -244,6 +254,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 defaultURI={marketplaceCookie ? marketplaceCookie.uri : undefined}
                 defaultURIType={marketplaceCookie ? marketplaceCookie.type : undefined}
                 defaultURIToken={marketplaceCookie ? marketplaceCookie.token : undefined}
+                defaultOption={this.state.marketplaceOption}
                 onSelectProtocol={this.onSelectProtocol}
                 disabled={props ? !props.checked : false}
               />
@@ -290,11 +301,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 Submit Job v2 <span className={styles.subTitle}>Protocol Preview</span>
               </Text>
             </Stack>
-            <Stack className={styles.item}>
+            <Stack className={styles.fileItem}>
               <ChoiceGroup
-                defaultSelectedKey="local"
+                selectedKey={this.state.fileOption}
                 options={uploadOptions}
                 label="Upload Protocol YAML"
+                onChange={this.changeFileOption}
                 required={false}
               />
             </Stack>
@@ -332,11 +344,15 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     try {
       if (source && source.protocolYAML) {
         protocol = yaml.safeLoad(source.protocolYAML);
+        this.setState({
+          fileOption: "marketplace",
+          marketplaceOption: source.protocolItemKey,
+        });
       } else if (source && source.jobName && source.user && pluginId) {
         const res = await fetch(
           `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
         );
-        const body = await res.json();
+        const body = await res.text();
         protocol = yaml.safeLoad(body);
         if (protocol.extras.submitFrom !== pluginId) {
           throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
@@ -409,6 +425,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       }
     });
     fileReader.readAsText(files[0]);
+  }
+
+  private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
+    if (option && option.key) {
+      this.setState({fileOption: option.key});
+    }
   }
 
   private getParameterItems = () => {

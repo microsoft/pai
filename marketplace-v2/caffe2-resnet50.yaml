@@ -7,6 +7,10 @@ description: |
   # Caffe2 ResNet50 Example
   This example shows using caffe2 to train ResNet50 with fake data on OpenPAI.
 
+parameters:
+  epochSize: 1000
+  epochNum: 1
+
 prerequisites:
   - protocolVersion: 2
     name: caffe2_example
@@ -26,4 +30,8 @@ taskRoles:
       memoryMB: 8192
       gpu: 1
     commands:
-      - python resnet50_trainer.py --train_data null
+      - >
+        python resnet50_trainer.py
+        --train_data null
+        --epoch_size <% $parameters.epochSize %>
+        --num_epochs <% $parameters.epochNum %>

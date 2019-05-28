@@ -23,7 +23,6 @@ prerequisites:
       This is an [example TensorFlow Serving Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/serving).
     uri : openpai/pai.example.tensorflow-serving
 
-jobRetryCount: -2
 taskRoles:
   worker:
     instances: 1
@@ -33,10 +32,7 @@ taskRoles:
       memoryMB: 8192
       gpu: 1
       ports:
-        model_server: 0
+        model_server: 1
     commands:
       - bazel-bin/tensorflow_serving/example/mnist_saved_model <% $parameters.modelPath %>
-      - >
-        while :; do
-          tensorflow_model_server --port=$PAI_CONTAINER_HOST_model_server_PORT_LIST --model_name=mnist --model_base_path=<% $parameters.modelPath %>;
-        done
+      - tensorflow_model_server --port=$PAI_CONTAINER_HOST_model_server_PORT_LIST --model_name=mnist --model_base_path=<% $parameters.modelPath %>
