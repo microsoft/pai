@@ -121,17 +121,17 @@ export async function cloneJob(rawJobConfig) {
 
   // plugin
   const pluginId = get(rawJobConfig, 'extras.submitFrom');
-  if (!isNil(pluginId)) {
-    const plugins = window.PAI_PLUGINS;
-    const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
-    if (pluginIndex === -1) {
-      alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
-      return;
-    }
-    window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
+  if (isNil(pluginId)) {
+    window.location.href = `/submit.html?${qs.stringify(query)}`;
+    return;
   }
-
-  window.location.href = `/submit.html?${qs.stringify(query)}`;
+  const plugins = window.PAI_PLUGINS;
+  const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
+  if (pluginIndex === -1) {
+    alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    return;
+  }
+  window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
 }
 
 export async function stopJob() {
