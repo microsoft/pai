@@ -61,12 +61,11 @@ const createGroupIfGroupNotExist = async (req, res, next) => {
 
 const createGroup = async (req, res, next) => {
   try {
-    const groupData = req.groupData;
-    const groupname = groupData.groupname;
+    const groupname = req.body.groupname;
     const groupValue = {
-      username: groupData.groupname,
-      description: groupData.description,
-      externalName: groupData.externalName,
+      username: req.body.groupname,
+      description: req.body.description,
+      externalName: req.body.externalName,
       extension: {},
     };
     await groupModel.createUser(groupname, groupValue);
