@@ -20,7 +20,7 @@ import {
   Callout, DefaultButton, DocumentCard, DocumentCardActions, DocumentCardActivity, DocumentCardLogo,
   DocumentCardStatus, DocumentCardTitle, DefaultPalette, Fabric, Icon, IconButton, Label,
   Panel, PanelType, Persona, PersonaSize, Stack, Spinner, SpinnerSize, Text, TextField,
-  initializeIcons, mergeStyleSets,
+  initializeIcons, mergeStyleSets, PrimaryButton,
 } from "office-ui-fabric-react";
 import Cookies from "js-cookie";
 import yaml from "js-yaml";
@@ -32,12 +32,6 @@ const styles = mergeStyleSets({
   title: {
     marginTop: "15px",
     fontWeight: "600",
-  },
-
-  subTitle: {
-    fontSize: "16px",
-    fontWeight: "300",
-    color: DefaultPalette.neutralSecondary,
   },
 
   textfiled: {
@@ -138,6 +132,7 @@ interface IProtocol {
   contributor: string;
   description: string;
   prerequisitesNum: number;
+  itemKey: string;
   raw: string;
 }
 
@@ -179,7 +174,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     showEditor: false,
     uriConfigCallout: false,
     editorYAML: "",
-    layout: "list" as LayoutType,
+    layout: "grid" as LayoutType,
   };
 
   private uriConfigCalloutBtn = React.createRef<HTMLDivElement>();
@@ -194,7 +189,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         <Stack>
           <Stack horizontal={true} horizontalAlign="center" padding={15}>
             <Text variant="xxLarge" nowrap={true} block={true} className={styles.title}>
-              Marketplace <span className={styles.subTitle}>Protocol Preview</span>
+              Marketplace
             </Text>
           </Stack>
           {this.state.loading ? this.renderLoading() : this.renderContent()}
@@ -242,7 +237,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
             <Callout
               role="alertdialog"
               target={this.uriConfigCalloutBtn.current}
-              onDismiss={this.closeConfigCallout}
+              onDismiss={this.toggleConfigCallout}
               setInitialFocus={true}
               hidden={!this.state.uriConfigCallout}
             >
@@ -260,6 +255,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
                   value={this.state.uriToken}
                   onChange={this.setMarketplaceURIToken}
                 />
+                <Stack gap={20} padding="15px auto 0" horizontalAlign="center" horizontal={true}>
+                  <PrimaryButton text="Apply" onClick={this.applyConfigCallout} />
+                  <DefaultButton text="Discard" onClick={this.discardConfigCallout} />
+                </Stack>
               </Stack>
             </Callout>
           </Stack>
@@ -362,12 +361,6 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
                   ariaLabel="Submit protocol job"
                   onClick={this.submitProtocol(protocol)}
                 />
-                <IconButton
-                  iconProps={{ iconName: "FavoriteStar" }}
-                  title="Star protocol job"
-                  ariaLabel="Star protocol job"
-                  onClick={this.starProtocol}
-                />
               </Stack>
               <Persona
                 size={PersonaSize.size32}
@@ -407,11 +400,6 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         ariaLabel: "Submit protocol job",
         onClick: this.submitProtocol(protocol),
       },
-      {
-        iconProps: { iconName: "FavoriteStar" },
-        ariaLabel: "Star protocol job",
-        onClick: this.starProtocol,
-      },
     ];
 
     return (
@@ -429,25 +417,88 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
   }
 
   private toggleConfigCallout = () => {
-    if (this.state.uriConfigCallout) {
-      this.closeConfigCallout();
-    } else {
-      this.setState({uriConfigCallout: true});
-    }
+    this.setState({uriConfigCallout: !this.state.uriConfigCallout});
   }
 
-  private closeConfigCallout = () => {
+  private applyConfigCallout = () => {
     this.getProtocols();
     this.setState({uriConfigCallout: false});
   }
 
+  private discardConfigCallout = () => {
+    const marketplaceCookie = Cookies.getJSON("marketplace");
+    if (marketplaceCookie) {
+      this.setState({
+        uri: marketplaceCookie.uri,
+        uriType: marketplaceCookie.type,
+        uriToken: marketplaceCookie.token,
+        uriConfigCallout: false,
+      });
+    } else {
+      this.setState({
+        uri: this.props.defaultURI,
+        uriType: this.props.defaultURIType,
+        uriToken: this.props.defaultURIToken,
+        uriConfigCallout: false,
+      });
+    }
+  }
+
+  private formatMarketplaceURI = async (uri: string) => {
+    // regex for https://github.com/{owner}/{repo}/tree/{branch}/{path}
+    const githubRegExp = /^(https:\/\/)?github\.com\/([^/\s]+)\/([^/\s]+)\/tree\/(.+)$/;
+    // regex for https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
+    const devopsRegExp = /^(https:\/\/)?([^/\s]+)\.visualstudio\.com\/([^/\s]*)\/?_git\/([^\?\s]+)\?(.+)$/;
+    let match;
+    match = githubRegExp.exec(uri);
+    if (match !== null) {
+      const owner = match[2];
+      const repo = match[3];
+      const paths = match[4].split("/");
+      let path;
+      let branch;
+      let refsData;
+      try {
+        const refs = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${paths[0]}`);
+        refsData = await refs.json();
+      } catch (err) {
+        alert(err.message);
+      }
+      if (Array.isArray(refsData)) {
+        for (const i of refsData) {
+          const ref = i.ref.replace(/^refs\/heads\//, "");
+          if (match[4].startsWith(ref)) {
+            branch = ref.slice(0);
+            path = match[4].slice(branch.length + 1);
+            break;
+          }
+        }
+      } else {
+        branch = paths[0];
+        path = paths.slice(1).join("/");
+      }
+      return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+    }
+    match = devopsRegExp.exec(uri);
+    if (match !== null) {
+      const org = match[2];
+      const project = match[3] ? match[3] : match[4];
+      const repo = match[4];
+      const path = new URLSearchParams(match[5]).get("path");
+      return `https://dev.azure.com/${org}/${project}/_apis/git/repositories/${repo}/items?path=${path}&api-version=5.0`;
+    }
+    return uri;
+  }
+
   private setMarketplaceURI = (event: React.FormEvent<HTMLElement>, uri?: string) => {
     if (uri !== undefined) {
-      if (uri.includes("api.github.com")) {
+      if (uri.includes("github.com")) {
+        // https://github.com/{owner}/{repo}/tree/{branch}/{path}
         // https://api.github.com/repos/{owner}/{repo}/contents/{path}?ref={branch}
         this.setState({uri, uriType: "GitHub"});
-      } else if (uri.includes("dev.azure.com")) {
-        // https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/items?path={path}&api-version=5.0
+      } else if (uri.includes("visualstudio.com") || uri.includes("dev.azure.com")) {
+        // https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
+        // https://dev.azure.com/{org}/{project}/_apis/git/repositories/{repoId}/items?path={path}&api-version=5.0
         this.setState({uri, uriType: "DevOps"});
       } else {
         this.setState({uri, uriType: null});
@@ -472,13 +523,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     if (this.props.submissionId == null) {
       alert("Cannot find protocol submission plugin.");
     } else {
+      sessionStorage.setItem("protocolItemKey", protocol.itemKey);
       sessionStorage.setItem("protocolYAML", protocol.raw);
       window.open(`/plugin.html?op=init&index=${this.props.submissionId}`);
     }
-  }
-
-  private starProtocol = () => {
-    window.open("https://github.com/Microsoft/pai/tree/master/marketplace-v2");
   }
 
   private closeEditor = () => {
@@ -501,11 +549,12 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     }
   }
 
-  private getProtocols = async (next?: () => void) => {
-    const protcolList = await this.getProtocolList(this.state.uri, this.state.uriType);
+  private getProtocols = async () => {
+    const api = await this.formatMarketplaceURI(this.state.uri);
+    const protcolList = await this.getProtocolList(api, this.state.uriType);
     if (protcolList !== null) {
       let protocols = await Promise.all(protcolList.map(async (item: IProtocolItem) => {
-        return await this.getProtocolItem(item.uri);
+        return await this.getProtocolItem(item);
       }));
       protocols = await protocols.filter((x) => x != null);
       this.setState({
@@ -580,7 +629,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     return null;
   }
 
-  private getProtocolItem = async (uri: string) => {
+  private getProtocolItem = async (item: IProtocolItem) => {
     const requestHeaders: HeadersInit = new Headers();
     if (this.state.uriToken) {
       requestHeaders.set(
@@ -589,7 +638,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       );
     }
     try {
-      const res = await fetch(uri, {headers: requestHeaders});
+      const res = await fetch(item.uri, {headers: requestHeaders});
       const data = await res.text();
       const protocol = yaml.safeLoad(data);
       return {
@@ -597,6 +646,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         contributor: protocol.contributor,
         description: protocol.description,
         prerequisitesNum: protocol.prerequisites.length,
+        itemKey: item.name,
         raw: data,
       } as IProtocol;
     } catch (err) {
