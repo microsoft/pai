@@ -6,11 +6,11 @@ But since not everyone is interested in this report, we do not maintain such a s
 
 ## What the script will report
 
-The reports will be 4 csv files `job.csv`, `alert.csv`, `raw_job.csv` and `gpu.csv`.
+The report consists of 4 reports `job`, `alert`, `raw_job` and `gpu`.
 
-### job.csv
+### job
 
-This file will tell you uses' job statistic, this including the final status, job count and job resources, it have following columns:
+This report will tell you uses' job statistic, this including the final status, job count and job resources, it have following columns:
 
 * user: username in OpenPai cluster
 * vc: VC name in OpenPai cluster
@@ -29,11 +29,11 @@ The job info is group of following subcolumns:
 * memory second: how much memory(GB)-second used by jobs of this category
 * gpu second: how much gpu-second used by jobs of this category
 
-### alert.csv
+### alert
 
-This file will tell you what alerts was triggered in your cluster, the script can generate this report even if you didn't set an alert manager. Because the Prometheus service will delete data that's old enough, in default setup, it only retains 15 days of data, you may want to extend the retaintion date if you want an accurate number in montly report.
+This report will tell you what alerts was triggered in your cluster, the script can generate this report even if you didn't set an alert manager. Because the Prometheus service will delete data that's old enough, in default setup, it only retains 15 days of data, you may want to extend the retaintion date if you want an accurate number in montly report.
 
-The file have following columns:
+It have following columns:
 
 * alert name: alert name defined in prometheus
 * host_ip: from which node this alert was triggered
@@ -42,17 +42,17 @@ The file have following columns:
 * durtion: how much time(seconds) this alert lasts
 * labels: original label sent along with alert
 
-### raw_job.csv
+### raw_job
 
-This file is a detailed job info, the `job.csv` can be deemed as aggreated statistic of this file.
+This report is a detailed job info, the `job.csv` can be deemed as aggreated statistic of this report.
 
-The file have following columns:
+The report have following columns:
 
 * user: username in OpenPai cluster
 * vc: VC name in OpenPai cluster
 * job name: job name in OpenPai cluster
-* start time: when the job got started, it will be a timestamp value
-* finished time: when the job finished, it will be a timestamp value, if the job is still running, this will have value 0
+* start time: when the job got started
+* finished time: when the job finished, if the job is still running, this will have value `1970/01/01`
 * waiting time: how much time(second) this job is in waiting status before running, this include waiting time of the retries. If the job is still running, this will have value 0
 * running time: how much time this job is in running status, this include retries
 * retries: the retry count of this job
@@ -60,18 +60,18 @@ The file have following columns:
 * exit code: the exit code of the job, if the job is still in running, it will be value `N/A`
 * cpu allocated: how many vcore allocated to the job, this include the vcore allocated to app master
 * memory allocated: how much memory(GB) allocated to the job, this include the memory allocated to app master
-* max memory usage: maximum memory(GB) usage of this job
+* max memory usage: maximum memory(GB) usage of this job, it will have value of `N/A` if Pai did not have record of memory usage, maybe due to running time of job is too short or system error
 * gpu allocated: how many gpu card allocated to the job
 
-### gpu.csv
+### gpu
 
-This file is about all gpu util info in cluster.
+This report is about all gpu util info in cluster.
 
-The file have following columns:
+The report have following columns:
 
 * host_ip: where this gpu installed
 * gpu_id: gpu minor number in the node
-* avg: avg utils during the time frame
+* avg: avg utils during the report time frame
 
 ## Prerequisite
 
@@ -96,7 +96,7 @@ The [script](../../src/tools/reports.py) has thress actions, `refresh`, `report`
 
 The `refresh` action will tries to collect data from hadoop-resource-manager and framework-launcher, and save the data in sqlite3 DB for future process. The script needs to save data because hadoop-resource-manager will not retain job info too long, if we do not fetch them and save somewhere, we will not be able to generate correct report. We recommend admin run this script every 10 minutes using CRON job.
 
-The `report` action will query data about vc usage and job statistic from sqlite3 DB and generate vc/job/raw_job reports, it will also get data from Prometheus to generate alert reports. You can execute this action whenever you want the reports.
+The `report` action will query data about vc usage and job statistic from sqlite3 DB and generate vc/job/raw_job/gpu csv files, it will also get data from Prometheus to generate alert reports. You can execute this action whenever you want the reports.
 
 The `serve` action will start a http server so outside world can query report through web server instead of using files.
 
@@ -166,4 +166,4 @@ http://$IP:10240/alert
 http://$IP:10240/gpu
 ```
 
-These end point all accept `span` argument, you can provide with value: `day`, `week` or `month`, which will generate report in that time span. The default span is week.
+These end point all accept `span` argument, you can provide with value: `day`, `week` or `month`, which will generate report in that time span. The default span is week. This will get jobs finished during this time or is still running.

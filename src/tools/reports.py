@@ -421,21 +421,24 @@ def get_job_report(database, since, until, max_mem_usage):
     db = DB(database)
 
     with db.conn:
+        # Select more apps, since framework may retry, and previous retry
+        # may not finished in since~until range.
+        # Assume no retry will happen 1 month before framework finish.
+        app_since = datetime.datetime.fromtimestamp(since) - datetime.timedelta(days=31)
+        app_since = int(datetime.datetime.timestamp(app_since))
         cursor = db.conn.cursor()
         cursor.execute("""SELECT content FROM apps
                         WHERE (finished_time>? AND finished_time<?)
                             OR finished_time=0""",
-                        (since, until))
+                        (app_since, until))
         apps = cursor.fetchall()
 
         logger.info("get %d apps entries", len(apps))
 
         cursor.execute("""SELECT content FROM frameworks
-                        WHERE ((start_time>? AND start_time<?)
-                            OR start_time=0) AND
-                          ((finished_time>? AND finished_time<?)
+                        WHERE ((finished_time>? AND finished_time<?)
                             OR finished_time=0)""",
-                        (since, until, since, until))
+                        (since, until))
         frameworks = cursor.fetchall()
 
         logger.info("get %d frameworks entries", len(frameworks))
@@ -508,6 +511,12 @@ def get_job_report(database, since, until, max_mem_usage):
                 job.max_mem_usage = max_mem_usage[name] / 1024 / 1024 / 1024
 
             statistic[username][vc][job_status] += job
+
+    # remove apps that not belongs to any framework
+    for job_name in list(processed_apps.keys()):
+        job = processed_apps[job_name]
+        if job.job_count == 0:
+            processed_apps.pop(job_name)
 
     result = []
     for username, val in statistic.items():
