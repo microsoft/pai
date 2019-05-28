@@ -21,6 +21,48 @@ class Resource(object):
     gpus = attr.ib(converter=float, validator=instance_of(float))
     memory = attr.ib(converter=float, validator=instance_of(float))
 
+    def __add__(self, other):
+        if isinstance(other, Resource):
+            cpus = self.cpus + other.cpus
+            gpus = self.gpus + other.gpus
+            memory = self.memory + other.memory
+            return Resource(cpus=cpus, gpus=gpus, memory=memory)
+        else:
+            raise NotImplemented
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        if isinstance(other, Resource):
+            cpus = self.cpus - other.cpus
+            gpus = self.gpus - other.gpus
+            memory = self.memory - other.memory
+            return Resource(cpus=cpus, gpus=gpus, memory=memory)
+        else:
+            raise NotImplemented
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            cpus = self.cpus * other
+            gpus = self.gpus * other
+            memory = self.memory * other
+            return Resource(cpus=cpus, gpus=gpus, memory=memory)
+        else:
+            raise NotImplemented
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __div__(self, other):
+        if isinstance(other, (int, float)):
+            cpus = self.cpus / other
+            gpus = self.gpus / other
+            memory = self.memory / other
+            return Resource(cpus=cpus, gpus=gpus, memory=memory)
+        else:
+            raise NotImplemented
+
 
 class YarnOperator(BaseOperator):
     yarn_config_path = "./.hadoop"
@@ -52,11 +94,11 @@ class YarnOperator(BaseOperator):
             host = node["nodeHostName"]
             state = node["state"]
             node_label = node.get("nodeLabels", [""])[0]
-            resource = {
+            resource = Resource(**{
                 "cpus": node["usedVirtualCores"] + node["availableVirtualCores"],
                 "memory": node["usedMemoryMB"] + node["availMemoryMB"],
                 "gpus": node["usedGPUs"] + node["availableGPUs"]
-            }
+            })
             current_nodes[host] = {
                 "state":  state,
                 "nodeLabel": node_label,
@@ -197,11 +239,11 @@ class YarnOperator(BaseOperator):
             for resource in resources.strip("<>").split(","):
                 r_type, r_quota = resource.split(":")
                 r_dict[r_type.strip()] = int(r_quota)
-            label_dict["resource"] = {
+            label_dict["resource"] = Resource(**{
                 "cpus": r_dict["vCores"],
                 "memory": r_dict["memory"],
                 "gpus": r_dict["GPUs"]
-            }
+            })
             labels_dict[label_name] = label_dict
         return labels_dict
 
@@ -309,10 +351,6 @@ class YarnOperator(BaseOperator):
         request_xml = self.generate_queue_update_xml(raw_dict)
         self.put_queue_update_xml(request_xml)
 
-
-
-
-
     def generate_queue_update_xml(self, g_dict):
         return dicttoxml.dicttoxml(g_dict, attr_type=False, custom_root="sched-conf", item_func=lambda x: "entry")
 
@@ -327,9 +365,12 @@ class YarnOperator(BaseOperator):
 
 
 if __name__ == "__main__":
+    tt= Resource(**{"cpus":1 ,"memory":2 , "gpus":3})
     a = Resource(1,1,2)
-    b = Resource(2,2,3)
-    print(a>b)
+    b = Resource(2,2,1)
+
+    print(a<b)
+    sys.exit(0)
 
     yarn_op = YarnOperator("10.151.40.133")
     try:
