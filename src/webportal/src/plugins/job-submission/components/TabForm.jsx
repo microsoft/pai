@@ -5,6 +5,12 @@ import { getFormClassNames, getTabFromStyle } from './formStyle'
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
 
+export const TabFormItem = (props) => {
+  return (
+    <>{props.children}</>
+  );
+}
+
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
