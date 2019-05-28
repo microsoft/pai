@@ -256,7 +256,10 @@ export default function Table() {
       return (
         <DefaultButton
           onClick={onClick}
-          styles={{root: ColorClassNames.neutralQuaternaryBackground}}
+          styles={{
+            root: {backgroundColor: '#e5e5e5'},
+            rootFocused: {backgroundColor: '#e5e5e5'},
+          }}
         >
           Remove
         </DefaultButton>
