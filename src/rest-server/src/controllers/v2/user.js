@@ -97,7 +97,7 @@ const createUser = async (req, res, next) => {
     };
     await userModel.createUser(username, userValue);
     return res.status(201).json({
-      message: 'group is created successfully',
+      message: 'User is created successfully',
     });
   } catch (error) {
     return next(createError.unknown(error));
