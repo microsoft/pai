@@ -214,14 +214,18 @@ if (config.env !== 'test') {
     try {
       logger.info('Update User Grouplist at the start stage.');
       logger.info('Init user list to update.');
-      let grouplist = await getAllGroup();
+      let groupInfoList = await getAllGroup();
+      let groupnameList = []
       let userList = await userModel.getAllUser();
       let updateUserList = [];
+      for (let groupItem of groupInfoList) {
+        groupnameList.push(groupItem['groupname']);
+      }
       for (let userItem of userList) {
         let updateUser = false;
         let userGroupList = [];
         for (let groupname of userItem['grouplist']) {
-          if (grouplist.includes(groupname)) {
+          if (groupnameList.includes(groupname)) {
             userGroupList.push(groupname);
           } else {
             updateUser = true;
