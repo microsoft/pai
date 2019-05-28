@@ -129,6 +129,7 @@ export async function cloneJob(rawJobConfig) {
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    return;
   }
   window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
 }
