@@ -140,6 +140,12 @@ matrix:
 
     - language: node_js
       node_js: lts/dubnium
-      before_install: cd contrib/submit-protocol
+      before_install: cd contrib/submit-job-v2
+      install: yarn --frozen-lockfiles
+      script: yarn build
+
+    - language: node_js
+      node_js: lts/dubnium
+      before_install: cd contrib/marketplace
       install: yarn --frozen-lockfiles
       script: yarn build
