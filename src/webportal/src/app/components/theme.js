@@ -69,9 +69,9 @@ export function initTheme() {
 const {palette} = getTheme();
 
 export const statusColor = {
-  waiting: palette.yellowLight,
-  failed: palette.red,
-  running: palette.blue,
-  succeeded: palette.greenLight,
+  waiting: '#fcd116',
+  failed: '#eb1123',
+  running: '#0071bc',
+  succeeded: '#7fba00',
   unknown: palette.neutralTertiary,
 };
