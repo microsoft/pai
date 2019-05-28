@@ -800,7 +800,9 @@ Status: 200
    "vCores":0,
    "GPUs":0
   },
-  "dedicated": true/false
+  "dedicated": true/false,
+  //node label expression this virtual cluster can access
+  "defaultLabel": "label_name",
   "state":"running"
 }
 ```
