@@ -43,12 +43,12 @@ const createGroupIfGroupNotExist = async (req, res, next) => {
     const groupData = req.groupData;
     const groupname = groupData.groupname;
     const groupValue = {
-      username: groupData.groupname,
+      groupname: groupData.groupname,
       description: groupData.description,
       externalName: groupData.externalName,
       extension: {},
     };
-    await groupModel.createUser(groupname, groupValue);
+    await groupModel.createGroup(groupname, groupValue);
     next();
   } catch (error) {
     if (error.status === 409) {
@@ -61,15 +61,14 @@ const createGroupIfGroupNotExist = async (req, res, next) => {
 
 const createGroup = async (req, res, next) => {
   try {
-    const groupData = req.groupData;
-    const groupname = groupData.groupname;
+    const groupname = req.body.groupname;
     const groupValue = {
-      username: groupData.groupname,
-      description: groupData.description,
-      externalName: groupData.externalName,
+      groupname: req.body.groupname,
+      description: req.body.description,
+      externalName: req.body.externalName,
       extension: {},
     };
-    await groupModel.createUser(groupname, groupValue);
+    await groupModel.createGroup(groupname, groupValue);
     return res.status(201).json({
       message: 'group is created successfully',
     });

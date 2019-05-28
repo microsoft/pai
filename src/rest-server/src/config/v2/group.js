@@ -20,7 +20,7 @@ const Joi = require('joi');
 
 // define the input schema for the 'update group extension' api
 const groupExtensionUpdateInputSchema = Joi.object().keys({
-  extensionData: Joi.object().pattern(/\w+/, Joi.required()),
+  extension: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
 // define the input schema for the 'update group description' api

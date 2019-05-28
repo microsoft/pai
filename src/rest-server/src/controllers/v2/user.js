@@ -87,18 +87,17 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
   try {
-    const userData = req.userData;
-    const username = userData.username;
+    const username = req.body.username;
     const userValue = {
-      username: userData.username,
-      email: userData.email,
-      password: userData.password,
-      grouplist: userData.grouplist,
-      extension: userData.extension,
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      grouplist: req.body.grouplist,
+      extension: req.body.extension,
     };
     await userModel.createUser(username, userValue);
     return res.status(201).json({
-      message: 'group is created successfully',
+      message: 'User is created successfully',
     });
   } catch (error) {
     return next(createError.unknown(error));
@@ -108,7 +107,7 @@ const createUser = async (req, res, next) => {
 const updateUserExtension = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const extensionData = req.body.extensionData;
+    const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
       userInfo['extension'] = extensionData;
@@ -149,7 +148,7 @@ const updateUserPassword = async (req, res, next) => {
     let newUserValue = userValue;
     newUserValue['password'] = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (req.user.admin || newUserValue['password'] !== userValue['password']) {
+    if (!req.user.admin || newUserValue['password'] !== userValue['password']) {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     } else {
       newUserValue['password'] = newPassword;

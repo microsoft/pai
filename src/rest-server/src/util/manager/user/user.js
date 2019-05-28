@@ -50,7 +50,7 @@ function encrypt(username, password) {
   const salt = crypto.createHash('md5').update(username).digest('hex');
   return new Promise( (res, rej) => {
     crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, key) => {
-      err ? rej(err) : res(key);
+      err ? rej(err) : res(key.toString('hex'));
     });
   });
 }
