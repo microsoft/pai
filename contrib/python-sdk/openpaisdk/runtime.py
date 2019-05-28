@@ -17,7 +17,8 @@ def runtime_deployment(job_config: dict, wdir: str=''):
 
 def runtime_restore_config(job_config):
     if not os.path.isfile(__cluster_config_file__):
-        to_file(job_config.get('extras', {}).get('__clusters__', []), __cluster_config_file__)
+        cluster_info = job_config.get('extras', {}).get('__clusters__', [])
+        to_file(cluster_info if isinstance(cluster_info, list) else [cluster_info], __cluster_config_file__)
     if not os.path.isfile(__local_default_file__):
         to_file(job_config.get('extras', {}).get('__defaults__', {}), __local_default_file__)
         __logger__.info("Restore defaults to %s", __local_default_file__)

@@ -1,7 +1,7 @@
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import merge_two_object
-from openpaisdk import __jobs_cache__, __install__, __logger__
+from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__
 import argparse
 import os
 
@@ -23,7 +23,7 @@ class JobSpec(Namespace):
                       ])
 
     def add_source(self, fname: str):
-        if os.path.isfile(fname) and fname not in self.sources:
+        if fname not in self.sources:
             self.sources.append(fname)
 
     def add_to(self, target: str, elem):
@@ -75,7 +75,7 @@ class Job(JobSpec):
     def to_file(self, fname: str):
         to_file(self.to_dict(), fname)
 
-    def to_job_config_v1(self, save_to_file: str=None) -> dict:
+    def to_job_config_v1(self, save_to_file: str=None, cluster_info: dict=None) -> dict:
         for a in ['sources']:
             if getattr(self, a) is None:
                 setattr(self, a, [])
@@ -92,10 +92,15 @@ class Job(JobSpec):
             dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
             dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
             dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
+        dic['extras']['__clusters__'] = from_file(__cluster_config_file__, default=[]) if not cluster_info else cluster_info
+        dic['extras']['__defaults__'] = __defaults__
+        if self.get_config_file() not in self.sources:
+            self.add_source(self.get_config_file())
+        dic['extras']['__sources__'] = self.sources
         if save_to_file:
             to_file(dic, save_to_file)
         return dic
-    
+
     def to_job_config_taskroles_v1(self):
         commands = []
         if not self.disable_sdk_install:
@@ -104,7 +109,6 @@ class Job(JobSpec):
         taskroles = []
         for t in self.taskroles:
             assert len(t.commands) >0, 'empty commands'
-            self.add_source(t.commands[0])
             if t.commands[0] in __known_executables__:
                 self.add_source(t.commands[1])
             dic = dict(

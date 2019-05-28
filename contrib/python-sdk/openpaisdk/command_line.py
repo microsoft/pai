@@ -20,15 +20,22 @@ def pprint(s, fmt: str='yaml', **kwargs):
         print(yaml.dump(s, default_flow_style=False))
 
 
-def get_client_cfg(alias):
+def get_client_cfg(alias, mask_passwd: bool=False):
     cfgs = from_file(pai.__cluster_config_file__, default=[])
+    if mask_passwd:
+        for c in cfgs:
+            c["passwd"] = "******"
     f = [(c,i) for i, c in enumerate(cfgs) if not alias or c['cluster_alias'] == alias]
-    return f[0][0] if f else None, cfgs, f[0][1] if f else -1
+    return {
+        "all": cfgs,
+        "match": f[0][0] if f else None,
+        "index": f[0][1] if f else -1,
+    }
 
 
 def get_client(alias):
     try:
-        cfg = get_client_cfg(alias)[0]
+        cfg = get_client_cfg(alias)["match"]
         return Cluster(**cfg)
     except:
         __logger__.error('Cannot find cluster named %s', alias, exc_info=1)
@@ -78,7 +85,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = list2dict(get_client_cfg(None)[1], "cluster_alias")
+        cfgs = list2dict(get_client_cfg(None, True)["all"], "cluster_alias")
         if args.name:
             return list(cfgs.keys())
         return cfgs
@@ -87,7 +94,8 @@ class ActionFactoryForCluster(ActionFactory):
         Cluster().define(parser)
 
     def do_action_add(self, args):
-        _, cfgs, idx = get_client_cfg(args.cluster_alias)
+        f = get_client_cfg(args.cluster_alias)
+        cfgs, idx = f["all"], f["index"]
         cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
         __logger__.debug('new cluster info is %s', cfg_new)
         result = []
@@ -110,14 +118,14 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
 
     def do_action_attach_hdfs(self, args):
-        c, cfgs, _ = get_client_cfg(args.cluster_alias)
-        c.setdefault('storages', []).append({
+        f = get_client_cfg(args.cluster_alias)
+        f["match"].setdefault('storages', []).append({
             "storage_alias": args.storage_alias,
             "protocol": "webHDFS",
             "web_hdfs_uri": args.web_hdfs_uri,
             "user": args.user if args.user else c['user'],
         })
-        to_file(cfgs, pai.__cluster_config_file__)
+        to_file(f["all"], pai.__cluster_config_file__)
         return "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
 
 
@@ -135,7 +143,7 @@ class ActionFactoryForJob(ActionFactory):
         if args.name:
             assert not args.query, 'cannot use --name with query at the same time'
             result = list2dict(result, 'name')
-        return result                
+        return result
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--rename', 'config'])
@@ -149,7 +157,7 @@ class ActionFactoryForJob(ActionFactory):
         if not getattr(args, "job_name", None) in [None, "null"]:
             args.job_name = job_config["name"]
         assert args.job_name == job_config["name"], "job name mismatch %s <> %s" % (args.job_name, job_config["name"])
-        
+        # save the job_config to cache folder
         if args.config != Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")):
             to_file(job_config, Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")))
 
@@ -162,11 +170,11 @@ class ActionFactoryForJob(ActionFactory):
         cli_add_arguments(None, parser, ['--dont-set-as-default'])
 
     def do_action_new(self, args):
-        if os.path.isfile(Job.job_cache_file(args.job_name)): 
+        if os.path.isfile(Job.job_cache_file(args.job_name)):
             raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
         self.__job__.from_dict(vars(args), ignore_unkown=True)
         if not args.dont_set_as_default:
-            Engine().process(['set', 'job-name={}'.format(args.job_name)]) 
+            Engine().process(['set', 'job-name={}'.format(args.job_name)])
         return self.__job__.to_dict()
 
     def define_arguments_preview(self, parser):
@@ -177,7 +185,7 @@ class ActionFactoryForJob(ActionFactory):
         if args.v2:
             raise NotImplementedError
         else:
-            job_config = self.__job__.to_job_config_v1(save_to_file=fname)
+            job_config = self.__job__.to_job_config_v1(save_to_file=fname, cluster_info=get_client_cfg(args.cluster_alias, True)["match"])
         client = get_client(getattr(args, "cluster_alias", None))
         if client:
             pass
