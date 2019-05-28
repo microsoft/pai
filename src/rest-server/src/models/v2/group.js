@@ -85,6 +85,8 @@ const deleteGroup = async (groupname) => {
         await userModel.updateUser(userData['username'], userData);
       }));
       logger.info('Update group info successfully.');
+    } else {
+      logger.info('No user\' grouplist need to be updated.')
     }
     return ret;
   } catch (error) {
@@ -208,6 +210,45 @@ if (config.env !== 'test') {
       }
     }, 600 * 1000);
   }
+  (async function() {
+    try {
+      logger.info('Update User Grouplist at the start stage.');
+      logger.info('Init user list to update.');
+      let grouplist = await getAllGroup();
+      let userList = await userModel.getAllUser();
+      let updateUserList = [];
+      for (let userItem of userList) {
+        let updateUser = false;
+        let userGroupList = [];
+        for (let groupname of userItem['grouplist']) {
+          if (grouplist.includes(groupname)) {
+            userGroupList.push(groupname);
+          } else {
+            updateUser = true;
+          }
+        }
+        if (updateUser) {
+          let newUserInfo = userItem;
+          newUserInfo['grouplist'] = userGroupList;
+          updateUserList.push(newUserInfo);
+        }
+      }
+      if (updateUserList.length !== 0) {
+        logger.info('User list to be updated has been prepared.');
+        logger.info('Begin to update user\' group list.');
+        await Promise.all(updateUserList.map(async (userData) => {
+          await userModel.updateUser(userData['username'], userData);
+        }));
+        logger.info('Update group info successfully.');
+      } else {
+        logger.info('No user\' grouplist need to be updated.')
+      }
+
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  })();
 }
 
 module.exports = {
