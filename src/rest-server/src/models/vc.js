@@ -218,9 +218,11 @@ class VirtualCluster {
           if (defaultQuotaIfUpdated < 0) {
             return callback(createError('Forbidden', 'NoEnoughQuotaError', `No enough quota`));
           }
-
           let data = {'add-queue': {}, 'update-queue': {}};
           if (vcList.hasOwnProperty(vcName)) {
+            if (vcList[vcName].dedicated) {
+              return callback(createError('Forbidden', 'ReadOnlyVcError', `Dedicated vc is read-only, can't be updated by rest-api`));
+            }
             data['update-queue'][vcName] = {
               'capacity': capacity,
               'maximum-capacity': maxCapacity,
@@ -331,6 +333,8 @@ class VirtualCluster {
           return callback(createError('Not Found', 'NoVirtualClusterError', `No default vc found, can't free quota`));
         } else if (!vcList.hasOwnProperty(vcName)) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `Can't delete a nonexistent vc ${vcName}`));
+        } else if (vcList[vcName].dedicated) {
+          return callback(createError('Forbidden', 'ReadOnlyVcError', `Dedicated vc is read-only, can't be removed by rest-api`));
         } else if (vcList[vcName]['numJobs'] > 0) {
           return callback(createError('Forbidden', 'RemoveRunningVcError',
             `Can't delete vc ${vcName}, ${vcList[vcName]['numJobs']} jobs are running, stop them before delete vc`));

@@ -311,6 +311,225 @@ const yarnDefaultResponse = {
                         },
                         "preemptionDisabled": false,
                         "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 0,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 0,
+                        "absoluteMaxCapacity": 0,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 1,
+                        "queueName": "dedicated_vc",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "dedicated_vc"
+                        ],
+                        "allocatedContainers": 0,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 0,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "dedicated_vc",
+                                    "capacity": 100,
+                                    "usedCapacity": 25,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 100,
+                                    "absoluteUsedCapacity": 25,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 50
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                },
+                                {
+                                    "partitionName": "dedicated_vc",
+                                    "used": {
+                                        "memory": 3072,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 104448,
+                                        "vCores": 12,
+                                        "GPUs": 2
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 1,
+                        "numPendingApplications": 0,
+                        "numContainers": 2,
+                        "maxApplications": 10000,
+                        "maxApplicationsPerUser": 10000,
+                        "userLimit": 100,
+                        "users": {
+                            "user": [
+                                {
+                                    "username": "zimiao",
+                                    "resourcesUsed": {
+                                        "memory": 3072,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    },
+                                    "numPendingApplications": 0,
+                                    "numActiveApplications": 1,
+                                    "AMResourceUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "userResourceLimit": {
+                                        "memory": 208896,
+                                        "vCores": 24,
+                                        "GPUs": 4
+                                    },
+                                    "resources": {
+                                        "resourceUsagesByPartition": [
+                                            {
+                                                "partitionName": "",
+                                                "used": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                }
+                                            },
+                                            {
+                                                "partitionName": "dedicated_vc",
+                                                "used": {
+                                                    "memory": 3072,
+                                                    "vCores": 2,
+                                                    "GPUs": 1
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 1024,
+                                                    "vCores": 1,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 104448,
+                                                    "vCores": 12,
+                                                    "GPUs": 2
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "userWeight": 1,
+                                    "isActive": false
+                                }
+                            ]
+                        },
+                        "userLimitFactor": 100,
+                        "AMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": true,
+                        "defaultNodeLabelExpression": "dedicated_vc",
+                        "defaultPriority": 0
                     }
                 ]
             },
@@ -661,7 +880,7 @@ const clusterNodeResponse = {
                 "availableGPUs": 3,
                 "availableGPUAttribute": 14,
                 "nodeLabels": [
-                    "test_vc"
+                    "dedicated_vc"
                 ],
                 "resourceUtilization": {
                     "nodePhysicalMemoryMB": 36297,
@@ -734,6 +953,10 @@ describe('VC API  Get /api/v1/virtual-clusters', () => {
         expect(res, 'json response').be.json;
         expect(res.body).to.have.property('a');
         expect(res.body).to.nested.include({'default.status': "RUNNING"});
+        expect(res.body).to.nested.include({'default.dedicated': false});
+        expect(res.body).to.nested.include({'default.resourcesTotal.GPUs': 2.8});
+        expect(res.body).to.nested.include({'dedicated_vc.dedicated': true});
+        expect(res.body).to.nested.include({'dedicated_vc.resourcesTotal.GPUs': 4});
         done();
       });
   });
@@ -968,12 +1191,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not update vc if  vcname contains illegal character', (done) => {
-    nock.cleanAll();
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnErrorResponse)
-      .get('/ws/v1/cluster/nodes')
-      .reply(200, clusterNodeResponse);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/aaa%20bbb')
@@ -1003,6 +1220,21 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
         expect(res, 'status code').to.have.status(500);
         expect(res.body).to.have.property('code', 'UnknownError');
         expect(res.body).to.have.property('message', 'Error response in YARN');
+        done();
+      });
+  });
+
+  it('[Negative] should not update a dedicated vc', (done) => {
+
+    chai.request(server)
+      .put('/api/v1/virtual-clusters/dedicated_vc')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        'vcCapacity': 10
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(403);
+        expect(res.body).to.have.property('code', 'ReadOnlyVcError');
         done();
       });
   });
@@ -1207,6 +1439,23 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(403);
         expect(res.body).to.have.property('code', 'ForbiddenUserError');
+        done();
+      });
+  });
+
+  it('[Positive] shouldn\'t delete dedicated vc', (done) => {
+    nock(yarnUri)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200);
+
+    chai.request(server)
+      .delete('/api/v1/virtual-clusters/dedicated_vc')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(403);
+        expect(res.body).to.have.property('code', 'ReadOnlyVcError');
         done();
       });
   });
