@@ -15,9 +15,14 @@ const KeyValueItem = (props) => {
 export class KeyValueList extends React.Component {
   constructor(props) {
     super(props);
+    let items = props.items;
+
+    if (items !== undefined) {
+      items = this._updatedItemKeys(items);
+    }
 
     this.state = {
-      items: props.items
+      items: items
     };
   }
 
