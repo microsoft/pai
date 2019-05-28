@@ -28,7 +28,7 @@ class Cluster(Namespace):
     __type__ = "cluster-spec"
     __fields__ = dict(
         storage_clients = dict(),
-        default_storage_alias = 'default',
+        default_storage_alias = '',
     )
 
     def __init__(self, pai_uri: str=None, user: str=None, passwd: str=None, storages: list=[], **kwargs):
@@ -47,9 +47,10 @@ class Cluster(Namespace):
             '--cluster-alias', '--pai-uri', '--user', '--passwd',
         ])
 
-    @property
-    def storage(self):
-        return self.storage_clients.get(self.default_storage_alias, None)
+    def get_storage(self, alias: str=None):
+        if len(self.storage_clients) == 0:
+            return None
+        return self.storage_clients[alias if alias else self.default_storage_alias]
 
     def add_storage(self, protocol: str=None, storage_lias: str=None, **kwargs):
         "initialize the connection information"
@@ -71,38 +72,6 @@ class Cluster(Namespace):
 
         self.token = self.rest_api_token(expiration)
         return self
-
-    def submit(self, job: Job, job_config: dict=None, allow_job_in_job: bool=False, append_pai_info: bool=True):
-        """
-        [summary]
-
-        Args:
-            job (Job): job config
-            allow_job_in_job (bool, optional): Defaults to False. [description]
-
-        Returns:
-            [str]: job name
-        """
-
-        if not allow_job_in_job:
-            assert not in_job_container(), 'not allowed submiting jobs inside a job'
-        if not job_config:
-            job_config = job.to_job_config_v1(save_to_file=None)
-
-        if append_pai_info:
-            job_config['extras']['__clusters__'] = [Cluster.desensitize(self.config)]
-            job_config['extras']['__defaults__'] = __defaults__
-        code_dir = job.get_workspace_folder('code')
-        files_to_upload = job.sources if job.sources else []
-        for file in files_to_upload:
-            self.storage.upload(local_path=file, remote_path='{}/{}'.format(code_dir, file), overwrite=True)
-        c_file = job.get_config_file()
-        if os.path.isfile(c_file):
-            to_file(job_config, c_file)
-            self.storage.upload(local_path=c_file, remote_path='{}/{}'.format(code_dir, os.path.basename(c_file)), overwrite=True)
-
-        self.get_token().rest_api_submit(job_config)
-        return job_config['jobName']
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
@@ -137,7 +106,9 @@ class Cluster(Namespace):
             }
         ).json()['token']
 
-    def rest_api_submit(self, job_config: dict, use_v2: bool=False):
+    def rest_api_submit(self, job_config: dict):
+        protocolVersion = job_config.get("protocolVersion", "1")
+        use_v2 = protocolVersion == [2, "2"] or protocolVersion.startswith("2.")
         return get_response(
             '{}/rest-server/api/{}/user/{}/jobs'.format(self.pai_uri, "v2" if use_v2 else "v1", self.user),
             headers = {

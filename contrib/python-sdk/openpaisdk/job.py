@@ -1,7 +1,7 @@
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import merge_two_object
-from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__
+from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__, __sdk_branch__
 import argparse
 import os
 
@@ -16,7 +16,10 @@ class JobSpec(Namespace):
         cli_add_arguments(self, parser, [
             '--job-name',
             '--cluster-alias',
+            '--storage-alias', # use which storage for code transfer
+            '--v2',
             '--workspace',
+            '--code-dir',
             '--sources',
             '--image',
             '--disable-sdk-install'
@@ -86,17 +89,22 @@ class Job(JobSpec):
             jobEnvs={},
             extras=dict(prequisites=self.requirements),
         )
+        dic["extras"]["__signature__"] = "python-sdk@%s" % __sdk_branch__
+
         dic['taskRoles'] = self.to_job_config_taskroles_v1()
         dic['extras']['userCommands'] = {t.task_role_name: t.commands for t in self.taskroles}
-        if self.workspace:
-            dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
-            dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
+
+        # Sources
+        dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
+        dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
+        dic['jobEnvs']['PAI_SDK_JOB_CODE_DIR'] = self.code_dir if self.code_dir else self.get_workspace_folder('code')
+        if dic['jobEnvs']['PAI_SDK_JOB_CODE_DIR']:
             dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
+
         dic['extras']['__clusters__'] = from_file(__cluster_config_file__, default=[]) if not cluster_info else cluster_info
         dic['extras']['__defaults__'] = __defaults__
-        if self.get_config_file() not in self.sources:
-            self.add_source(self.get_config_file())
         dic['extras']['__sources__'] = self.sources
+
         if save_to_file:
             to_file(dic, save_to_file)
         return dic
@@ -105,12 +113,10 @@ class Job(JobSpec):
         commands = []
         if not self.disable_sdk_install:
             commands.append('pip install -U %s' % __install__)
-        commands.append('opai runtime execute --working-dir code job_config.json')
+        commands.append('opai runtime execute --working-dir . code/job_config.json')
         taskroles = []
         for t in self.taskroles:
             assert len(t.commands) >0, 'empty commands'
-            if t.commands[0] in __known_executables__:
-                self.add_source(t.commands[1])
             dic = dict(
                 name=t.task_role_name,
                 taskNumber=t.task_number,
@@ -123,6 +129,8 @@ class Job(JobSpec):
     # storage based job management
 
     def get_workspace_folder(self, folder: str= 'code'):
+        if not self.workspace:
+            return None
         return '{}/jobs/{}/{}'.format(self.workspace, self.job_name, folder)
 
     @staticmethod
@@ -130,14 +138,9 @@ class Job(JobSpec):
         return os.path.join(__jobs_cache__, job_name, fname)
 
     @staticmethod
-    def default_job_config_filename(protocolVersion: str="2"):
-        protocolVersion = str(protocolVersion)
-        if protocolVersion == "2" or protocolVersion.startswith("2."):
-            return "job_config.yaml"
-        return "job_config.json"
-
-    def get_config_file(self, protocolVersion: str="1"):
-        return Job.job_cache_file(self.job_name, Job.default_job_config_filename(protocolVersion))
+    def get_config_file(args):
+        fname = 'job_config.yaml' if getattr(args, 'v2', False) else 'job_config.json'
+        return os.path.join(__jobs_cache__, args.job_name, fname)
 
     def get_cache_file(self):
         return Job.job_cache_file(self.job_name)

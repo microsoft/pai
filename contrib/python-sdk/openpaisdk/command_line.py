@@ -1,16 +1,22 @@
 import argparse
-import json, yaml
-import os, sys
+import json
+import os
+import sys
+from copy import deepcopy
+from os.path import commonpath
+
+import yaml
+
 import openpaisdk as pai
-from openpaisdk import __logger__
-from openpaisdk.io_utils import from_file, to_file
-from openpaisdk.utils import list2dict
-from openpaisdk.core import Cluster
-from openpaisdk.job import TaskRole, JobSpec, Job
 import openpaisdk.runtime_requires as req
-from openpaisdk.runtime import runtime_execute
+from openpaisdk import __logger__
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments
-from openpaisdk.cli_factory import EngineFactory, ActionFactory, Scene, Action
+from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
+from openpaisdk.core import Cluster
+from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.job import Job, JobSpec, TaskRole
+from openpaisdk.runtime import runtime_execute
+from openpaisdk.utils import list2dict
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -42,12 +48,21 @@ def get_client(alias):
 
 
 def get_storage(args):
-    client = get_client(args.cluster_alias)
-    s_a = getattr(args, 'storage_alias', None)
-    if s_a is None:
-        return client.storage
-    else:
-        return client.storages[s_a]
+    return get_client(args.cluster_alias).get_storage(getattr(args, 'storage_alias', None))
+
+
+def submit_job(args, job_config: dict, client: Cluster=None):
+    if client is None:
+        client = get_client(args.cluster_alias)
+    envs, params = job_config.get("jobEnvs", {}), job_config.get("extras", {})
+    code_dir = envs.get("PAI_SDK_JOB_CODE_DIR", None)
+    if code_dir:
+        for src in params.get("__sources__", []):
+            Engine().process_args(Namespace().from_dict(args, scene="storage", action="upload", local_path=src, remote_path="%s/%s" % (code_dir, src), overwrite=True))
+        src = Job.get_config_file(args)
+        Engine().process_args(Namespace().from_dict(args, scene="storage", action="upload", local_path=src, remote_path="%s/%s" % (code_dir, os.path.basename(src)), overwrite=True))
+    client.get_token().rest_api_submit(job_config)
+    return client.get_job_link(args.job_name)
 
 
 class ActionFactoryForDefault(ActionFactory):
@@ -146,24 +161,25 @@ class ActionFactoryForJob(ActionFactory):
         return result
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--rename', 'config'])
+        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', 'config'])
+        parser.add_argument('--rename', action="store_true", default=False, help="rename the job according to job_name")
 
     def do_action_submit(self, args):
-        if not getattr(args, 'config', None):
-            args.config = Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1"))
+        assert args.job_name or args.config, "please specify --job-name or give a job config file"
+        name_key = "jobName" if not args.v2 else "name"
+        if args.job_name in [None, "null"]:
+            args.job_name = from_file(args.config)[name_key]
+        cache_file = Job.get_config_file(args)
+        if not args.config:
+            args.config = cache_file
         job_config = from_file(args.config)
         if getattr(args, 'rename', True):
-            job_config["name"] = args.job_name
-        if not getattr(args, "job_name", None) in [None, "null"]:
-            args.job_name = job_config["name"]
-        assert args.job_name == job_config["name"], "job name mismatch %s <> %s" % (args.job_name, job_config["name"])
+            job_config[name_key] = args.job_name
+        assert args.job_name == job_config[name_key], "job name mismatch %s <> %s" % (args.job_name, job_config["name"])
         # save the job_config to cache folder
-        if args.config != Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")):
-            to_file(job_config, Job.job_cache_file(args.job_name, Job.default_job_config_filename("2" if args.v2 else "1")))
-
-        client = get_client(args.cluster_alias)
-        client.get_token().rest_api_submit(job_config, use_v2=args.v2)
-        return client.get_job_link(args.job_name)
+        if args.config != cache_file:
+            to_file(job_config, cache_file)
+        return submit_job(args, job_config)
 
     def define_arguments_new(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
@@ -181,14 +197,11 @@ class ActionFactoryForJob(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--job-name', '--v2', 'config'])
 
     def do_action_preview(self, args):
-        fname = Job.default_job_config_filename("2" if args.v2 else "1")
+        fname = Job.get_config_file(args)
         if args.v2:
             raise NotImplementedError
         else:
             job_config = self.__job__.to_job_config_v1(save_to_file=fname, cluster_info=get_client_cfg(args.cluster_alias, True)["match"])
-        client = get_client(getattr(args, "cluster_alias", None))
-        if client:
-            pass
         if hasattr(args, "config") and args.config:
             to_file(job_config, args.config)
             return "write job config to %s" % args.config
@@ -198,11 +211,10 @@ class ActionFactoryForJob(ActionFactory):
         JobSpec().define(parser)
         TaskRole().define(parser)
         cli_add_arguments(None, parser, ['--pip-flags'])
-        cli_add_arguments(None, parser, ['--dont-set-as-default', '--v2', '--preview'])
+        cli_add_arguments(None, parser, ['--dont-set-as-default', '--preview'])
 
     def do_action_sub(self, args):
-        self.do_action_new(args)
-        self.store(args)
+        Engine().process_args(Namespace().from_dict(args, action='new'))
         args_task = TaskRole().from_dict(vars(args), ignore_unkown=True, scene='task', action='add')
         Engine().process_args(args_task)
         if getattr(args, 'pip_flags', None):
@@ -299,94 +311,118 @@ class ActionFactoryForStorage(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
 
     def do_action_upload(self, args):
-        return get_storage(args).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=args.overwrite)
+        return get_storage(args).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=getattr(args, "overwrite", False))
 
 
 def is_beta_version():
     return not pai.__sdk_branch__.startswith("sdk-release-")
 
 
-__cluster_actions__ = {
-    "list": ["list clusters in config file %s" % pai.__cluster_config_file__],
-    "add": ["add a cluster to config file %s" % pai.__cluster_config_file__],
-    "select": ["select a cluster as default"],
-    "attach-hdfs": ["attach hdfs storage to cluster"],
-}
-
-__job_actions__ = {
-    "list": ["list existing jobs"],
-    "new": ["create a job config cache for submitting"],
-    "preview": ["preview job config"],
-    "submit": ["submit the job"],
-    "sub": ["shortcut of submitting a job in one line"],
-}
-
-__task_actions__ = {
-    "add": ["add a task role"],
-}
-
-__require_actions__ = {
-    "pip": ["add pip dependencies"],
-    "weblink": ["download weblink to folder"]
-}
-
-__storage_actions__ = {
-    "list-storage": ["list storage attached to the cluster"],
-    "list": ["list items about the remote path"],
-    "status": ["get detailed information about remote path"],
-    "upload": ["upload"],
-    "download": ["download"],
-    "delete": ["delete"],
-}
-
-__runtime_actions__ = {
-    "execute": ["execute user commands"]
-}
-
-
-def factory(af: type(ActionFactory), actions: dict):
-    return [af(x, actions) for x in actions.keys()]
-
-
 __cli_structure__ = {
-    # for release version 0.4
-    "cluster": [
-        "cluster management", factory(ActionFactoryForCluster, __cluster_actions__)
-    ],
-    "job": [
-        "job operations", factory(ActionFactoryForJob, __job_actions__),
-    ],
-    "storage": [
-        "storage operation", factory(ActionFactoryForStorage, __storage_actions__)
-    ],
-    "set": [
-        "set a (default) variable for cluster and job", [ActionFactoryForDefault("set", {"set": ["set"]})]
-    ],
-    "unset": [
-        "un-set a (default) variable for cluster and job", [ActionFactoryForDefault("unset", {"unset": ["unset"]})]
-    ],
-    # for future version
-    "require": [
-        "add requirements to job or task", factory(ActionFactoryForRequirement, __require_actions__)
-    ],
-    "runtime": [
-        "runtime", factory(ActionFactoryForRuntime, __runtime_actions__)
-    ],
-    "task": [
-        "configure task role", factory(ActionFactoryForTaskRole, __task_actions__)
-    ],
-
+    "cluster": {
+        "help": "cluster management",
+        "factory": ActionFactoryForCluster,
+        "actions": {
+            "list": "list clusters in config file %s" % pai.__cluster_config_file__,
+            "add": "add a cluster to config file %s" % pai.__cluster_config_file__,
+            "select": "select a cluster as default",
+            "attach-hdfs": "attach hdfs storage to cluster",
+        }
+    },
+    "job": {
+        "help": "job operations",
+        "factory": ActionFactoryForJob,
+        "actions": {
+            "list": "list existing jobs",
+            "new": "create a job config cache for submitting",
+            "preview": "preview job config",
+            "submit": "submit the job from a config file",
+            "sub": "shortcut of submitting a job in one line",
+        }
+    },
+    "task": {
+        "help": "configure task role",
+        "factory": ActionFactoryForTaskRole,
+        "actions": {
+            "add": "add a task role",
+        }
+    },
+    "require": {
+        "help": "",
+        "factory": ActionFactoryForRequirement,
+        "actions":{
+            "pip": "add pip dependencies",
+            "weblink": "download weblink to folder"
+        }
+    },
+    "storage": {
+        "help": "storage operations",
+        "factory": ActionFactoryForStorage,
+        "actions": {
+            "list-storage": "list storage attached to the cluster",
+            "list": "list items about the remote path",
+            "status": "get detailed information about remote path",
+            "upload": "upload",
+            "download": "download",
+            "delete": "delete",
+        }
+    },
+    "runtime": {
+        "help": "runtime support",
+        "factory": ActionFactoryForRuntime,
+        "actions":{
+            "execute": "execute user commands"
+        }
+    },
 }
+
+
+def generate_cli_structure(is_beta: bool):
+    release_cli = {
+        "cluster": [],
+        "job": ["list", "submit", "sub"],
+        "storage": [],
+        "runtime": [],
+    }
+    if is_beta:
+        cli_s = {key: deepcopy(__cli_structure__[key]) for key in release_cli.keys()}
+        for key, value in cli_s.items():
+            if not release_cli[key]:
+                continue
+            value["actions"] = {a: value["actions"][a] for a in release_cli[key]}
+    else:
+        cli_s = deepcopy(__cli_structure__)
+    dic = {
+        key: [
+            value["help"],
+            [value["factory"](x, value["actions"]) for x in value["actions"].keys()]
+        ] for key, value in cli_s.items()
+    }
+    dic.update({
+        "set": [
+            "set a (default) variable for cluster and job", [ActionFactoryForDefault("set", {"set": ["set"]})]
+        ],
+        "unset": [
+            "un-set a (default) variable for cluster and job", [ActionFactoryForDefault("unset", {"unset": ["unset"]})]
+        ],
+    })
+    return dic
 
 
 class Engine(EngineFactory):
 
     def __init__(self):
-        super().__init__(__cli_structure__)
+        super().__init__(generate_cli_structure(is_beta=False))
+
+
+class EngineRelease(EngineFactory):
+
+    def __init__(self):
+        super().__init__(generate_cli_structure(is_beta=True))
 
 
 def main():
-    eng = Engine()
+    eng = EngineRelease()
     result = eng.process(sys.argv[1:])
     if result:
         pprint(result)

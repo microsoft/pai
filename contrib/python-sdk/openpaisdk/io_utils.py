@@ -58,7 +58,7 @@ def from_file(fname: str, default={}, fmt=None, **kwargs):
         if default == '==FATAL==':
             __logger__.error('IO Err: %s', e, exc_info=True)
         __logger__.debug('Deserializing %s failed (%s), return default', fname, e)
-        return default 
+        return default
 
 
 def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
@@ -119,3 +119,4 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
         dic = kwargs
     with safe_open(fname, 'w') as fp:
         fmt.dump(obj, fp, **dic)
+        __logger__.debug("serialize object to file %s", fname)

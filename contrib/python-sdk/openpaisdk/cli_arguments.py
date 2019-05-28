@@ -99,6 +99,7 @@ class ArgumentFactory:
         # job spec
         self.add_argument('--job-name', '-j', help='job name', default=__defaults__.get('job-name', None))
         self.add_argument('--workspace', '-w', default=__defaults__.get('workspace', None), help='remote path for workspace (store code, output, ...)')
+        self.add_argument('--code-dir', help="use a existing remote directory as code directory, if not specified, use <workspace>/jobs/<job-name>/code instead")
         self.add_argument('--v2', action="store_true", default=False, help="use job protocol version 2")
         self.add_argument('--rename', action="store_true", default=False, help="change name in config file according to --job-name")
         self.add_argument('--sources', '-s', action='append', help='sources files')

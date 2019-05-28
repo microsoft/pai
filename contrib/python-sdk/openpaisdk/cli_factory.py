@@ -6,7 +6,7 @@ class Action:
 
     def __init__(self, action: str, help_s: str):
         self.action, self.help_s = action, help_s
-    
+
     def define_arguments(self, parser: argparse.ArgumentParser):
         pass
 
@@ -23,11 +23,11 @@ class Action:
         raise NotImplementedError
 
 
-class ActionFactory(Action): 
+class ActionFactory(Action):
 
     def __init__(self, action: str, allowed_actions: dict):
         assert action in allowed_actions, ("unsupported action of job", action)
-        super().__init__(action, allowed_actions[action][0])
+        super().__init__(action, allowed_actions[action])
         suffix = action.replace('-', '_')
         self.define_arguments = getattr(self, "define_arguments_" + suffix, super().define_arguments)
         self.do_action = getattr(self, "do_action_" + suffix, None)
