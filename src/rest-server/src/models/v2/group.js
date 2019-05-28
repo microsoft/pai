@@ -74,7 +74,7 @@ const deleteGroup = async (groupname) => {
     let updateUserList = [];
     for (let userItem of userList) {
       if (userItem['grouplist'].includes(groupname)) {
-        userItem['grouplist'] = userItem['grouplist'].slice(userItem['grouplist'].indexOf(groupname), 1);
+        userItem['grouplist'].splice(userItem['grouplist'].indexOf(groupname), 1);
         updateUserList.push(userItem);
       }
     }
@@ -215,7 +215,7 @@ if (config.env !== 'test') {
       logger.info('Update User Grouplist at the start stage.');
       logger.info('Init user list to update.');
       let groupInfoList = await getAllGroup();
-      let groupnameList = []
+      let groupnameList = [];
       let userList = await userModel.getAllUser();
       let updateUserList = [];
       for (let groupItem of groupInfoList) {
