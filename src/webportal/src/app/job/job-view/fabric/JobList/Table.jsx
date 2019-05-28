@@ -13,7 +13,6 @@ import Context from './Context';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
 
-
 const zeroPaddingClass = mergeStyles({
   paddingTop: '0px !important',
   paddingLeft: '0px !important',
@@ -161,12 +160,11 @@ export default function Table() {
     minWidth: 100,
     name: 'Status',
     headerClassName: FontClassNames.medium,
-    className: zeroPaddingClass,
     isResizable: true,
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       return (
-        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'start'}}>
           <StatusBadge status={getStatusText(job)} />
         </div>
       );
