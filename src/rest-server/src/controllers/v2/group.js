@@ -43,7 +43,7 @@ const createGroupIfGroupNotExist = async (req, res, next) => {
     const groupData = req.groupData;
     const groupname = groupData.groupname;
     const groupValue = {
-      username: groupData.groupname,
+      groupname: groupData.groupname,
       description: groupData.description,
       externalName: groupData.externalName,
       extension: {},
@@ -63,7 +63,7 @@ const createGroup = async (req, res, next) => {
   try {
     const groupname = req.body.groupname;
     const groupValue = {
-      username: req.body.groupname,
+      groupname: req.body.groupname,
       description: req.body.description,
       externalName: req.body.externalName,
       extension: {},
