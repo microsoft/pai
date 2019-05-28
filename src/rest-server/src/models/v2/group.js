@@ -74,7 +74,7 @@ const deleteGroup = async (groupname) => {
     let updateUserList = [];
     for (let userItem of userList) {
       if (userItem['grouplist'].includes(groupname)) {
-        userItem['grouplist'].slice(userItem['grouplist'].indexOf(groupname), 1);
+        userItem['grouplist'] = userItem['grouplist'].slice(userItem['grouplist'].indexOf(groupname), 1);
         updateUserList.push(userItem);
       }
     }
