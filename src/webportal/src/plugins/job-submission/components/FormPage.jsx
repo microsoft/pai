@@ -2,11 +2,11 @@ import React from 'react';
 import { Stack } from 'office-ui-fabric-react';
 import { getFormPageSytle } from './formStyle';
 
-const { FormPageStyle, FormFirstColumnSytle, FormSecondColunmStyle } = getFormPageSytle();
+const { formPageStyle } = getFormPageSytle();
 
 export const FormPage = (props) => {
   return (
-    <Stack styles={FormPageStyle} gap={'20px'}>
+    <Stack styles={formPageStyle} gap={'20px'}>
       {props.children}
     </Stack>
   );
@@ -20,18 +20,10 @@ export const FormSection = (props) => {
   );
 }
 
-export const FormFirstColumn = (props) => {
+export const FormColumn = (props) => {
   return (
-    <Stack styles={FormFirstColumnSytle}>
+    <Stack styles={props.styles} gap={'16px'}>
       {props.children}
-    </Stack>
-  );
-}
-
-export const FormSecondColunm = (props) => {
-  return (
-    <Stack styles={FormSecondColunmStyle} gap={'16px'}>
-      {props.children}
-    </Stack>
-  );
+  </Stack>
+  )
 }

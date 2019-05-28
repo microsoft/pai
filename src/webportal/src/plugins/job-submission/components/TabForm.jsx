@@ -1,8 +1,9 @@
 import React from 'react'
 import { Pivot, PivotItem, Icon, ActionButton } from 'office-ui-fabric-react';
-import { getFormClassNames, getFromStyle } from './formStyle'
+import { getFormClassNames, getTabFromStyle } from './formStyle'
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
+const tabFormStyle = getTabFromStyle();
 
 export class TabForm extends React.Component {
   constructor(props) {
@@ -54,17 +55,16 @@ export class TabForm extends React.Component {
       return null;
     }
   
-    const {tabIconStyle} = getFromStyle();
     return (
     <span>
       { defaultRender(itemPros) }
-      <Icon iconName="Cancel" styles={ tabIconStyle } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
+      <Icon iconName="Cancel" styles={ tabFormStyle.tab } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
     </span>);
   }
 
   _onItemDelete(itemKey, event) {
     const {onItemDelete} = this.props;
-    const {itemsMap, selectedKey} = this.state;
+    const {itemsMap} = this.state;
     if (itemKey === undefined || itemsMap === undefined) {
       return;
     }
@@ -143,13 +143,12 @@ export class TabForm extends React.Component {
     const {selectedKey, itemsMap} = this.state;
 
     const { topForm, formTabBar } = getFormClassNames();
-    const { tabStyle } = getFromStyle();
     const elements = this._renderItems();
     return (
       <div className={topForm}>
         <div className={formTabBar}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
-                   styles={{text: tabStyle.text, root: tabStyle.root}}
+                   styles={{text: tabFormStyle.text, root: tabFormStyle.tab.root}}
                    selectedKey={selectedKey}>
              {elements}
             </Pivot>

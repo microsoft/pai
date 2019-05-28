@@ -26,9 +26,9 @@ export const getFormClassNames  = () => {
   });
 }
 
-export const getFromStyle = () => {
+export const getTabFromStyle = () => {
   return ({
-    tabStyle: {
+    tab: {
       text: {
         fontSize: FontSizes.icon
       },
@@ -36,7 +36,7 @@ export const getFromStyle = () => {
         background: 'white'
       }
     },
-    tabIconStyle: {
+    tabIcon: {
       root: {
         fontSize: IconFontSizes.medium,
         margin: `0, ${marginSize.s1}`
@@ -47,40 +47,40 @@ export const getFromStyle = () => {
 
 export const getFormPageSytle = () => {
   return ({
-    FormPageStyle: {
+    formPage: {
       root: {
         marginLeft: marginSize.s1
       }
     },
-    FormFirstColumnSytle: {
+    formFirstColumn: {
       root: {
         width: '20%'
       }
     },
-    FormSecondColunmStyle: {
+    formSecondColunm: {
       root: {
-        width: '60%'
+        width: '80%'
       }
     }
   });
 }
 
-export const getFromTextFieldStyle = () => {
+export const getFromComponentsStyle = () => {
   return ({
-    root: {
-      marginLeft: marginSize.s1,
-      marginTop: marginSize.m
-    },
     label: {
       root: {
         fontSize: FontSizes.icon,
-        fontWeight: FontWeights.regular,
-        width: '20%'
+        fontWeight: FontWeights.regular
       }
     },
     textFiled: {
       root: {
-        width: '60%'
+        width: '85%'
+      }
+    },
+    suffixText: {
+      root: {
+        margin: 'auto',
       }
     }
   });
