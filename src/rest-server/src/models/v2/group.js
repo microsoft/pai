@@ -70,23 +70,12 @@ const deleteGroup = async (groupname) => {
   try {
     const ret = await crudGroup.remove(groupname, crudConfig);
     logger.info('Init user list to update.');
-    let grouplist = await getAllGroup();
     let userList = await userModel.getAllUser();
     let updateUserList = [];
     for (let userItem of userList) {
-      let updateUser = false;
-      let userGroupList = [];
-      for (let groupname of userItem['grouplist']) {
-        if (grouplist.includes(groupname)) {
-          userGroupList.push(groupname);
-        } else {
-          updateUser = true;
-        }
-      }
-      if (updateUser) {
-        let newUserInfo = userItem;
-        newUserInfo['grouplist'] = userGroupList;
-        updateUserList.push(newUserInfo);
+      if (userItem['grouplist'].includes(groupname)) {
+        userItem['grouplist'].slice(userItem['grouplist'].indexOf(groupname), 1);
+        updateUserList.push(userItem);
       }
     }
     if (updateUserList.length !== 0) {
