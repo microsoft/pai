@@ -1038,6 +1038,12 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .reply(200, clusterNodeResponse);
   });
 
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
 
   it('[Positive] should add vc b', (done) => {
     nock(yarnUri)
@@ -1092,10 +1098,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] shouldn\'t update vc when maxCapacity less than capacity', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-
+    nock.cleanAll();
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1110,10 +1113,8 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       });
   });
 
-
-
-
   it('[Negative] should not update vc default', (done) => {
+    nock.cleanAll();
     chai.request(server)
       .put('/api/v1/virtual-clusters/default')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1128,6 +1129,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] Non-admin should not update vc', (done) => {
+    nock.cleanAll();
     chai.request(server)
       .put('/api/v1/virtual-clusters/b')
       .set('Authorization', `Bearer ${userToken}`)
@@ -1141,19 +1143,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       });
   });
 
-  it('[Negative] Non-admin should not update vc', (done) => {
-    chai.request(server)
-      .put('/api/v1/virtual-clusters/b')
-      .set('Authorization', `Bearer ${userToken}`)
-      .send({
-        'vcCapacity': 30
-      })
-      .end((err, res) => {
-        expect(res, 'status code').to.have.status(403);
-        expect(res.body).to.have.property('code', 'ForbiddenUserError');
-        done();
-      });
-  });
 
   it('[Negative] should not update vc b with exceed quota', (done) => {
     chai.request(server)
@@ -1191,7 +1180,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not update vc if  vcname contains illegal character', (done) => {
-
+    nock.cleanAll();
     chai.request(server)
       .put('/api/v1/virtual-clusters/aaa%20bbb')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1225,7 +1214,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not update a dedicated vc', (done) => {
-
     chai.request(server)
       .put('/api/v1/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1255,6 +1243,12 @@ describe('VC API PUT /api/v1/virtual-clusters/:vcName/status', () => {
       .reply(200, clusterNodeResponse);
   });
 
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
 
   it('[Positive] should change vc a to stopped', (done) => {
     nock(yarnUri)
@@ -1291,9 +1285,7 @@ describe('VC API PUT /api/v1/virtual-clusters/:vcName/status', () => {
   });
 
   it('[Negative] should not change default vc status', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
+    nock.cleanAll();
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/default/status')
@@ -1309,9 +1301,7 @@ describe('VC API PUT /api/v1/virtual-clusters/:vcName/status', () => {
   });
 
   it('[Negative] Non-admin should not change vc status', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
+    nock.cleanAll();
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a/status')
@@ -1327,10 +1317,6 @@ describe('VC API PUT /api/v1/virtual-clusters/:vcName/status', () => {
   });
 
   it('[Negative] should not change a non-exist vc b', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-
     chai.request(server)
       .put('/api/v1/virtual-clusters/b/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1371,15 +1357,6 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
   const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
   // Mock yarn rest api
-  before(() => {
-    nock.cleanAll();
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse)
-      .get('/ws/v1/cluster/nodes')
-      .reply(200, clusterNodeResponse);
-  });
-
   beforeEach(() => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -1388,13 +1365,20 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .reply(200, clusterNodeResponse);
   });
 
-  afterEach(() => {
-    nock.cleanAll();
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
   });
 
 
   it('[Positive] should delete vc a', (done) => {
     nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200)
       .put('/ws/v1/cluster/scheduler-conf')
@@ -1410,11 +1394,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] Non-admin should not delete vc a', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
+    nock.cleanAll();
 
     chai.request(server)
       .delete('/api/v1/virtual-clusters/a')
@@ -1427,11 +1407,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not delete vc default', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
+    nock.cleanAll();
 
     chai.request(server)
       .delete('/api/v1/virtual-clusters/default')
@@ -1444,12 +1420,6 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   });
 
   it('[Positive] shouldn\'t delete dedicated vc', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-
     chai.request(server)
       .delete('/api/v1/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1461,12 +1431,6 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not delete a non-exist vc b', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-
     chai.request(server)
       .delete('/api/v1/virtual-clusters/b')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1478,10 +1442,6 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not delete vc when jobs are running', (done) => {
-    nock(yarnUri)
-      .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-
     chai.request(server)
       .delete('/api/v1/virtual-clusters/c')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1496,10 +1456,10 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, yarnDefaultResponse)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse)
       .put('/ws/v1/cluster/scheduler-conf')
@@ -1524,10 +1484,10 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, yarnDefaultResponse)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse)
       .put('/ws/v1/cluster/scheduler-conf')
