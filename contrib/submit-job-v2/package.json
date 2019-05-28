@@ -1,7 +1,7 @@
 {
-  "name": "submit-protocol",
+  "name": "submit-job-v2",
   "version": "1.0.0",
-  "description": "A web portal plugin to submit protocol.",
+  "description": "A web portal plugin to submit job v2.",
   "main": "src/index.ts",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
