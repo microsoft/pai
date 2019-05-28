@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo} from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, ColorClassNames, mergeStyles} from 'office-ui-fabric-react';
+import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';

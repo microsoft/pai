@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
