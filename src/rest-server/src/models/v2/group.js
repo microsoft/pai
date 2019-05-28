@@ -219,19 +219,6 @@ if (config.env !== 'test') {
       }
     }, 600 * 1000);
   }
-  setInterval(async function() {
-    let group2Delete = [];
-    try {
-
-    } catch (error) {
-      logger.error('Failed to update user grouplist info.');
-      logger.error('Recover grouplist to delete.');
-      for (const groupname of group2Delete) {
-        deletedGroup.push(groupname);
-      }
-      throw error;
-    }
-  }, 600 * 1000);
 }
 
 module.exports = {
