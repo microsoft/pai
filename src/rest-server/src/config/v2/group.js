@@ -44,7 +44,7 @@ const groupCreateInputSchema = Joi.object().keys({
     .empty(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
-    .required(),
+    .default({}),
 });
 
 // module exports

@@ -50,7 +50,7 @@ const userCreateInputSchema = Joi.object().keys({
     .required(),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
-    .required(),
+    .default({}),
 });
 
 // module exports
