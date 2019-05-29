@@ -19,6 +19,7 @@
 const Joi = require('joi');
 const yaml = require('js-yaml');
 const fs = require('fs');
+const logger = require('./logger');
 
 let authnConfig = {
   authnMethod: process.env.AUTHN_METHOD,
@@ -30,7 +31,33 @@ if (authnConfig.authnMethod === 'OIDC') {
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
 }
 
-authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/group-configuration/group.yaml', 'utf8'));
+try {
+  authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/group-configuration/group.yaml', 'utf8'));
+} catch (error) {
+  logger.error('Failed to load group config from configmap file.');
+  if (process.env.NODE_ENV === 'test') {
+    logger.error('Init groupConfig with default configuration. ');
+    authnConfig.groupConfig = {
+      'groupDataSource': 'basic',
+      'adminGroup': {
+        'groupname': 'adminGroup',
+        'description': 'group for admin',
+        'externalName': '',
+        'extension': {},
+      },
+      'grouplist': [
+        {
+          'groupname': 'testGroup',
+          'description': 'group for test',
+          'externalName': '',
+          'extension': {},
+        },
+      ],
+    };
+  } else {
+    throw error;
+  }
+}
 
 // define the schema for authn
 const authnSchema = Joi.object().keys({
