@@ -37,4 +37,5 @@ loggers:
 
 root:
     level: DEBUG
-    handlers: [console, info_file_handler, error_file_handler]
+    handlers: [console]
+#    handlers: [console, info_file_handler, error_file_handler]

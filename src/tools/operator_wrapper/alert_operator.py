@@ -3,8 +3,6 @@ import sys
 
 from .base_operator import BaseOperator
 
-from utility.common import request_without_exception
-
 logger = logging.getLogger(__name__)
 
 

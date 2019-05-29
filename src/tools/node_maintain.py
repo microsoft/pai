@@ -381,14 +381,17 @@ def setup_parser():
 
 def main():
     parser = setup_parser()
-    args = parser.parse_args()
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
     try:
         args.func(args)
     except Exception as e:
-        logger.exception(e)
+        from subprocess import CalledProcessError
+        if isinstance(e, CalledProcessError):
+            logger.error(e.output)
+        else:
+            logger.exception(e)
 
 
 if __name__ == "__main__":
