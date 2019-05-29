@@ -28,11 +28,11 @@ const router = new express.Router();
 
 router.route('/get/:username/')
   /** Get /api/v2/user/get/:username */
-  .get(userController.getUser);
+  .get(token.check, userController.getUser);
 
 router.route('/get/')
   /** Get /api/v2/user/get */
-  .get(userController.getAllUser);
+  .get(token.check, userController.getAllUser);
 
 router.route('/:username/')
   .get(token.check, userController.getUser);

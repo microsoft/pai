@@ -26,11 +26,11 @@ const router = new express.Router();
 
 router.route('/get/:groupname/')
 /** Get /api/v2/group/get/:groupname */
-  .get(groupController.getGroup);
+  .get(token.check, groupController.getGroup);
 
 router.route('/get/')
 /** Get /api/v2/group/get */
-  .get(groupController.getAllGroup);
+  .get(token.check, groupController.getAllGroup);
 
 router.route('/update/:groupname/extension')
 /** Put /api/v2/group/update/:groupname/extension */
