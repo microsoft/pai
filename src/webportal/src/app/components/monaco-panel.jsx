@@ -16,37 +16,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {get, isNil} from 'lodash';
 import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useRef, useEffect, useLayoutEffect} from 'react';
+import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 import {monacoHack} from './monaco-hack.scss';
 import t from './tachyons.scss';
 
-
-const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schema}) => {
-  const monacoRef = useRef();
+const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas}) => {
+  // monaco variables
+  const monaco = useRef(null);
+  const editor = useRef(null);
+  const completionList = useRef({
+    suggestions: [],
+  });
 
   // resize event
   const handleResize = () => {
-    const editor = get(monacoRef, 'current.editor');
-    if (!isNil(editor)) {
-      editor.layout();
+    if (editor.current !== null) {
+      editor.current.layout();
     }
   };
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   });
 
   // json schema
-  const setSchema = (monaco, schema) => {
-    if (schema) {
+  const setSchemas = (monaco, schemas) => {
+    if (schemas !== null) {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
-        schemas: [schema],
+        schemas,
       });
     } else {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -56,11 +60,22 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
     }
   };
   useLayoutEffect(() => {
-    const monaco = monacoRef.current;
-    if (monaco) {
-      setSchema(monaco, schema);
+    if (monaco.current !== null) {
+      setSchemas(monaco.current, schemas);
     }
-  }, [schema]);
+  }, [schemas]);
+
+  // completion items
+  useEffect(() => {
+    if (completionItems) {
+      completionList.current = {
+        suggestions: completionItems.map((x) => ({
+          label: x,
+          insertText: x,
+        })),
+      };
+    }
+  }, [completionItems]);
 
   return (
     <div>
@@ -75,7 +90,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           headerText: [ColorClassNames.white],
           overlay: [ColorClassNames.blackTranslucent40Background],
           content: [t.flex, t.flexAuto],
-          scrollableContent: [t.flex, t.flexAuto],
+          scrollableContent: [t.flex, t.flexAuto, {overflowY: 'visible'}],
           closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
         }}
       >
@@ -86,22 +101,26 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           <div className={c(monacoHack)} style={{flex: '1 1 100%', minHeight: 0}}>
             <MonacoEditor
               className={c(t.flexAuto)}
-              ref={monacoRef}
               theme='vs-dark'
               language='text'
               options={{
                 wordWrap: 'on',
                 readOnly: true,
               }}
-              editorDidMount={(editor, monaco) => {
+              editorDidMount={(e, m) => {
+                // save monaco context
+                editor.current = e;
+                monaco.current = m;
                 // completion provider
-                monaco.languages.registerCompletionItemProvider({
-                  provideCompletionItems() {
-                    return (completionItems || []).map((x) => new monaco.languages.CompletionItem(x));
-                  },
-                });
+                for (const lang of ['json', 'yaml', 'plaintext']) {
+                  monaco.current.languages.registerCompletionItemProvider(lang, {
+                    provideCompletionItems() {
+                      return completionList.current;
+                    },
+                  });
+                }
                 // json schema
-                setSchema(monaco, schema);
+                setSchemas(monaco.current, schemas);
               }}
               {...monacoProps}
             />
@@ -129,13 +148,15 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
 };
 
 MonacoPanel.propTypes = {
+  // panel props
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func.isRequired,
   title: PropTypes.string,
   header: PropTypes.node,
   footer: PropTypes.node,
+  // monaco props
   monacoProps: PropTypes.object,
-  schema: PropTypes.object,
+  schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
 };
 
