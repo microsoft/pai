@@ -357,56 +357,9 @@ class YarnOperator(BaseOperator):
     def put_queue_update_xml(self, update_xml):
         api_path = "/ws/v1/cluster/scheduler-conf"
         headers = {"Content-Type": "application/xml"}
-        # from xml.dom.minidom import parseString
-        #
-        # dom = parseString(update_xml)
-        # logger.debug(dom.toprettyxml())
         self.request(api_path, method="put", return_json=False, headers=headers, data=update_xml)
 
 
 if __name__ == "__main__":
-    tt= Resource(**{"cpus":1 ,"memory":2 , "gpus":3})
-    a = Resource(1,1,2)
-    b = Resource(2,2,1)
+    pass
 
-    print(a<b)
-    sys.exit(0)
-
-    yarn_op = YarnOperator("10.151.40.133")
-    try:
-        yarn_op.execute("yarn")
-    except Exception as e:
-        print e.output
-    sys.exit(0)
-    # yarn_op.get_partition_resource()
-    # print(json.dumps(yarn_op.get_queue_info(), indent=2))
-    from collections import OrderedDict
-    raw_dict = OrderedDict([
-        ("global-updates", [
-            OrderedDict([("key", "yarn.scheduler.capacity.root.default.default-node-label-expression"),
-                        ("value", "label_non")]),
-            OrderedDict([("key", "yarn.scheduler.capacity.root.default.accessible-node-labels.label_ex.capacity"),
-                         ("value", 0)]),
-
-        ])
-    ])
-
-    # raw_dict = {
-    #     "global-updates":
-    #         [
-    #
-    #             {
-    #                 "key": "yarn.scheduler.capacity.root.default.default-node-label-expression",
-    #                 "value": "label_non"
-    #             },
-    #             {
-    #                 "key": "yarn.scheduler.capacity.root.default.accessible-node-labels.label_ex.capacity",
-    #                 "value": 0
-    #             }
-    #
-    #         ]
-    # }
-    from xml.dom.minidom import parseString
-
-    dom = parseString(yarn_op.generate_queue_update_xml(raw_dict))
-    print(dom.toprettyxml())

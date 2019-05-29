@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-__all__ = ['AlertOperator', 'KubernetesOperator', 'YarnOperator']
+__all__ = ['AlertOperator', 'KubernetesOperator', 'YarnOperator', 'Resource']
 
 
 from .alert_operator import AlertOperator

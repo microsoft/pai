@@ -129,28 +129,41 @@ def is_dedicated_vc(queue_name, queue_attr):
     return True
 
 
+def get_resource_by_label(nodes_info):
+    labels_dict = {}
+    default_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
+    for node, info in nodes_info.iteritems():
+        if info["nodeLabel"] not in labels_dict:
+            labels_dict[info["nodeLabel"]] = {
+                "resource": default_resource
+            }
+        labels_dict[info["nodeLabel"]]["resource"] += info["resource"]
+    return labels_dict
+
+
 def get_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     queues_info = yarn_operator.get_queues_info()
-    dedicate_queues = {queue_name: {"resource": 0, "nodes": []} for queue_name, queue_info in queues_info.items() if
+    nodes_info = yarn_operator.get_nodes_info()
+    dedicate_queues = {queue_name: {"resource": Resource(**{"cpus": 0, "memory": 0, "gpus": 0}), "nodes": []} for queue_name, queue_info in queues_info.items() if
                        is_dedicated_vc(queue_name, queue_info)}
     if len(dedicate_queues) == 0:
         logger.info("No dedicated vc found")
         return
 
-    labeled_resources = yarn_operator.get_resource_by_label()
+    labeled_resources = get_resource_by_label(nodes_info)
     for partition in labeled_resources:
         if partition in dedicate_queues:
             dedicate_queues[partition]["resource"] = labeled_resources[partition]["resource"]
 
-    labeled_nodes = yarn_operator.get_nodes_info()
-    for node in labeled_nodes:
-        if labeled_nodes[node]["nodeLabel"] in dedicate_queues:
-            dedicate_queues[labeled_nodes[node]["nodeLabel"]]["nodes"].append(node)
+    for node in nodes_info:
+        if nodes_info[node]["nodeLabel"] in dedicate_queues:
+            dedicate_queues[nodes_info[node]["nodeLabel"]]["nodes"].append(node)
     for queue_name, queue_attr in dedicate_queues.items():
         print(queue_name + ":")
         print("\tNodes: " + ",".join(queue_attr["nodes"]))
         print("\tResource: <CPUs:{}, Memory:{}MB, GPUs:{}>".format(queue_attr["resource"].cpus, queue_attr["resource"].memory, queue_attr["resource"].gpus))
+
 
 def convert_percentage_to_gpus(queues_info, partition_resource):
     new_queues_info = copy.deepcopy(queues_info)
@@ -159,6 +172,7 @@ def convert_percentage_to_gpus(queues_info, partition_resource):
         info["gpus"] = partition_resource.gpus * p
     return new_queues_info
 
+
 def convert_gpus_to_percentage(queues_info, partition_resource):
     new_queues_info = copy.deepcopy(queues_info)
     if partition_resource.gpus > 0:
@@ -166,6 +180,7 @@ def convert_gpus_to_percentage(queues_info, partition_resource):
             gpus = info["gpus"]
             info["capacity"] = float(gpus) / partition_resource.gpus * 100
     return new_queues_info
+
 
 def normalize_percentage(queues_info):
     new_queues_info = copy.deepcopy(queues_info)
@@ -186,7 +201,6 @@ def normalize_percentage(queues_info):
     return new_queues_info
 
 
-
 def add_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
     vc_name = args.vc_name
@@ -198,7 +212,6 @@ def add_dedicate_vc(args):
         logger.warning("Label already exists: {}".format(vc_name))
     else:
         yarn_operator.add_cluster_label(vc_name)
-        time.sleep(5)
 
     logger.info("Adding dedicated vc...")
     queues_info = yarn_operator.get_queues_info()
@@ -207,23 +220,23 @@ def add_dedicate_vc(args):
     else:
         yarn_operator.add_dedicated_queue(vc_name)
 
-    nodes_info = yarn_operator.get_nodes_info().iteritems()
+    nodes_info = yarn_operator.get_nodes_info()
     if len(nodes) > 0:
         logger.info("Labeling node...")
         added_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
-        for node, info in nodes_info:
+        for node, info in nodes_info.iteritems():
             if node in nodes and info["nodeLabel"] == "":
                 added_resource += info["resource"]
 
-        default_partition_resource = yarn_operator.get_resource_by_label()[""]["resource"]
-        default_vc_percentage = queues_info["default"]["capacity"] / 100
+        default_partition_resource = get_resource_by_label(nodes_info)[""]["resource"]
+        default_vc_percentage = queues_info["default"]["capacity"] / 100.0
         default_vc_resource = default_partition_resource * default_vc_percentage
 
         if default_vc_resource.cpus < added_resource.cpus \
             or default_vc_resource.gpus < added_resource.gpus \
                 or default_vc_resource.memory < added_resource.memory:
             logger.error("Default vc resource isn't enough for the dedicated vc, please free some resource")
-            return
+            sys.exit(1)
 
         new_default_partition_resource = default_partition_resource - added_resource
         new_default_vc_resource = default_vc_resource - added_resource
@@ -264,8 +277,8 @@ def remove_dedicate_vc(args):
             if node in nodes and info["nodeLabel"] == vc_name:
                 removed_resource += info["resource"]
 
-        default_partition_resource = yarn_operator.get_resource_by_label()[""]["resource"]
-        default_vc_percentage = queues_info["default"]["capacity"] / 100
+        default_partition_resource = get_resource_by_label(nodes_info)[""]["resource"]
+        default_vc_percentage = queues_info["default"]["capacity"] / 100.0
         default_vc_resource = default_partition_resource * default_vc_percentage
 
         new_default_partition_resource = default_partition_resource + removed_resource
@@ -297,7 +310,6 @@ def remove_dedicate_vc(args):
             logger.warning("Cluster label not found: {}".format(vc_name))
         else:
             yarn_operator.remove_cluster_label(vc_name)
-
 
 
 def setup_parser():
@@ -369,9 +381,10 @@ def setup_parser():
 
 def main():
     parser = setup_parser()
+    args = parser.parse_args()
     # args = parser.parse_args(["dedicated-vc", "-h"])
     # args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
-    args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
+    # args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
     # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
