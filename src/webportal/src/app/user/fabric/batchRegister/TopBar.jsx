@@ -25,7 +25,7 @@ function TopBar() {
   const {importFromCSV, downloadTemplate, addNew} = useContext(Context);
 
   const {spacing} = getTheme();
-  const buttonMarginStyle = {marginRight: spacing.m};
+  const buttonMarginStyle = {marginRight: spacing.s1};
   const buttonNormalBackgroundStyle = ColorClassNames.neutralQuaternaryBackground;
 
   /**
