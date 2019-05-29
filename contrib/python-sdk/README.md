@@ -16,6 +16,7 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
   - [2.6. Runtime supports](#26-runtime-supports)
   - [2.7. Notebook tutorials](#27-notebook-tutorials)
 - [3. Make contributions](#3-make-contributions)
+  - [Release plan](#release-plan)
   - [3.1. Debug the SDK](#31-debug-the-sdk)
 
 # 1. Benefits and scenarios
@@ -167,6 +168,10 @@ To show the user stories, we prepare some `Jupyter` notebook tutorials. Refer to
 # 3. Make contributions
 
 User may open issues and feature requests on [Github]().
+
+## Release plan
+
+User could find the roadmap and release plan in [docs/Roadmap.md](docs/Roadmap.md). If there are functions requests not included, please open an issue.
 
 ## 3.1. Debug the SDK
 

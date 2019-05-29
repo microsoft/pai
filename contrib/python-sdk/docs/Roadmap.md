@@ -1,6 +1,6 @@
 # Release Plan
 
-## Version 0.5.00 (End May 2019)
+## Version 0.5.00 (June 2019)
 
 For the preview release, we will provide a basic functions of the command line tools and python SDK for below scenarios
 
@@ -15,14 +15,16 @@ opai job submit --config <job-config-file> (json or yaml)
 - [x] User can submit a simple job with shortcut
 
 ```bash
-opai job sub [--gpu 1] python a/b/c.py arg1 arg2 …
+opai job sub -i <docker-image> -w <workspace/path> -j <job-name> [--gpu 1] python a/b/c.py arg1 arg2 …
 ```
 
-- [ ] User can specify which cluster to interact with
+_Note: workspace is a HDFS path where codes and configurations can be uploaded to_
+
+- [x] User can specify which cluster to interact with
 
 ```bash
-opai cluster add --pai-uri http://x.x.x.x --user myuser && opai job list <job-name> [config/ssh/stdout/stderr]
-opai cluster add --pai-uri http://x.x.x.x --user myuser && opai job submit --config <job-config-file> (json or yaml)
+opai cluster add -a <cluster-alias> --pai-uri http://x.x.x.x --user myuser  && opai cluster select <cluster-alias> && opai job list <job-name> [config/ssh/stdout/stderr]
+opai cluster add -a <cluster-alias> --pai-uri http://x.x.x.x --user myuser && opai cluster select <cluster-alias> && opai job submit --config <job-config-file> (json or yaml)
 ```
 
 - [x] User can access storage (only support hdfs for this release)
@@ -68,7 +70,7 @@ Cluster(...).submit(job)
 # Action items
 
 ### Version 0.3.01
- 
+
 - [x] add `Roadmap.md` to collect and record the release plan
 - [x] add a script to run the notebook examples as integrated tests `python run_all_notebooks.py` in _examples_
 - [x] add unit test for `cli_arguments.py`
