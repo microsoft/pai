@@ -261,7 +261,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     // Mock k8s secret return result
     //
     nock(global.apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7573657231')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -269,10 +269,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
             'name': '7573657231',
         },
         'data': {
-            'admin': 'ZmFsc2U=',
-            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'username': 'dXNlcjE=',
-            'virtualCluster': 'ZGVmYXVsdCx2YzE='
+          'email': '',
+          'extension': 'e30=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
+          'username': 'dXNlcjE=',
         },
         'type': 'Opaque'
     });
@@ -354,7 +355,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1'});
     jobConfig['virtualCluster'] = 'vc1';
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
@@ -370,7 +371,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[P-03] Submit a job using PUT method', (done) => {
     prepareNockForCaseP03('user1', 'new_job');
     global.chai.request(global.server)
-      .put('/api/v1/user/user1/jobs/new_job')
+      .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
@@ -386,7 +387,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
-      .put('/api/v1/user/user1/jobs/new_job')
+      .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
@@ -405,7 +406,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[N-01] Invalid token', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + invalidToken)
       .send({})
       .end((err, res) => {
@@ -418,7 +419,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[N-02] Schema checking failed', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
@@ -432,7 +433,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[N-03] Duplicated job name', (done) => {
     prepareNockForCaseN03();
     global.chai.request(global.server)
-      .post('/api/v1/user/test/jobs')
+      .post('/api/v2/user/test/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
@@ -445,7 +446,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[N-04] Cannot connect to Launcher', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'another_new_job'})))
       .end((err, res) => {
@@ -460,7 +461,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[N-05] Failed to submit a job to non-exist virtual cluster.', (done) => {
     prepareNockForCaseN05('user1', 'new_job_queue_vc_non_exist');
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
       .end((err, res) => {
@@ -474,7 +475,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[N-06] Failed to submit a job to no access right virtual cluster.', (done) => {
     prepareNockForCaseN06('user1', 'new_job_vc_no_right');
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
@@ -489,7 +490,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_minFailedTaskCount'}));
     jobConfig.taskRoles[0].minFailedTaskCount = 2;
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(jobConfig)
       .end((err, res) => {
@@ -503,7 +504,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[N-08] should submit job failed when db does not have vc field', (done) => {
     prepareNockForCaseN08('user1', 'new_job_vc_not_found');
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
@@ -517,7 +518,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   it('[N-09] Duplicated job name using PUT method', (done) => {
     prepareNockForCaseN09();
     global.chai.request(global.server)
-      .put('/api/v1/user/test/jobs/job1')
+      .put('/api/v2/user/test/jobs/job1')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
