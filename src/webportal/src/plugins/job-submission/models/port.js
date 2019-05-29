@@ -1,12 +1,12 @@
-class Port {
+export class Port {
   constructor() {
-    this.key;
-    this.value;
+    this.portLabel;
+    this.portNumber;
   }
 
   convertToProtocolFormat() {
     let port = {};
-    port[this.key] = this.value;
+    port[this.portLabel] = this.portNumber;
 
     return port;
   }

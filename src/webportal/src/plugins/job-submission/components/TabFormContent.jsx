@@ -3,6 +3,7 @@ import { FormTextFiled } from './FormTextFiled';
 import { FormDockerSection } from './FormDockerSection';
 import { FormPortsList } from './FormPortsList';
 import { FormPage } from './FormPage';
+import { Port } from '../models/port';
 
 const updateTaskRoleProperty = (jobTaskRoleState, setJobTaskRoleState, propertyName, propertyValue) => {
   const udpatedJobTaskRole = {...jobTaskRoleState};
@@ -19,7 +20,7 @@ export const TabFormContent = (props) => {
 
   const onPortAdd = () => {
     const {ports} = jobTaskRole;
-    ports.push({});
+    ports.push(new Port());
     onValueChange('ports', ports);
   };
   const onPortDelete = (index) => {
@@ -47,7 +48,7 @@ export const TabFormContent = (props) => {
       <FormTextFiled label={'Retry count'} required placeholder={'Enter GPU number...'}/>
       <FormTextFiled label={'Instance'} required placeholder={'Enter GPU number...'}/>
       <FormTextFiled label={'Task retry count'} placeholder={'Enter GPU number...'} suffixText='optional'/>
-      <FormPortsList items={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
+      <FormPortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
     </FormPage>
   );
 }
