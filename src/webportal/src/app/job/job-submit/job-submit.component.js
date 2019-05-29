@@ -111,6 +111,9 @@ const submitJob = (jobConfig) => {
         loading.hideLoading();
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
