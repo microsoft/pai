@@ -299,7 +299,7 @@ class Job {
       }
       const vcList = await vcModel.prototype.getVcListAsyc();
       // eslint-disable-next-line no-console
-      console.log(data)
+      console.log(data);
       // eslint-disable-next-line no-console
       console.log(vcList);
       // eslint-disable-next-line no-console
