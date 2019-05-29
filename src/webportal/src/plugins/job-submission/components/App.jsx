@@ -36,10 +36,10 @@ export class App extends React.Component {
     });
   }
 
-  _onContentChange(index, dockerInfo) {
+  _onContentChange(index, jobTaskRole) {
     const { items } = this.state;
     const updatedItems = [...items];
-    updatedItems[index].content.dockerInfo = dockerInfo;
+    updatedItems[index].content = jobTaskRole;
     this.setState({
       items: updatedItems
     });

@@ -7,6 +7,7 @@ export class JobTaskRole {
     this.instances;
     this.taskRetryCount;
     this.dockerInfo = new DockerInfo();
+    this.ports = [];
   }
 
   getTaskPrerequires() {

@@ -8,7 +8,7 @@ const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormTextFiled = (props) => {
-  const {label, required, placeholder, suffixText} = props;
+  const {label, required, placeholder, suffixText, onChange, value } = props;
   const textFieldId = getId('textField');
 
   return (
@@ -18,7 +18,11 @@ export const FormTextFiled = (props) => {
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
         <Stack horizontal gap={marginSize.s1}>
-          <TextField id={textFieldId} placeholder={placeholder} styles={formComponentsStyles.textFiled}/>
+          <TextField id={textFieldId}
+                     placeholder={placeholder}
+                     styles={formComponentsStyles.textFiled}
+                     value={value}
+                     onChange={(_, value) => onChange(value)}/>
           <Text styles={formComponentsStyles.suffixText}>{suffixText}</Text>
         </Stack>
       </FormColumn>

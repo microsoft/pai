@@ -3,11 +3,17 @@ import { Stack, ActionButton, TextField, IconButton } from 'office-ui-fabric-rea
 import { marginSize } from './formStyle';
 
 const KeyValueItem = (props) => {
-  const { itemKey, itemValue, onItemDelete } = props;
+  const { itemKey, itemValue, onItemDelete, onItemChange } = props;
+  const onChange = (propertyName, value) => {
+    const item = {itemKey: itemKey, itemValue: itemValue};
+    item[propertyName] = value;
+    onItemChange(item);
+  }
+
   return (
   <Stack horizontal gap={marginSize.s1}>
-    <TextField placeholder={'Enter a key'} value={itemKey}></TextField>
-    <TextField placeholder={'Enter a value'} value={itemValue}></TextField>
+    <TextField placeholder={'Enter a key'} value={itemKey} onChange={(_, value)=>onChange('itemKey', value)}></TextField>
+    <TextField placeholder={'Enter a value'} value={itemValue} onChange={(_, value)=>onChange('itemValue', value)}></TextField>
     <IconButton iconProps={{ iconName: 'Clear' }} onClick={onItemDelete}/>
   </Stack>);
 }
@@ -23,8 +29,21 @@ export class KeyValueList extends React.Component {
     }
 
     return items.map((item, index) =>
-      <KeyValueItem key={index} itemKey={item.itemKey} itemValue={item.itemValue} onItemDelete={this._onItemDelete.bind(this, index)}/>
+      <KeyValueItem key={index}
+                    itemKey={item.itemKey}
+                    itemValue={item.itemValue}
+                    onItemDelete={this._onItemDelete.bind(this, index)}
+                    onItemChange={this._onItemChange.bind(this, index)}/>
     );
+  }
+
+  _onItemChange(index, newItem) {
+    const { onItemChange } = this.props;
+    if (onItemChange === undefined) {
+      return;
+    }
+    
+    onItemChange(index, newItem);
   }
 
   _onItemDelete(index) {

@@ -8,14 +8,17 @@ const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormPortsList = (props) => {
-  const { items } = props;
+  const { items, onPortChange, onPortAdd, onPortDelete } = props;
   return (
     <FormSection>
       <FormColumn styles={formPageStyle.formFirstColumn}>
         <Label styles={formComponentsStyles.label}>Ports</Label>
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
-        <KeyValueList items={items}/>
+        <KeyValueList items={items}
+                      onItemAdd={onPortAdd}
+                      onItemDelete={onPortDelete}
+                      onItemChange={onPortChange}/>
       </FormColumn>
     </FormSection>
   );

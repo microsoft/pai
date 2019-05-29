@@ -1,11 +1,3 @@
-class Auth {
-  constructor() {
-    this.username;
-    this.password;
-    this.registryuri;
-  }
-}
-
 export class DockerInfo {
 
   constructor() {
@@ -14,6 +6,7 @@ export class DockerInfo {
     this.auth;
   }
 
-  convertToProtocolPrerequisite() {
+  convertToProtocolFormat() {
+    return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
