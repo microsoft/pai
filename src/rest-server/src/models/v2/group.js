@@ -68,7 +68,27 @@ const getUserGrouplistFromExternal = async (username) => {
 
 const deleteGroup = async (groupname) => {
   try {
-    return await crudGroup.remove(groupname, crudConfig);
+    const ret = await crudGroup.remove(groupname, crudConfig);
+    logger.info('Init user list to update.');
+    let userList = await userModel.getAllUser();
+    let updateUserList = [];
+    for (let userItem of userList) {
+      if (userItem['grouplist'].includes(groupname)) {
+        userItem['grouplist'].splice(userItem['grouplist'].indexOf(groupname), 1);
+        updateUserList.push(userItem);
+      }
+    }
+    if (updateUserList.length !== 0) {
+      logger.info('User list to be updated has been prepared.');
+      logger.info('Begin to update user\' group list.');
+      await Promise.all(updateUserList.map(async (userData) => {
+        await userModel.updateUser(userData['username'], userData);
+      }));
+      logger.info('Update group info successfully.');
+    } else {
+      logger.info('No user\' grouplist need to be updated.')
+    }
+    return ret;
   } catch (error) {
     throw error;
   }
@@ -107,7 +127,7 @@ const updateExternalName2Groupname = async () => {
     const groupList = await getAllGroup();
     externalName2Groupname.clear();
     for (const groupItem of groupList) {
-      externalName2Groupname.set(groupItem.externalName, groupItem.groupname);
+      externalName2Groupname[groupItem.externalName] = groupItem.groupname;
     }
   } catch (error) {
     throw error;
@@ -158,18 +178,81 @@ if (config.env !== 'test') {
       }
     })();
   } else {
-    setInterval( async function() {
+    setInterval(async function() {
       try {
+        logger.info('Begin to update group info.');
         const groupList = await getAllGroup();
-        externalName2Groupname.clear();
+        let newExternalName2Groupname = {};
+        let update = false;
         for (const groupItem of groupList) {
-          externalName2Groupname.set(groupItem.externalName, groupItem.groupname);
+          newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
         }
+        if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
+          update = true;
+        }
+        for (const [key, val] of Object.entries(newExternalName2Groupname)) {
+          if (!externalName2Groupname.has(key)) {
+            update = true;
+          } else if (externalName2Groupname[key] !== val) {
+            update = true;
+          }
+          if (update) {
+            break;
+          }
+        }
+        if (update) {
+          externalName2Groupname = newExternalName2Groupname;
+        }
+        logger.info('Update group info successfully.');
       } catch (error) {
+        logger.info('Failed to update group info.');
         throw error;
       }
-    }, 600);
+    }, 600 * 1000);
   }
+  (async function() {
+    try {
+      logger.info('Update User Grouplist at the start stage.');
+      logger.info('Init user list to update.');
+      let groupInfoList = await getAllGroup();
+      let groupnameList = [];
+      let userList = await userModel.getAllUser();
+      let updateUserList = [];
+      for (let groupItem of groupInfoList) {
+        groupnameList.push(groupItem['groupname']);
+      }
+      for (let userItem of userList) {
+        let updateUser = false;
+        let userGroupList = [];
+        for (let groupname of userItem['grouplist']) {
+          if (groupnameList.includes(groupname)) {
+            userGroupList.push(groupname);
+          } else {
+            updateUser = true;
+          }
+        }
+        if (updateUser) {
+          let newUserInfo = userItem;
+          newUserInfo['grouplist'] = userGroupList;
+          updateUserList.push(newUserInfo);
+        }
+      }
+      if (updateUserList.length !== 0) {
+        logger.info('User list to be updated has been prepared.');
+        logger.info('Begin to update user\' group list.');
+        await Promise.all(updateUserList.map(async (userData) => {
+          await userModel.updateUser(userData['username'], userData);
+        }));
+        logger.info('Update group info successfully.');
+      } else {
+        logger.info('No user\' grouplist need to be updated.')
+      }
+
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  })();
 }
 
 module.exports = {

@@ -25,6 +25,8 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
+    delete userInfo['password'];
+    userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
     return res.status(200).json(userInfo);
   } catch (error) {
     if (error.status === 404) {
@@ -37,7 +39,13 @@ const getUser = async (req, res, next) => {
 const getAllUser = async (req, res, next) => {
   try {
     const userList = await userModel.getAllUser();
-    return res.status(200).json(userList);
+    let retUserList = [];
+    for (let userItem of userList) {
+      delete userItem['password'];
+      userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+      retUserList.push(userItem);
+    }
+    return res.status(200).json(retUserList);
   } catch (error) {
     return next(createError.unknown(error));
   }
