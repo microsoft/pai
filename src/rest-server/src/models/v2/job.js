@@ -261,6 +261,7 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   return frameworkDescription;
 };
 
+
 async function get(frameworkName) {
   const [userName] = frameworkName.split('~');
 
@@ -298,7 +299,7 @@ async function put(frameworkName, config, rawConfig) {
   }
 }
 
-async function getJobConfig(frameworkName) {
+async function getConfig(frameworkName) {
   const [userName] = frameworkName.split('~');
   const hdfs = new HDFS(launcherConfig.webhdfsUri);
   const readFile = async (path) => {
@@ -324,7 +325,7 @@ async function getJobConfig(frameworkName) {
 
 // module exports
 module.exports = {
-  getJobConfig,
-  put,
   get,
+  put,
+  getConfig,
 };

@@ -20,7 +20,7 @@
 const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('../../middlewares/v2/asyncHandler');
-const {get, put, getJobConfig} = require('../../models/v2/job');
+const job = require('../../models/v2/job');
 const createError = require('../../util/error');
 
 
@@ -30,7 +30,7 @@ const update = asyncHandler(async (req, res) => {
   const frameworkName = `${userName}~${jobName}`;
   // check duplicate job
   try {
-    const data = await get(frameworkName);
+    const data = await job.get(frameworkName);
     if (data != null) {
       throw createError('Conflict', 'ConflictJobError', `Job ${frameworkName} already exists.`);
     }
@@ -39,7 +39,7 @@ const update = asyncHandler(async (req, res) => {
       throw error;
     }
   }
-  await put(frameworkName, res.locals.protocol, req.body);
+  await job.put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
@@ -48,7 +48,7 @@ const update = asyncHandler(async (req, res) => {
 
 const getConfig = asyncHandler(async (req, res) => {
   try {
-    const data = await getJobConfig(req.params.frameworkName);
+    const data = await job.getConfig(req.params.frameworkName);
     const type = req.accepts(['json', 'yaml']) || 'json';
     const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
     return res.status(200).type(type).send(body);
