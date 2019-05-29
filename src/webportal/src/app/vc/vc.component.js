@@ -124,6 +124,9 @@ const virtualClustersAdd = () => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -150,6 +153,9 @@ const deleteVcItem = (name) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -185,6 +191,9 @@ const editVcItemPut = (name, capacity) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -215,6 +224,9 @@ const changeVcState = (name, state) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });

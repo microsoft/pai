@@ -121,7 +121,12 @@ export default function JobList() {
             setAllJobs(allJobs.slice());
           } else {
             return response.json().then((data) => {
-              throw Error(data.message);
+              if (data.code === 'UnauthorizedUserError') {
+                alert(data.message);
+                userLogout();
+              } else {
+                throw new Error(data.message);
+              }
             });
           }
         }).catch((reason) => {
