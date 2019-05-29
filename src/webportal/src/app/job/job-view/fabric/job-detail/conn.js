@@ -19,6 +19,7 @@ import yaml from 'js-yaml';
 import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
+import {userLogout} from '../../../../user/user-logout/user-logout.component';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
@@ -154,6 +155,9 @@ export async function stopJob() {
     const json = await res.json();
     if (res.ok) {
       return json;
+    } else if (res.code === 'UnauthorizedUserError') {
+      alert(res.message);
+      userLogout();
     } else {
       throw new Error(json.message);
     }
