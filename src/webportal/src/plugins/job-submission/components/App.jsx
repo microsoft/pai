@@ -9,17 +9,13 @@ import { JobTaskRole } from '../models/jobTaskRole';
 
 initializeIcons();
 
-const onContentChange = (dockerInfo) => {};
-
 export const App = () => {
-  const originItems = [{headerText: 'Task role 1',
-                  content: <TabContent jobTaskRole={new JobTaskRole()}/>},
-                 {headerText: 'Task role 2',
-                  content: <TabContent jobTaskRole={new JobTaskRole()}/>}];
+  const originItems = [{headerText: 'Task role 1', content: new JobTaskRole()},
+                       {headerText: 'Task role 2', content: new JobTaskRole()}];
 
   const [items, setItems] = useState(originItems);
   const onItemAdd = () => {
-    const updatedItems = [...items, {headerText: 'Task role X', content: <TabContent jobTaskRole={new JobTaskRole()}/>}];
+    const updatedItems = [...items, {headerText: 'Task role X', content: new JobTaskRole()}];
     setItems(updatedItems);
     return updatedItems.length - 1;
   }
@@ -29,11 +25,23 @@ export const App = () => {
     setItems(updatedItems);
   }
 
+  const getItems = (items) => {
+    return items.map((item, index) => {
+      return {headerText: item.headerText,
+              content: <TabContent jobTaskRole={item.content}
+                                   onContentChange={(dockerInfo)=>{
+                                     const updatedItems = [...items];
+                                     updatedItems[index].content.dockerInfo = dockerInfo;
+                                     setItems(updatedItems);
+                                   }}/>}
+    });
+  };
+
   return (
     <Customizer {...FluentCustomizations}>
       <Stack horizontal>
         <Stack.Item grow={7} styles={{root: {maxWidth: '70%'}}}>
-          <TabForm items={items} onItemAdd={onItemAdd} onItemDelete={onItemDelete} />
+          <TabForm items={getItems(items)} onItemAdd={onItemAdd} onItemDelete={onItemDelete} />
         </Stack.Item>
         <Stack.Item grow={3} disableShrink>
           Empty for something

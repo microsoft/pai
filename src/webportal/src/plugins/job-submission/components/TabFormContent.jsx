@@ -19,7 +19,7 @@ export const TabContent = (props) => {
       <FormDockerSection dockerInfo={jobTaskRole.dockerInfo}
                          onValueChange={ (dockerInfo)=>{
                            setDockerInfo(dockerInfo);
-                          onContentChange(dockerInfo);}}>
+                           onContentChange(dockerInfo);}}>
       </FormDockerSection>
       <FormTextFiled label={'Retry count'} required placeholder={'Enter GPU number...'}/>
       <FormTextFiled label={'Instance'} required placeholder={'Enter GPU number...'}/>
