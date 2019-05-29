@@ -19,7 +19,7 @@ import {FontClassNames, FontWeights, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {get, isEmpty, isNil} from 'lodash';
 import {DateTime} from 'luxon';
-import {ActionButton, DefaultButton} from 'office-ui-fabric-react/lib/Button';
+import {ActionButton, DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import {Link} from 'office-ui-fabric-react/lib/Link';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
@@ -31,11 +31,11 @@ import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import Context from './context';
-import StatusBadge from './status-badge';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
+import StatusBadge from '../../../../../components/status-badge';
 
 const StoppableStatus = [
   'Running',
@@ -44,7 +44,7 @@ const StoppableStatus = [
 
 const HintItem = ({header, children}) => (
   <div className={c(t.flex, t.justifyStart)}>
-    <div style={{width: '16rem', minWidth: '16rem', fontWeight: FontWeights.semibold}}>
+    <div style={{width: '160px', minWidth: '160px', fontWeight: FontWeights.semibold}}>
       {header}
     </div>
     <div>{children}</div>
@@ -274,7 +274,7 @@ export default class Summary extends React.Component {
     return (
       <div className={className}>
         {/* summary */}
-        <Card className={c(t.pv4)} style={{paddingLeft: 32, paddingRight: 32}}>
+        <Card className={c(t.pv4, t.ph5)}>
           {/* summary-row-1 */}
           <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
             <div
@@ -316,42 +316,43 @@ export default class Summary extends React.Component {
           <div className={c(t.mt4, t.flex, t.itemsStart)}>
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
-              <div className={c(t.mt2)}>
+              <div className={c(t.mt3)}>
                 <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Start Time</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {printDateTime(DateTime.fromMillis(jobInfo.jobStatus.createdTime))}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>User</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {jobInfo.jobStatus.username}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Virtual Cluster</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {jobInfo.jobStatus.virtualCluster}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
-              <div className={c(t.mt2, FontClassNames.mediumPlus)}>
+              <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {getDurationString(jobInfo)}
               </div>
             </div>
-            <div className={t.ml5}>
+            <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               <Link
-                className={c(t.mt2, FontClassNames.mediumPlus)}
                 onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
                 disabled={isNil(jobInfo.jobStatus.retries)}
               >
-                {jobInfo.jobStatus.retries}
+                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                  {jobInfo.jobStatus.retries}
+                </div>
               </Link>
             </div>
           </div>
@@ -392,20 +393,20 @@ export default class Summary extends React.Component {
               <div className={c(t.bl, t.mh3)}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
-                href={getJobMetricsUrl()}
+                href={getJobMetricsUrl(jobInfo)}
                 target="_blank"
               >
                 Go to Job Metrics Page
               </Link>
             </div>
             <div>
-              <DefaultButton
+              <PrimaryButton
                 text='Clone'
                 onClick={() => cloneJob(rawJobConfig)}
                 disabled={!isClonable(rawJobConfig)}
               />
               <DefaultButton
-                className={c(t.ml3)}
+                className={c(t.ml2)}
                 text='Stop'
                 onClick={onStopJob}
                 disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}

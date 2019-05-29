@@ -132,18 +132,18 @@ deployments:
     taskRoles:
       worker:
         preCommands:
-          - wget <% $data.uri[0] %> -P data_<% $data.name %>
+          - wget -qO- <% $data.uri[0] %> | tar xvz && mv cifar-10-batches-py data_<% $data.name %>
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
       ps_server:
         preCommands:
-          - wget <% $data.uri[0] %> -P data_<% $data.name %>
+          - wget -qO- <% $data.uri[0] %> | tar xvz && mv cifar-10-batches-py data_<% $data.name %>
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
         postCommands:
-          - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
+          - echo "Uploading data ..." # && hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
 
-default:
+defaults:
   deployment: tf_example

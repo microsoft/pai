@@ -14,9 +14,7 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-import {loadTheme, FontWeights} from '@uifabric/styling';
-
+import {loadTheme, FontWeights, getTheme} from '@uifabric/styling';
 export function initTheme() {
   loadTheme({
     spacing: {
@@ -33,25 +31,47 @@ export function initTheme() {
         fontWeight: FontWeights.semibold,
       },
       large: {
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: FontWeights.regular,
       },
+    },
+    palette: {
+      themePrimary: '#0071bc',
+      themeLighterAlt: '#f2f8fc',
+      themeLighter: '#cde5f4',
+      themeLight: '#a5cfeb',
+      themeTertiary: '#56a4d7',
+      themeSecondary: '#187fc5',
+      themeDarkAlt: '#0066aa',
+      themeDark: '#00568f',
+      themeDarker: '#003f6a',
+      neutralLighterAlt: '#f8f8f8',
+      neutralLighter: '#f4f4f4',
+      neutralLight: '#eaeaea',
+      neutralQuaternaryAlt: '#dadada',
+      neutralQuaternary: '#d0d0d0',
+      neutralTertiaryAlt: '#c8c8c8',
+      neutralTertiary: '#c2c2c2',
+      neutralSecondary: '#858585',
+      neutralPrimaryAlt: '#4b4b4b',
+      neutralPrimary: '#333333',
+      neutralDark: '#272727',
+      black: '#1d1d1d',
+      white: '#ffffff',
+      red: '#eb1123',
+      yellowLight: '#fcd116',
+      blue: '#0071bc',
+      greenLight: '#7fba00',
     },
   });
 }
 
-export const color = {
-  red: '#eb1123',
-  yellow: '#fcd116',
-  green: '#7fba00',
-  blue: '#0071bc',
-  gray: '#b1b5b8',
-};
+const {palette} = getTheme();
 
-export const statusColorMapping = {
-  waiting: color.yellow,
-  failed: color.red,
-  running: color.blue,
-  succeeded: color.green,
-  unknown: color.gray,
+export const statusColor = {
+  waiting: '#fcd116',
+  failed: '#eb1123',
+  running: '#0071bc',
+  succeeded: '#7fba00',
+  unknown: palette.neutralTertiary,
 };

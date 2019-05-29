@@ -19,6 +19,7 @@ import yaml from 'js-yaml';
 import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
+import {userLogout} from '../../../../user/user-logout/user-logout.component';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
@@ -99,8 +100,16 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl() {
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
+export function getJobMetricsUrl(jobInfo) {
+  const from = jobInfo.jobStatus.createdTime;
+  let to = '';
+  const {state} = jobInfo.jobStatus;
+  if (state === 'RUNNING') {
+    to = Date.now();
+  } else {
+    to = jobInfo.jobStatus.completedTime;
+  }
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}&from=${from}&to=${to}`;
 }
 
 export async function cloneJob(rawJobConfig) {
@@ -113,17 +122,17 @@ export async function cloneJob(rawJobConfig) {
 
   // plugin
   const pluginId = get(rawJobConfig, 'extras.submitFrom');
-  if (!isNil(pluginId)) {
-    const plugins = window.PAI_PLUGINS;
-    const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
-    if (pluginIndex === -1) {
-      alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
-      return;
-    }
-    window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
+  if (isNil(pluginId)) {
+    window.location.href = `/submit.html?${qs.stringify(query)}`;
+    return;
   }
-
-  window.location.href = `/submit.html?${qs.stringify(query)}`;
+  const plugins = window.PAI_PLUGINS;
+  const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
+  if (pluginIndex === -1) {
+    alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    return;
+  }
+  window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
 }
 
 export async function stopJob() {
@@ -146,6 +155,9 @@ export async function stopJob() {
     const json = await res.json();
     if (res.ok) {
       return json;
+    } else if (res.code === 'UnauthorizedUserError') {
+      alert(res.message);
+      userLogout();
     } else {
       throw new Error(json.message);
     }
