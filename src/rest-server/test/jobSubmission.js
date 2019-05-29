@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Submit job: POST /api/v1/user/:username/jobs', () => {
+describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -336,7 +336,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     prepareNockForCaseP01('user1', 'new_job');
     let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'});
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
