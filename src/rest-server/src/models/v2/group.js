@@ -86,7 +86,7 @@ const deleteGroup = async (groupname) => {
       }));
       logger.info('Update group info successfully.');
     } else {
-      logger.info('No user\' grouplist need to be updated.')
+      logger.info('No user\' grouplist need to be updated.');
     }
     return ret;
   } catch (error) {
@@ -245,9 +245,8 @@ if (config.env !== 'test') {
         }));
         logger.info('Update group info successfully.');
       } else {
-        logger.info('No user\' grouplist need to be updated.')
+        logger.info('No user\' grouplist need to be updated.');
       }
-
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
