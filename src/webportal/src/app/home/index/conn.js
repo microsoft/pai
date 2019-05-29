@@ -17,13 +17,13 @@
 
 import config from '../../config/webportal.config';
 
-export async function login(username, password, expiration = 7 * 24 * 60 * 60) {
+export async function login(username, password, expires = 7) {
   const res = await fetch(`${config.restServerUri}/api/v1/token`, {
     method: 'POST',
     body: JSON.stringify({
       username,
       password,
-      expiration,
+      expiration: expires * 24 * 60 * 60,
     }),
     headers: {
       'content-type': 'application/json',
@@ -34,9 +34,9 @@ export async function login(username, password, expiration = 7 * 24 * 60 * 60) {
     if (data.error) {
       throw new Error(data.message);
     } else {
-      cookies.set('user', data.user, {expires: expiration});
-      cookies.set('token', data.token, {expires: expiration});
-      cookies.set('admin', data.admin, {expires: expiration});
+      cookies.set('user', data.user, {expires});
+      cookies.set('token', data.token, {expires});
+      cookies.set('admin', data.admin, {expires});
     }
   } else {
     const data = await res.json();
