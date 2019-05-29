@@ -6,12 +6,11 @@ import yaml from 'js-yaml';
 
 const portList = [{}];
 
-export const TabContent = (props) => {
+export const TabFormContent = (props) => {
   const { jobTaskRole, onContentChange } = props;
   const [dockerInfo, setDockerInfo] = useState(jobTaskRole.dockerInfo);
 
   // useEffect(()=>{ onContentChange(dockerInfo);}, [dockerInfo]);
-  console.log(yaml.safeDump(jobTaskRole.dockerInfo));
 
   return (
     <FormPage>

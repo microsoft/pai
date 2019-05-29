@@ -5,13 +5,19 @@ import { getFormClassNames, getTabFromStyle } from './formStyle'
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
 
+export const TabFormItem = (props) => {
+  return (
+    <>{props.children}</>
+  );
+}
+
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
-    const { items } = props;
+    const { children } = props;
     
     let selectedIndex;
-    if (items !== undefined && items.size !== 0) {
+    if (children !== undefined && children.size !== 0) {
       selectedIndex = 0;
     }
 
@@ -28,18 +34,18 @@ export class TabForm extends React.Component {
     return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
   }
 
-  _generateKeyForItems(items) {
-    return items.map((item, index) => {
-      return {...item, itemKey: this._getItemKeyByIndex(index)};
-    });
+  _getContentItemsFromChildren(children) {
+    return React.Children.map(children, (child, index) => {
+      const {headerText, children} = child.props;
+      return { headerText: headerText, content: children, itemKey: this._getItemKeyByIndex(index) }
+    })
   }
 
   _renderItems(items) {
-    const itemsWithKey = this._generateKeyForItems(items);
-    const pivotItems = itemsWithKey.map(itemsWithKey => 
-                         <PivotItem key={itemsWithKey.itemKey}
-                                         itemKey={itemsWithKey.itemKey}
-                                         headerText={itemsWithKey.headerText}
+    const pivotItems = items.map(items => 
+                         <PivotItem key={items.itemKey}
+                                         itemKey={items.itemKey}
+                                         headerText={items.headerText}
                                          onRenderItemLink={this._onRenderItem.bind(this)}/>);
 
     return pivotItems;
@@ -53,7 +59,9 @@ export class TabForm extends React.Component {
     return (
     <span>
       { defaultRender(itemPros) }
-      <Icon iconName="Cancel" styles={ tabFormStyle.tabIcon } onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
+      <Icon iconName="Cancel"
+            styles={ tabFormStyle.tabIcon }
+            onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
     </span>);
   }
 
@@ -66,13 +74,11 @@ export class TabForm extends React.Component {
     }
 
     const itemIndex = this._getItemIndexByKey(itemKey);
-
     if (onItemDelete === undefined) {
       return;
     }
   
     const newSelectedIndex = onItemDelete(itemIndex);
-
     this.setState({
       selectedIndex: newSelectedIndex
     });
@@ -102,9 +108,10 @@ export class TabForm extends React.Component {
 
   render() {
     let { selectedIndex } = this.state;
-    const { items } = this.props;
+    const { children } = this.props;
 
     const { topForm, formTabBar } = getFormClassNames();
+    const items = this._getContentItemsFromChildren(children);
     const elements = this._renderItems(items);
 
     if (selectedIndex === undefined && items.length) {
