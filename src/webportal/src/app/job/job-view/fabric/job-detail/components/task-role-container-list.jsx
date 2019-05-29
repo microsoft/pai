@@ -346,7 +346,7 @@ export default class TaskRoleContainerList extends React.Component {
           onDismiss={this.onDismiss}
           title={monacoTitle}
           monacoProps={monacoProps}
-          footerPrimaryButton={monacoFooterButton}
+          footer={monacoFooterButton}
         />
       </div>
     );

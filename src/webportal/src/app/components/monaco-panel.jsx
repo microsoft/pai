@@ -15,98 +15,125 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {ColorClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {get, isNil} from 'lodash';
-import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
+import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useRef, useEffect} from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 import {monacoHack} from './monaco-hack.scss';
 import t from './tachyons.scss';
 
-export default class MonacoPanel extends React.Component {
-  constructor(props) {
-    super(props);
-    this.monaco = React.createRef();
-    this.handleResize = this.handleResize.bind(this);
-  }
 
-  handleResize() {
-    const editor = get(this.monaco, 'current.editor');
+const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schema}) => {
+  const monacoRef = useRef();
+
+  // resize event
+  const handleResize = () => {
+    const editor = get(monacoRef, 'current.editor');
     if (!isNil(editor)) {
       editor.layout();
     }
-  }
+  };
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
 
-  componentDidMount() {
-    window.addEventListener('resize', this.handleResize);
-  }
+  // completion provider
+  useEffect(() => {
+    const monaco = monacoRef.current;
+    monaco.languages.registerCompletionItemProvider({
+      provideCompletionItems() {
+        return (completionItems || []).map((x) => new monaco.languages.CompletionItem(x));
+      },
+    });
+  }, []);
 
-  render() {
-    const {isOpen, onDismiss, title, footerPrimaryButton, monacoProps} = this.props;
-    return (
-      <div>
-        <Panel
-          onDismiss={onDismiss}
-          isLightDismiss={true}
-          isOpen={isOpen}
-          type={PanelType.large}
-          headerText={title}
-          styles={{
-            main: [ColorClassNames.neutralPrimaryBackground],
-            headerText: [ColorClassNames.white],
-            overlay: [ColorClassNames.blackTranslucent40Background],
-            content: [t.flex, t.flexAuto],
-            scrollableContent: [t.flex, t.flexAuto],
-            closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
-          }}
-        >
-          <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
-            <div className={c(monacoHack)} style={{flex: '1 1 100%', minHeight: 0}}>
-              {open && (
-                <MonacoEditor
-                  className={c(t.flexAuto)}
-                  ref={this.monaco}
-                  theme='vs-dark'
-                  language='text'
-                  options={{
-                    wordWrap: 'on',
-                    readOnly: true,
-                  }}
-                  {...monacoProps}
-                />
-              )}
-            </div>
-            <div className={c(t.mt4, t.flex, t.justifyBetween)}>
-              <div>
-                {footerPrimaryButton}
-              </div>
-              <DefaultButton
-                text='Close'
-                styles={{
-                  root: [ColorClassNames.neutralDarkBackground],
-                  rootHovered: [ColorClassNames.blackBackground],
-                  rootChecked: [ColorClassNames.blackBackground],
-                  rootPressed: [ColorClassNames.blackBackground],
-                  label: [ColorClassNames.white],
+  // json schema
+  useEffect(() => {
+    const monaco = monacoRef.current;
+    if (monaco) {
+      if (schema) {
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+          validate: true,
+          schemas: [schema],
+        });
+      } else {
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+          validate: false,
+          schemas: [],
+        });
+      }
+    }
+  }, [schema]);
+
+  return (
+    <div>
+      <Panel
+        onDismiss={onDismiss}
+        isLightDismiss={true}
+        isOpen={isOpen}
+        type={PanelType.large}
+        headerText={title}
+        styles={{
+          main: [ColorClassNames.neutralPrimaryBackground],
+          headerText: [ColorClassNames.white],
+          overlay: [ColorClassNames.blackTranslucent40Background],
+          content: [t.flex, t.flexAuto],
+          scrollableContent: [t.flex, t.flexAuto],
+          closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
+        }}
+      >
+        {header && <div className={c(t.mb4, t.flex)}>
+          {header}
+        </div>}
+        <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
+          <div className={c(monacoHack)} style={{flex: '1 1 100%', minHeight: 0}}>
+            {open && (
+              <MonacoEditor
+                className={c(t.flexAuto)}
+                ref={monacoRef}
+                theme='vs-dark'
+                language='text'
+                options={{
+                  wordWrap: 'on',
+                  readOnly: true,
                 }}
-                onClick={onDismiss}
+                {...monacoProps}
               />
-            </div>
+            )}
           </div>
-        </Panel>
-      </div>
-    );
-  }
-}
+          <div className={c(t.mt4, t.flex, t.justifyBetween)}>
+            <div>
+              {footer}
+            </div>
+            <DefaultButton
+              text='Close'
+              styles={{
+                root: [ColorClassNames.neutralDarkBackground],
+                rootHovered: [ColorClassNames.blackBackground],
+                rootChecked: [ColorClassNames.blackBackground],
+                rootPressed: [ColorClassNames.blackBackground],
+                label: [ColorClassNames.white],
+              }}
+              onClick={onDismiss}
+            />
+          </div>
+        </div>
+      </Panel>
+    </div>
+  );
+};
 
 MonacoPanel.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func.isRequired,
   title: PropTypes.string,
+  header: PropTypes.node,
+  footer: PropTypes.node,
   monacoProps: PropTypes.object,
-  footerPrimaryButton: PropTypes.node,
+  schema: PropTypes.object,
+  completionItems: PropTypes.arrayOf(PropTypes.string),
 };
