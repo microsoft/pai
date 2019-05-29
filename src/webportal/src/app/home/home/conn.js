@@ -24,14 +24,14 @@ import config from '../../config/webportal.config';
 const username = cookies.get('user');
 const token = cookies.get('token');
 
-export async function listJobs() {
-  const res = await fetch(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
-
+async function fetchWrapper(...args) {
+  const res = await fetch(...args);
   const json = await res.json();
   if (res.ok) {
     return json;
   } else {
     if (json.code === 'UnauthorizedUserError') {
+      alert(json.message);
       userLogout();
     } else {
       throw new Error(json.message);
@@ -39,38 +39,20 @@ export async function listJobs() {
   }
 }
 
+export async function listJobs() {
+  return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
+}
+
 export async function getUserInfo() {
-  const res = await fetch(`${config.restServerUri}/api/v1/user/${username}`, {
+  return fetchWrapper(`${config.restServerUri}/api/v1/user/${username}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-
-  const json = await res.json();
-  if (res.ok) {
-    return json;
-  } else {
-    if (json.code === 'UnauthorizedUserError') {
-      userLogout();
-    } else {
-      throw new Error(json.message);
-    }
-  }
 }
 
 export async function listVirtualClusters() {
-  const res = await fetch(`${config.restServerUri}/api/v1/virtual-clusters`);
-
-  const json = await res.json();
-  if (res.ok) {
-    return json;
-  } else {
-    if (json.code === 'UnauthorizedUserError') {
-      userLogout();
-    } else {
-      throw new Error(json.message);
-    }
-  }
+  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
 }
 
 export async function getTotalGpu() {
