@@ -1,3 +1,9 @@
+/*
+ * @Author: chenjie
+ * @Date: 2019-05-28 16:30:45
+ * @Last Modified by: mikey.zhaopeng
+ * @Last Modified time: 2019-05-29 16:55:24
+ */
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
 //
@@ -33,10 +39,10 @@ const webportalConfig = require('../config/webportal.config.js');
 const userAuth = require('../user/user-auth/user-auth.component');
 
 //
-let table = null;
+let commonTable = null;
+let dedicateTable = null;
 let isAdmin = cookies.get('admin');
 //
-
 const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
@@ -53,7 +59,14 @@ const loadData = (specifiedVc) => {
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
-      table = $('#vc-table').dataTable({
+      commonTable = $('#common-table').dataTable({
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+        columnDefs: [
+          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+        ],
+      }).api();
+      dedicateTable = $('#dedicated-table').dataTable({
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
@@ -78,10 +91,12 @@ const formatNumber = (x, precision) => {
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 335 : 265))) + 'px');
-    table.columns.adjust().draw();
+  $('.dataTables_scrollBody').css('height', '200px');
+  if (commonTable != null) {
+    commonTable.columns.adjust().draw();
+  }
+  if (dedicateTable != null) {
+    dedicateTable.columns.adjust().draw();
   }
 };
 
@@ -256,7 +271,6 @@ $(document).ready(() => {
   };
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
-
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();

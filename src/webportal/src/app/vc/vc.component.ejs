@@ -5,66 +5,121 @@
 <section class='content'>
   <div class='box'>
     <div class='box-body'>
-      <% if (isAdmin === 'true') { %>
-      <button class="btn btn-success btn-lg add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Virtual Cluster</button>
-      <% } %>
-      <table id='vc-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Capacity</th>
-            <th>Utilization</th>
-            <th>Memory</th>
-            <th>CPUs</th>
-            <th>GPUs</th>
-            <th>Active Jobs</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let vcName in data) { %>
-            <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+        <h3>Common VC</h3>
+        <% if (isAdmin === 'true') { %>
+          <button class="btn btn-success btn-lg add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Virtual Cluster</button>
+          <% } %>
+          <table id='common-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
+            <thead>
               <tr>
-                <td>
-                  <a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a>
-                </td>
-                <td>
-                  <%= formatNumber(data[vcName]['capacity'], 2) %> %
-                </td>
-                <td>
-                  <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['memory'] %> MB
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['vCores'] %>
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['GPUs'] %>
-                </td>
-                <td>
-                  <%= data[vcName]['numJobs'] %>
-                </td>
-                <td width="8%">
-                  <%= convertState(vcName, data[vcName]['status']) %>
-                </td>
-                <td>
-                  <a href="job-list.html?vcName=<%= vcName %>">View Jobs</a>
-                  &nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
-                  <% if (isAdmin === 'true') { %>
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    <a onclick="deleteVcItem('<%= vcName %>')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Delete</a>
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    <a onclick="editVcItem('<%= vcName %>', '<%= formatNumber(data[vcName]['capacity'], 2) %> %')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Edit</a>
-                  <% } %>
-                </td>
+                <th>Name</th>
+                <th>Capacity</th>
+                <th>Bonus</th>
+                <th>Utilization</th>
+                <th>Memory</th>
+                <th>CPUs</th>
+                <th>GPUs</th>
+                <th>Active Jobs</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
+            </thead>
+            <tbody>
+              <% for (let vcName in data) { %>
+                <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+                  <% if (data[vcName]['dedicated'] === false) { %>
+                  <tr>
+                    <td>
+                      <a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a>
+                    </td>
+                    <td>
+                      <%= formatNumber(data[vcName]['capacity'], 2) %> %
+                    </td>
+                    <td>
+                      <%= data[vcName]['capacity'] < data[vcName]['maxCapacity'] ? 'enabled' : 'disabled' %>
+                    </td>
+                    <td>
+                      <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
+                    </td>
+                    <td>
+                      <%= data[vcName]['resourcesUsed']['memory'] %> MB
+                    </td>
+                    <td>
+                      <%= data[vcName]['resourcesUsed']['vCores'] %>
+                    </td>
+                    <td>
+                      <%= data[vcName]['resourcesUsed']['GPUs'] %>
+                    </td>
+                    <td>
+                      <%= data[vcName]['numJobs'] %>
+                    </td>
+                    <td width="8%">
+                      <%= convertState(vcName, data[vcName]['status']) %>
+                    </td>
+                    <td>
+                      <a href="job-list.html?vcName=<%= vcName %>">View Jobs</a>
+                      &nbsp;&nbsp;|&nbsp;&nbsp;
+                      <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
+                      <% if (isAdmin === 'true') { %>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                        <a onclick="deleteVcItem('<%= vcName %>')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Delete</a>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                        <a onclick="editVcItem('<%= vcName %>', '<%= formatNumber(data[vcName]['capacity'], 2) %> %')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Edit</a>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% } %>
+                <% } %>
+            </tbody>
+          </table>
+    </div>
+  </div>
+  <div class='box'>
+    <div class='box-body'>
+        <h3>Dedicated VC</h3>
+        <table id='dedicated-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Utilization</th>
+              <th>Memory</th>
+              <th>CPUs</th>
+              <th>GPUs</th>
+              <th>Active Jobs</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (let vcName in data) { %>
+              <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+                <% if (data[vcName]['dedicated'] === true) { %>
+                <tr>
+                  <td>
+                    <a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a>
+                  </td>
+                  <td>
+                    <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
+                  </td>
+                  <td>
+                    <%= data[vcName]['resourcesUsed']['memory'] %> MB
+                  </td>
+                  <td>
+                    <%= data[vcName]['resourcesUsed']['vCores'] %>
+                  </td>
+                  <td>
+                    <%= data[vcName]['resourcesUsed']['GPUs'] %>
+                  </td>
+                  <td>
+                    <%= data[vcName]['numJobs'] %>
+                  </td>
+                  <td width="8%">
+                    <%= convertState(vcName, data[vcName]['status']) %>
+                  </td>
+                </tr>
+                <% } %>
               <% } %>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
     </div>
   </div>
   <%= modal({'vcDefault': data.default}) %>
