@@ -11,17 +11,15 @@ export const TabContent = (props) => {
   const [dockerInfo, setDockerInfo] = useState(jobTaskRole.dockerInfo);
 
   // useEffect(()=>{ onContentChange(dockerInfo);}, [dockerInfo]);
-  console.log(yaml.safeDump(dockerInfo));
+  console.log(yaml.safeDump(jobTaskRole.dockerInfo));
 
   return (
     <FormPage>
       <FormTextFiled label={'Task role name'} required placeholder={'Enter task role name...'}/>
-      <FormDockerSection dockerInfo={dockerInfo}
-                         onValueChange={
-                           (dockerInfo)=>{
+      <FormDockerSection dockerInfo={jobTaskRole.dockerInfo}
+                         onValueChange={ (dockerInfo)=>{
                            setDockerInfo(dockerInfo);
-                         onContentChange(dockerInfo);
-                         }}>
+                          onContentChange(dockerInfo);}}>
       </FormDockerSection>
       <FormTextFiled label={'Retry count'} required placeholder={'Enter GPU number...'}/>
       <FormTextFiled label={'Instance'} required placeholder={'Enter GPU number...'}/>

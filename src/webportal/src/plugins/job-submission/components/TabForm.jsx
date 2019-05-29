@@ -5,53 +5,42 @@ import { getFormClassNames, getTabFromStyle } from './formStyle'
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
 
-export const TabFormItem = (props) => {
-  return (
-    <>{props.children}</>
-  );
-}
-
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
-
-    const itemsMap = new Map();
-    const {items} = props;
-
-    let itemSeq = 0;
-    if (items !== undefined) {
-      items.forEach(item=>this._insertItemToMap(item, itemSeq++, itemsMap));
-    }
-
-    let selectedKey = null;
-    if (itemsMap.size > 0) {
-      selectedKey = TAB_ITEM_KEY_PREFIX + 0;
+    const { items } = props;
+    
+    let selectedIndex;
+    if (items !== undefined && items.size !== 0) {
+      selectedIndex = 0;
     }
 
     this.state = {
-      itemsMap: itemsMap,
-      selectedKey: selectedKey,
-      itemSeq: itemSeq
+      selectedIndex: selectedIndex,
     }
   }
 
-  _insertItemToMap(item, itemSeq, itemsMap) {
-    const itemKey = TAB_ITEM_KEY_PREFIX + itemSeq;
-    const newItem = {...item, itemKey: itemKey};
-    itemsMap.set(itemKey, newItem);
+  _getItemKeyByIndex(index) {
+    return TAB_ITEM_KEY_PREFIX + index;
   }
 
-  _renderItems() {
-    const pivotItems = [];
-    const {itemsMap} = this.state;
+  _getItemIndexByKey(key) {
+    return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
+  }
 
-    for (const item of itemsMap.values()) {
-      const element = (<PivotItem key={item.itemKey}
-                                  itemKey={item.itemKey}
-                                  headerText={item.headerText}
-                                  onRenderItemLink={this._onRenderItem.bind(this)}/>);
-      pivotItems.push(element);
-    }
+  _generateKeyForItems(items) {
+    return items.map((item, index) => {
+      return {...item, itemKey: this._getItemKeyByIndex(index)};
+    });
+  }
+
+  _renderItems(items) {
+    const itemsWithKey = this._generateKeyForItems(items);
+    const pivotItems = itemsWithKey.map(itemsWithKey => 
+                         <PivotItem key={itemsWithKey.itemKey}
+                                         itemKey={itemsWithKey.itemKey}
+                                         headerText={itemsWithKey.headerText}
+                                         onRenderItemLink={this._onRenderItem.bind(this)}/>);
 
     return pivotItems;
   }
@@ -70,97 +59,69 @@ export class TabForm extends React.Component {
 
   _onItemDelete(itemKey, event) {
     const {onItemDelete} = this.props;
-    const {itemsMap} = this.state;
-    if (itemKey === undefined || itemsMap === undefined) {
-      return;
-    }
-
-    const currentItems = Array.from(itemsMap.values());
-    const itemIndex = currentItems.findIndex(item=>item.itemKey === itemKey);
-    if (itemIndex === -1) {
-      console.warn('Can not get on delete item index');
-      return;
-    }
-
-    let updatedItems;
-    if (onItemDelete === undefined) {
-      updatedItems = this._defaultOnItemDelete(itemIndex, currentItems);
-    } else {
-      updatedItems = onItemDelete(itemIndex, currentItems);
-    }
-
-    let itemSeq = 0;
-    const updatedItemsMap = new Map();
-    updatedItems.forEach(item => this._insertItemToMap(item, itemSeq++, updatedItemsMap));
-
-    const newSelectedKey = this._getUpdatedSelectedKey(itemIndex, updatedItems.length);
-    this.setState({
-      itemsMap: updatedItemsMap,
-      selectedKey: newSelectedKey
-    });
     event.stopPropagation();
-  }
 
-  _getUpdatedSelectedKey(itemIndex, updatedItemsSize) {
-    if (updatedItemsSize === 0) {
-      return null;
+    if (itemKey === undefined) {
+      return;
     }
 
-    const isRemoveLastItem = (itemIndex === updatedItemsSize);
-    if (isRemoveLastItem) {
-      return TAB_ITEM_KEY_PREFIX + (itemIndex - 1);
+    const itemIndex = this._getItemIndexByKey(itemKey);
+
+    if (onItemDelete === undefined) {
+      return;
     }
+  
+    const newSelectedIndex = onItemDelete(itemIndex);
 
-    return TAB_ITEM_KEY_PREFIX + itemIndex;
-  }
-
-  _defaultOnItemDelete(itemIndex, currentItems) {
-    const targetKey = currentItems[itemIndex].itemKey;
-    return currentItems.filter(item=>item.itemKey !== targetKey)
+    this.setState({
+      selectedIndex: newSelectedIndex
+    });
   }
 
   _onAddItem() {
-    const {onItemAdd} = this.props;
-    const {itemsMap, itemSeq} = this.state;
-    let newItem;
+    const { onItemAdd } = this.props;
     if (onItemAdd === undefined) {
       return;
     }
 
-    const currentItems = Array.from(itemsMap.values);
-    newItem = onItemAdd(currentItems);
-    newItem.itemKey = TAB_ITEM_KEY_PREFIX + itemSeq;
+    const newSelectedIndex = onItemAdd();
+    if (newSelectedIndex === undefined) {
+      return;
+    }
 
-    itemsMap.set(newItem.itemKey, newItem);
     this.setState({
-      itemsMap: itemsMap,
-      selectedKey: newItem.itemKey,
-      itemSeq: itemSeq + 1,
+      selectedIndex: newSelectedIndex
     });
   }
 
   _onLinkClick(item) {
     this.setState({
-      selectedKey: item.props.itemKey
+      selectedIndex: this._getItemIndexByKey(item.props.itemKey)
     });
   }
 
   render() {
-    const {selectedKey, itemsMap} = this.state;
+    let { selectedIndex } = this.state;
+    const { items } = this.props;
 
     const { topForm, formTabBar } = getFormClassNames();
-    const elements = this._renderItems();
+    const elements = this._renderItems(items);
+
+    if (selectedIndex === undefined && items.length) {
+      selectedIndex = 0;
+    }
+
     return (
       <div className={topForm}>
         <div className={formTabBar}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
                    styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
-                   selectedKey={selectedKey}>
+                   selectedKey={this._getItemKeyByIndex(selectedIndex)}>
              {elements}
             </Pivot>
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
         </div>
-        {selectedKey !== null? itemsMap.get(selectedKey).content: null}
+        {selectedIndex !== undefined? items[selectedIndex].content: null}
       </div>
     );
   }

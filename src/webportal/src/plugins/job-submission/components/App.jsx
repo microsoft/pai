@@ -12,32 +12,28 @@ initializeIcons();
 const onContentChange = (dockerInfo) => {};
 
 export const App = () => {
-  const [jobTaskRole1, setJobTaskRole1] = useState(new JobTaskRole());
-  const [jobTaskRole2, setJobTaskRole2] = useState(new JobTaskRole());
-  const items = [{headerText: 'Task role 1',
-                  content: 
-                    <TabContent 
-                      jobTaskRole={jobTaskRole1}
-                      onContentChange={(dockerInfo)=>{ 
-                        const jobTaskRole = new JobTaskRole();
-                        jobTaskRole.dockerInfo = dockerInfo;
-                        setJobTaskRole1(jobTaskRole);
-                    }}/>},
+  const originItems = [{headerText: 'Task role 1',
+                  content: <TabContent jobTaskRole={new JobTaskRole()}/>},
                  {headerText: 'Task role 2',
-                  content: 
-                    <TabContent
-                      jobTaskRole={jobTaskRole2}
-                      onContentChange={(dockerInfo)=>{ 
-                        const jobTaskRole = new JobTaskRole();
-                        jobTaskRole.dockerInfo = dockerInfo;
-                        setJobTaskRole2(jobTaskRole);
-                    }}/>}];
+                  content: <TabContent jobTaskRole={new JobTaskRole()}/>}];
+
+  const [items, setItems] = useState(originItems);
+  const onItemAdd = () => {
+    const updatedItems = [...items, {headerText: 'Task role X', content: <TabContent jobTaskRole={new JobTaskRole()}/>}];
+    setItems(updatedItems);
+    return updatedItems.length - 1;
+  }
+
+  const onItemDelete = (itemIndex) => {
+    const updatedItems = items.filter((_, index) => { return index !== itemIndex;});
+    setItems(updatedItems);
+  }
 
   return (
     <Customizer {...FluentCustomizations}>
       <Stack horizontal>
         <Stack.Item grow={7} styles={{root: {maxWidth: '70%'}}}>
-          <TabForm items={items} onItemAdd={()=>{return {headerText: 'Task role x', content: <TabContent jobTaskRole={new JobTaskRole()}></TabContent>}}} />
+          <TabForm items={items} onItemAdd={onItemAdd} onItemDelete={onItemDelete} />
         </Stack.Item>
         <Stack.Item grow={3} disableShrink>
           Empty for something
