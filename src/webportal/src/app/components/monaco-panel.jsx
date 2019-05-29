@@ -137,3 +137,5 @@ MonacoPanel.propTypes = {
   schema: PropTypes.object,
   completionItems: PropTypes.arrayOf(PropTypes.string),
 };
+
+export default MonacoEditor;
