@@ -298,12 +298,7 @@ class Job {
         data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
       }
       const vcList = await vcModel.prototype.getVcListAsyc();
-      // eslint-disable-next-line no-console
-      console.log(data);
-      // eslint-disable-next-line no-console
-      console.log(vcList);
-      // eslint-disable-next-line no-console
-      console.log(data.virtualCluster);
+      data.virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
       if (!(data.virtualCluster in vcList)) {
         throw createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`);
       }
