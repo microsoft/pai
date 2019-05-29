@@ -382,11 +382,6 @@ def setup_parser():
 def main():
     parser = setup_parser()
     args = parser.parse_args()
-    # args = parser.parse_args(["dedicated-vc", "-h"])
-    # args = parser.parse_args(["dedicated-vc", "get", "-m", "10.151.40.133"])
-    # args = parser.parse_args(["dedicated-vc", "add", "-m", "10.151.40.133", "-n", "10.151.40.132", "-v", "test_vc"])
-    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-v", "test_vc"])
-    # args = parser.parse_args(["dedicated-vc", "remove", "-m", "10.151.40.133", "-n", "10.151.40.131", "-v", "test_vc"])
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip

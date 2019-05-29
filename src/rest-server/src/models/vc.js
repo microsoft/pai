@@ -107,6 +107,7 @@ class VirtualCluster {
               GPUs: 0,
             };
             let vcLabel = vcInfo[vcName].defaultLabel;
+            delete vcInfo[vcName].defaultLabel;
             if (labeledResource.hasOwnProperty(vcLabel)) {
               let p = vcInfo[vcName].capacity;
               resourcesTotal.vCores = labeledResource[vcLabel].vCores * p / 100;
