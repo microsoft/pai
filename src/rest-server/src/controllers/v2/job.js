@@ -17,12 +17,10 @@
 
 
 // module dependencies
-const util = require('util');
 const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('../../middlewares/v2/asyncHandler');
-const v1Job = require('../../models/job');
-const {put, getJobConfig} = require('../../models/v2/job');
+const {get, put, getJobConfig} = require('../../models/v2/job');
 const createError = require('../../util/error');
 
 
@@ -30,15 +28,17 @@ const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
   const userName = req.user.username;
   const frameworkName = `${userName}~${jobName}`;
+  // check duplicate job
   try {
-    const getJobError = await util.promisify(v1Job.prototype.getJob)(jobName, userName);
-    if (getJobError.code !== 'NoJobError') {
+    const data = await get(frameworkName);
+    if (data != null) {
       throw createError('Conflict', 'ConflictJobError', `Job ${frameworkName} already exists.`);
     }
   } catch (error) {
-    throw createError('Conflict', 'ConflictJobError', `Job ${frameworkName} already exists.`);
+    if (error.code === 'UnknownError') {
+      throw error;
+    }
   }
-
   await put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),

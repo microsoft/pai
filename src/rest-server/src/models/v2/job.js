@@ -261,6 +261,21 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   return frameworkDescription;
 };
 
+async function get(frameworkName) {
+  const [userName] = frameworkName.split('~');
+
+  // send request to framework launcher
+  const response = await axios({
+    method: 'get',
+    url: launcherConfig.frameworkPath(frameworkName),
+    headers: launcherConfig.webserviceRequestHeaders(userName),
+  });
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.raw_body);
+  }
+  return response.data;
+}
+
 async function put(frameworkName, config, rawConfig) {
   const [userName] = frameworkName.split('~');
   // check user vc
@@ -311,4 +326,5 @@ async function getJobConfig(frameworkName) {
 module.exports = {
   getJobConfig,
   put,
+  get,
 };
