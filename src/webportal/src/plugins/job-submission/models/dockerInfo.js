@@ -9,9 +9,9 @@ class Auth {
 export class DockerInfo {
 
   constructor() {
-    this.name = '';
-    this.uri = '';
-    this.auth = '';
+    this.name;
+    this.uri;
+    this.auth;
   }
 
   convertToProtocolPrerequisite() {
