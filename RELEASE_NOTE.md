@@ -38,7 +38,7 @@
   - Use `/api/v1/pods` to get all pods ([#2750](https://github.com/microsoft/pai/pull/2750))
 
 * Deployement:
-  - Allow user to use <kbd>Backspace<\kbd> in `paictl` input ([#2769](https://github.com/microsoft/pai/pull/2769))
+  - Allow user to use <kbd>Backspace</kbd> in `paictl` input ([#2769](https://github.com/microsoft/pai/pull/2769))
   - Disable InfiniBand driver installation by default ([#2595](https://github.com/microsoft/pai/pull/2595))
 
 
