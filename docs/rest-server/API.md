@@ -781,9 +781,9 @@ GET /api/v1/virtual-clusters/:vcName
 Status: 200
 
 {
-  //capacity percentage this virtual cluster can use of entire cluster
+  // capacity percentage this virtual cluster can use of entire cluster
   "capacity":50,
-  //max capacity percentage this virtual cluster can use of entire cluster
+  // max capacity percentage this virtual cluster can use of entire cluster
   "maxCapacity":100,
   // used capacity percentage this virtual cluster can use of entire cluster
   "usedCapacity":0,
@@ -801,6 +801,8 @@ Status: 200
    "GPUs":0
   },
   "dedicated": true/false,
+  // available node list for this virtual cluster
+  "nodeList": [node1, node2, ...]
   // RUNNING: vc is enabled
   // STOPPED: vc is disabled, without either new job or running job.
   // DRAINING: intermedia state from RUNNING to STOPPED, in waiting on existing job.

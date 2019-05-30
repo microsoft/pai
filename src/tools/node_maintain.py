@@ -367,7 +367,7 @@ def setup_parser():
     parser_get.set_defaults(func=get_dedicate_vc)
 
     parser_add = dedicated_vc_subparsers.add_parser("add", parents=[parent_parser], help="add dedicate vc")
-    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', default="")
+    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', default={})
     parser_add.add_argument("-v", "--vc-name", type=validate_vc_name, required=True)
     parser_add.set_defaults(func=add_dedicate_vc)
 

@@ -952,11 +952,13 @@ describe('VC API  Get /api/v1/virtual-clusters', () => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
         expect(res.body).to.have.property('a');
-        expect(res.body).to.nested.include({'default.status': "RUNNING"});
+        expect(res.body).to.nested.include({'default.status': 'RUNNING'});
         expect(res.body).to.nested.include({'default.dedicated': false});
         expect(res.body).to.nested.include({'default.resourcesTotal.GPUs': 2.8});
         expect(res.body).to.nested.include({'dedicated_vc.dedicated': true});
         expect(res.body).to.nested.include({'dedicated_vc.resourcesTotal.GPUs': 4});
+        expect(res.body).to.nested.include({'dedicated_vc.nodeList.0': '10.151.40.132'});
+        expect(res.body).to.nested.include({'default.nodeList.0': '10.151.40.131'});
         done();
       });
   });

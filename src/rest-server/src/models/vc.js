@@ -31,7 +31,7 @@ class VirtualCluster {
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
         let queueDefaultLabel = queueInfo.defaultNodeLabelExpression;
-        if (typeof(queueDefaultLabel) === 'undefined' || queueDefaultLabel === '<DEFAULT_PARTITION>') {
+        if (typeof queueDefaultLabel === 'undefined' || queueDefaultLabel === '<DEFAULT_PARTITION>') {
           queueDefaultLabel = '';
         }
         let defaultPartitionInfo = null;
@@ -91,6 +91,20 @@ class VirtualCluster {
     return resourceByLabel;
   }
 
+  getNodesByLabel(nodeInfo) {
+    let nodesByLabel = {};
+    for (let node of nodeInfo) {
+      let nodeLabel = node.nodeLabels || [''];
+      nodeLabel = nodeLabel[0];
+      let nodeHostName = node.nodeHostName;
+      if (!nodesByLabel.hasOwnProperty(nodeLabel)) {
+        nodesByLabel[nodeLabel] = [];
+      }
+      nodesByLabel[nodeLabel].push(nodeHostName);
+    }
+    return nodesByLabel;
+  }
+
   addDedicatedInfo(vcInfo, next) {
     unirest.get(yarnConfig.yarnNodeInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -100,6 +114,7 @@ class VirtualCluster {
             res.body : JSON.parse(res.body);
           const nodeInfo = resJson.nodes.node;
           let labeledResource = this.getResourceByLabel(nodeInfo);
+          let labeledNodes = this.getNodesByLabel(nodeInfo);
           for (let vcName of Object.keys(vcInfo)) {
             let resourcesTotal = {
               vCores: 0,
@@ -115,6 +130,7 @@ class VirtualCluster {
               resourcesTotal.GPUs = labeledResource[vcLabel].GPUs * p / 100;
             }
             vcInfo[vcName].resourcesTotal = resourcesTotal;
+            vcInfo[vcName].nodeList = labeledNodes[vcLabel] || [];
           }
           next(vcInfo, null);
         } catch (error) {
