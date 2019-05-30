@@ -53,7 +53,22 @@
 
 ## Bug Fixes
 
-TODO
+* Web portal:
+  - Fix text broken when create or edit user ([#2849](https://github.com/microsoft/pai/pull/2849))
+  - Fix token authentication bug ([#2843](https://github.com/microsoft/pai/pull/2843))
+  - Fix retry count's margin-top ([#2845](https://github.com/microsoft/pai/pull/2845))
+  - Fix job clone bug ([#2836](https://github.com/microsoft/pai/pull/2836))
+  - Fix home page's responsive layout ([#2805](https://github.com/microsoft/pai/pull/2805))
+  - Fix job list page filter bug ([#2787](https://github.com/microsoft/pai/pull/2787))
+  - Fix home page failed to load virtual cluster list bug ([#2774](https://github.com/microsoft/pai/pull/2774))
+
+* Rest server:
+  - Check duplicate job in submission v2 ([#2837](https://github.com/microsoft/pai/pull/2837))
+
+* Hadoop:
+  - Increase YARN kill container timeout ([#2778](https://github.com/microsoft/pai/pull/2778))
+  - Remove cross origin in resource manager ([#2758](https://github.com/microsoft/pai/pull/2758))
+  - Fix Haddoop AI matching nvidia-smi regex ([#2681](https://github.com/microsoft/pai/pull/2681))
 
 
 ## Known Issues
