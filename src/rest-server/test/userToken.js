@@ -51,7 +51,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         'data': {
             'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
             'username': 'dG9rZW50ZXN0',
-            'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+            'grouplist': 'WyJhZG1pbkdyb3VwIl0=',
             'extension': 'e30=',
             'email': ''
         },
