@@ -41,7 +41,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
 
     // mock for case 1 username=tokentest
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/746f6b656e74657374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -49,16 +49,17 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
             'name': '746f6b656e74657374',
         },
         'data': {
-            'admin': 'ZmFsc2U=',
             'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
             'username': 'dG9rZW50ZXN0',
-            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+            'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+            'extension': 'e30=',
+            'email': ''
         },
         'type': 'Opaque'
     });
 
     nock(apiServerRootUri)
-    .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+    .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
     .reply(404, {
       'kind': 'Status',
       'apiVersion': 'v1',
