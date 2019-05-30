@@ -25,7 +25,7 @@ const userExtensionUpdateInputSchema = Joi.object().keys({
 
 // define the input schema for the 'update user grouplist' api
 const userGrouplistUpdateInputSchema = Joi.object().keys({
-  grouplist: Joi.array().items(Joi.string()).required(),
+  virtualCluster: Joi.array().items(Joi.string()).required(),
 });
 
 // define the input schema for the 'update user password' api
@@ -42,7 +42,7 @@ const userCreateInputSchema = Joi.object().keys({
   email: Joi.string()
     .email()
     .empty(''),
-  grouplist: Joi.array()
+  virtualCluster: Joi.array()
     .items(Joi.string())
     .required(),
   password: Joi.string()

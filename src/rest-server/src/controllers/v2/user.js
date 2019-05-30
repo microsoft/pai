@@ -156,15 +156,15 @@ const updateUserPassword = async (req, res, next) => {
     let newUserValue = userValue;
     newUserValue['password'] = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (!req.user.admin || newUserValue['password'] !== userValue['password']) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
-    } else {
+    if (req.user.admin || newUserValue['password'] === userValue['password']) {
       newUserValue['password'] = newPassword;
       newUserValue = await userModel.getEncryptPassword(newUserValue);
       await userModel.updateUser(username, newUserValue);
       return res.status(201).json({
         message: 'update user password successfully.',
       });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
     return next(createError.unknown((error)));
