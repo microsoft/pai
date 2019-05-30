@@ -93,7 +93,7 @@ export default function BatchVirtualClustersEditor({isOpen = false, hide}) {
     <Modal
       isOpen={isOpen}
       isBlocking={true}
-      containerClassName={mergeStyles({maxWidth: '430px'}, t.w90)}
+      containerClassName={mergeStyles({width: '450px', minWidth: '450px'})}
     >
       <div className={c(t.pa4)}>
         <form onSubmit={handleSubmit}>
@@ -107,7 +107,7 @@ export default function BatchVirtualClustersEditor({isOpen = false, hide}) {
                   <td className={tdLabelStyle}>
                     Virtual clusters
                   </td>
-                  <td className={tdPaddingStyle} style={{width: '270px'}}>
+                  <td className={tdPaddingStyle} style={{minWidth: '280px'}}>
                     <Dropdown
                       multiSelect
                       options={vcsOptions}
