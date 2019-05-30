@@ -396,75 +396,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     });
   }
 
-  const prepareNockForCaseN08 = (namespace, jobName) => {
-      global.nock(global.launcherWebserviceUri)
-        .get(`/v1/Frameworks/${namespace}~${jobName}`)
-        .reply(
-          404,
-          {}
-        );
-
-    //
-    // Mock k8s secret return result
-    //
-    nock(global.apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'e30=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque'
-      });
-
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
-  }
-
-  const prepareNockForCaseN09 = prepareNockForCaseN03;
+  const prepareNockForCaseN08 = prepareNockForCaseN03;
 
 
   //
@@ -639,22 +571,8 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       });
   });
 
-  it('[N-08] should submit job failed when db does not have vc field', (done) => {
-    prepareNockForCaseN08('user1', 'new_job_vc_not_found');
-    global.chai.request(global.server)
-      .post('/api/v2/user/user1/jobs')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response error code').equal('UnknownError');
-        done();
-      });
-  });
-
-  it('[N-09] Duplicated job name using PUT method', (done) => {
-    prepareNockForCaseN09();
+  it('[N-08] Duplicated job name using PUT method', (done) => {
+    prepareNockForCaseN08();
     global.chai.request(global.server)
       .put('/api/v2/user/test/jobs/job1')
       .set('Authorization', 'Bearer ' + validToken)
