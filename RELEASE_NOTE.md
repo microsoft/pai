@@ -6,7 +6,6 @@
 * PAI protocol:
   - Introduce PAI protocol and job submission v2 ([#2260](https://github.com/microsoft/pai/pull/2260))
   - Add new job submission v2 plugin ([#2461](https://github.com/microsoft/pai/pull/2461))
-  - Add new marketplace plugin, support GitHub and Azure DevOps repository ([#2703](https://github.com/microsoft/pai/pull/2703), [#2724](https://github.com/microsoft/pai/pull/2724))
 
 * Web portal:
   - Add new home page ([#2544](https://github.com/microsoft/pai/pull/2544), [#2614](https://github.com/microsoft/pai/pull/2614))
@@ -47,7 +46,7 @@
 * Refine document of VS Code extension ([#2707](https://github.com/microsoft/pai/pull/2707))
 * Add document for PAI storage ([#2822](https://github.com/microsoft/pai/pull/2822))
 * PAI protocol specification document ([#2260](https://github.com/microsoft/pai/pull/2260))
-* Job submission v2 and marketplace plugins document ([#2820](https://github.com/microsoft/pai/pull/2820))
+* Job submission v2 plugin document ([#2820](https://github.com/microsoft/pai/pull/2820))
 * Update RESTful API document for API v2 ([#2816](https://github.com/microsoft/pai/pull/2816))
 * Fix typos in document ([#2818](https://github.com/microsoft/pai/pull/2818))
 
