@@ -1,7 +1,7 @@
 import c from 'classnames';
 import React, {useContext, useMemo, useLayoutEffect} from 'react';
 import {ColumnActionsMode, DefaultButton, FontClassNames, Link, mergeStyles, Selection, ShimmeredDetailsList, Icon, ColorClassNames, FontSizes, FontWeights} from 'office-ui-fabric-react';
-import {isEmpty} from 'lodash';
+import {isNil} from 'lodash';
 import {DateTime, Duration} from 'luxon';
 
 import {getModified, getDuration, getStatusText} from './utils';
@@ -20,7 +20,7 @@ const zeroPaddingClass = mergeStyles({
 });
 
 export default function Table() {
-  const {allJobs, stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
+  const {stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
@@ -223,9 +223,7 @@ export default function Table() {
     actionsColumn,
   ];
 
-  const items = pagination.apply(ordering.apply(filteredJobs || []));
-
-  if (isEmpty(items) && allJobs !== null) {
+  if (!isNil(filteredJobs) && filteredJobs.length === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>
@@ -242,12 +240,13 @@ export default function Table() {
       </div>
     );
   } else {
+    const items = pagination.apply(ordering.apply(filteredJobs || []));
     return (
       <ShimmeredDetailsList
         items={items}
         setKey="key"
         columns={columns}
-        enableShimmer={allJobs === null}
+        enableShimmer={isNil(filteredJobs)}
         shimmerLines={pagination.itemsPerPage}
         selection={selection}
       />
