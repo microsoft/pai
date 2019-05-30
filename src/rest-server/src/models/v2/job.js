@@ -273,7 +273,8 @@ async function get(frameworkName) {
   });
   if (response.status === status('OK')) {
     return response.data;
-  } else if (response.status === status('Not Found')) {
+  }
+  if (response.status === status('Not Found')) {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   } else {
     throw createError(response.status, 'UnknownError', response.data.raw_body);
