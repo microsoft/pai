@@ -30,7 +30,7 @@ const userGrouplistUpdateInputSchema = Joi.object().keys({
 
 // define the input schema for the 'update user password' api
 const userPasswordUpdateInputSchema = Joi.object().keys({
-  oldPassword: Joi.string().min(6).required(),
+  oldPassword: Joi.string().min(6).default('defaultpai'),
   newPassword: Joi.string().min(6).required(),
 });
 
