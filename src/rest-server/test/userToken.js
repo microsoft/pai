@@ -53,7 +53,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
             'username': 'dG9rZW50ZXN0',
             'grouplist': 'WyJhZG1pbkdyb3VwIl0=',
             'extension': 'e30=',
-            'email': ''
+            'email': 'dGVzdEBwYWkuY29t'
         },
         'type': 'Opaque'
     });

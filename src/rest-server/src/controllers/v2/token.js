@@ -40,6 +40,8 @@ const get = async (req, res, next) => {
   try {
     const username = req.body.username;
     const userInfo = await userModel.getUser(username);
+    // eslint-disable-next-line no-console
+    console.log(userInfo);
     let admin = false;
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
