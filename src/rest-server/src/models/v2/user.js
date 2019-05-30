@@ -27,6 +27,8 @@ const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
 const getUser = async (username) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log(crudConfig);
     return await crudUser.read(username, crudConfig);
   } catch (error) {
     throw error;

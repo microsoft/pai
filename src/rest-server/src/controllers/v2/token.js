@@ -38,6 +38,8 @@ function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
  */
 const get = async (req, res, next) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log('coming');
     const username = req.body.username;
     const userInfo = await userModel.getUser(username);
     // eslint-disable-next-line no-console
