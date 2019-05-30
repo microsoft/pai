@@ -199,6 +199,8 @@ export default function Table() {
             styles={{
               root: {backgroundColor: '#e5e5e5'},
               rootFocused: {backgroundColor: '#e5e5e5'},
+              rootDisabled: {backgroundColor: '#eeeeee'},
+              rootCheckedDisabled: {backgroundColor: '#eeeeee'},
               icon: {fontSize: 12},
             }}
             disabled={disabled}
