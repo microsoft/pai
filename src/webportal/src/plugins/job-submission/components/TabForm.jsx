@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import { Pivot, PivotItem, Icon, ActionButton } from 'office-ui-fabric-react';
 import { getFormClassNames, getTabFromStyle } from './formStyle'
 
@@ -10,6 +11,11 @@ export const TabFormItem = (props) => {
     <>{props.children}</>
   );
 }
+
+TabFormItem.prototype = {
+  headerText: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 export class TabForm extends React.Component {
   constructor(props) {
@@ -133,3 +139,9 @@ export class TabForm extends React.Component {
     );
   }
 }
+
+TabForm.propTypes = {
+  onItemAdd: PropTypes.func,
+  onItemDelete: PropTypes.func,
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+};

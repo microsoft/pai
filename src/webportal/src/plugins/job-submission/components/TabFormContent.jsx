@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { FormTextFiled } from './FormTextFiled';
 import { FormDockerSection } from './FormDockerSection';
 import { FormPortsList } from './FormPortsList';
 import { FormPage } from './FormPage';
 import { Port } from '../models/port';
+import { JobTaskRole } from '../models/jobTaskRole';
 
 const updateTaskRoleProperty = (jobTaskRoleState, setJobTaskRoleState, propertyName, propertyValue) => {
   const udpatedJobTaskRole = {...jobTaskRoleState};
@@ -51,4 +53,9 @@ export const TabFormContent = (props) => {
       <FormPortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
     </FormPage>
   );
+}
+
+TabFormContent.protoTypes = {
+  jobTaskRole: PropTypes.instanceOf(JobTaskRole).required,
+  onContentChange: PropTypes.func,
 }

@@ -3,11 +3,11 @@ import { Label, TextField, PrimaryButton } from 'office-ui-fabric-react';
 import { getId } from 'office-ui-fabric-react/lib/Utilities'
 import { FormSection, FormColumn } from './FormPage';
 import { getFormPageSytle, getFromComponentsStyle } from './formStyle';
+import PropTypes from 'prop-types';
+import { DockerInfo } from '../models/dockerInfo'
 
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
-
-import { DockerInfo } from '../models/dockerInfo'
 
 export const FormDockerSection = (props) => {
   const textFieldId = getId('textField');
@@ -39,3 +39,8 @@ export const FormDockerSection = (props) => {
     </FormSection>
   );
 }
+
+FormDockerSection.propTypes = {
+  dockerInfo: PropTypes.instanceOf(DockerInfo).isRequired,
+  onValueChange: PropTypes.func,
+};

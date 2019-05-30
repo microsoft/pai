@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack, ActionButton, TextField, IconButton } from 'office-ui-fabric-react';
 import { marginSize } from './formStyle';
+import PropTypes from 'prop-types';
 
 const KeyValueItem = (props) => {
   const { itemKey, itemValue, onItemDelete, onItemChange } = props;
@@ -78,3 +79,11 @@ export class KeyValueList extends React.Component {
     );
   }
 }
+
+KeyValueList.propTypes = {
+  itemKey: PropTypes.string,
+  itemValue: PropTypes.string,
+  onItemDelete: PropTypes.func,
+  onItemChange: PropTypes.func,
+  onItemAdd: PropTypes.func,
+};

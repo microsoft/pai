@@ -2,7 +2,9 @@ import React from 'react';
 import { Label } from 'office-ui-fabric-react';
 import { FormSection, FormColumn } from './FormPage';
 import { getFormPageSytle, getFromComponentsStyle } from './formStyle';
-import { KeyValueList } from './KeyValueList';;
+import { KeyValueList } from './KeyValueList';
+import PropTypes from 'prop-types';
+import { Port } from '../models/port';
 
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
@@ -29,3 +31,10 @@ export const FormPortsList = (props) => {
     </FormSection>
   );
 }
+
+FormPortsList.propTypes = {
+  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
+  onPortChange: PropTypes.func,
+  onPortAdd: PropTypes.func,
+  onPortDelete: PropTypes.func,
+};

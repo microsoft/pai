@@ -3,6 +3,7 @@ import { getId } from 'office-ui-fabric-react/lib/Utilities';
 import { Label, TextField, Stack, Text } from 'office-ui-fabric-react';
 import { FormSection, FormColumn } from './FormPage';
 import { getFormPageSytle, getFromComponentsStyle, marginSize } from './formStyle';
+import PropTypes from 'prop-types';
 
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
@@ -29,3 +30,12 @@ export const FormTextFiled = (props) => {
     </FormSection>
   );
 }
+
+FormTextFiled.propTypes = {
+  label: PropTypes.string.isRequired,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  suffixText: PropTypes.string,
+  onChange: PropTypes.func,
+  value: PropTypes.string
+};
