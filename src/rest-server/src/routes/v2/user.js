@@ -42,7 +42,7 @@ router.route('/update/:username/extension')
   .put(token.check, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
 
 if (authnConfig.authnMethod === 'basic') {
-  router.route('/delete/:user')
+  router.route('/delete/:username')
   /** Delete /api/v2/user/delete/:username */
     .delete(token.check, userController.deleteUser);
 
@@ -51,7 +51,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
 
   router.route('/update/:username/password')
-  /** Update /api/v2/user/:username/password */
+  /** Update /api/v2/user/update/:username/password */
     .put(token.check, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
 
   router.route('/create')
