@@ -1,12 +1,11 @@
 import React from 'react';
-import { Label, TextField, PrimaryButton } from 'office-ui-fabric-react';
+import { TextField, DefaultButton, Stack } from 'office-ui-fabric-react';
 import { getId } from 'office-ui-fabric-react/lib/Utilities'
-import { FormSection, FormColumn } from './FormPage';
-import { getFormPageSytle, getFromComponentsStyle } from './formStyle';
+import { getFromComponentsStyle } from './formStyle';
 import PropTypes from 'prop-types';
 import { DockerInfo } from '../models/dockerInfo'
+import { BasicSection } from './BasicSection';
 
-const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormDockerSection = (props) => {
@@ -24,19 +23,16 @@ export const FormDockerSection = (props) => {
   };
 
   return (
-    <FormSection>
-      <FormColumn styles={formPageStyle.formFirstColumn}>
-        <Label htmlFor={textFieldId} styles={formComponentsStyles.label}>Docker</Label>
-      </FormColumn>
-      <FormColumn styles={formPageStyle.formSecondColunm}>
-        <TextField id={textFieldId}
+    <BasicSection label={'Docker'}>
+    <Stack horizontal gap={'4px'} styles={{root: {width: '85%'}}} >
+      <TextField id={textFieldId}
                    placeholder='Enter docker uri...'
                    styles={formComponentsStyles.textFiled}
                    onChange={onDockerUriChange}
                    value={dockerInfo.uri}/>
-        <span><PrimaryButton>Auth</PrimaryButton></span>
-      </FormColumn>
-    </FormSection>
+      <DefaultButton>Auth</DefaultButton>
+    </Stack>
+  </BasicSection>
   );
 }
 

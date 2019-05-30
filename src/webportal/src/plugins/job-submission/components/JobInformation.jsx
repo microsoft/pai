@@ -13,7 +13,7 @@ export const JobInformation= () => {
       <Text>Job Information</Text>
       <FormTextFiled label={'Job name'}/>
       <FormTextFiled label={'Virutual cluster'}/>
-      <FormTextFiled label={'Retry count'}/>
+      <FormTextFiled optional label={'Retry count'}/>
     </FormPage>
     </div>
   );

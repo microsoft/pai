@@ -7,6 +7,7 @@ import { FormPage } from './FormPage';
 import { Port } from '../models/port';
 import { JobTaskRole } from '../models/jobTaskRole';
 import { FormCompletion } from './ForCompletion';
+import { Deployment } from './Deployment';
 
 const updateTaskRoleProperty = (jobTaskRoleState, setJobTaskRoleState, propertyName, propertyValue) => {
   const udpatedJobTaskRole = {...jobTaskRoleState};
@@ -50,10 +51,10 @@ export const TabFormContent = (props) => {
       </FormDockerSection>
       <FormTextFiled label={'Instance'} textFiledProps={{placeholder: 'Enter instance number...'}}/>
       <FormPortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
-      <FormTextFiled label={'Task retry count'} suffixText='optional'/>
+      <FormTextFiled label={'Task retry count'} optional/>
       <FormCompletion/>
       <FormTextFiled label={'Command'} textFiledProps={{multiline: true, rows: 10}}/>
-      <FormTextFiled label={'Deloyment'} textFiledProps={{multiline: true, rows: 10}}/>
+      <Deployment/>
     </FormPage>
   );
 }

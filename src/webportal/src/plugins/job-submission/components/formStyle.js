@@ -65,22 +65,39 @@ export const getFormPageSytle = () => {
   });
 }
 
+export const getFormBasicSectionStyle = () => {
+  return ({
+    icon: {
+      root: {
+        fontSize: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        color: '#666666',
+        cursor: 'pointer',
+        userSelect: 'none'
+      }
+    },
+    optionalText: {
+      root: {
+        fontSize: '10px',
+        display: 'flex',
+        alignItems: 'center'
+      }
+    }
+  });
+}
+
 export const getFromComponentsStyle = () => {
   return ({
     label: {
       root: {
         fontSize: FontSizes.icon,
-        fontWeight: FontWeights.semibold
+        fontWeight: FontWeights.semibold,
       }
     },
     textFiled: {
       root: {
         width: '85%'
-      }
-    },
-    suffixText: {
-      root: {
-        margin: 'auto',
       }
     },
     formCompeletion: {

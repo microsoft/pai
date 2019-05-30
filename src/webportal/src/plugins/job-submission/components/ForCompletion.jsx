@@ -1,11 +1,10 @@
 import React from 'react';
 import { Label, Stack, TextField } from 'office-ui-fabric-react';
-import { FormSection, FormColumn } from './FormPage';
 import { getId } from 'office-ui-fabric-react/lib/Utilities';
-import { getFormPageSytle, getFromComponentsStyle, marginSize } from './formStyle';
+import { getFromComponentsStyle, marginSize } from './formStyle';
 import PropTypes from 'prop-types';
+import { BasicSection } from './BasicSection';
 
-const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormCompletion= (props) => {
@@ -15,21 +14,17 @@ export const FormCompletion= (props) => {
   const minSucceedInstancesId = getId('minSucceedInstances');
 
   return (
-  <FormSection>
-    <FormColumn styles={formPageStyle.formFirstColumn}>
-      <Label styles={formComponentsStyles.label}>Completion</Label>
-    </FormColumn>
-    <FormColumn styles={formPageStyle.formSecondColunm}>
+    <BasicSection label={'Completion'} optional>
       <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
-          <Label htmlFor={minFailedInstancesId} styles={formCompeletionStyle.label}>minFailedInstances</Label>
-          <TextField id={minFailedInstancesId} styles={formCompeletionStyle.textFiled} value={minFailedInstances}/>
+        <Label htmlFor={minFailedInstancesId} styles={formCompeletionStyle.label}>minFailedInstances</Label>
+        <TextField id={minFailedInstancesId} styles={formCompeletionStyle.textFiled} value={minFailedInstances} />
       </Stack>
       <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
         <Label htmlFor={minSucceedInstancesId} styles={formCompeletionStyle.label}>minSucceedInstances</Label>
-        <TextField id={minSucceedInstancesId} styles={formCompeletionStyle.textFiled} value={minSucceedInstances}/>
+        <TextField id={minSucceedInstancesId} styles={formCompeletionStyle.textFiled} value={minSucceedInstances} />
       </Stack>
-    </FormColumn>
-  </FormSection>);
+    </BasicSection>
+  );
 }
 
 FormCompletion.propTypes = {
