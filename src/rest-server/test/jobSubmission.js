@@ -647,6 +647,64 @@ describe('Submit job: POST /api/v1/jobs', () => {
         200,
         {}
       );
+    //
+    // Mock k8s secret return result
+    //
+    nock(global.apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '7573657231',
+        },
+        'data': {
+          'email': '',
+          'extension': 'e30=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
+          'username': 'dXNlcjE=',
+        },
+        'type': 'Opaque'
+      });
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
 
     // Add OS platform check
     // Since ssh-keygen package only works for Linux
