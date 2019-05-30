@@ -26,7 +26,7 @@ export const FormDockerSection = (props) => {
   return (
     <FormSection>
       <FormColumn styles={formPageStyle.formFirstColumn}>
-        <Label htmlFor={textFieldId} required styles={formComponentsStyles.label}>Docker</Label>
+        <Label htmlFor={textFieldId} styles={formComponentsStyles.label}>Docker</Label>
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
         <TextField id={textFieldId}

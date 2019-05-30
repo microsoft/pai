@@ -23,6 +23,7 @@ export const FormPortsList = (props) => {
         <Label styles={formComponentsStyles.label}>Ports</Label>
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
+        <span>Key value list</span>
         <KeyValueList items={ports.map((port)=>{return {itemKey: port.portLabel, itemValue: port.portValue};})}
                       onItemAdd={onPortAdd}
                       onItemDelete={onPortDelete}

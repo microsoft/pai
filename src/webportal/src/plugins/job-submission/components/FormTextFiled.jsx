@@ -9,21 +9,21 @@ const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormTextFiled = (props) => {
-  const {label, required, placeholder, suffixText, onChange, value } = props;
+  const {label, suffixText, onChange, value, textFiledProps } = props;
   const textFieldId = getId('textField');
 
   return (
     <FormSection>
       <FormColumn styles={formPageStyle.formFirstColumn}>
-        <Label htmlFor={textFieldId} required={required} styles={formComponentsStyles.label}>{label}</Label>
+        <Label htmlFor={textFieldId} styles={formComponentsStyles.label}>{label}</Label>
       </FormColumn>
       <FormColumn styles={formPageStyle.formSecondColunm}>
         <Stack horizontal gap={marginSize.s1}>
           <TextField id={textFieldId}
-                     placeholder={placeholder}
                      styles={formComponentsStyles.textFiled}
                      value={value}
-                     onChange={(_, value) => onChange(value)}/>
+                     onChange={(_, value) => onChange(value)}
+                     {...textFiledProps}/>
           <Text styles={formComponentsStyles.suffixText}>{suffixText}</Text>
         </Stack>
       </FormColumn>
@@ -33,9 +33,8 @@ export const FormTextFiled = (props) => {
 
 FormTextFiled.propTypes = {
   label: PropTypes.string.isRequired,
-  required: PropTypes.bool,
-  placeholder: PropTypes.string,
   suffixText: PropTypes.string,
   onChange: PropTypes.func,
-  value: PropTypes.string
+  value: PropTypes.string,
+  textFiledProps: PropTypes.object
 };

@@ -70,7 +70,7 @@ export const getFromComponentsStyle = () => {
     label: {
       root: {
         fontSize: FontSizes.icon,
-        fontWeight: FontWeights.regular
+        fontWeight: FontWeights.semibold
       }
     },
     textFiled: {
@@ -82,6 +82,25 @@ export const getFromComponentsStyle = () => {
       root: {
         margin: 'auto',
       }
+    },
+    formCompeletion: {
+      horizonStack: {
+        root: {
+          width: '85%'
+        }
+      },
+      textFiled: {
+        root: {
+          width: '75%'
+        }
+      },
+      label: {
+        root: {
+          width: '25%',
+          fontSize: FontSizes.icon,
+          fontWeight: FontWeights.regular,
+        }
+      },
     }
   });
 }

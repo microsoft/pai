@@ -5,6 +5,8 @@ import { TabForm, TabFormItem } from './TabForm';
 import { initializeIcons } from '@uifabric/icons';
 import { TabFormContent } from './TabFormContent';
 import { JobTaskRole } from '../models/jobTaskRole';
+import { JobInformation } from './JobInformation';
+import { Parameter } from './Parameter';
 
 
 initializeIcons();
@@ -58,13 +60,14 @@ export class App extends React.Component {
     return (
       <Customizer {...FluentCustomizations}>
         <Stack horizontal>
-          <Stack.Item grow={7} styles={{root: {maxWidth: '70%'}}}>
+          <Stack.Item grow={8} styles={{root: {maxWidth: '80%'}}}>
+            <JobInformation/>
             <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
               {this._getTabFormItems(items)}
             </TabForm>
           </Stack.Item>
           <Stack.Item grow={3} disableShrink>
-            Empty for something
+            <Parameter/>
           </Stack.Item>
         </Stack>
       </Customizer>

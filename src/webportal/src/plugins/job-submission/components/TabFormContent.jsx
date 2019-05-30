@@ -6,6 +6,7 @@ import { FormPortsList } from './FormPortsList';
 import { FormPage } from './FormPage';
 import { Port } from '../models/port';
 import { JobTaskRole } from '../models/jobTaskRole';
+import { FormCompletion } from './ForCompletion';
 
 const updateTaskRoleProperty = (jobTaskRoleState, setJobTaskRoleState, propertyName, propertyValue) => {
   const udpatedJobTaskRole = {...jobTaskRoleState};
@@ -41,16 +42,18 @@ export const TabFormContent = (props) => {
     <FormPage>
       <FormTextFiled label={'Task role name'}
                      required
-                     placeholder={'Enter task role name...'}
                      value={jobTaskRole.name}
-                     onChange={value=>onValueChange('name', value)}/>
+                     onChange={value=>onValueChange('name', value)}
+                     textFiledProps={{placeholder: 'Enter task role name...'}}/>
       <FormDockerSection dockerInfo={jobTaskRole.dockerInfo}
                          onValueChange={ dockerInfo=>onValueChange('dockerInfo', dockerInfo)}>
       </FormDockerSection>
-      <FormTextFiled label={'Retry count'} required placeholder={'Enter GPU number...'}/>
-      <FormTextFiled label={'Instance'} required placeholder={'Enter GPU number...'}/>
-      <FormTextFiled label={'Task retry count'} placeholder={'Enter GPU number...'} suffixText='optional'/>
+      <FormTextFiled label={'Instance'} textFiledProps={{placeholder: 'Enter instance number...'}}/>
       <FormPortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
+      <FormTextFiled label={'Task retry count'} suffixText='optional'/>
+      <FormCompletion/>
+      <FormTextFiled label={'Command'} textFiledProps={{multiline: true, rows: 10}}/>
+      <FormTextFiled label={'Deloyment'} textFiledProps={{multiline: true, rows: 10}}/>
     </FormPage>
   );
 }
