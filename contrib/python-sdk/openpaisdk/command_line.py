@@ -133,12 +133,13 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
 
     def do_action_attach_hdfs(self, args):
+        assert getattr(args, "cluster_alias", None), "must specify the cluster-alias"
         f = get_client_cfg(args.cluster_alias)
         f["match"].setdefault('storages', []).append({
             "storage_alias": args.storage_alias,
             "protocol": "webHDFS",
             "web_hdfs_uri": args.web_hdfs_uri,
-            "user": args.user if args.user else c['user'],
+            "user": args.user if args.user else f["match"]['user'],
         })
         to_file(f["all"], pai.__cluster_config_file__)
         return "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
@@ -422,10 +423,17 @@ class EngineRelease(EngineFactory):
 
 
 def main():
-    eng = EngineRelease()
-    result = eng.process(sys.argv[1:])
-    if result:
-        pprint(result)
+    try:
+        eng = EngineRelease()
+        result = eng.process(sys.argv[1:])
+        if result:
+            pprint(result)
+        return 0
+    except AssertionError as identifier:
+        print(identifier)
+        return 1
+    else:
+        return -1
 
 
 if __name__ == '__main__':

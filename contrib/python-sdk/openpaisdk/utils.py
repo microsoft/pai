@@ -2,10 +2,12 @@
 common functions to
 """
 import importlib
+import os
 from copy import deepcopy
 from requests import Response, request
 import subprocess
 from openpaisdk import __logger__
+from openpaisdk.io_utils import safe_chdir
 
 
 def find_match(lst: iter, key: str=None, attr: str=None, target=None):
@@ -32,7 +34,7 @@ def getobj(name: str):
 
 
 def get_response(
-    path: str, 
+    path: str,
     headers: dict = {'Content-Type': 'application/json'},
     body: dict = dict(),
     method: str = 'POST',
@@ -40,14 +42,14 @@ def get_response(
     max_try: int=1) -> Response:
     """
     Send request to REST server and get the response.
-    
+
     Args:
         path (str): REST server path
         headers (dict, optional): Defaults to {'Content-Type': 'application/json'}. request headers
         body (dict, optional): Defaults to dict(). data body of the request (default is json format)
         method (str, optional): Defaults to 'POST'. POST / PUT / GET
         allowed_status (list, optional): Defaults to [200]. raise exception if the status_code of response not in the list
-    
+
     Returns:
         [Response]: request response
     """
@@ -63,9 +65,12 @@ def get_response(
     assert successful, (response.status_code, response.reason)
     return response
 
+
 def run_command(commands, # type: Union[list, str]
                 cwd=None, # type: str
                 ):
-    if isinstance(commands, str):
-        commands = commands.split(" ")
-    return subprocess.check_call(commands, cwd=cwd if cwd else None)
+    command = commands if isinstance(commands,str) else " ".join(commands)
+    with safe_chdir(cwd):
+        rtn_code = os.system(command)
+        if rtn_code:
+            raise subprocess.CalledProcessError(rtn_code, commands)

@@ -91,6 +91,8 @@ def safe_chdir(pth:str):
     "safely change directory to pth, and then go back"
     currdir = os.getcwd()
     try:
+        if not pth:
+            pth = currdir
         os.chdir(pth)
         __logger__.info("changing directory to %s", pth)
         yield pth
