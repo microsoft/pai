@@ -271,10 +271,13 @@ async function get(frameworkName) {
     url: launcherConfig.frameworkPath(frameworkName),
     headers: launcherConfig.webserviceRequestHeaders(userName),
   });
-  if (response.status !== status('OK')) {
+  if (response.status === status('OK')) {
+    return response.data;
+  } else if (response.status === status('Not Found')) {
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  } else {
     throw createError(response.status, 'UnknownError', response.data.raw_body);
   }
-  return response.data;
 }
 
 async function put(frameworkName, config, rawConfig) {

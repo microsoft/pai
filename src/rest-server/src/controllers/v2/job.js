@@ -35,7 +35,7 @@ const update = asyncHandler(async (req, res) => {
       throw createError('Conflict', 'ConflictJobError', `Job ${frameworkName} already exists.`);
     }
   } catch (error) {
-    if (error.code === 'UnknownError') {
+    if (error.code !== 'NoJobError') {
       throw error;
     }
   }
