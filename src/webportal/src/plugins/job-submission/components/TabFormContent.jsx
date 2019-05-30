@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FormTextFiled } from './FormTextFiled';
 import { FormDockerSection } from './FormDockerSection';
-import { FormPortsList } from './FormPortsList';
+import { PortsList } from './PortsList';
 import { FormPage } from './FormPage';
 import { Port } from '../models/port';
 import { JobTaskRole } from '../models/jobTaskRole';
@@ -50,7 +50,7 @@ export const TabFormContent = (props) => {
                          onValueChange={ dockerInfo=>onValueChange('dockerInfo', dockerInfo)}>
       </FormDockerSection>
       <FormTextFiled label={'Instance'} textFiledProps={{placeholder: 'Enter instance number...'}}/>
-      <FormPortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></FormPortsList>
+      <PortsList ports={jobTaskRole.ports} onPortAdd={onPortAdd} onPortDelete={onPortDelete} onPortChange={onPortChange}></PortsList>
       <FormTextFiled label={'Task retry count'} optional/>
       <FormCompletion/>
       <FormTextFiled label={'Command'} textFiledProps={{multiline: true, rows: 10}}/>

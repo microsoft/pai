@@ -9,7 +9,7 @@ import { Port } from '../models/port';
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
 
-export const FormPortsList = (props) => {
+export const PortsList = (props) => {
   const { ports, onPortChange, onPortAdd, onPortDelete } = props;
 
   const _onPortChange = (index, item) => {
@@ -33,7 +33,7 @@ export const FormPortsList = (props) => {
   );
 }
 
-FormPortsList.propTypes = {
+PortsList.propTypes = {
   ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
   onPortChange: PropTypes.func,
   onPortAdd: PropTypes.func,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, ActionButton, TextField, IconButton } from 'office-ui-fabric-react';
+import { Stack, ActionButton, TextField, DefaultButton, DetailsList, CheckboxVisibility, DetailsListLayoutMode } from 'office-ui-fabric-react';
 import { marginSize } from './formStyle';
 import PropTypes from 'prop-types';
 
@@ -15,7 +15,7 @@ const KeyValueItem = (props) => {
   <Stack horizontal gap={marginSize.s1}>
     <TextField placeholder={'Enter a key'} value={itemKey} onChange={(_, value)=>onChange('itemKey', value)}></TextField>
     <TextField placeholder={'Enter a value'} value={itemValue} onChange={(_, value)=>onChange('itemValue', value)}></TextField>
-    <IconButton iconProps={{ iconName: 'Clear' }} onClick={onItemDelete}/>
+    <DefaultButton text='Remove' onClick={onItemDelete}/>
   </Stack>);
 }
 
@@ -75,6 +75,13 @@ export class KeyValueList extends React.Component {
           {itemsWithKey}
         </Stack>
         <ActionButton iconProps={{ iconName: 'Add' }} onClick={this._onItemAdd.bind(this)}>Add</ActionButton>
+        <DetailsList items={[{ Key: <TextField/>, value: <TextField/> }]} 
+                     checkboxVisibility={CheckboxVisibility.hidden}
+                     layoutMode={DetailsListLayoutMode.fixedColumns}/>
+        <DetailsList items={[{ name: 'Foo', value: 'value' }, { name: 'Bar' }]}
+                     checkboxVisibility={CheckboxVisibility.hidden}
+                     layoutMode={DetailsListLayoutMode.fixedColumns}
+                     isHeaderVisible={false}/>
       </Stack>
     );
   }

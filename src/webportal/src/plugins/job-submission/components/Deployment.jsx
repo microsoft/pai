@@ -6,13 +6,11 @@ import { BasicSection } from './BasicSection';
 const formComponentsStyles = getFromComponentsStyle();
 
 export const Deployment = (props) => {
-  const {minFailedInstances, minSucceedInstances} = props;
-  const formCompeletionStyle = formComponentsStyles.formCompeletion;
 
   return (
     <BasicSection label={'Deployment'} optional>
-      <TextField label={'PreCommands'} styles={formCompeletionStyle.textFiled} value={minFailedInstances} />
-      <TextField label={'PostCommands'} styles={formCompeletionStyle.textFiled} value={minSucceedInstances} />
+      <TextField label={'PreCommands'} />
+      <TextField label={'PostCommands'} />
     </BasicSection>
   );
 }
