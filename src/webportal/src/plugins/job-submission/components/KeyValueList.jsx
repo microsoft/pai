@@ -1,22 +1,20 @@
 import React from 'react';
-import { Stack, ActionButton, TextField, DefaultButton, DetailsList, CheckboxVisibility, DetailsListLayoutMode } from 'office-ui-fabric-react';
-import { marginSize } from './formStyle';
+import { Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
+         DetailsListLayoutMode, ColumnActionsMode, Separator } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-const KeyValueItem = (props) => {
-  const { itemKey, itemValue, onItemDelete, onItemChange } = props;
+const newKeyValueItem = (itemKey, itemValue, onItemDelete, onItemChange) => {
   const onChange = (propertyName, value) => {
     const item = {itemKey: itemKey, itemValue: itemValue};
     item[propertyName] = value;
     onItemChange(item);
   }
 
-  return (
-  <Stack horizontal gap={marginSize.s1}>
-    <TextField placeholder={'Enter a key'} value={itemKey} onChange={(_, value)=>onChange('itemKey', value)}></TextField>
-    <TextField placeholder={'Enter a value'} value={itemValue} onChange={(_, value)=>onChange('itemValue', value)}></TextField>
-    <DefaultButton text='Remove' onClick={onItemDelete}/>
-  </Stack>);
+  return ({
+    itemKey: <TextField placeholder={'Enter a key'} value={itemKey} onChange={(_, value)=>onChange('itemKey', value)}></TextField>,
+    itemValue: <TextField placeholder={'Enter a value'} value={itemValue} onChange={(_, value)=>onChange('itemValue', value)}></TextField>,
+    button: <DefaultButton text='Remove' onClick={onItemDelete}/>
+  });
 }
 
 export class KeyValueList extends React.Component {
@@ -26,15 +24,13 @@ export class KeyValueList extends React.Component {
 
   _renderItems(items) {
     if (items == undefined || items.length == 0) {
-      return null;
+      return [];
     }
 
-    return items.map((item, index) =>
-      <KeyValueItem key={index}
-                    itemKey={item.itemKey}
-                    itemValue={item.itemValue}
-                    onItemDelete={this._onItemDelete.bind(this, index)}
-                    onItemChange={this._onItemChange.bind(this, index)}/>
+    return items.map((item, index) => newKeyValueItem(item.itemKey,
+                                                      item.itemValue,
+                                                      this._onItemDelete.bind(this, index),
+                                                      this._onItemChange.bind(this, index))
     );
   }
 
@@ -68,20 +64,25 @@ export class KeyValueList extends React.Component {
 
   render() {
     const { items } = this.props;
-    const itemsWithKey = this._renderItems(items);
+    const dataItmes= this._renderItems(items);
+
+    const columns = [{ key: 'column1', name: 'Key', fieldName: 'itemKey' },
+                     { key: 'column2', name: 'Value', fieldName: 'itemValue'},
+                     { key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled}];
     return (
       <Stack>
-        <Stack gap={marginSize.s1}>
-          {itemsWithKey}
-        </Stack>
-        <ActionButton iconProps={{ iconName: 'Add' }} onClick={this._onItemAdd.bind(this)}>Add</ActionButton>
-        <DetailsList items={[{ Key: <TextField/>, value: <TextField/> }]} 
-                     checkboxVisibility={CheckboxVisibility.hidden}
-                     layoutMode={DetailsListLayoutMode.fixedColumns}/>
-        <DetailsList items={[{ name: 'Foo', value: 'value' }, { name: 'Bar' }]}
+        <DetailsList items={[{ itemKey: <TextField placeholder='Enter a key...'/>,
+                               itemValue: <TextField placeholder='Enter a value...'/>,
+                               button: <DefaultButton text='Add' onClick={this._onItemAdd.bind(this)}/> }]}
+                     columns={columns}
                      checkboxVisibility={CheckboxVisibility.hidden}
                      layoutMode={DetailsListLayoutMode.fixedColumns}
-                     isHeaderVisible={false}/>
+                     compact/>
+        <DetailsList items={dataItmes}
+                     checkboxVisibility={CheckboxVisibility.hidden}
+                     layoutMode={DetailsListLayoutMode.fixedColumns}
+                     isHeaderVisible={false}
+                     compact/>
       </Stack>
     );
   }

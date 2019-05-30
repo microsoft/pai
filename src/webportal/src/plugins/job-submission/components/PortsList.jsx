@@ -5,6 +5,7 @@ import { getFormPageSytle, getFromComponentsStyle } from './formStyle';
 import { KeyValueList } from './KeyValueList';
 import PropTypes from 'prop-types';
 import { Port } from '../models/port';
+import { BasicSection } from './BasicSection';
 
 const formPageStyle = getFormPageSytle();
 const formComponentsStyles = getFromComponentsStyle();
@@ -18,18 +19,12 @@ export const PortsList = (props) => {
   }
 
   return (
-    <FormSection>
-      <FormColumn styles={formPageStyle.formFirstColumn}>
-        <Label styles={formComponentsStyles.label}>Ports</Label>
-      </FormColumn>
-      <FormColumn styles={formPageStyle.formSecondColunm}>
-        <span>Key value list</span>
-        <KeyValueList items={ports.map((port)=>{return {itemKey: port.portLabel, itemValue: port.portValue};})}
+    <BasicSection label='Ports' optional>
+      <KeyValueList items={ports.map((port)=>{return {itemKey: port.portLabel, itemValue: port.portValue};})}
                       onItemAdd={onPortAdd}
                       onItemDelete={onPortDelete}
                       onItemChange={_onPortChange}/>
-      </FormColumn>
-    </FormSection>
+    </BasicSection>
   );
 }
 
