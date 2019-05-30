@@ -20,7 +20,7 @@
                 <th>CPUs</th>
                 <th>GPUs</th>
                 <th>Active Jobs</th>
-                <th>Status</th>
+                <th>State</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -42,13 +42,13 @@
                       <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
                     </td>
                     <td>
-                      <%= data[vcName]['resourcesUsed']['memory'] %> MB
+                      <%= Math.floor(data[vcName]['resourcesUsed']['memory']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['memory']) %> MB
                     </td>
                     <td>
-                      <%= data[vcName]['resourcesUsed']['vCores'] %>
+                      <%= Math.floor(data[vcName]['resourcesUsed']['vCores']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['vCores']) %>
                     </td>
                     <td>
-                      <%= data[vcName]['resourcesUsed']['GPUs'] %>
+                      <%= Math.floor(data[vcName]['resourcesUsed']['GPUs']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['GPUs']) %>
                     </td>
                     <td>
                       <%= data[vcName]['numJobs'] %>
@@ -86,7 +86,7 @@
               <th>CPUs</th>
               <th>GPUs</th>
               <th>Active Jobs</th>
-              <th>Status</th>
+              <th>State</th>
             </tr>
           </thead>
           <tbody>
@@ -101,13 +101,13 @@
                     <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
                   </td>
                   <td>
-                    <%= data[vcName]['resourcesUsed']['memory'] %> MB
+                    <%= Math.floor(data[vcName]['resourcesUsed']['memory']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['memory']) %> MB
                   </td>
                   <td>
-                    <%= data[vcName]['resourcesUsed']['vCores'] %>
+                    <%= Math.floor(data[vcName]['resourcesUsed']['vCores']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['vCores']) %>
                   </td>
                   <td>
-                    <%= data[vcName]['resourcesUsed']['GPUs'] %>
+                    <%= Math.floor(data[vcName]['resourcesUsed']['GPUs']) %>/<%= Math.floor(data[vcName]['resourcesTotal']['GPUs']) %>
                   </td>
                   <td>
                     <%= data[vcName]['numJobs'] %>

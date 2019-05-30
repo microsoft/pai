@@ -1,28 +1,3 @@
-/*
- * @Author: chenjie
- * @Date: 2019-05-28 16:30:45
- * @Last Modified by: mikey.zhaopeng
- * @Last Modified time: 2019-05-29 16:55:24
- */
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-//
-
 require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -43,6 +18,7 @@ let commonTable = null;
 let dedicateTable = null;
 let isAdmin = cookies.get('admin');
 //
+
 const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
@@ -89,7 +65,6 @@ const formatNumber = (x, precision) => {
 };
 
 //
-
 const resizeContentWrapper = () => {
   $('.dataTables_scrollBody').css('height', '200px');
   if (commonTable != null) {
@@ -258,7 +233,11 @@ const convertState = (name, state) => {
   } else if (state === 'STOPPED') {
     vcState = 'Stopped';
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
-  } else {
+  } else if (state === 'DRAINING') {
+    vcState = 'Stopping';
+    vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+  }
+   else {
     vcState = 'Unknown';
     vcStateChage = '';
   }
@@ -283,6 +262,7 @@ $(document).ready(() => {
   };
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
+
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();
