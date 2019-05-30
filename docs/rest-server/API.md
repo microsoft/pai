@@ -801,7 +801,10 @@ Status: 200
    "GPUs":0
   },
   "dedicated": true/false,
-  "state":"running"
+  // RUNNING: vc is enabled
+  // STOPPED: vc is disabled, without either new job or running job.
+  // DRAINING: intermedia state from RUNNING to STOPPED, in waiting on existing job.
+  "status":"RUNNING"/"STOPPED"/"DRAINING"
 }
 ```
 
