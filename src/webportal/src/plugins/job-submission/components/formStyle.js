@@ -23,11 +23,10 @@
  * SOFTWARE.
  */
 
-const mergeStyles = require('@uifabric/merge-styles');
-const styling = require('office-ui-fabric-react/lib/Styling');
-const {FontSizes, IconFontSizes, FontWeights} = styling;
+import {mergeStyleSets} from '@uifabric/merge-styles';
+import {FontSizes, IconFontSizes, FontWeights} from 'office-ui-fabric-react/lib/Styling';
 
-const marginSize = {
+export const marginSize = {
   l1: '20px',
   l2: '32px',
   m: '16px',
@@ -35,8 +34,8 @@ const marginSize = {
   s2: '4px',
 };
 
-const getFormClassNames = () => {
-  return mergeStyles.mergeStyleSets({
+export const getFormClassNames = () => {
+  return mergeStyleSets({
     topForm: {
       marginLeft: marginSize.l1,
       marginTop: marginSize.l1,
@@ -53,7 +52,7 @@ const getFormClassNames = () => {
   });
 };
 
-const getTabFromStyle = () => {
+export const getTabFromStyle = () => {
   return ({
     tab: {
       text: {
@@ -72,7 +71,7 @@ const getTabFromStyle = () => {
   });
 };
 
-const getFormPageSytle = () => {
+export const getFormPageSytle = () => {
   return ({
     formPage: {
       root: {
@@ -92,7 +91,7 @@ const getFormPageSytle = () => {
   });
 };
 
-const getFormBasicSectionStyle = () => {
+export const getFormBasicSectionStyle = () => {
   return ({
     icon: {
       root: {
@@ -114,7 +113,7 @@ const getFormBasicSectionStyle = () => {
   });
 };
 
-const getFromComponentsStyle = () => {
+export const getFromComponentsStyle = () => {
   return ({
     label: {
       root: {
@@ -149,7 +148,7 @@ const getFromComponentsStyle = () => {
   });
 };
 
-const getParameterStyle = () => {
+export const getParameterStyle = () => {
   return ({
     flexContainer: {
       alignItems: 'end',
@@ -159,14 +158,4 @@ const getParameterStyle = () => {
       height: 'auto',
     },
   });
-};
-
-module.exports = {
-  marginSize: marginSize,
-  getFormClassNames: getFormClassNames,
-  getTabFromStyle: getTabFromStyle,
-  getFormPageSytle: getFormPageSytle,
-  getFormBasicSectionStyle: getFormBasicSectionStyle,
-  getFromComponentsStyle: getFromComponentsStyle,
-  getParameterStyle: getParameterStyle,
 };

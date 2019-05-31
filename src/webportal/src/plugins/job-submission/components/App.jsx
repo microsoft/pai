@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {Customizer, Stack} from 'office-ui-fabric-react';
+import {Customizer, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import {FluentCustomizations} from '@uifabric/fluent-theme';
 import {TabForm, TabFormItem} from './TabForm';
 import {initializeIcons} from '@uifabric/icons';
@@ -90,6 +90,11 @@ export class App extends React.Component {
             <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
               {this._getTabFormItems(items)}
             </TabForm>
+            <Stack horizontal gap='s1' horizontalAlign='center'>
+              <PrimaryButton>Submit</PrimaryButton>
+              <DefaultButton>Edit YAML</DefaultButton>
+              <DefaultButton>Export</DefaultButton>
+            </Stack>
           </Stack.Item>
           <Stack.Item styles={{root: {width: '30%'}}}>
             <Parameter/>

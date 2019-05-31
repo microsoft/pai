@@ -24,39 +24,28 @@
  */
 
 import React from 'react';
-import {getId} from 'office-ui-fabric-react/lib/Utilities';
-import {TextField} from 'office-ui-fabric-react';
-import {getFromComponentsStyle} from './formStyle';
+import {Toggle, Stack, SpinButton} from 'office-ui-fabric-react';
+import {marginSize} from './formStyle';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 
-const formComponentsStyles = getFromComponentsStyle();
-
-export const FormTextFiled = (props) => {
-  const {label, onChange, value, textFiledProps, optional} = props;
-  const textFieldId = getId('textField');
-  const _onChange = (_, value) => {
-    if (onChange === undefined) {
-      return;
-    }
-    onChange(value);
-  };
-
+export const ContainerSize = (props) => {
   return (
-    <BasicSection label={label} optional={optional}>
-      <TextField id={textFieldId}
-                     styles={formComponentsStyles.textFiled}
-                     value={value}
-                     onChange={_onChange}
-                     {...textFiledProps}/>
+    <BasicSection label={'ContainerSize'}>
+      <Stack gap={marginSize.s1}>
+        <Stack horizontal>
+          <SpinButton label={'GPU count'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+          <Toggle defaultChecked={false} label='Custom' inlineLabel={true} styles={{label: {order: -1, marginRight: '4px'}}}/>
+        </Stack>
+        <SpinButton label={'CPU count'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+        <SpinButton label={'Memory (MB)'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+        <SpinButton label={'Shared memory (MB)'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+      </Stack>
     </BasicSection>
   );
 };
 
-FormTextFiled.propTypes = {
-  label: PropTypes.string.isRequired,
-  onChange: PropTypes.func,
-  value: PropTypes.string,
-  textFiledProps: PropTypes.object,
-  optional: PropTypes.bool,
+ContainerSize.propTypes = {
+  minFailedInstances: PropTypes.number,
+  minSucceedInstances: PropTypes.number,
 };

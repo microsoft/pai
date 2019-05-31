@@ -24,26 +24,19 @@
  */
 
 import React from 'react';
-import {Label, Stack, SpinButton} from 'office-ui-fabric-react';
-import {getFromComponentsStyle, marginSize} from './formStyle';
+import {Stack, SpinButton} from 'office-ui-fabric-react';
+import {marginSize} from './formStyle';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 
-const formComponentsStyles = getFromComponentsStyle();
-
 export const Completion= (props) => {
-  const {minFailedInstances, minSucceedInstances} = props;
-  const formCompeletionStyle = formComponentsStyles.formCompeletion;
-
   return (
     <BasicSection label={'Completion'} optional>
-      <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
-        <Label styles={formCompeletionStyle.label}>minFailedInstances</Label>
-        <SpinButton value={minFailedInstances} />
+      <Stack horizontal gap={marginSize.s1}>
+        <SpinButton label={'Min Failed Instances'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
       </Stack>
-      <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
-        <Label styles={formCompeletionStyle.label}>minSucceedInstances</Label>
-        <SpinButton value={minSucceedInstances} />
+      <Stack horizontal gap={marginSize.s1}>
+        <SpinButton label={'Min Succeed Instances'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
       </Stack>
     </BasicSection>
   );

@@ -23,9 +23,9 @@
  * SOFTWARE.
  */
 
-const {DockerInfo} = require('./dockerInfo');
+import {DockerInfo} from './dockerInfo';
 
-class JobTaskRole {
+export class JobTaskRole {
   constructor(name, instances, taskRetryCount, dockerInfo = new DockerInfo(), ports = []) {
     this.name = name;
     this.instances = instances;
@@ -41,6 +41,3 @@ class JobTaskRole {
   }
 }
 
-module.exports = {
-  JobTaskRole: JobTaskRole,
-};
