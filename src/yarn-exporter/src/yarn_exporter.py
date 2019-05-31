@@ -89,10 +89,6 @@ def gen_queue_pending_containers():
     return GaugeMetricFamily("yarn_queue_pending_container", "total pending container count in queue",
             labels=["queue"])
 
-def gen_queue_nodelist():
-    return GaugeMetricFamily("yarn_queue_nodelist", "avail node list for queue",
-            labels=["queue"])
-
 def gen_node_cpu_total():
     return GaugeMetricFamily("yarn_node_cpu_total", "total cpu core in node",
             labels=["node_ip"])
@@ -115,10 +111,6 @@ def gen_node_gpu_total():
 
 def gen_node_gpu_available():
     return GaugeMetricFamily("yarn_node_gpu_available", "available gpu in node",
-            labels=["node_ip"])
-
-def gen_node_nodelabel():
-    return GaugeMetricFamily("yarn_node_nodelabel", "yarn node-label",
             labels=["node_ip"])
 
 def gen_yarn_exporter_error():
@@ -219,7 +211,6 @@ class YarnCollector(object):
         node_count = NodeCount()
 
         labeled_resource = defaultdict(ResourceItem)
-        labeled_nodes = defaultdict(list)
 
         if response is not None:
             if response.status_code != 200:
@@ -229,7 +220,7 @@ class YarnCollector(object):
             else:
                 try:
                     metrics = YarnCollector.gen_nodes_metrics(response.json(),
-                            node_count, labeled_resource, labeled_nodes)
+                            node_count, labeled_resource)
                     for metric in metrics:
                         yield metric
                 except Exception as e:
@@ -257,7 +248,7 @@ class YarnCollector(object):
             else:
                 try:
                     metrics = YarnCollector.gen_scheduler_metrics(response.json(),
-                            labeled_resource, labeled_nodes)
+                            labeled_resource)
                     for metric in metrics:
                         yield metric
                 except Exception as e:
@@ -267,7 +258,7 @@ class YarnCollector(object):
         yield error_counter
 
     @staticmethod
-    def gen_nodes_metrics(obj, node_count, labeled_resource, labeled_nodes):
+    def gen_nodes_metrics(obj, node_count, labeled_resource):
         if obj["nodes"] is None:
             return []
 
@@ -279,7 +270,6 @@ class YarnCollector(object):
         node_avail_mem = gen_node_mem_available()
         node_total_gpu = gen_node_gpu_total()
         node_avail_gpu = gen_node_gpu_available()
-        node_nodelabel = gen_node_nodelabel()
 
         total_node = active_node = 0
 
@@ -311,21 +301,18 @@ class YarnCollector(object):
             node_avail_gpu.add_metric([ip], node["availableGPUs"])
 
             node_label = node.get("nodeLabels", [""])[0]
-            node_nodelabel.add_metric([ip], node_label)
 
             labeled_resource[node_label] += ResourceItem(cpu=total_cpu, mem=total_mem, gpu=total_gpu)
-            labeled_nodes[node_label].append(ip)
 
         node_count.total = total_node
         node_count.active = active_node
 
         return [node_total_cpu, node_avail_cpu,
                 node_total_mem, node_avail_mem,
-                node_total_gpu, node_avail_gpu,
-                node_nodelabel]
+                node_total_gpu, node_avail_gpu]
 
     @staticmethod
-    def gen_scheduler_metrics(obj, labeled_resource, labeled_nodes):
+    def gen_scheduler_metrics(obj, labeled_resource):
         if obj["scheduler"] is None:
             return []
 
@@ -342,7 +329,6 @@ class YarnCollector(object):
         pending_jobs = gen_queue_pending_jobs()
         running_containers = gen_queue_running_containers()
         pending_containers = gen_queue_pending_containers()
-        node_list = gen_queue_nodelist()
 
         for queue in scheduler_info["queues"]["queue"]:
             queue_name = queue["queueName"]
@@ -377,14 +363,12 @@ class YarnCollector(object):
             pending_jobs.add_metric([queue_name], queue["numPendingApplications"])
             running_containers.add_metric([queue_name], queue["numContainers"])
             pending_containers.add_metric([queue_name], queue["pendingContainers"])
-            node_list.add_metric([queue_name], ",".join(labeled_nodes[queue_nodelabel]))
 
         return [cpu_cap, cpu_avail,
                 mem_cap, mem_avail,
                 gpu_cap, gpu_avail,
                 running_jobs, pending_jobs,
-                running_containers, pending_containers,
-                node_list]
+                running_containers, pending_containers]
 
 class HealthResource(Resource):
     def render_GET(self, request):

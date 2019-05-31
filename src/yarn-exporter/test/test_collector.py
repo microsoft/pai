@@ -41,10 +41,9 @@ class TestYarnCollector(base.TestBase):
             obj = json.load(f)
 
         labeled_resource = defaultdict(yarn_exporter.ResourceItem)
-        labeled_nodes = defaultdict(list)
 
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
         self.assertEqual(1, node_count.total)
         self.assertEqual(1, node_count.active)
@@ -53,7 +52,7 @@ class TestYarnCollector(base.TestBase):
         self.assertEqual(184320 * 1024 * 1024, labeled_resource[""].mem)
         self.assertEqual(4, labeled_resource[""].gpu)
 
-        self.assertEqual(7, len(metrics))
+        self.assertEqual(6, len(metrics))
         # total cpu
         self.assertEqual(1, len(metrics[0].samples))
         self.assertEqual(24, metrics[0].samples[0].value)
@@ -83,17 +82,16 @@ class TestYarnCollector(base.TestBase):
             obj = json.load(f)
 
         labeled_resource = defaultdict(yarn_exporter.ResourceItem)
-        labeled_nodes = defaultdict(list)
 
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
         with open("data/scheduler") as f:
             obj = json.load(f)
 
-        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource)
 
-        self.assertEqual(11, len(metrics))
+        self.assertEqual(10, len(metrics))
 
         self.assertEqual(1, len(metrics[0].samples))
 
@@ -137,33 +135,25 @@ class TestYarnCollector(base.TestBase):
         self.assertEqual(1, len(metrics[9].samples))
         self.assertEqual(0, metrics[9].samples[0].value)
 
-        # node list
-        self.assertEqual(1, len(metrics[10].samples))
-        self.assertEqual("10.151.40.4", metrics[10].samples[0].value)
 
     def test_gen_metrics_with_label(self):
         with open("data/nodes_with_label.json") as f:
             obj = json.load(f)
 
         labeled_resource = defaultdict(yarn_exporter.ResourceItem)
-        labeled_nodes = defaultdict(list)
 
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
         self.assertDictEqual(labeled_resource, {"": yarn_exporter.ResourceItem(cpu=24, gpu=4, mem=204*1024*1024*1024),
                                                 "test_vc": yarn_exporter.ResourceItem(cpu=24, gpu=4, mem=204*1024*1024*1024)})
 
-        self.assertDictEqual(labeled_nodes,
-                             {"": ["10.151.40.131"],
-                              "test_vc": ["10.151.40.132"]})
-
         with open("data/scheduler_with_label.json") as f:
             obj = json.load(f)
 
-        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource)
 
-        self.assertEqual(11, len(metrics))
+        self.assertEqual(10, len(metrics))
         self.assertEqual(4, len(metrics[0].samples))
 
         ## total gpu
@@ -184,25 +174,15 @@ class TestYarnCollector(base.TestBase):
             elif sample.labels["queue"] == "vc_a":
                 self.assertEqual(sample.value, 0.4)
 
-        ## node list
-        for sample in metrics[10].samples:
-            if sample.labels["queue"] == "default":
-                self.assertEqual(sample.value, "10.151.40.131")
-            elif sample.labels["queue"] == "test_vc":
-                self.assertEqual(sample.value, "10.151.40.132")
-            elif sample.labels["queue"] == "vc_a":
-                self.assertEqual(sample.value, "10.151.40.131")
-
 
     def test_gen_nodes_metrics_using_empty_nodes(self):
         with open("data/empty_nodes") as f:
             obj = json.load(f)
 
         labeled_resource = defaultdict(yarn_exporter.ResourceItem)
-        labeled_nodes = defaultdict(list)
 
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource, labeled_nodes)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
 if __name__ == '__main__':
     unittest.main()
