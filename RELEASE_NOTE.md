@@ -8,7 +8,14 @@
   - Add new job submission v2 plugin ([#2461](https://github.com/microsoft/pai/pull/2461))
 
 * Web portal:
-  - Add new home page ([#2544](https://github.com/microsoft/pai/pull/2544), [#2614](https://github.com/microsoft/pai/pull/2614))
+  - Add login page for guests ([#2544](https://github.com/microsoft/pai/pull/2544))
+  - Add user home page ([#2614](https://github.com/microsoft/pai/pull/2614))
+    - Job Status
+    - My virtual clusters
+    - Available GPU nodes (whole cluster)
+    - My recent jobs
+
+    ![home](docs/images/home.png)
   - Add new user management page ([#2726](https://github.com/microsoft/pai/pull/2726), [#2796](https://github.com/microsoft/pai/pull/2796))
 
 
@@ -18,7 +25,7 @@
   - Update example jobs in marketplace v2 for PAI protocol ([#2827](https://github.com/microsoft/pai/pull/2827))
 
 * Web portal:
-  - Refine styles in job pages ([#2829](https://github.com/microsoft/pai/pull/2829))
+  - Refine styles in job pages ([#2829](https://github.com/microsoft/pai/pull/2829), [#2856](https://github.com/microsoft/pai/pull/2856), [#2858](https://github.com/microsoft/pai/pull/2858), [#2862](https://github.com/microsoft/pai/pull/2862))
   - Refine alert message in job pages ([#2698](https://github.com/microsoft/pai/pull/2698))
   - Reduce build bundle size ([#2715](https://github.com/microsoft/pai/pull/2715))
 
