@@ -25,8 +25,11 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
-    delete userInfo['password'];
+    const virtualCluster = groupModel.groupList2VirtualCluster(userInfo['grouplist']);
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    userInfo['virtualCluster'] = virtualCluster;
+    delete userInfo['password'];
+    delete userInfo['grouplist'];
     return res.status(200).json(userInfo);
   } catch (error) {
     if (error.status === 404) {
@@ -41,8 +44,11 @@ const getAllUser = async (req, res, next) => {
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
-      delete userItem['password'];
+      const virtualCluster = groupModel.groupList2VirtualCluster(userItem['grouplist']);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+      userItem['virtualCluster'] = virtualCluster;
+      delete userItem['password'];
+      delete userItem['grouplist'];
       retUserList.push(userItem);
     }
     return res.status(200).json(retUserList);
@@ -95,12 +101,19 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
   try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    let grouplist = groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    if (req.body.admin) {
+      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+    }
     const username = req.body.username;
     const userValue = {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
-      grouplist: req.body.grouplist,
+      grouplist: grouplist,
       extension: req.body.extension,
     };
     await userModel.createUser(username, userValue);
@@ -171,6 +184,21 @@ const updateUserPassword = async (req, res, next) => {
   }
 };
 
+const updateUserEmail = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const email = req.body.email;
+    let userInfo = await userModel.getUser(username);
+    userInfo['email'] = email;
+    await userModel.updateUser(username, userInfo);
+    return res.status(201).json({
+      message: 'Update user email data successfully.',
+    });
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
 const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -186,7 +214,6 @@ const deleteUser = async (req, res, next) => {
     return next(createError.unknown((error)));
   }
 };
-
 
 const checkUserPassword = async (req, res, next) => {
   try {
@@ -205,7 +232,6 @@ const checkUserPassword = async (req, res, next) => {
   }
 };
 
-
 // module exports
 module.exports = {
   getUser,
@@ -214,6 +240,7 @@ module.exports = {
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserGroupList,
+  updateUserEmail,
   deleteUser,
   updateUserPassword,
   createUser,

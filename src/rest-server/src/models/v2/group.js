@@ -134,6 +134,20 @@ const updateExternalName2Groupname = async () => {
   }
 };
 
+const virtualCluster2GroupList = async (virtualCluster) => {
+  const groupList = virtualCluster.split(',');
+  return groupList;
+};
+
+const groupList2VirtualCluster = async (grouplist) => {
+  let tmpGroupList = grouplist;
+  if (tmpGroupList.includes(authConfig.groupConfig.adminGroup.groupname)) {
+    tmpGroupList.splice(tmpGroupList.indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
+  }
+  return tmpGroupList.join(',');
+};
+
+
 if (config.env !== 'test') {
   (async function() {
     try {
@@ -247,7 +261,6 @@ if (config.env !== 'test') {
       } else {
         logger.info('No user\' grouplist need to be updated.')
       }
-
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -261,6 +274,8 @@ module.exports = {
   deleteGroup,
   createGroup,
   updateGroup,
+  virtualCluster2GroupList,
+  groupList2VirtualCluster,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
 };
