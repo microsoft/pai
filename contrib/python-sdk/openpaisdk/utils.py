@@ -21,6 +21,16 @@ def list2dict(lst: list, key: str, skip_key_err: bool=True):
     return {x[key]:x for x in lst if key in x}
 
 
+def append_or_update(lst: list, key: str, elem: dict):
+    dic = list2dict(lst, key)
+    if elem[key] in dic:
+        dic[elem[key]].update(elem)
+        return True
+    else:
+        lst.append(elem)
+        return False
+
+
 def merge_two_object(a: dict, b: dict):
     y = deepcopy(a)
     y.update(b)

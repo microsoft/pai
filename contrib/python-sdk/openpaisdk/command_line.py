@@ -16,7 +16,7 @@ from openpaisdk.core import Cluster
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.job import Job, JobSpec, TaskRole
 from openpaisdk.runtime import runtime_execute
-from openpaisdk.utils import list2dict
+from openpaisdk.utils import list2dict, append_or_update
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -108,23 +108,26 @@ class ActionFactoryForCluster(ActionFactory):
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         Cluster().define(parser)
 
+    def check_arguments_add(self, args):
+        if not args.pai_uri.startswith("http://") or not args.pai_uri.startswith("https://"):
+            __logger__.warn("pai-uri not starts with http:// or https://")
+
     def do_action_add(self, args):
-        f = get_client_cfg(args.cluster_alias)
-        cfgs, idx = f["all"], f["index"]
+        cfgs = get_client_cfg(args.cluster_alias)["all"]
         cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
         __logger__.debug('new cluster info is %s', cfg_new)
-        result = []
-        if idx == -1:
-            cfgs.append(cfg_new)
-            result.append('cluster %s added to %s' % (args.cluster_alias, pai.__cluster_config_file__))
+        if append_or_update(cfgs, "cluster_alias", cfg_new):
+            result = 'cluster %s already exists in %s, overwrite its config' % (args.cluster_alias, pai.__cluster_config_file__)
         else:
-            result.append('cluster %s already exists in %s, overwrite its config' % (args.cluster_alias, pai.__cluster_config_file__))
-            cfgs[idx] = cfg_new
+            result = 'cluster %s added to %s' % (args.cluster_alias, pai.__cluster_config_file__)
         to_file(cfgs, pai.__cluster_config_file__)
         return result
 
     def define_arguments_select(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['cluster_alias'])
+
+    def check_arguments_select(self, args):
+        Action.not_not(args, ['cluster_alias'])
 
     def do_action_select(self, args):
         return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
@@ -132,17 +135,25 @@ class ActionFactoryForCluster(ActionFactory):
     def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
 
+    def check_arguments_attach_hdfs(self, args):
+        Action.not_not(args, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri'])
+        if not args.web_hdfs_uri.startswith("http://") or not args.web_hdfs_uri.startswith("https://"):
+            __logger__.warn("web-hdfs-uri not starts with http:// or https://")
+
     def do_action_attach_hdfs(self, args):
-        assert getattr(args, "cluster_alias", None), "must specify the cluster-alias"
         f = get_client_cfg(args.cluster_alias)
-        f["match"].setdefault('storages', []).append({
+        elem = {
             "storage_alias": args.storage_alias,
             "protocol": "webHDFS",
             "web_hdfs_uri": args.web_hdfs_uri,
             "user": args.user if args.user else f["match"]['user'],
-        })
+        }
+        if append_or_update(f["match"].setdefault('storages', []), "storage_alias", elem):
+            result = "storage %s already exists in %s, updated" % (args.storage_alias, args.cluster_alias)
+        else:
+            result = "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
         to_file(f["all"], pai.__cluster_config_file__)
-        return "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
+        return result
 
 
 class ActionFactoryForJob(ActionFactory):
