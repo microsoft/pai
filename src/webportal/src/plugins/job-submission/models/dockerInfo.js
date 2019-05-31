@@ -1,9 +1,9 @@
 export class DockerInfo {
 
-  constructor() {
-    this.name;
-    this.uri;
-    this.auth;
+  constructor(name, uri, auth) {
+    this.name = name;
+    this.uri = uri;
+    this.auth = auth;
   }
 
   convertToProtocolFormat() {

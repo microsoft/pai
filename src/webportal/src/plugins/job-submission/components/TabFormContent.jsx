@@ -4,7 +4,6 @@ import { FormTextFiled } from './FormTextFiled';
 import { FormDockerSection } from './FormDockerSection';
 import { PortsList } from './PortsList';
 import { FormPage } from './FormPage';
-import { Port } from '../models/port';
 import { JobTaskRole } from '../models/jobTaskRole';
 import { Completion } from './Completion';
 import { Deployment } from './Deployment';

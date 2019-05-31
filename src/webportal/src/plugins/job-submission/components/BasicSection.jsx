@@ -27,7 +27,7 @@ export const BasicSection = (props) => {
   return (
     <FormSection>
       <FormColumn styles={formPageStyle.formFirstColumn}>
-        <Stack horizontal gap={'4px'}>
+        <Stack horizontal gap={marginSize.s2}>
           { optional && <Icon  iconName={iconName}
               styles={basicSectionStyle.icon} onClick={onOpenItem}/> }
           <Label htmlFor={textFieldId} styles={formComponentsStyles.label}>{label}</Label>

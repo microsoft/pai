@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { getFormClassNames } from './formStyle'
+import { getFormClassNames, getParameterStyle } from './formStyle'
 import { Text, DetailsList, CheckboxVisibility, Stack, ActionButton } from 'office-ui-fabric-react';
 import { KeyValueList } from './KeyValueList';
 
 const { topForm } = getFormClassNames();
+const parameterStyle = getParameterStyle();
 
 const columns = [{ key: 'column1', name: 'Key', fieldName: 'itemKey' },
                  { key: 'column2', name: 'Value', fieldName: 'itemValue'}];
@@ -25,7 +26,7 @@ export const Parameter= () => {
     <Stack>
       <Stack horizontal>
         <Text>Parameter</Text>
-        <ActionButton iconProps={{iconName: iconName}} styles={{flexContainer: {alignItems: 'end', height: 'auto'}, root: {height: 'auto'}}} onClick={onClick}/>
+        <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle} onClick={onClick}/>
       </Stack>
       {
         !isParameterOn && <Text>you could use these predefined parameters as command variables with prefix '$'</Text>

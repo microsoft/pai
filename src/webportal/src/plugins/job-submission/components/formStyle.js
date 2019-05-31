@@ -5,7 +5,8 @@ export const marginSize = {
   l1: '20px',
   l2: '32px',
   m: '16px',
-  s1: '8px'
+  s1: '8px',
+  s2: '4px',
 };
 
 export const getFormClassNames  = () => {
@@ -118,6 +119,18 @@ export const getFromComponentsStyle = () => {
           fontWeight: FontWeights.regular,
         }
       },
+    }
+  });
+}
+
+export const getParameterStyle = () => {
+  return ({
+    flexContainer: {
+      alignItems: 'end',
+      height: 'auto'
+    },
+    root: {
+      height: 'auto'
     }
   });
 }
