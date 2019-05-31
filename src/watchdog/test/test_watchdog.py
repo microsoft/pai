@@ -67,7 +67,8 @@ class TestJobExporter(unittest.TestCase):
         container_gauge = watchdog.gen_pai_container_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, [])
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, [],
+                watchdog.VcUsage())
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertTrue(len(container_gauge.samples) > 0)
@@ -89,7 +90,8 @@ class TestJobExporter(unittest.TestCase):
         container_gauge = watchdog.gen_pai_container_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, [])
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, [],
+                watchdog.VcUsage())
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -104,7 +106,8 @@ class TestJobExporter(unittest.TestCase):
                 pod_info = collections.defaultdict(lambda : [])
 
                 watchdog.process_pods_status(obj,
-                        pod_gauge, container_gauge, pod_info, [])
+                        pod_gauge, container_gauge, pod_info, [],
+                        watchdog.VcUsage())
 
                 yield pod_gauge
                 yield container_gauge
@@ -167,12 +170,80 @@ class TestJobExporter(unittest.TestCase):
         for gauge in gauges[1:]:
             self.assertEqual("192.168.255.1", gauge.samples[0].labels["host_ip"])
 
+    def test_process_vc_quota(self):
+        obj = json.loads(self.get_data_test_input("data/vc_quota.json"))
+        quota_info = watchdog.process_vc_quota(obj)
+
+        target = {"platform": 20, "vc1": 6, "bert": 0, "multimedia": 0, "quantus": 0,
+                "relevance": 0}
+
+        self.assertEqual(target, quota_info)
+
+    def test_process_vc_info(self):
+        vc_total = watchdog.gen_k8s_vc_gpu_total()
+        vc_avail = watchdog.gen_k8s_vc_gpu_available()
+        vc_preemptive_avail = watchdog.gen_k8s_vc_gpu_preemptive_available()
+
+        vc_info = {"default": 20, "platform": 10, "relevance": 4}
+
+        vc_usage = watchdog.VcUsage()
+
+        vc_usage.add_preemptable_used("default", 15)
+        vc_usage.add_used("default", 10)
+
+        vc_usage.add_used("platform", 3)
+
+        watchdog.process_vc_info(vc_info, vc_usage, vc_total, vc_avail, vc_preemptive_avail)
+
+        self.assertEqual(3, len(vc_total.samples))
+        for sample in vc_total.samples:
+            vc_name = sample.labels["vc_name"]
+            self.assertEqual(vc_info[vc_name], sample.value)
+
+        target_vc_avail = {"default": -5, "platform": 7, "relevance": 4}
+
+        self.assertEqual(3, len(vc_avail.samples))
+        for sample in vc_avail.samples:
+            vc_name = sample.labels["vc_name"]
+            self.assertEqual(target_vc_avail[vc_name], sample.value, "vc " + vc_name)
+
+        target_vc_preemptive_avail = {"default": 10, "platform": 7, "relevance": 4}
+
+        self.assertEqual(3, len(vc_preemptive_avail.samples))
+        for sample in vc_preemptive_avail.samples:
+            vc_name = sample.labels["vc_name"]
+            self.assertEqual(target_vc_preemptive_avail[vc_name], sample.value,
+                    "vc " + vc_name)
+
+    def test_process_pods_with_vc_usage(self):
+        obj = json.loads(self.get_data_test_input("data/dlts_non_preemptable_pod.json"))
+
+        pod_gauge = watchdog.gen_pai_pod_gauge()
+        container_gauge = watchdog.gen_pai_container_gauge()
+        pod_info = collections.defaultdict(lambda : [])
+
+        vc_usage = watchdog.VcUsage()
+
+        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
+                vc_usage)
+
+        self.assertEqual(1, vc_usage.map["some_vc_name"][0])
+        self.assertEqual(1, vc_usage.map["some_vc_name"][1])
+
+        obj = json.loads(self.get_data_test_input("data/dlts_preemptable_pod.json"))
+        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
+                vc_usage)
+
+        self.assertEqual(2, vc_usage.map["some_vc_name"][0])
+        self.assertEqual(1, vc_usage.map["some_vc_name"][1])
+
     def test_parse_monitor_response_time(self):
         obj = json.loads(self.get_data_test_input("data/pods_with_response_time_monitor.json"))
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
         pod_info = collections.defaultdict(lambda : [])
+
         endpoints = []
 
         watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, endpoints)
