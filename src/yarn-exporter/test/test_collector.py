@@ -139,7 +139,7 @@ class TestYarnCollector(base.TestBase):
 
         # node list
         self.assertEqual(1, len(metrics[10].samples))
-        self.assertEqual(["10.151.40.4"], metrics[10].samples[0].value)
+        self.assertEqual("10.151.40.4", metrics[10].samples[0].value)
 
     def test_gen_metrics_with_label(self):
         with open("data/nodes_with_label.json") as f:
@@ -187,11 +187,11 @@ class TestYarnCollector(base.TestBase):
         ## node list
         for sample in metrics[10].samples:
             if sample.labels["queue"] == "default":
-                self.assertEqual(sample.value, ["10.151.40.131"])
+                self.assertEqual(sample.value, "10.151.40.131")
             elif sample.labels["queue"] == "test_vc":
-                self.assertEqual(sample.value, ["10.151.40.132"])
+                self.assertEqual(sample.value, "10.151.40.132")
             elif sample.labels["queue"] == "vc_a":
-                self.assertEqual(sample.value, ["10.151.40.131"])
+                self.assertEqual(sample.value, "10.151.40.131")
 
 
     def test_gen_nodes_metrics_using_empty_nodes(self):

@@ -377,7 +377,7 @@ class YarnCollector(object):
             pending_jobs.add_metric([queue_name], queue["numPendingApplications"])
             running_containers.add_metric([queue_name], queue["numContainers"])
             pending_containers.add_metric([queue_name], queue["pendingContainers"])
-            node_list.add_metric([queue_name], labeled_nodes[queue_nodelabel])
+            node_list.add_metric([queue_name], ",".join(labeled_nodes[queue_nodelabel]))
 
         return [cpu_cap, cpu_avail,
                 mem_cap, mem_avail,
