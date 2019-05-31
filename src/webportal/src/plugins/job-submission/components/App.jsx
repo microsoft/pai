@@ -60,13 +60,13 @@ export class App extends React.Component {
     return (
       <Customizer {...FluentCustomizations}>
         <Stack horizontal>
-          <Stack.Item grow={8} styles={{root: {maxWidth: '80%'}}}>
+          <Stack.Item styles={{root: {width: '70%'}}}>
             <JobInformation/>
             <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
               {this._getTabFormItems(items)}
             </TabForm>
           </Stack.Item>
-          <Stack.Item grow={3} disableShrink>
+          <Stack.Item styles={{root: {width: '30%'}}}>
             <Parameter/>
           </Stack.Item>
         </Stack>

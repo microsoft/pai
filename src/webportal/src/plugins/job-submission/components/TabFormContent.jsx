@@ -23,9 +23,9 @@ export const TabFormContent = (props) => {
   const onValueChange = updateTaskRoleProperty.bind(this, jobTaskRole, setJobTaskRoleState);
   useEffect(()=>{ onContentChange(jobTaskRoleState);}, [jobTaskRoleState]);
 
-  const onPortAdd = () => {
+  const onPortAdd = (port) => {
     const {ports} = jobTaskRole;
-    ports.push(new Port());
+    ports.push(port);
     onValueChange('ports', ports);
   };
   const onPortDelete = (index) => {

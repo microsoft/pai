@@ -1,18 +1,12 @@
 import React from 'react';
 import { Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
-         DetailsListLayoutMode, ColumnActionsMode, Separator } from 'office-ui-fabric-react';
+         DetailsListLayoutMode, ColumnActionsMode, Text, DetailsRow } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-const newKeyValueItem = (itemKey, itemValue, onItemDelete, onItemChange) => {
-  const onChange = (propertyName, value) => {
-    const item = {itemKey: itemKey, itemValue: itemValue};
-    item[propertyName] = value;
-    onItemChange(item);
-  }
-
+const newKeyValueItem = (itemKey, itemValue, onItemDelete) => {
   return ({
-    itemKey: <TextField placeholder={'Enter a key'} value={itemKey} onChange={(_, value)=>onChange('itemKey', value)}></TextField>,
-    itemValue: <TextField placeholder={'Enter a value'} value={itemValue} onChange={(_, value)=>onChange('itemValue', value)}></TextField>,
+    itemKey: <Text>{itemKey}</Text>,
+    itemValue: <Text>{itemValue}</Text>,
     button: <DefaultButton text='Remove' onClick={onItemDelete}/>
   });
 }
@@ -20,6 +14,10 @@ const newKeyValueItem = (itemKey, itemValue, onItemDelete, onItemChange) => {
 export class KeyValueList extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      itemKey: '',
+      itemValue: ''
+    }
   }
 
   _renderItems(items) {
@@ -29,18 +27,8 @@ export class KeyValueList extends React.Component {
 
     return items.map((item, index) => newKeyValueItem(item.itemKey,
                                                       item.itemValue,
-                                                      this._onItemDelete.bind(this, index),
-                                                      this._onItemChange.bind(this, index))
+                                                      this._onItemDelete.bind(this, index))
     );
-  }
-
-  _onItemChange(index, newItem) {
-    const { onItemChange } = this.props;
-    if (onItemChange === undefined) {
-      return;
-    }
-    
-    onItemChange(index, newItem);
   }
 
   _onItemDelete(index) {
@@ -54,34 +42,50 @@ export class KeyValueList extends React.Component {
 
   _onItemAdd() {
     const { onItemAdd } = this.props;
+    const item = this.state;
 
     if (onItemAdd === undefined) {
       return;
     }
 
-    onItemAdd();
+    onItemAdd(item);
+  }
+
+  _onRenderDetailsHeader(detailsHeaderProps, defaultRender) {
+    const {itemKey, itemValue} = this.state;
+    return (
+      <Stack>
+        {defaultRender(detailsHeaderProps)}
+        <DetailsRow
+          {...detailsHeaderProps}
+          columns={detailsHeaderProps.columns}
+          item={{itemKey: <TextField placeholder='Enter a key...'
+                                     value={itemKey}
+                                     onChange = {(_, itemKey)=>this.setState({itemKey: itemKey})}/>,
+                 itemValue: <TextField placeholder='Enter a value...'
+                                       value={itemValue}
+                                       onChange = {(_, itemValue)=>this.setState({itemValue: itemValue})}/>,
+                 button: <DefaultButton text='Add' onClick={this._onItemAdd.bind(this)}/>}}
+          itemIndex={-1}
+        />
+      </Stack>
+    );
   }
 
   render() {
     const { items } = this.props;
-    const dataItmes= this._renderItems(items);
+    const dataItems= this._renderItems(items);
 
     const columns = [{ key: 'column1', name: 'Key', fieldName: 'itemKey' },
                      { key: 'column2', name: 'Value', fieldName: 'itemValue'},
                      { key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled}];
     return (
       <Stack>
-        <DetailsList items={[{ itemKey: <TextField placeholder='Enter a key...'/>,
-                               itemValue: <TextField placeholder='Enter a value...'/>,
-                               button: <DefaultButton text='Add' onClick={this._onItemAdd.bind(this)}/> }]}
+        <DetailsList items={dataItems}
                      columns={columns}
                      checkboxVisibility={CheckboxVisibility.hidden}
                      layoutMode={DetailsListLayoutMode.fixedColumns}
-                     compact/>
-        <DetailsList items={dataItmes}
-                     checkboxVisibility={CheckboxVisibility.hidden}
-                     layoutMode={DetailsListLayoutMode.fixedColumns}
-                     isHeaderVisible={false}
+                     onRenderDetailsHeader={this._onRenderDetailsHeader.bind(this)}
                      compact/>
       </Stack>
     );

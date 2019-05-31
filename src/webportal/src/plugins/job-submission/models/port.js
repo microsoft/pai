@@ -1,7 +1,7 @@
 export class Port {
-  constructor() {
-    this.portLabel;
-    this.portNumber;
+  constructor(portLabel, portNumber) {
+    this.portLabel = portLabel;
+    this.portNumber = portNumber;
   }
 
   convertToProtocolFormat() {
