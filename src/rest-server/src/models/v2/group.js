@@ -135,14 +135,16 @@ const updateExternalName2Groupname = async () => {
 };
 
 const virtualCluster2GroupList = async (virtualCluster) => {
-  const groupList = virtualCluster;
+  const groupList = virtualCluster.slice(0);
   return groupList;
 };
 
 const groupList2VirtualCluster = async (grouplist) => {
-  let ret = grouplist;
-  if (ret.includes(authConfig.groupConfig.adminGroup.groupname)) {
-    ret.splice(ret.indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
+  let ret = [];
+  for (const groupname of grouplist) {
+    if (groupname !== authConfig.groupConfig.adminGroup.groupname) {
+      ret.push(groupname);
+    }
   }
   return ret;
 };

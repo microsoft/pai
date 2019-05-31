@@ -44,9 +44,7 @@ const getAllUser = async (req, res, next) => {
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
-      console.log(userItem['grouplist']);
       const virtualCluster = await groupModel.groupList2VirtualCluster(userItem['grouplist']);
-      console.log(userItem['grouplist']);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
       userItem['virtualCluster'] = virtualCluster;
       delete userItem['password'];
