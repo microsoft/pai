@@ -2,6 +2,7 @@
 """
 import argparse
 import inspect
+import typing
 from copy import deepcopy
 from openpaisdk import __defaults__, __logger__
 
@@ -157,3 +158,10 @@ def cli_add_arguments(target: Namespace, parser: argparse.ArgumentParser, args: 
         else:
             target.add_argument(parser, *args, **kwargs)
 
+
+def not_not(args: typing.Union[argparse.Namespace, Namespace], keys: list):
+    "all fields (named in keys) of args can not be None or empty string ((not args.keys) == False)"
+    for key in keys:
+        k = key[2:] if key.startswith("--") else key
+        k = k.replace('-', '_')
+        assert getattr(args, k, None), "arguments %s not defined" % key

@@ -22,13 +22,6 @@ class Action:
     def do_action(self, args):
         raise NotImplementedError
 
-    @staticmethod
-    def not_not(args, keys: list):
-        for key in keys:
-            k = key[2:] if key.startswith("--") else key
-            k = k.replace('-', '_')
-            assert getattr(args, k, None), "arguments %s not defined" % key
-
 class ActionFactory(Action):
 
     def __init__(self, action: str, allowed_actions: dict):

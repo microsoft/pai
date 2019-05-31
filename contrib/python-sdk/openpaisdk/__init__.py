@@ -1,21 +1,45 @@
-import importlib
 import logging
 import os
-import json
 
 
-def getobj(name: str):
-    mod_name, func_name = name.rsplit('.',1)
-    mod = importlib.import_module(mod_name)
-    return getattr(mod, func_name)
+def return_default_if_error(func):
+    def f(*args, default="==FATAL==", **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as identifier:
+            if default == "==FATAL==":
+                __logger__.error('Error: %s', e, exc_info=True)
+            __logger__.debug('error occurs, return default (%s)', default)
+            return default
+    return f
 
 
-def from_json_file(fname: str, default={}):
-    try:
-        with open(fname) as fp:
-            return json.load(fp)
-    except Exception:
-        return default
+@return_default_if_error
+def from_json_file(fname: str, **kwargs):
+	import json
+	with open(fname) as fp:
+		return json.load(fp, **kwargs)
+
+
+@return_default_if_error
+def from_yaml_file(fname: str, **kwargs):
+	import yaml
+	with open(fname) as fp:
+		kwargs.setdefault('Loader', yaml.FullLoader)
+		return yaml.load(fp, **kwargs)
+
+
+def get_client_cfg(alias, mask_passwd: bool=False):
+    cfgs = from_yaml_file(__cluster_config_file__, default=[])
+    if mask_passwd:
+        for c in cfgs:
+            c["passwd"] = "******"
+    f = [(c,i) for i, c in enumerate(cfgs) if not alias or c['cluster_alias'] == alias]
+    return {
+        "all": cfgs,
+        "match": f[0][0] if f else None,
+        "index": f[0][1] if f else -1,
+    }
 
 
 __cluster_config_file__ = os.path.join(os.path.expanduser('~'), '.openpai', 'clusters.yaml')

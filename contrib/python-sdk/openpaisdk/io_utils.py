@@ -4,7 +4,7 @@ import shutil
 import fnmatch
 from contextlib import contextmanager
 import json
-from openpaisdk import __logger__
+from openpaisdk import __logger__, from_json_file, from_yaml_file
 from urllib.request import urlopen
 from urllib.parse import urlparse, urlsplit
 from urllib.request import urlretrieve
@@ -39,26 +39,11 @@ def web_download_to_folder(url: str, folder: str, filename: str=None):
         __logger__.error("failed to download", exc_info=True)
 
 
-def from_file(fname: str, default={}, fmt=None, **kwargs):
-    try:
-        if not fmt:
-            _, ext = os.path.splitext(fname)
-            if ext in __json_exts__:
-                fmt = json
-            elif ext in __yaml_exts__:
-                import yaml
-                fmt = yaml
-                kwargs.setdefault('Loader', yaml.FullLoader)
-            else:
-                __logger__.error('unrecognized file extension %s', ext, exc_info=True)
-        with open(fname) as fn:
-            __logger__.debug('Deserializing from %s', fname)
-            return fmt.load(fn, **kwargs)
-    except Exception as e:
-        if default == '==FATAL==':
-            __logger__.error('IO Err: %s', e, exc_info=True)
-        __logger__.debug('Deserializing %s failed (%s), return default', fname, e)
-        return default
+def from_file(fname: str, default={}, fmt: str=None, **kwargs):
+    if fmt == "json" or os.path.splitext(fname)[1] in __json_exts__:
+        return from_json_file(fname, default=default, **kwargs)
+    if fmt == "yaml" or os.path.splitext(fname)[1] in __yaml_exts__:
+        return from_yaml_file(fname, default=default, **kwargs)
 
 
 def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):

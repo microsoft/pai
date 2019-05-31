@@ -1,7 +1,8 @@
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import merge_two_object
 from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__, __sdk_branch__
+from openpaisdk import get_client_cfg
 import argparse
 import os
 
@@ -17,13 +18,24 @@ class JobSpec(Namespace):
             '--job-name',
             '--cluster-alias',
             '--storage-alias', # use which storage for code transfer
-            '--v2',
             '--workspace',
             '--code-dir',
             '--sources',
             '--image',
             '--disable-sdk-install'
-                      ])
+        ])
+
+    def validate(self):
+        not_not(self, [
+            '--job-name',
+            '--cluster-alias',
+            '--workspace',
+            '--image',
+        ])
+        for a in ['sources']:
+            if getattr(self, a) is None:
+                setattr(self, a, [])
+
 
     def add_source(self, fname: str):
         if fname not in self.sources:
@@ -45,7 +57,7 @@ class TaskRole(Namespace):
             '--task-number',
             '--cpu', '--gpu', '--mem',
             'commands'
-                      ])
+        ])
 
 
 __known_executables__ = ['python', 'python3', 'shell', 'sh', 'bash', 'ksh', 'csh', 'perl']
@@ -79,9 +91,6 @@ class Job(JobSpec):
         to_file(self.to_dict(), fname)
 
     def to_job_config_v1(self, save_to_file: str=None, cluster_info: dict=None) -> dict:
-        for a in ['sources']:
-            if getattr(self, a) is None:
-                setattr(self, a, [])
         dic = dict(
             jobName=self.job_name,
             image=self.image,
@@ -98,10 +107,11 @@ class Job(JobSpec):
         dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
         dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
         dic['jobEnvs']['PAI_SDK_JOB_CODE_DIR'] = self.code_dir if self.code_dir else self.get_workspace_folder('code')
-        if dic['jobEnvs']['PAI_SDK_JOB_CODE_DIR']:
+        if self.workspace:
             dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
+            dic['outputDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('output'))
 
-        dic['extras']['__clusters__'] = from_file(__cluster_config_file__, default=[]) if not cluster_info else cluster_info
+        dic['extras']['__clusters__'] = get_client_cfg(self.cluster_alias)["match"] if not cluster_info else cluster_info
         dic['extras']['__defaults__'] = __defaults__
         dic['extras']['__sources__'] = self.sources
 

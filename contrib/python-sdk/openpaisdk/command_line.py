@@ -9,14 +9,14 @@ import yaml
 
 import openpaisdk as pai
 import openpaisdk.runtime_requires as req
-from openpaisdk import __logger__
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments
+from openpaisdk import __logger__, get_client_cfg
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import Cluster
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.job import Job, JobSpec, TaskRole
 from openpaisdk.runtime import runtime_execute
-from openpaisdk.utils import list2dict, append_or_update
+from openpaisdk.utils import list2dict, append_or_update_with_notification
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -24,19 +24,6 @@ def pprint(s, fmt: str='yaml', **kwargs):
         print(json.dumps(s, indent=4, **kwargs))
     if fmt == 'yaml':
         print(yaml.dump(s, default_flow_style=False))
-
-
-def get_client_cfg(alias, mask_passwd: bool=False):
-    cfgs = from_file(pai.__cluster_config_file__, default=[])
-    if mask_passwd:
-        for c in cfgs:
-            c["passwd"] = "******"
-    f = [(c,i) for i, c in enumerate(cfgs) if not alias or c['cluster_alias'] == alias]
-    return {
-        "all": cfgs,
-        "match": f[0][0] if f else None,
-        "index": f[0][1] if f else -1,
-    }
 
 
 def get_client(alias):
@@ -116,10 +103,7 @@ class ActionFactoryForCluster(ActionFactory):
         cfgs = get_client_cfg(args.cluster_alias)["all"]
         cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
         __logger__.debug('new cluster info is %s', cfg_new)
-        if append_or_update(cfgs, "cluster_alias", cfg_new):
-            result = 'cluster %s already exists in %s, overwrite its config' % (args.cluster_alias, pai.__cluster_config_file__)
-        else:
-            result = 'cluster %s added to %s' % (args.cluster_alias, pai.__cluster_config_file__)
+        result = append_or_update_with_notification(cfgs, "cluster_alias", cfg_new)
         to_file(cfgs, pai.__cluster_config_file__)
         return result
 
@@ -127,7 +111,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['cluster_alias'])
 
     def check_arguments_select(self, args):
-        Action.not_not(args, ['cluster_alias'])
+        not_not(args, ['cluster_alias'])
 
     def do_action_select(self, args):
         return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
@@ -136,7 +120,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
 
     def check_arguments_attach_hdfs(self, args):
-        Action.not_not(args, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri'])
+        not_not(args, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri'])
         if not args.web_hdfs_uri.startswith("http://") or not args.web_hdfs_uri.startswith("https://"):
             __logger__.warn("web-hdfs-uri not starts with http:// or https://")
 
@@ -148,10 +132,7 @@ class ActionFactoryForCluster(ActionFactory):
             "web_hdfs_uri": args.web_hdfs_uri,
             "user": args.user if args.user else f["match"]['user'],
         }
-        if append_or_update(f["match"].setdefault('storages', []), "storage_alias", elem):
-            result = "storage %s already exists in %s, updated" % (args.storage_alias, args.cluster_alias)
-        else:
-            result = "storage %s added to cluster %s" % (args.storage_alias, args.cluster_alias)
+        result = append_or_update_with_notification(f["match"].setdefault('storages', []), "storage_alias", elem)
         to_file(f["all"], pai.__cluster_config_file__)
         return result
 
@@ -197,6 +178,9 @@ class ActionFactoryForJob(ActionFactory):
         JobSpec().define(parser)
         cli_add_arguments(None, parser, ['--dont-set-as-default'])
 
+    def check_arguments_new(self, args):
+        not_not(args, ['--job-name'])
+
     def do_action_new(self, args):
         if os.path.isfile(Job.job_cache_file(args.job_name)):
             raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
@@ -206,27 +190,27 @@ class ActionFactoryForJob(ActionFactory):
         return self.__job__.to_dict()
 
     def define_arguments_preview(self, parser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--job-name', '--v2', 'config'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--job-name', '--v2'])
+
+    def check_arguments_preview(self, args):
+        not_not(args, ['--cluster-alias', '--job-name', '--workspace'])
 
     def do_action_preview(self, args):
+        self.__job__.validate()
         fname = Job.get_config_file(args)
         if args.v2:
             raise NotImplementedError
         else:
-            job_config = self.__job__.to_job_config_v1(save_to_file=fname, cluster_info=get_client_cfg(args.cluster_alias, True)["match"])
-        if hasattr(args, "config") and args.config:
-            to_file(job_config, args.config)
-            return "write job config to %s" % args.config
+            job_config = self.__job__.to_job_config_v1(save_to_file=fname)
         return job_config
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
         TaskRole().define(parser)
-        cli_add_arguments(None, parser, ['--pip-flags'])
-        cli_add_arguments(None, parser, ['--dont-set-as-default', '--preview'])
+        cli_add_arguments(None, parser, ['--pip-flags', '--v2', '--preview'])
 
     def do_action_sub(self, args):
-        Engine().process_args(Namespace().from_dict(args, action='new'))
+        Engine().process_args(Namespace().from_dict(args, action='new', dont_set_as_default=True))
         args_task = TaskRole().from_dict(vars(args), ignore_unkown=True, scene='task', action='add')
         Engine().process_args(args_task)
         if getattr(args, 'pip_flags', None):
