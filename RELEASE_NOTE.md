@@ -3,8 +3,8 @@
 
 ## New Features
 
-* PAI protocol:
-  - Introduce PAI protocol and job submission v2 ([#2260](https://github.com/microsoft/pai/pull/2260))
+* OpenPAI protocol:
+  - Introduce [OpenPAI protocol](./docs/pai-job-protocol.yaml) and job submission v2 ([#2260](https://github.com/microsoft/pai/pull/2260))
   - Add new job submission v2 plugin ([#2461](https://github.com/microsoft/pai/pull/2461))
 
 * Web portal:
@@ -17,12 +17,13 @@
 
     ![home](docs/images/home.png)
   - Add new user management page ([#2726](https://github.com/microsoft/pai/pull/2726), [#2796](https://github.com/microsoft/pai/pull/2796))
+  - User Management UX refactoring with new layout and themes ([#2726](https://github.com/microsoft/pai/pull/2726), [#2796](https://github.com/microsoft/pai/pull/2796))
 
 
 ## Improvements
 
-* PAI protocol:
-  - Update example jobs in marketplace v2 for PAI protocol ([#2827](https://github.com/microsoft/pai/pull/2827))
+* OpenPAI protocol:
+  - Update example jobs in marketplace v2 for OpenPAI protocol ([#2827](https://github.com/microsoft/pai/pull/2827))
 
 * Web portal:
   - Refine styles in job pages ([#2829](https://github.com/microsoft/pai/pull/2829), [#2856](https://github.com/microsoft/pai/pull/2856), [#2858](https://github.com/microsoft/pai/pull/2858), [#2862](https://github.com/microsoft/pai/pull/2862))
@@ -52,7 +53,7 @@
 
 * Refine document of VS Code extension ([#2707](https://github.com/microsoft/pai/pull/2707))
 * Add document for PAI storage ([#2822](https://github.com/microsoft/pai/pull/2822))
-* PAI protocol specification document ([#2260](https://github.com/microsoft/pai/pull/2260))
+* OpenPAI protocol specification document ([#2260](https://github.com/microsoft/pai/pull/2260))
 * Job submission v2 plugin document ([#2820](https://github.com/microsoft/pai/pull/2820))
 * Update RESTful API document for API v2 ([#2816](https://github.com/microsoft/pai/pull/2816))
 * Fix typos in document ([#2818](https://github.com/microsoft/pai/pull/2818))
