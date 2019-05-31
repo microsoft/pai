@@ -24,32 +24,45 @@
  */
 
 import React from 'react';
-import { Label, Stack, SpinButton } from 'office-ui-fabric-react';
+import { TextField, DefaultButton, Stack } from 'office-ui-fabric-react';
+import { getId } from 'office-ui-fabric-react/lib/Utilities'
 import { getFromComponentsStyle, marginSize } from './formStyle';
 import PropTypes from 'prop-types';
+import { DockerInfo } from '../models/dockerInfo'
 import { BasicSection } from './BasicSection';
 
 const formComponentsStyles = getFromComponentsStyle();
 
-export const Completion= (props) => {
-  const {minFailedInstances, minSucceedInstances} = props;
-  const formCompeletionStyle = formComponentsStyles.formCompeletion;
+export const DockerSection = (props) => {
+  const textFieldId = getId('textField');
+  const { onValueChange, dockerInfo } = props;
+
+  const onDockerUriChange = (_, value) => {
+    if (onValueChange == undefined) {
+      return;
+    }
+
+    const dockerInfo = new DockerInfo();
+    dockerInfo.uri = value;
+    onValueChange(dockerInfo);
+  };
 
   return (
-    <BasicSection label={'Completion'} optional>
-      <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
-        <Label styles={formCompeletionStyle.label}>minFailedInstances</Label>
-        <SpinButton value={minFailedInstances} />
-      </Stack>
-      <Stack horizontal gap={marginSize.s1} styles={formCompeletionStyle.horizonStack}>
-        <Label styles={formCompeletionStyle.label}>minSucceedInstances</Label>
-        <SpinButton value={minSucceedInstances} />
-      </Stack>
-    </BasicSection>
+    <BasicSection label={'Docker'}>
+    {/* TODO: remove hard code width here */}
+    <Stack horizontal gap={marginSize.s2} styles={{root: {width: '85%'}}} >
+      <TextField id={textFieldId}
+                   placeholder='Enter docker uri...'
+                   styles={formComponentsStyles.textFiled}
+                   onChange={onDockerUriChange}
+                   value={dockerInfo.uri}/>
+      <DefaultButton>Auth</DefaultButton>
+    </Stack>
+  </BasicSection>
   );
 }
 
-Completion.propTypes = {
-  minFailedInstances: PropTypes.number,
-  minSucceedInstances: PropTypes.number,
+DockerSection.propTypes = {
+  dockerInfo: PropTypes.instanceOf(DockerInfo).isRequired,
+  onValueChange: PropTypes.func,
 };

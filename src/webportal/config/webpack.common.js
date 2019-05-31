@@ -77,7 +77,7 @@ const config = (env, argv) => ({
     filename: 'scripts/[name].bundle.js',
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json', '.tsx', '.ts'],
+    extensions: ['.js', '.jsx', '.json'],
     modules: [helpers.root('node_modules'), helpers.root('src')],
   },
   module: {
@@ -233,11 +233,6 @@ const config = (env, argv) => ({
             },
           },
         ],
-      },
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
       },
     ],
   },
