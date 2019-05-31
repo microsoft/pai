@@ -45,8 +45,14 @@ const getAllUser = async (req, res, next) => {
     let retUserList = [];
     for (let userItem of userList) {
       const virtualCluster = groupModel.groupList2VirtualCluster(userItem['grouplist']);
+      // eslint-disable-next-line no-console
+      console.log(userItem['grouplist']);
+      // eslint-disable-next-line no-console
+      console.log(virtualCluster);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
       userItem['virtualCluster'] = virtualCluster;
+      // eslint-disable-next-line no-console
+      console.log(userItem['virtualCluster']);
       delete userItem['password'];
       delete userItem['grouplist'];
       retUserList.push(userItem);
