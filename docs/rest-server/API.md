@@ -802,7 +802,7 @@ Status: 200
   },
   "dedicated": true/false,
   // available node list for this virtual cluster
-  "nodeList": [node1, node2, ...]
+  "nodeList": [node1, node2, ...],
   // RUNNING: vc is enabled
   // STOPPED: vc is disabled, without either new job or running job.
   // DRAINING: intermedia state from RUNNING to STOPPED, in waiting on existing job.
