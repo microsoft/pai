@@ -144,12 +144,15 @@ const updateUserExtension = async (req, res, next) => {
   }
 };
 
-const updateUserGroupList = async (req, res, next) => {
+const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const grouplist = req.body.grouplist;
+    const grouplist = groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     // TODO: check every new group is in datastore
     let userInfo = await userModel.getUser(username);
+    if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
+      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+    }
     userInfo['grouplist'] = grouplist;
     await userModel.updateUser(username, userInfo);
     return res.status(201).json({
@@ -239,7 +242,7 @@ module.exports = {
   createUserIfUserNotExist,
   updateUserGroupListFromExternal,
   updateUserExtension,
-  updateUserGroupList,
+  updateUserVirtualCluster,
   updateUserEmail,
   deleteUser,
   updateUserPassword,
