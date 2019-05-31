@@ -27,6 +27,7 @@ const loadData = (specifiedVc) => {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
+        // data: demodata,
         data: data,
         formatNumber: formatNumber,
         yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
@@ -67,10 +68,19 @@ const formatNumber = (x, precision) => {
 //
 const resizeContentWrapper = () => {
   $('.dataTables_scrollBody').css('height', '200px');
-  if (commonTable != null) {
+  let tableWidthArray = [];
+  if (commonTable != null && commonTable.page.info().recordsTotal) {
+    $('#common-table thead tr th').each((idx, val) => {
+      tableWidthArray.push(val.offsetWidth);
+    });
+    let newNameWidth = tableWidthArray[0] + tableWidthArray[1] + tableWidthArray[2];
+    tableWidthArray.splice(0, 3, newNameWidth);
     commonTable.columns.adjust().draw();
   }
-  if (dedicateTable != null) {
+  if (dedicateTable != null && dedicateTable.page.info().recordsTotal) {
+    tableWidthArray.map( (item, idx) => {
+      dedicateTable.columns(idx).nodes().flatten().to$().width(item);
+    });
     dedicateTable.columns.adjust().draw();
   }
 };
@@ -236,8 +246,7 @@ const convertState = (name, state) => {
   } else if (state === 'DRAINING') {
     vcState = 'Stopping';
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
-  }
-   else {
+  } else {
     vcState = 'Unknown';
     vcStateChage = '';
   }
