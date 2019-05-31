@@ -25,7 +25,7 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
-    const virtualCluster = groupModel.groupList2VirtualCluster(userInfo['grouplist']);
+    const virtualCluster = await groupModel.groupList2VirtualCluster(userInfo['grouplist']);
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
     userInfo['virtualCluster'] = virtualCluster;
     delete userInfo['password'];
@@ -44,15 +44,9 @@ const getAllUser = async (req, res, next) => {
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
-      const virtualCluster = groupModel.groupList2VirtualCluster(userItem['grouplist']);
-      // eslint-disable-next-line no-console
-      console.log(userItem['grouplist']);
-      // eslint-disable-next-line no-console
-      console.log(virtualCluster);
+      const virtualCluster = await groupModel.groupList2VirtualCluster(userItem['grouplist']);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
       userItem['virtualCluster'] = virtualCluster;
-      // eslint-disable-next-line no-console
-      console.log(userItem['virtualCluster']);
       delete userItem['password'];
       delete userItem['grouplist'];
       retUserList.push(userItem);
@@ -110,7 +104,7 @@ const createUser = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
-    let grouplist = groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     if (req.body.admin) {
       grouplist.push(authConfig.groupConfig.adminGroup.groupname);
     }
@@ -153,7 +147,7 @@ const updateUserExtension = async (req, res, next) => {
 const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const grouplist = groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    const grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
       if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
