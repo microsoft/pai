@@ -148,16 +148,19 @@ const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
     const grouplist = groupModel.virtualCluster2GroupList(req.body.virtualCluster);
-    // TODO: check every new group is in datastore
-    let userInfo = await userModel.getUser(username);
-    if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
-      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+    if (req.user.admin || req.user.username === username) {
+      let userInfo = await userModel.getUser(username);
+      if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
+        grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+      }
+      userInfo['grouplist'] = grouplist;
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user grouplist data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
-    userInfo['grouplist'] = grouplist;
-    await userModel.updateUser(username, userInfo);
-    return res.status(201).json({
-      message: 'Update user grouplist data successfully.',
-    });
   } catch (error) {
     return next(createError.unknown((error)));
   }
@@ -191,12 +194,16 @@ const updateUserEmail = async (req, res, next) => {
   try {
     const username = req.params.username;
     const email = req.body.email;
-    let userInfo = await userModel.getUser(username);
-    userInfo['email'] = email;
-    await userModel.updateUser(username, userInfo);
-    return res.status(201).json({
-      message: 'Update user email data successfully.',
-    });
+    if (req.user.admin || req.user.username === username) {
+      let userInfo = await userModel.getUser(username);
+      userInfo['email'] = email;
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user email data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+    }
   } catch (error) {
     return next(createError.unknown((error)));
   }
