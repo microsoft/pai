@@ -18,7 +18,7 @@
 import * as querystring from 'querystring';
 
 import React, {useState, useMemo, useCallback, useEffect, useRef} from 'react';
-import {debounce, isEmpty} from 'lodash';
+import {debounce, isEmpty, isNil} from 'lodash';
 
 import {ColorClassNames, getTheme} from '@uifabric/styling';
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
@@ -91,7 +91,11 @@ export default function JobList() {
   useEffect(() => filter.save(), [filter]);
 
   const {current: applyFilter} = useRef(debounce((allJobs, /** @type {Filter} */filter) => {
-    setFilteredJobs(filter.apply(allJobs || []));
+    if (isNil(allJobs)) {
+      setFilteredJobs(null);
+    } else {
+      setFilteredJobs(filter.apply(allJobs));
+    }
   }, 200));
 
   useEffect(() => {
