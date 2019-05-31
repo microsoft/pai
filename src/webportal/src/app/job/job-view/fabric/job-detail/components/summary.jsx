@@ -386,6 +386,7 @@ export default class Summary extends React.Component {
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
+                disabled={isNil(jobInfo.jobStatus.appTrackingUrl)}
                 target="_blank"
               >
                 Go to Application Tracking Page

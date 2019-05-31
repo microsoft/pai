@@ -1,17 +1,16 @@
+import c from 'classnames';
 import React, {useContext, useMemo, useLayoutEffect} from 'react';
-
-import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
-import {Link} from 'office-ui-fabric-react/lib/Link';
-import {ColumnActionsMode, Selection} from 'office-ui-fabric-react/lib/DetailsList';
-import {ShimmeredDetailsList} from 'office-ui-fabric-react/lib/ShimmeredDetailsList';
-import {FontClassNames, mergeStyles} from 'office-ui-fabric-react/lib/Styling';
-
+import {ColumnActionsMode, DefaultButton, FontClassNames, Link, mergeStyles, Selection, ShimmeredDetailsList, Icon, ColorClassNames, FontSizes, FontWeights} from 'office-ui-fabric-react';
+import {isNil} from 'lodash';
 import {DateTime, Duration} from 'luxon';
 
 import {getModified, getDuration, getStatusText} from './utils';
 import Context from './Context';
+import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
+
+import t from '../../../../components/tachyons.scss';
 
 const zeroPaddingClass = mergeStyles({
   paddingTop: '0px !important',
@@ -21,7 +20,7 @@ const zeroPaddingClass = mergeStyles({
 });
 
 export default function Table() {
-  const {allJobs, stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination} = useContext(Context);
+  const {stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
@@ -199,6 +198,8 @@ export default function Table() {
             styles={{
               root: {backgroundColor: '#e5e5e5'},
               rootFocused: {backgroundColor: '#e5e5e5'},
+              rootDisabled: {backgroundColor: '#eeeeee'},
+              rootCheckedDisabled: {backgroundColor: '#eeeeee'},
               icon: {fontSize: 12},
             }}
             disabled={disabled}
@@ -224,14 +225,33 @@ export default function Table() {
     actionsColumn,
   ];
 
-  return (
-    <ShimmeredDetailsList
-      items={pagination.apply(ordering.apply(filteredJobs || []))}
-      setKey="key"
-      columns={columns}
-      enableShimmer={allJobs === null}
-      shimmerLines={pagination.itemsPerPage}
-      selection={selection}
-    />
-  );
+  if (!isNil(filteredJobs) && filteredJobs.length === 0) {
+    return (
+      <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
+        <div className={c(t.tc)}>
+          <div>
+            <Icon className={c(ColorClassNames.themePrimary)} style={{fontSize: FontSizes.xxLarge}} iconName='Error' />
+          </div>
+          <div className={c(t.mt5, FontClassNames.xLarge)} style={{fontWeight: FontWeights.semibold}}>
+            No results matched your search.
+          </div>
+          <div className={c(t.mt4, FontClassNames.mediumPlus)}>
+            You could search <Link onClick={() => setFilter(new Filter())}>all the jobs</Link> or try advanced search with Filters.
+          </div>
+        </div>
+      </div>
+    );
+  } else {
+    const items = pagination.apply(ordering.apply(filteredJobs || []));
+    return (
+      <ShimmeredDetailsList
+        items={items}
+        setKey="key"
+        columns={columns}
+        enableShimmer={isNil(filteredJobs)}
+        shimmerLines={pagination.itemsPerPage}
+        selection={selection}
+      />
+    );
+  }
 }
