@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,8 +23,7 @@
  * SOFTWARE.
  */
 
-export class DockerInfo {
-
+class DockerInfo {
   constructor(name, uri, auth) {
     this.name = name;
     this.uri = uri;
@@ -35,3 +34,7 @@ export class DockerInfo {
     return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
+
+module.exports = {
+  DockerInfo: DockerInfo,
+};

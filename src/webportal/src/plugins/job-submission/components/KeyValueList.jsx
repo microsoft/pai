@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,25 +24,25 @@
  */
 
 import React from 'react';
-import { Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
-         DetailsListLayoutMode, ColumnActionsMode, Text, DetailsRow } from 'office-ui-fabric-react';
+import {Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
+        DetailsListLayoutMode, ColumnActionsMode, Text, DetailsRow} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
 const newKeyValueItem = (itemKey, itemValue, onItemDelete) => {
   return ({
     itemKey: <Text>{itemKey}</Text>,
     itemValue: <Text>{itemValue}</Text>,
-    button: <DefaultButton text='Remove' onClick={onItemDelete}/>
+    button: <DefaultButton text='Remove' onClick={onItemDelete}/>,
   });
-}
+};
 
 export class KeyValueList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       itemKey: '',
-      itemValue: ''
-    }
+      itemValue: '',
+    };
   }
 
   _renderItems(items) {
@@ -57,7 +57,7 @@ export class KeyValueList extends React.Component {
   }
 
   _onItemDelete(index) {
-    const { onItemDelete } = this.props;
+    const {onItemDelete} = this.props;
     if (onItemDelete === undefined) {
       return;
     }
@@ -66,7 +66,7 @@ export class KeyValueList extends React.Component {
   }
 
   _onItemAdd() {
-    const { onItemAdd } = this.props;
+    const {onItemAdd} = this.props;
     const item = this.state;
 
     if (onItemAdd === undefined) {
@@ -98,12 +98,12 @@ export class KeyValueList extends React.Component {
   }
 
   render() {
-    const { items } = this.props;
+    const {items} = this.props;
     const dataItems= this._renderItems(items);
 
-    const columns = [{ key: 'column1', name: 'Key', fieldName: 'itemKey' },
-                     { key: 'column2', name: 'Value', fieldName: 'itemValue'},
-                     { key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled}];
+    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
+                     {key: 'column2', name: 'Value', fieldName: 'itemValue'},
+                     {key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled}];
     return (
       <Stack>
         <DetailsList items={dataItems}
@@ -118,9 +118,7 @@ export class KeyValueList extends React.Component {
 }
 
 KeyValueList.propTypes = {
-  itemKey: PropTypes.string,
-  itemValue: PropTypes.string,
+  items: PropTypes.array,
   onItemDelete: PropTypes.func,
-  onItemChange: PropTypes.func,
   onItemAdd: PropTypes.func,
 };

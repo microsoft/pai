@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,10 +23,11 @@
  * SOFTWARE.
  */
 
-import { mergeStyleSets  } from '@uifabric/merge-styles'
-import { FontSizes, IconFontSizes, FontWeights } from 'office-ui-fabric-react/lib/Styling';
+const mergeStyles = require('@uifabric/merge-styles');
+const styling = require('office-ui-fabric-react/lib/Styling');
+const {FontSizes, IconFontSizes, FontWeights} = styling;
 
-export const marginSize = {
+const marginSize = {
   l1: '20px',
   l2: '32px',
   m: '16px',
@@ -34,64 +35,64 @@ export const marginSize = {
   s2: '4px',
 };
 
-export const getFormClassNames  = () => {
-  return mergeStyleSets ({
+const getFormClassNames = () => {
+  return mergeStyles.mergeStyleSets({
     topForm: {
       marginLeft: marginSize.l1,
       marginTop: marginSize.l1,
       marginBotton: marginSize.l2,
       marginRight: marginSize.l1,
       border: marginSize.l1 + ' solid white',
-      background: 'white'
+      background: 'white',
     },
     formTabBar: {
       background: '#f8f8f8',
       display: 'flex',
-      alignItems: 'center'
-    }
+      alignItems: 'center',
+    },
   });
-}
+};
 
-export const getTabFromStyle = () => {
+const getTabFromStyle = () => {
   return ({
     tab: {
       text: {
-        fontSize: FontSizes.icon
+        fontSize: FontSizes.icon,
       },
       root: {
-        background: 'white'
-      }
+        background: 'white',
+      },
     },
     tabIcon: {
       root: {
         fontSize: IconFontSizes.medium,
-        margin: `0, ${marginSize.s1}`
-      }
-    }
+        margin: `0, ${marginSize.s1}`,
+      },
+    },
   });
-}
+};
 
-export const getFormPageSytle = () => {
+const getFormPageSytle = () => {
   return ({
     formPage: {
       root: {
-        marginLeft: marginSize.s1
-      }
+        marginLeft: marginSize.s1,
+      },
     },
     formFirstColumn: {
       root: {
-        width: '20%'
-      }
+        width: '20%',
+      },
     },
     formSecondColunm: {
       root: {
-        width: '80%'
-      }
-    }
+        width: '80%',
+      },
+    },
   });
-}
+};
 
-export const getFormBasicSectionStyle = () => {
+const getFormBasicSectionStyle = () => {
   return ({
     icon: {
       root: {
@@ -100,62 +101,72 @@ export const getFormBasicSectionStyle = () => {
         alignItems: 'center',
         color: '#666666',
         cursor: 'pointer',
-        userSelect: 'none'
-      }
+        userSelect: 'none',
+      },
     },
     optionalText: {
       root: {
         fontSize: '10px',
         display: 'flex',
-        alignItems: 'center'
-      }
-    }
+        alignItems: 'center',
+      },
+    },
   });
-}
+};
 
-export const getFromComponentsStyle = () => {
+const getFromComponentsStyle = () => {
   return ({
     label: {
       root: {
         fontSize: FontSizes.icon,
         fontWeight: FontWeights.semibold,
-      }
+      },
     },
     textFiled: {
       root: {
-        width: '85%'
-      }
+        width: '85%',
+      },
     },
     formCompeletion: {
       horizonStack: {
         root: {
-          width: '85%'
-        }
+          width: '85%',
+        },
       },
       textFiled: {
         root: {
-          width: '75%'
-        }
+          width: '75%',
+        },
       },
       label: {
         root: {
           width: '25%',
           fontSize: FontSizes.icon,
           fontWeight: FontWeights.regular,
-        }
+        },
       },
-    }
+    },
   });
-}
+};
 
-export const getParameterStyle = () => {
+const getParameterStyle = () => {
   return ({
     flexContainer: {
       alignItems: 'end',
-      height: 'auto'
+      height: 'auto',
     },
     root: {
-      height: 'auto'
-    }
+      height: 'auto',
+    },
   });
-}
+};
+
+module.exports = {
+  marginSize: marginSize,
+  getFormClassNames: getFormClassNames,
+  getTabFromStyle: getTabFromStyle,
+  getFormPageSytle: getFormPageSytle,
+  getFormBasicSectionStyle: getFormBasicSectionStyle,
+  getFromComponentsStyle: getFromComponentsStyle,
+  getParameterStyle: getParameterStyle,
+};

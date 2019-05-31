@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,17 +23,17 @@
  * SOFTWARE.
  */
 
-import React  from 'react';
-import { getId } from 'office-ui-fabric-react/lib/Utilities';
-import { TextField} from 'office-ui-fabric-react';
-import { getFromComponentsStyle } from './formStyle';
+import React from 'react';
+import {getId} from 'office-ui-fabric-react/lib/Utilities';
+import {TextField} from 'office-ui-fabric-react';
+import {getFromComponentsStyle} from './formStyle';
 import PropTypes from 'prop-types';
-import { BasicSection } from './BasicSection';
+import {BasicSection} from './BasicSection';
 
 const formComponentsStyles = getFromComponentsStyle();
 
 export const FormTextFiled = (props) => {
-  const {label, onChange, value, textFiledProps, optional } = props;
+  const {label, onChange, value, textFiledProps, optional} = props;
   const textFieldId = getId('textField');
 
   return (
@@ -45,11 +45,12 @@ export const FormTextFiled = (props) => {
                      {...textFiledProps}/>
     </BasicSection>
   );
-}
+};
 
 FormTextFiled.propTypes = {
   label: PropTypes.string.isRequired,
   onChange: PropTypes.func,
   value: PropTypes.string,
-  textFiledProps: PropTypes.object
+  textFiledProps: PropTypes.object,
+  optional: PropTypes.bool,
 };

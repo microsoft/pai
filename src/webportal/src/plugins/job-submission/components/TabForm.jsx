@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Pivot, PivotItem, Icon, ActionButton } from 'office-ui-fabric-react';
-import { getFormClassNames, getTabFromStyle } from './formStyle'
+import {Pivot, PivotItem, Icon, ActionButton} from 'office-ui-fabric-react';
+import {getFormClassNames, getTabFromStyle} from './formStyle';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -35,18 +35,18 @@ export const TabFormItem = (props) => {
   return (
     <>{props.children}</>
   );
-}
+};
 
-TabFormItem.prototype = {
+TabFormItem.propTypes = {
+  children: PropTypes.node,
   headerText: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
 };
 
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
-    const { children } = props;
-    
+    const {children} = props;
+
     let selectedIndex;
     if (children !== undefined && children.size !== 0) {
       selectedIndex = 0;
@@ -54,7 +54,7 @@ export class TabForm extends React.Component {
 
     this.state = {
       selectedIndex: selectedIndex,
-    }
+    };
   }
 
   _getItemKeyByIndex(index) {
@@ -68,12 +68,12 @@ export class TabForm extends React.Component {
   _getContentItemsFromChildren(children) {
     return React.Children.map(children, (child, index) => {
       const {headerText, children} = child.props;
-      return { headerText: headerText, content: children, itemKey: this._getItemKeyByIndex(index) }
-    })
+      return {headerText: headerText, content: children, itemKey: this._getItemKeyByIndex(index)};
+    });
   }
 
   _renderItems(items) {
-    const pivotItems = items.map(items => 
+    const pivotItems = items.map((items) =>
                          <PivotItem key={items.itemKey}
                                          itemKey={items.itemKey}
                                          headerText={items.headerText}
@@ -86,7 +86,7 @@ export class TabForm extends React.Component {
     if (itemPros === undefined || defaultRender === undefined) {
       return null;
     }
-  
+
     return (
     <span>
       { defaultRender(itemPros) }
@@ -108,15 +108,15 @@ export class TabForm extends React.Component {
     if (onItemDelete === undefined) {
       return;
     }
-  
+
     const newSelectedIndex = onItemDelete(itemIndex);
     this.setState({
-      selectedIndex: newSelectedIndex
+      selectedIndex: newSelectedIndex,
     });
   }
 
   _onAddItem() {
-    const { onItemAdd } = this.props;
+    const {onItemAdd} = this.props;
     if (onItemAdd === undefined) {
       return;
     }
@@ -127,21 +127,21 @@ export class TabForm extends React.Component {
     }
 
     this.setState({
-      selectedIndex: newSelectedIndex
+      selectedIndex: newSelectedIndex,
     });
   }
 
   _onLinkClick(item) {
     this.setState({
-      selectedIndex: this._getItemIndexByKey(item.props.itemKey)
+      selectedIndex: this._getItemIndexByKey(item.props.itemKey),
     });
   }
 
   render() {
-    let { selectedIndex } = this.state;
-    const { children } = this.props;
+    let {selectedIndex} = this.state;
+    const {children} = this.props;
 
-    const { topForm, formTabBar } = getFormClassNames();
+    const {topForm, formTabBar} = getFormClassNames();
     const items = this._getContentItemsFromChildren(children);
     const elements = this._renderItems(items);
 

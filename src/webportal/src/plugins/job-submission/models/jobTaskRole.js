@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,17 +23,15 @@
  * SOFTWARE.
  */
 
+const {DockerInfo} = require('./dockerInfo');
 
-import { DockerInfo } from "./dockerInfo";
-
-export class JobTaskRole {
-
-  constructor() {
-    this.name;
-    this.instances;
-    this.taskRetryCount;
-    this.dockerInfo = new DockerInfo();
-    this.ports = [];
+class JobTaskRole {
+  constructor(name, instances, taskRetryCount, dockerInfo = new DockerInfo(), ports = []) {
+    this.name = name;
+    this.instances = instances;
+    this.taskRetryCount = taskRetryCount;
+    this.dockerInfo = dockerInfo;
+    this.ports = ports;
   }
 
   getTaskPrerequires() {
@@ -42,3 +40,7 @@ export class JobTaskRole {
   convertToProtocolFormat() {
   }
 }
+
+module.exports = {
+  JobTaskRole: JobTaskRole,
+};

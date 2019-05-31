@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-export class Port {
+class Port {
   constructor(portLabel, portNumber) {
     this.portLabel = portLabel;
     this.portNumber = portNumber;
@@ -36,3 +36,7 @@ export class Port {
     return port;
   }
 }
+
+module.exports = {
+  Port: Port,
+};

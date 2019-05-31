@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+// eslint-disable-next-line no-unused-vars
 class JobParameter {
   constructor() {
     this.key;
@@ -32,6 +33,6 @@ class JobParameter {
   convertToProtocolFormat() {
     let parameter = {};
     parameter[this.key] = this.value;
-    return parameter
+    return parameter;
   }
 }

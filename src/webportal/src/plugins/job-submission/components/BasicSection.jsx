@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
-import { getId } from 'office-ui-fabric-react/lib/Utilities';
-import { Label, Stack, Text, Icon } from 'office-ui-fabric-react';
-import { FormSection, FormColumn } from './FormPage';
-import { getFormPageSytle, getFromComponentsStyle, marginSize, getFormBasicSectionStyle } from './formStyle';
+import React, {useState} from 'react';
+import {getId} from 'office-ui-fabric-react/lib/Utilities';
+import {Label, Stack, Text, Icon} from 'office-ui-fabric-react';
+import {FormSection, FormColumn} from './FormPage';
+import {getFormPageSytle, getFromComponentsStyle, marginSize, getFormBasicSectionStyle} from './formStyle';
 import PropTypes from 'prop-types';
 
 const formPageStyle = getFormPageSytle();
@@ -35,7 +35,7 @@ const formComponentsStyles = getFromComponentsStyle();
 const basicSectionStyle = getFormBasicSectionStyle();
 
 export const BasicSection = (props) => {
-  const {label, optional, children } = props;
+  const {label, optional, children} = props;
   const textFieldId = getId('textField');
 
   const [isSectionOn, setSectionOn] = useState(false);
@@ -53,7 +53,7 @@ export const BasicSection = (props) => {
     <FormSection>
       <FormColumn styles={formPageStyle.formFirstColumn}>
         <Stack horizontal gap={marginSize.s2}>
-          { optional && <Icon  iconName={iconName}
+          { optional && <Icon iconName={iconName}
               styles={basicSectionStyle.icon} onClick={onOpenItem}/> }
           <Label htmlFor={textFieldId} styles={formComponentsStyles.label}>{label}</Label>
           { optional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
@@ -66,7 +66,7 @@ export const BasicSection = (props) => {
       </FormColumn>
     </FormSection>
   );
-}
+};
 
 BasicSection.propTypes = {
   label: PropTypes.string.isRequired,

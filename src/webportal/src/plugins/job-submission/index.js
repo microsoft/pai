@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,27 +24,28 @@
  */
 
  // TODO: This file need to change in the future. Submit job may no be a plugin
-import React from "react";
-import ReactDOM from "react-dom";
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-import { parse } from "querystring";
-import { App } from './components/App'
+const {parse} = require('querystring');
+const {App} = require('./components/App');
 
 // declare interface IWindow {
 //   PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
 // }
 
+/* eslint-disable no-unused-vars */
 class PAIPluginElement extends HTMLElement {
   connectedCallback() {
-    const api = this.getAttribute("pai-rest-server-uri");
-    const user = this.getAttribute("pai-user");
-    const token = this.getAttribute("pai-rest-server-token");
+    const api = this.getAttribute('pai-rest-server-uri');
+    const user = this.getAttribute('pai-user');
+    const token = this.getAttribute('pai-rest-server-token');
     if (user === null || token === null) {
-      window.location.href = "/login.html";
+      window.location.href = '/login.html';
       return;
     }
 
-    const query = parse(window.location.search.replace(/^\?/, ""));
+    const query = parse(window.location.search.replace(/^\?/, ''));
 
     ReactDOM.render(React.createElement(App), this);
   }
@@ -54,4 +55,4 @@ class PAIPluginElement extends HTMLElement {
   }
 }
 
-window.customElements.define("pai-plugin", PAIPluginElement);
+window.customElements.define('pai-plugin', PAIPluginElement);

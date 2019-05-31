@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,16 +23,22 @@
  * SOFTWARE.
  */
 
-import React  from 'react';
-import { SpinButton} from 'office-ui-fabric-react';
-import { BasicSection } from './BasicSection';
+import React from 'react';
+import {SpinButton} from 'office-ui-fabric-react';
+import {BasicSection} from './BasicSection';
+import PropTypes from 'prop-types';
 
 export const FormSpinButton = (props) => {
-  const {label, optional } = props;
+  const {label, optional} = props;
 
   return (
     <BasicSection label={label} optional={optional}>
       <SpinButton defaultValue="0" min={0} step={1}/>
     </BasicSection>
   );
-}
+};
+
+FormSpinButton.propTypes = {
+  label: PropTypes.string.isRequired,
+  optional: PropTypes.bool,
+};

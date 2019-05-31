@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
+// eslint-disable-next-line no-unused-vars
 class Job {
-
   constructor(jobBasicInfo, jobTaskRoles, JobParameters) {
   }
 

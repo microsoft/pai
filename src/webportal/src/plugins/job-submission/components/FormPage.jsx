@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,10 +24,11 @@
  */
 
 import React from 'react';
-import { Stack } from 'office-ui-fabric-react';
-import { getFormPageSytle } from './formStyle';
+import {Stack} from 'office-ui-fabric-react';
+import {getFormPageSytle} from './formStyle';
+import PropTypes from 'prop-types';
 
-const { formPageStyle } = getFormPageSytle();
+const {formPageStyle} = getFormPageSytle();
 
 export const FormPage = (props) => {
   return (
@@ -35,7 +36,7 @@ export const FormPage = (props) => {
       {props.children}
     </Stack>
   );
-}
+};
 
 export const FormSection = (props) => {
   return (
@@ -43,12 +44,25 @@ export const FormSection = (props) => {
       {props.children}
     </Stack>
   );
-}
+};
 
 export const FormColumn = (props) => {
   return (
     <Stack styles={props.styles} gap={'16px'}>
       {props.children}
   </Stack>
-  )
-}
+  );
+};
+
+FormPage.propTypes = {
+  children: PropTypes.node,
+};
+
+FormSection.propTypes = {
+  children: PropTypes.node,
+};
+
+FormColumn.propTypes = {
+  children: PropTypes.node,
+  styles: PropTypes.object,
+};

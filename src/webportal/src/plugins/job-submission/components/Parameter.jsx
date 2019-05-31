@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -23,16 +23,16 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
-import { getFormClassNames, getParameterStyle } from './formStyle'
-import { Text, DetailsList, CheckboxVisibility, Stack, ActionButton } from 'office-ui-fabric-react';
-import { KeyValueList } from './KeyValueList';
+import React, {useState} from 'react';
+import {getFormClassNames, getParameterStyle} from './formStyle';
+import {Text, DetailsList, CheckboxVisibility, Stack, ActionButton} from 'office-ui-fabric-react';
+import {KeyValueList} from './KeyValueList';
 
-const { topForm } = getFormClassNames();
+const {topForm} = getFormClassNames();
 const parameterStyle = getParameterStyle();
 
-const columns = [{ key: 'column1', name: 'Key', fieldName: 'itemKey' },
-                 { key: 'column2', name: 'Value', fieldName: 'itemValue'}];
+const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
+                 {key: 'column2', name: 'Value', fieldName: 'itemValue'}];
 
 export const Parameter= () => {
   const [isParameterOn, setParameterOn] = useState(false);
@@ -44,7 +44,7 @@ export const Parameter= () => {
       setIconName('ChevronDown');
     }
     setParameterOn(!isParameterOn);
-  }
+  };
 
   return (
     <div className={topForm}>
@@ -54,17 +54,17 @@ export const Parameter= () => {
         <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle} onClick={onClick}/>
       </Stack>
       {
-        !isParameterOn && <Text>you could use these predefined parameters as command variables with prefix '$'</Text>
+        !isParameterOn && <Text>{'you could use these predefined parameters as command variables with prefix \'$\''}</Text>
       }
       {
-        isParameterOn && 
-        <>
+        isParameterOn &&
+        <React.Fragment>
           <KeyValueList items={[]}/>
           <Text>Environment</Text>
           <DetailsList items={[]} columns={columns} checkboxVisibility={CheckboxVisibility.hidden} compact/>
-        </>
+        </React.Fragment>
       }
     </Stack>
     </div>
   );
-}
+};

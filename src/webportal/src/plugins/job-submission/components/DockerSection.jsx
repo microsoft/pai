@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,18 +24,18 @@
  */
 
 import React from 'react';
-import { TextField, DefaultButton, Stack } from 'office-ui-fabric-react';
-import { getId } from 'office-ui-fabric-react/lib/Utilities'
-import { getFromComponentsStyle, marginSize } from './formStyle';
+import {TextField, DefaultButton, Stack} from 'office-ui-fabric-react';
+import {getId} from 'office-ui-fabric-react/lib/Utilities';
+import {getFromComponentsStyle, marginSize} from './formStyle';
 import PropTypes from 'prop-types';
-import { DockerInfo } from '../models/dockerInfo'
-import { BasicSection } from './BasicSection';
+import {DockerInfo} from '../models/dockerInfo';
+import {BasicSection} from './BasicSection';
 
 const formComponentsStyles = getFromComponentsStyle();
 
 export const DockerSection = (props) => {
   const textFieldId = getId('textField');
-  const { onValueChange, dockerInfo } = props;
+  const {onValueChange, dockerInfo} = props;
 
   const onDockerUriChange = (_, value) => {
     if (onValueChange == undefined) {
@@ -60,7 +60,7 @@ export const DockerSection = (props) => {
     </Stack>
   </BasicSection>
   );
-}
+};
 
 DockerSection.propTypes = {
   dockerInfo: PropTypes.instanceOf(DockerInfo).isRequired,

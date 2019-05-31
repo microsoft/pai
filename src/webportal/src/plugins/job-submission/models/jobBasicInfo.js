@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,6 +24,7 @@
  */
 
 
+// eslint-disable-next-line no-unused-vars
 class JobBasicInfo {
   convertToProtocolFormat() {
     const jobRetryCount = this.jobRetryCount === undefined || typeof(jobRetryCount) !== 'number'? 0: this.jobRetryCount;
@@ -33,8 +34,8 @@ class JobBasicInfo {
               type: 'job',
               jobRetryCount: jobRetryCount,
               default: {
-                virtualCluster: this.virtualCluster
-              }
-            }
+                virtualCluster: this.virtualCluster,
+              },
+            };
   }
 }

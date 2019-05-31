@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -24,10 +24,10 @@
  */
 
 import React from 'react';
-import { Label, Stack, SpinButton } from 'office-ui-fabric-react';
-import { getFromComponentsStyle, marginSize } from './formStyle';
+import {Label, Stack, SpinButton} from 'office-ui-fabric-react';
+import {getFromComponentsStyle, marginSize} from './formStyle';
 import PropTypes from 'prop-types';
-import { BasicSection } from './BasicSection';
+import {BasicSection} from './BasicSection';
 
 const formComponentsStyles = getFromComponentsStyle();
 
@@ -47,7 +47,7 @@ export const Completion= (props) => {
       </Stack>
     </BasicSection>
   );
-}
+};
 
 Completion.propTypes = {
   minFailedInstances: PropTypes.number,
