@@ -278,7 +278,7 @@ function TopBar() {
       text: 'Admin',
       buttonStyles: transparentStyles,
       iconProps: {
-        iconName: 'Clock',
+        iconName: 'Admin',
       },
       subMenuProps: {
         items: Object.keys(admins).map(getItem).concat([{

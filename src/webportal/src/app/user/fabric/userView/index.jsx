@@ -211,14 +211,17 @@ export default function UserView() {
   return (
     <Context.Provider value={context}>
       <Fabric className={t.h100}>
-        <Stack verticalFill styles={{root: [t.relative, {padding: `0 ${spacing.l1} ${spacing.l1}`}]}}>
+        <Stack verticalFill styles={{root: [t.relative, {padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}]}}>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
-          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {paddingTop: spacing.m}]}}>
+          <Stack.Item>
+            <div style={{height: spacing.s1}}></div>
+          </Stack.Item>
+          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {height: 0, padding: spacing.l1}]}}>
             <Table />
           </Stack.Item>
-          <Stack.Item>
+          <Stack.Item styles={{root: [t.bgWhite, {paddingBottom: spacing.l1}]}}>
             <Paginator />
           </Stack.Item>
         </Stack>
