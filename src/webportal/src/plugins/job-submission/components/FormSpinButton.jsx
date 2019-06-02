@@ -29,11 +29,25 @@ import {BasicSection} from './BasicSection';
 import PropTypes from 'prop-types';
 
 export const FormSpinButton = (props) => {
-  const {label, optional} = props;
+  const {label, optional, onChange, value} = props;
+  const _onChange = (value) => {
+    if (onChange !== undefined) {
+      onChange(value);
+    }
+  };
+
+  const _onIncrement = (value) => _onChange(+value + 1);
+  const _onDecrement = (value) => _onChange(+value - 1);
+  const _onValidate = (value) => _onChange(value);
 
   return (
     <BasicSection label={label} optional={optional}>
-      <SpinButton defaultValue="0" min={0} step={1}/>
+      <SpinButton min={0}
+                  step={1}
+                  value={value === undefined ? 0: value}
+                  onIncrement={_onIncrement}
+                  onDecrement={_onDecrement}
+                  onValidate={_onValidate}/>
     </BasicSection>
   );
 };
@@ -41,4 +55,6 @@ export const FormSpinButton = (props) => {
 FormSpinButton.propTypes = {
   label: PropTypes.string.isRequired,
   optional: PropTypes.bool,
+  onChange: PropTypes.func,
+  value: PropTypes.string,
 };

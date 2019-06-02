@@ -24,25 +24,39 @@
  */
 
 import React from 'react';
-import {Stack, SpinButton} from 'office-ui-fabric-react';
-import {marginSize} from './formStyle';
-import PropTypes from 'prop-types';
+import {TextField} from 'office-ui-fabric-react';
 import {BasicSection} from './BasicSection';
+import PropTypes from 'prop-types';
+import {Deployment} from '../models/deployment';
 
-export const Completion= (props) => {
+export const DeploymentSection = (props) => {
+  const {onChange} = props;
+  const {preCommands, postCommands} = props.value;
+
+  const _onDeploymentChange = (oriValue, keyName, newValue) => {
+    if (onChange === undefined) {
+      return;
+    }
+    const deployment = new Deployment(oriValue);
+    deployment[keyName] = newValue;
+    onChange(deployment);
+  };
+
+  const _onChange = _onDeploymentChange.bind(null, props.value);
+
   return (
-    <BasicSection label={'Completion'} optional>
-      <Stack horizontal gap={marginSize.s1}>
-        <SpinButton label={'Min Failed Instances'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
-      </Stack>
-      <Stack horizontal gap={marginSize.s1}>
-        <SpinButton label={'Min Succeed Instances'} styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
-      </Stack>
+    <BasicSection label={'Deployment'} optional>
+      <TextField label={'PreCommands'}
+                 value={preCommands}
+                 onChange={(_, value)=>_onChange('preCommands', value)}/>
+      <TextField label={'PostCommands'}
+                 value={postCommands}
+                 onChange={(_, value)=>_onChange('postCommands', value)}/>
     </BasicSection>
   );
 };
 
-Completion.propTypes = {
-  minFailedInstances: PropTypes.number,
-  minSucceedInstances: PropTypes.number,
+DeploymentSection.propTypes = {
+  value: PropTypes.instanceOf(Deployment).isRequired,
+  onChange: PropTypes.func,
 };

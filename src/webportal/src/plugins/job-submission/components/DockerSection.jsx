@@ -34,16 +34,16 @@ import {BasicSection} from './BasicSection';
 const formComponentsStyles = getFromComponentsStyle();
 
 export const DockerSection = (props) => {
-  const textFieldId = getId('textField');
   const {onValueChange, dockerInfo} = props;
+  const textFieldId = getId('textField');
 
-  const onDockerUriChange = (_, value) => {
-    if (onValueChange == undefined) {
+  const _onChange = (keyName, value, oriDockerInfo) => {
+    if (onValueChange === undefined) {
       return;
     }
 
-    const dockerInfo = new DockerInfo();
-    dockerInfo.uri = value;
+    const dockerInfo = new DockerInfo(oriDockerInfo);
+    dockerInfo[keyName] = value;
     onValueChange(dockerInfo);
   };
 
@@ -54,7 +54,7 @@ export const DockerSection = (props) => {
       <TextField id={textFieldId}
                    placeholder='Enter docker uri...'
                    styles={formComponentsStyles.textFiled}
-                   onChange={onDockerUriChange}
+                   onChange={(_, value)=>_onChange('uri', value, dockerInfo)}
                    value={dockerInfo.uri}/>
       <DefaultButton>Auth</DefaultButton>
     </Stack>

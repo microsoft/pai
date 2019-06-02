@@ -39,7 +39,7 @@ export class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const items = [{headerText: 'Task role 1', content: new JobTaskRole()}];
+    const items = [{headerText: 'Task role 1', content: new JobTaskRole({})}];
     this.state = {
       items: items,
     };
@@ -47,8 +47,7 @@ export class App extends React.Component {
 
   _onItemAdd() {
     const {items} = this.state;
-    // TODO: This just for test, need to correct the header text
-    const updatedItems = [...items, {headerText: `Task role ${items.length + 1}`, content: new JobTaskRole()}];
+    const updatedItems = [...items, {headerText: `Task role ${items.length + 1}`, content: new JobTaskRole({})}];
     this.setState({
       items: updatedItems,
     });

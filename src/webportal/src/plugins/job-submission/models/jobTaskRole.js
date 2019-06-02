@@ -24,14 +24,24 @@
  */
 
 import {DockerInfo} from './dockerInfo';
+import {Completion} from './completion';
+import {Deployment} from './deployment';
+import {ContainerSize} from '../models/containerSize';
 
 export class JobTaskRole {
-  constructor(name, instances, taskRetryCount, dockerInfo = new DockerInfo(), ports = []) {
+  constructor(props) {
+    const {name, instances, taskRetryCount, dockerInfo, ports, command, completion, deployment, containerSize,
+           isContainerSizeEnabled} = props;
     this.name = name;
     this.instances = instances;
     this.taskRetryCount = taskRetryCount;
-    this.dockerInfo = dockerInfo;
-    this.ports = ports;
+    this.dockerInfo = dockerInfo === undefined ? new DockerInfo({}): dockerInfo;
+    this.ports = ports === undefined ? []: ports;
+    this.command = command;
+    this.completion = completion === undefined ? new Completion({}): completion;
+    this.deployment = deployment === undefined? new Deployment({}): deployment;
+    this.containerSize = containerSize === undefined? new ContainerSize({}): containerSize;
+    this.isContainerSizeEnabled = isContainerSizeEnabled === undefined? false: isContainerSizeEnabled;
   }
 
   getTaskPrerequires() {

@@ -23,8 +23,9 @@
  * SOFTWARE.
  */
 
-class DockerInfo {
-  constructor(name, uri, auth) {
+export class DockerInfo {
+  constructor(props) {
+    const {name, uri, auth} = props;
     this.name = name;
     this.uri = uri;
     this.auth = auth;
@@ -34,7 +35,3 @@ class DockerInfo {
     return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
-
-module.exports = {
-  DockerInfo: DockerInfo,
-};

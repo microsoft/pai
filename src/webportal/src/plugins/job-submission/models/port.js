@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-class Port {
+export class Port {
   constructor(portLabel, portNumber) {
     this.portLabel = portLabel;
     this.portNumber = portNumber;
@@ -36,7 +36,3 @@ class Port {
     return port;
   }
 }
-
-module.exports = {
-  Port: Port,
-};
