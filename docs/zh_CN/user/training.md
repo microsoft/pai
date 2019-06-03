@@ -131,11 +131,11 @@ JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息
 
 OpenPAI 会管理计算资源，但不会管理持久化的存储资源。 [如何使用存储](storage.md)可帮助 OpenPAI 用户来管理存储。
 
-It's better to check with administrator of the OpenPAI cluster about how to transfer files, since they may choose most suitable approaches and examples for you.
+最好与 OpenPAI 集群的管理员确认如何传输文件，他们可能已经选出了最合适的方法和示例。
 
 ### Job 流程
 
-Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, it's recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md). Both web UI and the client through [RESTful API of OpenPAI](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize a client.
+Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使用 [Visual Studio Code OpenPAI Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 来提交 Job。 Both web UI and the client through [RESTful API of OpenPAI](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize a client.
 
 After received job configuration, OpenPAI processes it as below steps.
 
