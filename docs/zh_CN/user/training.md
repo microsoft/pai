@@ -19,13 +19,13 @@
 
 # 在 OpenPAI 上训练模型
 
-- [在 OpenPAI 上训练模型](#train-models-on-openpai) 
-  - [提交 hello-world Job](#submit-a-hello-world-job)
-  - [理解 Job](#understand-job) 
-    - [理解 hello-world Job](#learn-hello-world-job)
-    - [传入/传出文件](#transfer-files-inout)
-    - [Job 流程](#job-workflow)
-  - [参考](#reference)
+- [在 OpenPAI 上训练模型](#在-openpai-上训练模型) 
+  - [提交 hello-world Job](#提交-hello-world-job)
+  - [理解 Job](#理解-job) 
+    - [了解 hello-world Job](#了解-hello-world-job)
+    - [传入/传出文件](#传入传出文件)
+    - [Job 流程](#job-流程)
+  - [参考](#参考)
 
 This document is for beginners, and it provides the must to know knowledge to train models or execute other kinds of commands.
 
@@ -87,7 +87,7 @@ Follow to submit a very simple job like hello-world during learning a program la
 
 With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
 
-### 理解 hello-world Job
+### 了解 hello-world Job
 
 The **job configuration** is a JSON file, which is posted to OpenPAI. The hello-world job configuration uses below required key fields.
 
@@ -125,7 +125,7 @@ Below is required fields and [full spec of job configuration](../job_tutorial.md
   
   Like the hello-world job, user needs to construct command(s) to get code, data and trigger running.
 
-### Transfer files in/out
+### 传入/传出文件
 
 Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
 
@@ -133,7 +133,7 @@ OpenPAI manages computing resources, but it doesn't provide persistent storage. 
 
 It's better to check with administrator of the OpenPAI cluster about how to transfer files, since they may choose most suitable approaches and examples for you.
 
-### Job workflow
+### Job 流程
 
 Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, it's recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md). Both web UI and the client through [RESTful API of OpenPAI](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize a client.
 
