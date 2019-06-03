@@ -97,6 +97,8 @@ async function read(key, config) {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('read failed');
+    // eslint-disable-next-line no-console
+    console.log(error);
     throw error.response;
   }
 }
