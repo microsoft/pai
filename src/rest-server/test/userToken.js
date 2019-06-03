@@ -43,7 +43,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     console.log(apiServerRootUri);
     console.log(global.apiServerRootUri);
     console.log('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374');
-    nock(apiServerRootUri)
+    global.nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374', {
         reqheaders: {
           'Accept': 'application/json',
@@ -68,7 +68,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     console.log(apiServerRootUri);
     console.log(global.apiServerRootUri);
     console.log('/api/v1/namespaces/pai-user-v2/secrets/nonexist');
-    nock(apiServerRootUri)
+    global.nock(global.apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist', {
       reqheaders: {
         'Accept': 'application/json',
