@@ -106,21 +106,21 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ## 训练模型
 
-与所有计算平台一样，OpenPAI 是提高生产力的工具，最大限度地利用资源。 因此，在进行模型训练时，推荐直接将任务提交到 OpenPAI，并让其分配资源来运行。 如果 Job 太多，一些 Job 会排队等待资源。 This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
+与所有计算平台一样，OpenPAI 是提高生产力的工具，最大限度地利用资源。 因此，在进行模型训练时，推荐直接将任务提交到 OpenPAI，并让其分配资源来运行。 如果 Job 太多，一些 Job 会排队等待资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
 
-Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
+注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接，详情参考[这里](examples/jupyter/README_zh_CN.md)。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
 
 ### 提交训练作业
 
-Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 可从此开始来学习 OpenPAI 的使用。
 
 ### 客户端
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt_zh_CN.md) 是推荐的 OpenPAI 客户端工具，其基于图形界面，易于使用。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
-Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH for debugging.
+Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
 
 有关调研 Job 错误的详细信息参考[这里](docs/zh_CN/user/troubleshooting_job.md)。
 
@@ -132,23 +132,23 @@ Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH 
 
 ## 参考手册
 
-### Users
+### 用户
 
-* [Client tool](contrib/pai_vscode/VSCodeExt.md)
-* [Use Storage](docs/user/storage.md)
-* [Job configuration](docs/job_tutorial.md)
+* [客户端](contrib/pai_vscode/VSCodeExt.md)
+* [使用存储](docs/user/storage.md)
+* [Job 配置](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
-* Design documents could be found [here](docs) if you are curious.
+* [设计文档](docs)可帮助了解 OpenPAI 的设计和架构。
 
 ## 寻求帮助
 
 * [Stack Overflow](./docs/zh_CN/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
-* [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in Microsoft/pai conversation.
+* [Gitter Chat](https://gitter.im/Microsoft/pai)：也可以在 Gitter 中提问。
 * [提交问题或功能请求](https://github.com/Microsoft/pai/issues/new/choose)：如果发现了错误，或有新功能的需求，可提交到 GitHub。
 
 ## 参与贡献
 
-### Contributor License Agreement
+### 贡献者许可协议
 
 本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
 
@@ -156,20 +156,20 @@ Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH 
 
 该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息，请参阅[行为守则常见问题解答](https://opensource.microsoft.com/codeofconduct/faq/)或联系 opencode@microsoft.com 咨询问题或评论。
 
-### Call for contribution
+### 征集意见建议
 
 当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
 
 * OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
 * OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
 
-### Who should consider contributing to OpenPAI
+### 考虑为 OpenPAI 做贡献
 
 * 希望添加对其它机器学习或深度学习框架的支持
 * 希望 OpenPAI 成为更强大的 AI 平台（例如，支持更多的机器学习流程，超参调优)
 * 希望写作教程和博客文章，来展示如何使用 OpenPAI 解决 AI 问题
 
-### Contributors
+### 贡献者
 
 OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
 
