@@ -39,6 +39,11 @@ const userEmailUpdateInputSchema = Joi.object().keys({
   email: Joi.string().email().required(),
 });
 
+// define the input schema for the 'update user admin permission' api
+const userAdminPermissionUpdateInputSchema = Joi.object().keys({
+  admin: Joi.boolean().required(),
+});
+
 // define the input schema for the 'create user' api
 const userCreateInputSchema = Joi.object().keys({
   username: Joi.string()
@@ -67,4 +72,5 @@ module.exports = {
   userPasswordUpdateInputSchema,
   userEmailUpdateInputSchema,
   userCreateInputSchema,
+  userAdminPermissionUpdateInputSchema,
 };

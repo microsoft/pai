@@ -207,6 +207,30 @@ const updateUserEmail = async (req, res, next) => {
   }
 };
 
+const updateUserAdminPermission = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const admin = req.body.admin;
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    } else {
+      let userInfo = await userModel.getUser(username);
+      const existed = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+      if (!existed && admin) {
+        userInfo['grouplist'].push(authConfig.groupConfig.adminGroup.groupname);
+      } else if (existed && !admin) {
+        userInfo['grouplist'].splice(userInfo['grouplist'].indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
+      }
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user admin permission successfully.',
+      });
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
 const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -249,6 +273,7 @@ module.exports = {
   updateUserExtension,
   updateUserVirtualCluster,
   updateUserEmail,
+  updateUserAdminPermission,
   deleteUser,
   updateUserPassword,
   createUser,
