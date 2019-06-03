@@ -129,7 +129,9 @@ const updateUserExtension = async (req, res, next) => {
     const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
-      userInfo['extension'] = extensionData;
+      for (let [key, value] of Object.entries(extensionData)) {
+        userInfo['extension'][key] = value;
+      }
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user extension data successfully.',
