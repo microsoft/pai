@@ -18,65 +18,13 @@
 import c from 'classnames';
 import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import React from 'react';
 
-import {monacoHack} from './monaco-hack.scss';
+import MonacoEditor from './monaco-editor';
+
 import t from './tachyons.scss';
 
 const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas}) => {
-  // monaco variables
-  const monaco = useRef(null);
-  const editor = useRef(null);
-  const completionList = useRef({
-    suggestions: [],
-  });
-
-  // resize event
-  const handleResize = () => {
-    if (editor.current !== null) {
-      editor.current.layout();
-    }
-  };
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  });
-
-  // json schema
-  const setSchemas = (monaco, schemas) => {
-    if (schemas !== null) {
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        schemas,
-      });
-    } else {
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: false,
-        schemas: [],
-      });
-    }
-  };
-  useLayoutEffect(() => {
-    if (monaco.current !== null) {
-      setSchemas(monaco.current, schemas);
-    }
-  }, [schemas]);
-
-  // completion items
-  useEffect(() => {
-    if (completionItems) {
-      completionList.current = {
-        suggestions: completionItems.map((x) => ({
-          label: x,
-          insertText: x,
-        })),
-      };
-    }
-  }, [completionItems]);
-
   return (
     <div>
       <Panel
@@ -98,33 +46,20 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           {header}
         </div>}
         <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
-          <div className={c(monacoHack)} style={{flex: '1 1 100%', minHeight: 0}}>
-            <MonacoEditor
-              className={c(t.flexAuto)}
-              theme='vs-dark'
-              language='text'
-              options={{
+          <MonacoEditor
+            style={{flex: '1 1 100%', minHeight: 0}}
+            monacoProps={{
+              theme: 'vs-dark',
+              language: 'text',
+              options: {
                 wordWrap: 'on',
                 readOnly: true,
-              }}
-              editorDidMount={(e, m) => {
-                // save monaco context
-                editor.current = e;
-                monaco.current = m;
-                // completion provider
-                for (const lang of ['json', 'yaml', 'plaintext']) {
-                  monaco.current.languages.registerCompletionItemProvider(lang, {
-                    provideCompletionItems() {
-                      return completionList.current;
-                    },
-                  });
-                }
-                // json schema
-                setSchemas(monaco.current, schemas);
-              }}
-              {...monacoProps}
-            />
-          </div>
+              },
+              ...monacoProps,
+            }}
+            completionItems={completionItems}
+            schemas={schemas}
+          />
           <div className={c(t.mt4, t.flex, t.justifyBetween)}>
             <div>
               {footer}

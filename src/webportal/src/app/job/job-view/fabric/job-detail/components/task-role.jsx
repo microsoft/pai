@@ -117,7 +117,7 @@ export default class TaskRole extends React.Component {
                 <span className={t.ml3}>{name}</span>
               </div>
               {taskConfig && (
-                <MonacoCallout language='yaml' value={yaml.safeDump(taskConfig)}>
+                <MonacoCallout monacoProps={{language: 'yaml', value: yaml.safeDump(taskConfig)}}>
                   <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}} />
                 </MonacoCallout>
               )}
