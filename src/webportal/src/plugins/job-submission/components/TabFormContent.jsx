@@ -88,8 +88,8 @@ export const TabFormContent = (props) => {
       <FormTextFiled sectionLabel={'Command'}
                      multiline={true}
                      rows={10}
-                     value={jobTaskRole.command}
-                     onChange={(value) => _onValueChange('command', value)}/>
+                     value={jobTaskRole.commands}
+                     onChange={(value)=>_onValueChange('commands', value)}/>
       <DeploymentSection value={jobTaskRole.deployment}
                          onChange={(deployment) => _onValueChange('deployment', deployment)}/>
     </FormPage>

@@ -30,14 +30,14 @@ import {ContainerSize} from '../models/containerSize';
 
 export class JobTaskRole {
   constructor(props) {
-    const {name, instances, taskRetryCount, dockerInfo, ports, command, completion, deployment, containerSize,
+    const {name, instances, taskRetryCount, dockerInfo, ports, commands, completion, deployment, containerSize,
            isContainerSizeEnabled} = props;
     this.name = name;
     this.instances = instances || 1;
     this.taskRetryCount = taskRetryCount || 0;
     this.dockerInfo = dockerInfo || new DockerInfo({});
     this.ports = ports || [];
-    this.command = command;
+    this.command = commands;
     this.completion = completion || new Completion({});
     this.deployment = deployment|| new Deployment({});
     this.containerSize = containerSize || new ContainerSize({});
@@ -45,9 +45,28 @@ export class JobTaskRole {
   }
 
   getTaskPrerequires() {
+    return [this.dockerInfo.convertToProtocolFormat()];
+  }
+
+  getDeployments() {
+    const deployment = {};
+    deployment[this.name] = this.deployment.convertToProtocolFormat();
+    return deployment;
   }
 
   convertToProtocolFormat() {
+    const taskRole = {};
+    const ports = this.ports.map((port) => port.convertToProtocolFormat());
+
+    taskRole[this.name] = {
+      instances: this.instances,
+      completion: this.completion,
+      taskRetryCount: this.taskRetryCount,
+      dockerImage: this.dockerInfo.name,
+      resourcePerInstance: {...this.containerSize.getResourcePerInstance(), ports: ports},
+      commands: this.commands,
+    };
+    return taskRole;
   }
 }
 

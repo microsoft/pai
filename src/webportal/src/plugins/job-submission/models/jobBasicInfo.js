@@ -23,19 +23,30 @@
  * SOFTWARE.
  */
 
+export class JobBasicInfo {
+  constructor(props) {
+    const {name, jobRetryCount, virtualCluster} = props;
+    this.name = name;
+    this.jobRetryCount = jobRetryCount;
+    this.virtualCluster = virtualCluster;
+  }
 
-// eslint-disable-next-line no-unused-vars
-class JobBasicInfo {
-  convertToProtocolFormat() {
-    const jobRetryCount = this.jobRetryCount === undefined || typeof(jobRetryCount) !== 'number'? 0: this.jobRetryCount;
+  getDefaults() {
+    if (!this.virtualCluster) {
+      return;
+    }
+
     return {
-              protocolVersion: 2,
-              name: this.name,
-              type: 'job',
-              jobRetryCount: jobRetryCount,
-              default: {
-                virtualCluster: this.virtualCluster,
-              },
-            };
+      virtualCluster: this.virtualCluster,
+    };
+  }
+
+  convertToProtocolFormat() {
+    return {
+      protocolVersion: 2,
+      name: this.name,
+      type: 'job',
+      jobRetryCount: this.jobRetryCount,
+    };
   }
 }

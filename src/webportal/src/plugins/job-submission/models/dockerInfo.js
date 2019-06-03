@@ -26,7 +26,7 @@
 export class DockerInfo {
   constructor(props) {
     const {name, uri, auth} = props;
-    this.name = name;
+    this.name = name || 'dockerImage-' + DockerInfo.dockerImageSeq++;
     this.uri = uri;
     this.auth = auth;
   }
@@ -35,3 +35,5 @@ export class DockerInfo {
     return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
+
+DockerInfo.dockerImageSeq = 0;

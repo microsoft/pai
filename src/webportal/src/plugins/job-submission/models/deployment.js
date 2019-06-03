@@ -4,4 +4,11 @@ export class Deployment {
     this.preCommands = preCommands;
     this.postCommands = postCommands;
   }
+
+  convertToProtocolFormat() {
+    return {
+      preCommands: this.preCommands,
+      postCommands: this.postCommands,
+    };
+  }
 }
