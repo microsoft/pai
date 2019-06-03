@@ -1,11 +1,11 @@
 # OpenPAI VS Code Client
 
-OpenPAI VS Code Client 是一个扩展组件，能够连接 OpenPAI 集群，提交 AI Job，在本地模拟运行 Job，管理文件等等。
+OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连接 OpenPAI 集群，提交 Job，在本地模拟运行 Job，管理文件等等。
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client) 
-  - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
-  - [Submit job](#submit-job)
-  - [Local simulation](#local-simulation) 
+  - [连接到 OpenPAI 集群](#connect-to-an-openpai-cluster)
+  - [提交 Job](#submit-job)
+  - [本机模拟](#local-simulation) 
     - [Prerequisites](#prerequisites)
     - [Steps](#steps)
     - [Limitations](#limitations)
