@@ -38,7 +38,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
   });
 
   beforeEach(() => {
-
+    console.log('before each1111!!!!!!!!!!!');
     // mock for case 1 username=tokentest
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
@@ -57,7 +57,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         },
         'type': 'Opaque'
     });
-
+    console.log('before each2222!!!!!!!!!!!');
     nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
     .reply(404, {
