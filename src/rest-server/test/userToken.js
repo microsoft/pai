@@ -40,6 +40,9 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
   beforeEach(() => {
     console.log('before each1111!!!!!!!!!!!');
     // mock for case 1 username=tokentest
+    console.log(apiServerRootUri);
+    console.log(global.apiServerRootUri);
+    console.log('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374');
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
       .reply(200, {
@@ -58,6 +61,9 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         'type': 'Opaque'
     });
     console.log('before each2222!!!!!!!!!!!');
+    console.log(apiServerRootUri);
+    console.log(global.apiServerRootUri);
+    console.log('/api/v1/namespaces/pai-user-v2/secrets/nonexist');
     nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
     .reply(404, {
