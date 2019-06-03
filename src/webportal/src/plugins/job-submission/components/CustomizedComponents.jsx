@@ -24,31 +24,38 @@
  */
 
 import React from 'react';
-import {BasicSection} from './BasicSection';
+import {SpinButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {CSpinButton} from './CustomizedComponents';
 
-export const FormSpinButton = (props) => {
-  const {label, optional, onChange, value} = props;
-  const _onChange = (value) => {
-    if (onChange !== undefined) {
-      onChange(value);
+export const CSpinButton = (props) => {
+  const {onChange, onIncrement, onDecrement, onValidate} = props;
+
+  const _onChange = (value, operateFunc, defaultReturnValue) => {
+    let newValue = defaultReturnValue;
+    if (operateFunc !== undefined) {
+      newValue = operateFunc(value);
     }
+    if (onChange === undefined) {
+      return newValue;
+    }
+    onChange(newValue);
   };
 
+  const _onIncrement = (value) => _onChange(value, onIncrement, +value + 1);
+  const _onDecrement = (value) => _onChange(value, onDecrement, +value - 1);
+  const _onValidate = (value) => _onChange(value, onValidate, value);
+
   return (
-    <BasicSection label={label} optional={optional}>
-      <CSpinButton min={0}
-                   step={1}
-                   value={value === undefined ? NaN.toString(): value}
-                   onChange={_onChange}/>
-    </BasicSection>
+    <SpinButton {...props}
+      onIncrement={_onIncrement}
+      onDecrement={_onDecrement}
+      onValidate={_onValidate} />
   );
 };
 
-FormSpinButton.propTypes = {
-  label: PropTypes.string.isRequired,
-  optional: PropTypes.bool,
+CSpinButton.propTypes = {
   onChange: PropTypes.func,
-  value: PropTypes.string,
+  onIncrement: PropTypes.func,
+  onDecrement: PropTypes.func,
+  onValidate: PropTypes.func,
 };
