@@ -84,6 +84,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
