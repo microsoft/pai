@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo, useState} from 'react';
 
-import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames} from 'office-ui-fabric-react';
+import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames, getTheme} from 'office-ui-fabric-react';
 import {PropTypes} from 'prop-types';
 import {findIndex} from 'lodash';
 
@@ -278,7 +278,7 @@ function TopBar() {
       text: 'Admin',
       buttonStyles: transparentStyles,
       iconProps: {
-        iconName: 'Clock',
+        iconName: 'Admin',
       },
       subMenuProps: {
         items: Object.keys(admins).map(getItem).concat([{
@@ -399,17 +399,24 @@ function TopBar() {
     btnClear,
   ];
 
+  const {spacing} = getTheme();
+
   return (
     <React.Fragment>
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={transparentStyles}
+        styles={{root: {backgroundColor: 'transparent', padding: 0}}}
       />
       {active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: [ColorClassNames.neutralLightBackground]}}
+        styles={{
+          root: [
+            ColorClassNames.neutralLightBackground,
+            {marginTop: spacing.s2, paddingTop: spacing.m, paddingBottom: spacing.m, height: 'auto'},
+          ],
+        }}
       /> : null}
     </React.Fragment>
   );

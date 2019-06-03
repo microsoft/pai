@@ -181,7 +181,7 @@ class JobDetail extends React.Component {
     } else {
       return (
         <Context.Provider value={{sshInfo, rawJobConfig, jobConfig}}>
-          <div className={classNames(t.w100, t.ph4, t.pv3, FontClassNames.medium)}>
+          <div className={classNames(t.w100, t.pa4, FontClassNames.medium)}>
             <Top />
             {!isEmpty(error) && (
               <div className={t.bgWhite}>
