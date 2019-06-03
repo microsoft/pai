@@ -43,11 +43,11 @@
   
   之后，OpenPAI 会显示如下的 Job 列表。
   
-  ![job list](imgs/web_job_list.png)
+  ![Job 列表](imgs/web_job_list.png)
 
 2. 单击左边的的 **Submit Job** 并转到此页面。
   
-  ![submit job](imgs/web_submit_job.png)
+  ![提交 Job](imgs/web_submit_job.png)
 
 3. 点击 **JSON** 按钮。 在弹出的文本框中，清除现有内容并粘贴下面的内容，然后单击“保存”。
   
@@ -69,19 +69,19 @@
        ]
        }
   
-  ![paste job](imgs/web_paste_json.png)
+  ![粘贴 Job](imgs/web_paste_json.png)
 
 4. 然后点击 **Submit** 按钮将 Job 提交到 OpenPAI 平台。
   
-  ![click submit job](imgs/web_click_submit_job.png)
+  ![点击提交 Job](imgs/web_click_submit_job.png)
 
 5. 提交后，页面重定向到作业列表，提交的作业在列表中为 **Waiting** 状态。 单击左边的 **Jobs** 也可以到达此页面。
   
-  ![job list](imgs/web_job_list.png)
+  ![Job 列表](imgs/web_job_list.png)
 
 6. 单击 Job 名称查看详细信息。 开始运行后，Job 状态会变为 *Running*，并且会在下面显示分配给 Task Role 的 IP 地址。 除此之外，还有更多的信息及操作，如状态、查看日志等。
   
-  ![job list](imgs/web_job_details.png)
+  ![Job 列表](imgs/web_job_details.png)
 
 ## 理解 Job
 
@@ -135,25 +135,25 @@ OpenPAI 会管理计算资源，但不会管理持久化的存储资源。 [如�
 
 ### Job 流程
 
-Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使用 [Visual Studio Code OpenPAI Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 来提交 Job。 Both web UI and the client through [RESTful API of OpenPAI](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize a client.
+Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使用 [Visual Studio Code OpenPAI Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 来提交 Job。 Web 界面和 Visual Studio Code 客户端都是依靠 [RESTful API](../rest-server/API.md) 来访问 OpenPAI。 可通过 RESTful API 来定制客户端体验。
 
-After received job configuration, OpenPAI processes it as below steps.
+收到 Job 配置后， OpenPAI 按以下步骤进行处理。
 
-1. Wait for resource allocated. OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts very soon. If there is not enough resource, job is queued and wait on previous jobs.
+1. 等待分配资源。 OpenPAI 会等待分配到足够的资源，包括 CPU，内存和 GPU。 如果资源足够，Job 会很快开始。 如果资源不足， Job 会进入队列，并等待以前的 Job 完成后释放资源。
   
-  Note, distributed jobs are marked as running in OpenPAI once they start to wait resource. The job status is set to *Running* on OpenPAI as well.
+  注意，分布式 Job 一旦开始等待资源就会标记为 running。 作业状态也设置为 *Running*。
 
-2. Initialize docker container. OpenPAI pulls the docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the docker container.
+2. 初始化 Docker 容器。 如果指定的 Docker 映像不在本地， OpenPAI 会拉取它。 随后，OpenPAI 会初始化 Docker 容器。
 
-3. run the command in configuration. During the command is executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. Some metrices can be used to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
+3. 运行配置中的命令。 在命令执行过程中，OpenPAI 会近实时的输出 [stdout 和 stderr](troubleshooting_job.md)。 还可通过一些指标来[监控工作负载](troubleshooting_job.md#how-to-check-job-log)。
 
-4. Finalize job running. Once the command is completed, OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resources for next jobs.
+4. 结束 Job。 命令完成后，OpenPAI 会用最后的退出代码作为信号来决定 Job 是否成功结束。 0 表示成功，其它值表示失败。 随后，OpenPAI 会回收资源，以便运行下一个 Job。
 
-When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
+当 Job 提交到 OpenPAI 后， Job 会从 waiting，切换到 running，然后是 succeeded 或 failed。 如果 Job 被用户或系统中断了，状态也可能显示为 stopped。
 
 ## 参考
 
-- [Full spec of job configuration](../job_tutorial.md)
-- [Examples](../../../examples)
-- [Troubleshooting job failure](troubleshooting_job.md)
-- [How to use storage](storage.md)
+- [Job 配置的完整说明](../job_tutorial.md)
+- [示例](../../../examples)
+- [调研 Job 错误](troubleshooting_job.md)
+- [如何使用存储](storage.md)
