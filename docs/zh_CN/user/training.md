@@ -91,19 +91,19 @@
 
 **Job 配置**是一个提交到 OpenPAI 的 JSON 文件。 hello-world Job 的配置包含了以下必需的关键字段。
 
-JSON 文件中的字段有两个级别。 The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specify a command and its environment.
+JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息，包括 Job 名称，Docker 映像， Task Role 等等。 第二级是 taskRoles，是一个数组，它的每一项都描述了一个命令及其运行环境。
 
-Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
+以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
-- **jobName** is the name of current job. It must be unique in each user account. A meaningful name helps managing jobs well.
+- **jobName** 是当前 Job 的名称。 在每个用户账号中，其必需是唯一的。 有意义的名称有助于管理 Job。
 
 - **image**
   
-  [Docker](https://www.docker.com/why-docker) is a popular technology to provide virtual environments on a server. OpenPAI uses Docker to provide consistent and clean environments. OpenPAI can also serve multiple resource requests on the same server.
+  [Docker](https://www.docker.com/why-docker) 是在服务器上提供虚拟环境的常用技术。 OpenPAI 用 Docker 来提供一致、干净的环境。 通过 Docker, OpenPAI 可以在同一台服务器上同时服务于多个资源请求。
   
-  The **image** field is the identity of a docker image, which includes customized Python or system packages, to provide a clean and consistent environment for each running.
+  **image** 字段是 Docker 映像的标识，它包含了定制的 Python 和系统包。
   
-  The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. Administrator may set a private docker repository.
+  hub.docker.com 是共享的 Docker 存储库，有大量的 Docker 映像。 深度学习训练任务推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo)。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。 管理员可以设置专用的 Docker 存储库。
   
   If an appropriate docker image isn't found, it's easy to [build a docker image](../job_docker_env.md).
   
