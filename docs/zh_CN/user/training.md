@@ -117,19 +117,19 @@ JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息
 
 - **taskRoles/name** 是任务角色的名称，还会被用于分布式 Job 的环境变量中。
 
-- **taskRoles/taskNumber** 是任务角色的实例数量。 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 It means there should be 8 docker containers as workers should be instantiated for this role.
+- **taskRoles/taskNumber** 是任务角色的实例数量。 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 则表示需要为工作节点角色创建 8 个 Docker 容器。
 
-- **taskRoles/cpuNumber**, **taskRoles/memoryMB**, **taskRoles/gpuNumber** are easy to understand. They specify corresponding hardware resources including the number of CPU core, MB of memory, and number of GPU.
+- **taskRoles/cpuNumber**，**taskRoles/memoryMB**，**taskRoles/gpuNumber** 非常容易理解。 它们指定了相应的硬件资源，包括 CPU 核数量，内存（MB），以及 GPU 数量。
 
-- **taskRoles/command** is the command to run in this task role. It can be multiple commands, and joint by `&&` like in terminal. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress.
+- **taskRoles/command** 是此任务角色要运行的命令。 可以是多个命令，像在终端中一样，通过 `&&` 组合到一起。 例如，在 hello-world Job 中，命令会从 GitHub 中克隆代码，下载数据，然后执行训练过程。
   
-  Like the hello-world job, user needs to construct command(s) to get code, data and trigger running.
+  像 hello-world Job 一样，用户需要构造命令来获取代码、数据，并开始执行。
 
 ### 传入/传出文件
 
-Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
+大多数模型训练以及其它类型的 Job 都需要在运行环境内外间传输文件。 这些文件包括数据集、代码、脚本、训练好的模型等等。
 
-OpenPAI manages computing resources, but it doesn't provide persistent storage. The [how to use storage](storage.md) is prepared for OpenPAI users.
+OpenPAI 会管理计算资源，但不会管理持久化的存储资源。 [如何使用存储](storage.md)可帮助 OpenPAI 用户来管理存储。
 
 It's better to check with administrator of the OpenPAI cluster about how to transfer files, since they may choose most suitable approaches and examples for you.
 
