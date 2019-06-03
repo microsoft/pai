@@ -190,9 +190,13 @@ const deleteUser = async (req, res, next) => {
 
 const checkUserPassword = async (req, res, next) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log('check password');
     const username = req.body.username;
     const password = req.body.password;
     let userValue = await userModel.getUser(username);
+    // eslint-disable-next-line no-console
+    console.log('check password done');
     let newUserValue = userValue;
     newUserValue['password'] = password;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
