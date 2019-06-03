@@ -417,9 +417,9 @@
         "@types/uuid": "^3.4.4",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
-        "tslint-language-service": "^0.9.9",
+        "typescript-tslint-plugin": "^0.4.0",
         "tslint-microsoft-contrib": "^5.2.1",
-        "typescript": "^3.1.1",
+        "typescript": "^3.5.1",
         "vsce": "^1.53.0",
         "vscode": "^1.1.21"
     },
