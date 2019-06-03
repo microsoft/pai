@@ -221,7 +221,7 @@ const checkUserPassword = async (req, res, next) => {
     if (newUserValue['password'] !== userValue['password']) {
       // eslint-disable-next-line no-console
       console.log('wrong password');
-      return next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
     }
     // eslint-disable-next-line no-console
     console.log('check passed');
