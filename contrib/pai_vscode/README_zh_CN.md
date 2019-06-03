@@ -3,20 +3,20 @@
 OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连接 OpenPAI 集群，提交 Job，在本地模拟运行 Job，管理文件等等。
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client) 
-  - [连接到 OpenPAI 集群](#connect-to-an-openpai-cluster)
-  - [提交 Job](#submit-job)
-  - [本机模拟](#local-simulation) 
-    - [Prerequisites](#prerequisites)
-    - [Steps](#steps)
-    - [Limitations](#limitations)
-  - [Reference](#reference) 
+  - [连接到 OpenPAI 集群](#连接到-openpai-群集)
+  - [提交 Job](#提交-job)
+  - [本机模拟](#本机模拟) 
+    - [先决条件](#先决条件)
+    - [步骤](#步骤)
+    - [局限性](#局限性)
+  - [参考](#参考) 
     - [GUI](#gui)
     - [Command Palette](#command-palette)
     - [PAI Cluster Explorer](#pai-cluster-explorer)
     - [Settings](#settings)
-  - [Issue and suggestions](#issue-and-suggestions)
-  - [Contribution](#contribution)
-  - [License](#license)
+  - [问题和建议](#问题和建议)
+  - [贡献](#贡献)
+  - [许可证](#许可证)
 
 ## 连接到 OpenPAI 群集
 
@@ -60,15 +60,15 @@ You can create a job configuration and submit to OpenPAI as below steps.
       ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
       
 
-## Local simulation
+## 本机模拟
 
 As it needs sometime to wait job starting in OpenPAI cluster, local simulation can help identifying and debugging most code, environment and configuration issues quickly.
 
-### Prerequisites
+### 先决条件
 
 [Docker](https://docs.docker.com/install/) MUST be installed to use local simulation.
 
-### Steps
+### 步骤
 
 1. As submit a job, you can right click a configuration file to find local simulation.
 2. Click *Simulate PAI Job Running*, after a while below notification shows.
@@ -80,7 +80,7 @@ As it needs sometime to wait job starting in OpenPAI cluster, local simulation c
 
 This animation shows above steps. ![simulate job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
-### Limitations
+### 局限性
 
 As local simulation is a close but still different environment with OpenPAI cluster, there are some issues cannot be found by simulation. Some examples,
 
@@ -89,7 +89,7 @@ As local simulation is a close but still different environment with OpenPAI clus
 - The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
 - Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
 
-## Reference
+## 参考
 
 ### GUI
 
@@ -135,7 +135,7 @@ There are two parts in the side bar.
 
 ### Settings
 
-| ID                               | Description                                             |
+| 标识                               | 说明                                                      |
 | -------------------------------- | ------------------------------------------------------- |
 | pai.job.upload.enabled           | Whether will upload files to codeDir of configuration   |
 | pai.job.upload.exclude           | Excluded files and folders for uploading                |
@@ -146,14 +146,14 @@ There are two parts in the side bar.
 | pai.job.jobList.refreshInterval  | The refresh interval of job list (in seconds)           |
 | pai.hdfs.location                | Where HDFS storage will be shown                        |
 
-## Issue and suggestions
+## 问题和建议
 
-Submit at [GitHub](https://github.com/Microsoft/pai/issues)
+提交到 [GitHub](https://github.com/Microsoft/pai/issues)
 
-## Contribution
+## 贡献
 
-https://github.com/Microsoft/pai#how-to-contribute
+https://github.com/squirrelsc/pai/blob/l10n_master/README_zh_CN.md#参与贡献
 
-## License
+## 许可证
 
 MIT
