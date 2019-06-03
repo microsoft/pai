@@ -24,12 +24,12 @@ Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI
 
 Notice, the version of OpenPAI cluster must equal or greater than 0.8.0.
 
-1. Use shortcut key Ctrl+Shift+P to open command palette.
+1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
 2. Input and look for *PAI: Add PAI Cluster* as below.
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
 
-3. Press *Enter*, and input the host of an OpenPAI cluster. It can be domain name or IP Address. After that, press *Enter* again.
+3. Press <kbd>Enter</kbd>, and input the host of an OpenPAI cluster. It can be domain name or IP Address. After that, press <kbd>Enter</kbd> again.
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster_host.png)
 
