@@ -208,6 +208,8 @@ const checkUserPassword = async (req, res, next) => {
     newUserValue = await userModel.getEncryptPassword(newUserValue);
     // eslint-disable-next-line no-console
     console.log('encrypt password done');
+    // eslint-disable-next-line no-console
+    console.log(newUserValue);
     if (newUserValue['password'] !== userValue['password']) {
       // eslint-disable-next-line no-console
       console.log('wrong password');
