@@ -40,7 +40,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
   beforeEach(() => {
 
     // mock for case 1 username=tokentest
-    nock(global.apiServerRootUri)
+    nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
       .reply(200, {
         'kind': 'Secret',
@@ -58,7 +58,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         'type': 'Opaque'
     });
 
-    nock(global.apiServerRootUri)
+    nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
     .reply(404, {
       'kind': 'Status',

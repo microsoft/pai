@@ -111,7 +111,7 @@ describe('User model k8s secret get function test', () => {
   // positive test case
   // get exist single key value pair
   it('Should return whole user list.', async () => {
-    const res = await userK8sCRUD.readAll(userK8sCRUDConfig)
+    const res = await userK8sCRUD.readAll(userK8sCRUDConfig);
     return expect(res).to.have.lengthOf(2);
   });
 
