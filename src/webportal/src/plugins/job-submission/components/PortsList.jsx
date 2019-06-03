@@ -38,7 +38,7 @@ export const PortsList = (props) => {
   };
 
   return (
-    <BasicSection label='Ports' optional>
+    <BasicSection sectionLabel='Ports' sectionOptional>
       <KeyValueList items={ports.map((port)=>{
         return {itemKey: port.portLabel, itemValue: port.portNumber};
       })}

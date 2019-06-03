@@ -30,7 +30,7 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 
 export const FormTextFiled = (props) => {
-  const {label, onChange, value, textFiledProps, optional} = props;
+  const {sectionLabel, onChange, value, sectionOptional} = props;
   const textFieldId = getId('textField');
   const _onChange = (_, value) => {
     if (onChange === undefined) {
@@ -40,19 +40,16 @@ export const FormTextFiled = (props) => {
   };
 
   return (
-    <BasicSection label={label} optional={optional}>
-      <TextField id={textFieldId}
-                     value={value}
-                     onChange={_onChange}
-                     {...textFiledProps}/>
+    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
+      <TextField {...props} id={textFieldId} value={value} onChange={_onChange}/>
     </BasicSection>
   );
 };
 
 FormTextFiled.propTypes = {
-  label: PropTypes.string.isRequired,
+  sectionLabel: PropTypes.string.isRequired,
   onChange: PropTypes.func,
   value: PropTypes.string,
   textFiledProps: PropTypes.object,
-  optional: PropTypes.bool,
+  sectionOptional: PropTypes.bool,
 };

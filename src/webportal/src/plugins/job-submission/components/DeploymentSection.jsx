@@ -30,32 +30,30 @@ import PropTypes from 'prop-types';
 import {Deployment} from '../models/deployment';
 
 export const DeploymentSection = (props) => {
-  const {onChange} = props;
-  const {preCommands, postCommands} = props.value;
+  const {onChange, value} = props;
+  const {preCommands, postCommands} = value;
 
-  const _onDeploymentChange = (oriValue, keyName, newValue) => {
+  const _onChange = (keyName, newValue) => {
     if (onChange === undefined) {
       return;
     }
-    const deployment = new Deployment(oriValue);
+    const deployment = new Deployment(value);
     deployment[keyName] = newValue;
     onChange(deployment);
   };
 
-  const _onChange = _onDeploymentChange.bind(null, props.value);
-
   return (
-    <BasicSection label={'Deployment'} optional>
+    <BasicSection sectionLabel={'Deployment'} sectionOptional>
       <TextField label={'PreCommands'}
                  value={preCommands}
-                 onChange={(_, value)=>_onChange('preCommands', value)}
+                 onChange={(_, v)=>_onChange('preCommands', v)}
                  multiline
                  rows={3}/>
       <TextField label={'PostCommands'}
                  value={postCommands}
                  multiline
                  rows={3}
-                 onChange={(_, value)=>_onChange('postCommands', value)}/>
+                 onChange={(_, v)=>_onChange('postCommands', v)}/>
     </BasicSection>
   );
 };

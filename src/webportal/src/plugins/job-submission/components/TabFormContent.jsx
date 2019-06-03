@@ -38,31 +38,30 @@ import {ContainerSizeSection} from './ContainerSizeSection';
 export const TabFormContent = (props) => {
   const {jobTaskRole, onContentChange} = props;
 
-  const _updateTaskRoleProperty = (oriJobTaskRole, propertyName, propertyValue) => {
-    let udpatedJobTaskRole = new JobTaskRole(oriJobTaskRole);
+  const _onValueChange = (propertyName, propertyValue) => {
+    let udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
     udpatedJobTaskRole[propertyName] = propertyValue;
     onContentChange(udpatedJobTaskRole);
   };
 
-  const _updateProperties = (oriJobTaskRole, updateProperties) => {
-    let udpatedJobTaskRole = {...oriJobTaskRole, ...updateProperties};
+  const _onValuesChange = (updateProperties) => {
+    let udpatedJobTaskRole = {...jobTaskRole, ...updateProperties};
     udpatedJobTaskRole = new JobTaskRole(udpatedJobTaskRole);
     onContentChange(udpatedJobTaskRole);
   };
-
-  const _onValueChange = _updateTaskRoleProperty.bind(null, jobTaskRole);
-  const _onValuesChange = _updateProperties.bind(null, jobTaskRole);
 
   const _onPortAdd = (port) => {
     const {ports} = jobTaskRole;
     ports.push(port);
     _onValueChange('ports', ports);
   };
+
   const _onPortDelete = (index) => {
     let {ports} = jobTaskRole;
     ports = ports.filter((_, itemIndex) => index !== itemIndex);
     _onValueChange('ports', ports);
   };
+
   const _onPortChange = (index, port) => {
     const {ports} = jobTaskRole;
     ports[index] = port;
@@ -71,15 +70,13 @@ export const TabFormContent = (props) => {
 
   return (
     <FormPage>
-      <FormTextFiled label={'Task role name'}
-                     required
+      <FormTextFiled sectionLabel={'Task role name'}
                      value={jobTaskRole.name}
                      onChange={(value)=>_onValueChange('name', value)}
                      textFiledProps={{placeholder: 'Enter task role name...'}}/>
       <DockerSection dockerInfo={jobTaskRole.dockerInfo}
-                     onValueChange={(dockerInfo)=>_onValueChange('dockerInfo', dockerInfo)}>
-      </DockerSection>
-      <FormSpinButton label={'Instances'}
+                     onValueChange={(dockerInfo)=>_onValueChange('dockerInfo', dockerInfo)}/>
+      <FormSpinButton sectionLabel={'Instances'}
                       textFiledProps={{placeholder: 'Enter instance number...'}}
                       value={jobTaskRole.instances}
                       onChange={(value)=>_onValueChange('instances', value)}/>
@@ -93,15 +90,16 @@ export const TabFormContent = (props) => {
       <PortsList ports={jobTaskRole.ports}
                  onPortAdd={_onPortAdd}
                  onPortDelete={_onPortDelete}
-                 onPortChange={_onPortChange}></PortsList>
-      <FormSpinButton label={'Task retry count'}
-                      optional
+                 onPortChange={_onPortChange}/>
+      <FormSpinButton sectionLabel={'Task retry count'}
+                      sectionOptional
                       value={jobTaskRole.taskRetryCount}
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          value={jobTaskRole.completion}/>
-      <FormTextFiled label={'Command'}
-                     textFiledProps={{multiline: true, rows: 10}}
+      <FormTextFiled sectionLabel={'Command'}
+                     multiline={true}
+                     rows={10}
                      value={jobTaskRole.command}
                      onChange={(value)=>_onValueChange('command', value)}/>
       <DeploymentSection value={jobTaskRole.deployment}

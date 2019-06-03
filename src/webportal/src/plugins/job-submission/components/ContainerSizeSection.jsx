@@ -34,16 +34,15 @@ export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
   const {cpu, memoryMB, gpu, shmMB} = value;
 
-  const _onContainerSizeChange = (oriValue, keyName, newValue) => {
+  const _onChange = (keyName, newValue) => {
     if (onChange === undefined) {
       return;
     }
-    const containerSize = new ContainerSize(oriValue);
+    const containerSize = new ContainerSize(value);
     containerSize[keyName] = newValue;
     onChange(containerSize);
   };
 
-  const _onChange = _onContainerSizeChange.bind(null, value);
   const _onEnable = (_, checked) => {
     if (onEnable === undefined) {
       return;
@@ -52,11 +51,10 @@ export const ContainerSizeSection = (props) => {
   };
 
   return (
-    <BasicSection label={'ContainerSize'}>
+    <BasicSection sectionLabel={'ContainerSize'}>
       <Stack gap='s1'>
         <Stack horizontal>
           <CSpinButton label={'GPU count'}
-                       styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}
                        value={gpu}
                        onChange={(value)=>_onChange('gpu', value)}/>
           <Toggle checked={isContainerSizeEnabled}
@@ -66,17 +64,14 @@ export const ContainerSizeSection = (props) => {
                   onChange={_onEnable}/>
         </Stack>
         <CSpinButton label={'CPU count'}
-                     styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}
                      disabled={!isContainerSizeEnabled}
                      value={cpu}
                      onChange={(value)=>_onChange('cpu', value)}/>
         <CSpinButton label={'Memory (MB)'}
-                     styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}
                      disabled={!isContainerSizeEnabled}
                      value={memoryMB}
                      onChange={(value)=>_onChange('memoryMB', value)}/>
         <CSpinButton label={'Shared memory (MB)'}
-                     styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}
                      value={shmMB}
                      disabled={!isContainerSizeEnabled}
                      onChange={(value)=>_onChange('shmMB', value)}/>

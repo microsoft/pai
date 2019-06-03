@@ -33,9 +33,9 @@ import PropTypes from 'prop-types';
 const formPageStyle = getFormPageSytle();
 
 export const BasicSection = (props) => {
-  const {label, optional, children} = props;
+  const {sectionLabel, sectionOptional, children} = props;
   const textFieldId = getId('textField');
-  const basicSectionStyle = getFormBasicSectionStyle(optional);
+  const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 
   const [isSectionOn, setSectionOn] = useState(false);
   const [iconName, setIconName] = useState('CaretSolidRight');
@@ -53,13 +53,13 @@ export const BasicSection = (props) => {
       <Stack styles={formPageStyle.formFirstColumn}>
         <Stack horizontal gap='s2'>
           <Icon iconName={iconName} styles={basicSectionStyle.icon} onClick={onOpenItem}/>
-          <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>{label}</Label>
-          { optional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
+          <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>{sectionLabel}</Label>
+          { sectionOptional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
         </Stack>
       </Stack>
       <Stack styles={formPageStyle.formSecondColunm}>
         <Stack gap='m'>
-          {(!optional || isSectionOn) && children}
+          {(!sectionOptional || isSectionOn) && children}
         </Stack>
       </Stack>
     </FormSection>
@@ -67,7 +67,7 @@ export const BasicSection = (props) => {
 };
 
 BasicSection.propTypes = {
-  label: PropTypes.string.isRequired,
+  sectionLabel: PropTypes.string.isRequired,
   children: PropTypes.node,
-  optional: PropTypes.bool,
+  sectionOptional: PropTypes.bool,
 };

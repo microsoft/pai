@@ -24,45 +24,36 @@
  */
 
 import React from 'react';
-import {Stack, SpinButton} from 'office-ui-fabric-react';
+import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {Completion} from '../models/completion';
+import {CSpinButton} from './CustomizedComponents';
 
 export const CompletionSection= (props) => {
   const {onChange, value} = props;
   const {minFailedInstances, minSuceedInstances} = value;
 
-  const _onCompletionChange = (oriValue, keyName, newValue) => {
+  const _onChange = (keyName, newValue) => {
     if (onChange === undefined) {
       return;
     }
-    const completion = new Completion(oriValue);
+    const completion = new Completion(value);
     completion[keyName] = newValue;
     onChange(completion);
   };
 
-  const _onChange = _onCompletionChange.bind(null, value);
-
-  const _onIncrement = (keyName, value) => _onChange(keyName, +value + 1);
-  const _onDecrement = (keyName, value) => _onChange(keyName, +value - 1);
-  const _onValidate = (keyName, value) => _onChange(keyName, value);
-
   return (
-    <BasicSection label={'Completion'} optional>
+    <BasicSection sectionLabel={'Completion'} sectionOptional>
       <Stack horizontal gap='s1'>
-        <SpinButton label={'Min Failed Instances'}
+        <CSpinButton label={'Min Failed Instances'}
                     value={minFailedInstances === undefined? NaN.toString() : minFailedInstances}
-                    onIncrement={(v) => _onIncrement('minFailedInstances', v)}
-                    onDecrement={(v) => _onDecrement('minFailedInstances', v)}
-                    onValidate={(v) => _onValidate('minFailedInstances', v)}/>
+                    onChange={(v) => _onChange('minFailedInstances', v)}/>
       </Stack>
       <Stack horizontal gap='s1'>
-        <SpinButton label={'Min Succeed Instances'}
+        <CSpinButton label={'Min Succeed Instances'}
                     value={minSuceedInstances === undefined? NaN.toString() : minSuceedInstances}
-                    onIncrement={(v) => _onIncrement('minSuceedInstances', v)}
-                    onDecrement={(v) => _onDecrement('minSuceedInstances', v)}
-                    onValidate={(v) => _onValidate('minSuceedInstances', v)}/>
+                    onChange={(v) => _onChange('minSuceedInstances', v)}/>
       </Stack>
     </BasicSection>
   );

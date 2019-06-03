@@ -61,6 +61,7 @@ export class App extends React.Component {
     this.setState({
       items: updatedItems,
     });
+    // TODO: can return select index
   }
 
   _onContentChange(index, jobTaskRole) {
@@ -87,7 +88,7 @@ export class App extends React.Component {
 
     return (
       <Customizer {...FluentCustomizations}>
-      <div className={formLayout}>
+        <Stack className={formLayout}>
           <Stack horizontal gap='l2'>
             <Stack styles={{root: {width: '70%'}}} gap='l2'>
               <Stack className={topForm}>
@@ -108,11 +109,11 @@ export class App extends React.Component {
             </Stack>
             <Stack styles={{root: {width: '30%'}}}>
               <Stack className={topForm}>
-                <Parameter />
+                <Parameter/>
               </Stack>
             </Stack>
           </Stack>
-        </div>
+        </Stack>
       </Customizer>
     );
   }

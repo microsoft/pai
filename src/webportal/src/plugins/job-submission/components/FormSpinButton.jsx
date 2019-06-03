@@ -29,7 +29,7 @@ import PropTypes from 'prop-types';
 import {CSpinButton} from './CustomizedComponents';
 
 export const FormSpinButton = (props) => {
-  const {label, optional, onChange, value} = props;
+  const {sectionLabel, sectionOptional, onChange, value} = props;
   const _onChange = (value) => {
     if (onChange !== undefined) {
       onChange(value);
@@ -37,8 +37,9 @@ export const FormSpinButton = (props) => {
   };
 
   return (
-    <BasicSection label={label} optional={optional}>
-      <CSpinButton min={0}
+    <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
+      <CSpinButton {...props}
+                   min={0}
                    step={1}
                    value={value === undefined ? NaN.toString(): value}
                    onChange={_onChange}/>
@@ -47,8 +48,8 @@ export const FormSpinButton = (props) => {
 };
 
 FormSpinButton.propTypes = {
-  label: PropTypes.string.isRequired,
-  optional: PropTypes.bool,
+  sectionLabel: PropTypes.string.isRequired,
+  sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
   value: PropTypes.string,
 };
