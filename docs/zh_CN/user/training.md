@@ -85,13 +85,13 @@
 
 ## 理解 Job
 
-With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
+本章节介绍了更多 Job 的知识，以便能轻松创建 Job 配置。
 
 ### 了解 hello-world Job
 
-The **job configuration** is a JSON file, which is posted to OpenPAI. The hello-world job configuration uses below required key fields.
+**Job 配置**是一个提交到 OpenPAI 的 JSON 文件。 hello-world Job 的配置包含了以下必需的关键字段。
 
-There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specify a command and its environment.
+JSON 文件中的字段有两个级别。 The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specify a command and its environment.
 
 Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
 
@@ -151,7 +151,7 @@ After received job configuration, OpenPAI processes it as below steps.
 
 When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
 
-## Reference
+## 参考
 
 - [Full spec of job configuration](../job_tutorial.md)
 - [Examples](../../../examples)
