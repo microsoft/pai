@@ -25,7 +25,6 @@
 
 import React from 'react';
 import {Stack, SpinButton} from 'office-ui-fabric-react';
-import {marginSize} from './formStyle';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {Completion} from '../models/completion';
@@ -51,21 +50,19 @@ export const CompletionSection= (props) => {
 
   return (
     <BasicSection label={'Completion'} optional>
-      <Stack horizontal gap={marginSize.s1}>
+      <Stack horizontal gap='s1'>
         <SpinButton label={'Min Failed Instances'}
                     value={minFailedInstances === undefined? NaN.toString() : minFailedInstances}
                     onIncrement={(v) => _onIncrement('minFailedInstances', v)}
                     onDecrement={(v) => _onDecrement('minFailedInstances', v)}
-                    onValidate={(v) => _onValidate('minFailedInstances', v)}
-                    styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+                    onValidate={(v) => _onValidate('minFailedInstances', v)}/>
       </Stack>
-      <Stack horizontal gap={marginSize.s1}>
+      <Stack horizontal gap='s1'>
         <SpinButton label={'Min Succeed Instances'}
                     value={minSuceedInstances === undefined? NaN.toString() : minSuceedInstances}
                     onIncrement={(v) => _onIncrement('minSuceedInstances', v)}
                     onDecrement={(v) => _onDecrement('minSuceedInstances', v)}
-                    onValidate={(v) => _onValidate('minSuceedInstances', v)}
-                    styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}/>
+                    onValidate={(v) => _onValidate('minSuceedInstances', v)}/>
       </Stack>
     </BasicSection>
   );

@@ -24,11 +24,10 @@
  */
 
 import React, {useState} from 'react';
-import {getFormClassNames, getParameterStyle} from './formStyle';
+import {getParameterStyle} from './formStyle';
 import {Text, DetailsList, CheckboxVisibility, Stack, ActionButton} from 'office-ui-fabric-react';
 import {KeyValueList} from './KeyValueList';
 
-const {topForm} = getFormClassNames();
 const parameterStyle = getParameterStyle();
 
 const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
@@ -47,10 +46,9 @@ export const Parameter= () => {
   };
 
   return (
-    <div className={topForm}>
-    <Stack>
+    <Stack gap='m'>
       <Stack horizontal>
-        <Text>Parameter</Text>
+        <Text variant='large'>Parameter</Text>
         <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle} onClick={onClick}/>
       </Stack>
       {
@@ -60,11 +58,10 @@ export const Parameter= () => {
         isParameterOn &&
         <React.Fragment>
           <KeyValueList items={[]}/>
-          <Text>Environment</Text>
+          <Text variant='large'>Environment</Text>
           <DetailsList items={[]} columns={columns} checkboxVisibility={CheckboxVisibility.hidden} compact/>
         </React.Fragment>
       }
     </Stack>
-    </div>
   );
 };

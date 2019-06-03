@@ -25,7 +25,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Pivot, PivotItem, Icon, ActionButton} from 'office-ui-fabric-react';
+import {Pivot, PivotItem, Icon, ActionButton, Stack} from 'office-ui-fabric-react';
 import {getFormClassNames, getTabFromStyle} from './formStyle';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
@@ -141,7 +141,7 @@ export class TabForm extends React.Component {
     let {selectedIndex} = this.state;
     const {children} = this.props;
 
-    const {topForm, formTabBar} = getFormClassNames();
+    const {formTabBar} = getFormClassNames();
     const items = this._getContentItemsFromChildren(children);
     const elements = this._renderItems(items);
 
@@ -150,17 +150,19 @@ export class TabForm extends React.Component {
     }
 
     return (
-      <div className={topForm}>
-        <div className={formTabBar}>
+      <>
+        <Stack className={formTabBar} horizontal>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
                    styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
                    selectedKey={this._getItemKeyByIndex(selectedIndex)}>
              {elements}
             </Pivot>
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
-        </div>
-        {selectedIndex !== undefined? items[selectedIndex].content: null}
-      </div>
+        </Stack>
+        <Stack styles={tabFormStyle.tabContent}>
+          {selectedIndex !== undefined? items[selectedIndex].content: null}
+        </Stack>
+      </>
     );
   }
 }

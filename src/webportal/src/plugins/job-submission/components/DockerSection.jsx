@@ -26,35 +26,30 @@
 import React from 'react';
 import {TextField, DefaultButton, Stack} from 'office-ui-fabric-react';
 import {getId} from 'office-ui-fabric-react/lib/Utilities';
-import {getFromComponentsStyle, marginSize} from './formStyle';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/dockerInfo';
 import {BasicSection} from './BasicSection';
-
-const formComponentsStyles = getFromComponentsStyle();
 
 export const DockerSection = (props) => {
   const {onValueChange, dockerInfo} = props;
   const textFieldId = getId('textField');
 
-  const _onChange = (keyName, value, oriDockerInfo) => {
+  const _onChange = (keyName, value) => {
     if (onValueChange === undefined) {
       return;
     }
 
-    const dockerInfo = new DockerInfo(oriDockerInfo);
-    dockerInfo[keyName] = value;
-    onValueChange(dockerInfo);
+    const updatedDockerInfo = new DockerInfo(dockerInfo);
+    updatedDockerInfo[keyName] = value;
+    onValueChange(updatedDockerInfo);
   };
 
   return (
     <BasicSection label={'Docker'}>
-    {/* TODO: remove hard code width here */}
-    <Stack horizontal gap={marginSize.s2} styles={{root: {width: '85%'}}} >
+    <Stack horizontal gap='s2' >
       <TextField id={textFieldId}
                    placeholder='Enter docker uri...'
-                   styles={formComponentsStyles.textFiled}
-                   onChange={(_, value)=>_onChange('uri', value, dockerInfo)}
+                   onChange={(_, value)=>_onChange('uri', value)}
                    value={dockerInfo.uri}/>
       <DefaultButton>Auth</DefaultButton>
     </Stack>

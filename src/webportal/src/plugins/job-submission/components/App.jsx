@@ -32,6 +32,7 @@ import {TabFormContent} from './TabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
 import {Parameter} from './Parameter';
+import {getFormClassNames} from './formStyle';
 
 initializeIcons();
 
@@ -81,24 +82,37 @@ export class App extends React.Component {
 
   render() {
     const {items} = this.state;
+    const formLayout = getFormClassNames().formLayout;
+    const topForm = getFormClassNames().topForm;
+
     return (
       <Customizer {...FluentCustomizations}>
-        <Stack horizontal>
-          <Stack.Item styles={{root: {width: '70%'}}}>
-            <JobInformation/>
-            <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
-              {this._getTabFormItems(items)}
-            </TabForm>
-            <Stack horizontal gap='s1' horizontalAlign='center'>
-              <PrimaryButton>Submit</PrimaryButton>
-              <DefaultButton>Edit YAML</DefaultButton>
-              <DefaultButton>Export</DefaultButton>
+      <div className={formLayout}>
+          <Stack horizontal gap='l2'>
+            <Stack styles={{root: {width: '70%'}}} gap='l2'>
+              <Stack className={topForm}>
+                <JobInformation />
+              </Stack>
+              <Stack className={topForm} gap='l1'>
+                <Stack>
+                  <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
+                    {this._getTabFormItems(items)}
+                  </TabForm>
+                </Stack>
+                <Stack horizontal gap='s1' horizontalAlign='center'>
+                  <PrimaryButton>Submit</PrimaryButton>
+                  <DefaultButton>Edit YAML</DefaultButton>
+                  <DefaultButton>Export</DefaultButton>
+                </Stack>
+              </Stack>
             </Stack>
-          </Stack.Item>
-          <Stack.Item styles={{root: {width: '30%'}}}>
-            <Parameter/>
-          </Stack.Item>
-        </Stack>
+            <Stack styles={{root: {width: '30%'}}}>
+              <Stack className={topForm}>
+                <Parameter />
+              </Stack>
+            </Stack>
+          </Stack>
+        </div>
       </Customizer>
     );
   }

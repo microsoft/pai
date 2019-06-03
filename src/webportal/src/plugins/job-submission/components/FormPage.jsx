@@ -46,23 +46,10 @@ export const FormSection = (props) => {
   );
 };
 
-export const FormColumn = (props) => {
-  return (
-    <Stack styles={props.styles} gap={'16px'}>
-      {props.children}
-  </Stack>
-  );
-};
-
 FormPage.propTypes = {
   children: PropTypes.node,
 };
 
 FormSection.propTypes = {
   children: PropTypes.node,
-};
-
-FormColumn.propTypes = {
-  children: PropTypes.node,
-  styles: PropTypes.object,
 };

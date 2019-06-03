@@ -25,7 +25,6 @@
 
 import React from 'react';
 import {Toggle, Stack} from 'office-ui-fabric-react';
-import {marginSize} from './formStyle';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {ContainerSize} from '../models/containerSize';
@@ -54,7 +53,7 @@ export const ContainerSizeSection = (props) => {
 
   return (
     <BasicSection label={'ContainerSize'}>
-      <Stack gap={marginSize.s1}>
+      <Stack gap='s1'>
         <Stack horizontal>
           <CSpinButton label={'GPU count'}
                        styles={{labelWrapper: {width: '20%'}, root: {width: '80%'}}}

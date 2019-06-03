@@ -36,18 +36,17 @@ export const marginSize = {
 
 export const getFormClassNames = () => {
   return mergeStyleSets({
+    formLayout: {
+      margin: marginSize.l1,
+    },
     topForm: {
-      marginLeft: marginSize.l1,
-      marginTop: marginSize.l1,
-      marginBotton: marginSize.l2,
-      marginRight: marginSize.l1,
       border: marginSize.l1 + ' solid white',
       background: 'white',
     },
     formTabBar: {
       background: '#f8f8f8',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'start',
     },
   });
 };
@@ -66,6 +65,11 @@ export const getTabFromStyle = () => {
       root: {
         fontSize: IconFontSizes.medium,
         margin: `0, ${marginSize.s1}`,
+      },
+    },
+    tabContent: {
+      root: {
+        paddingTop: '32px',
       },
     },
   });
@@ -91,7 +95,8 @@ export const getFormPageSytle = () => {
   });
 };
 
-export const getFormBasicSectionStyle = () => {
+export const getFormBasicSectionStyle = (optional) => {
+  const visibility = !optional? 'hidden': 'visible';
   return ({
     icon: {
       root: {
@@ -101,6 +106,13 @@ export const getFormBasicSectionStyle = () => {
         color: '#666666',
         cursor: 'pointer',
         userSelect: 'none',
+        visibility: visibility,
+      },
+    },
+    label: {
+      root: {
+        fontSize: FontSizes.icon,
+        fontWeight: FontWeights.semibold,
       },
     },
     optionalText: {
@@ -108,41 +120,6 @@ export const getFormBasicSectionStyle = () => {
         fontSize: '10px',
         display: 'flex',
         alignItems: 'center',
-      },
-    },
-  });
-};
-
-export const getFromComponentsStyle = () => {
-  return ({
-    label: {
-      root: {
-        fontSize: FontSizes.icon,
-        fontWeight: FontWeights.semibold,
-      },
-    },
-    textFiled: {
-      root: {
-        width: '85%',
-      },
-    },
-    formCompeletion: {
-      horizonStack: {
-        root: {
-          width: '85%',
-        },
-      },
-      textFiled: {
-        root: {
-          width: '75%',
-        },
-      },
-      label: {
-        root: {
-          width: '25%',
-          fontSize: FontSizes.icon,
-          fontWeight: FontWeights.regular,
-        },
       },
     },
   });
