@@ -29,7 +29,6 @@ const getUser = async (req, res, next) => {
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
     userInfo['virtualCluster'] = virtualCluster;
     delete userInfo['password'];
-    delete userInfo['grouplist'];
     return res.status(200).json(userInfo);
   } catch (error) {
     if (error.status === 404) {
@@ -48,7 +47,6 @@ const getAllUser = async (req, res, next) => {
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
       userItem['virtualCluster'] = virtualCluster;
       delete userItem['password'];
-      delete userItem['grouplist'];
       retUserList.push(userItem);
     }
     return res.status(200).json(retUserList);
@@ -156,7 +154,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
       userInfo['grouplist'] = grouplist;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
-        message: 'Update user grouplist data successfully.',
+        message: 'Update user virtualCluster data successfully.',
       });
     } else {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
