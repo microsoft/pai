@@ -106,17 +106,17 @@ service_response_counter = Counter("service_response_code",
 
 def gen_k8s_vc_gpu_total():
     return GaugeMetricFamily("k8s_vc_gpu_total", "gpu total in vc",
-            labels=["vc_name"])
+            labels=["vc_name", "gpu_type"])
 
 def gen_k8s_vc_gpu_available():
     return GaugeMetricFamily("k8s_vc_gpu_available",
             "gpu available for non preemptable job in vc",
-            labels=["vc_name"])
+            labels=["vc_name", "gpu_type"])
 
 def gen_k8s_vc_gpu_preemptive_available():
     return GaugeMetricFamily("k8s_vc_gpu_preemptive_availabe",
             "gpu available for preemptable job in vc",
-            labels=["vc_name"])
+            labels=["vc_name", "gpu_type"])
 
 ##### watchdog will generate above metrics
 
@@ -271,10 +271,14 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_e
     preemptable = walk_json_field_safe(pod, "metadata", "labels", "preemptionAllowed")
 
     if vc is not None and preemptable is not None:
+        gpu_type = walk_json_field_safe(pod, "metadata", "labels", "gpuType")
+        if gpu_type is None:
+            gpu_type = ""
+
         if preemptable == "True" or preemptable == "true":
-            vc_usage.add_preemptable_used(vc, used_gpu)
+            vc_usage.add_preemptable_used(vc, gpu_type, used_gpu)
         else:
-            vc_usage.add_used(vc, used_gpu)
+            vc_usage.add_used(vc, gpu_type, used_gpu)
 
     labels = pod["metadata"].get("labels")
     if labels is None or "app" not in labels:
@@ -491,8 +495,7 @@ def process_vc_quota(vc_object):
     for vc_info in vc_object["result"]:
         name = vc_info["vcName"]
         quota = json.loads(vc_info["quota"])
-        count = sum(quota.values()) # ignore gpu type
-        result[name] = count
+        result[name] = quota # quota is a map which key is gpu_type, value is int count
 
     return result
 
@@ -508,38 +511,46 @@ def query_vc_quota_info(vc_quota_url):
 
 class VcUsage(object):
     def __init__(self):
-        # key is vc_name, value is array of two int.
+        # key is vc_name, value is a map with key to be gpu_type and value is an
+        # array of two int.
         # The first is total used, the second is those non-preemptable used
-        self.map = collections.defaultdict(lambda : [0, 0])
+        self.map = collections.defaultdict(lambda :
+                collections.defaultdict(lambda : [0, 0]))
 
-    def add_preemptable_used(self, vc, count):
-        self.map[vc][0] += count
+    def add_preemptable_used(self, vc, gpu_type, count):
+        self.map[vc][gpu_type][0] += count
 
-    def add_used(self, vc, count):
-        self.map[vc][0] += count
-        self.map[vc][1] += count
+    def add_used(self, vc, gpu_type, count):
+        self.map[vc][gpu_type][0] += count
+        self.map[vc][gpu_type][1] += count
 
 
 def process_vc_info(vc_info, vc_usage, vc_total_gauge, vc_avail_gauge,
     vc_preemptive_avail_gauge):
-    for vc_name, total in vc_info.items():
-        vc_total_gauge.add_metric([vc_name], total)
+    for vc_name, gpu_info in vc_info.items():
+        for gpu_type, total in gpu_info.items():
+            vc_total_gauge.add_metric([vc_name, gpu_type], total)
 
-        if vc_name not in vc_usage.map:
-            # no job running in this vc, emit total as available
-            vc_avail_gauge.add_metric([vc_name], total)
-            vc_preemptive_avail_gauge.add_metric([vc_name], total)
+            if vc_name not in vc_usage.map or gpu_type not in vc_usage.map[vc_name]:
+                # no job running in this vc or using this gpu type
+                vc_avail_gauge.add_metric([vc_name, gpu_type], total)
+                vc_preemptive_avail_gauge.add_metric([vc_name, gpu_type], total)
 
-    for vc_name, vc_used in vc_usage.map.items():
-        if vc_name not in vc_info:
-            logger.warning("ignore used gpu in %s, but vc quota do not have this vc, possible due to job template error", vc_name)
-            continue
+    for vc_name, vc_usage_info in vc_usage.map.items():
+        for gpu_type, vc_used in vc_usage_info.items():
+            if vc_name not in vc_info:
+                logger.warning("ignore used gpu in %s, but vc quota do not have this vc, possible due to job template error", vc_name)
+                continue
 
-        total = vc_info[vc_name]
-        total_used, non_preemptable_used = vc_used
-        vc_avail_gauge.add_metric([vc_name], total - total_used)
-        vc_preemptive_avail_gauge.add_metric([vc_name],
-                total - non_preemptable_used)
+            if gpu_type not in vc_info[vc_name]:
+                logger.warning("ignore used gpu %s in %s, but vc quota do not have this gpu_type", gpu_type, vc_name)
+                continue
+
+            total = vc_info[vc_name][gpu_type]
+            total_used, non_preemptable_used = vc_used
+            vc_avail_gauge.add_metric([vc_name, gpu_type], total - total_used)
+            vc_preemptive_avail_gauge.add_metric([vc_name, gpu_type],
+                    total - non_preemptable_used)
 
 
 def process_pods(k8s_api_addr, ca_path, headers, pods_info, service_endpoints, vc_quota_url):

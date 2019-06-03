@@ -174,8 +174,14 @@ class TestJobExporter(unittest.TestCase):
         obj = json.loads(self.get_data_test_input("data/vc_quota.json"))
         quota_info = watchdog.process_vc_quota(obj)
 
-        target = {"platform": 20, "vc1": 6, "bert": 0, "multimedia": 0, "quantus": 0,
-                "relevance": 0}
+        target = {
+                "platform": {"P40": 20},
+                "vc1": {"P40": 6},
+                "bert": {"P40": 0},
+                "multimedia": {"P40": 0},
+                "quantus": {"P40": 0},
+                "relevance": {"P40": 0}
+                }
 
         self.assertEqual(target, quota_info)
 
@@ -184,36 +190,53 @@ class TestJobExporter(unittest.TestCase):
         vc_avail = watchdog.gen_k8s_vc_gpu_available()
         vc_preemptive_avail = watchdog.gen_k8s_vc_gpu_preemptive_available()
 
-        vc_info = {"default": 20, "platform": 10, "relevance": 4}
+        vc_info = {
+                "default": {"P40": 10, "P80": 10},
+                "platform": {"P40": 10},
+                "relevance": {"P80": 4}
+                }
 
         vc_usage = watchdog.VcUsage()
 
-        vc_usage.add_preemptable_used("default", 15)
-        vc_usage.add_used("default", 10)
+        vc_usage.add_preemptable_used("default", "P40", 8)
+        vc_usage.add_preemptable_used("default", "P80", 5)
+        vc_usage.add_used("default", "P40", 10)
 
-        vc_usage.add_used("platform", 3)
+        vc_usage.add_used("platform", "P40", 3)
 
         watchdog.process_vc_info(vc_info, vc_usage, vc_total, vc_avail, vc_preemptive_avail)
 
-        self.assertEqual(3, len(vc_total.samples))
+        self.assertEqual(4, len(vc_total.samples))
         for sample in vc_total.samples:
             vc_name = sample.labels["vc_name"]
-            self.assertEqual(vc_info[vc_name], sample.value)
+            gpu_type = sample.labels["gpu_type"]
+            self.assertEqual(vc_info[vc_name][gpu_type], sample.value)
 
-        target_vc_avail = {"default": -5, "platform": 7, "relevance": 4}
+        target_vc_avail = {
+                "default": {"P40": -8, "P80": 5},
+                "platform": {"P40": 7},
+                "relevance": {"P80": 4}
+                }
 
-        self.assertEqual(3, len(vc_avail.samples))
+        self.assertEqual(4, len(vc_avail.samples))
         for sample in vc_avail.samples:
             vc_name = sample.labels["vc_name"]
-            self.assertEqual(target_vc_avail[vc_name], sample.value, "vc " + vc_name)
+            gpu_type = sample.labels["gpu_type"]
+            self.assertEqual(target_vc_avail[vc_name][gpu_type],
+                    sample.value, "vc " + vc_name)
 
-        target_vc_preemptive_avail = {"default": 10, "platform": 7, "relevance": 4}
+        target_vc_preemptive_avail = {
+                "default": {"P40": 0, "P80": 10},
+                "platform": {"P40": 7},
+                "relevance": {"P80": 4}
+                }
 
-        self.assertEqual(3, len(vc_preemptive_avail.samples))
+        self.assertEqual(4, len(vc_preemptive_avail.samples))
         for sample in vc_preemptive_avail.samples:
             vc_name = sample.labels["vc_name"]
-            self.assertEqual(target_vc_preemptive_avail[vc_name], sample.value,
-                    "vc " + vc_name)
+            gpu_type = sample.labels["gpu_type"]
+            self.assertEqual(target_vc_preemptive_avail[vc_name][gpu_type],
+                    sample.value, "vc " + vc_name)
 
     def test_process_pods_with_vc_usage(self):
         obj = json.loads(self.get_data_test_input("data/dlts_non_preemptable_pod.json"))
@@ -227,15 +250,23 @@ class TestJobExporter(unittest.TestCase):
         watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
                 vc_usage)
 
-        self.assertEqual(1, vc_usage.map["some_vc_name"][0])
-        self.assertEqual(1, vc_usage.map["some_vc_name"][1])
+        self.assertEqual(1, len(vc_usage.map))
+        self.assertEqual(1, len(vc_usage.map["some_vc_name"]))
+        self.assertEqual(1, vc_usage.map["some_vc_name"]["P40"][0])
+        self.assertEqual(1, vc_usage.map["some_vc_name"]["P40"][1])
 
         obj = json.loads(self.get_data_test_input("data/dlts_preemptable_pod.json"))
         watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
                 vc_usage)
 
-        self.assertEqual(2, vc_usage.map["some_vc_name"][0])
-        self.assertEqual(1, vc_usage.map["some_vc_name"][1])
+        self.assertEqual(1, len(vc_usage.map))
+        self.assertEqual(2, len(vc_usage.map["some_vc_name"]))
+        # P40 do not change since preemptable pod using P80
+        self.assertEqual(1, vc_usage.map["some_vc_name"]["P40"][0])
+        self.assertEqual(1, vc_usage.map["some_vc_name"]["P40"][1])
+
+        self.assertEqual(1, vc_usage.map["some_vc_name"]["P80"][0])
+        self.assertEqual(0, vc_usage.map["some_vc_name"]["P80"][1])
 
     def test_parse_monitor_response_time(self):
         obj = json.loads(self.get_data_test_input("data/pods_with_response_time_monitor.json"))

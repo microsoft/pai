@@ -14,7 +14,8 @@
             "run": "27cd4600-692e-4410-b514-a2547d88ad71",
             "userName": "dixu",
             "vcName": "some_vc_name",
-            "preemptionAllowed": "False"
+            "preemptionAllowed": "False",
+            "gpuType": "P40"
         }
     },
     "spec": {
