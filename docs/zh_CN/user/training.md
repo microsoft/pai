@@ -115,9 +115,9 @@ JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息
   
   对于分布式的 Job，可能会在 taskRoles 中有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 相应的在 Job 配置中需要两个任务角色，参考[示例](../job_tutorial.md#a-complete-example)，了解详细信息。
 
-- **taskRoles/name** is the name of current task role and it's used in environment variables in distributed jobs.
+- **taskRoles/name** 是任务角色的名称，还会被用于分布式 Job 的环境变量中。
 
-- **taskRoles/taskNumber** is number of instances of current role. In single server jobs, it should be 1. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 docker containers as workers should be instantiated for this role.
+- **taskRoles/taskNumber** 是任务角色的实例数量。 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 It means there should be 8 docker containers as workers should be instantiated for this role.
 
 - **taskRoles/cpuNumber**, **taskRoles/memoryMB**, **taskRoles/gpuNumber** are easy to understand. They specify corresponding hardware resources including the number of CPU core, MB of memory, and number of GPU.
 
