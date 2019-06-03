@@ -6,7 +6,7 @@
   <div class='box'>
     <div class='box-body'>
         <h3>Common VC</h3>
-        <div>description description description description</div>
+        <div>Common VCs split physical cluster by percentage. The sum of common VC's capacity should equal to 100%.</div>
         <% if (isAdmin === 'true') { %>
           <button class="btn btn-success btn-lg add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Common VC</button>
           <% } %>
@@ -78,7 +78,7 @@
   <div class='box'>
     <div class='box-body'>
         <h3>Dedicated VC</h3>
-        <div>description description description description</div>
+        <div>Dedicated VCs exclude some nodes from cluster for specific usage, currently we provide cmdline tool to manage them.</div>
         <table id='dedicated-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
           <thead>
             <tr>
