@@ -105,15 +105,15 @@ JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息
   
   hub.docker.com 是共享的 Docker 存储库，有大量的 Docker 映像。 深度学习训练任务推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo)。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。 管理员可以设置专用的 Docker 存储库。
   
-  If an appropriate docker image isn't found, it's easy to [build a docker image](../job_docker_env.md).
+  如果没有找到合适的 Docker 映像，可参考[构建 Docker 映像](../job_docker_env.md)，能很容易的定制一个 Docker 映像。
   
-  Note, if a docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built and includes *openssh-server* and *curl*.
+  注意，如果 Docker 映像没有包括 *openssh-server* 和 *curl* 包，则无法使用 OpenPAI 的 SSH 功能。 如果需要使用 SSH，可基于已有 Docker 映像来构建一个包含了 *openssh-server* 和 *curl* 的新 Docker 映像。
 
-- **taskRoles** defines different roles in a job.
+- **taskRoles** 定义了 Job 中的不同角色。
   
-  For single machine jobs, there is only one role in taskRoles.
+  对于单机运行的 Job，在 taskRoles 中只有一个角色。
   
-  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [the example](../job_tutorial.md#a-complete-example).
+  对于分布式的 Job，可能会在 taskRoles 中有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 相应的在 Job 配置中需要两个任务角色，参考[示例](../job_tutorial.md#a-complete-example)，了解详细信息。
 
 - **taskRoles/name** is the name of current task role and it's used in environment variables in distributed jobs.
 
