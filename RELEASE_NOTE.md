@@ -20,7 +20,7 @@
 * Web portal:
   - Refine styles in job pages ([#2829](https://github.com/microsoft/pai/pull/2829))
   - Refine alert message in job pages ([#2698](https://github.com/microsoft/pai/pull/2698))
-  - Reduce build bundle size ([#2715](https://github.com/microsoft/pai/pull/2715))
+  - Reduce the build bundle size to improve webportal performance ([#2715](https://github.com/microsoft/pai/pull/2715))
 
 * Rest server:
   - Add job v1 config to v2 converter ([#2756](https://github.com/microsoft/pai/pull/2756))
