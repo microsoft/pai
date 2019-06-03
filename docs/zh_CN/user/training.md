@@ -29,19 +29,19 @@
 
 本文档包含了训练模型或执行其它类型任务的必要知识，适合 OpenPAI 新用户。
 
-It assumes that you have IP address or domain name and have an account of an OpenPAI cluster already. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
+阅读前，确保已经有了 OpenPAI 集群的 IP 地址或域名，以及相应的账号。 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 ## 提交 hello-world Job
 
 **Job** 在 OpenPAI 中定义了在指定的环境中如何执行命令。 Job 可以是模型训练，其它用途的命令，或者分布在多台服务器上。
 
-Follow to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow on CIFAR-10 dataset. 它会从互联网下载数据和代码，且不会将模型复制出来。 It helps getting started with OpenPAI. 接下来的章节会介绍更多内容，以便于提交真正实用的 Job。
+本节介绍了如何提交一个非常简单的 Job，这就像在学习编程语言时，从 hello-world 示例开始一样。 此示例使用 TensorFlow 在 CIFAR-10 数据集上训练模型。 其从互联网下载数据和代码，且没有将训练完的模型复制出来。 通过此示例可初步了解 OpenPAI。 接下来的章节会介绍更多内容，以便于提交真正实用的 Job。
 
-**Note**, Web portal is one of ways to submit jobs. It's the simplest way to begin, but's not most efficient way to submit and manage jobs. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended, as it provides best experience.
+**注意**， Web 界面是提交 Job 的方法之一。 它学起来非常简单，但却不是最高效的提交和管理 Job 的方法。 推荐使用 [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md)，来获得最好的体验。
 
-1. 浏览至 OpenPAI 的 Web 界面。 可从 OpenPAI 管理员那里获取 IP 地址或域名。 Click *sign in* and input username, password, once login page shows.
+1. 浏览至 OpenPAI 的 Web 界面。 可从 OpenPAI 管理员那里获取 IP 地址或域名。 在登录页面中，点击 *sign in*，输入用户名、密码。
   
-  After that, OpenPAI will show job list as below.
+  之后，OpenPAI 会显示如下的 Job 列表。
   
   ![job list](imgs/web_job_list.png)
 
@@ -51,7 +51,7 @@ Follow to submit a very simple job like hello-world during learning a program la
 
 3. 点击 **JSON** 按钮。 在弹出的文本框中，清除现有内容并粘贴下面的内容，然后单击“保存”。
   
-  The content is introduced in next sections.
+  内容将在下一节中介绍。
   
       json
        {
@@ -71,15 +71,15 @@ Follow to submit a very simple job like hello-world during learning a program la
   
   ![paste job](imgs/web_paste_json.png)
 
-4. Then click **Submit** button to submit the job to OpenPAI.
+4. 然后点击 **Submit** 按钮将 Job 提交到 OpenPAI 平台。
   
   ![click submit job](imgs/web_click_submit_job.png)
 
-5. After submitted, the page redirects to job list, and the submitted job is in list as **Waiting** status. Click **Jobs** on left pane can also reach this page.
+5. 提交后，页面重定向到作业列表，提交的作业在列表中为 **Waiting** 状态。 单击左边的 **Jobs** 也可以到达此页面。
   
   ![job list](imgs/web_job_list.png)
 
-6. Click job name to view details. Job status will be changed to *Running*, and IP address is assigned in below pane of task role once it starts to run. There are more details and actions, like status, tracking log and so on.
+6. 单击 Job 名称查看详细信息。 开始运行后，Job 状态会变为 *Running*，并且会在下面显示分配给 Task Role 的 IP 地址。 除此之外，还有更多的信息及操作，如状态、查看日志等。
   
   ![job list](imgs/web_job_details.png)
 
