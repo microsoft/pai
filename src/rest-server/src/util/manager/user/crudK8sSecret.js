@@ -78,8 +78,6 @@ async function read(key, config) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
-    // eslint-disable-next-line no-console
-    console.log(`${config.namespace}/secrets/${hexKey}`.toString());
     const response = await request.get(`${config.namespace}/secrets/${hexKey}`.toString(), {
       headers: {
         'Accept': 'application/json',
@@ -95,10 +93,6 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('read failed');
-    // eslint-disable-next-line no-console
-    console.log(error);
     throw error.response;
   }
 }
