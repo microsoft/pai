@@ -197,7 +197,7 @@ const checkUserPassword = async (req, res, next) => {
     let userValue = await userModel.getUser(username);
     // eslint-disable-next-line no-console
     console.log('check password done');
-    let newUserValue = userValue;
+    let newUserValue = JSON.parse(JSON.stringify(userValue));
     // eslint-disable-next-line no-console
     console.log(userValue);
     newUserValue['password'] = password;
