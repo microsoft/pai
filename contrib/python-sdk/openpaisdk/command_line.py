@@ -16,7 +16,7 @@ from openpaisdk.core import Cluster
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.job import Job, JobSpec, TaskRole
 from openpaisdk.runtime import runtime_execute
-from openpaisdk.utils import list2dict, append_or_update_with_notification
+from openpaisdk.utils import OrganizedList as ol
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -87,7 +87,7 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
 
     def do_action_list(self, args):
-        cfgs = list2dict(get_client_cfg(None, True)["all"], "cluster_alias")
+        cfgs = ol.as_dict(get_client_cfg(None, True)["all"], "cluster_alias")
         if args.name:
             return list(cfgs.keys())
         return cfgs
@@ -103,7 +103,7 @@ class ActionFactoryForCluster(ActionFactory):
         cfgs = get_client_cfg(args.cluster_alias)["all"]
         cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
         __logger__.debug('new cluster info is %s', cfg_new)
-        result = append_or_update_with_notification(cfgs, "cluster_alias", cfg_new)
+        result = ol.notified_add(cfgs, "cluster_alias", cfg_new)
         to_file(cfgs, pai.__cluster_config_file__)
         return result
 
@@ -132,7 +132,7 @@ class ActionFactoryForCluster(ActionFactory):
             "web_hdfs_uri": args.web_hdfs_uri,
             "user": args.user if args.user else f["match"]['user'],
         }
-        result = append_or_update_with_notification(f["match"].setdefault('storages', []), "storage_alias", elem)
+        result = ol.notified_add(f["match"].setdefault('storages', []), "storage_alias", elem)
         to_file(f["all"], pai.__cluster_config_file__)
         return result
 
@@ -150,28 +150,31 @@ class ActionFactoryForJob(ActionFactory):
         result = client.rest_api_jobs(args.job_name, args.query)
         if args.name:
             assert not args.query, 'cannot use --name with query at the same time'
-            result = list2dict(result, 'name')
+            result = ol.as_dict(result, 'name')
         return result
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', 'config'])
-        parser.add_argument('--rename', action="store_true", default=False, help="rename the job according to job_name")
+        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--preview', 'config'])
+
+    def check_arguments_submit(self, args):
+        assert args.job_name or args.config, "please specify --job-name or give a job config file"
 
     def do_action_submit(self, args):
-        assert args.job_name or args.config, "please specify --job-name or give a job config file"
-        name_key = "jobName" if not args.v2 else "name"
-        if args.job_name in [None, "null"]:
-            args.job_name = from_file(args.config)[name_key]
-        cache_file = Job.get_config_file(args)
         if not args.config:
-            args.config = cache_file
+            args.config = Job.get_config_file(args)
+            self.__job__.validate()
+            if args.v2:
+                raise NotImplementedError
+            else:
+                self.__job__.to_job_config_v1(save_to_file=args.config)
         job_config = from_file(args.config)
-        if getattr(args, 'rename', True):
-            job_config[name_key] = args.job_name
-        assert args.job_name == job_config[name_key], "job name mismatch %s <> %s" % (args.job_name, job_config["name"])
-        # save the job_config to cache folder
-        if args.config != cache_file:
-            to_file(job_config, cache_file)
+        job_name = job_config["jobName" if not args.v2 else "name"]
+        if not args.job_name:
+            args.job_name = job_name
+        else:
+            assert args.job_name == job_name, "job name mismatch %s <> %s" % (args.job_name, job_name)
+        if args.preview:
+            return job_config
         return submit_job(args, job_config)
 
     def define_arguments_new(self, parser: argparse.ArgumentParser):
@@ -187,27 +190,14 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.from_dict(vars(args), ignore_unkown=True)
         if not args.dont_set_as_default:
             Engine().process(['set', 'job-name={}'.format(args.job_name)])
-        return self.__job__.to_dict()
-
-    def define_arguments_preview(self, parser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--job-name', '--v2'])
-
-    def check_arguments_preview(self, args):
-        not_not(args, ['--cluster-alias', '--job-name', '--workspace'])
-
-    def do_action_preview(self, args):
-        self.__job__.validate()
-        fname = Job.get_config_file(args)
-        if args.v2:
-            raise NotImplementedError
         else:
-            job_config = self.__job__.to_job_config_v1(save_to_file=fname)
-        return job_config
+            Engine().process(['unset', 'job-name'])
+        return self.__job__.to_dict()
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
         JobSpec().define(parser)
         TaskRole().define(parser)
-        cli_add_arguments(None, parser, ['--pip-flags', '--v2', '--preview'])
+        cli_add_arguments(None, parser, ['--v2', '--preview', '--pip-flags'])
 
     def do_action_sub(self, args):
         Engine().process_args(Namespace().from_dict(args, action='new', dont_set_as_default=True))
@@ -215,9 +205,6 @@ class ActionFactoryForJob(ActionFactory):
         Engine().process_args(args_task)
         if getattr(args, 'pip_flags', None):
             Engine().process(['require', 'pip'] + args.pip_flags)
-        result = Engine().process_args(Namespace().from_dict(args, action="preview", config=None))
-        if args.preview:
-            return result
         return Engine().process_args(Namespace().from_dict(args, action="submit", config=None))
 
 
@@ -277,7 +264,7 @@ class ActionFactoryForStorage(ActionFactory):
 
     def do_action_list_storage(self, args):
         client = get_client(args.cluster_alias)
-        return list2dict(client.config['storages'], 'storage_alias')
+        return ol.as_dict(client.config['storages'], 'storage_alias')
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])

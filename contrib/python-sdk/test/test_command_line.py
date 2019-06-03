@@ -4,7 +4,8 @@ from copy import deepcopy
 from subprocess import CalledProcessError
 from shutil import rmtree
 from openpaisdk.command_line import EngineRelease
-from openpaisdk.utils import run_command, find_match
+from openpaisdk.utils import run_command
+from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.job import Job, Namespace, from_file
 
 
@@ -19,47 +20,51 @@ def gen_expected(dic: dict, **kwargs):
 
 class TestCliArgs(unittest.TestCase):
 
+    cluster_ut = {
+        "cluster-alias": "cluster-for-test",
+        "pai-uri": "http://x.x.x.x",
+        "user": "myuser",
+        "passwd": "password",
+    }
+    hdfs_ut = {
+        "storage-alias": "hdfs-for-test",
+        "web-hdfs-uri": "http://x.x.x.x:yyyy",
+    }
+    job_c = {
+        "job-name": "my-job-name",
+        "image": "my-docker-image",
+        "cluster-alias": "cluster-for-test",
+        "workspace": "/user/myuser",
+    }
+
     def test_cluster(self):
-        cluster_ut = {
-            "cluster-alias": "cluster-for-test",
-            "pai-uri": "http://x.x.x.x",
-            "user": "myuser",
-            "passwd": "password",
-        }
-        hdfs_ut = {
-            "storage-alias": "hdfs-for-test",
-            "web-hdfs-uri": "http://x.x.x.x:yyyy",
-        }
-        alias = cluster_ut["cluster-alias"]
+        alias = self.cluster_ut["cluster-alias"]
         # test for command `opai cluster add` and `opai cluster list`
-        run_test_command("opai cluster add", cluster_ut)
+        run_test_command("opai cluster add", self.cluster_ut)
         cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
-        expectedOutput = gen_expected(cluster_ut)
+        expectedOutput = gen_expected(self.cluster_ut)
         expectedOutput["storages"] = []
         self.assertDictEqual(expectedOutput, cluster_bk)
 
         # test for command `opai cluster attach-hdfs`
         with self.assertRaises(CalledProcessError):
-            run_test_command("opai cluster attach-hdfs", hdfs_ut)
-        run_test_command("opai cluster attach-hdfs -a %s" % alias, hdfs_ut)
+            run_test_command("opai cluster attach-hdfs", self.hdfs_ut)
+        run_test_command("opai cluster attach-hdfs -a %s" % alias, self.hdfs_ut)
         cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
-        expectedOutput["storages"].append(gen_expected(hdfs_ut, user="myuser", protocol="webHDFS"))
+        expectedOutput["storages"].append(gen_expected(self.hdfs_ut, user="myuser", protocol="webHDFS"))
         self.assertDictEqual(expectedOutput, cluster_bk)
 
     def test_job(self):
-        job_c = {
-            "job-name": "my-job-name",
-            "image": "my-docker-image",
-            "cluster-alias": "cluster-for-test",
-            "workspace": "/user/myuser",
-        }
-        for k in job_c.keys():
+        for k in self.job_c.keys():
             print("test sub command without flag --%s" % k)
-            self.run_test_sub(job_c, "ls", ignore_job_c=[k]) # args uncompleted
-        job_c["gpu"] = 1
-        self.run_test_sub(job_c, "ls", error_expected=False)
-        job_config = from_file(Job.get_config_file(Namespace(job_name=job_c["job-name"], v2=False)))
-        self.assertEqual(job_c["gpu"], job_config["taskRoles"][0]["gpuNumber"])
+            self.run_test_sub(self.job_c, "ls", ignore_job_c=[k]) # args uncompleted
+        self.job_c["gpu"] = 1
+        self.run_test_sub(self.job_c, "ls", error_expected=False)
+        job_cfg_file = Job.get_config_file(Namespace(job_name=self.job_c["job-name"], v2=False))
+        job_config = from_file(job_cfg_file)
+        self.assertEqual(self.job_c["gpu"], job_config["taskRoles"][0]["gpuNumber"])
+        job_config2 = EngineRelease().process(['job', 'submit', '--preview', job_cfg_file])
+        self.assertDictEqual(job_config, job_config2)
 
     def run_test_sub(self, job_c: dict, user_cmd, error_expected: bool=True, ignore_job_c: list=[]):
             rmtree(os.path.join(".openpai", "jobs", job_c["job-name"]), ignore_errors=True)

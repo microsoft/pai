@@ -16,8 +16,9 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
   - [2.6. Runtime supports](#26-runtime-supports)
   - [2.7. Notebook tutorials](#27-notebook-tutorials)
 - [3. Make contributions](#3-make-contributions)
-  - [Release plan](#release-plan)
-  - [3.1. Debug the SDK](#31-debug-the-sdk)
+  - [3.1. Release plan](#31-release-plan)
+  - [3.2. Debug the SDK](#32-debug-the-sdk)
+  - [3.3. Unit tests](#33-unit-tests)
 
 # 1. Benefits and scenarios
 
@@ -169,11 +170,11 @@ To show the user stories, we prepare some `Jupyter` notebook tutorials. Refer to
 
 User may open issues and feature requests on [Github]().
 
-## Release plan
+## 3.1. Release plan
 
 User could find the roadmap and release plan in [docs/Roadmap.md](docs/Roadmap.md). If there are functions requests not included, please open an issue.
 
-## 3.1. Debug the SDK
+## 3.2. Debug the SDK
 
 For users those want to improve the functions themselves, you may create the branch of `OpenPAI` project, and make modifications locally. And then set your own branch to the SDK installation source by
 
@@ -181,3 +182,9 @@ For users those want to improve the functions themselves, you may create the bra
 opai default add sdk-branch=<your/branch>
 ```
 
+## 3.3. Unit tests
+
+Please execute below command under the `tests` directory to have a quick unit test.
+```bash
+python -m unittest discover
+```

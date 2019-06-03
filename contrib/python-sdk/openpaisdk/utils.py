@@ -10,33 +10,46 @@ from openpaisdk import __logger__
 from openpaisdk.io_utils import safe_chdir
 
 
-def find_match(lst: iter, key: str=None, attr: str=None, target=None):
-    if key:
-        return [x for x in lst if x[key] == target]
-    if attr:
-        return [x for x in lst if getattr(x, attr) == target]
+class OrganizedList:
 
+    @staticmethod
+    def filter(lst: iter, key: str=None, target=None, getter=dict.get):
+        m = [(i, x) for i, x in enumerate(lst) if getter(x, key) == target]
+        return {
+            "matches": [x[1] for x in m],
+            "indexes": [x[0] for x in m],
+        }
 
-def list2dict(lst: list, key: str, skip_key_err: bool=True):
-    return {x[key]:x for x in lst if key in x}
+    @staticmethod
+    def as_dict(lst: list, key: str, getter=dict.get):
+        return {getter(x, key):x for x in lst}
 
+    @staticmethod
+    def add(lst: list, key: str, elem: dict, getter=dict.get) -> bool:
+        "return True if update an existing elements, else return False"
+        target = getter(elem, key)
+        m = OrganizedList.filter(lst, key, target) # type: dict, matches
+        updated = False
+        for x in m["matches"]:
+            x.update(elem)
+            updated = True
+        if not updated:
+            lst.append(elem)
+        return updated
 
-def append_or_update(lst: list, key: str, elem: dict) -> bool:
-    "return True if update an existing elements, else return False"
-    dic = list2dict(lst, key)
-    if elem[key] in dic:
-        dic[elem[key]].update(elem)
-        return True
-    else:
-        lst.append(elem)
-        return False
+    @staticmethod
+    def notified_add(lst: list, key: str, elem: dict, getter=dict.get) -> str:
+        if OrganizedList.add(lst, key, elem, getter):
+            return "%s = %s already exists, update it" % (key, elem[key])
+        else:
+            return "%s = %s added" % (key, elem[key])
 
-
-def append_or_update_with_notification(lst: list, key: str, elem:dict) -> str:
-    if append_or_update(lst, key, elem):
-        return "%s = %s already exists, update it" % (key, elem[key])
-    else:
-        return "%s = %s added" % (key, elem[key])
+    @staticmethod
+    def delete(lst: list, key: str, target, getter=dict.get) -> list:
+        indexes = OrganizedList.filter(lst, key, target, getter)["indexes"]
+        for index in sorted(indexes, reverse=True):
+            del lst[index]
+        return lst
 
 
 def merge_two_object(a: dict, b: dict):
