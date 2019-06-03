@@ -198,6 +198,8 @@ const checkUserPassword = async (req, res, next) => {
     // eslint-disable-next-line no-console
     console.log('check password done');
     let newUserValue = userValue;
+    // eslint-disable-next-line no-console
+    console.log(userValue);
     newUserValue['password'] = password;
     // eslint-disable-next-line no-console
     console.log('encrypt password');
