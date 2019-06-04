@@ -79,7 +79,7 @@ function TopBar() {
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
   useEffect(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v1/user`)
+    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`)
       .then((response) => {
         return response.json();
       }).then((body) => {
