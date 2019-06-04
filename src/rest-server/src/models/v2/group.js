@@ -187,11 +187,13 @@ if (config.env !== 'test') {
     (async function() {
       try {
         logger.info('Create admin user account configured in configuration.');
-        const groupInfoList = await getAllGroup();
+        const groupInfoList = authConfig.groupConfig.grouplist;
         const groupnameList = [];
         for (let groupItem of groupInfoList) {
           groupnameList.push(groupItem['groupname']);
         }
+        groupnameList.push(authConfig.groupConfig.adminGroup.groupname);
+        groupnameList.push(authConfig.groupConfig.defaultGroup.groupname);
         const userValue = {
           username: secretConfig.adminName,
           email: '',
