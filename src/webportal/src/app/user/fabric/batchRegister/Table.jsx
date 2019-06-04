@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
+import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -256,7 +256,12 @@ export default function Table() {
       return (
         <DefaultButton
           onClick={onClick}
-          styles={{root: ColorClassNames.neutralQuaternaryBackground}}
+          styles={{
+            root: {backgroundColor: '#e5e5e5'},
+            rootFocused: {backgroundColor: '#e5e5e5'},
+            rootDisabled: {backgroundColor: '#eeeeee'},
+            rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+          }}
         >
           Remove
         </DefaultButton>

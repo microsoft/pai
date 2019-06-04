@@ -83,6 +83,9 @@ $(document).ready(() => {
                 $('#form-change-password').trigger('reset');
                 const res = JSON.parse(xhr.responseText);
                 alert(res.message);
+                if (res.code === 'UnauthorizedUserError') {
+                  userLogout();
+                }
               },
             });
           }

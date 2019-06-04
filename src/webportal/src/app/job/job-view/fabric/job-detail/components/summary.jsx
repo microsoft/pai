@@ -347,11 +347,12 @@ export default class Summary extends React.Component {
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               <Link
-                className={c(t.mt3, FontClassNames.mediumPlus)}
                 onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
                 disabled={isNil(jobInfo.jobStatus.retries)}
               >
-                {jobInfo.jobStatus.retries}
+                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                  {jobInfo.jobStatus.retries}
+                </div>
               </Link>
             </div>
           </div>
@@ -385,6 +386,7 @@ export default class Summary extends React.Component {
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
+                disabled={isNil(jobInfo.jobStatus.appTrackingUrl)}
                 target="_blank"
               >
                 Go to Application Tracking Page

@@ -27,9 +27,9 @@
     - [Job workflow](#job-workflow)
   - [Reference](#reference)
 
-This document is for beginners, and it provides the must to know knowledge to train models or execute other kinds of commands.
+This document is for new users of OpenPAI. It provides the must to know knowledge to train models or execute other kinds of commands.
 
-It assumes that you have IP address or domain name and have an account of an OpenPAI cluster already. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+Before learning this document, make sure you have IP address or domain name and an account of an OpenPAI cluster already. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
 ## Submit a hello-world job
 
@@ -86,13 +86,13 @@ Follow to submit a very simple job like hello-world during learning a program la
 
 ## Understand job
 
-With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
+This section introduces more knowledge about job, so that you can write your own job configuration easily.
 
 ### Learn hello-world job
 
-The **job configuration** is a JSON file, which is posted to OpenPAI. The hello-world job configuration uses below required key fields.
+The **job configuration** is a JSON file, which is submitted to OpenPAI. The hello-world job configuration includes below required key fields.
 
-There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array and each item specify a command and its environment.
+There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, Docker image, task roles, and so on. The second level is taskRoles, it's an array and each item describe a command and its environment.
 
 Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
 
@@ -100,55 +100,55 @@ Below is required fields and [full spec of job configuration](../job_tutorial.md
 
 - **image**
 
-  [Docker](https://www.docker.com/why-docker)  is a popular technology to provide virtual environments on a server. OpenPAI uses Docker to provide consistent and clean environments. OpenPAI can also serve multiple resource requests on the same server.
+  [Docker](https://www.docker.com/why-docker) is a popular technology to provide virtual environments on a server. OpenPAI uses Docker to provide consistent and clean environments. With Docker, OpenPAI can serve multiple resource requests on the same server.
 
-  The **image** field is the identity of a docker image, which includes customized Python or system packages, to provide a clean and consistent environment for each running.
+  The **image** field is the identity of a Docker image, which includes customized Python or system packages.
 
-  The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. Administrator may set a private docker repository.
+  The hub.docker.com is a public Docker repository with a lot of Docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. Administrator may set a private Docker repository.
 
-  If an appropriate docker image isn't found, it's easy to [build a docker image](../job_docker_env.md).
+  If an appropriate Docker image isn't found, it's easy to [build a Docker image](../job_docker_env.md).
 
-  Note, if a docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built and includes *openssh-server* and *curl*.
+  Note, if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image.
 
 - **taskRoles** defines different roles in a job.
 
-  For single machine jobs, there is only one role in taskRoles.
+  For single server jobs, there is only one role in taskRoles.
 
-  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [the example](../job_tutorial.md#a-complete-example).
+  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [the example](../job_tutorial.md#a-complete-example) for details.
 
-- **taskRoles/name** is the name of current task role and it's used in environment variables in distributed jobs.
+- **taskRoles/name** is the name of task role and it's used in environment variables in distributed jobs.
 
-- **taskRoles/taskNumber** is number of instances of current role. In single server jobs, it should be 1. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 docker containers as workers should be instantiated for this role.
+- **taskRoles/taskNumber** is number of instances of this task role. In single server jobs, it should be 1. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.
 
 - **taskRoles/cpuNumber**, **taskRoles/memoryMB**, **taskRoles/gpuNumber** are easy to understand. They specify corresponding hardware resources including the number of CPU core, MB of memory, and number of GPU.
 
 - **taskRoles/command** is the command to run in this task role. It can be multiple commands, and joint by `&&` like in terminal. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress.
 
-  Like the hello-world job, user needs to construct command(s) to get code, data and trigger running.
+  Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
 
 ### Transfer files in/out
 
 Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
 
-OpenPAI manages computing resources, but it doesn't provide persistent storage. The [how to use storage](storage.md) is prepared for OpenPAI users.
+OpenPAI manages computing resources, but it doesn't manage persistent storage. The [how to use storage](storage.md) is prepared for OpenPAI users.
 
 It's better to check with administrator of the OpenPAI cluster about how to transfer files, since they may choose most suitable approaches and examples for you.
 
 ### Job workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, it's recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md). Both web UI and the client through [RESTful API of OpenPAI](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize a client.
+Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, it's recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md). 
+
+Note, both web UI and the Visual Studio Code Client through [RESTful API](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize the client experience.
 
 After received job configuration, OpenPAI processes it as below steps.
 
-1. Wait for resource allocated. OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts very soon. If there is not enough resource, job is queued and wait on previous jobs.
+1. Wait for resource allocated. OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts very soon. If there is not enough resource, job is queued and wait on previous jobs completing and releasing resource.
 
-   Note, distributed jobs are marked as running in OpenPAI once they start to wait resource. The job status is set to *Running* on OpenPAI as well.
-
-2. Initialize docker container. OpenPAI pulls the docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the docker container.
+2. Initialize Docker container. OpenPAI pulls the Docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the Docker container.
 
 3. run the command in configuration. During the command is executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. Some metrices can be used to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
 
-4. Finalize job running. Once the command is completed, OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resources for next jobs.
+4. Finish job. Once the command is completed, OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resources for next jobs.
 
 When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
 
