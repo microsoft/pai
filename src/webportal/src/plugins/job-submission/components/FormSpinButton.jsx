@@ -32,7 +32,7 @@ export const FormSpinButton = (props) => {
   const {sectionLabel, sectionOptional, onChange, value} = props;
   const _onChange = (value) => {
     if (onChange !== undefined) {
-      onChange(value);
+      onChange(Number(value));
     }
   };
 
@@ -51,5 +51,5 @@ FormSpinButton.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
   sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
-  value: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

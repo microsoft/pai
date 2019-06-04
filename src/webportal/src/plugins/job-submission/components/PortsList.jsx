@@ -31,12 +31,12 @@ import {Port} from '../models/port';
 import {BasicSection} from './BasicSection';
 
 export const PortsList = (props) => {
-  const {onPortsChange, defaultValue} = props;
+  const {onChange, defaultValue} = props;
   const [ports, setPorts] = useState(defaultValue);
 
   const _onPortChange = (updatedPorts) => {
-    if (onPortsChange !== undefined) {
-      onPortsChange(updatedPorts);
+    if (onChange !== undefined) {
+      onChange(updatedPorts);
     }
     setPorts(updatedPorts);
   };
@@ -65,5 +65,5 @@ export const PortsList = (props) => {
 
 PortsList.propTypes = {
   defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
-  onPortsChange: PropTypes.func,
+  onChange: PropTypes.func,
 };

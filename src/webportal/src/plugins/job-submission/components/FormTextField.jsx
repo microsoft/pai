@@ -29,7 +29,7 @@ import {TextField} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 
-export const FormTextFiled = (props) => {
+export const FormTextField = (props) => {
   const {sectionLabel, onChange, value, sectionOptional} = props;
   const textFieldId = getId('textField');
   const _onChange = (_, value) => {
@@ -46,7 +46,7 @@ export const FormTextFiled = (props) => {
   );
 };
 
-FormTextFiled.propTypes = {
+FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
   onChange: PropTypes.func,
   value: PropTypes.string,

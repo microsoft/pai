@@ -25,7 +25,7 @@
 
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import {FormTextFiled} from './FormTextFiled';
+import {FormTextField} from './FormTextField';
 import {DockerSection} from './DockerSection';
 import {PortsList} from './PortsList';
 import {FormPage} from './FormPage';
@@ -59,7 +59,7 @@ export const TabFormContent = (props) => {
 
   return (
     <FormPage>
-      <FormTextFiled sectionLabel={'Task role name'}
+      <FormTextField sectionLabel={'Task role name'}
                      value={jobTaskRole.name}
                      onChange={(value) => _onValueChange('name', value)}
                      textFiledProps={{placeholder: 'Enter task role name...'}}/>
@@ -78,19 +78,19 @@ export const TabFormContent = (props) => {
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
       <PortsList defaultValue={jobTaskRole.ports}
                  ports={jobTaskRole.ports}
-                 onPortsChange={(ports) => _onValueChange('ports', ports)}/>
+                 onChange={(ports) => _onValueChange('ports', ports)}/>
       <FormSpinButton sectionLabel={'Task retry count'}
                       sectionOptional
                       value={jobTaskRole.taskRetryCount}
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          defaultValue={jobTaskRole.completion}/>
-      <FormTextFiled sectionLabel={'Command'}
+      <FormTextField sectionLabel={'Command'}
                      multiline={true}
                      rows={10}
                      value={jobTaskRole.commands}
                      onChange={(value)=>_onValueChange('commands', value)}/>
-      <DeploymentSection value={jobTaskRole.deployment}
+      <DeploymentSection defaultValue={jobTaskRole.deployment}
                          onChange={(deployment) => _onValueChange('deployment', deployment)}/>
     </FormPage>
   );

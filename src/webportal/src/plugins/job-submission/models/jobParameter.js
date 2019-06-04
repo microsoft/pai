@@ -24,9 +24,10 @@
  */
 
 export class JobParameter {
-  constructor() {
-    this.key;
-    this.value;
+  constructor(props) {
+    const {key, value} = props;
+    this.key = key;
+    this.value = value;
   }
 
   convertToProtocolFormat() {

@@ -24,15 +24,17 @@
  */
 
 import React from 'react';
-import {Fabric, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons} from 'office-ui-fabric-react';
 import {TabForm} from './TabForm';
-import {initializeIcons} from '@uifabric/icons';
 import {TabFormContent} from './TabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
-import {Parameter} from './Parameter';
+import {Parameters} from './Parameters';
 import {getFormClassNames} from './formStyle';
 import {initTheme} from '../../../app/components/theme';
+import {JobBasicInfo} from '../models/jobBasicInfo';
+import {SubmissionSection} from './SubmissionSection';
+import {Job} from '../models/job';
 
 initTheme();
 initializeIcons();
@@ -41,9 +43,11 @@ export class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const items = [{headerText: 'Task role 1', content: new JobTaskRole({})}];
+    const jobTaskRoles = [{headerText: 'Task role 1', content: new JobTaskRole({})}];
     this.state = {
-      items: items,
+      jobTaskRoles: jobTaskRoles,
+      parameters: [],
+      jobInformation: new JobBasicInfo({}),
     };
   }
 
@@ -54,9 +58,10 @@ export class App extends React.Component {
   }
 
   render() {
-    const {items} = this.state;
+    const {jobTaskRoles, parameters, jobInformation} = this.state;
     const formLayout = getFormClassNames().formLayout;
     const topForm = getFormClassNames().topForm;
+    // const job = new Job(jobInformation, jobTaskRoles.map((taskRole) => taskRole.content), parameters);
 
     return (
       <Fabric>
@@ -64,26 +69,23 @@ export class App extends React.Component {
           <Stack horizontal gap='l2'>
             <Stack styles={{root: {width: '70%'}}} gap='l2'>
               <Stack className={topForm}>
-                <JobInformation />
+                <JobInformation defaultValue={jobInformation}
+                                onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
               </Stack>
               <Stack className={topForm} gap='l1'>
-                <Stack>
-                  <TabForm defaultItems={items}
-                           headerTextPrefix='Task Role'
-                           createContentFunc={() => new JobTaskRole({})}
-                           onRenderTabContent={this._onRenderTabContent.bind(this)}
-                           onItemsChange={(items)=>this.setState({items: items})}/>
-                </Stack>
-                <Stack horizontal gap='s1' horizontalAlign='center'>
-                  <PrimaryButton>Submit</PrimaryButton>
-                  <DefaultButton>Edit YAML</DefaultButton>
-                  <DefaultButton>Export</DefaultButton>
-                </Stack>
+                <TabForm defaultItems={jobTaskRoles}
+                          headerTextPrefix='Task Role'
+                          createContentFunc={() => new JobTaskRole({})}
+                          onRenderTabContent={this._onRenderTabContent.bind(this)}
+                          onItemsChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
+                <SubmissionSection job={new Job(jobInformation, jobTaskRoles.map((taskRole) => taskRole.content), parameters)}/>
               </Stack>
             </Stack>
             <Stack styles={{root: {width: '30%'}}}>
               <Stack className={topForm}>
-                <Parameter/>
+                <Parameters defaultValue={parameters}
+                            environment={[]}
+                            onChange={(parameters) => this.setState({parameters: parameters})}/>
               </Stack>
             </Stack>
           </Stack>

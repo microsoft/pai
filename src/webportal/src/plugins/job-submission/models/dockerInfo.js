@@ -25,15 +25,13 @@
 
 export class DockerInfo {
   constructor(props) {
-    const {name, uri, auth} = props;
-    this.name = name || 'dockerImage-' + DockerInfo.dockerImageSeq++;
+    const {uri, auth} = props;
     this.uri = uri;
     this.auth = auth;
   }
 
   convertToProtocolFormat() {
-    return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
+    return {type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
 
-DockerInfo.dockerImageSeq = 0;

@@ -37,21 +37,25 @@ export class JobTaskRole {
     this.taskRetryCount = taskRetryCount || 0;
     this.dockerInfo = dockerInfo || new DockerInfo({});
     this.ports = ports || [];
-    this.command = commands;
+    this.commands = commands;
     this.completion = completion || new Completion({});
     this.deployment = deployment|| new Deployment({});
     this.containerSize = containerSize || new ContainerSize({});
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
   }
 
-  getTaskPrerequires() {
-    return [this.dockerInfo.convertToProtocolFormat()];
+  getDockerPrerequisite() {
+    return this.dockerInfo.convertToProtocolFormat();
   }
 
-  getDeployments() {
+  getDeployment() {
     const deployment = {};
     deployment[this.name] = this.deployment.convertToProtocolFormat();
     return deployment;
+  }
+
+  setDockerImage(dockerImage) {
+    this.dockerImage = dockerImage;
   }
 
   convertToProtocolFormat() {
@@ -62,7 +66,7 @@ export class JobTaskRole {
       instances: this.instances,
       completion: this.completion,
       taskRetryCount: this.taskRetryCount,
-      dockerImage: this.dockerInfo.name,
+      dockerImage: this.dockerImage,
       resourcePerInstance: {...this.containerSize.getResourcePerInstance(), ports: ports},
       commands: this.commands,
     };

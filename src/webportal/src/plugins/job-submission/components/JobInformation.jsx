@@ -23,23 +23,47 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {FormTextFiled} from './FormTextFiled';
+import React, {useState} from 'react';
+import {FormTextField} from './FormTextField';
 import {FormPage} from './FormPage';
 import {Text, Dropdown} from 'office-ui-fabric-react';
 import {FormSpinButton} from './FormSpinButton';
 import {BasicSection} from './BasicSection';
+import PropTypes from 'prop-types';
+import {JobBasicInfo} from '../models/jobBasicInfo';
 
+export const JobInformation= (props) => {
+  const {defaultValue, onChange} = props;
+  const [jobBasicInfo, setJobBasicInfo] = useState(defaultValue);
 
-export const JobInformation= () => {
+  const _onChange = (keyName, newValue) => {
+    const updatedJobBasicInfo = new JobBasicInfo(jobBasicInfo);
+    updatedJobBasicInfo[keyName] = newValue;
+    if (onChange !== undefined) {
+      onChange(updatedJobBasicInfo);
+    }
+    setJobBasicInfo(updatedJobBasicInfo);
+  };
+
   return (
     <FormPage>
       <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
-      <FormTextFiled sectionLabel={'Job name'}/>
+      <FormTextField sectionLabel={'Job name'}
+                     value={jobBasicInfo.name}
+                     onChange={(value) => _onChange('name', value)}
+                     placeholder='Enter job name'/>
       <BasicSection sectionLabel={'Virutual cluster'}>
         <Dropdown placeholder='Select an option'></Dropdown>
       </BasicSection>
-      <FormSpinButton sectionOptional sectionLabel={'Retry count'}/>
+      <FormSpinButton sectionOptional
+                      sectionLabel={'Retry count'}
+                      value={jobBasicInfo.jobRetryCount}
+                      onChange={(value) => _onChange('jobRetryCount', value)}/>
     </FormPage>
   );
+};
+
+JobInformation.propTypes = {
+  defaultValue: PropTypes.instanceOf(JobBasicInfo).isRequired,
+  onChange: PropTypes.func,
 };

@@ -23,23 +23,24 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {TextField} from 'office-ui-fabric-react';
 import {BasicSection} from './BasicSection';
 import PropTypes from 'prop-types';
 import {Deployment} from '../models/deployment';
 
 export const DeploymentSection = (props) => {
-  const {onChange, value} = props;
-  const {preCommands, postCommands} = value;
+  const {onChange, defaultValue} = props;
+  const [deployment, setDeployment] = useState(defaultValue);
+  const {preCommands, postCommands} = deployment;
 
   const _onChange = (keyName, newValue) => {
-    if (onChange === undefined) {
-      return;
+    const updatedDeployment = new Deployment(deployment);
+    updatedDeployment[keyName] = newValue;
+    if (onChange !== undefined) {
+      onChange(updatedDeployment);
     }
-    const deployment = new Deployment(value);
-    deployment[keyName] = newValue;
-    onChange(deployment);
+    setDeployment(updatedDeployment);
   };
 
   return (
@@ -59,6 +60,6 @@ export const DeploymentSection = (props) => {
 };
 
 DeploymentSection.propTypes = {
-  value: PropTypes.instanceOf(Deployment).isRequired,
+  defaultValue: PropTypes.instanceOf(Deployment).isRequired,
   onChange: PropTypes.func,
 };
