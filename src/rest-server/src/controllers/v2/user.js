@@ -219,7 +219,12 @@ const updateUserAdminPermission = async (req, res, next) => {
       let userInfo = await userModel.getUser(username);
       const existed = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
       if (!existed && admin) {
-        userInfo['grouplist'].push(authConfig.groupConfig.adminGroup.groupname);
+        const groupInfoList = await groupModel.getAllGroup();
+        let groupnameList = [];
+        for (let groupItem of groupInfoList) {
+          groupnameList.push(groupItem['groupname']);
+        }
+        userInfo['grouplist'] = groupnameList;
       } else if (existed && !admin) {
         userInfo['grouplist'].splice(userInfo['grouplist'].indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
       }
