@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
@@ -33,16 +33,17 @@ import {CSpinButton} from './CustomizedComponents';
 const {spacing} = getTheme();
 
 export const ContainerSizeSection = (props) => {
-  const {value, onChange, isContainerSizeEnabled, onEnable} = props;
+  const {defaultValue, onChange, isContainerSizeEnabled, onEnable} = props;
+  const [value, setValue] = useState(defaultValue);
   const {cpu, memoryMB, gpu, shmMB} = value;
 
   const _onChange = (keyName, newValue) => {
-    if (onChange === undefined) {
-      return;
-    }
     const containerSize = new ContainerSize(value);
     containerSize[keyName] = newValue;
-    onChange(containerSize);
+    if (onChange !== undefined) {
+      onChange(containerSize);
+    }
+    setValue(containerSize);
   };
 
   const _onEnable = (_, checked) => {
@@ -81,7 +82,7 @@ export const ContainerSizeSection = (props) => {
 };
 
 ContainerSizeSection.propTypes = {
-  value: PropTypes.instanceOf(ContainerSize).isRequired,
+  defaultValue: PropTypes.instanceOf(ContainerSize).isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,

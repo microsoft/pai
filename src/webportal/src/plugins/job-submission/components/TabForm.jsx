@@ -31,29 +31,19 @@ import {getFormClassNames, getTabFromStyle} from './formStyle';
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
 
-export const TabFormItem = (props) => {
-  return (
-    <>{props.children}</>
-  );
-};
-
-TabFormItem.propTypes = {
-  children: PropTypes.node,
-  headerText: PropTypes.string.isRequired,
-};
-
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
-    const {children} = props;
+    const {defaultItems} = props;
 
     let selectedIndex;
-    if (children !== undefined && children.size !== 0) {
+    if (defaultItems !== undefined && defaultItems.size !== 0) {
       selectedIndex = 0;
     }
 
     this.state = {
       selectedIndex: selectedIndex,
+      items: defaultItems,
     };
   }
 
@@ -65,19 +55,24 @@ export class TabForm extends React.Component {
     return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
   }
 
-  _getContentItemsFromChildren(children) {
-    return React.Children.map(children, (child, index) => {
-      const {headerText, children} = child.props;
-      return {headerText: headerText, content: children, itemKey: this._getItemKeyByIndex(index)};
+  _getContentItems(items) {
+    const {onRenderTabContent} = this.props;
+    return items.map((item, index) => {
+      const {headerText, content} = item;
+      return {
+        headerText: headerText,
+        content: onRenderTabContent(index, content, this._onContentChange.bind(this, index)),
+        itemKey: this._getItemKeyByIndex(index),
+      };
     });
   }
 
-  _renderItems(items) {
+  _renderPivotItems(items) {
     const pivotItems = items.map((items) =>
                          <PivotItem key={items.itemKey}
-                                         itemKey={items.itemKey}
-                                         headerText={items.headerText}
-                                         onRenderItemLink={this._onRenderItem.bind(this)}/>);
+                                    itemKey={items.itemKey}
+                                    headerText={items.headerText}
+                                    onRenderItemLink={this._onRenderItem.bind(this)}/>);
 
     return pivotItems;
   }
@@ -96,8 +91,14 @@ export class TabForm extends React.Component {
     </span>);
   }
 
+  _onItemsChange(updatedItems) {
+    const {onItemsChange} = this.props;
+    if (onItemsChange !== undefined) {
+      onItemsChange(updatedItems);
+    }
+  }
+
   _onItemDelete(itemKey, event) {
-    const {onItemDelete} = this.props;
     event.stopPropagation();
 
     if (itemKey === undefined) {
@@ -105,29 +106,29 @@ export class TabForm extends React.Component {
     }
 
     const itemIndex = this._getItemIndexByKey(itemKey);
-    if (onItemDelete === undefined) {
-      return;
-    }
+    const {items} = this.state;
+    const updatedItems = items.filter((_, index) => index !== itemIndex);
 
-    const newSelectedIndex = onItemDelete(itemIndex);
+    // TODO: use other policy to update index
+    const newSelectedIndex = 0;
+
+    this._onItemsChange(updatedItems);
     this.setState({
+      items: updatedItems,
       selectedIndex: newSelectedIndex,
     });
   }
 
   _onAddItem() {
-    const {onItemAdd} = this.props;
-    if (onItemAdd === undefined) {
-      return;
-    }
+    const {items} = this.state;
+    const {createContentFunc, headerTextPrefix} = this.props;
+    const updatedItems = [...items, {headerText: `${headerTextPrefix} ${items.length + 1}`, content: createContentFunc()}];
+    const newSelectedIndex = updatedItems.length - 1;
 
-    const newSelectedIndex = onItemAdd();
-    if (newSelectedIndex === undefined) {
-      return;
-    }
-
+    this._onItemsChange(updatedItems);
     this.setState({
       selectedIndex: newSelectedIndex,
+      items: updatedItems,
     });
   }
 
@@ -137,13 +138,23 @@ export class TabForm extends React.Component {
     });
   }
 
+  _onContentChange(index, itemContent) {
+    const {items} = this.state;
+    const updatedItems = [...items];
+    updatedItems[index].content = itemContent;
+
+    this._onItemsChange(updatedItems);
+    this.setState({
+      items: updatedItems,
+    });
+  }
+
   render() {
-    let {selectedIndex} = this.state;
-    const {children} = this.props;
+    let {selectedIndex, items} = this.state;
 
     const {formTabBar} = getFormClassNames();
-    const items = this._getContentItemsFromChildren(children);
-    const elements = this._renderItems(items);
+    const contentItems = this._getContentItems(items);
+    const pivotItems = this._renderPivotItems(contentItems);
 
     if (selectedIndex === undefined && items.length) {
       selectedIndex = 0;
@@ -155,12 +166,12 @@ export class TabForm extends React.Component {
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
                    styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
                    selectedKey={this._getItemKeyByIndex(selectedIndex)}>
-             {elements}
+             {pivotItems}
             </Pivot>
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
         </Stack>
         <Stack styles={tabFormStyle.tabContent}>
-          {selectedIndex !== undefined ? items[selectedIndex].content: null}
+          {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}
         </Stack>
       </>
     );
@@ -168,7 +179,9 @@ export class TabForm extends React.Component {
 }
 
 TabForm.propTypes = {
-  onItemAdd: PropTypes.func,
-  onItemDelete: PropTypes.func,
-  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  defaultItems: PropTypes.array.isRequired,
+  headerTextPrefix: PropTypes.string.isRequired,
+  createContentFunc: PropTypes.func.isRequired,
+  onRenderTabContent: PropTypes.func.isRequired,
+  onItemsChange: PropTypes.func,
 };

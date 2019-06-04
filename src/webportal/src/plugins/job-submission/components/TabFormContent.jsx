@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {FormTextFiled} from './FormTextFiled';
 import {DockerSection} from './DockerSection';
@@ -36,36 +36,25 @@ import {FormSpinButton} from './FormSpinButton';
 import {ContainerSizeSection} from './ContainerSizeSection';
 
 export const TabFormContent = (props) => {
-  const {jobTaskRole, onContentChange} = props;
+  const {defaultValue, onContentChange} = props;
+  const [jobTaskRole, setJobTaskRole] = useState(defaultValue);
 
   const _onValueChange = (propertyName, propertyValue) => {
-    let udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
+    const udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
     udpatedJobTaskRole[propertyName] = propertyValue;
-    onContentChange(udpatedJobTaskRole);
+    if (onContentChange !== undefined) {
+      onContentChange(udpatedJobTaskRole);
+    }
+    setJobTaskRole(udpatedJobTaskRole);
   };
 
   const _onValuesChange = (updateProperties) => {
     let udpatedJobTaskRole = {...jobTaskRole, ...updateProperties};
     udpatedJobTaskRole = new JobTaskRole(udpatedJobTaskRole);
-    onContentChange(udpatedJobTaskRole);
-  };
-
-  const _onPortAdd = (port) => {
-    const {ports} = jobTaskRole;
-    ports.push(port);
-    _onValueChange('ports', ports);
-  };
-
-  const _onPortDelete = (index) => {
-    let {ports} = jobTaskRole;
-    ports = ports.filter((_, itemIndex) => index !== itemIndex);
-    _onValueChange('ports', ports);
-  };
-
-  const _onPortChange = (index, port) => {
-    const {ports} = jobTaskRole;
-    ports[index] = port;
-    _onValueChange('ports', ports);
+    if (onContentChange !== undefined) {
+      onContentChange(udpatedJobTaskRole);
+    }
+    setJobTaskRole(udpatedJobTaskRole);
   };
 
   return (
@@ -74,29 +63,28 @@ export const TabFormContent = (props) => {
                      value={jobTaskRole.name}
                      onChange={(value) => _onValueChange('name', value)}
                      textFiledProps={{placeholder: 'Enter task role name...'}}/>
-      <DockerSection dockerInfo={jobTaskRole.dockerInfo}
+      <DockerSection defaultValue={jobTaskRole.dockerInfo}
                      onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
       <FormSpinButton sectionLabel={'Instances'}
                       textFiledProps={{placeholder: 'Enter instance number...'}}
                       value={jobTaskRole.instances}
                       onChange={(value) => _onValueChange('instances', value)}/>
-      <ContainerSizeSection value={jobTaskRole.containerSize}
+      <ContainerSizeSection defaultValue={jobTaskRole.containerSize}
                             onEnable={(checked) => _onValuesChange({
                               isContainerSizeEnabled: checked,
                               containerSize: jobTaskRole.containerSize.getResetContainerSize(),
                             })}
                             onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
-      <PortsList ports={jobTaskRole.ports}
-                 onPortAdd={_onPortAdd}
-                 onPortDelete={_onPortDelete}
-                 onPortChange={_onPortChange}/>
+      <PortsList defaultValue={jobTaskRole.ports}
+                 ports={jobTaskRole.ports}
+                 onPortsChange={(ports) => _onValueChange('ports', ports)}/>
       <FormSpinButton sectionLabel={'Task retry count'}
                       sectionOptional
                       value={jobTaskRole.taskRetryCount}
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
-                         value={jobTaskRole.completion}/>
+                         defaultValue={jobTaskRole.completion}/>
       <FormTextFiled sectionLabel={'Command'}
                      multiline={true}
                      rows={10}
@@ -109,6 +97,6 @@ export const TabFormContent = (props) => {
 };
 
 TabFormContent.propTypes = {
-  jobTaskRole: PropTypes.instanceOf(JobTaskRole).isRequired,
+  defaultValue: PropTypes.instanceOf(JobTaskRole).isRequired,
   onContentChange: PropTypes.func,
 };

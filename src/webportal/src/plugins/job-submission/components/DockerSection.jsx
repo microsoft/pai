@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {TextField, DefaultButton, Stack} from 'office-ui-fabric-react';
 import {getId} from 'office-ui-fabric-react/lib/Utilities';
 import PropTypes from 'prop-types';
@@ -31,17 +31,17 @@ import {DockerInfo} from '../models/dockerInfo';
 import {BasicSection} from './BasicSection';
 
 export const DockerSection = (props) => {
-  const {onValueChange, dockerInfo} = props;
+  const {onValueChange, defaultValue} = props;
+  const [dockerInfo, setDockerInfo] = useState(defaultValue);
   const textFieldId = getId('textField');
 
   const _onChange = (keyName, value) => {
-    if (onValueChange === undefined) {
-      return;
-    }
-
     const updatedDockerInfo = new DockerInfo(dockerInfo);
     updatedDockerInfo[keyName] = value;
-    onValueChange(updatedDockerInfo);
+    if (onValueChange !== undefined) {
+      onValueChange(updatedDockerInfo);
+    }
+    setDockerInfo(updatedDockerInfo);
   };
 
   return (
@@ -58,6 +58,6 @@ export const DockerSection = (props) => {
 };
 
 DockerSection.propTypes = {
-  dockerInfo: PropTypes.instanceOf(DockerInfo).isRequired,
+  defaultValue: PropTypes.instanceOf(DockerInfo).isRequired,
   onValueChange: PropTypes.func,
 };

@@ -24,17 +24,32 @@
  */
 
 
-import React from 'react';
+import React, {useState} from 'react';
 import {KeyValueList} from './KeyValueList';
 import PropTypes from 'prop-types';
 import {Port} from '../models/port';
 import {BasicSection} from './BasicSection';
 
 export const PortsList = (props) => {
-  const {ports, onPortAdd, onPortDelete} = props;
+  const {onPortsChange, defaultValue} = props;
+  const [ports, setPorts] = useState(defaultValue);
+
+  const _onPortChange = (updatedPorts) => {
+    if (onPortsChange !== undefined) {
+      onPortsChange(updatedPorts);
+    }
+    setPorts(updatedPorts);
+  };
+
   const _onPortAdd = (item) => {
     const port = new Port(item.itemKey, item.itemValue);
-    onPortAdd(port);
+    const updatedPorts = [...ports, port];
+    _onPortChange(updatedPorts);
+  };
+
+  const _onPortDelete = (index) => {
+    const updatedPorts = ports.filter((_, itemIndex) => index !== itemIndex);
+    _onPortChange(updatedPorts);
   };
 
   return (
@@ -43,13 +58,12 @@ export const PortsList = (props) => {
         return {itemKey: port.portLabel, itemValue: port.portNumber};
       })}
       onItemAdd={_onPortAdd}
-      onItemDelete={onPortDelete}/>
+      onItemDelete={_onPortDelete}/>
     </BasicSection>
   );
 };
 
 PortsList.propTypes = {
-  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
-  onPortAdd: PropTypes.func,
-  onPortDelete: PropTypes.func,
+  defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
+  onPortsChange: PropTypes.func,
 };

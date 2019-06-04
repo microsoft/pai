@@ -25,7 +25,7 @@
 
 import React from 'react';
 import {Fabric, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
-import {TabForm, TabFormItem} from './TabForm';
+import {TabForm} from './TabForm';
 import {initializeIcons} from '@uifabric/icons';
 import {TabFormContent} from './TabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
@@ -47,39 +47,10 @@ export class App extends React.Component {
     };
   }
 
-  _onItemAdd() {
-    const {items} = this.state;
-    const updatedItems = [...items, {headerText: `Task role ${items.length + 1}`, content: new JobTaskRole({})}];
-    this.setState({
-      items: updatedItems,
-    });
-    return updatedItems.length - 1;
-  }
-
-  _onItemDelete(itemIndex) {
-    const {items} = this.state;
-    const updatedItems = items.filter((_, index) => index !== itemIndex);
-    this.setState({
-      items: updatedItems,
-    });
-    // TODO: can return select index
-  }
-
-  _onContentChange(index, jobTaskRole) {
-    const {items} = this.state;
-    const updatedItems = [...items];
-    updatedItems[index].content = jobTaskRole;
-    this.setState({
-      items: updatedItems,
-    });
-  }
-
-  _getTabFormItems(items) {
-    return items.map((item, index) =>
-            <TabFormItem key={index} headerText={item.headerText}>
-              <TabFormContent jobTaskRole={item.content}
-                              onContentChange={this._onContentChange.bind(this, index)}/>
-            </TabFormItem>);
+  _onRenderTabContent(keyName, content, defaultOnContentChange) {
+    return (
+      <TabFormContent key={keyName} defaultValue={content} onContentChange={defaultOnContentChange}/>
+    );
   }
 
   render() {
@@ -97,9 +68,11 @@ export class App extends React.Component {
               </Stack>
               <Stack className={topForm} gap='l1'>
                 <Stack>
-                  <TabForm onItemAdd={this._onItemAdd.bind(this)} onItemDelete={this._onItemDelete.bind(this)}>
-                    {this._getTabFormItems(items)}
-                  </TabForm>
+                  <TabForm defaultItems={items}
+                           headerTextPrefix='Task Role'
+                           createContentFunc={() => new JobTaskRole({})}
+                           onRenderTabContent={this._onRenderTabContent.bind(this)}
+                           onItemsChange={(items)=>this.setState({items: items})}/>
                 </Stack>
                 <Stack horizontal gap='s1' horizontalAlign='center'>
                   <PrimaryButton>Submit</PrimaryButton>
