@@ -254,14 +254,17 @@ const checkUserPassword = async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
     let userValue = await userModel.getUser(username);
-    let newUserValue = userValue;
+    let newUserValue = JSON.parse(JSON.stringify(userValue));
     newUserValue['password'] = password;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
     if (newUserValue['password'] !== userValue['password']) {
-      return next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
     }
     next();
   } catch (error) {
+    if (error.status && error.status === 404) {
+      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
