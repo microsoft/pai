@@ -1,4 +1,4 @@
-# Upgrade to v0.12
+# Upgrade to v0.13
 
 We have test the upgrade process against v0.8 and later.
 It takes hours or more, depends on the number of nodes in the cluster and the internet network speed.
@@ -32,7 +32,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box:v0.12.0
+        docker.io/openpai/dev-box:v0.13.0
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
