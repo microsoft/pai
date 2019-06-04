@@ -93,6 +93,7 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
     if (error.response) {
       throw error.response;
