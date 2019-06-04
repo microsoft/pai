@@ -29,7 +29,6 @@ Like other remote platforms, job failures in OpenPAI need more effort to find an
     - [Know resource bottleneck well](#know-resource-bottleneck-well)
   - [Diagnostic issues](#diagnostic-issues) 
     - [Job is waiting for hours](#job-is-waiting-for-hours)
-    - [Job is running, but no IP address, ports, and GPU assigned](#job-is-running-but-no-ip-address-ports-and-gpu-assigned)
     - [Job is running and retried many times](#job-is-running-and-retried-many-times)
     - [Job runs slowly](#job-runs-slowly)
     - [Job is failed](#job-is-failed)
@@ -80,31 +79,23 @@ Note, as Docker on Windows doesn't support GPU, so TensorFlow needs a docker ima
 
 To use OpenPAI, user needs to specify resource specification, including CPU, GPU and memory. If requested resource is low, the job may be much slower than expected or out of memory. But if a job is assigned too much resource, it's waste also. So, to be aware and understand bottleneck is important.
 
-OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime consumption of resource. Learn [how to check job metrics](#how-to-check-job-metrics) for details.
+OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime consumption of resource. Learn [how to view job metrics](#how-to-view-job-metrics) for details.
 
 ## Diagnostic issues
 
 ### Job is waiting for hours
 
-In general, jobs of OpenPAI stays in waiting status less than 1 minute. But if there is not enough resource, a job may stay in waiting status longer.
+In general, jobs of OpenPAI stays in waiting status less than 1 minute. But if there is not enough resource, a job may stay in waiting status longer. When other jobs complete, waiting jobs have a chance getting resource.
+
+One way to reduce waiting time, is to reduce requested resources.
+
+Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers, so server may not meet all resources requirements including CPU, memory, and GPU.
 
 ![waiting](imgs/web_job_list_waiting.png)
 
-### Job is running, but no IP address, ports, and GPU assigned
-
-As the design of OpenPAI, there are two phases to request resources. In first phase, job is in waiting status. In second phase, job is running, but the task role(s) may be requesting resources yet. When a job is running, it doesn't mean task roles of the job are assigned resource. If there is no IP address displayed, it means the task roles are requesting resource and the task roles keep like below status.
-
-![no IP](imgs/web_job_detail_noip.png)
-
-When other jobs complete, the task roles of waiting jobs have a chance to get resource. One way to reduce waiting time, is to reduce requested resources.
-
-Note, there may display more free resources in the dashboard of web portal. But resources are distributed on different servers, so no server may meet all resources requirement including CPU, memory, and GPU.
-
 ### Job is running and retried many times
 
-If a job fails by system reasons, OpenPAI will try to run the job again.
-
-For example, as OpenPAI has two phases to request resources, it may be timeout in second phase. OpenPAI retries the job to request resources. Check above [job is running, but no IP address, ports, and GPU assigned](#job-is-running-but-no-ip-address-ports-and-gpu-assigned) to check if it's caused by limited resource. If a job retries many times and not this case, administrators of OpenPAI may needs to check what happens.
+If a job fails by system reasons, OpenPAI will try to run the job again, for example, system is upgraded during job running. If a job retries many times and not this case, administrators of OpenPAI may needs to check what happens.
 
 ![retry](imgs/web_job_detail_retry.png)
 
@@ -114,7 +105,7 @@ The running speed of job is subjective, so it needs data to measure, before tryi
 
 1. GPU is not used. Some frameworks, like TensorFlow, need to install GPU edition to enable GPU computing. In most case, the log of framework shows if GPU is in use. Some frameworks, like PyTorch, need to write code explicitly to use GPU. Learn [how to check job log](#how-to-check-job-log) to confirm it in log.
 
-2. Resource bottleneck. Computing resource is not only the potential bottleneck, sometime IO and memory capacity are also bottleneck. Metrics can be used to analyze bottleneck. Refer to [how to check job metrics](#how-to-check-job-metrics) for more information.
+2. Resource bottleneck. Computing resource is not only the potential bottleneck, sometime IO and memory capacity are also bottleneck. Metrics can be used to analyze bottleneck. Refer to [how to view job metrics](#how-to-view-job-metrics) for more information.
 
 ### Job is failed
 
@@ -122,29 +113,27 @@ Job failures can be caused by many reasons. In general, it can be categorized to
 
 1. **Failures before running**, for example requested resources exceeded capacity. If a job requests resources over what the cluster can provide, the job fails soon. For example, if the cluster has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
   
-  For this kind of system failures, there is no resource assigned, no IP, ports and GPUs as below.
+  For this kind of system failures, the error type is *System Error*.
   
   ![over requested 1](imgs/web_job_details_over1.png)
   
-  Click *View Application Summary*, there is an exception like below. it explains which resource is exceeded.
+  Click *application summary* can see error details as below. It explains which resource is exceeded.
   
   ![over requested 1](imgs/web_job_details_over2.png)
-  
-  Note, there are other kinds of failures happening. If no resource assigned, click *View Application Summary* to get details of failures.
 
-2. **Failures during job running**. If IP address and GPU are assigned, it means task instance is running. In this case, log provides details of failure. Learn [how to check job log](#how-to-check-job-log) to get failure details.
+2. **Failures during job running**. If the error type is *User Error*, stdout and stderr provide details of failure. Learn [how to check job log](#how-to-check-job-log) to get failure details.
   
   Note, OpenPAI determines job success or not by returned exit code of task instance. The exit code is from command in job configuration usually, which is written by user, but it may be caused by OpenPAI occasionally.
   
   The error code depends on the failed command, though there is [a document of exit codes](http://www.tldp.org/LDP/abs/html/exitcodes.html) in Linux.
   
-  ![job link](imgs/web_job_details_exitcode.png)
+  ![job user error](imgs/web_job_details_exitcode.png)
 
 ## Guideline
 
 ### How to view job metrics
 
-- Click *Go to Job Metrics Page* in job details page, if tasks are assigned IP, and ports.
+- Click *Go to Job Metrics Page* in job details page.
 
 ![job link](imgs/web_job_details_metrics.png)
 
@@ -162,23 +151,17 @@ The UI is implemented by [Grafana](https://grafana.com/), check its web site for
 
 ### How to check job log
 
-- Click *Go to Tracking Page* in job details page, if IP address, ports and GPU are assigned.
+- Click *stdout* or *stderr* in job details page.
   
   ![job link](imgs/web_job_details_loglink.png)
 
-- A new page is opened and shows log of yarn platform.
+- It shows log content like below and contains latest 4096 bytes. It refreshes every 10 seconds automatically.
   
-  It may show like below, with file name only. Click file names, it shows last 4096 bytes of that file.
+  If it needs to view full log, click button *View Full Log*.
   
-  ![job link](imgs/web_log_list1.png)
+  ![job link](imgs/web_job_details_logview.png)
   
-  Or it shows like below with last lines directly. Scroll down can find other files.
-  
-  ![job link](imgs/web_log_list2.png)
-  
-  In both cases, the page includes 4 files for a task instance, *DockerContainerDebug.log*, *YarnContainerDebug.log*, *stderr*, and *stdout*. Click *refresh* button of browser can show latest last 4k bytes. Click *here* shows the full log.
-  
-  *stderr* and *stdout* is screen output of the task instance. So, all content, that user prints to screen, displays there near real-time. Hints of most errors can be found in the two files. *DockerContainerDebug.log*, *YarnContainerDebug.log* can find some errors like out of memory for GPU, if there is no hint in *stderr* and *stdout*.
+  The *stderr* and *stdout* is screen output of the task instance. All content, which prints to screen, displays there near real-time. Most errors during job running can be found in the two files.
 
 Note, if a task instance has no resource assigned, there is no log file.
 
@@ -203,8 +186,6 @@ Note, the **SSH connection doesn't support in below cases**,
 - The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
 
 ### Reserve failed docker for debugging
-
-*It supports from OpenPAI v0.11.0*.
 
 To reserve failed docker for debugging, it needs to set the following property in the jobEnv field. If the job is failed by user's command, the container is kept for 1 week by default. The period may be configured by administrators. If the job is success, the container won't be reserved.
 
