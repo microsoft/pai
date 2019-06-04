@@ -162,6 +162,15 @@ if (config.env !== 'test') {
       };
       await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
       logger.info('Create admin group successfully.');
+      logger.info('create default vc\'s group.');
+      const defaultVCGroup = {
+        'groupname': authConfig.groupConfig.defaultGroup.groupname,
+        'description': authConfig.groupConfig.defaultGroup.description,
+        'externalName': authConfig.groupConfig.defaultGroup.externalName,
+        'extension': authConfig.groupConfig.defaultGroup.extension,
+      };
+      await createGroupIfNonExistent(defaultVCGroup.groupname, defaultVCGroup);
+      logger.info('Create default group successfully.');
       logger.info('Create non-admin group configured in configuration.');
       for (const groupItem of authConfig.groupConfig.grouplist) {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);

@@ -106,6 +106,9 @@ const createUser = async (req, res, next) => {
     if (req.body.admin) {
       grouplist.push(authConfig.groupConfig.adminGroup.groupname);
     }
+    if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+      grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+    }
     const username = req.body.username;
     const userValue = {
       username: req.body.username,
