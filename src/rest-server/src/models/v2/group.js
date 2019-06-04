@@ -178,11 +178,16 @@ if (config.env !== 'test') {
     (async function() {
       try {
         logger.info('Create admin user account configured in configuration.');
+        const groupInfoList = await getAllGroup();
+        const groupnameList = [];
+        for (let groupItem of groupInfoList) {
+          groupnameList.push(groupItem['groupname']);
+        }
         const userValue = {
           username: secretConfig.adminName,
           email: '',
           password: secretConfig.adminPass,
-          grouplist: [authConfig.groupConfig.adminGroup.groupname],
+          grouplist: groupnameList,
           extension: {},
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
