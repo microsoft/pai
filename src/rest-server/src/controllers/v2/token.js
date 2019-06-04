@@ -52,6 +52,9 @@ const get = async (req, res, next) => {
       hasGitHubPAT: userInfo.extension.hasOwnProperty('githubPAT')&& Boolean(userInfo.extension['githubPAT']),
     });
   } catch (error) {
+    if (error.status && error.status === 404) {
+      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
