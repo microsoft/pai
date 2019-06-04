@@ -2,6 +2,12 @@ import argparse
 from openpaisdk import __logger__
 from openpaisdk.job import Job
 
+
+class ArgumentError(Exception):
+
+    pass
+
+
 class Action:
 
     def __init__(self, action: str, help_s: str):
@@ -88,4 +94,6 @@ class EngineFactory:
 
     def process_args(self, args):
         __logger__.debug("Parsed arguments %s", args)
+        if not args.scene:
+            raise ArgumentError
         return self.scenes[args.scene].process(args)

@@ -1,6 +1,7 @@
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.io_utils import from_file, to_file
-from openpaisdk.utils import merge_two_object
+from openpaisdk.utils import merge_two_object, psel
+from openpaisdk.utils import OrganizedList as ol
 from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__, __sdk_branch__
 from openpaisdk import get_client_cfg
 import argparse
@@ -111,7 +112,7 @@ class Job(JobSpec):
             dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
             dic['outputDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('output'))
 
-        dic['extras']['__clusters__'] = get_client_cfg(self.cluster_alias)["match"] if not cluster_info else cluster_info
+        dic['extras']['__clusters__'] = ol.filter(get_client_cfg(None)["all"], "cluster_alias", self.cluster_alias)["matches"]
         dic['extras']['__defaults__'] = __defaults__
         dic['extras']['__sources__'] = self.sources
 

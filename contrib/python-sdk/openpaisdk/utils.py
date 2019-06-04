@@ -52,6 +52,15 @@ class OrganizedList:
         return lst
 
 
+def psel(*args, default=None):
+    """select with priority"""
+    for a in args:
+        if not a:
+            continue
+        return a
+    return default
+
+
 def merge_two_object(a: dict, b: dict):
     y = deepcopy(a)
     y.update(b)

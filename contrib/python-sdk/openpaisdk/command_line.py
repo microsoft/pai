@@ -107,6 +107,21 @@ class ActionFactoryForCluster(ActionFactory):
         to_file(cfgs, pai.__cluster_config_file__)
         return result
 
+    def define_arguments_delete(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, ['cluster_alias'])
+
+    def do_action_delete(self, args):
+        f = get_client_cfg(args.cluster_alias)
+        if not f["match"]:
+            result = "cannot find cluster with alias %s", args.cluster_alias
+            __logger__.warn(result)
+        else:
+            ol.delete(f["all"], "cluster_alias", args.cluster_alias)
+            to_file(f["all"], pai.__cluster_config_file__)
+            result = "cluster %s deleted" % args.cluster_alias
+            __logger__.debug(result)
+        return result
+
     def define_arguments_select(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['cluster_alias'])
 
@@ -308,6 +323,7 @@ __cli_structure__ = {
         "actions": {
             "list": "list clusters in config file %s" % pai.__cluster_config_file__,
             "add": "add a cluster to config file %s" % pai.__cluster_config_file__,
+            "delete": "delete a cluster from config file %s" % pai.__cluster_config_file__,
             "select": "select a cluster as default",
             "attach-hdfs": "attach hdfs storage to cluster",
         }
