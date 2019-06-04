@@ -83,7 +83,9 @@ const updateGroupExtension = async (req, res, next) => {
     const extensionData = req.body.extension;
     if (req.user.admin) {
       let groupInfo = await groupModel.getGroup(groupname);
-      groupInfo['extension'] = extensionData;
+      for (let [key, value] of Object.entries(extensionData)) {
+        groupInfo['extension'][key] = value;
+      }
       await groupModel.updateGroup(groupname, groupInfo);
       return res.status(201).json({
         message: 'update group extension data successfully.',

@@ -46,9 +46,9 @@ if (authnConfig.authnMethod === 'basic') {
   /** Delete /api/v2/user/delete/:username */
     .delete(token.check, userController.deleteUser);
 
-  router.route('/update/:username/grouplist')
-  /** Update /api/v2/user/update/:username/grouplist */
-    .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
+  router.route('/update/:username/virtualcluster')
+  /** Update /api/v2/user/update/:username/virtualcluster */
+    .put(token.check, param.validate(userInputSchema.userVirutalClusterUpdateInputSchema), userController.updateUserVirtualCluster);
 
   router.route('/update/:username/password')
   /** Update /api/v2/user/update/:username/password */
@@ -57,6 +57,12 @@ if (authnConfig.authnMethod === 'basic') {
   router.route('/create')
   /** Create /api/v2/user/create */
     .post(token.check, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
+
+  router.route('/update/:username/email')
+    .put(token.check, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
+
+  router.route('/update/:username/admin')
+    .put(token.check, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
 }
 
 router.use('/:username/jobs', jobRouter);

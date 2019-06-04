@@ -18,6 +18,11 @@ adminGroup:
 {%- endfor %}
 {%- endif %}
 
+defaultGroup:
+  groupname: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["groupname"] }}"
+  description: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["description"] }}"
+  externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
+  extension: {}
 
 grouplist:
 {%- for group_item in cluster_cfg["authentication"]["group-manager"]["grouplist"] %}

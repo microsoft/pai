@@ -108,6 +108,13 @@ group-manager:
     userlist:
       - openpai
 
+  # Group for default vc.
+  # For yarn default queue hack.
+  default-group:
+    groupname: default
+    description: "group for default vc"
+    externalName: ""
+
   # If the following groups are not in the data store, it will be created by default.
   grouplist:
     - groupname: for-example

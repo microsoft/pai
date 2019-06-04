@@ -25,8 +25,10 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
-    delete userInfo['password'];
+    const virtualCluster = await groupModel.groupList2VirtualCluster(userInfo['grouplist']);
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    userInfo['virtualCluster'] = virtualCluster;
+    delete userInfo['password'];
     return res.status(200).json(userInfo);
   } catch (error) {
     if (error.status === 404) {
@@ -41,8 +43,10 @@ const getAllUser = async (req, res, next) => {
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
-      delete userItem['password'];
+      const virtualCluster = await groupModel.groupList2VirtualCluster(userItem['grouplist']);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+      userItem['virtualCluster'] = virtualCluster;
+      delete userItem['password'];
       retUserList.push(userItem);
     }
     return res.status(200).json(retUserList);
@@ -95,12 +99,22 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
   try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    if (req.body.admin) {
+      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+    }
+    if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+      grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+    }
     const username = req.body.username;
     const userValue = {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
-      grouplist: req.body.grouplist,
+      grouplist: grouplist,
       extension: req.body.extension,
     };
     await userModel.createUser(username, userValue);
@@ -118,7 +132,9 @@ const updateUserExtension = async (req, res, next) => {
     const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
-      userInfo['extension'] = extensionData;
+      for (let [key, value] of Object.entries(extensionData)) {
+        userInfo['extension'][key] = value;
+      }
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user extension data successfully.',
@@ -131,17 +147,23 @@ const updateUserExtension = async (req, res, next) => {
   }
 };
 
-const updateUserGroupList = async (req, res, next) => {
+const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const grouplist = req.body.grouplist;
-    // TODO: check every new group is in datastore
-    let userInfo = await userModel.getUser(username);
-    userInfo['grouplist'] = grouplist;
-    await userModel.updateUser(username, userInfo);
-    return res.status(201).json({
-      message: 'Update user grouplist data successfully.',
-    });
+    const grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    if (req.user.admin || req.user.username === username) {
+      let userInfo = await userModel.getUser(username);
+      if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
+        grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+      }
+      userInfo['grouplist'] = grouplist;
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user virtualCluster data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
   } catch (error) {
     return next(createError.unknown((error)));
   }
@@ -156,14 +178,62 @@ const updateUserPassword = async (req, res, next) => {
     let newUserValue = userValue;
     newUserValue['password'] = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (!req.user.admin || newUserValue['password'] !== userValue['password']) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
-    } else {
+    if (req.user.admin || newUserValue['password'] === userValue['password']) {
       newUserValue['password'] = newPassword;
       newUserValue = await userModel.getEncryptPassword(newUserValue);
       await userModel.updateUser(username, newUserValue);
       return res.status(201).json({
         message: 'update user password successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+const updateUserEmail = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const email = req.body.email;
+    if (req.user.admin || req.user.username === username) {
+      let userInfo = await userModel.getUser(username);
+      userInfo['email'] = email;
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user email data successfully.',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+const updateUserAdminPermission = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const admin = req.body.admin;
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    } else {
+      let userInfo = await userModel.getUser(username);
+      const existed = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+      if (!existed && admin) {
+        const groupInfoList = await groupModel.getAllGroup();
+        let groupnameList = [];
+        for (let groupItem of groupInfoList) {
+          groupnameList.push(groupItem['groupname']);
+        }
+        userInfo['grouplist'] = groupnameList;
+      } else if (existed && !admin) {
+        userInfo['grouplist'].splice(userInfo['grouplist'].indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
+      }
+      await userModel.updateUser(username, userInfo);
+      return res.status(201).json({
+        message: 'Update user admin permission successfully.',
       });
     }
   } catch (error) {
@@ -187,7 +257,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-
 const checkUserPassword = async (req, res, next) => {
   try {
     const username = req.body.username;
@@ -208,7 +277,6 @@ const checkUserPassword = async (req, res, next) => {
   }
 };
 
-
 // module exports
 module.exports = {
   getUser,
@@ -216,7 +284,9 @@ module.exports = {
   createUserIfUserNotExist,
   updateUserGroupListFromExternal,
   updateUserExtension,
-  updateUserGroupList,
+  updateUserVirtualCluster,
+  updateUserEmail,
+  updateUserAdminPermission,
   deleteUser,
   updateUserPassword,
   createUser,

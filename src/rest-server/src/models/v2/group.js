@@ -134,6 +134,22 @@ const updateExternalName2Groupname = async () => {
   }
 };
 
+const virtualCluster2GroupList = async (virtualCluster) => {
+  const groupList = virtualCluster.slice(0);
+  return groupList;
+};
+
+const groupList2VirtualCluster = async (grouplist) => {
+  let ret = [];
+  for (const groupname of grouplist) {
+    if (groupname !== authConfig.groupConfig.adminGroup.groupname) {
+      ret.push(groupname);
+    }
+  }
+  return ret;
+};
+
+
 if (config.env !== 'test') {
   (async function() {
     try {
@@ -146,6 +162,15 @@ if (config.env !== 'test') {
       };
       await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
       logger.info('Create admin group successfully.');
+      logger.info('create default vc\'s group.');
+      const defaultVCGroup = {
+        'groupname': authConfig.groupConfig.defaultGroup.groupname,
+        'description': authConfig.groupConfig.defaultGroup.description,
+        'externalName': authConfig.groupConfig.defaultGroup.externalName,
+        'extension': authConfig.groupConfig.defaultGroup.extension,
+      };
+      await createGroupIfNonExistent(defaultVCGroup.groupname, defaultVCGroup);
+      logger.info('Create default group successfully.');
       logger.info('Create non-admin group configured in configuration.');
       for (const groupItem of authConfig.groupConfig.grouplist) {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);
@@ -162,11 +187,16 @@ if (config.env !== 'test') {
     (async function() {
       try {
         logger.info('Create admin user account configured in configuration.');
+        const groupInfoList = await getAllGroup();
+        const groupnameList = [];
+        for (let groupItem of groupInfoList) {
+          groupnameList.push(groupItem['groupname']);
+        }
         const userValue = {
           username: secretConfig.adminName,
           email: '',
           password: secretConfig.adminPass,
-          grouplist: [authConfig.groupConfig.adminGroup.groupname],
+          grouplist: groupnameList,
           extension: {},
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
@@ -260,6 +290,8 @@ module.exports = {
   deleteGroup,
   createGroup,
   updateGroup,
+  virtualCluster2GroupList,
+  groupList2VirtualCluster,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
 };
