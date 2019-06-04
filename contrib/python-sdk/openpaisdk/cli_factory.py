@@ -88,6 +88,4 @@ class EngineFactory:
 
     def process_args(self, args):
         __logger__.debug("Parsed arguments %s", args)
-        if not args.scene:
-            return self.parser.print_help()
         return self.scenes[args.scene].process(args)
