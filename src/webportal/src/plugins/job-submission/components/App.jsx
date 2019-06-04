@@ -24,8 +24,7 @@
  */
 
 import React from 'react';
-import {Customizer, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
-import {FluentCustomizations} from '@uifabric/fluent-theme';
+import {Fabric, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import {TabForm, TabFormItem} from './TabForm';
 import {initializeIcons} from '@uifabric/icons';
 import {TabFormContent} from './TabFormContent';
@@ -33,7 +32,9 @@ import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
 import {Parameter} from './Parameter';
 import {getFormClassNames} from './formStyle';
+import {initTheme} from '../../../app/components/theme';
 
+initTheme();
 initializeIcons();
 
 export class App extends React.Component {
@@ -87,7 +88,7 @@ export class App extends React.Component {
     const topForm = getFormClassNames().topForm;
 
     return (
-      <Customizer {...FluentCustomizations}>
+      <Fabric>
         <Stack className={formLayout}>
           <Stack horizontal gap='l2'>
             <Stack styles={{root: {width: '70%'}}} gap='l2'>
@@ -114,7 +115,7 @@ export class App extends React.Component {
             </Stack>
           </Stack>
         </Stack>
-      </Customizer>
+      </Fabric>
     );
   }
 }

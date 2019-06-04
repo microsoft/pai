@@ -33,15 +33,15 @@ export class JobTaskRole {
     const {name, instances, taskRetryCount, dockerInfo, ports, command, completion, deployment, containerSize,
            isContainerSizeEnabled} = props;
     this.name = name;
-    this.instances = instances;
-    this.taskRetryCount = taskRetryCount;
-    this.dockerInfo = dockerInfo === undefined ? new DockerInfo({}): dockerInfo;
-    this.ports = ports === undefined ? []: ports;
+    this.instances = instances || 1;
+    this.taskRetryCount = taskRetryCount || 0;
+    this.dockerInfo = dockerInfo || new DockerInfo({});
+    this.ports = ports || [];
     this.command = command;
-    this.completion = completion === undefined ? new Completion({}): completion;
-    this.deployment = deployment === undefined? new Deployment({}): deployment;
-    this.containerSize = containerSize === undefined? new ContainerSize({}): containerSize;
-    this.isContainerSizeEnabled = isContainerSizeEnabled === undefined? false: isContainerSizeEnabled;
+    this.completion = completion || new Completion({});
+    this.deployment = deployment|| new Deployment({});
+    this.containerSize = containerSize || new ContainerSize({});
+    this.isContainerSizeEnabled = isContainerSizeEnabled || false;
   }
 
   getTaskPrerequires() {

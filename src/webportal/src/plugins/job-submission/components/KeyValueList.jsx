@@ -86,10 +86,10 @@ export class KeyValueList extends React.Component {
           columns={detailsHeaderProps.columns}
           item={{itemKey: <TextField placeholder='Enter a key...'
                                      value={itemKey}
-                                     onChange = {(_, itemKey)=>this.setState({itemKey: itemKey})}/>,
+                                     onChange = {(_, itemKey) => this.setState({itemKey: itemKey})}/>,
                  itemValue: <TextField placeholder='Enter a value...'
                                        value={itemValue}
-                                       onChange = {(_, itemValue)=>this.setState({itemValue: itemValue})}/>,
+                                       onChange = {(_, itemValue) => this.setState({itemValue: itemValue})}/>,
                  button: <DefaultButton text='Add' onClick={this._onItemAdd.bind(this)}/>}}
           itemIndex={-1}
         />

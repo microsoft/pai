@@ -23,28 +23,22 @@
  * SOFTWARE.
  */
 
-import {mergeStyleSets} from '@uifabric/merge-styles';
-import {FontSizes, IconFontSizes, FontWeights} from 'office-ui-fabric-react/lib/Styling';
+import {FontSizes, FontWeights, getTheme, IconFontSizes,
+        mergeStyleSets} from 'office-ui-fabric-react';
 
-export const marginSize = {
-  l1: '20px',
-  l2: '32px',
-  m: '16px',
-  s1: '8px',
-  s2: '4px',
-};
+const {spacing, palette} = getTheme();
 
 export const getFormClassNames = () => {
   return mergeStyleSets({
     formLayout: {
-      margin: marginSize.l1,
+      margin: spacing.l1,
     },
     topForm: {
-      border: marginSize.l1 + ' solid white',
-      background: 'white',
+      border: spacing.l1 + ' solid white',
+      background: palette.white,
     },
     formTabBar: {
-      background: '#f8f8f8',
+      background: palette.neutralLighterAlt,
       display: 'flex',
       alignItems: 'start',
     },
@@ -58,18 +52,18 @@ export const getTabFromStyle = () => {
         fontSize: FontSizes.icon,
       },
       root: {
-        background: 'white',
+        background: palette.white,
       },
     },
     tabIcon: {
       root: {
         fontSize: IconFontSizes.medium,
-        margin: `0, ${marginSize.s1}`,
+        margin: `0, ${spacing.s1}`,
       },
     },
     tabContent: {
       root: {
-        paddingTop: '32px',
+        paddingTop: spacing.l2,
       },
     },
   });
@@ -79,7 +73,7 @@ export const getFormPageSytle = () => {
   return ({
     formPage: {
       root: {
-        marginLeft: marginSize.s1,
+        marginLeft: spacing.s1,
       },
     },
     formFirstColumn: {
@@ -100,10 +94,10 @@ export const getFormBasicSectionStyle = (optional) => {
   return ({
     icon: {
       root: {
-        fontSize: '8px',
+        fontSize: FontSizes.mini,
         display: 'flex',
         alignItems: 'center',
-        color: '#666666',
+        color: palette.neutralSecondary,
         cursor: 'pointer',
         userSelect: 'none',
         visibility: visibility,
@@ -117,7 +111,7 @@ export const getFormBasicSectionStyle = (optional) => {
     },
     optionalText: {
       root: {
-        fontSize: '10px',
+        fontSize: FontSizes.mini,
         display: 'flex',
         alignItems: 'center',
       },

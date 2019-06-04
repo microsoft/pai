@@ -160,7 +160,7 @@ export class TabForm extends React.Component {
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
         </Stack>
         <Stack styles={tabFormStyle.tabContent}>
-          {selectedIndex !== undefined? items[selectedIndex].content: null}
+          {selectedIndex !== undefined ? items[selectedIndex].content: null}
         </Stack>
       </>
     );

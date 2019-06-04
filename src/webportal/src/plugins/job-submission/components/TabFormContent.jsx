@@ -72,20 +72,20 @@ export const TabFormContent = (props) => {
     <FormPage>
       <FormTextFiled sectionLabel={'Task role name'}
                      value={jobTaskRole.name}
-                     onChange={(value)=>_onValueChange('name', value)}
+                     onChange={(value) => _onValueChange('name', value)}
                      textFiledProps={{placeholder: 'Enter task role name...'}}/>
       <DockerSection dockerInfo={jobTaskRole.dockerInfo}
-                     onValueChange={(dockerInfo)=>_onValueChange('dockerInfo', dockerInfo)}/>
+                     onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
       <FormSpinButton sectionLabel={'Instances'}
                       textFiledProps={{placeholder: 'Enter instance number...'}}
                       value={jobTaskRole.instances}
-                      onChange={(value)=>_onValueChange('instances', value)}/>
+                      onChange={(value) => _onValueChange('instances', value)}/>
       <ContainerSizeSection value={jobTaskRole.containerSize}
-                            onEnable={(checked)=>_onValuesChange({
+                            onEnable={(checked) => _onValuesChange({
                               isContainerSizeEnabled: checked,
                               containerSize: jobTaskRole.containerSize.getResetContainerSize(),
                             })}
-                            onChange={(containerSize)=>_onValueChange('containerSize', containerSize)}
+                            onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
       <PortsList ports={jobTaskRole.ports}
                  onPortAdd={_onPortAdd}
@@ -101,9 +101,9 @@ export const TabFormContent = (props) => {
                      multiline={true}
                      rows={10}
                      value={jobTaskRole.command}
-                     onChange={(value)=>_onValueChange('command', value)}/>
+                     onChange={(value) => _onValueChange('command', value)}/>
       <DeploymentSection value={jobTaskRole.deployment}
-                         onChange={(deployment)=>_onValueChange('deployment', deployment)}/>
+                         onChange={(deployment) => _onValueChange('deployment', deployment)}/>
     </FormPage>
   );
 };

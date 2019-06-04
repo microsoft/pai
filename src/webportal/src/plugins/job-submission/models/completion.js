@@ -1,8 +1,8 @@
 export class Completion {
   constructor(props) {
     const {minFailedInstances, minSuceedInstances} = props;
-    this.minFailedInstances = minFailedInstances;
-    this.minSuceedInstances = minSuceedInstances;
+    this.minFailedInstances = minFailedInstances || 1;
+    this.minSuceedInstances = minSuceedInstances || null;
   }
 
   convertToProtocolFormat() {

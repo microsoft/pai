@@ -47,13 +47,13 @@ export const CompletionSection= (props) => {
     <BasicSection sectionLabel={'Completion'} sectionOptional>
       <Stack horizontal gap='s1'>
         <CSpinButton label={'Min Failed Instances'}
-                    value={minFailedInstances === undefined? NaN.toString() : minFailedInstances}
-                    onChange={(v) => _onChange('minFailedInstances', v)}/>
+                     value={minFailedInstances}
+                     onChange={(v) => _onChange('minFailedInstances', v)}/>
       </Stack>
       <Stack horizontal gap='s1'>
         <CSpinButton label={'Min Succeed Instances'}
-                    value={minSuceedInstances === undefined? NaN.toString() : minSuceedInstances}
-                    onChange={(v) => _onChange('minSuceedInstances', v)}/>
+                     value={minSuceedInstances}
+                     onChange={(v) => _onChange('minSuceedInstances', v)}/>
       </Stack>
     </BasicSection>
   );

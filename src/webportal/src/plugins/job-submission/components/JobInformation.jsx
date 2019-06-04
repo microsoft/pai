@@ -37,7 +37,7 @@ export const JobInformation= () => {
       <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
       <FormTextFiled sectionLabel={'Job name'}/>
       <BasicSection sectionLabel={'Virutual cluster'}>
-        <Dropdown placeHolder='Select an option'></Dropdown>
+        <Dropdown placeholder='Select an option'></Dropdown>
       </BasicSection>
       <FormSpinButton sectionOptional sectionLabel={'Retry count'}/>
     </FormPage>

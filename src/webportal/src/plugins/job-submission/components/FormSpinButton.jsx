@@ -51,5 +51,5 @@ FormSpinButton.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
   sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
-  value: PropTypes.string,
+  value: PropTypes.number,
 };

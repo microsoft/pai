@@ -32,14 +32,14 @@ import {BasicSection} from './BasicSection';
 
 export const PortsList = (props) => {
   const {ports, onPortAdd, onPortDelete} = props;
-  const _onPortAdd = (item)=> {
+  const _onPortAdd = (item) => {
     const port = new Port(item.itemKey, item.itemValue);
     onPortAdd(port);
   };
 
   return (
     <BasicSection sectionLabel='Ports' sectionOptional>
-      <KeyValueList items={ports.map((port)=>{
+      <KeyValueList items={ports.map((port) => {
         return {itemKey: port.portLabel, itemValue: port.portNumber};
       })}
       onItemAdd={_onPortAdd}

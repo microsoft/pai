@@ -46,14 +46,14 @@ export const DeploymentSection = (props) => {
     <BasicSection sectionLabel={'Deployment'} sectionOptional>
       <TextField label={'PreCommands'}
                  value={preCommands}
-                 onChange={(_, v)=>_onChange('preCommands', v)}
+                 onChange={(_, v) => _onChange('preCommands', v)}
                  multiline
                  rows={3}/>
       <TextField label={'PostCommands'}
                  value={postCommands}
                  multiline
                  rows={3}
-                 onChange={(_, v)=>_onChange('postCommands', v)}/>
+                 onChange={(_, v) => _onChange('postCommands', v)}/>
     </BasicSection>
   );
 };

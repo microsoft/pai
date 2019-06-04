@@ -24,11 +24,13 @@
  */
 
 import React from 'react';
-import {Toggle, Stack} from 'office-ui-fabric-react';
+import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {ContainerSize} from '../models/containerSize';
 import {CSpinButton} from './CustomizedComponents';
+
+const {spacing} = getTheme();
 
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
@@ -52,30 +54,28 @@ export const ContainerSizeSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'ContainerSize'}>
-      <Stack gap='s1'>
-        <Stack horizontal>
-          <CSpinButton label={'GPU count'}
-                       value={gpu}
-                       onChange={(value)=>_onChange('gpu', value)}/>
-          <Toggle checked={isContainerSizeEnabled}
-                  label='Custom'
-                  inlineLabel={true}
-                  styles={{label: {order: -1, marginRight: '4px'}}}
-                  onChange={_onEnable}/>
-        </Stack>
-        <CSpinButton label={'CPU count'}
-                     disabled={!isContainerSizeEnabled}
-                     value={cpu}
-                     onChange={(value)=>_onChange('cpu', value)}/>
-        <CSpinButton label={'Memory (MB)'}
-                     disabled={!isContainerSizeEnabled}
-                     value={memoryMB}
-                     onChange={(value)=>_onChange('memoryMB', value)}/>
-        <CSpinButton label={'Shared memory (MB)'}
-                     value={shmMB}
-                     disabled={!isContainerSizeEnabled}
-                     onChange={(value)=>_onChange('shmMB', value)}/>
+      <Stack horizontal>
+        <CSpinButton label={'GPU count'}
+                      value={gpu}
+                      onChange={(value)=>_onChange('gpu', value)}/>
+        <Toggle checked={isContainerSizeEnabled}
+                label='Custom'
+                inlineLabel={true}
+                styles={{label: {order: -1, marginRight: spacing.s2}}}
+                onChange={_onEnable}/>
       </Stack>
+      <CSpinButton label={'CPU count'}
+                   disabled={!isContainerSizeEnabled}
+                   value={cpu}
+                   onChange={(value)=>_onChange('cpu', value)}/>
+      <CSpinButton label={'Memory (MB)'}
+                   disabled={!isContainerSizeEnabled}
+                   value={memoryMB}
+                   onChange={(value)=>_onChange('memoryMB', value)}/>
+      <CSpinButton label={'Shared memory (MB)'}
+                   value={shmMB}
+                   disabled={!isContainerSizeEnabled}
+                   onChange={(value)=>_onChange('shmMB', value)}/>
     </BasicSection>
   );
 };
