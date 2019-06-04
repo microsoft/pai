@@ -92,7 +92,11 @@ async function read(key, config) {
     });
     return groupInstance;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -123,7 +127,11 @@ async function readAll(config) {
     }
     return allGroupInstance;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -156,7 +164,11 @@ async function create(key, value, config) {
     };
     return await request.post(`${config.namespace}/secrets`, groupData);
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -189,7 +201,11 @@ async function update(key, value, config) {
     };
     return await request.put(`${config.namespace}/secrets/${hexKey}`, groupData);
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -211,7 +227,11 @@ async function remove(key, config) {
       },
     });
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 

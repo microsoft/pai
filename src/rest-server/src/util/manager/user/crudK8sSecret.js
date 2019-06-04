@@ -93,7 +93,11 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -125,7 +129,11 @@ async function readAll(config) {
     }
     return allUserInstance;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -164,7 +172,11 @@ async function create(key, value, config) {
     let response = await request.post(`${config.namespace}/secrets`, userData);
     return response;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -203,7 +215,11 @@ async function update(key, value, config) {
     let response = await request.put(`${config.namespace}/secrets/${hexKey}`, userData);
     return response;
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -225,7 +241,11 @@ async function remove(key, config) {
       },
     });
   } catch (error) {
-    throw error.response;
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
