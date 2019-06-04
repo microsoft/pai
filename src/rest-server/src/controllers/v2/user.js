@@ -190,41 +190,15 @@ const deleteUser = async (req, res, next) => {
 
 const checkUserPassword = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log('check password');
     const username = req.body.username;
     const password = req.body.password;
     let userValue = await userModel.getUser(username);
-    // eslint-disable-next-line no-console
-    console.log('check password done');
     let newUserValue = JSON.parse(JSON.stringify(userValue));
-    // eslint-disable-next-line no-console
-    console.log(userValue);
     newUserValue['password'] = password;
-    // eslint-disable-next-line no-console
-    console.log('encrypt password');
-    // eslint-disable-next-line no-console
-    console.log(newUserValue);
     newUserValue = await userModel.getEncryptPassword(newUserValue);
-    // eslint-disable-next-line no-console
-    console.log('encrypt password done');
-    // eslint-disable-next-line no-console
-    console.log(newUserValue);
-    // eslint-disable-next-line no-console
-    console.log('password1');
-    // eslint-disable-next-line no-console
-    console.log(newUserValue['password']);
-    // eslint-disable-next-line no-console
-    console.log('password2');
-    // eslint-disable-next-line no-console
-    console.log(userValue['password']);
     if (newUserValue['password'] !== userValue['password']) {
-      // eslint-disable-next-line no-console
-      console.log('wrong password');
       return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
     }
-    // eslint-disable-next-line no-console
-    console.log('check passed');
     next();
   } catch (error) {
     return next(createError.unknown((error)));
