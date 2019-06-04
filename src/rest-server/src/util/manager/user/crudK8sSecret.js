@@ -93,7 +93,12 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
-    throw error.response;
+    console.log(error);
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
+    }
   }
 }
 
