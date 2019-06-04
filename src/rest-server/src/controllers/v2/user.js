@@ -201,6 +201,8 @@ const checkUserPassword = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
     if (error.status && error.status === 404) {
       return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
     }
