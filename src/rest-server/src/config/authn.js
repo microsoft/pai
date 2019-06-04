@@ -45,6 +45,12 @@ try {
         'externalName': '',
         'extension': {},
       },
+      'defaultGroup': {
+        'groupname': 'default',
+        'description': 'group for default vc.',
+        'externalName': '',
+        'extension': {},
+      },
       'grouplist': [
         {
           'groupname': 'testGroup',
