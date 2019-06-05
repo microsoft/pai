@@ -27,22 +27,27 @@ import React from 'react';
 import {BasicSection} from './BasicSection';
 import PropTypes from 'prop-types';
 import {CSpinButton} from './CustomizedComponents';
+import {FormShortSection} from './FormPage';
 
 export const FormSpinButton = (props) => {
-  const {sectionLabel, sectionOptional, onChange, value} = props;
+  const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;
   const _onChange = (value) => {
     if (onChange !== undefined) {
       onChange(Number(value));
     }
   };
 
+  const spinButton = (
+    <CSpinButton {...props}
+                  min={0}
+                  step={1}
+                  value={value === undefined ? NaN.toString(): value}
+                  onChange={_onChange}/>
+  );
+
   return (
     <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
-      <CSpinButton {...props}
-                   min={0}
-                   step={1}
-                   value={value === undefined ? NaN.toString(): value}
-                   onChange={_onChange}/>
+      {shortStyle ? (<FormShortSection>{spinButton}</FormShortSection>) : spinButton}
     </BasicSection>
   );
 };
@@ -52,4 +57,5 @@ FormSpinButton.propTypes = {
   sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  shortStyle: PropTypes.bool,
 };

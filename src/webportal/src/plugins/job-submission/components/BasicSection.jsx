@@ -50,16 +50,18 @@ export const BasicSection = (props) => {
   return (
     <FormSection>
       <Stack styles={formPageStyle.formFirstColumn}>
-        <Stack horizontal gap='s2'>
-          <Icon iconName={iconName} styles={basicSectionStyle.icon} onClick={onOpenItem}/>
-          <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>{sectionLabel}</Label>
-          { sectionOptional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
+        <Stack horizontal gap='s2' wrap>
+          <Stack horizontal gap='s2'>
+            <Icon iconName={iconName} styles={basicSectionStyle.icon} onClick={onOpenItem}/>
+            <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>{sectionLabel}</Label>
+          </Stack>
+          <Stack verticalAlign='center'>
+            { sectionOptional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
+          </Stack>
         </Stack>
       </Stack>
-      <Stack styles={formPageStyle.formSecondColunm}>
-        <Stack gap='m'>
-          {(!sectionOptional || isSectionOn) && children}
-        </Stack>
+      <Stack styles={formPageStyle.formSecondColunm} gap='m'>
+        {(!sectionOptional || isSectionOn) && children}
       </Stack>
     </FormSection>
   );

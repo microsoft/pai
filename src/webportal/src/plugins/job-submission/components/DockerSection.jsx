@@ -24,11 +24,11 @@
  */
 
 import React, {useState} from 'react';
-import {TextField, DefaultButton, Stack} from 'office-ui-fabric-react';
-import {getId} from 'office-ui-fabric-react/lib/Utilities';
+import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/dockerInfo';
 import {BasicSection} from './BasicSection';
+import {FormShortSection} from './FormPage';
 
 export const DockerSection = (props) => {
   const {onValueChange, defaultValue} = props;
@@ -46,14 +46,16 @@ export const DockerSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'Docker'}>
-    <Stack horizontal gap='s2' >
-      <TextField id={textFieldId}
-                   placeholder='Enter docker uri...'
-                   onBlur={(event) => _onChange('uri', event.target.value)}
-                   defaultValue={dockerInfo.uri}/>
-      <DefaultButton>Auth</DefaultButton>
-    </Stack>
-  </BasicSection>
+      <Stack horizontal gap='s1' wrap >
+        <FormShortSection>
+          <TextField id={textFieldId}
+                     placeholder='Enter docker uri...'
+                     onBlur={(event) => _onChange('uri', event.target.value)}
+                     defaultValue={dockerInfo.uri}/>
+         </FormShortSection>
+        <DefaultButton>Auth</DefaultButton>
+      </Stack>
+    </BasicSection>
   );
 };
 

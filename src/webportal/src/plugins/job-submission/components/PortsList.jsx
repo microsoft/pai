@@ -29,6 +29,7 @@ import {KeyValueList} from './KeyValueList';
 import PropTypes from 'prop-types';
 import {Port} from '../models/port';
 import {BasicSection} from './BasicSection';
+import {FormShortSection} from './FormPage';
 
 export const PortsList = (props) => {
   const {onChange, defaultValue} = props;
@@ -54,11 +55,13 @@ export const PortsList = (props) => {
 
   return (
     <BasicSection sectionLabel='Ports' sectionOptional>
-      <KeyValueList items={ports.map((port) => {
-        return {itemKey: port.portLabel, itemValue: port.portNumber};
-      })}
-      onItemAdd={_onPortAdd}
-      onItemDelete={_onPortDelete}/>
+      <FormShortSection>
+        <KeyValueList items={ports.map((port) => {
+          return {itemKey: port.portLabel, itemValue: port.portNumber};
+        })}
+        onItemAdd={_onPortAdd}
+        onItemDelete={_onPortDelete}/>
+      </FormShortSection>
     </BasicSection>
   );
 };

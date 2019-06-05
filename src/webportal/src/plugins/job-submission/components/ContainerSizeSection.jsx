@@ -29,8 +29,11 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {ContainerSize} from '../models/containerSize';
 import {CSpinButton} from './CustomizedComponents';
+import {getContainerSizeStyle} from './formStyle';
+import {FormShortSection} from './FormPage';
 
 const {spacing} = getTheme();
+const containerSizeStyle = getContainerSizeStyle();
 
 export const ContainerSizeSection = (props) => {
   const {defaultValue, onChange, isContainerSizeEnabled, onEnable} = props;
@@ -55,28 +58,36 @@ export const ContainerSizeSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'ContainerSize'}>
-      <Stack horizontal>
-        <CSpinButton label={'GPU count'}
-                      value={gpu}
-                      onChange={(value)=>_onChange('gpu', value)}/>
-        <Toggle checked={isContainerSizeEnabled}
-                label='Custom'
-                inlineLabel={true}
-                styles={{label: {order: -1, marginRight: spacing.s2}}}
-                onChange={_onEnable}/>
+      <Stack horizontal wrap gap='s1'>
+        <FormShortSection gap='m'>
+          <CSpinButton label={'GPU count'}
+                       value={gpu}
+                       styles={containerSizeStyle.spinButton}
+                        onChange={(value)=>_onChange('gpu', value)}/>
+          <CSpinButton label={'CPU count'}
+                       disabled={!isContainerSizeEnabled}
+                       value={cpu}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('cpu', value)}/>
+          <CSpinButton label={'Memory (MB)'}
+                       disabled={!isContainerSizeEnabled}
+                       value={memoryMB}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('memoryMB', value)}/>
+          <CSpinButton label={'Shared memory (MB)'}
+                       value={shmMB}
+                       disabled={!isContainerSizeEnabled}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('shmMB', value)}/>
+        </FormShortSection>
+        <Stack horizontalAlign='start'>
+          <Toggle checked={isContainerSizeEnabled}
+                  label='Custom'
+                  inlineLabel={true}
+                  styles={{label: {order: -1, marginRight: spacing.s2}}}
+                  onChange={_onEnable}/>
+        </Stack>
       </Stack>
-      <CSpinButton label={'CPU count'}
-                   disabled={!isContainerSizeEnabled}
-                   value={cpu}
-                   onChange={(value)=>_onChange('cpu', value)}/>
-      <CSpinButton label={'Memory (MB)'}
-                   disabled={!isContainerSizeEnabled}
-                   value={memoryMB}
-                   onChange={(value)=>_onChange('memoryMB', value)}/>
-      <CSpinButton label={'Shared memory (MB)'}
-                   value={shmMB}
-                   disabled={!isContainerSizeEnabled}
-                   onChange={(value)=>_onChange('shmMB', value)}/>
     </BasicSection>
   );
 };

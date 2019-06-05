@@ -35,6 +35,7 @@ import {initTheme} from '../../../app/components/theme';
 import {JobBasicInfo} from '../models/jobBasicInfo';
 import {SubmissionSection} from './SubmissionSection';
 import {Job} from '../models/job';
+import t from '../../../app/components/tachyons.scss';
 
 initTheme();
 initializeIcons();
@@ -66,7 +67,7 @@ export class App extends React.Component {
       <Fabric>
         <Stack className={formLayout}>
           <Stack horizontal gap='l2'>
-            <Stack styles={{root: {width: '70%'}}} gap='l2'>
+            <Stack styles={{root: [t.w70]}} gap='l2'>
               <Stack className={topForm}>
                 <JobInformation defaultValue={jobInformation}
                                 onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
@@ -80,7 +81,7 @@ export class App extends React.Component {
                 <SubmissionSection job={new Job(jobInformation, jobTaskRoles.map((taskRole) => taskRole.content), parameters)}/>
               </Stack>
             </Stack>
-            <Stack styles={{root: {width: '30%'}}}>
+            <Stack styles={{root: [t.w30]}}>
               <Stack className={topForm}>
                 <Parameters defaultValue={parameters}
                             environment={[]}

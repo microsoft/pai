@@ -29,6 +29,10 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 import {Completion} from '../models/completion';
 import {CSpinButton} from './CustomizedComponents';
+import {getCompletionSectionStyle} from './formStyle';
+import {FormShortSection} from './FormPage';
+
+const completionSectionStyle = getCompletionSectionStyle();
 
 export const CompletionSection= (props) => {
   const {onChange, defaultValue} = props;
@@ -46,16 +50,20 @@ export const CompletionSection= (props) => {
 
   return (
     <BasicSection sectionLabel={'Completion'} sectionOptional>
-      <Stack horizontal gap='s1'>
-        <CSpinButton label={'Min Failed Instances'}
-                     value={minFailedInstances}
-                     onChange={(v) => _onChange('minFailedInstances', v)}/>
-      </Stack>
-      <Stack horizontal gap='s1'>
-        <CSpinButton label={'Min Succeed Instances'}
-                     value={minSuceedInstances}
-                     onChange={(v) => _onChange('minSuceedInstances', v)}/>
-      </Stack>
+      <FormShortSection gap='m'>
+        <Stack horizontal gap='s1'>
+          <CSpinButton label={'Min Failed Instances'}
+                       value={minFailedInstances}
+                       styles={completionSectionStyle.spinButton}
+                       onChange={(v) => _onChange('minFailedInstances', v)}/>
+        </Stack>
+        <Stack horizontal gap='s1'>
+          <CSpinButton label={'Min Succeed Instances'}
+                       value={minSuceedInstances}
+                       styles={completionSectionStyle.spinButton}
+                       onChange={(v) => _onChange('minSuceedInstances', v)}/>
+        </Stack>
+      </FormShortSection>
     </BasicSection>
   );
 };

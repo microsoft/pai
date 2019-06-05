@@ -138,3 +138,29 @@ export const getParameterStyle = () => {
     },
   });
 };
+
+const spinButtonStyle = {
+  labelWrapper: {
+    minWidth: '40%',
+  },
+};
+
+export const getContainerSizeStyle = () => {
+  return ({
+    spinButton: spinButtonStyle,
+  });
+};
+
+export const getCompletionSectionStyle = () => {
+  return ({
+    spinButton: spinButtonStyle,
+  });
+};
+
+export const getFormShortSectionStyle = () => {
+  return ({
+    root: {
+      width: '60%',
+    },
+  });
+};

@@ -60,12 +60,14 @@ export const TabFormContent = (props) => {
   return (
     <FormPage>
       <FormTextField sectionLabel={'Task role name'}
+                     shortStyle
                      defaultValue={jobTaskRole.name}
                      onBlur={(value) => _onValueChange('name', value)}
-                     textFiledProps={{placeholder: 'Enter task role name...'}}/>
+                     placeholder='Enter task role name...'/>
       <DockerSection defaultValue={jobTaskRole.dockerInfo}
                      onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
       <FormSpinButton sectionLabel={'Instances'}
+                      shortStyle
                       textFiledProps={{placeholder: 'Enter instance number...'}}
                       value={jobTaskRole.instances}
                       onChange={(value) => _onValueChange('instances', value)}/>
@@ -80,6 +82,7 @@ export const TabFormContent = (props) => {
                  ports={jobTaskRole.ports}
                  onChange={(ports) => _onValueChange('ports', ports)}/>
       <FormSpinButton sectionLabel={'Task retry count'}
+                      shortStyle
                       sectionOptional
                       value={jobTaskRole.taskRetryCount}
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>

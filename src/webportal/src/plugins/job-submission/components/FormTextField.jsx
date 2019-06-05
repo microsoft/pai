@@ -24,13 +24,13 @@
  */
 
 import React from 'react';
-import {getId} from 'office-ui-fabric-react/lib/Utilities';
-import {TextField} from 'office-ui-fabric-react';
+import {TextField, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
+import {FormShortSection} from './FormPage';
 
 export const FormTextField = (props) => {
-  const {sectionLabel, onBlur, sectionOptional} = props;
+  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
   const textFieldId = getId('textField');
   const _onBlur= (event) => {
     if (onBlur === undefined) {
@@ -39,9 +39,11 @@ export const FormTextField = (props) => {
     onBlur(event.target.value);
   };
 
+  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+
   return (
     <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
-      <TextField {...props} id={textFieldId} onBlur={_onBlur}/>
+      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
     </BasicSection>
   );
 };
@@ -51,4 +53,5 @@ FormTextField.propTypes = {
   onBlur: PropTypes.func,
   textFiledProps: PropTypes.object,
   sectionOptional: PropTypes.bool,
+  shortStyle: PropTypes.bool,
 };

@@ -26,11 +26,11 @@
 import React, {useState} from 'react';
 import {FormTextField} from './FormTextField';
 import {FormPage} from './FormPage';
-import {Text, Dropdown} from 'office-ui-fabric-react';
+import {Text} from 'office-ui-fabric-react';
 import {FormSpinButton} from './FormSpinButton';
-import {BasicSection} from './BasicSection';
 import PropTypes from 'prop-types';
 import {JobBasicInfo} from '../models/jobBasicInfo';
+import {VirtualCluster} from './VirtualCluster';
 
 export const JobInformation= (props) => {
   const {defaultValue, onChange} = props;
@@ -50,13 +50,13 @@ export const JobInformation= (props) => {
       <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
       <FormTextField sectionLabel={'Job name'}
                      defaultValue={jobBasicInfo.name}
+                     shortStyle
                      onBlur={(value) => _onChange('name', value)}
                      placeholder='Enter job name'/>
-      <BasicSection sectionLabel={'Virutual cluster'}>
-        <Dropdown placeholder='Select an option'></Dropdown>
-      </BasicSection>
+      <VirtualCluster/>
       <FormSpinButton sectionOptional
                       sectionLabel={'Retry count'}
+                      shortStyle
                       value={jobBasicInfo.jobRetryCount}
                       onChange={(value) => _onChange('jobRetryCount', value)}/>
     </FormPage>
