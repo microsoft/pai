@@ -27,7 +27,7 @@
         <value>204800</value>
         <description>Number of memory that can be allocated for containers.</description>
     </property>
-    
+
     <property>
         <name>yarn.resourcemanager.max-completed-applications</name>
         <value>1000</value>
@@ -41,8 +41,8 @@
 
     <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>1048576</value>
-        <description>default is 8GB, here we set 1024G</description>
+        <value>1572864</value>
+        <description>default is 8GB, here we set 1.5TB for DGX-2</description>
     </property>
 
     <property>
@@ -50,17 +50,17 @@
         <value>zk</value>
         <description>default is file, change it to zk to enable config by rest api</description>
     </property>
-    
+
     <property>
       <name>yarn.resourcemanager.scheduler.class</name>
       <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
     </property>
-    
+
     <property>
       <name>yarn.resourcemanager.scheduler.monitor.enable</name>
       <value>true</value>
     </property>
-    
+
     <property>
       <name>yarn.resourcemanager.scheduler.monitor.policies</name>
       <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
@@ -112,9 +112,9 @@
        <value>/sys/logs</value>
     </property>
 
-    <property>  
-        <name>yarn.nodemanager.aux-services</name>  
-        <value>mapreduce_shuffle</value>  
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
     </property>
 
     <property>
@@ -126,7 +126,7 @@
         <name>yarn.node-labels.fs-store.root-dir</name>
         <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
     </property>
-    
+
     <property>
         <name>yarn.node-labels.enabled</name>
         <value>true</value>
@@ -141,12 +141,12 @@
         <name>yarn.log.server.url</name>
         <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
     </property>
-    
+
     <property>
       <name>yarn.nodemanager.recovery.enabled</name>
       <value>true</value>
     </property>
-    
+
     <property>
       <name>yarn.nodemanager.recovery.dir</name>
       <value>/var/lib/yarn/yarn-nm-recovery</value>
@@ -241,7 +241,7 @@
     <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
     <value>88000</value>
   </property>
-  
+
   <property>
     <name>yarn.resourcemanager.nodes.exclude-path</name>
     <value>/exclude-path/nodes</value>
@@ -284,15 +284,15 @@
       in terms of GPUs. Requests higher than this will throw a
       InvalidResourceRequestException.</description>
     <name>yarn.scheduler.maximum-allocation-gpus</name>
-    <value>8</value>
+    <value>16</value>
   </property>
 
   <property>
     <description>The maximum allocation for every container request at the RM in terms of virtual CPU cores.
       Requests higher than this will throw an InvalidResourceRequestException.</description>
     <name>yarn.scheduler.maximum-allocation-vcores</name>
-    <value>32</value>
+    <value>96</value>
   </property>
-    
+
 </configuration>
 

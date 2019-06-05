@@ -45,8 +45,8 @@
 
     <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>1048576</value>
-        <description>default is 8GB, here we set 1024G</description>
+        <value>1572864</value>
+        <description>default is 8GB, here we set 1.5TB for DGX-2</description>
     </property>
 
     <property>
@@ -342,7 +342,7 @@ jobs are started with the DockerContainerExecutor.
 
 <property>
   <name>yarn.nodemanager.docker-container-executor.exec-option</name>
-  <value>-v /dev:/dev -v /var/run/docker.sock:/var/run/docker.sock -v /var/drivers:/var/drivers -v {HOST_YARN_NODEMANAGER_STORAGE}:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v {HOST_HADOOP_TMP_STORAGE}:/var/lib/hadoopdata -e HDFS_ADDRESS={HDFS_ADDRESS} -e LOGSERVER_ADDRESS={LOGSERVER_ADDRESS} -e TIMELINE_SERVER_ADDRESS={TIMELINE_SERVER_ADDRESS} -e RESOURCEMANAGER_ADDRESS={RESOURCEMANAGER_ADDRESS} -e ZOOKEEPER_QUORUM={ZOOKEEPER_QUORUM}</value>
+  <value>-v /dev:/dev -v /data:/data -v /var/run/docker.sock:/var/run/docker.sock -v /var/drivers:/var/drivers -v {HOST_YARN_NODEMANAGER_STORAGE}:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v {HOST_HADOOP_TMP_STORAGE}:/var/lib/hadoopdata -e HDFS_ADDRESS={HDFS_ADDRESS} -e LOGSERVER_ADDRESS={LOGSERVER_ADDRESS} -e TIMELINE_SERVER_ADDRESS={TIMELINE_SERVER_ADDRESS} -e RESOURCEMANAGER_ADDRESS={RESOURCEMANAGER_ADDRESS} -e ZOOKEEPER_QUORUM={ZOOKEEPER_QUORUM}</value>
   <description>
      Docker run option when launch container.
   </description>
