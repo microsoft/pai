@@ -17,6 +17,50 @@ const userAuth = require('../user/user-auth/user-auth.component');
 let commonTable = null;
 let dedicateTable = null;
 let isAdmin = cookies.get('admin');
+let demodata = {
+  "default": {
+    "capacity": 55,
+    "maxCapacity": 100,
+    "usedCapacity": 3.4946237,
+    "numActiveJobs": 3,
+    "numJobs": 3,
+    "numPendingJobs": 0,
+    "resourcesUsed": {
+        "memory": 37888,
+        "vCores": 13,
+        "GPUs": 1
+    },
+    "status": "RUNNING",
+    "defaultLabel": "",
+    "dedicated": false,
+    "resourcesTotal": {
+        "vCores": 204.6,
+        "memory": 1767321.6,
+        "GPUs": 34.1
+    }
+},
+"vc1": {
+    "capacity": 15,
+    "maxCapacity": 15,
+    "usedCapacity": 0,
+    "numActiveJobs": 0,
+    "numJobs": 0,
+    "numPendingJobs": 0,
+    "resourcesUsed": {
+        "memory": 0,
+        "vCores": 0,
+        "GPUs": 0
+    },
+    "status": "RUNNING",
+    "defaultLabel": "",
+    "dedicated": true,
+    "resourcesTotal": {
+        "vCores": 55.8,
+        "memory": 481996.8,
+        "GPUs": 9.3
+    }
+}
+}
 //
 
 const loadData = (specifiedVc) => {
@@ -24,11 +68,12 @@ const loadData = (specifiedVc) => {
     type: 'GET',
     url: webportalConfig.restServerUri + '/api/v1/virtual-clusters',
     success: function(data) {
+      console.log(data);
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
-        // data: demodata,
-        data: data,
+        data: demodata,
+        // data: data,
         formatNumber: formatNumber,
         yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
         grafanaUri: webportalConfig.grafanaUri,

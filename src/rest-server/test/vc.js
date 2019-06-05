@@ -53,10 +53,10 @@ const yarnDefaultResponse = {
                             "queueCapacitiesByPartition": [
                                 {
                                     "partitionName": "",
-                                    "capacity": 30.000002,
+                                    "capacity": 10.000002,
                                     "usedCapacity": 0,
                                     "maxCapacity": 100,
-                                    "absoluteCapacity": 30.000002,
+                                    "absoluteCapacity": 10.000002,
                                     "absoluteUsedCapacity": 0,
                                     "absoluteMaxCapacity": 100,
                                     "maxAMLimitPercentage": 100
@@ -119,7 +119,8 @@ const yarnDefaultResponse = {
                             "GPUs": 0
                         },
                         "preemptionDisabled": false,
-                        "defaultPriority": 0
+                        "defaultPriority": 0,
+                        "defaultNodeLabelExpression": ""
                     },
                     {
                         "type": "capacitySchedulerLeafQueueInfo",
@@ -148,10 +149,10 @@ const yarnDefaultResponse = {
                             "queueCapacitiesByPartition": [
                                 {
                                     "partitionName": "",
-                                    "capacity": 30.000002,
+                                    "capacity": 20.000000,
                                     "usedCapacity": 0,
                                     "maxCapacity": 100,
-                                    "absoluteCapacity": 30.000002,
+                                    "absoluteCapacity": 20.000000,
                                     "absoluteUsedCapacity": 0,
                                     "absoluteMaxCapacity": 100,
                                     "maxAMLimitPercentage": 100
@@ -635,6 +636,76 @@ const yarnErrorResponse = {
     }
 };
 
+const clusterNodeResponse = {
+    "nodes": {
+        "node": [
+            {
+                "rack": "/default-rack",
+                "state": "RUNNING",
+                "id": "10.151.40.132:8041",
+                "nodeHostName": "10.151.40.132",
+                "nodeHTTPAddress": "10.151.40.132:8042",
+                "lastHealthUpdate": 1558942647993,
+                "version": "2.9.0",
+                "healthReport": "",
+                "numContainers": 2,
+                "usedMemoryMB": 3072,
+                "availMemoryMB": 205824,
+                "usedVirtualCores": 2,
+                "availableVirtualCores": 22,
+                "numRunningOpportContainers": 0,
+                "usedMemoryOpportGB": 0,
+                "usedVirtualCoresOpport": 0,
+                "numQueuedContainers": 0,
+                "usedGPUs": 1,
+                "availableGPUs": 3,
+                "availableGPUAttribute": 14,
+                "nodeLabels": [
+                    "test_vc"
+                ],
+                "resourceUtilization": {
+                    "nodePhysicalMemoryMB": 36297,
+                    "nodeVirtualMemoryMB": 36297,
+                    "nodeCPUUsage": 0.41555851697921753,
+                    "aggregatedContainersPhysicalMemoryMB": 473,
+                    "aggregatedContainersVirtualMemoryMB": 2941,
+                    "containersCPUUsage": 0.003000000026077032
+                }
+            },
+            {
+                "rack": "/default-rack",
+                "state": "RUNNING",
+                "id": "10.151.40.131:8041",
+                "nodeHostName": "10.151.40.131",
+                "nodeHTTPAddress": "10.151.40.131:8042",
+                "lastHealthUpdate": 1558942647633,
+                "version": "2.9.0",
+                "healthReport": "",
+                "numContainers": 2,
+                "usedMemoryMB": 3072,
+                "availMemoryMB": 205824,
+                "usedVirtualCores": 2,
+                "availableVirtualCores": 22,
+                "numRunningOpportContainers": 0,
+                "usedMemoryOpportGB": 0,
+                "usedVirtualCoresOpport": 0,
+                "numQueuedContainers": 0,
+                "usedGPUs": 1,
+                "availableGPUs": 3,
+                "availableGPUAttribute": 14,
+                "resourceUtilization": {
+                    "nodePhysicalMemoryMB": 45623,
+                    "nodeVirtualMemoryMB": 45623,
+                    "nodeCPUUsage": 0.18666666746139526,
+                    "aggregatedContainersPhysicalMemoryMB": 476,
+                    "aggregatedContainersVirtualMemoryMB": 2950,
+                    "containersCPUUsage": 0
+                }
+            }
+        ]
+    }
+};
+
 
 // test
 describe('VC API  Get /api/v1/virtual-clusters', () => {
@@ -642,7 +713,9 @@ describe('VC API  Get /api/v1/virtual-clusters', () => {
   beforeEach(() => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse);
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
   });
 
   afterEach(function() {
@@ -737,7 +810,9 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse);
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
   });
 
 
@@ -875,7 +950,9 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnErrorResponse);
+      .reply(200, yarnErrorResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -894,7 +971,9 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnErrorResponse);
+      .reply(200, yarnErrorResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/aaa%20bbb')
@@ -939,7 +1018,9 @@ describe('VC API PUT /api/v1/virtual-clusters/:vcName/status', () => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse);
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
   });
 
 
@@ -1062,13 +1143,17 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse);
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
   });
 
   beforeEach(() => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, yarnDefaultResponse);
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse);
   });
 
   afterEach(() => {
@@ -1164,6 +1249,10 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200)
       .put('/ws/v1/cluster/scheduler-conf')
@@ -1188,6 +1277,10 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .reply(200, yarnDefaultResponse)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, clusterNodeResponse)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200)
       .put('/ws/v1/cluster/scheduler-conf')

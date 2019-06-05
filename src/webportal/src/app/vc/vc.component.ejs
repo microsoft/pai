@@ -37,7 +37,7 @@
                       <%= formatNumber(data[vcName]['capacity'], 2) %> %
                     </td>
                     <td>
-                      <%= data[vcName]['capacity'] < data[vcName]['maxCapacity'] ? 'enabled' : 'disabled' %>
+                      <%= data[vcName]['capacity'] < data[vcName]['maxCapacity'] || data[vcName]['maxCapacity'] === 100 ? 'enabled' : 'disabled' %>
                     </td>
                     <td>
                       <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
