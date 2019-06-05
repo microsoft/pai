@@ -2,10 +2,11 @@
 
 ## Overview
 
-Unlike common virtual cluster sharing whole cluster resource, dedicated vc is bound to specific nodes. 
+Unlike shared virtual cluster sharing whole cluster resource, dedicated vc is bound to specific nodes. 
 "Dedicated" here is bidirectional, in other words, dedicated vc could only use bound nodes, 
 and these node could only be used by this vc. 
-Noticed that dedicated resource will be excluded from common resource.
+Noticed that dedicated resource will be excluded from shared resource.
+shared_vc_resource = (whole_resource - dedicated_resource) * shared_vc_capacity
 
 This doc introduces how to configure dedicated vc, currently we provide only cmdline tool for it.
 
