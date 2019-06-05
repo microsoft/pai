@@ -56,6 +56,11 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.cluster.job.create-yaml-config",
+                "title": "%paiext.cluster.job.create-yaml-config%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.cluster.delete",
                 "title": "%paiext.cluster.delete%",
                 "category": "PAI"
@@ -258,6 +263,10 @@
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
+                    "command": "paiext.cluster.job.create-yaml-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
                     "command": "paiext.cluster.job.submit",
                     "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
                 },
@@ -281,6 +290,10 @@
             "editor/context": [
                 {
                     "command": "paiext.cluster.job.create-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
+                    "command": "paiext.cluster.job.create-yaml-config",
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
@@ -417,13 +430,15 @@
         "@types/uuid": "^3.4.4",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
-        "typescript-tslint-plugin": "^0.4.0",
         "tslint-microsoft-contrib": "^5.2.1",
         "typescript": "^3.5.1",
+        "typescript-tslint-plugin": "^0.4.0",
         "vsce": "^1.53.0",
         "vscode": "^1.1.21"
     },
     "dependencies": {
+        "@types/js-yaml": "^3.12.1",
+        "@types/yaml": "^1.0.2",
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",

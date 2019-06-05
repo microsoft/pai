@@ -33,6 +33,7 @@ export interface IPAIJobConfig {
     codeDir: string;
     outputDir: string;
     taskRoles: IPAITaskRole[];
+    [key: string]: any;
 }
 
 export interface IPAIJobInfo {

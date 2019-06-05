@@ -18,6 +18,7 @@
     "paiext.cluster.job.list": "Open Job List Externally",
     "paiext.cluster.job.submit": "Submit Job to PAI Cluster",
     "paiext.cluster.job.create-config": "Create PAI Job Config JSON",
+    "paiext.cluster.job.create-yaml-config": "Create PAI Job Config YAML",
     "paiext.cluster.job.simulate": "Simulate PAI Job Running",
     "paiext.cluster.job.view": "View Job Detail",
     "paiext.cluster.job.more": "View More...",

@@ -7,6 +7,7 @@
 import * as fs from 'fs-extra';
 import * as globby from 'globby';
 import { injectable } from 'inversify';
+import * as yaml from 'js-yaml';
 import * as JSONC from 'jsonc-parser';
 import { isEmpty, isNil } from 'lodash';
 import * as os from 'os';
@@ -16,13 +17,14 @@ import * as uuid from 'uuid';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_CREATE_JOB_CONFIG, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
+    COMMAND_CREATE_JOB_CONFIG, COMMAND_CREATE_YAML_JOB_CONFIG, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
     OCTICON_CLOUDUPLOAD,
     SCHEMA_JOB_CONFIG,
     SETTING_JOB_GENERATEJOBNAME_ENABLED,
     SETTING_JOB_UPLOAD_ENABLED, SETTING_JOB_UPLOAD_EXCLUDE, SETTING_JOB_UPLOAD_INCLUDE,
     SETTING_SECTION_JOB
 } from '../common/constants';
+
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
@@ -30,12 +32,14 @@ import { Util } from '../common/util';
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
+import { IPAIYamlJobConfig } from './interfaces/paiJobConfigYaml';
 import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
 
 import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
 import { PAIRestUri, PAIWebPortalUri } from './paiUri';
 import { RecentJobManager } from './recentJobManager';
+
 interface ITokenItem {
     token: string;
     expireTime: number;
@@ -94,6 +98,16 @@ export class PAIJobManager extends Singleton {
                 }
             ),
             vscode.commands.registerCommand(
+                COMMAND_CREATE_YAML_JOB_CONFIG,
+                async (input?: ClusterExplorerChildNode | vscode.Uri) => {
+                    if (input instanceof vscode.Uri) {
+                        await PAIJobManager.generateYamlJobConfig(input.fsPath);
+                    } else {
+                        await PAIJobManager.generateYamlJobConfig();
+                    }
+                }
+            ),
+            vscode.commands.registerCommand(
                 COMMAND_SIMULATE_JOB,
                 async (input?: ClusterExplorerChildNode | vscode.Uri) => {
                     if (input instanceof vscode.Uri) {
@@ -118,6 +132,65 @@ export class PAIJobManager extends Singleton {
                 }
             )
         );
+    }
+
+    /**
+     * Generate a YAML job config file.
+     * @param script the file path.
+     */
+    public static async generateYamlJobConfig(script?: string): Promise<void> {
+        const workspace: any = script ?
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(script)) :
+            vscode.workspace.workspaceFolders;
+
+        let parent: string;
+        if (script) {
+            if (workspace === undefined) {
+                parent = path.dirname(script);
+            } else {
+                parent = workspace.uri.fsPath;
+            }
+            script = path.relative(parent, script);
+        } else {
+            parent = os.homedir();
+        }
+
+        const jobName: string = script ? path.basename(script, path.extname(script)) : 'new_job';
+        const defaultSaveDir: string = path.join(parent, `${jobName}.pai.yaml`);
+
+        const config: IPAIYamlJobConfig = {
+            protocolVersion: '2',
+            name: jobName,
+            type: 'job',
+            taskRoles: {
+                worker: {
+                    instances: 1,
+                    dockerImage: 'aiplatform/pai.build.base',
+                    data: 'data',
+                    output: 'output',
+                    script: 'script',
+                    resourcePerInstance: {
+                      cpu: 1,
+                      memoryMB: 16384,
+                      gpu: 1
+                    },
+                    commands: ['python $PAI_JOB_NAME/<start up script>']
+                }
+            },
+            deployments: []
+        };
+
+        const saveDir: vscode.Uri | undefined = await vscode.window.showSaveDialog({
+            defaultUri: vscode.Uri.file(defaultSaveDir),
+            filters: {
+                JSON: ['yml', 'yaml']
+            }
+        });
+
+        if (saveDir) {
+            await fs.writeFile(saveDir.fsPath, yaml.dump(config));
+            await vscode.window.showTextDocument(saveDir);
+        }
     }
 
     public static async generateJobConfig(script?: string): Promise<void> {
