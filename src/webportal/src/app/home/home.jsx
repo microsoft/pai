@@ -92,7 +92,6 @@ const Home = () => {
       }
     `;
 
-
     return (
       <Stack
         styles={{root: [t.w100, t.h100L]}}
