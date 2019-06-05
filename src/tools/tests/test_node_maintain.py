@@ -96,7 +96,7 @@ class NodeMaintainTestCase(unittest.TestCase):
             update_capacity = {or_dict["key"]: or_dict["value"] for or_dict in
                                update_capacity["sched-conf"]["global-updates"]["entry"]}
             update_capacity_expect = {
-                u'yarn.scheduler.capacity.root.default.maximum-capacity': u'95',
+                u'yarn.scheduler.capacity.root.default.maximum-capacity': u'100.0',
                 u'yarn.scheduler.capacity.root.label_ex.disable_preemption': u'True',
                 u'yarn.scheduler.capacity.root.test_vc.capacity': u'0.0',
                 u'yarn.scheduler.capacity.root.label_ex.maximum-capacity': u'0.0',
@@ -140,7 +140,7 @@ class NodeMaintainTestCase(unittest.TestCase):
             update_capacity, stop_queue, remove_queue = [xmltodict.parse(request_object.text) for request_object in scheduler_conf_call]
             update_capacity = {or_dict["key"]: or_dict["value"] for or_dict in update_capacity["sched-conf"]["global-updates"]["entry"]}
             update_capacity_expect = {
-                u'yarn.scheduler.capacity.root.default.maximum-capacity': u'95',
+                u'yarn.scheduler.capacity.root.default.maximum-capacity': u'100.0',
                 u'yarn.scheduler.capacity.root.test_vc.capacity': u'0.0',
                 u'yarn.scheduler.capacity.root.label_ex.maximum-capacity': u'0.0',
                 u'yarn.scheduler.capacity.root.vc_a.maximum-capacity': u'5.0',

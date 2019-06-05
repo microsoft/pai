@@ -193,9 +193,7 @@ def normalize_percentage(queues_info):
     new_queues_info["default"]["capacity"] -= sum_percentage - 100
 
     for queue, info in new_queues_info.iteritems():
-        if queue == "default":
-            info["maxCapacity"] = max(info["maxCapacity"], info["capacity"])
-        else:
+        if queue != "default":
             info["maxCapacity"] = info["capacity"]
 
     return new_queues_info
@@ -223,6 +221,11 @@ def add_dedicate_vc(args):
     nodes_info = yarn_operator.get_nodes_info()
     if len(nodes) > 0:
         logger.info("Labeling node...")
+
+        if queues_info["default"]["maxCapacity"] == 100 or queues_info["default"]["maxCapacity"] > \
+                queues_info["default"]["capacity"]:
+            queues_info["default"]["maxCapacity"] = 100.0
+
         added_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
         for node, info in nodes_info.iteritems():
             if node in nodes and info["nodeLabel"] == "":
@@ -271,6 +274,10 @@ def remove_dedicate_vc(args):
         nodes = set(nodes_info.keys())
     t_nodes = [node for node in nodes if nodes_info[node]["nodeLabel"] == vc_name]
     if len(t_nodes) > 0:
+
+        if queues_info["default"]["maxCapacity"] == 100 or queues_info["default"]["maxCapacity"] > \
+                queues_info["default"]["capacity"]:
+            queues_info["default"]["maxCapacity"] = 100.0
 
         removed_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
         for node, info in nodes_info.iteritems():

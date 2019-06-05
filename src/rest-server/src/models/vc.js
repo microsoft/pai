@@ -254,6 +254,9 @@ class VirtualCluster {
             'capacity': defaultQuotaIfUpdated,
             'maximum-capacity': defaultQuotaIfUpdated,
           };
+          if (vcList.default.maxCapacity === 100 || vcList.default.maxCapacity > vcList.default.capacity) {
+            data['update-queue']['default']['maximum-capacity'] = 100;
+          }
 
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
@@ -376,6 +379,9 @@ class VirtualCluster {
                   [vcName]: null,
                 },
               };
+              if (vcList.default.maxCapacity === 100 || vcList.default.maxCapacity > vcList.default.capacity) {
+                data['update-queue']['default']['maximum-capacity'] = 100;
+              }
 
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
