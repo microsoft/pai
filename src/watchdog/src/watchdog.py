@@ -30,6 +30,7 @@ import faulthandler
 import gc
 import re
 import collections
+import datetime
 
 import yaml
 import prometheus_client
@@ -92,6 +93,14 @@ def gen_k8s_node_gpu_total():
     return GaugeMetricFamily("k8s_node_gpu_total", "gpu total on k8s node",
             labels=["host_ip"])
 
+service_response_histogram = Histogram("service_response_latency_seconds",
+            "response latency of each service",
+            labelnames=("service_name", "service_ip"),
+            buckets=(.1, .5, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 16.0, 32.0, float("inf")))
+
+service_response_counter = Counter("service_response_code",
+        "total count of http return code", ["service_name", "service_ip", "code"])
+
 ##### watchdog will generate above metrics
 
 def walk_json_field_safe(obj, *fields):
@@ -128,31 +137,45 @@ def convert_to_byte(data):
     else:
         return number
 
+
 class AtomicRef(object):
-    """ a thread safe way to store and get object, should not modify data get from this ref """
-    def __init__(self):
+    """ a thread safe way to store and get object,
+    should not modify data get from this ref,
+    each get and set method should provide a time obj,
+    so this ref decide whether the data is out of date or not,
+    return None on expired """
+    def __init__(self, decay_time):
         self.data = None
+        self.date_in_produced = datetime.datetime.now()
+        self.decay_time = decay_time
         self.lock = threading.RLock()
 
-    def get_and_set(self, new_data):
-        data = None
+    def set(self, data, now):
         with self.lock:
-            data, self.data = self.data, new_data
-        return data
+            self.data, self.date_in_produced = data, now
 
-    def get(self):
+    def get(self, now):
         with self.lock:
+            if self.date_in_produced + self.decay_time < now:
+                return None
             return self.data
 
 
 class CustomCollector(object):
-    def __init__(self, atomic_ref):
-        self.atomic_ref = atomic_ref
+    def __init__(self, atomic_refs):
+        self.atomic_refs = atomic_refs
 
     def collect(self):
-        data = self.atomic_ref.get()
+        data = []
 
-        if data is not None:
+        now = datetime.datetime.now()
+
+        for ref in self.atomic_refs:
+            d = ref.get(now)
+            if d is not None:
+                data.extend(d)
+
+        if len(data) > 0:
             for datum in data:
                 yield datum
         else:
@@ -179,7 +202,36 @@ class PodInfo(object):
     def __repr__(self):
         return "%s: %s" % (self.name, self.gpu)
 
-def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
+
+def process_service_endpoints(service_name, host_ip, annotations, service_endpoints):
+    annotation_ns = "monitor.watchdog"
+    port_key = annotation_ns + "/port"
+    path_key = annotation_ns + "/path"
+    timeout_key = annotation_ns + "/timeout"
+
+    if port_key in annotations and path_key in annotations:
+        try:
+            port = int(annotations[port_key])
+        except ValueError:
+            logger.warning("illegal value %s in %s, expect port",
+                    annotations[port_key], port_key)
+            return
+
+        path = annotations[path_key]
+
+        timeout = 10 # default
+        if annotations.get(timeout_key) is not None:
+            try:
+                timeout = int(annotations.get(timeout_key))
+            except ValueError:
+                logger.warning("illegal value %s in %s, expect int. Ignore it",
+                        annotations[timeout_key], timeout_key)
+
+        service_endpoints.append(
+                ServiceEndpoint(service_name, host_ip, port, path, timeout))
+
+
+def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_endpoints):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
@@ -205,6 +257,10 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
         return None
 
     service_name = labels["app"] # get pai service name from label
+
+    annotations = walk_json_field_safe(pod, "metadata", "annotations") or {}
+    if host_ip != "unscheduled":
+        process_service_endpoints(service_name, host_ip, annotations, service_endpoints)
 
     status = pod["status"]
 
@@ -261,14 +317,14 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
 
 
 def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
-        pods_info):
+        pods_info, service_endpoints):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
                 "catch exception when parsing pod item",
                 None,
                 item,
                 pai_pod_gauge, pai_container_gauge,
-                pods_info)
+                pods_info, service_endpoints)
 
     list(map(_map_fn, pods_object["items"]))
 
@@ -404,7 +460,7 @@ def process_nodes_status(nodes_object, pods_info):
             node_gpu_avail, node_gpu_total, node_gpu_reserved]
 
 
-def process_pods(k8s_api_addr, ca_path, headers, pods_info):
+def process_pods(k8s_api_addr, ca_path, headers, pods_info, service_endpoints):
     list_pods_url = "{}/api/v1/pods".format(k8s_api_addr)
 
     pai_pod_gauge = gen_pai_pod_gauge()
@@ -414,7 +470,7 @@ def process_pods(k8s_api_addr, ca_path, headers, pods_info):
         pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
                 ca_path, headers)
         process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
-                pods_info)
+                pods_info, service_endpoints)
     except Exception as e:
         error_counter.labels(type="parse").inc()
         logger.exception("failed to process pods from namespace %s", ns)
@@ -479,13 +535,22 @@ def main(args):
 
     try_remove_old_prom_file(log_dir + "/watchdog.prom")
 
-    atomic_ref = AtomicRef()
+    decay_time = datetime.timedelta(seconds=float(args.interval) * 2)
 
-    t = threading.Thread(target=loop, name="loop", args=(args, atomic_ref))
+    services_ref = AtomicRef(decay_time)
+    loop_result_ref = AtomicRef(decay_time)
+
+    t = threading.Thread(target=loop, name="loop",
+            args=(args, services_ref, loop_result_ref))
     t.daemon = True
     t.start()
 
-    REGISTRY.register(CustomCollector(atomic_ref))
+    t = threading.Thread(target=requestor, name="requestor",
+            args=(args, services_ref))
+    t.daemon = True
+    t.start()
+
+    REGISTRY.register(CustomCollector([loop_result_ref]))
 
     root = Resource()
     root.putChild(b"metrics", MetricsResource())
@@ -496,7 +561,44 @@ def main(args):
     reactor.run()
 
 
-def loop(args, atomic_ref):
+class ServiceEndpoint(object):
+    def __init__(self, name, ip, port, path, timeout):
+        self.name = name
+        self.ip = ip
+        self.port = port
+        self.path = path
+        self.timeout = timeout
+
+    def __repr__(self):
+        return "http://%s:%s/%s" % (self.ip, self.port, self.path)
+
+
+def requestor(args, services_ref):
+    while True:
+        services = services_ref.get(datetime.datetime.now()) or ()
+
+        logger.debug("get %d of services", len(services))
+
+        result = []
+
+        for s in services:
+            url = urllib.parse.urljoin("http://{}:{}".format(s.ip, s.port),
+                    s.path)
+            try:
+                with service_response_histogram.labels(s.name, s.ip).time():
+                    resp = requests.get(url, timeout=s.timeout)
+                code = str(resp.status_code)
+            except Exception as e:
+                logger.exception("requesting %s failed", url)
+                code = str(e)
+
+            service_response_counter.labels(s.name, s.ip, code).inc()
+
+        # The minimal sleep time is 10s
+        time.sleep(max(10, float(args.interval) / 3))
+
+
+def loop(args, services_ref, result_ref):
     address = args.k8s_api
     parse_result = urllib.parse.urlparse(address)
     api_server_scheme = parse_result.scheme
@@ -523,7 +625,10 @@ def loop(args, atomic_ref):
         try:
             pods_info = collections.defaultdict(lambda : [])
 
-            result.extend(process_pods(address, ca_path, headers, pods_info))
+            service_endpoints = []
+            result.extend(process_pods(address, ca_path, headers, pods_info,
+                service_endpoints))
+            services_ref.set(service_endpoints, datetime.datetime.now())
 
             result.extend(process_nodes(address, ca_path, headers, pods_info))
 
@@ -532,7 +637,7 @@ def loop(args, atomic_ref):
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
 
-        atomic_ref.get_and_set(result)
+        result_ref.set(result, datetime.datetime.now())
 
         time.sleep(float(args.interval))
 
