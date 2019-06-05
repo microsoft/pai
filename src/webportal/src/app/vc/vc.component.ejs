@@ -6,7 +6,7 @@
   <div class='box'>
     <div class='box-body'>
         <h3>Shared VC</h3>
-        <div>Shared VCs share the physical cluster's GPU, CPU and Memory resources by percentage. It provides cluster the flexibility to allocate resources in different Nodes in a transparent manner. We support users to add new shared VC from WebUI, the new shared VC's capacity will be allocated from the current default shared VC.</div>
+        <div>Shared VCs share the physical cluster's GPU, CPU and Memory resources by percentage. It provides cluster the flexibility to allocate resources in different nodes in a transparent manner. We support users to add new shared VC from WebUI, the new shared VC's capacity will be allocated from the current default shared VC.</div>
         <% if (isAdmin === 'true') { %>
           <button class="btn btn-success btn-lg add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Shared VC</button>
           <% } %>
@@ -78,7 +78,7 @@
   <div class='box'>
     <div class='box-body'>
         <h3>Dedicated VC</h3>
-        <div>Dedicated VCs are designed for jobs need dedicated compute resource, a dedicated VC is binding to 1 or more physical nodes. When creating a dedicated VC, currently only supported in <a href="https://github.com/microsoft/pai/blob/master/docs/tools/dedicated_vc.md">cmdline tool</a>, we will allocate the nodes from the Shared VC pool and isolate these node(s) for jobs submitting to this new created dedicated VC only. Once the dedicated VC is created, shared VCs are no longer allow to use compute resources on this dedicated VC.</div>
+        <div>Dedicated VCs are designed for jobs need dedicated compute resource, a dedicated VC is binding to 1 or more physical nodes. When creating a dedicated VC, currently only supported in <a href="https://github.com/microsoft/pai/blob/master/docs/tools/dedicated_vc.md">cmdline tool</a>, we will allocate the nodes from the Shared VC pool and isolate these node(s) for jobs submitting to this new created dedicated VC only. Once the dedicated VC is created, shared VCs are no longer allowed to use compute resources on this dedicated VC.</div>
         <table id='dedicated-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
           <thead>
             <tr>
