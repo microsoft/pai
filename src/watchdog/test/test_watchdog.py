@@ -247,7 +247,7 @@ class TestJobExporter(unittest.TestCase):
 
         vc_usage = watchdog.VcUsage()
 
-        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
+        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info, [],
                 vc_usage)
 
         self.assertEqual(1, len(vc_usage.map))
@@ -256,7 +256,7 @@ class TestJobExporter(unittest.TestCase):
         self.assertEqual(1, vc_usage.map["some_vc_name"]["P40"][1])
 
         obj = json.loads(self.get_data_test_input("data/dlts_preemptable_pod.json"))
-        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info,
+        watchdog.parse_pod_item(obj, pod_gauge, container_gauge, pod_info, [],
                 vc_usage)
 
         self.assertEqual(1, len(vc_usage.map))
@@ -277,7 +277,9 @@ class TestJobExporter(unittest.TestCase):
 
         endpoints = []
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, endpoints)
+        vc_usage = watchdog.VcUsage()
+
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info, endpoints, vc_usage)
 
         self.assertEqual(2, len(endpoints))
         endpoint0 = endpoints[0]
