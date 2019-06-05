@@ -49,8 +49,8 @@ export const JobInformation= (props) => {
     <FormPage>
       <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
       <FormTextField sectionLabel={'Job name'}
-                     value={jobBasicInfo.name}
-                     onChange={(value) => _onChange('name', value)}
+                     defaultValue={jobBasicInfo.name}
+                     onBlur={(value) => _onChange('name', value)}
                      placeholder='Enter job name'/>
       <BasicSection sectionLabel={'Virutual cluster'}>
         <Dropdown placeholder='Select an option'></Dropdown>

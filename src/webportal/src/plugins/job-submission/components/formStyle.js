@@ -121,12 +121,20 @@ export const getFormBasicSectionStyle = (optional) => {
 
 export const getParameterStyle = () => {
   return ({
-    flexContainer: {
-      alignItems: 'end',
-      height: 'auto',
+    headerText: {
+      root: {
+        fontSize: FontSizes.large,
+        fontWeight: FontWeights.semibold,
+      },
     },
-    root: {
-      height: 'auto',
+    actionButton: {
+      flexContainer: {
+        alignItems: 'end',
+        height: 'auto',
+      },
+      root: {
+        height: 'auto',
+      },
     },
   });
 };

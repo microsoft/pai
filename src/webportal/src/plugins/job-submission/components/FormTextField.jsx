@@ -30,26 +30,25 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
 
 export const FormTextField = (props) => {
-  const {sectionLabel, onChange, value, sectionOptional} = props;
+  const {sectionLabel, onBlur, sectionOptional} = props;
   const textFieldId = getId('textField');
-  const _onChange = (_, value) => {
-    if (onChange === undefined) {
+  const _onBlur= (event) => {
+    if (onBlur === undefined) {
       return;
     }
-    onChange(value);
+    onBlur(event.target.value);
   };
 
   return (
     <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
-      <TextField {...props} id={textFieldId} value={value} onChange={_onChange}/>
+      <TextField {...props} id={textFieldId} onBlur={_onBlur}/>
     </BasicSection>
   );
 };
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
-  onChange: PropTypes.func,
-  value: PropTypes.string,
+  onBlur: PropTypes.func,
   textFiledProps: PropTypes.object,
   sectionOptional: PropTypes.bool,
 };

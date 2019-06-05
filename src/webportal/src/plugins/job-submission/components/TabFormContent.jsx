@@ -60,8 +60,8 @@ export const TabFormContent = (props) => {
   return (
     <FormPage>
       <FormTextField sectionLabel={'Task role name'}
-                     value={jobTaskRole.name}
-                     onChange={(value) => _onValueChange('name', value)}
+                     defaultValue={jobTaskRole.name}
+                     onBlur={(value) => _onValueChange('name', value)}
                      textFiledProps={{placeholder: 'Enter task role name...'}}/>
       <DockerSection defaultValue={jobTaskRole.dockerInfo}
                      onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
@@ -88,8 +88,8 @@ export const TabFormContent = (props) => {
       <FormTextField sectionLabel={'Command'}
                      multiline={true}
                      rows={10}
-                     value={jobTaskRole.commands}
-                     onChange={(value)=>_onValueChange('commands', value)}/>
+                     defaultValue={jobTaskRole.commands}
+                     onBlur={(value)=>_onValueChange('commands', value)}/>
       <DeploymentSection defaultValue={jobTaskRole.deployment}
                          onChange={(deployment) => _onValueChange('deployment', deployment)}/>
     </FormPage>

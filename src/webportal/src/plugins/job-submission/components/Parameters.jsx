@@ -70,8 +70,8 @@ export const Parameters= (props) => {
   return (
     <Stack gap='m'>
       <Stack horizontal>
-        <Text variant='large'>Parameter</Text>
-        <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle} onClick={_onClick}/>
+        <Text styles={parameterStyle.headerText}>Parameter</Text>
+        <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle.actionButton} onClick={_onClick}/>
       </Stack>
       {
         !isParameterOn && <Text>{'you could use these predefined parameters as command variables with prefix \'$\''}</Text>
@@ -84,7 +84,7 @@ export const Parameters= (props) => {
                         })}
                         onItemAdd={_onParameterAdd}
                         onItemDelete={_onParameterDelete}/>
-          <Text variant='large'>Environment</Text>
+          <Text styles={parameterStyle.headerText}>Environment</Text>
           <DetailsList items={environment} columns={columns} checkboxVisibility={CheckboxVisibility.hidden} compact/>
         </React.Fragment>
       }

@@ -61,7 +61,6 @@ export class App extends React.Component {
     const {jobTaskRoles, parameters, jobInformation} = this.state;
     const formLayout = getFormClassNames().formLayout;
     const topForm = getFormClassNames().topForm;
-    // const job = new Job(jobInformation, jobTaskRoles.map((taskRole) => taskRole.content), parameters);
 
     return (
       <Fabric>

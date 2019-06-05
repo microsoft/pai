@@ -49,8 +49,8 @@ export const DockerSection = (props) => {
     <Stack horizontal gap='s2' >
       <TextField id={textFieldId}
                    placeholder='Enter docker uri...'
-                   onChange={(_, value) => _onChange('uri', value)}
-                   value={dockerInfo.uri}/>
+                   onBlur={(event) => _onChange('uri', event.target.value)}
+                   defaultValue={dockerInfo.uri}/>
       <DefaultButton>Auth</DefaultButton>
     </Stack>
   </BasicSection>
