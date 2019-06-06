@@ -27,9 +27,9 @@
     - [Job 流程](#job-流程)
   - [参考](#参考)
 
-This document is for new users of OpenPAI. It provides the must to know knowledge to train models or execute other kinds of commands.
+本文档适用于 OpenPAI 的新用户。 其介绍了在 OpenPAI 上训练模型或执行其它类型命令的必需知识。
 
-Before learning this document, make sure you have IP address or domain name and an account of an OpenPAI cluster already. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
+在开始之前，确保已经有了 OpenPAI 集群的 IP 地址或域名，以及它的用户名、密码。 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 ## 提交 hello-world Job
 
