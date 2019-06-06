@@ -85,13 +85,13 @@
 
 ## 理解 Job
 
-This section introduces more knowledge about job, so that you can write your own job configuration easily.
+本届介绍了更多关于 Job 的知识，以便于编写自己的 Job 配置。
 
 ### 了解 hello-world Job
 
-The **job configuration** is a JSON file, which is submitted to OpenPAI. The hello-world job configuration includes below required key fields.
+**Job 配置**是一个发送到 OpenPAI 的 JSON 文件。 hello-world Job 的配置包含了以下必需的关键字段。
 
-JSON 文件中的字段有两个级别。 The top level is shared information of the job, including job name, Docker image, task roles, and so on. The second level is taskRoles, it's an array and each item describe a command and its environment.
+JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息，包括 Job 名称，Docker 映像， Task Role 等等。 第二级是 taskRoles，是一个数组，其中每一项包含一个命令及其运行环境。
 
 以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
@@ -99,37 +99,37 @@ JSON 文件中的字段有两个级别。 The top level is shared information of
 
 - **image**
   
-  [Docker](https://www.docker.com/why-docker) is a popular technology to provide virtual environments on a server. OpenPAI 用 Docker 来提供一致、干净的环境。 With Docker, OpenPAI can serve multiple resource requests on the same server.
+  [Docker](https://www.docker.com/why-docker) 是在服务器上提供虚拟环境的常用技术。 OpenPAI 用 Docker 来提供一致、干净的环境。 通过 Docker，OpenPAI 可以在一台服务器上同时服务多个资源请求。
   
-  The **image** field is the identity of a Docker image, which includes customized Python or system packages.
+  **image** 字段是 Docker 映像的标识，其中已经安装好了定制的 Python 和系统的组件包。
   
-  The hub.docker.com is a public Docker repository with a lot of Docker images. 深度学习训练任务推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo)。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。 Administrator may set a private Docker repository.
+  hub.docker.com 是共享的 Docker 存储库，有很多 Docker 映像。 深度学习训练任务推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo)。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。 管理员可以设置专用的 Docker 存储库。
   
-  If an appropriate Docker image isn't found, it's easy to [build a Docker image](../job_docker_env.md).
+  如果没有找到合适的 Docker 映像，可参考[构建 Docker 映像](../job_docker_env.md)，能很容易的定制一个 Docker 映像。
   
-  Note, if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image.
+  注意，如果 Docker 映像没有包括 *openssh-server* 和 *curl* 包，则无法使用 OpenPAI 的 SSH 功能。 如果需要 SSH 功能，可在已有的 Docker 映像上构造一个包含 *openssh-server* 和 *curl* 的新 Docker 映像。
 
 - **taskRoles** 定义了 Job 中的不同角色。
   
-  For single server jobs, there is only one role in taskRoles.
+  对于单机运行的 Job，在 taskRoles 中只有一个角色。
   
-  对于分布式的 Job，可能会在 taskRoles 中有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 There are two task roles in the corresponding job configuration, refer to [the example](../job_tutorial.md#a-complete-example) for details.
+  对于分布式的 Job，taskRoles 中可能会有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 相应的在 Job 配置中需要两个任务角色，参考[示例](../job_tutorial.md#a-complete-example)，来了解详细信息。
 
-- **taskRoles/name** is the name of task role and it's used in environment variables in distributed jobs.
+- **taskRoles/name** 是任务角色的名称，还会被用于分布式 Job 的环境变量中。
 
-- **taskRoles/taskNumber** is number of instances of this task role. 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 It means there should be 8 Docker containers for the worker role.
+- **taskRoles/taskNumber** 是任务角色的实例数量。 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 这表示 worker 角色会被实例化出 8 个 Docker 容器。
 
 - **taskRoles/cpuNumber**，**taskRoles/memoryMB**，**taskRoles/gpuNumber** 非常容易理解。 它们指定了相应的硬件资源，包括 CPU 核数量，内存（MB），以及 GPU 数量。
 
 - **taskRoles/command** 是此任务角色要运行的命令。 可以是多个命令，像在终端中一样，通过 `&&` 组合到一起。 例如，在 hello-world Job 中，命令会从 GitHub 中克隆代码，下载数据，然后执行训练过程。
   
-  Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
+  像 hello-world Job 一样，用户需要构造命令来获取代码、数据，并开始执行。
 
 ### 传入/传出文件
 
 大多数模型训练以及其它类型的 Job 都需要在运行环境内外间传输文件。 这些文件包括数据集、代码、脚本、训练好的模型等等。
 
-OpenPAI manages computing resources, but it doesn't manage persistent storage. [如何使用存储](storage.md)可帮助 OpenPAI 用户来管理存储。
+OpenPAI 会管理计算资源，但不会管理持久化的存储资源。 [如何使用存储](storage.md)可帮助 OpenPAI 用户来理解并使用存储。
 
 最好与 OpenPAI 集群的管理员确认如何传输文件，他们可能已经选出了最合适的方法和示例。
 
@@ -137,7 +137,7 @@ OpenPAI manages computing resources, but it doesn't manage persistent storage. [
 
 Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使用 [Visual Studio Code OpenPAI Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 来提交 Job。
 
-Note, both web UI and the Visual Studio Code Client through [RESTful API](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize the client experience.
+注意，WEB 界面和 Visual Studio Code Client 都通过 [RESTful API](../rest-server/API.md) 来访问 OpenPAI。 可使用 RESTful API 来定制客户端体验。
 
 After received job configuration, OpenPAI processes it as below steps.
 
