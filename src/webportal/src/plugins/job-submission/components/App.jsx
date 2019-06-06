@@ -25,7 +25,6 @@
 
 import React from 'react';
 import {Fabric, Stack, initializeIcons} from 'office-ui-fabric-react';
-import {TabForm} from './TabForm';
 import {TabFormContent} from './TabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
@@ -34,6 +33,7 @@ import {getFormClassNames} from './formStyle';
 import {initTheme} from '../../../app/components/theme';
 import {JobBasicInfo} from '../models/jobBasicInfo';
 import {SubmissionSection} from './SubmissionSection';
+import {TaskRoles} from './TaskRoles';
 import {Job} from '../models/job';
 import t from '../../../app/components/tachyons.scss';
 
@@ -44,9 +44,8 @@ export class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const jobTaskRoles = [{headerText: 'Task role 1', content: new JobTaskRole({})}];
     this.state = {
-      jobTaskRoles: jobTaskRoles,
+      jobTaskRoles: [new JobTaskRole({})],
       parameters: [],
       jobInformation: new JobBasicInfo({}),
     };
@@ -73,12 +72,9 @@ export class App extends React.Component {
                                 onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
               </Stack>
               <Stack className={topForm} gap='l1'>
-                <TabForm defaultItems={jobTaskRoles}
-                          headerTextPrefix='Task Role'
-                          createContentFunc={() => new JobTaskRole({})}
-                          onRenderTabContent={this._onRenderTabContent.bind(this)}
-                          onItemsChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
-                <SubmissionSection job={new Job(jobInformation, jobTaskRoles.map((taskRole) => taskRole.content), parameters)}/>
+                <TaskRoles defaultValue={[new JobTaskRole({})]}
+                           onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
+                <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
               </Stack>
             </Stack>
             <Stack styles={{root: [t.w30]}}>
