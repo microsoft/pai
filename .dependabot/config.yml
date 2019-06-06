@@ -1,0 +1,35 @@
+version: 1
+
+update_configs:
+  - package_manager: "javascript"
+    directory: "/src/rest-server"
+    update_schedule: "live"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng
+    allowed_updates:
+    - match:
+        update_type: "security"
+
+  - package_manager: "javascript"
+    directory: "/src/webportal"
+    update_schedule: "live"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng
+    allowed_updates:
+    - match:
+        update_type: "security"
+
+  - package_manager: "javascript"
+    directory: "/contrib"
+    update_schedule: "live"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng
+    allowed_updates:
+    - match:
+        update_type: "security"
