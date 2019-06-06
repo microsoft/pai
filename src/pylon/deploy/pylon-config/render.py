@@ -23,9 +23,9 @@ env = {}
 for key in os.environ:
     env[key] = os.environ[key]
 
-templateString = open('nginx.conf.template', 'r').read()
+templateString = open('/pylon-config/nginx.conf.template', 'r').read()
 
 env.setdefault('PYLON_CONF_ETAG', md5(templateString).hexdigest())
 
 renderedString = Template(templateString).render(env)
-open('nginx.conf', 'w').write(renderedString)
+open('/pylon-config/nginx.conf', 'w').write(renderedString)

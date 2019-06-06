@@ -17,22 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+python /pylon-config/render.py
+cp /pylon-config/nginx.conf /etc/nginx/nginx.conf
 
-if kubectl get daemonset | grep -q "pylon-ds"; then
-    kubectl delete ds pylon-ds || exit $?
-fi
+{% if cluster_cfg['authentication']['OIDC'] %}
+chmod 664 /https-config/{{cluster_cfg['pylon']['ssl']['CRT_NAME']}}
+chmod 664 /https-config/{{cluster_cfg['pylon']['ssl']['KEY_NAME']}}
+{% endif %}
 
-if kubectl get service | grep -q "pylon"; then
-    kubectl delete service pylon || exit $?
-fi
 
-if kubectl get configmap | grep -q "https-config"; then
-    kubectl delete configmap https-config || exit $?
-fi
-
-if kubectl get configmap | grep -q "pylon-config"; then
-    kubectl delete configmap pylon-config || exit $?
-fi
-
-popd > /dev/null
+nginx -g "daemon off;"
