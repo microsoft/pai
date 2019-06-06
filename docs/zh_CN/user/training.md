@@ -139,17 +139,17 @@ Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使�
 
 注意，WEB 界面和 Visual Studio Code Client 都通过 [RESTful API](../rest-server/API.md) 来访问 OpenPAI。 可使用 RESTful API 来定制客户端体验。
 
-After received job configuration, OpenPAI processes it as below steps.
+收到 Job 配置后， OpenPAI 按以下步骤处理。
 
-1. 等待分配资源。 OpenPAI 会等待分配到足够的资源，包括 CPU，内存和 GPU。 如果资源足够，Job 会很快开始。 If there is not enough resource, job is queued and wait on previous jobs completing and releasing resource.
+1. 等待分配资源。 OpenPAI 会等待分配到足够的资源，包括 CPU，内存和 GPU。 如果资源足够，Job 会很快开始。 如果资源不够，Job 会进入队列，并等待前面的 Job 结束后释放资源。
 
-2. Initialize Docker container. OpenPAI pulls the Docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the Docker container.
+2. 初始化 Docker 容器。 如果指定的 Docker 映像不在本地， OpenPAI 会拉取它。 随后，OpenPAI 会初始化 Docker 容器。
 
 3. 运行配置中的命令。 在命令执行过程中，OpenPAI 会近实时的输出 [stdout 和 stderr](troubleshooting_job.md)。 还可通过一些指标来[监控工作负载](troubleshooting_job.md#how-to-check-job-log)。
 
-4. Finish job. 命令完成后，OpenPAI 会用最后的退出代码作为信号来决定 Job 是否成功结束。 0 表示成功，其它值表示失败。 随后，OpenPAI 会回收资源，以便运行下一个 Job。
+4. 结束 Job。 命令完成后，OpenPAI 会用最后的退出代码作为信号来决定 Job 是否成功结束。 0 表示成功，其它值表示失败。 随后，OpenPAI 会回收资源，以便运行下一个 Job。
 
-When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
+当 Job 提交到 OpenPAI 后， Job 会从 waiting，切换到 running，然后是 succeeded 或 failed。 如果 Job 被用户或系统中断了，状态也可能显示为 stopped。
 
 ## 参考
 
