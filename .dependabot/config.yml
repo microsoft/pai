@@ -8,6 +8,10 @@ update_configs:
     default_reviewers:
     - abuccts
     - sunqinzheng
+    default_labels:
+    - "dependencies"
+    - "security"
+    - "javascript"
     allowed_updates:
     - match:
         update_type: "security"
@@ -19,6 +23,10 @@ update_configs:
     default_reviewers:
     - abuccts
     - sunqinzheng
+    default_labels:
+    - "dependencies"
+    - "security"
+    - "javascript"
     allowed_updates:
     - match:
         update_type: "security"
@@ -30,6 +38,10 @@ update_configs:
     default_reviewers:
     - abuccts
     - sunqinzheng
+    default_labels:
+    - "dependencies"
+    - "security"
+    - "javascript"
     allowed_updates:
     - match:
         update_type: "security"
