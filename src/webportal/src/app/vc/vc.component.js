@@ -33,6 +33,7 @@ const loadData = (specifiedVc) => {
         grafanaUri: webportalConfig.grafanaUri,
         isAdmin,
         modal: vcModelComponent,
+        description: '<a>aaa</a>',
       });
       $('#content-wrapper').html(vcHtml);
       commonTable = $('#common-table').dataTable({
