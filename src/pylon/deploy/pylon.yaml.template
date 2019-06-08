@@ -99,11 +99,11 @@ spec:
         - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
         - name: pylon-configuration
-            configMap:
-              name: pylon-config
+          configMap:
+            name: pylon-config
 {% if cluster_cfg['authentication']['OIDC'] %}
         - name: https-configuration
-            configMap:
-              name: https-config
+          configMap:
+            name: https-config
 {% endif %}
 
