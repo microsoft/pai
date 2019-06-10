@@ -46,11 +46,10 @@ export default function BatchVirtualClustersEditor({isOpen = false, hide}) {
     event.preventDefault();
     setLock(true);
 
-    const virtualClustersString = virtualClusters.sort().join(',');
     const users = getSelectedUsers();
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
-      const result = await updateUserVcRequest(user.username, virtualClustersString)
+      const result = await updateUserVcRequest(user.username, virtualClusters)
         .then(() => {
           setNeedRefreshAllUsers(true);
           return {success: true};

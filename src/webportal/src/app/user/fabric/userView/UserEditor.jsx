@@ -18,24 +18,24 @@
 import React, {useRef, useContext, useState, useEffect} from 'react';
 import {Modal, TextField, FontClassNames, PrimaryButton, DefaultButton, Stack, StackItem, Checkbox, Dropdown, mergeStyles, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {isEmpty} from 'lodash';
+import {isEmpty, isEqual} from 'lodash';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 
-import {createUserRequest, updateUserRequest, updateUserVcRequest} from '../conn';
-import {checkUsername, checkPassword} from '../utils';
+import {createUserRequest, updateUserPasswordRequest, updateUserAdminRequest, updateUserEmailRequest, updateUserVcRequest} from '../conn';
+import {checkUsername, checkPassword, checkEmail} from '../utils';
 
-import {toBool} from './utils';
 import Context from './Context';
 
-export default function UserEditor({user: {username = '', admin = '', virtualCluster = ''}, isOpen = false, isCreate = true, hide}) {
+export default function UserEditor({user: {username = '', admin = false, email = '', virtualCluster = []}, isOpen = false, isCreate = true, hide}) {
   const {allVCs, showMessageBox, refreshAllUsers} = useContext(Context);
 
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
+  const emailRef = useRef(null);
   const adminRef = useRef(null);
 
-  const oldAdmin = toBool(admin);
+  const oldAdmin = admin;
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     setIsAdmin(oldAdmin);
@@ -45,31 +45,18 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
     setIsAdmin(checked);
   };
 
-  const parseVirtualClusterString = (virtualClusterString) => {
-    let vcs = [];
-    if (virtualClusterString) {
-      virtualClusterString.split(',').map((vc) => vc.trim()).forEach((vc) => {
-        if (vc) {
-          if (allVCs.indexOf(vc) != -1) {
-            vcs.push(vc);
-          }
-        }
-      });
-    }
-    return vcs.sort();
-  };
-  const [newVCs, setNewVCs] = useState([]);
+  const [vcs, setVcs] = useState([]);
   useEffect(() => {
-    setNewVCs(parseVirtualClusterString(virtualCluster));
+    setVcs(virtualCluster.slice());
   }, []);
 
   const handleVCsChanged = (_event, option, _index) => {
     if (option.selected) {
-      newVCs.push(option.text);
+      vcs.push(option.text);
     } else {
-      newVCs.splice(newVCs.indexOf(option.text), 1);
+      vcs.splice(vcs.indexOf(option.text), 1);
     }
-    setNewVCs(newVCs.slice());
+    setVcs(vcs.slice());
   };
 
   const [lock, setLock] = useState(false);
@@ -81,6 +68,7 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
 
     const newUsername = usernameRef.current.value;
     const newPassword = passwordRef.current.value;
+    const newEmail = emailRef.current.value;
     const newAdmin = adminRef.current.checked;
 
     if (isCreate) {
@@ -101,25 +89,17 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
       }
     }
 
-    const request = isCreate ? createUserRequest : updateUserRequest;
-    const result = await request(newUsername, newPassword, newAdmin)
-      .then(() => {
-        setNeedRefreshAllUsers(true);
-        return {success: true};
-      })
-      .catch((err) => {
-        return {success: false, message: String(err)};
-      });
-    if (!result.success) {
-      await showMessageBox(result.message);
-      setLock(false);
-      return;
+    {
+      const errorMessage = checkEmail(newEmail);
+      if (errorMessage) {
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
+      }
     }
 
-    // Admin user VC update will be executed in rest-server
-    if (!newAdmin) {
-      const newVirtualCluster = newVCs.sort().join(',');
-      const result = await updateUserVcRequest(newUsername, newVirtualCluster)
+    if (isCreate) {
+      const result = await createUserRequest(newUsername, newEmail, newPassword, newAdmin, vcs)
         .then(() => {
           setNeedRefreshAllUsers(true);
           return {success: true};
@@ -131,6 +111,71 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
         await showMessageBox(result.message);
         setLock(false);
         return;
+      }
+    } else {
+      if (newEmail != email) {
+        const result = await updateUserEmailRequest(newUsername, newEmail)
+          .then(() => {
+            setNeedRefreshAllUsers(true);
+            return {success: true};
+          })
+          .catch((err) => {
+            return {success: false, message: String(err)};
+          });
+        if (!result.success) {
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
+        }
+      }
+
+      if (newPassword) {
+        const result = await updateUserPasswordRequest(newUsername, newPassword)
+          .then(() => {
+            setNeedRefreshAllUsers(true);
+            return {success: true};
+          })
+          .catch((err) => {
+            return {success: false, message: String(err)};
+          });
+        if (!result.success) {
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
+        }
+      }
+
+      if (newAdmin != oldAdmin) {
+        const result = await updateUserAdminRequest(newUsername, newAdmin)
+          .then(() => {
+            setNeedRefreshAllUsers(true);
+            return {success: true};
+          })
+          .catch((err) => {
+            return {success: false, message: String(err)};
+          });
+        if (!result.success) {
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
+        }
+      }
+
+      // Admin user VC update will be executed in rest-server
+      if (!newAdmin && !isEqual(new Set(vcs), new Set(virtualCluster))) {
+        const result = await updateUserVcRequest(newUsername, vcs)
+          .then(() => {
+            setNeedRefreshAllUsers(true);
+            return {success: true};
+          })
+          .catch((err) => {
+            return {success: false, message: String(err)};
+          });
+        if (!result.success) {
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
+        }
       }
     }
 
@@ -200,13 +245,25 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
                 </tr>
                 <tr>
                   <td className={tdLabelStyle}>
+                    Email
+                  </td>
+                  <td className={tdPaddingStyle}>
+                    <TextField
+                      componentRef={emailRef}
+                      defaultValue={email}
+                      placeholder='Enter email'
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdLabelStyle}>
                     Virtual clusters
                   </td>
                   <td className={tdPaddingStyle}>
                     <Dropdown
                       multiSelect
                       options={vcsOptions}
-                      selectedKeys={newVCs}
+                      selectedKeys={vcs}
                       disabled={isAdmin ? true : false}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
@@ -260,8 +317,9 @@ export default function UserEditor({user: {username = '', admin = '', virtualClu
 UserEditor.propTypes = {
   user: PropTypes.shape({
     username: PropTypes.string,
-    admin: PropTypes.string,
-    virtualCluster: PropTypes.string,
+    admin: PropTypes.bool,
+    email: PropTypes.string,
+    virtualCluster: PropTypes.array,
   }),
   isOpen: PropTypes.bool,
   isCreate: PropTypes.bool,

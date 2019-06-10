@@ -19,7 +19,7 @@ import {getVirtualCluster} from './utils';
 
 export default class Ordering {
   /**
-   * @param {"username" | "admin" | "virtualCluster"} field
+   * @param {"username" | "email" | "admin" | "virtualCluster"} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending = false) {

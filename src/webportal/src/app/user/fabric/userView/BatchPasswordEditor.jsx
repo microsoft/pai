@@ -21,10 +21,9 @@ import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 
-import {updateUserRequest} from '../conn';
+import {updateUserPasswordRequest} from '../conn';
 import {checkPassword} from '../utils';
 
-import {toBool} from './utils';
 import Context from './Context';
 
 export default function BatchPasswordEditor({isOpen = false, hide}) {
@@ -50,7 +49,7 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
     const users = getSelectedUsers();
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
-      const result = await updateUserRequest(user.username, password, toBool(user.admin))
+      const result = await updateUserPasswordRequest(user.username, password)
         .then(() => {
           setNeedRefreshAllUsers(true);
           return {success: true};

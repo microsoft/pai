@@ -29,7 +29,7 @@ import Table from './Table';
 import BottomBar from './BottomBar';
 import MessageBox from '../components/MessageBox';
 import {toBool, isFinished} from './utils';
-import {getAllUsersRequest, getAllVcsRequest, createUserRequest, updateUserVcRequest} from '../conn';
+import {getAllUsersRequest, getAllVcsRequest, createUserRequest} from '../conn';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
 import {initTheme} from '../../../components/theme';
@@ -40,6 +40,7 @@ const csvParser = require('papaparse');
 const stripBom = require('strip-bom-string');
 const columnUsername = 'username';
 const columnPassword = 'password';
+const columnEmail = 'email';
 const columnAdmin = 'admin';
 const columnVC = 'virtual cluster';
 
@@ -70,6 +71,7 @@ export default function BatchRegister() {
     let csvString = csvParser.unparse([{
       [columnUsername]: 'student1',
       [columnPassword]: '111111',
+      [columnEmail]: 'student1@outlook.com',
       [columnAdmin]: false,
       [columnVC]: 'default',
     }]);
@@ -127,7 +129,9 @@ export default function BatchRegister() {
             }
           }
         }
-        user[columnVC] = parsedVCs.join(',');
+        user.vcs = parsedVCs;
+      } else {
+        user.vcs = [];
       }
     }
     return true;
@@ -200,8 +204,10 @@ export default function BatchRegister() {
 
       let result = await createUserRequest(
         userInfo[columnUsername],
+        userInfo[columnEmail],
         userInfo[columnPassword],
-        toBool(userInfo[columnAdmin])).then(() => {
+        toBool(userInfo[columnAdmin]),
+        userInfo.vcs).then(() => {
           return successResult;
         }).catch((err) => {
           return {
@@ -209,25 +215,6 @@ export default function BatchRegister() {
             message: `User ${userInfo[columnUsername]} created failed: ${String(err)}`,
           };
         });
-      if (!result.isSuccess) {
-        userInfo.status = result;
-        setUserInfos(userInfos.slice());
-        continue;
-      }
-
-      // Admin user VC update will be executed in rest-server
-      if (!toBool(userInfo[columnAdmin]) && userInfo[columnVC]) {
-        result = await updateUserVcRequest(
-          userInfo[columnUsername],
-          userInfo[columnVC]).then(() => {
-            return successResult;
-          }).catch((err) => {
-            return {
-              isSuccess: true,
-              message: `User ${userInfo[columnUsername]} created successfully but failed when update virtual clusters: ${String(err)}`,
-            };
-          });
-      }
 
       userInfo.status = result;
       setUserInfos(userInfos.slice());
@@ -247,7 +234,7 @@ export default function BatchRegister() {
   };
 
   const addNew = () => {
-    userInfos.push({});
+    userInfos.push({vcs: []});
     setUserInfos(userInfos.slice());
   };
 
