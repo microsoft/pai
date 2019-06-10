@@ -22,7 +22,7 @@ const {readFileSync} = require('fs');
 const {Agent} = require('https');
 const authnConfig = require('./authn');
 
-let userSecretConfig = {}
+let userSecretConfig = {};
 
 if (authnConfig.authnMethod !== 'OIDC') {
   userSecretConfig = {
