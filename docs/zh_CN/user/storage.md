@@ -57,32 +57,32 @@ command 字段可分为以下几步。
 
 4. **保存输出**。 Docker 容器会在每次 Job 完成后被删除。 因此，如果需要任何结果文件，要将其保存到 Docker 容器之外。 命令 `cp -rf /tmp/output /models/output` 将训练后的模型和检查点都复制回了共享文件夹。
 
-Note, this example put all steps in the command field. Some steps can be in a bash or python script, and use a command starts it, so that the script can handle more complex logic.
+注意，此例将所有步骤都放到了 command 字段中。 有些步骤可以放到 Bash 或 Python 脚本中，然后用一条命令来运行。这样可以用脚本来处理更复杂的逻辑。
 
-## Approaches
+## 主要方法
 
-Besides sharing, files can be built into the docker image directly or copied in/out. The three approaches have different fitness. Below introduce their advantages, shortcomings, and how-to.
+除了共享文件夹，文件也可以直接内置到 Docker 映像中，或复制进出 Docker 容器。 这三种方法适应不同的场景。 以下介绍了它们各自的优缺点以及使用简介。
 
-### Sharing
+### 共享路径
 
-It maintains a connection between storage and docker container, and usual keeps alive during the whole lifecycle of job.
+这种方法会在存储和 Docker 容器之间建立长时间的连接，一般会在整个 Job 的声明周期都保持可用。
 
-- Advantage
+- 优点
   
-  - It doesn't transfer data until needed. So, it can share a large size folder without extra performance impact.
-  - It's easy to use. A mounted folder supports the same code logic as a local folder.
-  - The write operations happen on shared files immediately. So that it can reflect changes quickly.
+  - 没有使用的数据不会被传输。 因此，共享很大的目录也不会产生额外的性能影响。
+  - 易于使用。 挂载的文件夹和本地文件夹的代码逻辑是一样的。
+  - 写操作会立刻发生在共享文件上。 因此可以快速反映改动。
 
-- Shortcoming
+- 缺点
   
-  - If network is unstable during job running, the job may be failed, as the shared file may be accessed any time.
-  - If files are read/write multiple times, they may spend multiple times of network IO than other approaches.
-  - Most sharing protocols cannot pass through firewall.
-  - Most sharing protocols are significant low performance when accessing many small files.
-  - The disk or network IO may be bottleneck if the shared folder is accessed by many jobs.
-  - It may cause corrupt files if multiple jobs save back on a file at the same time.
+  - 因为共享文件可能在任何时候被访问到，所以如果 Job 运行期间网络不稳定，可能会造成 Job 失败。
+  - 如果文件被读写多次，与其它方法相比，可能会造成多次网络 IO。
+  - 大多数共享路径的协议都不能穿过防火墙。
+  - 大多数共享协议在访问大量小文件时，性能都会很低。
+  - 如果共享路径被多个 Job 访问，网络或磁盘 IO 可能会成为瓶颈。
+  - 如果多个 Job 同时写回同一个文件，可能会造成文件损坏。
 
-- Applicable scenarios
+- 适用场景
   
   - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is enough to handle concurrent jobs.
   - If shared folder contains files, which won't be accessed during job running.
