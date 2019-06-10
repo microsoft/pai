@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo} from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, ColorClassNames, mergeStyles} from 'office-ui-fabric-react';
+import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -29,7 +29,6 @@ import Ordering from './Ordering';
 
 export default function Table() {
   const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser} = useContext(Context);
-
   /**
    * @type {import('office-ui-fabric-react').Selection}
    */
@@ -131,7 +130,10 @@ export default function Table() {
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <DefaultButton
             onClick={onClick}
-            styles={{root: ColorClassNames.neutralQuaternaryBackground}}
+            styles={{
+              root: {backgroundColor: '#e5e5e5'},
+              rootFocused: {backgroundColor: '#e5e5e5'},
+            }}
           >
             Edit
           </DefaultButton>

@@ -1042,6 +1042,132 @@ Status: 500
 }
 ```
 
+
+## API v2
+
+### `POST jobs`
+
+Submit a job v2 in the system.
+
+*Request*
+```
+POST /api/v2/jobs
+Content-Type: text/yaml
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+[job protocol yaml](../pai-job-protocol.yaml)
+
+*Response if succeeded*
+```
+Status: 202
+
+{
+  "message": "update job $jobName successfully"
+}
+```
+
+*Response if the virtual cluster does not exist.*
+```
+Status: 400
+
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
+
+*Response if user has no permission*
+```
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "User $username is not allowed to add job to $vcname
+}
+```
+
+*Response if there is a duplicated job submission*
+```
+Status: 409
+
+{
+  "code": "ConflictJobError",
+  "message": "Job name $jobname already exists."
+}
+```
+
+*Response if a server error occured*
+```
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `GET jobs/:frameworkName/config`
+
+Get job config JSON or YAML content.
+
+*Request*
+```
+GET /api/v2/jobs/:frameworkName/config
+Accept: json (for v1 jobs)
+Accept: yaml (for v2 jobs)
+```
+
+*Response if succeeded*
+```
+Status: 200
+
+{
+  "jobName": "test",
+  "image": "pai.run.tensorflow",
+  ...
+}
+
+or
+
+jobName: test
+protocolVersion: 2
+...
+```
+
+*Response if the job does not exist*
+```
+Status: 404
+
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
+
+*Response if the job config does not exist*
+```
+Status: 404
+
+{
+  "code": "NoJobConfigError",
+  "message": "Config of job $jobname is not found."
+}
+```
+
+*Response if a server error occured*
+```
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+
 ## About legacy jobs
 
 Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,

@@ -1,22 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-//
-
 require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -33,7 +14,8 @@ const webportalConfig = require('../config/webportal.config.js');
 const userAuth = require('../user/user-auth/user-auth.component');
 
 //
-let table = null;
+let commonTable = null;
+let dedicateTable = null;
 let isAdmin = cookies.get('admin');
 //
 
@@ -51,9 +33,17 @@ const loadData = (specifiedVc) => {
         grafanaUri: webportalConfig.grafanaUri,
         isAdmin,
         modal: vcModelComponent,
+        description: '<a>aaa</a>',
       });
       $('#content-wrapper').html(vcHtml);
-      table = $('#vc-table').dataTable({
+      commonTable = $('#common-table').dataTable({
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+        columnDefs: [
+          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+        ],
+      }).api();
+      dedicateTable = $('#dedicated-table').dataTable({
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
@@ -76,12 +66,22 @@ const formatNumber = (x, precision) => {
 };
 
 //
-
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 335 : 265))) + 'px');
-    table.columns.adjust().draw();
+  $('.dataTables_scrollBody').css('height', '200px');
+  let tableWidthArray = [];
+  if (commonTable != null && commonTable.page.info().recordsTotal) {
+    $('#common-table thead tr th').each((idx, val) => {
+      tableWidthArray.push(val.offsetWidth);
+    });
+    let newNameWidth = tableWidthArray[0] + tableWidthArray[1] + tableWidthArray[2];
+    tableWidthArray.splice(0, 3, newNameWidth);
+    commonTable.columns.adjust().draw();
+  }
+  if (dedicateTable != null && dedicateTable.page.info().recordsTotal) {
+    tableWidthArray.map( (item, idx) => {
+      dedicateTable.columns(idx).nodes().flatten().to$().width(item);
+    });
+    dedicateTable.columns.adjust().draw();
   }
 };
 
@@ -124,6 +124,9 @@ const virtualClustersAdd = () => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -150,6 +153,9 @@ const deleteVcItem = (name) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -185,6 +191,9 @@ const editVcItemPut = (name, capacity) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -215,6 +224,9 @@ const changeVcState = (name, state) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -230,6 +242,9 @@ const convertState = (name, state) => {
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
   } else if (state === 'STOPPED') {
     vcState = 'Stopped';
+    vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+  } else if (state === 'DRAINING') {
+    vcState = 'Stopping';
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
   } else {
     vcState = 'Unknown';

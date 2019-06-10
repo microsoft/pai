@@ -23,6 +23,8 @@ import faulthandler
 import gc
 import logging
 import os
+import sys
+from collections import defaultdict
 
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from prometheus_client import Histogram
@@ -127,6 +129,60 @@ class ResourceItem(object):
         self.mem = mem
         self.gpu = gpu
 
+    def __add__(self, other):
+        if isinstance(other, ResourceItem):
+            cpu = self.cpu + other.cpu
+            gpu = self.gpu + other.gpu
+            mem = self.mem + other.mem
+            return ResourceItem(cpu=cpu, gpu=gpu, mem=mem)
+        else:
+            raise NotImplemented
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        if isinstance(other, ResourceItem):
+            cpu = self.cpu - other.cpu
+            gpu = self.gpu - other.gpu
+            mem = self.mem - other.mem
+            return ResourceItem(cpu=cpu, gpu=gpu, mem=mem)
+        else:
+            raise NotImplemented
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            cpu = self.cpu * other
+            gpu = self.gpu * other
+            mem = self.mem * other
+            return ResourceItem(cpu=cpu, gpu=gpu, mem=mem)
+        else:
+            raise NotImplemented
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        if isinstance(other, (int, float)):
+            cpu = self.cpu / other
+            gpu = self.gpu / other
+            mem = self.mem / other
+            return ResourceItem(cpu=cpu, gpu=gpu, mem=mem)
+        else:
+            raise NotImplemented
+
+    def __repr__(self):
+        return '<cpu: {}, gpu: {}, mem: {}>'.format(self.cpu, self.gpu, self.mem)
+
+    def __str__(self):
+        return '<cpu: {}, gpu: {}, mem: {}>'.format(self.cpu, self.gpu, self.mem)
+
+    def __eq__(self, other):
+        if isinstance(other, ResourceItem):
+            return self.cpu == other.cpu and self.gpu == other.gpu and self.mem == other.mem
+        else:
+            raise NotImplemented
+
 
 class NodeCount(object):
     def __init__(self, total=0, active=0):
@@ -152,8 +208,9 @@ class YarnCollector(object):
             error_counter.add_metric([str(e)], 1)
             logger.exception(e)
 
-        total_resource = ResourceItem()
         node_count = NodeCount()
+
+        labeled_resource = defaultdict(ResourceItem)
 
         if response is not None:
             if response.status_code != 200:
@@ -163,7 +220,7 @@ class YarnCollector(object):
             else:
                 try:
                     metrics = YarnCollector.gen_nodes_metrics(response.json(),
-                            total_resource, node_count)
+                            node_count, labeled_resource)
                     for metric in metrics:
                         yield metric
                 except Exception as e:
@@ -191,7 +248,7 @@ class YarnCollector(object):
             else:
                 try:
                     metrics = YarnCollector.gen_scheduler_metrics(response.json(),
-                            total_resource)
+                            labeled_resource)
                     for metric in metrics:
                         yield metric
                 except Exception as e:
@@ -201,7 +258,7 @@ class YarnCollector(object):
         yield error_counter
 
     @staticmethod
-    def gen_nodes_metrics(obj, total_resource, node_count):
+    def gen_nodes_metrics(obj, node_count, labeled_resource):
         if obj["nodes"] is None:
             return []
 
@@ -214,8 +271,6 @@ class YarnCollector(object):
         node_total_gpu = gen_node_gpu_total()
         node_avail_gpu = gen_node_gpu_available()
 
-        total_cpu = total_mem = total_gpu = 0
-        avail_cpu = avail_mem = avail_gpu = 0
         total_node = active_node = 0
 
         for node in nodes:
@@ -224,10 +279,10 @@ class YarnCollector(object):
                 continue
             active_node += 1
 
-            total_cpu += node["usedVirtualCores"] + node["availableVirtualCores"]
-            avail_cpu += node["availableVirtualCores"]
-            total_mem += (node["usedMemoryMB"] + node["availMemoryMB"]) * 1024 * 1024
-            avail_mem += node["availMemoryMB"] * 1024 * 1024
+            total_cpu = node["usedVirtualCores"] + node["availableVirtualCores"]
+            avail_cpu = node["availableVirtualCores"]
+            total_mem = (node["usedMemoryMB"] + node["availMemoryMB"]) * 1024 * 1024
+            avail_mem = node["availMemoryMB"] * 1024 * 1024
 
             ip = node["nodeHostName"]
             node_total_cpu.add_metric([ip],
@@ -239,15 +294,15 @@ class YarnCollector(object):
             if node.get("availableGPUs") is None and node.get("usedGPUs") is None:
                 continue
 
-            total_gpu += node["availableGPUs"] + node["usedGPUs"]
-            avail_gpu += node["availableGPUs"]
+            total_gpu = node["availableGPUs"] + node["usedGPUs"]
+            avail_gpu = node["availableGPUs"]
 
             node_total_gpu.add_metric([ip], node["availableGPUs"] + node["usedGPUs"])
             node_avail_gpu.add_metric([ip], node["availableGPUs"])
 
-        total_resource.cpu = total_cpu
-        total_resource.mem = total_mem
-        total_resource.gpu = total_gpu
+            node_label = node.get("nodeLabels", [""])[0]
+
+            labeled_resource[node_label] += ResourceItem(cpu=total_cpu, mem=total_mem, gpu=total_gpu)
 
         node_count.total = total_node
         node_count.active = active_node
@@ -257,7 +312,7 @@ class YarnCollector(object):
                 node_total_gpu, node_avail_gpu]
 
     @staticmethod
-    def gen_scheduler_metrics(obj, total_resource):
+    def gen_scheduler_metrics(obj, labeled_resource):
         if obj["scheduler"] is None:
             return []
 
@@ -277,16 +332,32 @@ class YarnCollector(object):
 
         for queue in scheduler_info["queues"]["queue"]:
             queue_name = queue["queueName"]
-            cap = queue["absoluteCapacity"] / 100.0
-            avail_cap = cap - queue["absoluteUsedCapacity"] / 100.0
+            queue_nodelabel = queue.get("defaultNodeLabelExpression", "")
+            if queue_nodelabel == "<DEFAULT_PARTITION>":
+                queue_nodelabel = ""
 
-            cpu_cap.add_metric([queue_name], total_resource.cpu * cap)
-            mem_cap.add_metric([queue_name], total_resource.mem * cap)
-            gpu_cap.add_metric([queue_name], total_resource.gpu * cap)
+            queue_capacity = queue
+            for label_capacity in queue["capacities"]["queueCapacitiesByPartition"]:
+                if label_capacity["partitionName"] == queue_nodelabel:
+                    queue_capacity =label_capacity
+                    break
 
-            cpu_avail.add_metric([queue_name], total_resource.cpu * cap - queue["resourcesUsed"]["vCores"])
-            mem_avail.add_metric([queue_name], total_resource.mem * cap - queue["resourcesUsed"]["memory"] * 1024 * 1024)
-            gpu_avail.add_metric([queue_name], total_resource.gpu * cap - queue["resourcesUsed"]["GPUs"])
+            queue_resource_used = queue["resourcesUsed"]
+            for label_used in queue["resources"]["resourceUsagesByPartition"]:
+                if label_used["partitionName"] == queue_nodelabel:
+                    queue_resource_used = label_used["used"]
+                    break
+
+            cap = queue_capacity["absoluteCapacity"] / 100.0
+            partition_resource = labeled_resource[queue_nodelabel]
+
+            cpu_cap.add_metric([queue_name], partition_resource.cpu * cap)
+            mem_cap.add_metric([queue_name], partition_resource.mem * cap)
+            gpu_cap.add_metric([queue_name], partition_resource.gpu * cap)
+
+            cpu_avail.add_metric([queue_name], partition_resource.cpu * cap - queue_resource_used["vCores"])
+            mem_avail.add_metric([queue_name], partition_resource.mem * cap - queue_resource_used["memory"] * 1024 * 1024)
+            gpu_avail.add_metric([queue_name], partition_resource.gpu * cap - queue_resource_used["GPUs"])
 
             running_jobs.add_metric([queue_name], queue["numActiveApplications"])
             pending_jobs.add_metric([queue_name], queue["numPendingApplications"])
