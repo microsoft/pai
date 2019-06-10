@@ -2,7 +2,7 @@
 
 - [如何使用存储](#how-to-use-storage) 
   - [为什么要关注存储](#why-care-about-storage)
-  - [一般用法](#general-practice)
+  - [一般方法](#general-practice)
   - [主要方法](#approaches) 
     - [共享路径](#sharing)
     - [复制](#copy)
@@ -16,11 +16,11 @@
 
 OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持久化存储。 OpenPAI 上的训练 Job 运行在 Docker 容器中，这些容器每次都会重建，运行完成即被删除。 因此， OpenPAI Job 需要先准备好文件，并在环境被删除前将输出的文件保存出来。
 
-This article introduces how to access files on OpenPAI, and it's no difference with general Docker practice.
+本文介绍了如何在 OpenPAI 中访问文件。实际上，这与在一般的 Docker 容器中访问文件是一样的。
 
-## General practice
+## 一般方法
 
-Below job configuration is similar with the [hello-world example](training.md#submit-a-hello-world-job), except the command field. The command field uses code in a shared folder instead from GitHub and it saves outputs back to the storage.
+下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
 
 Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
 
