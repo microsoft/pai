@@ -23,35 +23,33 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {TextField} from 'office-ui-fabric-react';
 import {BasicSection} from './BasicSection';
 import PropTypes from 'prop-types';
 import {Deployment} from '../models/deployment';
 
 export const DeploymentSection = (props) => {
-  const {onChange, defaultValue} = props;
-  const [deployment, setDeployment] = useState(defaultValue);
-  const {preCommands, postCommands} = deployment;
+  const {onChange, value} = props;
+  const {preCommands, postCommands} = value;
 
   const _onChange = (keyName, newValue) => {
-    const updatedDeployment = new Deployment(deployment);
+    const updatedDeployment = new Deployment(value);
     updatedDeployment[keyName] = newValue;
     if (onChange !== undefined) {
       onChange(updatedDeployment);
     }
-    setDeployment(updatedDeployment);
   };
 
   return (
     <BasicSection sectionLabel={'Deployment'} sectionOptional>
       <TextField label={'PreCommands'}
-                 defaultValue={preCommands}
+                 value={preCommands}
                  onBlur={(e) => _onChange('preCommands', e.target.value)}
                  multiline
                  rows={3}/>
       <TextField label={'PostCommands'}
-                 defaultValue={postCommands}
+                 value={postCommands}
                  multiline
                  rows={3}
                  onBlur={(e) => _onChange('postCommands', e.target.value)}/>
@@ -60,6 +58,6 @@ export const DeploymentSection = (props) => {
 };
 
 DeploymentSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(Deployment).isRequired,
+  value: PropTypes.instanceOf(Deployment).isRequired,
   onChange: PropTypes.func,
 };

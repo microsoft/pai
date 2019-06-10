@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
@@ -36,8 +36,7 @@ const {spacing} = getTheme();
 const containerSizeStyle = getContainerSizeStyle();
 
 export const ContainerSizeSection = (props) => {
-  const {defaultValue, onChange, isContainerSizeEnabled, onEnable} = props;
-  const [value, setValue] = useState(defaultValue);
+  const {value, onChange, isContainerSizeEnabled, onEnable} = props;
   const {cpu, memoryMB, gpu, shmMB} = value;
 
   const _onChange = (keyName, newValue) => {
@@ -46,7 +45,6 @@ export const ContainerSizeSection = (props) => {
     if (onChange !== undefined) {
       onChange(containerSize);
     }
-    setValue(containerSize);
   };
 
   const _onEnable = (_, checked) => {
@@ -63,7 +61,7 @@ export const ContainerSizeSection = (props) => {
           <CSpinButton label={'GPU count'}
                        value={gpu}
                        styles={containerSizeStyle.spinButton}
-                        onChange={(value)=>_onChange('gpu', value)}/>
+                       onChange={(value)=>_onChange('gpu', value)}/>
           <CSpinButton label={'CPU count'}
                        disabled={!isContainerSizeEnabled}
                        value={cpu}
@@ -93,7 +91,7 @@ export const ContainerSizeSection = (props) => {
 };
 
 ContainerSizeSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(ContainerSize).isRequired,
+  value: PropTypes.instanceOf(ContainerSize).isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,

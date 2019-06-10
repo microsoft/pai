@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {FormTextField} from './FormTextField';
 import {FormPage} from './FormPage';
 import {Text} from 'office-ui-fabric-react';
@@ -33,23 +33,22 @@ import {JobBasicInfo} from '../models/jobBasicInfo';
 import {VirtualCluster} from './VirtualCluster';
 
 export const JobInformation= (props) => {
-  const {defaultValue, onChange} = props;
-  const [jobBasicInfo, setJobBasicInfo] = useState(defaultValue);
+  const {jobInformation, onChange} = props;
+  const {name, jobRetryCount} = jobInformation;
 
   const _onChange = (keyName, newValue) => {
-    const updatedJobBasicInfo = new JobBasicInfo(jobBasicInfo);
+    const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
     updatedJobBasicInfo[keyName] = newValue;
     if (onChange !== undefined) {
       onChange(updatedJobBasicInfo);
     }
-    setJobBasicInfo(updatedJobBasicInfo);
   };
 
   return (
     <FormPage>
       <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
       <FormTextField sectionLabel={'Job name'}
-                     defaultValue={jobBasicInfo.name}
+                     value={name}
                      shortStyle
                      onBlur={(value) => _onChange('name', value)}
                      placeholder='Enter job name'/>
@@ -57,13 +56,13 @@ export const JobInformation= (props) => {
       <FormSpinButton sectionOptional
                       sectionLabel={'Retry count'}
                       shortStyle
-                      value={jobBasicInfo.jobRetryCount}
+                      value={jobRetryCount}
                       onChange={(value) => _onChange('jobRetryCount', value)}/>
     </FormPage>
   );
 };
 
 JobInformation.propTypes = {
-  defaultValue: PropTypes.instanceOf(JobBasicInfo).isRequired,
+  jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
   onChange: PropTypes.func,
 };

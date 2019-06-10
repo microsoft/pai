@@ -69,13 +69,13 @@ export class App extends React.Component {
             <StackItem grow styles={{root: {overflow: 'auto'}}}>
               <Stack gap='l2'>
                 <StackItem className={topForm}>
-                  <JobInformation defaultValue={jobInformation}
+                  <JobInformation jobInformation={jobInformation}
                                   onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
                 </StackItem>
                 <StackItem className={topForm}>
                   <Stack gap='l1'>
-                    <TaskRoles defaultValue={[new JobTaskRole({})]}
-                              onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
+                    <TaskRoles taskRoles={[new JobTaskRole({})]}
+                               onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
                     <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
                   </Stack>
                 </StackItem>
@@ -83,7 +83,7 @@ export class App extends React.Component {
             </StackItem>
             <StackItem disableShrink styles={{root: [t.w30]}}>
               <Stack className={topForm}>
-                <Parameters defaultValue={parameters}
+                <Parameters parameters={parameters}
                             environment={[]}
                             onChange={(parameters) => this.setState({parameters: parameters})}/>
               </Stack>

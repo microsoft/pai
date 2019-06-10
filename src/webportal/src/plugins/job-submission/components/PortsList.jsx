@@ -23,8 +23,7 @@
  * SOFTWARE.
  */
 
-
-import React, {useState} from 'react';
+import React from 'react';
 import {KeyValueList} from './KeyValueList';
 import PropTypes from 'prop-types';
 import {Port} from '../models/port';
@@ -32,14 +31,12 @@ import {BasicSection} from './BasicSection';
 import {FormShortSection} from './FormPage';
 
 export const PortsList = (props) => {
-  const {onChange, defaultValue} = props;
-  const [ports, setPorts] = useState(defaultValue);
+  const {onChange, ports} = props;
 
   const _onPortChange = (updatedPorts) => {
     if (onChange !== undefined) {
       onChange(updatedPorts);
     }
-    setPorts(updatedPorts);
   };
 
   const _onPortAdd = (item) => {
@@ -67,6 +64,6 @@ export const PortsList = (props) => {
 };
 
 PortsList.propTypes = {
-  defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
+  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
   onChange: PropTypes.func,
 };

@@ -36,10 +36,9 @@ const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
                  {key: 'column2', name: 'Value', fieldName: 'itemValue'}];
 
 export const Parameters= (props) => {
-  const {defaultValue, environment, onChange} = props;
+  const {parameters, environment, onChange} = props;
   const [isParameterOn, setParameterOn] = useState(false);
   const [iconName, setIconName] = useState('ChevronDown');
-  const [parameters, setParameters] = useState(defaultValue);
   const _onClick = () => {
     if (!isParameterOn) {
       setIconName('ChevronUp');
@@ -53,7 +52,6 @@ export const Parameters= (props) => {
     if (onChange !== undefined) {
       onChange(updatedParameters);
     }
-    setParameters(updatedParameters);
   };
 
   const _onParameterAdd = (item) => {
@@ -93,7 +91,7 @@ export const Parameters= (props) => {
 };
 
 Parameters.propTypes = {
-  defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
+  parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
   environment: PropTypes.array.isRequired,
   onChange: PropTypes.func,
 };

@@ -5,11 +5,11 @@ import {JobTaskRole} from '../models/jobTaskRole';
 import PropTypes from 'prop-types';
 
 export const TaskRoles = (props) => {
-  const {defaultValue, onChange} = props;
+  const {taskRoles, onChange} = props;
   const _onRenderTabContent = (keyName, content, defaultOnContentChange) => {
     return (
       <TabFormContent key={keyName}
-                      defaultValue={content}
+                      jobTaskRole={content}
                       onContentChange={defaultOnContentChange}/>
     );
   };
@@ -21,7 +21,7 @@ export const TaskRoles = (props) => {
     onChange(items.map((item)=>item.content));
   };
 
-  const defaultItems = defaultValue.map((item, index) => {
+  const defaultItems = taskRoles.map((item, index) => {
     return {headerText: `Task role ${index + 1}`, content: item};
   });
 
@@ -35,7 +35,7 @@ export const TaskRoles = (props) => {
 };
 
 TaskRoles.propTypes = {
-  defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
+  taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   onChange: PropTypes.func,
 };
 

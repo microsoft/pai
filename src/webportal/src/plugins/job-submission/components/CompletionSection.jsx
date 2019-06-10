@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './BasicSection';
@@ -35,8 +35,7 @@ import {FormShortSection} from './FormPage';
 const completionSectionStyle = getCompletionSectionStyle();
 
 export const CompletionSection= (props) => {
-  const {onChange, defaultValue} = props;
-  const [value, setValue] = useState(defaultValue);
+  const {onChange, value} = props;
   const {minFailedInstances, minSuceedInstances} = value;
 
   const _onChange = (keyName, newValue) => {
@@ -45,7 +44,6 @@ export const CompletionSection= (props) => {
     if (onChange !== undefined) {
       onChange(completion);
     }
-    setValue(completion);
   };
 
   return (
@@ -69,6 +67,6 @@ export const CompletionSection= (props) => {
 };
 
 CompletionSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(Completion).isRequired,
+  value: PropTypes.instanceOf(Completion).isRequired,
   onChange: PropTypes.func,
 };

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/dockerInfo';
@@ -31,17 +31,16 @@ import {BasicSection} from './BasicSection';
 import {FormShortSection} from './FormPage';
 
 export const DockerSection = (props) => {
-  const {onValueChange, defaultValue} = props;
-  const [dockerInfo, setDockerInfo] = useState(defaultValue);
+  const {onValueChange, value} = props;
+  const {uri} = value;
   const textFieldId = getId('textField');
 
   const _onChange = (keyName, value) => {
-    const updatedDockerInfo = new DockerInfo(dockerInfo);
+    const updatedDockerInfo = new DockerInfo(value);
     updatedDockerInfo[keyName] = value;
     if (onValueChange !== undefined) {
       onValueChange(updatedDockerInfo);
     }
-    setDockerInfo(updatedDockerInfo);
   };
 
   return (
@@ -51,7 +50,7 @@ export const DockerSection = (props) => {
           <TextField id={textFieldId}
                      placeholder='Enter docker uri...'
                      onBlur={(event) => _onChange('uri', event.target.value)}
-                     defaultValue={dockerInfo.uri}/>
+                     value={uri}/>
          </FormShortSection>
         <DefaultButton>Auth</DefaultButton>
       </Stack>
@@ -60,6 +59,6 @@ export const DockerSection = (props) => {
 };
 
 DockerSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(DockerInfo).isRequired,
+  value: PropTypes.instanceOf(DockerInfo).isRequired,
   onValueChange: PropTypes.func,
 };
