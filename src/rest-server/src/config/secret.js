@@ -55,21 +55,35 @@ userSecretConfig.requestConfig = () => {
   return config;
 };
 
-const userSecretConfigSchema = Joi.object().keys({
-  apiServerUri: Joi.string()
-    .required(),
-  paiUserNameSpace: Joi.string()
-    .default('pai-user'),
-  adminName: Joi.string()
-    .token()
-    .required(),
-  adminPass: Joi.string()
-    .min(6)
-    .required(),
-  requestConfig: Joi.func()
-    .arity(0)
-    .required(),
-}).required();
+
+let userSecretConfigSchema = {};
+if (authnConfig.authnMethod !== 'OIDC') {
+  userSecretConfigSchema = Joi.object().keys({
+    apiServerUri: Joi.string()
+      .required(),
+    paiUserNameSpace: Joi.string()
+      .default('pai-user'),
+    adminName: Joi.string()
+      .token()
+      .required(),
+    adminPass: Joi.string()
+      .min(6)
+      .required(),
+    requestConfig: Joi.func()
+      .arity(0)
+      .required(),
+  }).required();
+} else {
+  userSecretConfigSchema = Joi.object().keys({
+    apiServerUri: Joi.string()
+      .required(),
+    paiUserNameSpace: Joi.string()
+      .default('pai-user'),
+    requestConfig: Joi.func()
+      .arity(0)
+      .required(),
+  }).required();
+}
 
 const {error, value} = Joi.validate(userSecretConfig, userSecretConfigSchema);
 if (error) {
