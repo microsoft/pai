@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {Fabric, Stack, initializeIcons} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
 import {TabFormContent} from './TabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
@@ -66,24 +66,28 @@ export class App extends React.Component {
       <Fabric>
         <Stack className={formLayout}>
           <Stack horizontal gap='l2'>
-            <Stack styles={{root: [t.w70]}} gap='l2'>
-              <Stack className={topForm}>
-                <JobInformation defaultValue={jobInformation}
-                                onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
+            <StackItem grow styles={{root: {overflow: 'auto'}}}>
+              <Stack gap='l2'>
+                <StackItem className={topForm}>
+                  <JobInformation defaultValue={jobInformation}
+                                  onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
+                </StackItem>
+                <StackItem className={topForm}>
+                  <Stack gap='l1'>
+                    <TaskRoles defaultValue={[new JobTaskRole({})]}
+                              onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
+                    <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
+                  </Stack>
+                </StackItem>
               </Stack>
-              <Stack className={topForm} gap='l1'>
-                <TaskRoles defaultValue={[new JobTaskRole({})]}
-                           onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
-                <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
-              </Stack>
-            </Stack>
-            <Stack styles={{root: [t.w30]}}>
+            </StackItem>
+            <StackItem disableShrink styles={{root: [t.w30]}}>
               <Stack className={topForm}>
                 <Parameters defaultValue={parameters}
                             environment={[]}
                             onChange={(parameters) => this.setState({parameters: parameters})}/>
               </Stack>
-            </Stack>
+            </StackItem>
           </Stack>
         </Stack>
       </Fabric>

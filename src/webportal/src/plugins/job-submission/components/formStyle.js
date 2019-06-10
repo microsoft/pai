@@ -39,7 +39,6 @@ export const getFormClassNames = () => {
     },
     formTabBar: {
       background: palette.neutralLighterAlt,
-      display: 'flex',
       alignItems: 'start',
     },
   });
@@ -47,12 +46,18 @@ export const getFormClassNames = () => {
 
 export const getTabFromStyle = () => {
   return ({
+    tabWapper: {
+      root: {
+        overflow: 'auto',
+      },
+    },
     tab: {
       text: {
         fontSize: FontSizes.icon,
       },
       root: {
         background: palette.white,
+        overflowY: 'hidden',
       },
     },
     tabIcon: {

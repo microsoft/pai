@@ -101,9 +101,9 @@ export class KeyValueList extends React.Component {
     const {items} = this.props;
     const dataItems= this._renderItems(items);
 
-    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
-                     {key: 'column2', name: 'Value', fieldName: 'itemValue'},
-                     {key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled}];
+    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey', minWidth: 100, maxWidth: 150, isResizable: true},
+                     {key: 'column2', name: 'Value', fieldName: 'itemValue', minWidth: 100, maxWidth: 150, isResizable: true},
+                     {key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled, maxWidth: 80, isResizable: true}];
     return (
       <Stack>
         <DetailsList items={dataItems}
