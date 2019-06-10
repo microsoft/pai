@@ -32,8 +32,7 @@ import { Util } from '../common/util';
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
-import { IPAIYamlJobConfig } from './interfaces/paiJobConfigYaml';
-import { IPAICluster, IPAIJobConfig, IPAITaskRole } from './paiInterface';
+import { IPAICluster, IPAIJobConfig, IPAITaskRole, IPAIYamlJobConfig } from './paiInterface';
 
 import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
@@ -608,7 +607,7 @@ export class PAIJobManager extends Singleton {
         // 1. job config
         if (!jobConfigPath) {
             Util.info('job.prepare.config.prompt');
-            const folders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
+            const folders: vscode.WorkspaceFolder[] |  undefined = vscode.workspace.workspaceFolders;
             const jobConfigUrl: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
                 canSelectFiles: true,
                 canSelectMany: false,
