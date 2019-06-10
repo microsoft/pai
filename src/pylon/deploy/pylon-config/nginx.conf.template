@@ -344,10 +344,9 @@ http {
   {% if AUTH_MODE %}
   # proxy https://x.x.x.x/rest-server/auth/oidc/return to http://x.x.x.x/rest-server/auth/oidc/return
   server {
-    listen  443;
+    listen  443 ssl;
     server_name  localhost;
 
-    ssl on;
     ssl_certificate /root/{{CRT_NAME}};
     ssl_certificate_key /root/{{KEY_NAME}};
     ssl_session_cache shared:SSL:10m;
