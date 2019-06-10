@@ -36,7 +36,7 @@ const userPasswordUpdateInputSchema = Joi.object().keys({
 
 // define the input schema for the 'update user email' api
 const userEmailUpdateInputSchema = Joi.object().keys({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().empty(''),
 });
 
 // define the input schema for the 'update user admin permission' api
