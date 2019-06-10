@@ -1,7 +1,7 @@
 groupDataSource: {{ cluster_cfg["authentication"]["group-manager"]["group-data-source"] }}
 
 {%- if cluster_cfg["authentication"]["group-manager"]["group-data-source"] == "winbind" %}
-winbindServerUrl: xxx.xxx.xxx.xxx:yyyy
+winbindServerUrl: {{ cluster_cfg["authentication"]["group-manager"]["winbind-server-address"]}}
 {%- endif %}
 
 adminGroup:
