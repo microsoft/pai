@@ -234,7 +234,7 @@ describe('User model k8s secret set function test', () => {
       'grouplist': ['test'],
       'extension': {}
     };
-    const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig);
+    const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig, true);
     return expect(res, 'status').to.have.status(200);
   });
 });
