@@ -43,7 +43,7 @@ spec:
 {% endif %}
           command:
             - "/bin/bash"
-            - "/pylon-configu/run.sh"
+            - "/pylon-config/run.sh"
           env:
             - name: REST_SERVER_URI
               value: {{ cluster_cfg['rest-server']['uri'] }}
