@@ -27,13 +27,13 @@ import React from 'react';
 import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
 import {TabFormContent} from './tabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
-import {JobInformation} from './JobInformation';
-import {Parameters} from './Parameters';
+import {JobInformation} from './jobInformation';
+import {Parameters} from './parameters';
 import {getFormClassNames} from './formStyle';
 import {initTheme} from '../../../app/components/theme';
 import {JobBasicInfo} from '../models/jobBasicInfo';
 import {SubmissionSection} from './submissionSection';
-import {TaskRoles} from './TaskRoles';
+import {TaskRoles} from './taskRoles';
 import {Job} from '../models/job';
 import t from '../../../app/components/tachyons.scss';
 
@@ -82,7 +82,7 @@ export class App extends React.Component {
               </Stack>
             </StackItem>
             <StackItem disableShrink styles={{root: [t.w30]}}>
-              <Stack className={topForm}>
+              <Stack className={topForm} styles={{root: {position: 'fixed', maxHeight: '80%', overflow: 'auto'}}}>
                 <Parameters parameters={parameters}
                             environment={[]}
                             onChange={(parameters) => this.setState({parameters: parameters})}/>
