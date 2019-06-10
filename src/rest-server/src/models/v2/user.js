@@ -49,9 +49,9 @@ const createUser = async (username, value) => {
   }
 };
 
-const updateUser = async (username, value) => {
+const updateUser = async (username, value, updatePassword = false) => {
   try {
-    return await crudUser.update(username, value, crudConfig);
+    return await crudUser.update(username, value, crudConfig, updatePassword);
   } catch (error) {
     throw error;
   }

@@ -150,11 +150,14 @@ const updateUserExtension = async (req, res, next) => {
 const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    const grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
       if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+      }
+      if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
       }
       userInfo['grouplist'] = grouplist;
       await userModel.updateUser(username, userInfo);
@@ -175,13 +178,12 @@ const updateUserPassword = async (req, res, next) => {
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
     let userValue = await userModel.getUser(username);
-    let newUserValue = userValue;
+    let newUserValue = JSON.parse(JSON.stringify(userValue));
     newUserValue['password'] = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
     if (req.user.admin || newUserValue['password'] === userValue['password']) {
       newUserValue['password'] = newPassword;
-      newUserValue = await userModel.getEncryptPassword(newUserValue);
-      await userModel.updateUser(username, newUserValue);
+      await userModel.updateUser(username, newUserValue, true);
       return res.status(201).json({
         message: 'update user password successfully.',
       });
