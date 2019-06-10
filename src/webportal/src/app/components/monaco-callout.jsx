@@ -15,14 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames';
-import {Callout} from 'office-ui-fabric-react/lib/Callout';
+import {Callout} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
-import MonacoEditor from 'react-monaco-editor';
 
-import {monacoHack} from './monaco-hack.scss';
-import t from '../../../../../components/tachyons.scss';
+import MonacoEditor from './monaco-editor';
+
+import t from './tachyons.scss';
 
 export default class MonacoCallout extends React.Component {
   constructor(props) {
@@ -51,7 +50,7 @@ export default class MonacoCallout extends React.Component {
 
   render() {
     const {open} = this.state;
-    const {children} = this.props;
+    const {children, monacoProps, completionItems, schemas} = this.props;
 
     return (
       <div>
@@ -64,20 +63,23 @@ export default class MonacoCallout extends React.Component {
           setInitialFocus={true}
           hidden={!open}
         >
-          <div className={c(t.overflowHidden, monacoHack)}>
-            {open && (
-              <MonacoEditor
-                width={800}
-                height={500}
-                theme='vs'
-                options={{
+          {open && (
+            <MonacoEditor
+              className={t.overflowHidden}
+              monacoProps={{
+                width: 800,
+                height: 500,
+                theme: 'vs',
+                options: {
                   wordWrap: 'on',
                   readOnly: true,
-                }}
-                {...this.props}
-              />
-            )}
-          </div>
+                },
+                ...monacoProps,
+              }}
+              completionItems={completionItems}
+              schemas={schemas}
+            />
+          )}
         </Callout>
       </div>
     );
@@ -86,4 +88,8 @@ export default class MonacoCallout extends React.Component {
 
 MonacoCallout.propTypes = {
   children: PropTypes.node,
+  // monaco props
+  monacoProps: PropTypes.object,
+  schemas: PropTypes.array,
+  completionItems: PropTypes.arrayOf(PropTypes.string),
 };

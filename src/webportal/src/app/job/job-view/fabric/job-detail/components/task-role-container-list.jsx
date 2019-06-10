@@ -28,10 +28,10 @@ import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
-import MonacoPanel from './monaco-panel';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
+import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 
 const theme = createTheme({
@@ -348,7 +348,7 @@ export default class TaskRoleContainerList extends React.Component {
           onDismiss={this.onDismiss}
           title={monacoTitle}
           monacoProps={monacoProps}
-          footerPrimaryButton={monacoFooterButton}
+          footer={monacoFooterButton}
         />
       </div>
     );
