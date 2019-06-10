@@ -90,15 +90,15 @@ command 字段可分为以下几步。
 
 - 如何使用
   
-  [通用流程](#通用流程)就使用了共享路径，很好的演示了 SMB 协议的用法。 [NFS](https://en.wikipedia.org/wiki/Network_File_System) is also a popular sharing protocol. `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` can be used to install and mount NFS folder.
+  [通用流程](#通用流程)就使用了共享路径，很好的演示了 SMB 协议的用法。 [NFS](https://en.wikipedia.org/wiki/Network_File_System) 是另一个流行的共享协议。 `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` 可用来安装并挂载 NFS 路径。
   
-  Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command and other types of sharing protocol.
+  参考[这里](https://www.linux.org/docs/man8/mount.html)了解更多关于 `mount` 命令以及其它共享协议的信息。
 
-### Copy
+### 复制
 
-It only creates a connection when transferring files, and caches files locally.
+此方法仅在传输文件的时候需要连接，将文件缓存在本地。
 
-- Advantage
+- 有点
   
   - The disk IO performance is much higher than shared remote files, as files are copied to local. If some files need to be read/written multiple times, it's also much quickly.
   - Some transferring protocols can pass firewall. Many mature protocols can transfer files, including SSH, SFTP, HTTP, SMB and so on.
