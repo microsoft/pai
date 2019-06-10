@@ -22,10 +22,10 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
 
-Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
+注意，本例使用了 Windows 共享文件夹。Linux下，可使用 [Samba](https://www.samba.org/) 来创建共享文件夹。 如果要尝试此示例，需要：
 
-    1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
-    2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
+    1. 克隆 [相应的代码](https://github.com/tensorflow/models) 并共享该文件夹。
+    2. 填写所有变量，包括：`<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, 以及 `<Password>`。
     
 
 ```json
