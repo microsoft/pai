@@ -5,6 +5,8 @@ import inspect
 import typing
 from copy import deepcopy
 from openpaisdk import __defaults__, __logger__
+from typing import Union
+
 
 def get_args(
     expand=['kwargs'], # type: list
@@ -20,27 +22,55 @@ def get_args(
     return dic
 
 
+def get_dest_name(option: str):
+    while option[0] == "-":
+        option = option[1:]
+    return option.replace('-', '_')
+
+
+def dict_to_argv(parser: argparse.ArgumentParser, dic: dict):
+    args_map = {a.dest: a for a in parser._actions}
+    flags = []
+    lst = list(dic.keys())
+    for key in lst:
+        if key not in args_map:
+            continue
+        value = dic.pop(key)
+        arg = args_map[key]
+        if arg.const is not None:
+            if value == arg.const:
+                flags.append(arg.option_strings[0])
+            else:
+                assert (not value) == arg.const, (value, arg.const)
+        else:
+            flags.extend([arg.option_strings[0], value])
+    return flags
+
+
 class Namespace(argparse.Namespace):
     __type__ = ''
     __fields__ = dict(
-        # field_name: (description, default)
+        # field_name: default_value
+        # field_name: { # compatible with argparse.add_argument arguments format
+        #   "help": "help message",
+        #   "default": default_value
+        # }
     )
 
     def __init__(self, **kwargs):
         if self.__type__:
             self.type = self.__type__
-        self.from_argv()
-        dic = {k: deepcopy(v) for k, v in self.__fields__.items()}
-        dic.update(kwargs)
-        self.from_dict(dic)
+        self.from_dict(kwargs)
 
-    def add_argument(self,
-                     parser, #type: argparse.ArgumentParser
-                     *args, **kwargs):
-        assert isinstance(parser, argparse.ArgumentParser), "wrong type %s of parser" % type(parser)
-        if args[0][2:].replace('-', '_') in [a.dest for a in parser._actions]:
+    def add_argument(self, parser: argparse.ArgumentParser, *args, **kwargs):
+        # assert isinstance(parser, argparse.ArgumentParser), "wrong type %s of parser" % type(parser)
+        if get_dest_name(args[0]) in [a.dest for a in parser._actions]:
             return None
-        parser.add_argument(*args, **kwargs)
+        return parser.add_argument(*args, **kwargs)
+
+    def params_help(self):
+        parser = argparse.ArgumentParser(add_help=False)
+        self.define(parser)
 
     def to_dict(self):
         dic = vars(self)
@@ -51,32 +81,25 @@ class Namespace(argparse.Namespace):
                 dic[k] = [x.to_dict() for x in v]
         return dic
 
-    def define(self,
-               parser, #type: argparse.ArgumentParser
-               ):
-        pass
+    def define(self, parser: argparse.ArgumentParser):
+        for key, value in self.__fields__.items():
+            dic = value if isinstance(value, dict) else {"default": value}
+            self.add_argument(parser, "--" + key, **dic)
+        return parser
 
-    def from_argv(self, argv: list = []):
-        parser = argparse.ArgumentParser()
-        self.define(parser)
-        if len(argv) == 0:  # for initializing
-            for a in parser._actions:
-                if a.dest == 'help' or a.default == argparse.SUPPRESS:
-                    continue
-                setattr(self, a.dest, a.default)
-        else:
-            parser.parse_known_args(argv, self)
-        return self
-
-    def from_dict(self, dic: dict, ignore_unkown: bool = False, **kwargs):
+    def from_dict(self, dic: Union[dict, "Namespace"], ignore_unkown: bool = False, **kwargs):
         if isinstance(dic, argparse.Namespace):
             dic = vars(dic)
-        for k, v in dic.items():
-            if ignore_unkown and not hasattr(self, k):
-                continue
-            setattr(self, k, v)
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        dic.update(kwargs)
+        dic2 = deepcopy(dic)
+        parser = argparse.ArgumentParser(add_help=False)
+        self.define(parser)
+        lst = dict_to_argv(parser, dic2)
+        print(lst)
+        parser.parse_known_args(lst, self)
+        if not ignore_unkown:
+            for k, v in dic2.items():
+                setattr(self, k, v)
         return self
 
 

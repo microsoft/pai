@@ -15,6 +15,7 @@ class JobSpec(Namespace):
     }
 
     def define(self, parser: argparse.ArgumentParser):
+        super().define(parser)
         cli_add_arguments(self, parser, [
             '--job-name',
             '--cluster-alias',
@@ -52,6 +53,7 @@ class TaskRole(Namespace):
     __type__ = 'task-role-spec'
 
     def define(self, parser: argparse.ArgumentParser):
+        super().define(parser)
         cli_add_arguments(self, parser, [
             '--job-name',
             '--task-role-name',
