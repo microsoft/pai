@@ -65,6 +65,8 @@ RUN ./configure \
   --group=www-data \
   # Built-in modules
   --with-http_sub_module \
+  --with-http_stub_status_module \
+  --with-http_ssl_module \
   # External modules
   --with-openssl=../openssl-1.1.0f \
   --with-pcre=../pcre-8.40 \
