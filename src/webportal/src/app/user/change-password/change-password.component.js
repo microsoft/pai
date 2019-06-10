@@ -35,7 +35,7 @@ $(document).ready(() => {
     const newPassword = $('#form-change-password :input[name=new-password]').val();
     const newPasswordConfirm = $('#form-change-password :input[name=new-password-confirm]').val();
     const username = cookies.get('user');
-    const admin = cookies.get('admin');
+    const token = cookies.get('token');
     if (newPassword !== newPasswordConfirm) {
       $('#form-change-password').trigger('reset');
       alert('Please enter the same new password!');
@@ -44,56 +44,26 @@ $(document).ready(() => {
       alert('Please enter a password different from the old one!');
     } else {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/authn/basic/login`,
-        type: 'POST',
-        data: {
-          username,
-          password: oldPassword,
-          expiration: 60 * 60,
+        url: `${webportalConfig.restServerUri}/api/v2/user/update/${username}/password`,
+        data: {oldPassword, newPassword},
+        type: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
         dataType: 'json',
-        success: (tokenData) => {
-          if (tokenData.error) {
-            $('#form-change-password').trigger('reset');
-            alert('Wrong old password!\n' + tokenData.message);
+        success: (userData) => {
+          $('#form-change-password').trigger('reset');
+          if (userData.error) {
+            alert(userData.message);
           } else {
-            $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user`,
-              data: {
-                username,
-                password: newPassword,
-                admin,
-                modify: true,
-              },
-              type: 'PUT',
-              headers: {
-                Authorization: `Bearer ${tokenData.token}`,
-              },
-              dataType: 'json',
-              success: (userData) => {
-                $('#form-change-password').trigger('reset');
-                if (userData.error) {
-                  alert(userData.message);
-                } else {
-                  alert('Change password successfully, please login again.');
-                  userLogout();
-                }
-              },
-              error: (xhr, textStatus, error) => {
-                $('#form-change-password').trigger('reset');
-                const res = JSON.parse(xhr.responseText);
-                alert(res.message);
-                if (res.code === 'UnauthorizedUserError') {
-                  userLogout();
-                }
-              },
-            });
+            alert('Change password successfully, please login again.');
+            userLogout();
           }
         },
         error: (xhr, textStatus, error) => {
           $('#form-change-password').trigger('reset');
           const res = JSON.parse(xhr.responseText);
-          alert('Wrong old password!\n' + res.message);
+          alert(res.message);
         },
       });
     }
