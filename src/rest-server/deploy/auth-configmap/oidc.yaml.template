@@ -8,7 +8,7 @@ clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
 clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}
 responseType: {{ cluster_cfg['authentication']['AAD']['responseType'] }}
 responseMode: {{ cluster_cfg['authentication']['AAD']['responseMode'] }}
-redirectUrl: '{{ cluster_cfg['pylon']['uri'] }}/auth/openid/return'
+redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/auth/openid/return'
 allowHttpForRedirectUrl: {{ cluster_cfg['authentication']['AAD']['allowHttpForRedirectUrl'] }}
 validateIssuer: {{ cluster_cfg['authentication']['AAD']['validateIssuer'] }}
 isB2C: {{ cluster_cfg['authentication']['AAD']['isB2C'] }}
