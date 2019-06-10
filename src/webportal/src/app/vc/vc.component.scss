@@ -110,5 +110,12 @@ ul, li{
   margin-bottom: 20px;
 }
 .discription {
-  margin: 10px 0;
+  display: flex;
+  font-size: 20px;
+  &.ded-vc {
+    margin: 10px 0;
+  }
+  .ms-Icon {
+  font-size: 20px;
+  }
 }
