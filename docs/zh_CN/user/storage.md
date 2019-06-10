@@ -1,20 +1,20 @@
-# How to use storage
+# 如何使用存储
 
-- [How to use storage](#how-to-use-storage) 
-  - [Why care about storage](#why-care-about-storage)
-  - [General practice](#general-practice)
-  - [Approaches](#approaches) 
-    - [Sharing](#sharing)
-    - [Copy](#copy)
-    - [Docker Built-in](#docker-built-in)
-  - [In cloud (Azure)](#in-cloud-azure)
-  - [Many small files](#many-small-files)
-  - [Large file size](#large-file-size)
-  - [HDFS in OpenPAI](#hdfs-in-openpai)
+- [如何使用存储](#how-to-use-storage) 
+  - [为什么要关注存储](#why-care-about-storage)
+  - [一般用法](#general-practice)
+  - [主要方法](#approaches) 
+    - [共享路径](#sharing)
+    - [复制](#copy)
+    - [Docker 内置](#docker-built-in)
+  - [云服务存储（Azure）](#in-cloud-azure)
+  - [大量小文件](#many-small-files)
+  - [大数据量](#large-file-size)
+  - [OpenPAI 中的 HDFS](#hdfs-in-openpai)
 
-## Why care about storage
+## 为什么要关注存储
 
-OpenPAI manages computing resources, but it doesn't offer persistent storage for data, code, or model files. Training jobs on OpenPAI runs in docker containers, which are fresh environments and will be destroyed once completed. So, a job of OpenPAI should prepare files first, and may save output files out before the environment destroyed.
+OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持久化存储。 OpenPAI 上的训练 Job 运行在 Docker 容器中，这些容器每次都会重建，运行完成即被删除。 因此， OpenPAI Job 需要先准备好文件，并在环境被删除前将输出的文件保存出来。
 
 This article introduces how to access files on OpenPAI, and it's no difference with general Docker practice.
 
