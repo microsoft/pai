@@ -61,7 +61,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
     const username = userData.username;
     let grouplist = [];
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
-      grouplist = await groupModel.updateGroup(username);
+      grouplist = await groupModel.getUserGrouplistFromExternal(username);
       req.grouplist = grouplist;
       if (grouplist && grouplist.length === 0) {
         return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
