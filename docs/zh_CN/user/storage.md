@@ -84,7 +84,7 @@ command 字段可分为以下几步。
 
 - 适用场景
   
-  - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is enough to handle concurrent jobs.
+  - 共享存储和 OpenPAI 需要在同一个局域网中，存储的 IOPS 需要足够以支持并发的 Job。
   - If shared folder contains files, which won't be accessed during job running.
   - There are not many small files, and no needed to save files concurrently.
 
