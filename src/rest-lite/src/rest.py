@@ -475,7 +475,7 @@ def translate_task_role_status(job_name, k8s_role_status, gpu_count, port):
             status = {}
             status["taskIndex"] = walk_json_field_safe(task, "index")
 
-            log_url = "http://10.151.40.234:9090/#!/log/default/%s-%s-%s/pod?namespace=default" % (job_name, role_name, status["taskIndex"])
+            log_url = "http://10.151.41.16:9090/#!/log/default/%s-%s-%s/pod?namespace=default" % (job_name, role_name, status["taskIndex"]) # TODO do not hard code IP
 
             status["containerId"] = walk_json_field_safe(task, "attemptStatus", "podName")
             status["containerIp"] = walk_json_field_safe(task, "attemptStatus", "podHostIP")
