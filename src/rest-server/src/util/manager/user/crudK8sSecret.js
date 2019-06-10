@@ -186,9 +186,10 @@ async function create(key, value, config) {
  * @param {string} key - User name
  * @param {User} value - User info
  * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
+ * @param {Boolean} updatePassword - With value false, the password won't be encrypt again.
  * @return {Promise<User>} A promise to the User instance.
  */
-async function update(key, value, config) {
+async function update(key, value, config, updatePassword = false) {
   try {
     const request = axios.create(config.requestConfig);
     const hexKey = Buffer.from(key).toString('hex');
@@ -201,7 +202,9 @@ async function update(key, value, config) {
         'extension': value['extension'],
       }
     );
-    await User.encryptUserPassword(userInstance);
+    if (updatePassword) {
+      await User.encryptUserPassword(userInstance);
+    }
     let userData = {
       'metadata': {'name': hexKey},
       'data': {

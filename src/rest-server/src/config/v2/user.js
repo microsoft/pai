@@ -54,7 +54,7 @@ const userCreateInputSchema = Joi.object().keys({
     .empty(''),
   virtualCluster: Joi.array()
     .items(Joi.string())
-    .required(),
+    .default([]),
   admin: Joi.boolean()
     .default(false),
   password: Joi.string()
