@@ -18,11 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 python /pylon-config/render.py
-cp /pylon-config/nginx.conf /etc/nginx/nginx.conf
+cp /root/nginx.conf /etc/nginx/nginx.conf
 
 {% if cluster_cfg['authentication']['OIDC'] %}
-chmod 664 /https-config/{{cluster_cfg['pylon']['ssl']['crt_name']}}
-chmod 664 /https-config/{{cluster_cfg['pylon']['ssl']['key_name']}}
+cp /https-config/{{cluster_cfg['pylon']['ssl']['crt_name']}} /root/{{cluster_cfg['pylon']['ssl']['crt_name']}}
+cp /https-config/{{cluster_cfg['pylon']['ssl']['key_name']}} /root/{{cluster_cfg['pylon']['ssl']['key_name']}}
+chmod 664 /root/{{cluster_cfg['pylon']['ssl']['crt_name']}}
+chmod 664 /root/{{cluster_cfg['pylon']['ssl']['key_name']}}
 {% endif %}
 
 
