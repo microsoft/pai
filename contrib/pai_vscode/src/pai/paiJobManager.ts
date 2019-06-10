@@ -161,28 +161,33 @@ export class PAIJobManager extends Singleton {
             protocolVersion: '2',
             name: jobName,
             type: 'job',
+            prerequisites: [
+                {
+                    name: '<image_name>',
+                    type: 'dockerimage',
+                    uri: 'aiplatform/pai.build.base'
+                }
+            ],
             taskRoles: {
-                worker: {
+                train: {
                     instances: 1,
-                    dockerImage: 'aiplatform/pai.build.base',
-                    data: 'data',
-                    output: 'output',
-                    script: 'script',
+                    dockerImage: '<image_name>',
                     resourcePerInstance: {
                       cpu: 1,
                       memoryMB: 16384,
                       gpu: 1
                     },
-                    commands: ['python $PAI_JOB_NAME/<start up script>']
+                    commands: [
+                        'python <start up script>'
+                    ]
                 }
-            },
-            deployments: []
+            }
         };
 
         const saveDir: vscode.Uri | undefined = await vscode.window.showSaveDialog({
             defaultUri: vscode.Uri.file(defaultSaveDir),
             filters: {
-                JSON: ['yml', 'yaml']
+                YAML: ['yml', 'yaml']
             }
         });
 

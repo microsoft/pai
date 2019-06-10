@@ -192,7 +192,7 @@ export interface IPAIYamlJobConfig {
      * One could have many deployments, but only one deployment can be activated at runtime by specifying in "defaults".
      * User can choose the deployment and specify in "defaults" at submission time.
      */
-    deployments: {
+    deployments?: {
         name: string;
         taskRoles: {
             /** Should be in taskRoles. */
