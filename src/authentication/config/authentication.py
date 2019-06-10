@@ -26,7 +26,7 @@ class Authentication:
             return True, None
         if "OIDC-type" not in self.service_configuration:
             return False, "OIDC-type is missing in service-configuration.yaml->authentication"
-        if self.serice_configuration["OIDC-type"] == "AAD":
+        if self.service_configuration["OIDC-type"] == "AAD":
             if "identityMetadata" not in self.service_configuration["AAD"]:
                 return False, "identityMetadata is missing. If you wanna configure AAD-OIDC, you should configure service-configuraiton.yaml->authentication->AAD->identityMetadata"
             if "clientID" not in self.service_configuration["AAD"]:
