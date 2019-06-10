@@ -24,8 +24,8 @@
  */
 
 import React, {useState} from 'react';
-import {getId, Label, Stack, Text, Icon} from 'office-ui-fabric-react';
-import {FormSection} from './FormPage';
+import {getId, Label, Stack, Text, Icon, StackItem} from 'office-ui-fabric-react';
+import {FormSection} from './formPage';
 import {getFormPageSytle, getFormBasicSectionStyle} from './formStyle';
 import PropTypes from 'prop-types';
 
@@ -49,20 +49,24 @@ export const BasicSection = (props) => {
 
   return (
     <FormSection>
-      <Stack styles={formPageStyle.formFirstColumn}>
-        <Stack horizontal gap='s2' wrap>
-          <Stack horizontal gap='s2'>
+      <StackItem styles={formPageStyle.formFirstColumn}>
+        <Stack horizontal gap='s2' wrap verticalAlign='center'>
+          <StackItem>
             <Icon iconName={iconName} styles={basicSectionStyle.icon} onClick={onOpenItem}/>
+          </StackItem>
+          <StackItem>
             <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>{sectionLabel}</Label>
-          </Stack>
-          <Stack verticalAlign='center'>
+          </StackItem>
+          <StackItem>
             { sectionOptional && <Text styles={basicSectionStyle.optionalText}>Optional</Text>}
-          </Stack>
+          </StackItem>
         </Stack>
-      </Stack>
-      <Stack styles={formPageStyle.formSecondColunm} gap='m'>
-        {(!sectionOptional || isSectionOn) && children}
-      </Stack>
+      </StackItem>
+      <StackItem styles={formPageStyle.formSecondColunm}>
+        <Stack gap='m'>
+          {(!sectionOptional || isSectionOn) && children}
+        </Stack>
+      </StackItem>
     </FormSection>
   );
 };

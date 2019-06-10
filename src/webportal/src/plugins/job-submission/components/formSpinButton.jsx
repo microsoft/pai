@@ -24,10 +24,10 @@
  */
 
 import React from 'react';
-import {BasicSection} from './BasicSection';
+import {BasicSection} from './basicSection';
 import PropTypes from 'prop-types';
-import {CSpinButton} from './CustomizedComponents';
-import {FormShortSection} from './FormPage';
+import {CSpinButton} from './customizedComponents';
+import {FormShortSection} from './formPage';
 
 export const FormSpinButton = (props) => {
   const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;

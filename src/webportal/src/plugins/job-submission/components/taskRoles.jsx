@@ -1,6 +1,6 @@
 import React from 'react';
-import {TabForm} from './TabForm';
-import {TabFormContent} from './TabFormContent';
+import {TabForm} from './tabForm';
+import {TabFormContent} from './tabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import PropTypes from 'prop-types';
 

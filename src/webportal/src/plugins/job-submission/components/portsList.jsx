@@ -24,34 +24,46 @@
  */
 
 import React from 'react';
-import {TextField, getId} from 'office-ui-fabric-react';
+import {KeyValueList} from './keyValueList';
 import PropTypes from 'prop-types';
-import {BasicSection} from './BasicSection';
-import {FormShortSection} from './FormPage';
+import {Port} from '../models/port';
+import {BasicSection} from './basicSection';
+import {FormShortSection} from './formPage';
 
-export const FormTextField = (props) => {
-  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
-  const textFieldId = getId('textField');
-  const _onBlur= (event) => {
-    if (onBlur === undefined) {
-      return;
+export const PortsList = (props) => {
+  const {onChange, ports} = props;
+
+  const _onPortChange = (updatedPorts) => {
+    if (onChange !== undefined) {
+      onChange(updatedPorts);
     }
-    onBlur(event.target.value);
   };
 
-  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+  const _onPortAdd = (item) => {
+    const port = new Port(item.itemKey, item.itemValue);
+    const updatedPorts = [...ports, port];
+    _onPortChange(updatedPorts);
+  };
+
+  const _onPortDelete = (index) => {
+    const updatedPorts = ports.filter((_, itemIndex) => index !== itemIndex);
+    _onPortChange(updatedPorts);
+  };
 
   return (
-    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
-      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
+    <BasicSection sectionLabel='Ports' sectionOptional>
+      <FormShortSection>
+        <KeyValueList items={ports.map((port) => {
+          return {itemKey: port.portLabel, itemValue: port.portNumber};
+        })}
+        onItemAdd={_onPortAdd}
+        onItemDelete={_onPortDelete}/>
+      </FormShortSection>
     </BasicSection>
   );
 };
 
-FormTextField.propTypes = {
-  sectionLabel: PropTypes.string.isRequired,
-  onBlur: PropTypes.func,
-  textFiledProps: PropTypes.object,
-  sectionOptional: PropTypes.bool,
-  shortStyle: PropTypes.bool,
+PortsList.propTypes = {
+  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
+  onChange: PropTypes.func,
 };

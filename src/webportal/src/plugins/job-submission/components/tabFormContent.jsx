@@ -25,15 +25,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {FormTextField} from './FormTextField';
-import {DockerSection} from './DockerSection';
-import {PortsList} from './PortsList';
-import {FormPage} from './FormPage';
+import {FormTextField} from './formTextField';
+import {DockerSection} from './dockerSection';
+import {PortsList} from './portsList';
+import {FormPage} from './formPage';
 import {JobTaskRole} from '../models/jobTaskRole';
-import {CompletionSection} from './CompletionSection';
-import {DeploymentSection} from './DeploymentSection';
-import {FormSpinButton} from './FormSpinButton';
-import {ContainerSizeSection} from './ContainerSizeSection';
+import {CompletionSection} from './completionSection';
+import {DeploymentSection} from './deploymentSection';
+import {FormSpinButton} from './formSpinButton';
+import {ContainerSizeSection} from './containerSizeSection';
 
 export const TabFormContent = (props) => {
   const {jobTaskRole, onContentChange} = props;

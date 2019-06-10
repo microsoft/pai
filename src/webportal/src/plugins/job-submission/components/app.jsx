@@ -25,14 +25,14 @@
 
 import React from 'react';
 import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
-import {TabFormContent} from './TabFormContent';
+import {TabFormContent} from './tabFormContent';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobInformation} from './JobInformation';
 import {Parameters} from './Parameters';
 import {getFormClassNames} from './formStyle';
 import {initTheme} from '../../../app/components/theme';
 import {JobBasicInfo} from '../models/jobBasicInfo';
-import {SubmissionSection} from './SubmissionSection';
+import {SubmissionSection} from './submissionSection';
 import {TaskRoles} from './TaskRoles';
 import {Job} from '../models/job';
 import t from '../../../app/components/tachyons.scss';

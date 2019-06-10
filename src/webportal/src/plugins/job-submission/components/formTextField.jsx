@@ -24,41 +24,34 @@
  */
 
 import React from 'react';
-import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
+import {TextField, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {DockerInfo} from '../models/dockerInfo';
-import {BasicSection} from './BasicSection';
-import {FormShortSection} from './FormPage';
+import {BasicSection} from './basicSection';
+import {FormShortSection} from './formPage';
 
-export const DockerSection = (props) => {
-  const {onValueChange, value} = props;
-  const {uri} = value;
+export const FormTextField = (props) => {
+  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
   const textFieldId = getId('textField');
-
-  const _onChange = (keyName, value) => {
-    const updatedDockerInfo = new DockerInfo(value);
-    updatedDockerInfo[keyName] = value;
-    if (onValueChange !== undefined) {
-      onValueChange(updatedDockerInfo);
+  const _onBlur= (event) => {
+    if (onBlur === undefined) {
+      return;
     }
+    onBlur(event.target.value);
   };
 
+  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+
   return (
-    <BasicSection sectionLabel={'Docker'}>
-      <Stack horizontal gap='s1' wrap >
-        <FormShortSection>
-          <TextField id={textFieldId}
-                     placeholder='Enter docker uri...'
-                     onBlur={(event) => _onChange('uri', event.target.value)}
-                     value={uri}/>
-         </FormShortSection>
-        <DefaultButton>Auth</DefaultButton>
-      </Stack>
+    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
+      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
     </BasicSection>
   );
 };
 
-DockerSection.propTypes = {
-  value: PropTypes.instanceOf(DockerInfo).isRequired,
-  onValueChange: PropTypes.func,
+FormTextField.propTypes = {
+  sectionLabel: PropTypes.string.isRequired,
+  onBlur: PropTypes.func,
+  textFiledProps: PropTypes.object,
+  sectionOptional: PropTypes.bool,
+  shortStyle: PropTypes.bool,
 };

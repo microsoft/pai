@@ -83,7 +83,7 @@ export const getFormPageSytle = () => {
     },
     formFirstColumn: {
       root: {
-        width: '20%',
+        width: '18%',
       },
     },
     formSecondColunm: {
@@ -112,6 +112,7 @@ export const getFormBasicSectionStyle = (optional) => {
       root: {
         fontSize: FontSizes.icon,
         fontWeight: FontWeights.semibold,
+        padding: '0px',
       },
     },
     optionalText: {

@@ -24,45 +24,40 @@
  */
 
 import React from 'react';
-import {FormTextField} from './FormTextField';
-import {FormPage} from './FormPage';
-import {Text} from 'office-ui-fabric-react';
-import {FormSpinButton} from './FormSpinButton';
+import {TextField} from 'office-ui-fabric-react';
+import {BasicSection} from './basicSection';
 import PropTypes from 'prop-types';
-import {JobBasicInfo} from '../models/jobBasicInfo';
-import {VirtualCluster} from './VirtualCluster';
+import {Deployment} from '../models/deployment';
 
-export const JobInformation= (props) => {
-  const {jobInformation, onChange} = props;
-  const {name, jobRetryCount} = jobInformation;
+export const DeploymentSection = (props) => {
+  const {onChange, value} = props;
+  const {preCommands, postCommands} = value;
 
   const _onChange = (keyName, newValue) => {
-    const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
-    updatedJobBasicInfo[keyName] = newValue;
+    const updatedDeployment = new Deployment(value);
+    updatedDeployment[keyName] = newValue;
     if (onChange !== undefined) {
-      onChange(updatedJobBasicInfo);
+      onChange(updatedDeployment);
     }
   };
 
   return (
-    <FormPage>
-      <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
-      <FormTextField sectionLabel={'Job name'}
-                     value={name}
-                     shortStyle
-                     onBlur={(value) => _onChange('name', value)}
-                     placeholder='Enter job name'/>
-      <VirtualCluster/>
-      <FormSpinButton sectionOptional
-                      sectionLabel={'Retry count'}
-                      shortStyle
-                      value={jobRetryCount}
-                      onChange={(value) => _onChange('jobRetryCount', value)}/>
-    </FormPage>
+    <BasicSection sectionLabel={'Deployment'} sectionOptional>
+      <TextField label={'PreCommands'}
+                 value={preCommands}
+                 onBlur={(e) => _onChange('preCommands', e.target.value)}
+                 multiline
+                 rows={3}/>
+      <TextField label={'PostCommands'}
+                 value={postCommands}
+                 multiline
+                 rows={3}
+                 onBlur={(e) => _onChange('postCommands', e.target.value)}/>
+    </BasicSection>
   );
 };
 
-JobInformation.propTypes = {
-  jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
+DeploymentSection.propTypes = {
+  value: PropTypes.instanceOf(Deployment).isRequired,
   onChange: PropTypes.func,
 };
