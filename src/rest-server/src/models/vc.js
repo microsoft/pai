@@ -50,8 +50,8 @@ class VirtualCluster {
         }
 
         queueDict[queueInfo.queueName] = {
-          capacity: Math.round(defaultPartitionInfo.absoluteCapacity),
-          maxCapacity: Math.round(defaultPartitionInfo.absoluteMaxCapacity),
+          capacity: defaultPartitionInfo.absoluteCapacity,
+          maxCapacity: defaultPartitionInfo.absoluteMaxCapacity,
           usedCapacity: defaultPartitionInfo.absoluteUsedCapacity,
           numActiveJobs: queueInfo.numActiveApplications,
           numJobs: queueInfo.numApplications,
@@ -231,7 +231,14 @@ class VirtualCluster {
         if (!vcList.hasOwnProperty('default')) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `No default vc found, can't allocate quota`));
         } else {
-          let defaultQuotaIfUpdated = vcList['default']['capacity'] + (vcList[vcName] ? vcList[vcName]['capacity'] : 0) - capacity;
+          // let defaultQuotaIfUpdated = vcList['default']['capacity'] + (vcList[vcName] ? vcList[vcName]['capacity'] : 0) - capacity;
+          let defaultQuotaIfUpdated = 100.0;
+          defaultQuotaIfUpdated -= capacity;
+          for (let vc of Object.keys(vcList)) {
+            if (vc !== vcName && vc !== 'default' && vcList[vc].dedicated === false) {
+              defaultQuotaIfUpdated -= vcList[vc].capacity;
+            }
+          }
           if (defaultQuotaIfUpdated < 0) {
             return callback(createError('Forbidden', 'NoEnoughQuotaError', `No enough quota`));
           }
@@ -363,7 +370,12 @@ class VirtualCluster {
             if (err) {
               return callback(err);
             } else {
-              let defaultQuotaIfUpdated = vcList['default']['capacity'] + vcList[vcName]['capacity'];
+              let defaultQuotaIfUpdated = 100.0;
+              for (let vc of Object.keys(vcList)) {
+                if (vc !== vcName && vc !== 'default' && vcList[vc].dedicated === false) {
+                  defaultQuotaIfUpdated -= vcList[vc].capacity;
+                }
+              }
               let data = {
                 'update-queue': {
                   [vcName]: {

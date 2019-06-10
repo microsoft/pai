@@ -971,7 +971,7 @@ describe('VC API  Get /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('capacity', 10);
+        expect(res.body).to.have.property('capacity', 10.000002);
         done();
       });
   });
