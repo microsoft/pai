@@ -2,7 +2,7 @@
 
 - [如何使用存储](#how-to-use-storage) 
   - [为什么要关注存储](#why-care-about-storage)
-  - [一般方法](#general-practice)
+  - [通用流程](#general-practice)
   - [主要方法](#approaches) 
     - [共享路径](#sharing)
     - [复制](#copy)
@@ -18,7 +18,7 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 本文介绍了如何在 OpenPAI 中访问文件。实际上，这与在一般的 Docker 容器中访问文件是一样的。
 
-## 一般方法
+## 通用流程
 
 下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
 
@@ -85,12 +85,12 @@ command 字段可分为以下几步。
 - 适用场景
   
   - 共享存储和 OpenPAI 需要在同一个局域网中，存储的 IOPS 需要足够以支持并发的 Job。
-  - If shared folder contains files, which won't be accessed during job running.
-  - There are not many small files, and no needed to save files concurrently.
+  - 文件夹中包含有在 Job 运行过程中不会被访问到的文件。
+  - 没有大量小文件，也不需要并发保存文件。
 
-- How-to use
+- 如何使用
   
-  The [general practice](#general-practice) uses sharing and it's a good demonstration of SMB protocol. [NFS](https://en.wikipedia.org/wiki/Network_File_System) is also a popular sharing protocol. `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` can be used to install and mount NFS folder.
+  [通用流程](#通用流程)就使用了共享路径，很好的演示了 SMB 协议的用法。 [NFS](https://en.wikipedia.org/wiki/Network_File_System) is also a popular sharing protocol. `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` can be used to install and mount NFS folder.
   
   Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command and other types of sharing protocol.
 
