@@ -20,13 +20,23 @@
 const Joi = require('joi');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
+const authnConfig = require('./authn');
 
-let userSecretConfig = {
-  apiServerUri: process.env.K8S_APISERVER_URI,
-  paiUserNameSpace: 'pai-user',
-  adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
-  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
-};
+let userSecretConfig = {}
+
+if (authnConfig.authnMethod !== 'OIDC') {
+  userSecretConfig = {
+    apiServerUri: process.env.K8S_APISERVER_URI,
+    paiUserNameSpace: 'pai-user',
+    adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
+    adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
+  };
+} else {
+  userSecretConfig = {
+    apiServerUri: process.env.K8S_APISERVER_URI,
+    paiUserNameSpace: 'pai-user',
+  };
+}
 
 userSecretConfig.requestConfig = () => {
   const config = {
