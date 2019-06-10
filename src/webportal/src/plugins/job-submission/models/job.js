@@ -24,6 +24,7 @@
  */
 
 import {get, isNil} from 'lodash';
+import yaml from 'js-yaml';
 
 export class Job {
   constructor(jobBasicInfo, jobTaskRoles, jobParameters) {
@@ -73,6 +74,12 @@ export class Job {
   }
 
   generateYaml() {
+    try {
+      const protocolFormat = yaml.safeLoad(JSON.stringify(this.convertToProtocolFormat()));
+      return yaml.safeDump(protocolFormat);
+    } catch (e) {
+      alert(e.message);
+    }
   }
 
   submit() {

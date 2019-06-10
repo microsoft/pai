@@ -51,7 +51,8 @@ export const JobInformation= (props) => {
                      value={name}
                      shortStyle
                      onBlur={(value) => _onChange('name', value)}
-                     placeholder='Enter job name'/>
+                     placeholder='Enter job name'
+                     errorMessage={(jobInformation.name === undefined || jobInformation.name.length === 0) && 'Please input value'}/>
       <VirtualCluster/>
       <FormSpinButton sectionOptional
                       sectionLabel={'Retry count'}
