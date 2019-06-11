@@ -176,6 +176,33 @@ if (config.env !== 'test') {
         await createGroupIfNonExistent(groupItem.groupname, groupItem);
       }
       logger.info('Create non-admin group successfully.');
+      if (authConfig.authnMethod === 'OIDC') {
+        logger.info('Begin to update group info.');
+        const groupList = await getAllGroup();
+        let newExternalName2Groupname = {};
+        let update = false;
+        for (const groupItem of groupList) {
+          newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
+        }
+        if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
+          update = true;
+        }
+        for (const [key, val] of Object.entries(newExternalName2Groupname)) {
+          if (!(key in externalName2Groupname)) {
+            update = true;
+          } else if (externalName2Groupname[key] !== val) {
+            update = true;
+          }
+          if (update) {
+            break;
+          }
+        }
+        if (update) {
+          externalName2Groupname = newExternalName2Groupname;
+        }
+        logger.info('Update group info successfully.');
+      }
+
     } catch (error) {
       logger.error('Failed to create admin group configured in configuration.');
       // eslint-disable-next-line no-console
@@ -209,37 +236,6 @@ if (config.env !== 'test') {
       }
     })();
   } else {
-    (async function() {
-      try {
-        logger.info('Begin to update group info.');
-        const groupList = await getAllGroup();
-        let newExternalName2Groupname = {};
-        let update = false;
-        for (const groupItem of groupList) {
-          newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
-        }
-        if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
-          update = true;
-        }
-        for (const [key, val] of Object.entries(newExternalName2Groupname)) {
-          if (!(key in externalName2Groupname)) {
-            update = true;
-          } else if (externalName2Groupname[key] !== val) {
-            update = true;
-          }
-          if (update) {
-            break;
-          }
-        }
-        if (update) {
-          externalName2Groupname = newExternalName2Groupname;
-        }
-        logger.info('Update group info successfully.');
-      } catch (error) {
-        logger.info('Failed to update group info.');
-        throw error;
-      }
-    })();
     setInterval(async function() {
       try {
         logger.info('Begin to update group info.');
