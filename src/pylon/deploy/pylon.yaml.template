@@ -79,6 +79,9 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ cluster_cfg['pylon']['port'] }}
+            - name: pylon-https
+              containerPort: 443
+              hostPort: 443
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
             - name: pylon-webhdfs
               containerPort: {{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}
