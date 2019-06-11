@@ -100,8 +100,8 @@ command 字段可分为以下几步。
 
 - 优点
   
-  - 因为文件复制到了本地，IO 性能会大大高于远程共享文件。 在多次读写文件的场景下，也非常块。
-  - Some transferring protocols can pass firewall. Many mature protocols can transfer files, including SSH, SFTP, HTTP, SMB and so on.
+  - 因为文件复制到了本地，IO 性能会大大高于远程共享文件。 在多次读写文件的场景下，也非常快。
+  - 部分传输协议可穿越防火墙。 许多成熟的协议都可用来传输文件，如 SSH，SFTP，HTTP，SMB 等等。
   - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
 
 - Shortcoming
