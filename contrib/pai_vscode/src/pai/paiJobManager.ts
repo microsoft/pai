@@ -198,7 +198,7 @@ export class PAIJobManager extends Singleton {
         });
 
         if (saveDir) {
-            await fs.writeFile(saveDir.fsPath, yaml.dump(config));
+            await fs.writeFile(saveDir.fsPath, yaml.safeDump(config));
             await vscode.window.showTextDocument(saveDir);
         }
     }
