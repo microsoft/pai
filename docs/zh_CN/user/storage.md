@@ -98,9 +98,9 @@ command 字段可分为以下几步。
 
 此方法仅在传输文件的时候需要连接，将文件缓存在本地。
 
-- 有点
+- 优点
   
-  - The disk IO performance is much higher than shared remote files, as files are copied to local. If some files need to be read/written multiple times, it's also much quickly.
+  - 因为文件复制到了本地，IO 性能会大大高于远程共享文件。 在多次读写文件的场景下，也非常块。
   - Some transferring protocols can pass firewall. Many mature protocols can transfer files, including SSH, SFTP, HTTP, SMB and so on.
   - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
 
