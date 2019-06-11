@@ -9,7 +9,7 @@ clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] or null }}
 responseType: {{ cluster_cfg['authentication']['AAD']['responseType'] or null }}
 responseMode: {{ cluster_cfg['authentication']['AAD']['responseMode'] or null }}
 redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/authn/openid/return'
-scope: {{ cluster_cfg['authentication']['AAD']['scope'] or null }}
+scope: {{ cluster_cfg['authentication']['AAD']['scope'] or openid }}
 nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] or null }}
 nonceMaxAmount: {{ cluster_cfg['authentication']['AAD']['nonceMaxAmount'] or null }}
 clockSkew: {{ cluster_cfg['authentication']['AAD']['clockSkew'] or null }}
