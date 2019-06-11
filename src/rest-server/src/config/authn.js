@@ -28,13 +28,7 @@ let authnConfig = {
 };
 
 if (authnConfig.authnMethod === 'OIDC') {
-  // eslint-disable-next-line no-console
-  console.log(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
-  // eslint-disable-next-line no-console
-  console.log('-----------------------------------------------------------------');
-  // eslint-disable-next-line no-console
-  console.log(authnConfig.OIDCConfig);
 }
 
 try {
