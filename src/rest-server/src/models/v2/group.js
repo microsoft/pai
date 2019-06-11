@@ -223,7 +223,7 @@ if (config.env !== 'test') {
           update = true;
         }
         for (const [key, val] of Object.entries(newExternalName2Groupname)) {
-          if (!externalName2Groupname.has(key)) {
+          if (!(key in externalName2Groupname)) {
             update = true;
           } else if (externalName2Groupname[key] !== val) {
             update = true;
