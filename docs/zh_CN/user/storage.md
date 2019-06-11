@@ -102,13 +102,13 @@ command 字段可分为以下几步。
   
   - 因为文件复制到了本地，IO 性能会大大高于远程共享文件。 在多次读写文件的场景下，也非常快。
   - 部分传输协议可穿越防火墙。 许多成熟的协议都可用来传输文件，如 SSH，SFTP，HTTP，SMB 等等。
-  - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
+  - 因为复制不需要长时间保持连接，所以在网络不稳定的情况下，其更有可能让 Job 运行成功。
 
-- Shortcoming
+- 缺点
   
-  - It needs logic to copy files selectively if partial files are needed.
-  - There may not have a chance to copy outputs out if the job is failed unexpectedly.
-  - There may not have enough disk space to copy files to local.
+  - 如果只需要部分文件，则需要通过规则来选择复制文件。
+  - 如果 Job 意外失败，可能无法将输出复制出来。
+  - 可能本地磁盘空间不足以复制所有文件。
   - Most protocols are significant low performance when accessing many small files.
 
 - Applicable scenarios
