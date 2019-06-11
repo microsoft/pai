@@ -80,7 +80,7 @@ if (authnConfig.authnMethod === 'OIDC') {
         next();
       },
       userController.createUserIfUserNotExist,
-      tokenV2Controller.get
+      tokenV2Controller.getAAD
     )
     /** POST /api/v1/authn/openid/return - AAD AUTH RETURN */
     .post(
@@ -108,7 +108,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       },
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenV2Controller.get
+      tokenV2Controller.getAAD
     );
 } else {
   router.route('/basic/login')
