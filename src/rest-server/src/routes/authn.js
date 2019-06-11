@@ -28,7 +28,7 @@ const router = new express.Router();
 
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
-  /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
+  /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
       function(req, res, next) {
         passport.authenticate('azuread-openidconnect', {
@@ -45,7 +45,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     );
 
   router.route('/oidc/logout')
-  /** POST /api/v1/auth/oidc/logout */
+  /** POST /api/v1/authn/oidc/logout */
     .get(
       function(req, res) {
         req.session.destroy(function(err) {
@@ -56,7 +56,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     );
 
   router.route('/oidc/return')
-  /** GET /api/v1/auth/oidc/return - AAD AUTH RETURN */
+  /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
       function(req, res, next) {
         passport.authenticate('azuread-openidconnect',
@@ -82,7 +82,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       userController.createUserIfUserNotExist,
       tokenV2Controller.get
     )
-    /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
+    /** POST /api/v1/authn/openid/return - AAD AUTH RETURN */
     .post(
       function(req, res, next) {
         passport.authenticate('azuread-openidconnect',

@@ -25,7 +25,7 @@ const userLogout = () => {
   if (webportalConfig.authnMethod === 'basic') {
     window.location.replace('/index.html');
   } else {
-    location.href = webportalConfig.restServerUri+'/api/v1/auth/oidc/logout';
+    location.href = webportalConfig.restServerUri+'/api/v1/authn/oidc/logout';
   }
 };
 
