@@ -26,7 +26,8 @@ export const TaskRoles = (props) => {
   });
 
   return (
-    <TabForm defaultItems={defaultItems}
+    <TabForm key={new Date().getSeconds()}
+             defaultItems={defaultItems}
              headerTextPrefix='Task Role'
              createContentFunc={() => new JobTaskRole({})}
              onRenderTabContent={_onRenderTabContent}

@@ -23,15 +23,21 @@
  * SOFTWARE.
  */
 
+import {isNil} from 'lodash';
+
 export class DockerInfo {
   constructor(props) {
     const {uri, auth} = props;
-    this.uri = uri;
+    this.uri = uri || '';
     this.auth = auth;
   }
 
   convertToProtocolFormat() {
-    return {type: 'dockerimage', auth: this.auth, uri: this.uri};
+    const dockerProtocolFormat = {type: 'dockerimage', auth: this.auth, uri: this.uri};
+    if (isNil(this.auth)) {
+      delete dockerProtocolFormat.auth;
+    }
+    return dockerProtocolFormat;
   }
 }
 

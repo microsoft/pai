@@ -26,22 +26,51 @@
 import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
-import {ContainerSize} from '../models/container-size';
+import {ContainerSize} from '../models/containerSize';
+import {isEmpty, get, isNil} from 'lodash';
+import {Port} from './port';
+import {keyValueArrayReducer} from './utils';
 
 export class JobTaskRole {
   constructor(props) {
     const {name, instances, taskRetryCount, dockerInfo, ports, commands, completion, deployment, containerSize,
            isContainerSizeEnabled} = props;
-    this.name = name;
+    this.name = name || '';
     this.instances = instances || 1;
     this.taskRetryCount = taskRetryCount || 0;
     this.dockerInfo = dockerInfo || new DockerInfo({});
     this.ports = ports || [];
-    this.commands = commands;
+    this.commands = commands || '';
     this.completion = completion || new Completion({});
     this.deployment = deployment|| new Deployment({});
     this.containerSize = containerSize || new ContainerSize({});
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
+  }
+
+  static fromProtocol(name, taskRoleProtocol, deployments, prerequisites) {
+    const {instances, completion, taskRetryCount, dockerImage,
+           extraContainerOptions, resourcePerInstance, commands} = taskRoleProtocol;
+    const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
+    const dockerInfo = prerequisites.filter((prerequisite) => prerequisite.name === dockerImage);
+    const ports = isNil(resourcePerInstance.ports) ? []:
+      Object.keys(resourcePerInstance.ports).map((key) => new Port(key, resourcePerInstance.ports[key]));
+
+    const jobTaskRole = new JobTaskRole({
+      name: name,
+      instances: instances,
+      completion: new Completion(completion),
+      taskRetryCount: taskRetryCount,
+      commands: commands,
+      containerSize: new ContainerSize({...resourcePerInstance, extraContainerOptions}),
+      deployment: new Deployment(taskDeployment),
+      dockerInfo: new DockerInfo({uri: dockerInfo.uri, auth: dockerInfo.auth}),
+      ports: ports,
+    });
+
+    if (!ContainerSize.isUseDefaultValue(jobTaskRole.containerSize)) {
+      jobTaskRole.isContainerSizeEnabled = true;
+    }
+    return jobTaskRole;
   }
 
   getDockerPrerequisite() {
@@ -50,6 +79,10 @@ export class JobTaskRole {
 
   getDeployment() {
     const deployment = {};
+    if (isEmpty(this.name)) {
+      return null;
+    }
+
     deployment[this.name] = this.deployment.convertToProtocolFormat();
     return deployment;
   }
@@ -60,7 +93,8 @@ export class JobTaskRole {
 
   convertToProtocolFormat() {
     const taskRole = {};
-    const ports = this.ports.map((port) => port.convertToProtocolFormat());
+    const ports = this.ports.map((port) => port.convertToProtocolFormat())
+                            .reduce(keyValueArrayReducer, {});
 
     taskRole[this.name] = {
       instances: this.instances,

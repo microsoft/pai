@@ -1,10 +1,13 @@
 import React, {useState} from 'react';
 import {Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Job} from '../models/job';
+import {JobProtocol} from '../models/jobProtocol';
 import MonacoPanel from '../../../app/components/monaco-panel';
+import {JobBasicInfo} from '../models/jobBasicInfo';
+import {JobTaskRole} from '../models/jobTaskRole';
+import {JobParameter} from '../models/jobParameter';
 
-const exportFile = (data, filename, type) => {
+const _exportFile = (data, filename, type) => {
   let file = new Blob([data], {type: type});
   if (window.navigator.msSaveOrOpenBlob) { // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
@@ -23,45 +26,65 @@ const exportFile = (data, filename, type) => {
 };
 
 export const SubmissionSection = (props) => {
-  const {job} = props;
+  const {jobInformation, jobTaskRoles, parameters, onChange} = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
-  const [protocolSpec, setProtocolSpec] = useState(job.convertToProtocolFormat());
-  const [protocolYaml, setProtocolYaml] = useState(job.generateYaml());
 
-  const openEditor = (event) => {
+  const [jobProtocol, setjobProtocol] =
+    useState(JobProtocol.fromJobComponents(jobInformation, jobTaskRoles, parameters));
+  const [protocolYaml, setProtocolYaml] = useState(jobProtocol.toYaml());
+
+  const _openEditor = (event) => {
     event.preventDefault();
+    const protocol = JobProtocol.fromJobComponents(jobInformation, jobTaskRoles, parameters);
     setEditorOpen(true);
+    setProtocolYaml(protocol.toYaml());
   };
 
-  const closeEditor = () => {
+  const _closeEditor = () => {
+    const updatedJob = JobProtocol.fromYaml(protocolYaml);
+
     setEditorOpen(false);
+    setjobProtocol(updatedJob);
+    if (onChange === undefined) {
+      return;
+    }
+
+    const {taskRoles, deployments, prerequisites, parameters} = updatedJob;
+    const updatedJobInformation = JobBasicInfo.fromProtocol(updatedJob);
+    const updatedParameters = Object.keys(parameters).map((key) => new JobParameter({key: key, value: parameters[key]}));
+    const updatedTaskRoles = Object.keys(taskRoles)
+                                   .map((name) => JobTaskRole.fromProtocol(name, taskRoles[name], deployments, prerequisites));
+    onChange(updatedJobInformation, updatedTaskRoles, updatedParameters);
   };
 
-  const exportYaml = (event) => {
+  const _exportYaml = (event) => {
     event.preventDefault();
-    exportFile(job.generateYaml(), (job.jobBasicInfo.name || 'job') + '.yaml', 'application/x-yaml');
+    _exportFile(jobProtocol.toYaml(), (jobProtocol.jobBasicInfo.name || 'job') + '.yaml', 'application/x-yaml');
   };
 
-  const onYamlTextChange = (text) => {
+  const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
   };
 
   return (
     <Stack horizontal gap='s1' horizontalAlign='center'>
       <PrimaryButton>Submit</PrimaryButton>
-      <DefaultButton onClick={openEditor}>Edit YAML</DefaultButton>
-      <DefaultButton onClick={exportYaml}>Export</DefaultButton>
+      <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+      <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
       <MonacoPanel isOpen={isEditorOpen}
-                   onDismiss={closeEditor}
+                   onDismiss={_closeEditor}
                    title='Protocol YAML Editor'
                    monacoProps={{language: 'yaml',
                                  options: {wordWrap: 'on', readOnly: false},
                                  value: protocolYaml,
-                                 onChange: onYamlTextChange}}
+                                 onChange: _onYamlTextChange}}
       />
     </Stack>);
 };
 
 SubmissionSection.propTypes = {
-  job: PropTypes.instanceOf(Job),
+  jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
+  jobTaskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
+  parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
+  onChange: PropTypes.func,
 };

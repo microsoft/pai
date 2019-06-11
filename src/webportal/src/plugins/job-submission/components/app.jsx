@@ -31,10 +31,16 @@ import {JobInformation} from './job-information';
 import {Parameters} from './parameters';
 import {getFormClassNames} from './form-style';
 import {initTheme} from '../../../app/components/theme';
+<<<<<<< HEAD
 import {JobBasicInfo} from '../models/job-basic-info';
 import {SubmissionSection} from './submission-section';
 import {TaskRoles} from './task-roles';
 import {Job} from '../models/job';
+=======
+import {JobBasicInfo} from '../models/jobBasicInfo';
+import {SubmissionSection} from './submissionSection';
+import {TaskRoles} from './taskRoles';
+>>>>>>> 0fe81a77... yaml editor
 import t from '../../../app/components/tachyons.scss';
 
 initTheme();
@@ -74,9 +80,16 @@ export class App extends React.Component {
                 </StackItem>
                 <StackItem className={topForm}>
                   <Stack gap='l1'>
-                    <TaskRoles taskRoles={[new JobTaskRole({})]}
+                    <TaskRoles taskRoles={jobTaskRoles}
                                onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
-                    <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
+                    <SubmissionSection jobInformation={jobInformation}
+                                       jobTaskRoles={jobTaskRoles}
+                                       parameters={parameters}
+                                       onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => this.setState({
+                                         jobTaskRoles: updatedTaskRoles,
+                                         parameters: updatedParameters,
+                                         jobInformation: updatedJobInfo,
+                                       })}/>
                   </Stack>
                 </StackItem>
               </Stack>

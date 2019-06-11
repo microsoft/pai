@@ -26,9 +26,14 @@
 export class JobBasicInfo {
   constructor(props) {
     const {name, jobRetryCount, virtualCluster} = props;
-    this.name = name;
-    this.jobRetryCount = jobRetryCount;
-    this.virtualCluster = virtualCluster;
+    this.name = name || '';
+    this.jobRetryCount = jobRetryCount || 0;
+    this.virtualCluster = virtualCluster || null;
+  }
+
+  static fromProtocol(protocol) {
+    const {name, jobRetryCount} = protocol;
+    return new JobBasicInfo({name: name, jobRetryCount: jobRetryCount});
   }
 
   getDefaults() {
