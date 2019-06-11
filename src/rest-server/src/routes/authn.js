@@ -38,6 +38,16 @@ if (authnConfig.authnMethod === 'OIDC') {
         const scope = authnConfig.OIDCConfig.scope ? authnConfig.OIDCConfig.scope : 'openid';
         const state = 'openpai';
         const nonce = 'openpai12345';
+        // eslint-disable-next-line no-console
+        console.log(querystring.stringify({
+          client_id: clientId,
+          response_type: responseType,
+          redirect_uri: redirectUri,
+          response_mode: responseMode,
+          scope: scope,
+          state: state,
+          nonce: nonce,
+        }));
         return res.redirect(authnConfig.OIDCConfig.identityMetadata + '?'+ querystring.stringify({
           client_id: clientId,
           response_type: responseType,
