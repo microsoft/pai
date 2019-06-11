@@ -31,15 +31,22 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
       function(req, res, next) {
-        // eslint-disable-next-line no-console
-        console.log('AAD coming');
-        passport.authenticate('azuread-openidconnect', {
-            response: res,
-            resourceURL: authnConfig.OIDCConfig.resourceURL,
-            customState: 'my_state',
-            failureRedirect: '/',
-          }
-        )(req, res, next);
+        try {
+          // eslint-disable-next-line no-console
+          console.log('AAD coming');
+          passport.authenticate('azuread-openidconnect', {
+              response: res,
+              resourceURL: authnConfig.OIDCConfig.resourceURL,
+              customState: 'my_state',
+              failureRedirect: '/',
+            }
+          )(req, res, next);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('failed to reqeust reponse');
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
       },
       function(req, res) {
         res.redirect('/');
