@@ -14,29 +14,33 @@ import { IPAICluster } from './paiInterface';
 export namespace PAIRestUri {
     const API_PREFIX: string = 'api/v1';
 
-    export function getRestUrl(cluster: IPAICluster): string {
+    export function getRestUrl(cluster: IPAICluster, apiPrefix?: string): string {
         let url: string = cluster.rest_server_uri;
         if (!url.endsWith('/')) {
             url += '/';
         }
-        url += API_PREFIX;
+        if (apiPrefix) {
+            url += apiPrefix;
+        } else {
+            url += API_PREFIX;
+        }
 
         return Util.fixURL(url);
     }
 
-    export function token(cluster: IPAICluster): string {
-        return `${getRestUrl(cluster)}/token`;
+    export function token(cluster: IPAICluster, apiPrefix?: string): string {
+        return `${getRestUrl(cluster, apiPrefix)}/token`;
     }
 
-    export function jobDetail(cluster: IPAICluster, username: string, jobName: string): string {
-        return `${getRestUrl(cluster)}/user/${username}/jobs/${jobName}`;
+    export function jobDetail(cluster: IPAICluster, username: string, jobName: string, apiPrefix?: string): string {
+        return `${getRestUrl(cluster, apiPrefix)}/user/${username}/jobs/${jobName}`;
     }
 
-    export function jobs(cluster: IPAICluster, username?: string): string {
+    export function jobs(cluster: IPAICluster, username?: string, apiPrefix?: string): string {
         if (username) {
             return `${getRestUrl(cluster)}/user/${username}/jobs`;
         }
-        return `${getRestUrl(cluster)}/jobs`;
+        return `${getRestUrl(cluster, apiPrefix)}/jobs`;
     }
 }
 
