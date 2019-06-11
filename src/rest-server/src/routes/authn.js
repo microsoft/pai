@@ -68,12 +68,21 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
       function(req, res, next) {
-        passport.authenticate('azuread-openidconnect',
-          {
-            response: res,
-            failureRedirect: '/',
-          }
-        )(req, res, next);
+        try {
+          // eslint-disable-next-line no-console
+          console.log('get response');
+          passport.authenticate('azuread-openidconnect',
+            {
+              response: res,
+              failureRedirect: '/',
+            }
+          )(req, res, next);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('failed to get response');
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
       },
       function(req, res, next) {
         // TODO，check user name and return token
@@ -94,12 +103,21 @@ if (authnConfig.authnMethod === 'OIDC') {
     /** POST /api/v1/authn/openid/return - AAD AUTH RETURN */
     .post(
       function(req, res, next) {
-        passport.authenticate('azuread-openidconnect',
-          {
-            response: res,
-            failureRedirect: '/',
-          }
-        )(req, res, next);
+        try {
+          // eslint-disable-next-line no-console
+          console.log('get response');
+          passport.authenticate('azuread-openidconnect',
+            {
+              response: res,
+              failureRedirect: '/',
+            }
+          )(req, res, next);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('failed to get response');
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
       },
       function(req, res, next) {
         // TODO，check user name and return token
