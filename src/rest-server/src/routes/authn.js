@@ -35,7 +35,7 @@ if (authnConfig.authnMethod === 'OIDC') {
         const responseType = authnConfig.OIDCConfig.responseType;
         const redirectUri = authnConfig.OIDCConfig.redirectUrl;
         const responseMode = authnConfig.OIDCConfig.responseMode;
-        const scope = authnConfig.OIDCConfig.scope;
+        const scope = authnConfig.OIDCConfig.scope ? authnConfig.OIDCConfig.scope : 'openid';
         const state = 'openpai';
         const nonce = 'openpai12345';
         return res.redirect(authnConfig.OIDCConfig.identityMetadata + '?'+ querystring.stringify({
