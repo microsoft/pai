@@ -37,7 +37,7 @@ class Pylon:
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
-        uriHttps = 'https://{0}:{1}'.format(master_ip, port)
+        uriHttps = 'https://{0}'.format(master_ip)
 
         webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
         ret = {
