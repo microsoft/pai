@@ -109,17 +109,17 @@ command 字段可分为以下几步。
   - 如果只需要部分文件，则需要通过规则来选择复制文件。
   - 如果 Job 意外失败，可能无法将输出复制出来。
   - 可能本地磁盘空间不足以复制所有文件。
-  - Most protocols are significant low performance when accessing many small files.
+  - 大多数协议在访问大量小文件时，性能都会很低。
 
-- Applicable scenarios
+- 适用场景
   
-  - The disk size of docker container is enough to copied files.
-  - Copied files need high IO performance, or accessed multiple times.
-  - There are not many small files.
+  - Dockers 容器的磁盘大小足够复制文件。
+  - 复制的文件需要很高的 IO 性能，或会被多次访问。
+  - 没有大量小文件。
 
-- How-to use
+- 如何使用
   
-  Copy is a general approach, not a specified tool or protocol. So, all commands that can transfer files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
+  复制是指的一种方法，而不是某种工具或协议。 能传输文件的命令都可以成为复制的方法。 例如，SSH，SFTP，FTP，HTTP，SMB，NFS 等等。
   
   This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
   
@@ -131,9 +131,9 @@ command 字段可分为以下几步。
   
   For more information about other protocols and tools, refer to corresponding documents.
 
-### Docker Built-in
+### Docker 内置
 
-- Advantage
+- 优点
   
   - It saves time and IO to copy files for each running, as docker images are cached locally.
   - It has good IO performance like copy as all files are at local.
