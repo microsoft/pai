@@ -35,7 +35,6 @@ const loadData = (specifiedVc) => {
         grafanaUri: webportalConfig.grafanaUri,
         isAdmin,
         modal: vcModelComponent,
-        description: '<a>aaa</a>',
       });
       $('#content-wrapper').html(vcHtml);
       commonTable = $('#common-table').dataTable({
@@ -68,21 +67,15 @@ const formatNumber = (x, precision) => {
 };
 
 //
+
 const resizeContentWrapper = () => {
-  $('.dataTables_scrollBody').css('height', '200px');
-  let tableWidthArray = [];
-  if (commonTable != null && commonTable.page.info().recordsTotal) {
-    $('#common-table thead tr th').each((idx, val) => {
-      tableWidthArray.push(val.offsetWidth);
-    });
-    let newNameWidth = tableWidthArray[0] + tableWidthArray[1] + tableWidthArray[2];
-    tableWidthArray.splice(0, 3, newNameWidth);
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 420 : 356))) + 'px');
+  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 366)) + 'px');
+  if (commonTable != null) {
     commonTable.columns.adjust().draw();
   }
-  if (dedicateTable != null && dedicateTable.page.info().recordsTotal) {
-    tableWidthArray.map( (item, idx) => {
-      dedicateTable.columns(idx).nodes().flatten().to$().width(item);
-    });
+  if (dedicateTable != null) {
     dedicateTable.columns.adjust().draw();
   }
 };
@@ -247,7 +240,7 @@ const convertState = (name, state) => {
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
   } else if (state === 'DRAINING') {
     vcState = 'Stopping';
-    vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+    vcStateChage = '';
   } else {
     vcState = 'Unknown';
     vcStateChage = '';
@@ -271,6 +264,9 @@ $(document).ready(() => {
   window.onresize = function(envent) {
     resizeContentWrapper();
   };
+  $(document).on('click', '.nav li', () => {
+    resizeContentWrapper();
+   })
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 

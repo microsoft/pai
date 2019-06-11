@@ -106,16 +106,6 @@ ul, li{
     cursor: default;
   }
 }
-.box-body {
-  margin-bottom: 20px;
-}
-.discription {
-  display: flex;
-  font-size: 20px;
-  &.ded-vc {
-    margin: 10px 0;
-  }
-  .ms-Icon {
-  font-size: 20px;
-  }
+.discription-dedvc {
+  margin-bottom: 10px;
 }
