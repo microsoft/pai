@@ -62,7 +62,7 @@ const styles = mergeStyleSets({
 
   gridCell: {
     display: "inline-block",
-    width: 240,
+    width: 220,
   },
 
   gridTitle: {
@@ -119,7 +119,7 @@ const styles = mergeStyleSets({
 
 initializeIcons();
 
-type MarketplaceUriType = ("GitHub" | "DevOps" | null);
+type MarketplaceUriType = ("GitHub" | "DevOps" | "PyTorch Hub" | null);
 type LayoutType = ("grid" | "list");
 
 interface IProtocolItem {
@@ -331,7 +331,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
 
   private renderListItem = (protocol: IProtocol, index: number) => {
     return (
-      <Stack key={index} className={styles.listCell}>
+      <Stack key={protocol.name} className={styles.listCell}>
         <Stack horizontal={true} horizontalAlign="start" verticalAlign="start" padding={10}>
           <Stack.Item grow={4} className={styles.listCellIconItem}>
             <Text variant="xxLarge" nowrap={true} block={true} className={styles.listCellIcon}>
@@ -341,7 +341,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
           <Stack.Item grow={96} className={styles.listCellTextItem}>
             <Stack horizontal={true} horizontalAlign="space-between" verticalAlign="center">
               <Text variant="xxLarge" nowrap={true} block={true} className={styles.listCellTitle}>
-                {protocol.name}
+                {protocol.name.replace(/[_-]/g, " ")}
               </Text>
               <Stack
                 horizontal={true}
@@ -403,10 +403,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     ];
 
     return (
-      <DocumentCard key={index} className={styles.gridCell}>
+      <DocumentCard key={protocol.name} className={styles.gridCell}>
         <DocumentCardLogo logoIcon="FileYML" />
         <div className={styles.gridTitle}>
-          <DocumentCardTitle title={protocol.name} shouldTruncate={true} />
+          <DocumentCardTitle title={protocol.name.replace(/[_-]/g, " ")} shouldTruncate={false} />
           <DocumentCardTitle title={protocol.description} shouldTruncate={true} showAsSecondaryTitle={true} />
           <DocumentCardStatus statusIcon="attach" status={` ${protocol.prerequisitesNum} Prerequisite(s)`} />
         </div>
@@ -449,6 +449,8 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
     const githubRegExp = /^(https:\/\/)?github\.com\/([^/\s]+)\/([^/\s]+)\/tree\/(.+)$/;
     // regex for https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
     const devopsRegExp = /^(https:\/\/)?([^/\s]+)\.visualstudio\.com\/([^/\s]*)\/?_git\/([^\?\s]+)\?(.+)$/;
+    // regex for https://pytorch.org/hub
+    const pytorchhubRegExp = /^((http[s]?|ftp):\/\/)?pytorch.org\/hub(\/)?$/;
     let match;
     match = githubRegExp.exec(uri);
     if (match !== null) {
@@ -487,6 +489,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       const path = new URLSearchParams(match[5]).get("path");
       return `https://dev.azure.com/${org}/${project}/_apis/git/repositories/${repo}/items?path=${path}&api-version=5.0`;
     }
+    match = pytorchhubRegExp.exec(uri);
+    if (match !== null) {
+      return "https://api.github.com/repos/pytorch/pytorch.github.io/contents/assets/hub";
+    }
     return uri;
   }
 
@@ -500,6 +506,9 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         // https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
         // https://dev.azure.com/{org}/{project}/_apis/git/repositories/{repoId}/items?path={path}&api-version=5.0
         this.setState({uri, uriType: "DevOps"});
+      } else if (uri.includes("pytorch.org")) {
+        // https://pytorch.org/hub
+        this.setState({uri, uriType: "PyTorch Hub"});
       } else {
         this.setState({uri, uriType: null});
       }
@@ -577,7 +586,7 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
         `Basic ${new Buffer(this.state.uriToken).toString("base64")}`,
       );
     }
-    if (uriType === "GitHub") {
+    if (uriType === "GitHub" || uriType === "PyTorch Hub") {
       try {
         const res = await fetch(uri, {headers: requestHeaders});
         const data = await res.json();
@@ -638,8 +647,41 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       );
     }
     try {
-      const res = await fetch(item.uri, {headers: requestHeaders});
-      const data = await res.text();
+      let data;
+      if (this.state.uriType === "PyTorch Hub") {
+        const name = item.name.split(".").slice(0, -1).join(".");
+        data = `protocolVersion: 2
+name: ${name}
+type: job
+contributor: PyTorch Hub
+description: https://pytorch.org/hub/${name}/
+prerequisites:
+  - protocolVersion: 2
+    name: pytorch_image
+    type: dockerimage
+    contributor : PyTorch
+    uri: pytorch/pytorch:0.4.1-cuda9-cudnn7-devel
+taskRoles:
+  notebook:
+    instances: 1
+    dockerImage: pytorch_image
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+      ports:
+        notebook: 1
+    commands:
+      - conda install -y jupyter
+      - curl -O ${item.uri}
+      - >
+        jupyter-notebook --NotebookApp.token="" --NotebookApp.allow_origin="*"
+        --allow-root --no-browser --ip=0.0.0.0 --port=$PAI_CONTAINER_HOST_notebook_PORT_LIST
+`;
+      } else {
+        const res = await fetch(item.uri, {headers: requestHeaders});
+        data = await res.text();
+      }
       const protocol = yaml.safeLoad(data);
       return {
         name: protocol.name,

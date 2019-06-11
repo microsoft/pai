@@ -23,7 +23,7 @@ import {
 } from "office-ui-fabric-react";
 import Cookies from "js-cookie";
 
-type MarketplaceUriType = ("GitHub" | "DevOps" | null);
+type MarketplaceUriType = ("GitHub" | "DevOps" | "PyTorch Hub" | null);
 
 interface IProtocolItem {
   name: string;
@@ -176,6 +176,8 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
     const githubRegExp = /^(https:\/\/)?github\.com\/([^/\s]+)\/([^/\s]+)\/tree\/(.+)$/;
     // regex for https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
     const devopsRegExp = /^(https:\/\/)?([^/\s]+)\.visualstudio\.com\/([^/\s]*)\/?_git\/([^\?\s]+)\?(.+)$/;
+    // regex for https://pytorch.org/hub
+    const pytorchhubRegExp = /^((http[s]?|ftp):\/\/)?pytorch.org\/hub(\/)?$/;
     let match;
     match = githubRegExp.exec(uri);
     if (match !== null) {
@@ -214,6 +216,10 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
       const path = new URLSearchParams(match[5]).get("path");
       return `https://dev.azure.com/${org}/${project}/_apis/git/repositories/${repo}/items?path=${path}&api-version=5.0`;
     }
+    match = pytorchhubRegExp.exec(uri);
+    if (match !== null) {
+      return "https://api.github.com/repos/pytorch/pytorch.github.io/contents/assets/hub";
+    }
     return uri;
   }
 
@@ -227,6 +233,9 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
         // https://{org}.visualstudio.com/{project}/_git/{repoId}?path={path}&version=GB{branch}
         // https://dev.azure.com/{org}/{project}/_apis/git/repositories/{repoId}/items?path={path}&api-version=5.0
         this.setState({uri, uriType: "DevOps"});
+      } else if (uri.includes("pytorch.org")) {
+        // https://pytorch.org/hub
+        this.setState({uri, uriType: "PyTorch Hub"});
       } else {
         this.setState({uri, uriType: null});
       }
@@ -271,8 +280,41 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
           );
         }
         try {
-          const res = await fetch(option.data, {headers: requestHeaders});
-          const data = await res.text();
+          let data;
+          if (this.state.uriType === "PyTorch Hub") {
+            const name = option.text.split(".").slice(0, -1).join(".");
+            data = `protocolVersion: 2
+name: ${name}
+type: job
+contributor: PyTorch Hub
+description: https://pytorch.org/hub/${name}/
+prerequisites:
+  - protocolVersion: 2
+    name: pytorch_image
+    type: dockerimage
+    contributor : PyTorch
+    uri: pytorch/pytorch:0.4.1-cuda9-cudnn7-devel
+taskRoles:
+  notebook:
+    instances: 1
+    dockerImage: pytorch_image
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+      ports:
+        notebook: 1
+    commands:
+      - conda install -y jupyter
+      - curl -O ${option.data}
+      - >
+        jupyter-notebook --NotebookApp.token="" --NotebookApp.allow_origin="*"
+        --allow-root --no-browser --ip=0.0.0.0 --port=$PAI_CONTAINER_HOST_notebook_PORT_LIST
+`;
+          } else {
+            const res = await fetch(option.data, {headers: requestHeaders});
+            data = await res.text();
+          }
           this.props.onSelectProtocol(data);
           this.setState({selectedOption: option.key});
         } catch (err) {
@@ -290,7 +332,7 @@ export default class MarketplaceForm extends React.Component<IMarketplaceProps, 
         `Basic ${new Buffer(this.state.uriToken).toString("base64")}`,
       );
     }
-    if (uriType === "GitHub") {
+    if (uriType === "GitHub" || uriType === "PyTorch Hub") {
       try {
         const res = await fetch(uri, {headers: requestHeaders});
         const data = await res.json();
