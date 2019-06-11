@@ -20,9 +20,9 @@ const express = require('express');
 const tokenConfig = require('../config/token');
 const param = require('../middlewares/parameter');
 const authnConfig = require('../config/authn');
-const passport = require('passport');
 const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
+const querystring = require('querystring');
 
 const router = new express.Router();
 
@@ -31,25 +31,24 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
       function(req, res, next) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('AAD coming');
-          passport.authenticate('azuread-openidconnect', {
-              response: res,
-              resourceURL: authnConfig.OIDCConfig.resourceURL,
-              customState: 'my_state',
-              failureRedirect: '/',
-            }
-          )(req, res, next);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to reqeust reponse');
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      function(req, res) {
-        res.redirect('/');
+        const clientId = authnConfig.OIDCConfig.clientID;
+        const responseType = authnConfig.OIDCConfig.responseType;
+        const redirectUri = authnConfig.OIDCConfig.redirectUrl;
+        const responseMode = authnConfig.OIDCConfig.responseMode;
+        const scope = authnConfig.OIDCConfig.scope;
+        const state = 'openpai';
+        const nonce = 'openpai12345';
+
+        return res.redirect(authnConfig.OIDCConfig.identityMetadata + '?'+ querystring.stringify({
+          client_id: clientId,
+          response_type: responseType,
+          redirect_uri: redirectUri,
+          response_mode: responseMode,
+          scope: scope,
+          state: state,
+          nonce: nonce,
+        }));
+
       }
     );
 
@@ -57,10 +56,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** POST /api/v1/authn/oidc/logout */
     .get(
       function(req, res) {
-        req.session.destroy(function(err) {
-          req.logOut();
-          res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
-        });
+        res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
       }
     );
 
@@ -71,12 +67,8 @@ if (authnConfig.authnMethod === 'OIDC') {
         try {
           // eslint-disable-next-line no-console
           console.log('get response');
-          passport.authenticate('azuread-openidconnect',
-            {
-              response: res,
-              failureRedirect: '/',
-            }
-          )(req, res, next);
+          // eslint-disable-next-line no-console
+          console.log(req.body);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('failed to get response');
@@ -106,12 +98,8 @@ if (authnConfig.authnMethod === 'OIDC') {
         try {
           // eslint-disable-next-line no-console
           console.log('get response');
-          passport.authenticate('azuread-openidconnect',
-            {
-              response: res,
-              failureRedirect: '/',
-            }
-          )(req, res, next);
+          // eslint-disable-next-line no-console
+          console.log(req.body);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('failed to get response');
