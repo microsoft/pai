@@ -44,8 +44,6 @@ module.exports = function(passport) {
       done(err, user);
     });
   });
-  // eslint-disable-next-line no-console
-  console.log(authnConfig.OIDCConfig)
   passport.use(new OIDCStrategy({
         identityMetadata: authnConfig.OIDCConfig.identityMetadata,
         clientID: authnConfig.OIDCConfig.clientID,
