@@ -202,7 +202,6 @@ if (config.env !== 'test') {
         }
         logger.info('Update group info successfully.');
       }
-
     } catch (error) {
       logger.error('Failed to create admin group configured in configuration.');
       // eslint-disable-next-line no-console

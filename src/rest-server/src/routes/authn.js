@@ -38,7 +38,6 @@ if (authnConfig.authnMethod === 'OIDC') {
         const scope = authnConfig.OIDCConfig.scope;
         const state = 'openpai';
         const nonce = 'openpai12345';
-
         return res.redirect(authnConfig.OIDCConfig.identityMetadata + '?'+ querystring.stringify({
           client_id: clientId,
           response_type: responseType,
@@ -48,7 +47,6 @@ if (authnConfig.authnMethod === 'OIDC') {
           state: state,
           nonce: nonce,
         }));
-
       }
     );
 
