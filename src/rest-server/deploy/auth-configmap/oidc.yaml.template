@@ -17,8 +17,8 @@ passReqToCallback: {{ cluster_cfg['authentication']['AAD']['passReqToCallback'] 
 useCookieInsteadOfSession: {{ cluster_cfg['authentication']['AAD']['useCookieInsteadOfSession'] or null }}
 cookieEncryptionKeys:
 {% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}
-    - key: {{ ckek['key'] }}
-      iv: {{ ckek['iv'] }}
+    - key: '{{ ckek['key'] }}'
+      iv: '{{ ckek['iv'] }}'
 {% endfor %}
 scope: {{ cluster_cfg['authentication']['AAD']['scope'] or null }}
 loggingLevel: {{ cluster_cfg['authentication']['AAD']['loggingLevel'] or null }}
