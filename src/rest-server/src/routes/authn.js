@@ -30,22 +30,21 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
-      function(req, res, next) {
+      async function(req, res, next) {
+        const tenantId = authnConfig.OIDCConfig.tenantID;
         const clientId = authnConfig.OIDCConfig.clientID;
-        const responseType = authnConfig.OIDCConfig.responseType;
+        const responseType = 'code';
         const redirectUri = authnConfig.OIDCConfig.redirectUrl;
-        const responseMode = authnConfig.OIDCConfig.responseMode;
-        const scope = authnConfig.OIDCConfig.scope ? authnConfig.OIDCConfig.scope : 'openid';
+        const responseMode = 'form_post';
+        const scope = 'openid offline_access https://graph.microsoft.com/user.read';
         const state = 'openpai';
-        const nonce = 'openpai12345';
-        return res.redirect(authnConfig.OIDCConfig.identityMetadata + '?'+ querystring.stringify({
+        return res.redirect('https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/authorize?'+ querystring.stringify({
           client_id: clientId,
           response_type: responseType,
           redirect_uri: redirectUri,
           response_mode: responseMode,
           scope: scope,
           state: state,
-          nonce: nonce,
         }));
       }
     );
@@ -61,7 +60,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
-      function(req, res, next) {
+      async function(req, res, next) {
         try {
           // eslint-disable-next-line no-console
           console.log('get response');
