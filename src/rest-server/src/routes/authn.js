@@ -24,6 +24,7 @@ const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
 const querystring = require('querystring');
 const axios = require('axios');
+const createError = require('../util/error');
 
 const router = new express.Router();
 
@@ -71,8 +72,6 @@ if (authnConfig.authnMethod === 'OIDC') {
           const grantType = 'authorization_code';
           const clientSecret = authnConfig.OIDCConfig.clientSecret;
           const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
-          // eslint-disable-next-line no-console
-          console.log(requestUrl);
           const data = {
             client_id: clientId,
             scope: scope,
@@ -81,25 +80,11 @@ if (authnConfig.authnMethod === 'OIDC') {
             grant_type: grantType,
             client_secret: clientSecret,
           };
-          // eslint-disable-next-line no-console
-          console.log(data);
-          const config = {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          };
-          // eslint-disable-next-line no-console
-          console.log(config);
-          // eslint-disable-next-line no-console
-          console.log(querystring.stringify(data));
           const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
           console.log(response);
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to get response');
-          // eslint-disable-next-line no-console
-          console.log(error);
+          return next(createError.unknown(error));
         }
       },
       function(req, res, next) {
@@ -130,8 +115,6 @@ if (authnConfig.authnMethod === 'OIDC') {
           const grantType = 'authorization_code';
           const clientSecret = authnConfig.OIDCConfig.clientSecret;
           const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
-          // eslint-disable-next-line no-console
-          console.log(requestUrl);
           const data = {
             client_id: clientId,
             scope: scope,
@@ -140,25 +123,11 @@ if (authnConfig.authnMethod === 'OIDC') {
             grant_type: grantType,
             client_secret: clientSecret,
           };
-          // eslint-disable-next-line no-console
-          console.log(data);
-          const config = {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          };
-          // eslint-disable-next-line no-console
-          console.log(config);
-          // eslint-disable-next-line no-console
-          console.log(querystring.stringify(data));
           const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
           console.log(response);
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to get response');
-          // eslint-disable-next-line no-console
-          console.log(error);
+          return next(createError.unknown(error));
         }
       },
       async function(req, res, next) {
