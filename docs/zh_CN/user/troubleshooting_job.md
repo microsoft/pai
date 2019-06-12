@@ -71,7 +71,7 @@ OpenPAI Visual Studio Code Client can parse OpenPAI job configuration file and r
 
 This simulation can cover most situations at remote, but still limited. For example, the resource specification in configuration is ignored, as in most case, the local computer is not powerful as a GPU server. And when code is simulating locally, it may be much slower, or out of memory. The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues.
 
-Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to learn how to [install Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md) and [simulate job running](../../contrib/pai_vscode/README.md#local-simulation).
+Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#local-simulation)。
 
 Note, as Docker on Windows doesn't support GPU, so TensorFlow needs a docker image with TensorFlow CPU edition for local simulation.
 
@@ -199,4 +199,4 @@ Refer to [here](../job_tutorial.md) to enable isDebug in job configuration file.
 
 Administrators of the OpenPAI cluster may be able to fix issues if this guidance doesn't work unfortunately.
 
-If it isn't fixed by administrators, or you are administrator, you are welcome to [ask questions or submit issues](../../README.md#get-involved) to us.
+如果管理员无法修复此问题，或者你就是管理员，欢迎[提交问题或建议](../../../README_zh_CN.md#寻求帮助)。
