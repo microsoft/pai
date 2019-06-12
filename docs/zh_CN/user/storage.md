@@ -22,7 +22,7 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
 
-注意，本例使用了 Windows 共享文件夹。Linux下，可使用 [Samba](https://www.samba.org/) 来创建共享文件夹。 如果要尝试此示例，需要：
+注意，此示例使用的是 Windows 的共享文件夹。 [Samba](https://www.samba.org/) 可在 Linux 下支持这样共享文件夹。 如果要尝试此示例，需要：
 
     1. 克隆 [相应的代码](https://github.com/tensorflow/models) 并共享该文件夹。
     2. 填写所有变量，包括：`<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, 以及 `<Password>`。
@@ -121,7 +121,7 @@ command 字段可分为以下几步。
   
   复制是指的一种方法，而不是某种工具或协议。 能传输文件的命令都可以成为复制的方法。 例如，SSH，SFTP，FTP，HTTP，SMB，NFS 等等。
   
-  下面 command 字段的示例使用了 `smbclient`，与共享示例的功能相同。 `smbclient` 也是使用的 SMB 协议。
+  下面 command 字段的示例使用了 `smbclient`，与共享示例的功能相同。 `smbclient` 也使用了 SMB 协议。
   
   注意，此示例的先决条件与[通用流程](#通用流程)相同。
   
@@ -142,7 +142,7 @@ command 字段可分为以下几步。
 - 缺点
   
   - 如果输出文件需要被持久化，也需要使用共享或复制的方法。
-  - 如果文件有更新，需要重新构建 Docker 映像。 这样，所有缓存的 Docker 都会过期，需要再次下载。
+  - 如果文件有更新，需要重新构建 Docker 映像。 所有 Docker 映像的缓存也会因此而过期，需要重新下载。
   - 如果文件很大，则不适合此方法。 通常，Docker 映像都在 2 到 4 GB 的大小。 因此，如果文件大于 1 GB，就不适合内置到 Docker 映像中。
 
 - 适用场景
@@ -155,40 +155,41 @@ command 字段可分为以下几步。
   下面的示例与 hello-world 更类似，没将输出的文件拷贝出来。
   
   1. 参考[这里](https://docs.docker.com/docker-hub/)来构建 Docker 映像并发布到 hub.docker.com 上。 下面的 Docker 文件将代码复制到了 Docker 映像中。
-    
-    ```docker FROM tensorflow/tensorflow:1.12.0-gpu-py3
-    
-    RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models ```
+  ```docker
+  FROM tensorflow/tensorflow:1.12.0-gpu-py3
+  
+  RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
+  ```
   
   2. 参考下列示例来改动 Job 配置。 除了 command 字段，image 字段也不相同。 image 字段需要改为包含有代码的 docker 映像的地址。
-    
-        json
-         {
-           "jobName": "tensorflow-cifar10",
-           "image": "<your image name>",
-           "taskRoles": [
-            {
-              "name": "default",
-              "taskNumber": 1,
-              "cpuNumber": 4,
-              "memoryMB": 8192,
-              "gpuNumber": 1,
-              "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-           }
-           ]
-         }
+  ```json
+  {
+    "jobName": "tensorflow-cifar10",
+    "image": "<your image name>",
+    "taskRoles": [
+    {
+      "name": "default",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+    }
+    ]
+  }
+  ```
 
-## In cloud (Azure)
+## 云服务存储（Azure）
 
-If OpenPAI is deployed in Azure, [Azure Files](https://azure.microsoft.com/en-us/services/storage/files/) and [Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) uses to store files.
+如果 OpenPAI 部署在了 Azure中，[Azure Files](https://azure.microsoft.com/en-us/services/storage/files/) 和 [Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) 都可用来保存文件。
 
-Azure Files offers fully managed file shares in the cloud that are accessible via the industry standard SMB protocol. It supports to [share by mount](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux) command or copy files by [Python SDK](https://docs.microsoft.com/en-us/azure/storage/files/storage-python-how-to-use-file-storage). A GUI tool, [Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-files), can manage files on Windows, Linux and macOS.
+Azure Files 提供了完全托管在云中的文件共享方案，可通过标准的 SMB 协议来访问。 它支持通过 [mount](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux) 命令来共享，或者通过 [Python SDK](https://docs.microsoft.com/en-us/azure/storage/files/storage-python-how-to-use-file-storage) 来复制文件。 GUI 工具 [Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-files) 可在 Windows, Linux 和 macOS 下管理文件。
 
-Azure Blob storage is Microsoft's object storage solution for the cloud. Blob storage is optimized for storing massive amounts of unstructured data. It supports [a lot of approaches](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#move-data-to-blob-storage) to access files, for example, [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy data, [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) to mount for sharing. It also supports [Python SDK](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python) and [Storage Explorer](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-storage-explorer) as Azure Files.
+Azure Blob 是微软针对云提供的对象存储方案。 Blob 存储可存储较大的非结构化数据。 它支持[多种方法](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#move-data-to-blob-storage)来访问文件，例如使用 [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) 来复制数据，[blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) 来挂载共享数据。 它和 Azure Files 一样也支持 [Python SDK](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python) 和 [Storage Explorer](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-storage-explorer)。
 
-## Many small files
+## 大量小文件
 
-In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
+在一些深度学习 Job 中，训练数据是很多小文件，如图片、音频或文本。 如果这些文件没有存放在本地，那么 IO 性能就会很低。 One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
 
 ## Large file size
 
