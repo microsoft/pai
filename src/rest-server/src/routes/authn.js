@@ -81,8 +81,9 @@ if (authnConfig.authnMethod === 'OIDC') {
             client_secret: clientSecret,
           };
           const response = await axios.post(requestUrl, querystring.stringify(data));
-          // eslint-disable-next-line no-console
-          console.log(response);
+          req.IDToken = response.data.id_token;
+          req.accessToken = response.data.access_token;
+          req.refreshToken = response.data.access_token;
         } catch (error) {
           return next(createError.unknown(error));
         }
@@ -125,7 +126,7 @@ if (authnConfig.authnMethod === 'OIDC') {
           };
           const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
-          console.log(response);
+          console.log(response.data);
         } catch (error) {
           return next(createError.unknown(error));
         }

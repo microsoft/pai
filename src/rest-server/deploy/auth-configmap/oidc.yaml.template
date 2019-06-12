@@ -3,17 +3,13 @@
 {% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
 
 OIDC-type: aad
-tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] or null }}
-identityMetadata: {{ cluster_cfg['authentication']['AAD']['identityMetadata'] or null }}
-clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] or null }}
-clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] or null }}
-responseMode: {{ cluster_cfg['authentication']['AAD']['responseMode'] or null }}
+tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] }}
+clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
+clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}
 redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/authn/oidc/return'
-scope: {{ cluster_cfg['authentication']['AAD']['scope'] or openid }}
 nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] or null }}
 nonceMaxAmount: {{ cluster_cfg['authentication']['AAD']['nonceMaxAmount'] or null }}
 clockSkew: {{ cluster_cfg['authentication']['AAD']['clockSkew'] or null }}
-resourceURL: {{ cluster_cfg['authentication']['AAD']['resourceURL'] or null }}
 destroySessionUrl: https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri={{ cluster_cfg['pylon']['uri'] }}
 
 {% endif %}

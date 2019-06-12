@@ -27,6 +27,8 @@ class Authentication:
         if "OIDC-type" not in self.service_configuration:
             return False, "OIDC-type is missing in service-configuration.yaml->authentication"
         if self.service_configuration["OIDC-type"] == "AAD":
+            if "tenantID" not in self.service_configuration["AAD"]:
+                return False, "tenantID is missing. If you wanna configure AAD-OIDC, you should configure service-configuration.yaml->authentication->AAD->tenantID"
             if "clientID" not in self.service_configuration["AAD"]:
                 return False, "clientID is missing. If you wanna configure AAD-OIDC, you should configure service-configuration.yaml->authentication->AAD->clientID"
             if "clientSecret" not in self.service_configuration["AAD"]:
