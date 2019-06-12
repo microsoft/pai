@@ -51,6 +51,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.requestTokenWithCode,
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
       tokenV2Controller.getAAD
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */

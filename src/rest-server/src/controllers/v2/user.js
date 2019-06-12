@@ -74,12 +74,12 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist: grouplist,
       extension: {},
     };
-    // eslint-disable-next-line no-console
-    console.log(userValue);
-    // await userModel.createUser(username, userValue);
-    // next();
+    await userModel.createUser(username, userValue);
+    req.updateResult = true;
+    next();
   } catch (error) {
     if (error.status === 409) {
+      req.updateResult = false;
       next();
     } else {
       return next(createError.unknown(error));
@@ -89,10 +89,12 @@ const createUserIfUserNotExist = async (req, res, next) => {
 
 const updateUserGroupListFromExternal = async (req, res, next) => {
   try {
-    const username = req.userData.username;
-    let userInfo = await userModel.getUser(username);
-    userInfo['grouplist'] = req.grouplist;
-    await userModel.updateUser(username, userInfo);
+    if (!req.updateResult) {
+      const username = req.userData.username;
+      let userInfo = await userModel.getUser(username);
+      userInfo['grouplist'] = req.grouplist;
+      await userModel.updateUser(username, userInfo);
+    }
     next();
   } catch (error) {
     return next(createError.unknown((error)));
