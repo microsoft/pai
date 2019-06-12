@@ -65,7 +65,7 @@ const get = async (req, res, next) => {
  */
 const getAAD = async (req, res, next) => {
   try {
-    const username = req.body.username;
+    const username = req.username;
     const userInfo = await userModel.getUser(username);
     let admin = false;
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
