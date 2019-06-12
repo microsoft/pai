@@ -43,7 +43,7 @@ else
     echo NVIDIA gpu not detected, skipping driver installation
 fi
 
-if [ -n ${ENABLE_IB} ]; then
+if [[ -n ${ENABLE_IB} ]]; then
     if lspci | grep -qE '(Network|Infiniband) controller.*Mellanox.*ConnectX'; then
         echo Infiniband hardware detected
         # Installing InfiniBand drivers and GPU direct RDMA drivers

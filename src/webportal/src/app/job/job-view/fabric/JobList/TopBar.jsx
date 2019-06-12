@@ -212,7 +212,6 @@ function TopBar() {
       },
       onClick() {
         setFilter(new Filter());
-        setActive(false);
       },
     };
   }

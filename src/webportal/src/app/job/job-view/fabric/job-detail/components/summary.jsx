@@ -31,10 +31,10 @@ import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
 import Context from './context';
-import MonacoPanel from './monaco-panel';
 import Timer from './timer';
 import {getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
+import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 
 const StoppableStatus = [
@@ -386,6 +386,7 @@ export default class Summary extends React.Component {
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
+                disabled={isNil(jobInfo.jobStatus.appTrackingUrl)}
                 target="_blank"
               >
                 Go to Application Tracking Page

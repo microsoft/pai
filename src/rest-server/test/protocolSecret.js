@@ -91,7 +91,7 @@ name: secret_example
 type: job
 version: !!str 1.0
 contributor: OpenPAI
-secrets: ******
+secrets: "******"
 prerequisites:
   - protocolVersion: 2
     name: secret_example
@@ -142,7 +142,7 @@ taskRoles:
       gpu: 1
     commands:
       - exit
-secrets: ******
+secrets: "******"
   `,
 };
 

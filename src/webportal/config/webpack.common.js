@@ -249,7 +249,7 @@ const config = (env, argv) => ({
     }),
     new MonacoWebpackPlugin({
       languages: ['json', 'yaml'],
-      features: ['smartSelect'],
+      features: ['suggest', 'hover'],
     }),
     new CopyWebpackPlugin([
       {from: 'src/assets', to: 'assets'},

@@ -130,7 +130,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 * [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
 * [监测](./docs/webportal/README.md)
-* [升级](./docs/upgrade/upgrade_to_v0.12.md)
+* [升级](./docs/upgrade/upgrade_to_v0.13.md)
 
 ## 参考手册
 

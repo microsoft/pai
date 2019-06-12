@@ -307,14 +307,14 @@ export default function BatchRegister() {
   return (
     <Context.Provider value={context}>
       <Fabric className={t.h100}>
-        <Stack verticalFill styles={{root: [t.relative, {padding: spacing.l1}]}} gap={spacing.s2}>
+        <Stack verticalFill styles={{root: [t.relative, {padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}]}} gap={spacing.s2}>
           <Stack.Item>
             <BackButton />
           </Stack.Item>
           <Stack.Item>
             <TopBar />
           </Stack.Item>
-          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {paddingTop: spacing.s2}]}}>
+          <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {height: 0, padding: spacing.l1}]}}>
             <Table />
           </Stack.Item>
           <Stack.Item>

@@ -1,0 +1,26 @@
+version: 1
+
+update_configs:
+  - package_manager: "javascript"
+    directory: "/src/rest-server"
+    update_schedule: "daily"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng
+
+  - package_manager: "javascript"
+    directory: "/src/webportal"
+    update_schedule: "daily"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng
+
+  - package_manager: "javascript"
+    directory: "/contrib"
+    update_schedule: "daily"
+    target_branch: "master"
+    default_reviewers:
+    - abuccts
+    - sunqinzheng

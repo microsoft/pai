@@ -17,7 +17,7 @@
 
 FROM base-image
 
-ENV ZOOKEEPER_VERSION=3.4.8
+ENV ZOOKEEPER_VERSION=3.4.14
 
 RUN wget -O - --no-verbose https://archive.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz | tar -xz -C /usr/local/ && \
     cd /usr/local/ && \
