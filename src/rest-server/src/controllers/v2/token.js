@@ -65,14 +65,14 @@ const get = async (req, res, next) => {
  */
 const getAAD = async (req, res, next) => {
   try {
-    const username = req.body.username;
+    const username = req.username;
     const userInfo = await userModel.getUser(username);
     let admin = false;
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
     }
     const token = await jwtSignPromise(userInfo, admin);
-    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/login.html?'+ querystring.stringify({
+    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/index.html?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
       admin: admin,

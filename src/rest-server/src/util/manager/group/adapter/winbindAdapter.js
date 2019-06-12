@@ -35,7 +35,7 @@ async function getUserGroupList(username, config) {
         'Accept': 'application/json',
       },
     });
-    return response['groups'];
+    return response['data']['groups'];
   } catch (error) {
     throw error;
   }

@@ -55,7 +55,7 @@ const getUserGrouplistFromExternal = async (username) => {
       const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
       const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
       for (const externalGroupname of externalGrouplist) {
-        if (externalName2Groupname.has(externalGroupname)) {
+        if (externalGroupname in externalName2Groupname) {
           response.push(externalName2Groupname[externalGroupname]);
         }
       }
@@ -202,7 +202,6 @@ if (config.env !== 'test') {
         }
         logger.info('Update group info successfully.');
       }
-
     } catch (error) {
       logger.error('Failed to create admin group configured in configuration.');
       // eslint-disable-next-line no-console

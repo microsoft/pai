@@ -3,29 +3,13 @@
 {% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
 
 OIDC-type: aad
-identityMetadata: {{ cluster_cfg['authentication']['AAD']['identityMetadata'] or null }}
-clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] or null }}
-clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] or null }}
-responseType: {{ cluster_cfg['authentication']['AAD']['responseType'] or null }}
-responseMode: {{ cluster_cfg['authentication']['AAD']['responseMode'] or null }}
-redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/authn/openid/return'
-allowHttpForRedirectUrl: {{ cluster_cfg['authentication']['AAD']['allowHttpForRedirectUrl'] or null }}
-validateIssuer: {{ cluster_cfg['authentication']['AAD']['validateIssuer'] or null }}
-isB2C: {{ cluster_cfg['authentication']['AAD']['isB2C'] or null }}
-issuer: {{ cluster_cfg['authentication']['AAD']['issuer'] or null }}
-passReqToCallback: {{ cluster_cfg['authentication']['AAD']['passReqToCallback'] or null }}
-useCookieInsteadOfSession: {{ cluster_cfg['authentication']['AAD']['useCookieInsteadOfSession'] or null }}
-cookieEncryptionKeys:
-{% for ckek in cluster_cfg['authentication']['AAD']['cookieEncryptionKeys'] %}
-    - key: '{{ ckek['key'] }}'
-      iv: '{{ ckek['iv'] }}'
-{% endfor %}
-scope: {{ cluster_cfg['authentication']['AAD']['scope'] or null }}
-loggingLevel: {{ cluster_cfg['authentication']['AAD']['loggingLevel'] or null }}
+tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] }}
+clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
+clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}
+redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/authn/oidc/return'
 nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] or null }}
 nonceMaxAmount: {{ cluster_cfg['authentication']['AAD']['nonceMaxAmount'] or null }}
 clockSkew: {{ cluster_cfg['authentication']['AAD']['clockSkew'] or null }}
-resourceURL: {{ cluster_cfg['authentication']['AAD']['resourceURL'] or null }}
 destroySessionUrl: https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri={{ cluster_cfg['pylon']['uri'] }}
 
 {% endif %}

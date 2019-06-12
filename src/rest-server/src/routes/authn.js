@@ -19,10 +19,11 @@
 const express = require('express');
 const tokenConfig = require('../config/token');
 const param = require('../middlewares/parameter');
-const authnConfig = require('../config/authn');
-const passport = require('passport');
 const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
+const azureADController = require('../controllers/v2/azureAD');
+
+const authnConfig = require('../config/authn');
 
 const router = new express.Router();
 
@@ -30,109 +31,28 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
-      function(req, res, next) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('AAD coming');
-          passport.authenticate('azuread-openidconnect', {
-              response: res,
-              resourceURL: authnConfig.OIDCConfig.resourceURL,
-              customState: 'my_state',
-              failureRedirect: '/',
-            }
-          )(req, res, next);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to reqeust reponse');
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      function(req, res) {
-        res.redirect('/');
-      }
+      azureADController.requestAuthCode
     );
 
   router.route('/oidc/logout')
   /** POST /api/v1/authn/oidc/logout */
     .get(
-      function(req, res) {
-        req.session.destroy(function(err) {
-          req.logOut();
-          res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
-        });
-      }
+      azureADController.signoutAzureAD
     );
 
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
-      function(req, res, next) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('get response');
-          passport.authenticate('azuread-openidconnect',
-            {
-              response: res,
-              failureRedirect: '/',
-            }
-          )(req, res, next);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to get response');
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.userData = userBasicInfo;
-        next();
-      },
+      azureADController.requestTokenWithCode,
+      azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
       tokenV2Controller.getAAD
     )
-    /** POST /api/v1/authn/openid/return - AAD AUTH RETURN */
+    /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
-      function(req, res, next) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('get response');
-          passport.authenticate('azuread-openidconnect',
-            {
-              response: res,
-              failureRedirect: '/',
-            }
-          )(req, res, next);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('failed to get response');
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.username = username;
-        req.userData = userBasicInfo;
-        next();
-      },
+      azureADController.requestTokenWithCode,
+      azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
       tokenV2Controller.getAAD
