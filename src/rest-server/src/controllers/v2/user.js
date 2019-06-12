@@ -74,8 +74,10 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist: grouplist,
       extension: {},
     };
-    await userModel.createUser(username, userValue);
-    next();
+    // eslint-disable-next-line no-console
+    console.log(userValue);
+    // await userModel.createUser(username, userValue);
+    // next();
   } catch (error) {
     if (error.status === 409) {
       next();

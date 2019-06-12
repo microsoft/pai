@@ -80,6 +80,7 @@ const parseTokenData = async (req, res, next) => {
     console.log(userBasicInfo);
     req.username = userBasicInfo.username;
     req.userData = userBasicInfo;
+    next();
   } catch (error) {
     return next(createError.unknown(error));
   }
