@@ -67,12 +67,14 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 Authenticated and get an access token in the system.
 
 *Request*
-```
+
+```json
 POST /api/v1/token
 ```
 
 *Parameters*
-```
+
+```json
 {
   "username": "your username",
   "password": "your password",
@@ -81,7 +83,8 @@ POST /api/v1/token
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -92,7 +95,8 @@ Status: 200
 ```
 
 *Response if user does not exist*
-```
+
+```json
 Status: 400
 
 {
@@ -102,7 +106,8 @@ Status: 400
 ```
 
 *Response if password is incorrect*
-```
+
+```json
 Status: 400
 
 {
@@ -111,8 +116,9 @@ Status: 400
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -127,13 +133,15 @@ Update a user in the system.
 Administrator can add user or change other user's password; user can change his own password.
 
 *Request*
-```
+
+```json
 PUT /api/v1/user
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "username": "username in [_A-Za-z0-9]+ format",
   "password": "password at least 6 characters",
@@ -143,7 +151,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 201
 
 {
@@ -152,7 +161,8 @@ Status: 201
 ```
 
 *Response if not authorized*
-```
+
+```json
 Status: 401
 
 {
@@ -162,7 +172,8 @@ Status: 401
 ```
 
 *Response if current user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -172,7 +183,8 @@ Status: 403
 ```
 
 *Response if updated user does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -182,7 +194,8 @@ Status: 404
 ```
 
 *Response if created user has a duplicate name*
-```
+
+```json
 Status: 409
 
 {
@@ -191,8 +204,9 @@ Status: 409
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -206,20 +220,23 @@ Status: 500
 Remove a user in the system.
 
 *Request*
-```
+
+```json
 DELETE /api/v1/user
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "username": "username to be removed"
 }
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -228,7 +245,8 @@ Status: 200
 ```
 
 *Response if not authorized*
-```
+
+```json
 Status: 401
 
 {
@@ -238,7 +256,8 @@ Status: 401
 ```
 
 *Response if user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -248,7 +267,8 @@ Status: 403
 ```
 
 *Response if an admin will be removed*
-```
+
+```json
 Status: 403
 
 {
@@ -258,7 +278,8 @@ Status: 403
 ```
 
 *Response if updated user does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -267,8 +288,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -282,20 +304,23 @@ Status: 500
 Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
 
 *Request*
-```
+
+```json
 PUT /api/v1/user/:username/virtualClusters
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
 }
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 201
 
 {
@@ -304,7 +329,8 @@ Status: 201
 ```
 
 *Response if the virtual cluster does not exist.*
-```
+
+```json
 Status: 400
 
 {
@@ -314,7 +340,8 @@ Status: 400
 ```
 
 *Response if not authorized*
-```
+
+```json
 Status: 401
 
 {
@@ -324,7 +351,8 @@ Status: 401
 ```
 
 *Response if user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -334,7 +362,8 @@ Status: 403
 ```
 
 *Response if user does not exist.*
-```
+
+```json
 Status: 404
 
 {
@@ -343,8 +372,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -358,19 +388,22 @@ Status: 500
 Get the list of jobs.
 
 *Request*
-```
+
+```json
 GET /api/v1/jobs
 ```
 
 *Parameters*
-```
+
+```json
 {
   "username": "filter jobs with username"
 }
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -378,8 +411,9 @@ Status: 200
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -393,12 +427,14 @@ Status: 500
 Get the list of jobs of user.
 
 *Request*
-```
+
+```json
 GET /api/v1/user/:username/jobs
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -406,8 +442,9 @@ Status: 200
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -421,12 +458,14 @@ Status: 500
 Get job status in the system.
 
 *Request*
-```
+
+```json
 GET /api/v1/user/:username/jobs/:jobName
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -497,7 +536,8 @@ Status: 200
 ```
 
 *Response if the job does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -506,8 +546,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -521,7 +562,8 @@ Status: 500
 Submit a job in the system.
 
 *Request*
-```
+
+```json
 POST /api/v1/user/:username/jobs
 Authorization: Bearer <ACCESS_TOKEN>
 ```
@@ -531,7 +573,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 [job config json](../job_tutorial.md)
 
 *Response if succeeded*
-```
+
+```json
 Status: 202
 
 {
@@ -540,7 +583,8 @@ Status: 202
 ```
 
 *Response if the virtual cluster does not exist.*
-```
+
+```json
 Status: 400
 
 {
@@ -550,7 +594,8 @@ Status: 400
 ```
 
 *Response if user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -560,7 +605,8 @@ Status: 403
 ```
 
 *Response if there is a duplicated job submission*
-```
+
+```json
 Status: 409
 
 {
@@ -569,8 +615,9 @@ Status: 409
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -584,12 +631,14 @@ Status: 500
 Get job config JSON content.
 
 *Request*
-```
+
+```json
 GET /api/v1/user/:username/jobs/:jobName/config
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -600,7 +649,8 @@ Status: 200
 ```
 
 *Response if the job does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -610,7 +660,8 @@ Status: 404
 ```
 
 *Response if the job config does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -619,8 +670,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -634,12 +686,14 @@ Status: 500
 Get job SSH info.
 
 *Request*
-```
+
+```json
 GET /api/v1/user/:username/jobs/:jobName/ssh
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -661,7 +715,8 @@ Status: 200
 ```
 
 *Response if the job does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -671,7 +726,8 @@ Status: 404
 ```
 
 *Response if the job SSH info does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -680,8 +736,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -695,20 +752,23 @@ Status: 500
 Start or stop a job.
 
 *Request*
-```
+
+```json
 PUT /api/v1/user/:username/jobs/:jobName/executionType
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "value": "START" | "STOP"
 }
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -717,7 +777,8 @@ Status: 200
 ```
 
 *Response if the job does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -726,8 +787,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -741,12 +803,14 @@ Status: 500
 Get the list of virtual clusters.
 
 *Request*
-```
+
+```json
 GET /api/v1/virtual-clusters
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -757,8 +821,9 @@ Status: 200
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -772,12 +837,14 @@ Status: 500
 Get virtual cluster status in the system.
 
 *Request*
-```
+
+```json
 GET /api/v1/virtual-clusters/:vcName
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -800,7 +867,8 @@ Status: 200
 ```
 
 *Response if the virtual cluster does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -809,8 +877,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -824,13 +893,15 @@ Status: 500
 Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
 
 *Request*
-```
+
+```json
 PUT /api/v1/virtual-clusters/:vcName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "vcCapacity": new capacity,
   "vcMaxCapacity": new max capacity, range of [vcCapacity, 100]
@@ -838,7 +909,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 201
 
 {
@@ -847,7 +919,8 @@ Status: 201
 ```
 
 *Response if try to update "default" vc*
-```
+
+```json
 Status: 403
 
 {
@@ -857,7 +930,8 @@ Status: 403
 ```
 
 *Response if current user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -867,7 +941,8 @@ Status: 403
 ```
 
 *Response if no enough quota*
-```
+
+```json
 Status: 403
 
 {
@@ -877,7 +952,8 @@ Status: 403
 ```
 
 *Response if "default" virtual cluster does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -886,8 +962,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -901,13 +978,15 @@ Status: 500
 remove virtual cluster in the system, don't allow to operate "default" vc.
 
 *Request*
-```
+
+```json
 DELETE /api/v1/virtual-clusters/:vcName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 201
 
 {
@@ -916,7 +995,8 @@ Status: 201
 ```
 
 *Response if current user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -926,7 +1006,8 @@ Status: 403
 ```
 
 *Response if try to update "default" vc*
-```
+
+```json
 Status: 403
 
 {
@@ -936,7 +1017,8 @@ Status: 403
 ```
 
 *Response if the virtual cluster does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -946,7 +1028,8 @@ Status: 404
 ```
 
 *Response if "default" virtual cluster does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -955,8 +1038,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -970,20 +1054,23 @@ Status: 500
 Change virtual cluster status, don't allow to operate "default" vc.
 
 *Request*
-```
+
+```json
 PUT /api/v1/virtual-clusters/:vcName/status
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Parameters*
-```
+
+```json
 {
   "vcStatus": "running" | "stopped"
 }
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 201
 
 {
@@ -992,7 +1079,8 @@ Status: 201
 ```
 
 *Response if try to update "default" vc*
-```
+
+```json
 Status: 403
 
 {
@@ -1002,7 +1090,8 @@ Status: 403
 ```
 
 *Response if current user has no permission*
-```
+
+```json
 Status: 403
 
 {
@@ -1012,7 +1101,8 @@ Status: 403
 ```
 
 *Response if the virtual cluster does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -1021,8 +1111,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -1031,7 +1122,6 @@ Status: 500
 }
 ```
 
-
 ## API v2
 
 ### `POST jobs`
@@ -1039,7 +1129,8 @@ Status: 500
 Submit a job v2 in the system.
 
 *Request*
-```
+
+```json
 POST /api/v2/jobs
 Content-Type: text/yaml
 Authorization: Bearer <ACCESS_TOKEN>
@@ -1050,7 +1141,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 [job protocol yaml](../pai-job-protocol.yaml)
 
 *Response if succeeded*
-```
+
+```json
 Status: 202
 
 {
@@ -1059,7 +1151,8 @@ Status: 202
 ```
 
 *Response if the virtual cluster does not exist.*
-```
+
+```json
 Status: 400
 
 {
@@ -1069,6 +1162,7 @@ Status: 400
 ```
 
 *Response if user has no permission*
+
 ```
 Status: 403
 
@@ -1079,7 +1173,8 @@ Status: 403
 ```
 
 *Response if there is a duplicated job submission*
-```
+
+```json
 Status: 409
 
 {
@@ -1088,8 +1183,9 @@ Status: 409
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
@@ -1103,14 +1199,16 @@ Status: 500
 Get job config JSON or YAML content.
 
 *Request*
-```
+
+```json
 GET /api/v2/jobs/:frameworkName/config
 Accept: json (for v1 jobs)
 Accept: yaml (for v2 jobs)
 ```
 
 *Response if succeeded*
-```
+
+```json
 Status: 200
 
 {
@@ -1127,7 +1225,8 @@ protocolVersion: 2
 ```
 
 *Response if the job does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -1137,7 +1236,8 @@ Status: 404
 ```
 
 *Response if the job config does not exist*
-```
+
+```json
 Status: 404
 
 {
@@ -1146,8 +1246,9 @@ Status: 404
 }
 ```
 
-*Response if a server error occured*
-```
+*Response if a server error occurred*
+
+```json
 Status: 500
 
 {
