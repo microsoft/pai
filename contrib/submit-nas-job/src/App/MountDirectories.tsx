@@ -276,7 +276,7 @@ export default class MountDirectories {
       case "samba":
         return [
           `mount -t cifs //${serverData.address}${this.normalizePath(
-          "/" + serverData.rootPath + "/" + relativePath)} ${mountPoint} -o username=${
+            "/" + serverData.rootPath + "/" + relativePath)} ${mountPoint} -o vers=3.0,username=${
             serverData.userName},password=${serverData.password}` +
             (serverData.domain !== undefined && serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ""),
           ];

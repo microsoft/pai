@@ -158,7 +158,7 @@ export default function App({ pluginId, api, user, token, originalJobName, origi
     setName(`${type}-${Date.now().toString(36).toLocaleUpperCase()}`);
     switch (type) {
       case "mount-test-task":
-        setImage("ubuntu");
+        setImage("ubuntu:16.04");
         break;
       case "single-task":
         setImage("openpai/pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04");
