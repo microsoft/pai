@@ -72,7 +72,7 @@ const getAAD = async (req, res, next) => {
       admin = true;
     }
     const token = await jwtSignPromise(userInfo, admin);
-    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/home.html?'+ querystring.stringify({
+    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/index.html?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
       admin: admin,
