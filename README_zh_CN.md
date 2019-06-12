@@ -175,8 +175,4 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
 
-<<<<<<< HEAD
-OpenPAI 采用开放的形式来合作。 它最初由微软研究院和微软互联网工程院 AI 平台团队联合开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。
-=======
 OpenPAI 采用开放的形式来合作。 由[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/company/introduction.aspx) AI 平台团队联合设计开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。
->>>>>>> l10n_master
