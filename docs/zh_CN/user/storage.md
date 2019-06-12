@@ -142,25 +142,25 @@ command 字段可分为以下几步。
 - 缺点
   
   - 如果输出文件需要被持久化，也需要使用共享或复制的方法。
-  - 如果文件有更新，需要重新构建 Docker 映像。 All docker caches are expired also and need to be downloaded again.
-  - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
+  - 如果文件有更新，需要重新构建 Docker 映像。 这样，所有缓存的 Docker 都会过期，需要再次下载。
+  - 如果文件很大，则不适合此方法。 通常，Docker 映像都在 2 到 4 GB 的大小。 因此，如果文件大于 1 GB，就不适合内置到 Docker 映像中。
 
-- Applicable scenarios
+- 适用场景
   
-  - The files are not changed frequently, and the size is no more than 1GB.
-  - The files are many small files.
+  - 文件不经常更新，大小不超过 1 GB。
+  - 有大量的小文件。
 
-- How-to use
+- 如何使用
   
-  Below is an example more like hello-world since it doesn't copy outputs out.
+  下面的示例与 hello-world 更类似，没将输出的文件拷贝出来。
   
-  1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
+  1. 参考[这里](https://docs.docker.com/docker-hub/)来构建 Docker 映像并发布到 hub.docker.com 上。 下面的 Docker 文件将代码复制到了 Docker 映像中。
     
     ```docker FROM tensorflow/tensorflow:1.12.0-gpu-py3
     
     RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models ```
   
-  2. Change the job config like below. Besides the command field, the image field is also different. The image field needs the location of the docker image, which contains code.
+  2. 参考下列示例来改动 Job 配置。 除了 command 字段，image 字段也不相同。 image 字段需要改为包含有代码的 docker 映像的地址。
     
         json
          {
