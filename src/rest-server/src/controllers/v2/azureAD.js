@@ -63,14 +63,23 @@ const requestTokenWithCode = async (req, res, next) => {
     req.IDToken = jwt.decode(response.data.id_token);
     req.accessToken = jwt.decode(response.data.access_token);
     req.refreshToken = jwt.decode(response.data.access_token);
-    // eslint-disable-next-line no-console
-    console.log(req.IDToken);
-    // eslint-disable-next-line no-console
-    console.log(req.accessToken);
-    // eslint-disable-next-line no-console
-    console.log(req.refreshToken);
-    // next();
+    next();
   } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
+const parseTokenData = async (req, res, next) => {
+  try {
+    const userBasicInfo = {
+      email: req.accessToken.email,
+      username: req.accessToken.email.substring(0, req.accessToken.email.lastIndexOf('@')),
+      oid: req.accessToken.oid,
+    };
+    console.log(userBasicInfo);
+    req.username = userBasicInfo.username;
+    req.userData = userBasicInfo;
+  } catch {
     return next(createError.unknown(error));
   }
 };
@@ -79,4 +88,5 @@ const requestTokenWithCode = async (req, res, next) => {
 module.exports = {
   requestAuthCode,
   requestTokenWithCode,
+  parseTokenData,
 };

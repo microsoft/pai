@@ -49,39 +49,14 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
       azureADController.requestTokenWithCode,
-      function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.userData = userBasicInfo;
-        next();
-      },
+      azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       tokenV2Controller.getAAD
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
       azureADController.requestTokenWithCode,
-      async function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.username = username;
-        req.userData = userBasicInfo;
-        next();
-      },
+      azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
       tokenV2Controller.getAAD
