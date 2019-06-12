@@ -8,7 +8,7 @@ We only collected some basic metrics such as node/OS/job metrics and OpenPai ser
 
 ## Current metrics and alerts
 
-See [exporter metrics](./exporter-metrics.md) and [watchdog metrics](./watchdog-metrics.md) for metrics we are exposing and see [prometheus-alert](../../src/prometheus/deploy/alerting) for alerts we already defined.
+See [exporter metrics](./exporter-metrics.md) and [watchdog metrics](./watchdog-metrics.md) for metrics we are exposing and see [prometheus-alert](../../../src/prometheus/deploy/alerting) for alerts we already defined.
 
 # Goal
 
