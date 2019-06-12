@@ -1,16 +1,16 @@
 # 如何使用存储
 
-- [如何使用存储](#how-to-use-storage) 
-  - [为什么要关注存储](#why-care-about-storage)
-  - [通用流程](#general-practice)
-  - [主要方法](#approaches) 
-    - [共享路径](#sharing)
-    - [复制](#copy)
-    - [Docker 内置](#docker-built-in)
-  - [云服务存储（Azure）](#in-cloud-azure)
-  - [大量小文件](#many-small-files)
-  - [大数据量](#large-file-size)
-  - [OpenPAI 中的 HDFS](#hdfs-in-openpai)
+- [如何使用存储](#如何使用的存储) 
+  - [为什么要关注存储](#为什么要关注存储)
+  - [通用流程](#通用流程)
+  - [主要方法](#主要方法) 
+    - [共享路径](#共享路径)
+    - [复制](#复制)
+    - [Docker 内置](#Docker 内置)
+  - [云服务存储（Azure）](#云服务存储（Azure）)
+  - [大量小文件](#大量小文件)
+  - [大数据量](#大数据量)
+  - [OpenPAI 中的 HDFS](#OpenPAI 中的 HDFS)
 
 ## 为什么要关注存储
 
