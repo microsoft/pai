@@ -20,9 +20,9 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 ## 通用流程
 
-下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
+下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 The command field uses code in a shared folder instead from GitHub and it saves outputs back to the storage.
 
-注意，此示例使用的是 Windows 的共享文件夹。 [Samba](https://www.samba.org/) 可在 Linux 下支持这样共享文件夹。 如果要尝试此示例，需要：
+Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
 
     1. 克隆 [相应的代码](https://github.com/tensorflow/models) 并共享该文件夹。
     2. 填写所有变量，包括：`<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, 以及 `<Password>`。
@@ -85,7 +85,7 @@ command 字段可分为以下几步。
 - 适用场景
   
   - 共享存储和 OpenPAI 需要在同一个局域网中，存储的 IOPS 需要足够以支持并发的 Job。
-  - 文件夹中包含有在 Job 运行过程中不会被访问到的文件。
+  - If shared folder contains files, which won't be accessed during job running.
   - 没有大量小文件，也不需要并发保存文件。
 
 - 如何使用
@@ -108,7 +108,7 @@ command 字段可分为以下几步。
   
   - 如果只需要部分文件，则需要通过规则来选择复制文件。
   - 如果 Job 意外失败，可能无法将输出复制出来。
-  - 可能本地磁盘空间不足以复制所有文件。
+  - There may not have enough disk space to copy files to local.
   - 大多数协议在访问大量小文件时，性能都会很低。
 
 - 适用场景
@@ -121,7 +121,7 @@ command 字段可分为以下几步。
   
   复制是指的一种方法，而不是某种工具或协议。 能传输文件的命令都可以成为复制的方法。 例如，SSH，SFTP，FTP，HTTP，SMB，NFS 等等。
   
-  下面 command 字段的示例使用了 `smbclient`，与共享示例的功能相同。 `smbclient` 也使用了 SMB 协议。
+  This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
   
   注意，此示例的先决条件与[通用流程](#通用流程)相同。
   
@@ -142,7 +142,7 @@ command 字段可分为以下几步。
 - 缺点
   
   - 如果输出文件需要被持久化，也需要使用共享或复制的方法。
-  - 如果文件有更新，需要重新构建 Docker 映像。 所有 Docker 映像的缓存也会因此而过期，需要重新下载。
+  - 如果文件有更新，需要重新构建 Docker 映像。 All docker caches are expired also and need to be downloaded again.
   - 如果文件很大，则不适合此方法。 通常，Docker 映像都在 2 到 4 GB 的大小。 因此，如果文件大于 1 GB，就不适合内置到 Docker 映像中。
 
 - 适用场景
@@ -154,30 +154,29 @@ command 字段可分为以下几步。
   
   下面的示例与 hello-world 更类似，没将输出的文件拷贝出来。
   
-  1. 参考[这里](https://docs.docker.com/docker-hub/)来构建 Docker 映像并发布到 hub.docker.com 上。 下面的 Docker 文件将代码复制到了 Docker 映像中。
-  ```docker
-  FROM tensorflow/tensorflow:1.12.0-gpu-py3
+  1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
+    
+    ```docker FROM tensorflow/tensorflow:1.12.0-gpu-py3
+    
+    RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models ```
   
-  RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
-  ```
-  
-  2. 参考下列示例来改动 Job 配置。 除了 command 字段，image 字段也不相同。 image 字段需要改为包含有代码的 docker 映像的地址。
-  ```json
-  {
-    "jobName": "tensorflow-cifar10",
-    "image": "<your image name>",
-    "taskRoles": [
-    {
-      "name": "default",
-      "taskNumber": 1,
-      "cpuNumber": 4,
-      "memoryMB": 8192,
-      "gpuNumber": 1,
-      "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-    }
-    ]
-  }
-  ```
+  2. Change the job config like below. Besides the command field, the image field is also different. The image field needs the location of the docker image, which contains code.
+    
+        json
+         {
+           "jobName": "tensorflow-cifar10",
+           "image": "<your image name>",
+           "taskRoles": [
+            {
+              "name": "default",
+              "taskNumber": 1,
+              "cpuNumber": 4,
+              "memoryMB": 8192,
+              "gpuNumber": 1,
+              "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+           }
+           ]
+         }
 
 ## 云服务存储（Azure）
 
