@@ -36,7 +36,7 @@
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
     <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
     <hadoop.version>2.9.0</hadoop.version>
-    <zookeeper.version>3.4.8</zookeeper.version>
+    <zookeeper.version>3.4.14</zookeeper.version>
     <curator.version>2.12.0</curator.version>
     <httpcomponents.version>4.3.6</httpcomponents.version>
     <snakeyaml.version>1.18</snakeyaml.version>

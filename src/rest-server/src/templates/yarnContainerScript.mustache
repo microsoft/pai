@@ -309,7 +309,7 @@ printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 nvidia_flags=''
 # check docker runtime
 default_runtime=$(docker info --format {{{ infoDefaultRuntimeFormat }}})
-if [ "$default_runtime" = "nvidia" ]; then
+if [ "$default_runtime" = '"nvidia"' ]; then
   nvidia_flags+="--runtime=nvidia --env NVIDIA_VISIBLE_DEVICES=$gpu_id"
 else
   nvidia_flags+="--runtime=runc --env NVIDIA_VISIBLE_DEVICES=void $nvidia_devices"

@@ -1,31 +1,31 @@
-# How to use storage
+# 如何使用存储
 
-- [How to use storage](#how-to-use-storage) 
-  - [Why care about storage](#why-care-about-storage)
-  - [General practice](#general-practice)
-  - [Approaches](#approaches) 
-    - [Sharing](#sharing)
-    - [Copy](#copy)
-    - [Docker Built-in](#docker-built-in)
-  - [In cloud (Azure)](#in-cloud-azure)
-  - [Many small files](#many-small-files)
-  - [Large file size](#large-file-size)
-  - [HDFS in OpenPAI](#hdfs-in-openpai)
+- [如何使用存储](#如何使用的存储) 
+  - [为什么要关注存储](#为什么要关注存储)
+  - [通用流程](#通用流程)
+  - [主要方法](#主要方法) 
+    - [共享路径](#共享路径)
+    - [复制](#复制)
+    - [Docker 内置](#Docker 内置)
+  - [云服务存储（Azure）](#云服务存储（Azure）)
+  - [大量小文件](#大量小文件)
+  - [大数据量](#大数据量)
+  - [OpenPAI 中的 HDFS](#OpenPAI 中的 HDFS)
 
-## Why care about storage
+## 为什么要关注存储
 
-OpenPAI manages computing resources, but it doesn't offer persistent storage for data, code, or model files. Training jobs on OpenPAI runs in docker containers, which are fresh environments and will be destroyed once completed. So, a job of OpenPAI should prepare files first, and may save output files out before the environment destroyed.
+OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持久化存储。 OpenPAI 上的训练 Job 运行在 Docker 容器中，这些容器每次都会重建，运行完成即被删除。 因此， OpenPAI Job 需要先准备好文件，并在环境被删除前将输出的文件保存出来。
 
-This article introduces how to access files on OpenPAI, and it's no difference with general Docker practice.
+本文介绍了如何在 OpenPAI 中访问文件。实际上，这与在一般的 Docker 容器中访问文件是一样的。
 
-## General practice
+## 通用流程
 
-Below job configuration is similar with the [hello-world example](training.md#submit-a-hello-world-job), except the command field. The command field uses code in a shared folder instead from GitHub and it saves outputs back to the storage.
+下面的 Job 配置与 [hello-world 示例](training.md#submit-a-hello-world-job)非常类似，只有 command 字段有些不同。 command 字段用了共享文件夹中的代码，而不是从 GitHub 克隆代码，另外还将输出保存回了这个文件夹。
 
-Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
+注意，此示例使用的是 Windows 的共享文件夹。 [Samba](https://www.samba.org/) 可在 Linux 下支持这样共享文件夹。 如果要尝试此示例，需要：
 
-    1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
-    2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
+    1. 克隆 [相应的代码](https://github.com/tensorflow/models) 并共享该文件夹。
+    2. 填写所有变量，包括：`<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, 以及 `<Password>`。
     
 
 ```json
@@ -45,157 +45,158 @@ Note, this example uses a windows shared folder, and [Samba](https://www.samba.o
 }
 ```
 
-The command field can be split to below general steps.
+command 字段可分为以下几步。
 
-1. **Prepare environment**. The docker image prepares most dependencies. But if the job needs more components, it can be installed by apt, pip or other command. In this example, `apt update && apt install -y cifs-utils` installs `cifs-utils` to mount the code folder.
+1. **准备环境**。 Docker 镜像已经准备好了大部分依赖。 但如果 Job 需要更多的组件，可通过 apt，pip 或其它命令来安装。 此例中，`apt update && apt install -y cifs-utils` 安装了 `cifs-utils` 来挂载代码文件夹。
   
-  If all dependencies are included into the docker image, it can save time to download and install them during each running. But if dependencies are updated frequently, or various for different job types, they can be installed during job running.
+  如果将所有依赖都包含在 Docker 映像中，可以在每次运行前省下下载和安装时间。 但如果这些依赖更新得非常频繁，或不同的 Job 需要大量的依赖，则可以在 Job 运行时安装。
 
-2. **Prepare files**. `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim`, mounts a shared folder, which contains the code. If other folders contain data or model, they can be mounted as this place also.
+2. **准备文件**。 `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim`，挂在了包含代码的共享文件夹。 如果还有其它文件夹包含了数据或模型，也可以在此挂载上。
 
-3. **Run core logic**. The commands, `python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000`, are the same as in [the hello-world example](training.md#submit-a-hello-world-job).
+3. **执行核心逻辑**。 命令 `python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000` 与 [hello-world 示例](training.md#submit-a-hello-world-job)中的一样。
 
-4. **Save outputs**. The docker container will be destroyed once job completed. So, if any result file is needed, it should be saved out of the docker container. The command, `cp -rf /tmp/output /models/output`, copies the trained model and checkpoints back to the shared folder.
+4. **保存输出**。 Docker 容器会在每次 Job 完成后被删除。 因此，如果需要任何结果文件，要将其保存到 Docker 容器之外。 命令 `cp -rf /tmp/output /models/output` 将训练后的模型和检查点都复制回了共享文件夹。
 
-Note, this example put all steps in the command field. Some steps can be in a bash or python script, and use a command starts it, so that the script can handle more complex logic.
+注意，此例将所有步骤都放到了 command 字段中。 有些步骤可以放到 Bash 或 Python 脚本中，然后用一条命令来运行。这样可以用脚本来处理更复杂的逻辑。
 
-## Approaches
+## 主要方法
 
-Besides sharing, files can be built into the docker image directly or copied in/out. The three approaches have different fitness. Below introduce their advantages, shortcomings, and how-to.
+除了共享文件夹，文件也可以直接内置到 Docker 映像中，或复制进出 Docker 容器。 这三种方法适应不同的场景。 以下介绍了它们各自的优缺点以及使用简介。
 
-### Sharing
+### 共享路径
 
-It maintains a connection between storage and docker container, and usual keeps alive during the whole lifecycle of job.
+这种方法会在存储和 Docker 容器之间建立长时间的连接，一般会在整个 Job 的声明周期都保持可用。
 
-- Advantage
+- 优点
   
-  - It doesn't transfer data until needed. So, it can share a large size folder without extra performance impact.
-  - It's easy to use. A mounted folder supports the same code logic as a local folder.
-  - The write operations happen on shared files immediately. So that it can reflect changes quickly.
+  - 没有使用的数据不会被传输。 因此，共享很大的目录也不会产生额外的性能影响。
+  - 易于使用。 挂载的文件夹和本地文件夹的代码逻辑是一样的。
+  - 写操作会立刻发生在共享文件上。 因此可以快速反映改动。
 
-- Shortcoming
+- 缺点
   
-  - If network is unstable during job running, the job may be failed, as the shared file may be accessed any time.
-  - If files are read/write multiple times, they may spend multiple times of network IO than other approaches.
-  - Most sharing protocols cannot pass through firewall.
-  - Most sharing protocols are significant low performance when accessing many small files.
-  - The disk or network IO may be bottleneck if the shared folder is accessed by many jobs.
-  - It may cause corrupt files if multiple jobs save back on a file at the same time.
+  - 因为共享文件可能在任何时候被访问到，所以如果 Job 运行期间网络不稳定，可能会造成 Job 失败。
+  - 如果文件被读写多次，与其它方法相比，可能会造成多次网络 IO。
+  - 大多数共享路径的协议都不能穿过防火墙。
+  - 大多数共享协议在访问大量小文件时，性能都会很低。
+  - 如果共享路径被多个 Job 访问，网络或磁盘 IO 可能会成为瓶颈。
+  - 如果多个 Job 同时写回同一个文件，可能会造成文件损坏。
 
-- Applicable scenarios
+- 适用场景
   
-  - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is enough to handle concurrent jobs.
-  - If shared folder contains files, which won't be accessed during job running.
-  - There are not many small files, and no needed to save files concurrently.
+  - 共享存储和 OpenPAI 需要在同一个局域网中，存储的 IOPS 需要足够以支持并发的 Job。
+  - 文件夹中包含有在 Job 运行过程中不会被访问到的文件。
+  - 没有大量小文件，也不需要并发保存文件。
 
-- How-to use
+- 如何使用
   
-  The [general practice](#general-practice) uses sharing and it's a good demonstration of SMB protocol. [NFS](https://en.wikipedia.org/wiki/Network_File_System) is also a popular sharing protocol. `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` can be used to install and mount NFS folder.
+  [通用流程](#通用流程)就使用了共享路径，很好的演示了 SMB 协议的用法。 [NFS](https://en.wikipedia.org/wiki/Network_File_System) 是另一个流行的共享协议。 `apt install nfs-common && mkdir /models && mount -t nfs4 <server address>:<server path> /models` 可用来安装并挂载 NFS 路径。
   
-  Refer to [here](https://www.linux.org/docs/man8/mount.html) for more information about `mount` command and other types of sharing protocol.
+  参考[这里](https://www.linux.org/docs/man8/mount.html)了解更多关于 `mount` 命令以及其它共享协议的信息。
 
-### Copy
+### 复制
 
-It only creates a connection when transferring files, and caches files locally.
+此方法仅在传输文件的时候需要连接，将文件缓存在本地。
 
-- Advantage
+- 优点
   
-  - The disk IO performance is much higher than shared remote files, as files are copied to local. If some files need to be read/written multiple times, it's also much quickly.
-  - Some transferring protocols can pass firewall. Many mature protocols can transfer files, including SSH, SFTP, HTTP, SMB and so on.
-  - If network is unstable, copy has higher chance to get jobs succeed, as it doesn't need to keep a connection long time.
+  - 因为文件复制到了本地，IO 性能会大大高于远程共享文件。 在多次读写文件的场景下，也非常快。
+  - 部分传输协议可穿越防火墙。 许多成熟的协议都可用来传输文件，如 SSH，SFTP，HTTP，SMB 等等。
+  - 因为复制不需要长时间保持连接，所以在网络不稳定的情况下，其更有可能让 Job 运行成功。
 
-- Shortcoming
+- 缺点
   
-  - It needs logic to copy files selectively if partial files are needed.
-  - There may not have a chance to copy outputs out if the job is failed unexpectedly.
-  - There may not have enough disk space to copy files to local.
-  - Most protocols are significant low performance when accessing many small files.
+  - 如果只需要部分文件，则需要通过规则来选择复制文件。
+  - 如果 Job 意外失败，可能无法将输出复制出来。
+  - 可能本地磁盘空间不足以复制所有文件。
+  - 大多数协议在访问大量小文件时，性能都会很低。
 
-- Applicable scenarios
+- 适用场景
   
-  - The disk size of docker container is enough to copied files.
-  - Copied files need high IO performance, or accessed multiple times.
-  - There are not many small files.
+  - Dockers 容器的磁盘大小足够复制文件。
+  - 复制的文件需要很高的 IO 性能，或会被多次访问。
+  - 没有大量小文件。
 
-- How-to use
+- 如何使用
   
-  Copy is a general approach, not a specified tool or protocol. So, all commands that can transfer files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
+  复制是指的一种方法，而不是某种工具或协议。 能传输文件的命令都可以成为复制的方法。 例如，SSH，SFTP，FTP，HTTP，SMB，NFS 等等。
   
-  This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
+  下面 command 字段的示例使用了 `smbclient`，与共享示例的功能相同。 `smbclient` 也使用了 SMB 协议。
   
-  Note, if you'd like to have a try, the prerequisites are the same as the [general practice](#general-practice).
+  注意，此示例的先决条件与[通用流程](#通用流程)相同。
   
   ```bash
   apt update && apt install -y smbclient && mkdir /models && cd /models && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;recurse ON;mask *.py;mget *" -m=SMB2 && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;cd /output;lcd /tmp/output;recurse ON;mput *" -m=SMB2
   ```
   
-  For more information about other protocols and tools, refer to corresponding documents.
+  更多详情与其它协议和工具，参考其相关文档。
 
-### Docker Built-in
+### Docker 内置
 
-- Advantage
+- 优点
   
-  - It saves time and IO to copy files for each running, as docker images are cached locally.
-  - It has good IO performance like copy as all files are at local.
-  - It can handle many small files, as files are in the docker image blob.
+  - 因为 Docker 映像会在本地缓存，所以每次运行都能节省复制文件的时间和 IO 消耗。
+  - 与复制方法类似，所有文件都在本地，也会有很好的 IO 性能。
+  - 因为文件都在 Docker 映像块文件中，大量小文件也能很好处理。
 
-- Shortcoming
+- 缺点
   
-  - It needs sharing or copy approach if output files need to be persistent.
-  - It needs to rebuild docker image if files are updated. All docker caches are expired also and need to be downloaded again.
-  - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
+  - 如果输出文件需要被持久化，也需要使用共享或复制的方法。
+  - 如果文件有更新，需要重新构建 Docker 映像。 所有 Docker 映像的缓存也会因此而过期，需要重新下载。
+  - 如果文件很大，则不适合此方法。 通常，Docker 映像都在 2 到 4 GB 的大小。 因此，如果文件大于 1 GB，就不适合内置到 Docker 映像中。
 
-- Applicable scenarios
+- 适用场景
   
-  - The files are not changed frequently, and the size is no more than 1GB.
-  - The files are many small files.
+  - 文件不经常更新，大小不超过 1 GB。
+  - 有大量的小文件。
 
-- How-to use
+- 如何使用
   
-  Below is an example more like hello-world since it doesn't copy outputs out.
+  下面的示例与 hello-world 更类似，没将输出的文件拷贝出来。
   
-  1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
-    
-    ```docker FROM tensorflow/tensorflow:1.12.0-gpu-py3
-    
-    RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models ```
+  1. 参考[这里](https://docs.docker.com/docker-hub/)来构建 Docker 映像并发布到 hub.docker.com 上。 下面的 Docker 文件将代码复制到了 Docker 映像中。
+  ```docker
+  FROM tensorflow/tensorflow:1.12.0-gpu-py3
   
-  2. Change the job config like below. Besides the command field, the image field is also different. The image field needs the location of the docker image, which contains code.
-    
-        json
-         {
-           "jobName": "tensorflow-cifar10",
-           "image": "<your image name>",
-           "taskRoles": [
-            {
-              "name": "default",
-              "taskNumber": 1,
-              "cpuNumber": 4,
-              "memoryMB": 8192,
-              "gpuNumber": 1,
-              "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-           }
-           ]
-         }
+  RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
+  ```
+  
+  2. 参考下列示例来改动 Job 配置。 除了 command 字段，image 字段也不相同。 image 字段需要改为包含有代码的 docker 映像的地址。
+  ```json
+  {
+    "jobName": "tensorflow-cifar10",
+    "image": "<your image name>",
+    "taskRoles": [
+    {
+      "name": "default",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+    }
+    ]
+  }
+  ```
 
-## In cloud (Azure)
+## 云服务存储（Azure）
 
-If OpenPAI is deployed in Azure, [Azure Files](https://azure.microsoft.com/en-us/services/storage/files/) and [Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) uses to store files.
+如果 OpenPAI 部署在了 Azure中，[Azure Files](https://azure.microsoft.com/en-us/services/storage/files/) 和 [Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) 都可用来保存文件。
 
-Azure Files offers fully managed file shares in the cloud that are accessible via the industry standard SMB protocol. It supports to [share by mount](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux) command or copy files by [Python SDK](https://docs.microsoft.com/en-us/azure/storage/files/storage-python-how-to-use-file-storage). A GUI tool, [Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-files), can manage files on Windows, Linux and macOS.
+Azure Files 提供了完全托管在云中的文件共享方案，可通过标准的 SMB 协议来访问。 它支持通过 [mount](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux) 命令来共享，或者通过 [Python SDK](https://docs.microsoft.com/en-us/azure/storage/files/storage-python-how-to-use-file-storage) 来复制文件。 GUI 工具 [Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-files) 可在 Windows, Linux 和 macOS 下管理文件。
 
-Azure Blob storage is Microsoft's object storage solution for the cloud. Blob storage is optimized for storing massive amounts of unstructured data. It supports [a lot of approaches](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#move-data-to-blob-storage) to access files, for example, [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy data, [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) to mount for sharing. It also supports [Python SDK](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python) and [Storage Explorer](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-storage-explorer) as Azure Files.
+Azure Blob 是微软针对云提供的对象存储方案。 Blob 存储可存储较大的非结构化数据。 它支持[多种方法](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#move-data-to-blob-storage)来访问文件，例如使用 [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) 来复制数据，[blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) 来挂载共享数据。 它和 Azure Files 一样也支持 [Python SDK](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python) 和 [Storage Explorer](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-storage-explorer)。
 
-## Many small files
+## 大量小文件
 
-In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
+在一些深度学习 Job 中，训练数据是很多小文件，如图片、音频或文本。 如果这些文件没有存放在本地，那么 IO 性能就会很低。 可将这些小文件文件打包到一个文件中，然后传输到本地。 虽然会有解压的额外成本，但大多数情况下都会比直接传输要快。
 
-## Large file size
+## 大数据量
 
-If need files is in terabytes, it needs to avoid exhausting local disk space. It's a common challenge, and jobs on OpenPAI have the same challenge also. A better hardware infrastructure or algorithm is needed to mitigate the challenge.
+如果文件是 TB 级，则需要避免占满本地磁盘空间。 很多场景下都会有这种挑战，OpenPAI 上也一样。 可采用更好的硬件架构或算法来缓解。
 
-## HDFS in OpenPAI
+## OpenPAI 中的 HDFS
 
-OpenPAI has a HDFS service to save logs and other files. This HDFS can be used to store files, BUT it's **NOT** recommended to use. As the storage doesn't guarantee quality, due to servers may leave/join OpenPAI cluster frequently, and disk space may not be enough.
+OpenPAI 部署了一个 HDFS 服务来保存日志和其它文件。 虽然此 HDFS 也可用来存储文件，但**不推荐**这样做。 因为 OpenPAI 集群的服务器可能会频繁增减，磁盘空间也有可能不够，因此无法保证存储的质量。
 
-For some very small clusters, if administrators are users also, they may use the HDFS to simplify deployment. But above risks should be in mind.
+对于一些非常小的集群，如果管理员就是用户，可以使用此 HDFS 来简化部署。 但同时应考虑上述风险。

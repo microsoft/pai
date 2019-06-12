@@ -18,7 +18,7 @@
 
 const mask = (protocolYAML) => {
   let maskYAML = protocolYAML + '\nZ';
-  maskYAML = maskYAML.replace(/(^secrets:)[^]*?(^\w)/m, '$1 ******\n$2');
+  maskYAML = maskYAML.replace(/(^secrets:)[^]*?(^\w)/m, '$1 "******"\n$2');
   maskYAML = maskYAML.slice(0, -2);
   return maskYAML;
 };
