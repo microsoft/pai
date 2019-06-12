@@ -3,7 +3,7 @@
 {% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
 
 OIDC-type: aad
-tenantId: {{ cluster_cfg['authentication']['AAD']['tenantId'] or null }}
+tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] or null }}
 identityMetadata: {{ cluster_cfg['authentication']['AAD']['identityMetadata'] or null }}
 clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] or null }}
 clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] or null }}
