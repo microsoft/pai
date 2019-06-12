@@ -235,4 +235,4 @@ For more examples, please refer to [job examples directory](../../examples).
 
 ## Job exit spec
 
-For the **specification of each job exitcode**, please refer to [PAI Job Exit Spec User Manual](../src/job-exit-spec/config/user-manual.md).
+For the **specification of each job exitcode**, please refer to [PAI Job Exit Spec User Manual](../../src/job-exit-spec/config/user-manual.md).
