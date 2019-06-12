@@ -76,10 +76,11 @@ const parseTokenData = async (req, res, next) => {
       username: req.accessToken.email.substring(0, req.accessToken.email.lastIndexOf('@')),
       oid: req.accessToken.oid,
     };
+    // eslint-disable-next-line no-console
     console.log(userBasicInfo);
     req.username = userBasicInfo.username;
     req.userData = userBasicInfo;
-  } catch {
+  } catch (error) {
     return next(createError.unknown(error));
   }
 };
