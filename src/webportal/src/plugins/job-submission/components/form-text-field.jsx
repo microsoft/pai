@@ -24,40 +24,34 @@
  */
 
 import React from 'react';
-import {TextField} from 'office-ui-fabric-react';
-import {BasicSection} from './basicSection';
+import {TextField, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Deployment} from '../models/deployment';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
-export const DeploymentSection = (props) => {
-  const {onChange, value} = props;
-  const {preCommands, postCommands} = value;
-
-  const _onChange = (keyName, newValue) => {
-    const updatedDeployment = new Deployment(value);
-    updatedDeployment[keyName] = newValue;
-    if (onChange !== undefined) {
-      onChange(updatedDeployment);
+export const FormTextField = (props) => {
+  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
+  const textFieldId = getId('textField');
+  const _onBlur= (event) => {
+    if (onBlur === undefined) {
+      return;
     }
+    onBlur(event.target.value);
   };
 
+  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+
   return (
-    <BasicSection sectionLabel={'Deployment'} sectionOptional>
-      <TextField label={'PreCommands'}
-                 value={preCommands}
-                 onBlur={(e) => _onChange('preCommands', e.target.value)}
-                 multiline
-                 rows={3}/>
-      <TextField label={'PostCommands'}
-                 value={postCommands}
-                 multiline
-                 rows={3}
-                 onBlur={(e) => _onChange('postCommands', e.target.value)}/>
+    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
+      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
     </BasicSection>
   );
 };
 
-DeploymentSection.propTypes = {
-  value: PropTypes.instanceOf(Deployment).isRequired,
-  onChange: PropTypes.func,
+FormTextField.propTypes = {
+  sectionLabel: PropTypes.string.isRequired,
+  onBlur: PropTypes.func,
+  textFiledProps: PropTypes.object,
+  sectionOptional: PropTypes.bool,
+  shortStyle: PropTypes.bool,
 };

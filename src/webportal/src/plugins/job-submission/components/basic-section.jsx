@@ -25,8 +25,8 @@
 
 import React, {useState} from 'react';
 import {getId, Label, Stack, Text, Icon, StackItem} from 'office-ui-fabric-react';
-import {FormSection} from './formPage';
-import {getFormPageSytle, getFormBasicSectionStyle} from './formStyle';
+import {FormSection} from './form-page';
+import {getFormPageSytle, getFormBasicSectionStyle} from './form-style';
 import PropTypes from 'prop-types';
 
 const formPageStyle = getFormPageSytle();

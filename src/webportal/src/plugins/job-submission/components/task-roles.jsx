@@ -1,7 +1,7 @@
 import React from 'react';
-import {TabForm} from './tabForm';
-import {TabFormContent} from './tabFormContent';
-import {JobTaskRole} from '../models/jobTaskRole';
+import {TabForm} from './tab-form';
+import {TabFormContent} from './tab-form-content';
+import {JobTaskRole} from '../models/job-task-role';
 import PropTypes from 'prop-types';
 
 export const TaskRoles = (props) => {

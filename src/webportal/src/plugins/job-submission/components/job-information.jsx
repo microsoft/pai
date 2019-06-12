@@ -24,13 +24,13 @@
  */
 
 import React from 'react';
-import {FormTextField} from './formTextField';
-import {FormPage} from './formPage';
+import {FormTextField} from './form-text-field';
+import {FormPage} from './form-page';
 import {Text} from 'office-ui-fabric-react';
-import {FormSpinButton} from './formSpinButton';
+import {FormSpinButton} from './form-spin-button';
 import PropTypes from 'prop-types';
-import {JobBasicInfo} from '../models/jobBasicInfo';
-import {VirtualCluster} from './virtualCluster';
+import {JobBasicInfo} from '../models/job-basic-info';
+import {VirtualCluster} from './virtual-cluster';
 
 export const JobInformation= (props) => {
   const {jobInformation, onChange} = props;

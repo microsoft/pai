@@ -26,11 +26,11 @@
 import React from 'react';
 import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {BasicSection} from './basicSection';
-import {ContainerSize} from '../models/containerSize';
-import {CSpinButton} from './customizedComponents';
-import {getContainerSizeStyle} from './formStyle';
-import {FormShortSection} from './formPage';
+import {BasicSection} from './basic-section';
+import {ContainerSize} from '../models/container-size';
+import {CSpinButton} from './customized-components';
+import {getContainerSizeStyle} from './form-style';
+import {FormShortSection} from './form-page';
 
 const {spacing} = getTheme();
 const containerSizeStyle = getContainerSizeStyle();

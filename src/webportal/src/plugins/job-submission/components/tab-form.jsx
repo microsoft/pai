@@ -26,7 +26,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Pivot, PivotItem, Icon, ActionButton, Stack} from 'office-ui-fabric-react';
-import {getFormClassNames, getTabFromStyle} from './formStyle';
+import {getFormClassNames, getTabFromStyle} from './form-style';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();

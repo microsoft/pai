@@ -1,7 +1,7 @@
 import React from 'react';
-import {BasicSection} from './basicSection';
+import {BasicSection} from './basic-section';
 import {Dropdown} from 'office-ui-fabric-react';
-import {FormShortSection} from './formPage';
+import {FormShortSection} from './form-page';
 
 export const VirtualCluster = () => {
   return (

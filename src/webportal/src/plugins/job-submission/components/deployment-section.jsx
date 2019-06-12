@@ -24,49 +24,40 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import {TextField} from 'office-ui-fabric-react';
+import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
-import {BasicSection} from './basicSection';
-import {Completion} from '../models/completion';
-import {CSpinButton} from './customizedComponents';
-import {getCompletionSectionStyle} from './formStyle';
-import {FormShortSection} from './formPage';
+import {Deployment} from '../models/deployment';
 
-const completionSectionStyle = getCompletionSectionStyle();
-
-export const CompletionSection= (props) => {
+export const DeploymentSection = (props) => {
   const {onChange, value} = props;
-  const {minFailedInstances, minSuceedInstances} = value;
+  const {preCommands, postCommands} = value;
 
   const _onChange = (keyName, newValue) => {
-    const completion = new Completion(value);
-    completion[keyName] = newValue;
+    const updatedDeployment = new Deployment(value);
+    updatedDeployment[keyName] = newValue;
     if (onChange !== undefined) {
-      onChange(completion);
+      onChange(updatedDeployment);
     }
   };
 
   return (
-    <BasicSection sectionLabel={'Completion'} sectionOptional>
-      <FormShortSection gap='m'>
-        <Stack horizontal gap='s1'>
-          <CSpinButton label={'Min Failed Instances'}
-                       value={minFailedInstances}
-                       styles={completionSectionStyle.spinButton}
-                       onChange={(v) => _onChange('minFailedInstances', v)}/>
-        </Stack>
-        <Stack horizontal gap='s1'>
-          <CSpinButton label={'Min Succeed Instances'}
-                       value={minSuceedInstances}
-                       styles={completionSectionStyle.spinButton}
-                       onChange={(v) => _onChange('minSuceedInstances', v)}/>
-        </Stack>
-      </FormShortSection>
+    <BasicSection sectionLabel={'Deployment'} sectionOptional>
+      <TextField label={'PreCommands'}
+                 value={preCommands}
+                 onBlur={(e) => _onChange('preCommands', e.target.value)}
+                 multiline
+                 rows={3}/>
+      <TextField label={'PostCommands'}
+                 value={postCommands}
+                 multiline
+                 rows={3}
+                 onBlur={(e) => _onChange('postCommands', e.target.value)}/>
     </BasicSection>
   );
 };
 
-CompletionSection.propTypes = {
-  value: PropTypes.instanceOf(Completion).isRequired,
+DeploymentSection.propTypes = {
+  value: PropTypes.instanceOf(Deployment).isRequired,
   onChange: PropTypes.func,
 };

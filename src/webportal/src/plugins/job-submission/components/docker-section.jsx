@@ -24,46 +24,41 @@
  */
 
 import React from 'react';
-import {KeyValueList} from './keyValueList';
+import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Port} from '../models/port';
-import {BasicSection} from './basicSection';
-import {FormShortSection} from './formPage';
+import {DockerInfo} from '../models/docker-info';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
-export const PortsList = (props) => {
-  const {onChange, ports} = props;
+export const DockerSection = (props) => {
+  const {onValueChange, value} = props;
+  const {uri} = value;
+  const textFieldId = getId('textField');
 
-  const _onPortChange = (updatedPorts) => {
-    if (onChange !== undefined) {
-      onChange(updatedPorts);
+  const _onChange = (keyName, value) => {
+    const updatedDockerInfo = new DockerInfo(value);
+    updatedDockerInfo[keyName] = value;
+    if (onValueChange !== undefined) {
+      onValueChange(updatedDockerInfo);
     }
   };
 
-  const _onPortAdd = (item) => {
-    const port = new Port(item.itemKey, item.itemValue);
-    const updatedPorts = [...ports, port];
-    _onPortChange(updatedPorts);
-  };
-
-  const _onPortDelete = (index) => {
-    const updatedPorts = ports.filter((_, itemIndex) => index !== itemIndex);
-    _onPortChange(updatedPorts);
-  };
-
   return (
-    <BasicSection sectionLabel='Ports' sectionOptional>
-      <FormShortSection>
-        <KeyValueList items={ports.map((port) => {
-          return {itemKey: port.portLabel, itemValue: port.portNumber};
-        })}
-        onItemAdd={_onPortAdd}
-        onItemDelete={_onPortDelete}/>
-      </FormShortSection>
+    <BasicSection sectionLabel={'Docker'}>
+      <Stack horizontal gap='s1' wrap >
+        <FormShortSection>
+          <TextField id={textFieldId}
+                     placeholder='Enter docker uri...'
+                     onBlur={(event) => _onChange('uri', event.target.value)}
+                     value={uri}/>
+         </FormShortSection>
+        <DefaultButton>Auth</DefaultButton>
+      </Stack>
     </BasicSection>
   );
 };
 
-PortsList.propTypes = {
-  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
-  onChange: PropTypes.func,
+DockerSection.propTypes = {
+  value: PropTypes.instanceOf(DockerInfo).isRequired,
+  onValueChange: PropTypes.func,
 };

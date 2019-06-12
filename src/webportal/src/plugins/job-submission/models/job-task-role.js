@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import {DockerInfo} from './dockerInfo';
+import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
-import {ContainerSize} from '../models/containerSize';
+import {ContainerSize} from '../models/container-size';
 
 export class JobTaskRole {
   constructor(props) {
