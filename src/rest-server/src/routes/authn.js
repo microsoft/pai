@@ -24,9 +24,6 @@ const tokenV2Controller = require('../controllers/v2/token');
 const azureADController = require('../controllers/v2/azureAD');
 
 const authnConfig = require('../config/authn');
-const querystring = require('querystring');
-const axios = require('axios');
-const createError = require('../util/error');
 
 const router = new express.Router();
 
