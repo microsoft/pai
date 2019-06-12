@@ -152,7 +152,7 @@ There are two parts in the side bar.
 
 ## 贡献
 
-https://github.com/squirrelsc/pai/blob/l10n_master/README_zh_CN.md#参与贡献
+https://github.com/microsoft/pai/blob/master/README_zh_CN.md#参与贡献
 
 ## 许可证
 
