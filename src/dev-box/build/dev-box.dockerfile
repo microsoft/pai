@@ -52,7 +52,7 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4
+    pip install python-etcd docker kubernetes GitPython jsonschema
 
 WORKDIR /tmp
 

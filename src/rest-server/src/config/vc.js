@@ -21,10 +21,12 @@ const Joi = require('joi');
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
   vcCapacity: Joi.number()
+    .integer()
     .min(0)
     .max(100)
     .required(),
   vcMaxCapacity: Joi.number()
+    .integer()
     .min(Joi.ref('vcCapacity'))
     .max(100)
     .optional(),
