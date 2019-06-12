@@ -3,102 +3,113 @@
 A tool to manage your storage config.
 
 ## Index
+- [ Manage server ](#Server_config)
+    - [ Set server ](#Server_set)
+        - [ Set nfs server ](#Server_set_nfs)
+        - [ Set samba server ](#Server_set_samba)
+        - [ Set azurefile server ](#Server_set_azurefile)
+        - [ Set azureblob server ](#Server_set_azureblob)
+        - [ Set hdfs server ](#Server_set_hdfs)
+    - [ List server ](#Server_list) 
+    - [ Delete server ](#Server_delete) 
 
-- [ Init storage settings ](#Init)
-    
-    - [Init with no default external storage](#Init_None)
-    - [Init with a nfs server as default external storage](#Init_Nfs)
+- [ Manage config ](#Config_config)
+    - [ Set config ](#Config_set)
+    - [ List config ](#Config_list) 
+    - [ Delete config ](#Config_delete) 
 
-- [ Manage Server Config ](#Server_config)
-    
-    - [ Set server config for nfs ](#Server_set)
-    - [ List server config ](#Server_list)
-    - [ Create path for server ](#Server_createpath)
+- [ Manage user ](#User_config)
+    - [ Set user ](#User_set)
+    - [ List user ](#User_list) 
+    - [ Delete user ](#User_delete) 
 
-- [ Manage user config ](#User_config)
-    
-    - [ Set user default server ](#User_setdefault)
-    - [ List user config ](#User_list) 
 
-- [ Push storage settings ](#Push)
-    
-    - [ Push server settings ](#Push_server)
-    - [ Push user settings ](#Push_user)
+## Manage Server <a name="Server_config"></a> 
+Manage server in PAI. Server how PAI access a nas server.
+### Set server <a name="Server_set"></a> 
 
-## Init storage settings <a name="Init"></a>
+#### Set nfs server <a name="Server_set_nfs"></a> 
+```
+./storagectl.py server set NAME nfs ADDRESS ROOTPATH
+```
 
-### Init with no default external storage <a name="Init_None"></a>
+#### Set samba server <a name="Server_set_samba"></a> 
+```
+./storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
+```
 
-    python storagectl.py init [-f] none  
-    
+#### Set azurefile server <a name="Server_set_azurefile"></a> 
+```
+./storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
+```
 
-- Create default.json with no storage server. 
-    - If -f was specified, it will override existing default.json on k8s server settings, else it will exit if default.json already exists.
-    - Create default user storage settings for all PAI users as well
+#### Set azureblob server <a name="Server_set_azureblob"></a> 
+```
+./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
+```
 
-### Init with a nfs server as default external storage <a name="Init_Nfs"></a>
+#### Set hdfs server <a name="Server_set_hdfs"></a> 
+```
+./storagectl.py server set NAME hdfs NAMENODE PORT
+```
 
-    python storagectl.py init [-f] nfs address rootpath  
-    
+### List server <a name="Server_list"></a> 
+```
+./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
+```
+- If -n specified, list certain servers. Otherwise list all servers.
 
-- Create default.json with nfs server. 
-    - If -f was specified, it will override existing default.json on k8s server settings, else it will exit if default.json already exists.
-    - Create default user storage settings for all PAI users as well
+### Delete server <a name="Server_delete"></a> 
+```
+./storagectl.py user delete SERVER_NAME
+```
 
-## Manage Server Config <a name="Server_config"></a>
 
-### Set server config for nfs <a name="Server_set"></a>
+## Manage Config <a name="Config_config"></a> 
+Manage configs for group in PAI. Config defines a set of mount infos. Every config belongs to a group. That is to say, one group may have 0 to n configs.
+### Set config <a name="Config_set"></a> 
+```
+./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+```
+- GROUP_NAME means All members of GROUP_NAME can use this config.
+- -s defines config useable servers.
+- -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
+    - In PATH, %USER indicates current PAI user
+    - In PATH, %JOB indicates current job name
+- If -d is set, means mount config storage by default.
 
-    python storagectl.py server set SERVER_NAME nfs ADDRESS ROOT_PATH [--sharedfolders SHARED_FOLDERS [SHARED_FOLDERS ...]] [--privatefolders PRIVATE_FOLDERS [PRIVATE_FOLDERS ...]] 
-    
+For example, suppose we have set config using:
+```
+./storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER users/%USER/jobs/%job
+```
+If current user is 'paiuser' and current job is 'job-TEST'. This config will mount SAMPLE_SERVER/users/paiuser/jobs/job-TEST to /mnt/job
 
-- Create or modify server config
-- If '--sharedfolders' is set, create shared folders ROOT_PATH/SHARED_FOLDERS on remote server.
-- If '--privatefolders' is set, create user private folders ROOT_PATH/PRIVATE_FOLDERS/USER_NAME for every user associated with the server on remote server.
+### List config <a name="Config_list"></a> 
+```
+./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...]
+```
+- If -n specified, list certain configs. Otherwise list all config.
 
-### List server config <a name="Server_list"></a>
+### Delete config <a name="Config_delete"></a> 
+```
+./storagectl.py config delete CONFIG_NAME
+```
 
-    python storagectl.py server list
-    
 
-- List all servers
+## Manage User Config <a name="User_config"></a> 
+Manage PAI user's specific servers.
+### Set user config <a name="User_set"></a> 
+```
+./storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
+```
 
-### Create path for server <a name="Server_createpath"></a>
+### List user config <a name="User_list"></a> 
+```
+./storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
+```
+- If -n specified, list certain users. Otherwise list all users.
 
-    python storagectl.py server createpath SERVER_NAME
-    
-
-- Check and create path for server if needed
-
-## Manage User Config <a name="User_config"></a>
-
-### Set user default server <a name="User_setdefault"></a>
-
-    python storagectl.py user setdefault USER_NAME SERVER_NAME
-    
-
-- Set default server for user 
-    - If privatefolders was defined on server, create privae folders for user on ROOT_PATH/PRIVATE_FOLDERS/USER_NAME
-
-### List user config <a name="User_list"></a>
-
-    python storagectl.py user list
-    
-
-- List all users
-
-## Push storage settings <a name="Push"></a>
-
-### Push server settings <a name="Push_server"></a>
-
-    python storagectl.py push server /path/to/server-config/dir/or/file
-    
-
-- Create or update server config
-
-### Push user settings <a name="Push_user"></a>
-
-    python storagectl.py push user /path/to/user-config/dir/or/file
-    
-
-- Create or update user storage config
+### Delete user config <a name="User_delete"></a> 
+```
+./storagectl.py user delete USER_NAME
+```
