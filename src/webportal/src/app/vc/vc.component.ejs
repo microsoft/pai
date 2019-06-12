@@ -43,6 +43,7 @@
                   <tbody>
                     <% for (let vcName in data) { %>
                       <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+                      <%= specifiedVc %>
                         <% if (data[vcName]['dedicated'] === false) { %>
                         <tr>
                           <td>

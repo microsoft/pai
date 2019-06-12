@@ -43,5 +43,6 @@ if (!userAuthComponent.checkAdmin()) {
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
+  // console.log(pluginComponent({plugins: window.PAI_PLUGINS}));
   $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
 }
