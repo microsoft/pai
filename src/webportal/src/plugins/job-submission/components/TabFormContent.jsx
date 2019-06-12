@@ -25,6 +25,7 @@
 
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
+
 import {FormTextField} from './FormTextField';
 import {DockerSection} from './DockerSection';
 import {PortsList} from './PortsList';
@@ -34,6 +35,7 @@ import {CompletionSection} from './CompletionSection';
 import {DeploymentSection} from './DeploymentSection';
 import {FormSpinButton} from './FormSpinButton';
 import {ContainerSizeSection} from './ContainerSizeSection';
+import {DataComponent} from './data/data-component';
 
 export const TabFormContent = (props) => {
   const {defaultValue, onContentChange} = props;
@@ -88,6 +90,7 @@ export const TabFormContent = (props) => {
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          defaultValue={jobTaskRole.completion}/>
+      <DataComponent />
       <FormTextField sectionLabel={'Command'}
                      multiline={true}
                      rows={10}
