@@ -1257,6 +1257,6 @@ Status: 500
 
 ## About legacy jobs
 
-Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version, jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+从此版本开始，会启用 [Framework ACL](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) ，Job 的命名空间会包含创建者的用户名。 However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
 
 In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced job as soon as possible.
