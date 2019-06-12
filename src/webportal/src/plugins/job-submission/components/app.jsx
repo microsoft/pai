@@ -24,27 +24,22 @@
  */
 
 import React from 'react';
-import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, StackItem, getTheme} from 'office-ui-fabric-react';
 import {TabFormContent} from './tab-form-content';
 import {JobTaskRole} from '../models/job-task-role';
 import {JobInformation} from './job-information';
 import {Parameters} from './parameters';
 import {getFormClassNames} from './form-style';
 import {initTheme} from '../../../app/components/theme';
-<<<<<<< HEAD
 import {JobBasicInfo} from '../models/job-basic-info';
 import {SubmissionSection} from './submission-section';
 import {TaskRoles} from './task-roles';
-import {Job} from '../models/job';
-=======
-import {JobBasicInfo} from '../models/jobBasicInfo';
-import {SubmissionSection} from './submissionSection';
-import {TaskRoles} from './taskRoles';
->>>>>>> 0fe81a77... yaml editor
 import t from '../../../app/components/tachyons.scss';
 
 initTheme();
 initializeIcons();
+
+const {spacing} = getTheme();
 
 export class App extends React.Component {
   constructor(props) {
@@ -95,7 +90,8 @@ export class App extends React.Component {
               </Stack>
             </StackItem>
             <StackItem disableShrink styles={{root: [t.w30]}}>
-              <Stack className={topForm} styles={{root: {position: 'fixed', maxHeight: '80%', overflow: 'auto'}}}>
+              <Stack className={topForm} styles={{root: {position: 'fixed',
+                     maxHeight: '80%', overflow: 'auto', marginRight: spacing.l1}}}>
                 <Parameters parameters={parameters}
                             environment={[]}
                             onChange={(parameters) => this.setState({parameters: parameters})}/>

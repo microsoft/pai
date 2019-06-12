@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {JobProtocol} from '../models/jobProtocol';
+import {JobProtocol} from '../models/job-protocol';
 import MonacoPanel from '../../../app/components/monaco-panel';
-import {JobBasicInfo} from '../models/jobBasicInfo';
-import {JobTaskRole} from '../models/jobTaskRole';
-import {JobParameter} from '../models/jobParameter';
+import {JobBasicInfo} from '../models/job-basic-info';
+import {JobTaskRole} from '../models/job-task-role';
+import {JobParameter} from '../models/job-parameter';
 import {isNil} from 'lodash';
 
 const _exportFile = (data, filename, type) => {

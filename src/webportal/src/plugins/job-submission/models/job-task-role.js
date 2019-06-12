@@ -26,7 +26,7 @@
 import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
-import {ContainerSize} from '../models/containerSize';
+import {ContainerSize} from '../models/container-size';
 import {isEmpty, get, isNil} from 'lodash';
 import {Port} from './port';
 import {keyValueArrayReducer} from './utils';
