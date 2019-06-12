@@ -109,10 +109,25 @@ if (authnConfig.authnMethod === 'OIDC') {
     .post(
       function(req, res, next) {
         try {
+          const authCode = req.body.code;
+          const scope = 'https://graph.microsoft.com/user.read';
+          const clientId = authnConfig.OIDCConfig.clientID;
+          const tenantId = authnConfig.OIDCConfig.tenantID;
+          const redirectUri = authnConfig.OIDCConfig.redirectUrl;
+          const grantType = 'authorization_code';
+          const clientSecret = authnConfig.OIDCConfig.clientSecret;
+          const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
+          const data = {
+            'client_id': clientId,
+            'scope': scope,
+            'code': authCode,
+            'redirect_uri': redirectUri,
+            'grant_type': grantType,
+            'client_secret': clientSecret,
+          };
+          const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
-          console.log('get response');
-          // eslint-disable-next-line no-console
-          console.log(req.body);
+          console.log(response.body);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('failed to get response');
