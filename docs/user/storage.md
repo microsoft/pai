@@ -20,9 +20,9 @@ This article introduces how to access files on OpenPAI, and it's no difference w
 
 ## General practice
 
-Below job configuration is similar with the [hello-world example](training.md#submit-a-hello-world-job), except the command field. The command field uses code in a shared folder instead from GitHub and it saves outputs back to the storage.
+Below job configuration is similar with the [hello-world example](training.md#submit-a-hello-world-job), except the command field. The command field uses code in a shared folder instead from GitHub and it saves outputs back to the folder.
 
-Note, this example uses a windows shared folder, and [Samba](https://www.samba.org/) supports the windows shared folder on Linux. If you'd like to have a try, it needs to,
+Note, this example uses a windows shared folder. [Samba](https://www.samba.org/) supports the shared folder on Linux. If you'd like to have a try, it needs to,
 
   1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
   2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
@@ -81,7 +81,7 @@ It maintains a connection between storage and docker container, and usual keeps 
 
 - Applicable scenarios
   - The sharing storage and OpenPAI are in same intranet, and the IOPS of storage is enough to handle concurrent jobs.
-  - If shared folder contains files, which won't be accessed during job running.
+  - The folder contains files, which won't be accessed during job running.
   - There are not many small files, and no needed to save files concurrently.
 
 - How-to use
@@ -102,7 +102,7 @@ It only creates a connection when transferring files, and caches files locally.
 - Shortcoming
   - It needs logic to copy files selectively if partial files are needed.
   - There may not have a chance to copy outputs out if the job is failed unexpectedly.
-  - There may not have enough disk space to copy files to local.
+  - There may not have enough disk space to copy all files to local.
   - Most protocols are significant low performance when accessing many small files.
 
 - Applicable scenarios
@@ -114,7 +114,7 @@ It only creates a connection when transferring files, and caches files locally.
 
   Copy is a general approach, not a specified tool or protocol. So, all commands that can transfer files can be called as a copy approach. It includes SSH, SFTP, FTP, HTTP, SMB, NFS and so on.
 
-  This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
+  Below is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. `smbclient` also uses the SMB protocol.
 
   Note, if you'd like to have a try, the prerequisites are the same as the [general practice](#general-practice).
 
@@ -133,7 +133,7 @@ It only creates a connection when transferring files, and caches files locally.
 
 - Shortcoming
   - It needs sharing or copy approach if output files need to be persistent.
-  - It needs to rebuild docker image if files are updated. All docker caches are expired also and need to be downloaded again.
+  - It needs to rebuild docker image if files are updated. And cache of all docker images are expired also and needs to be downloaded again.
   - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
 
 - Applicable scenarios
@@ -146,30 +146,30 @@ It only creates a connection when transferring files, and caches files locally.
 
   1. Refer to [here](https://docs.docker.com/docker-hub/) for building a docker image and pushing to hub.docker.com. Below docker file clones code into the docker image.
 
-     ```docker
-     FROM tensorflow/tensorflow:1.12.0-gpu-py3
+  ```docker
+  FROM tensorflow/tensorflow:1.12.0-gpu-py3
 
-     RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
-     ```
+  RUN apt update && apt install -y git && cd / && git clone https://github.com/tensorflow/models
+  ```
 
   2. Change the job config like below. Besides the command field, the image field is also different. The image field needs the location of the docker image, which contains code.
 
-     ```json
-     {
-       "jobName": "tensorflow-cifar10",
-       "image": "<your image name>",
-       "taskRoles": [
-        {
-          "name": "default",
-          "taskNumber": 1,
-          "cpuNumber": 4,
-          "memoryMB": 8192,
-          "gpuNumber": 1,
-          "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
-       }
-       ]
-     }
-     ```
+  ```json
+  {
+    "jobName": "tensorflow-cifar10",
+    "image": "<your image name>",
+    "taskRoles": [
+    {
+      "name": "default",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "cd /models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+    }
+    ]
+  }
+  ```
 
 ## In cloud (Azure)
 
@@ -181,14 +181,14 @@ Azure Blob storage is Microsoft's object storage solution for the cloud. Blob st
 
 ## Many small files
 
-In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low if those files are not at local already. One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
+In some deep learning jobs, training data is a lot of small files, like image, audio or text. Its IO performance is low if those files are not at local already. One of practice is to pack them into one file, and then transfer it to local. There is extra cost on unpacking, but it's faster than transferring them in most cases.
 
 ## Large file size
 
-If need files is in terabytes, it needs to avoid exhausting local disk space. It's a common challenge, and jobs on OpenPAI have the same challenge also. A better hardware infrastructure or algorithm is needed to mitigate the challenge.
+If need files is in terabytes, it needs to avoid exhausting local disk space. It's a common challenge, and OpenPAI has the same also. A better hardware infrastructure or algorithm is needed to mitigate the challenge.
 
 ## HDFS in OpenPAI
 
-OpenPAI has a HDFS service to save logs and other files. This HDFS can be used to store files, BUT it's **NOT** recommended to use. As the storage doesn't guarantee quality, due to servers may leave/join OpenPAI cluster frequently, and disk space may not be enough.
+OpenPAI deploys a HDFS service to save logs and other files. This HDFS can be used to store files, BUT it's **NOT** recommended to use. As the storage doesn't guarantee quality, due to servers may leave/join OpenPAI cluster frequently, and disk space may not be enough.
 
 For some very small clusters, if administrators are users also, they may use the HDFS to simplify deployment. But above risks should be in mind.
