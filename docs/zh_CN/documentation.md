@@ -9,7 +9,7 @@
 ### Configuration and API
 
 - [Configuration: customize OpenPAI via its configuration](./pai-management/doc/customized-configuration.md)
-- [OpenPAI Programming Guides](../../examples/README_zh_CN.md)
+- [OpenPAI Programming Guides](../../examples/README.md)
 - [Restful API Docs](rest-server/API.md)
 
 ### [FAQs](./faq.md)

@@ -110,7 +110,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 与所有计算平台一样，OpenPAI 是提高生产力的工具，最大限度地利用资源。 因此，在进行模型训练时，推荐直接将任务提交到 OpenPAI，并让其分配资源来运行。 如果 Job 太多，一些 Job 会排队等待资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
 
-注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接，详情参考[这里](examples/jupyter/README_zh_CN.md)。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
+注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接，详情参考[这里](examples/jupyter/README.md)。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
 
 ### 提交训练作业
 
@@ -136,7 +136,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 用户
 
-* [客户端](contrib/pai_vscode/VSCodeExt.md)
+* [客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)
 * [使用存储](docs/user/storage.md)
 * [Job 配置](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
