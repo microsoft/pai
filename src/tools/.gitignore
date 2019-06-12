@@ -1,0 +1,4 @@
+.hadoop/
+*/.hadoop/
+.config/
+*/.config/

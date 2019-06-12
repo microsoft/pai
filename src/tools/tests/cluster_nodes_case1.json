@@ -1,0 +1,69 @@
+{
+    "nodes": {
+        "node": [
+            {
+                "rack": "/default-rack",
+                "state": "RUNNING",
+                "id": "10.151.40.132:8041",
+                "nodeHostName": "10.151.40.132",
+                "nodeHTTPAddress": "10.151.40.132:8042",
+                "lastHealthUpdate": 1559116767987,
+                "version": "2.9.0",
+                "healthReport": "",
+                "numContainers": 1,
+                "usedMemoryMB": 1024,
+                "availMemoryMB": 207872,
+                "usedVirtualCores": 1,
+                "availableVirtualCores": 23,
+                "numRunningOpportContainers": 0,
+                "usedMemoryOpportGB": 0,
+                "usedVirtualCoresOpport": 0,
+                "numQueuedContainers": 0,
+                "usedGPUs": 0,
+                "availableGPUs": 4,
+                "availableGPUAttribute": 15,
+                "nodeLabels": [
+                    "test_vc"
+                ],
+                "resourceUtilization": {
+                    "nodePhysicalMemoryMB": 36200,
+                    "nodeVirtualMemoryMB": 36200,
+                    "nodeCPUUsage": 1.1433333158493042,
+                    "aggregatedContainersPhysicalMemoryMB": 450,
+                    "aggregatedContainersVirtualMemoryMB": 2855,
+                    "containersCPUUsage": 0
+                }
+            },
+            {
+                "rack": "/default-rack",
+                "state": "RUNNING",
+                "id": "10.151.40.131:8041",
+                "nodeHostName": "10.151.40.131",
+                "nodeHTTPAddress": "10.151.40.131:8042",
+                "lastHealthUpdate": 1559116767652,
+                "version": "2.9.0",
+                "healthReport": "",
+                "numContainers": 2,
+                "usedMemoryMB": 3072,
+                "availMemoryMB": 205824,
+                "usedVirtualCores": 2,
+                "availableVirtualCores": 22,
+                "numRunningOpportContainers": 0,
+                "usedMemoryOpportGB": 0,
+                "usedVirtualCoresOpport": 0,
+                "numQueuedContainers": 0,
+                "usedGPUs": 1,
+                "availableGPUs": 3,
+                "availableGPUAttribute": 14,
+                "resourceUtilization": {
+                    "nodePhysicalMemoryMB": 45931,
+                    "nodeVirtualMemoryMB": 45931,
+                    "nodeCPUUsage": 0.26333335041999817,
+                    "aggregatedContainersPhysicalMemoryMB": 465,
+                    "aggregatedContainersVirtualMemoryMB": 2952,
+                    "containersCPUUsage": 0.003000000026077032
+                }
+            }
+        ]
+    }
+}
