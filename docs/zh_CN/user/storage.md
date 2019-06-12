@@ -189,14 +189,14 @@ Azure Blob 是微软针对云提供的对象存储方案。 Blob 存储可存储
 
 ## 大量小文件
 
-在一些深度学习 Job 中，训练数据是很多小文件，如图片、音频或文本。 如果这些文件没有存放在本地，那么 IO 性能就会很低。 One of practice is to compress them into one file, and then transfer it to local. There is extra cost on decompressing, but it's shorter than transferring them in most cases.
+在一些深度学习 Job 中，训练数据是很多小文件，如图片、音频或文本。 如果这些文件没有存放在本地，那么 IO 性能就会很低。 可将这些小文件文件打包到一个文件中，然后传输到本地。 虽然会有解压的额外成本，但大多数情况下都会比直接传输要快。
 
-## Large file size
+## 大数据量
 
-If need files is in terabytes, it needs to avoid exhausting local disk space. It's a common challenge, and jobs on OpenPAI have the same challenge also. A better hardware infrastructure or algorithm is needed to mitigate the challenge.
+如果文件是 TB 级，则需要避免占满本地磁盘空间。 很多场景下都会有这种挑战，OpenPAI 上也一样。 可采用更好的硬件架构或算法来缓解。
 
-## HDFS in OpenPAI
+## OpenPAI 中的 HDFS
 
-OpenPAI has a HDFS service to save logs and other files. This HDFS can be used to store files, BUT it's **NOT** recommended to use. As the storage doesn't guarantee quality, due to servers may leave/join OpenPAI cluster frequently, and disk space may not be enough.
+OpenPAI 部署了一个 HDFS 服务来保存日志和其它文件。 虽然此 HDFS 也可用来存储文件，但**不推荐**这样做。 因为 OpenPAI 集群的服务器可能会频繁增减，磁盘空间也有可能不够，因此无法保证存储的质量。
 
-For some very small clusters, if administrators are users also, they may use the HDFS to simplify deployment. But above risks should be in mind.
+对于一些非常小的集群，如果管理员就是用户，可以使用此 HDFS 来简化部署。 但同时应考虑上述风险。
