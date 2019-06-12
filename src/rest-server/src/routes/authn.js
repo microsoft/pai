@@ -40,9 +40,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/logout')
   /** POST /api/v1/authn/oidc/logout */
     .get(
-      function(req, res) {
-        res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
-      }
+      azureADController.signoutAzureAD
     );
 
   router.route('/oidc/return')

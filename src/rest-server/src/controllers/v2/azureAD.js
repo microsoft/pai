@@ -84,10 +84,14 @@ const parseTokenData = async (req, res, next) => {
   }
 };
 
-const signoutAzureAD
+const signoutAzureAD = async (req, res, next) => {
+  res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
+};
+
 // module exports
 module.exports = {
   requestAuthCode,
   requestTokenWithCode,
   parseTokenData,
+  signoutAzureAD,
 };
