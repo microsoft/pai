@@ -74,12 +74,12 @@ if (authnConfig.authnMethod === 'OIDC') {
           // eslint-disable-next-line no-console
           console.log(requestUrl);
           const data = {
-            'client_id': clientId,
-            'scope': scope,
-            'code': authCode,
-            'redirect_uri': redirectUri,
-            'grant_type': grantType,
-            'client_secret': clientSecret,
+            client_id: clientId,
+            scope: scope,
+            code: authCode,
+            redirect_uri: redirectUri,
+            grant_type: grantType,
+            client_secret: clientSecret,
           };
           // eslint-disable-next-line no-console
           console.log(data);
@@ -131,12 +131,12 @@ if (authnConfig.authnMethod === 'OIDC') {
           // eslint-disable-next-line no-console
           console.log(requestUrl);
           const data = {
-            'client_id': clientId,
-            'scope': scope,
-            'code': authCode,
-            'redirect_uri': redirectUri,
-            'grant_type': grantType,
-            'client_secret': clientSecret,
+            client_id: clientId,
+            scope: scope,
+            code: authCode,
+            redirect_uri: redirectUri,
+            grant_type: grantType,
+            client_secret: clientSecret,
           };
           // eslint-disable-next-line no-console
           console.log(data);
