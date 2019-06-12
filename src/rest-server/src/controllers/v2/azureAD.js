@@ -84,6 +84,7 @@ const parseTokenData = async (req, res, next) => {
   }
 };
 
+const signoutAzureAD
 // module exports
 module.exports = {
   requestAuthCode,
