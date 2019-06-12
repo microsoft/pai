@@ -134,7 +134,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 用户
 
-* [客户端](contrib/pai_vscode/VSCodeExt.md)
+* [客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)
 * [使用存储](docs/user/storage.md)
 * [Job 配置](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)
