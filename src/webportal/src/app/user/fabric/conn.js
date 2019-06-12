@@ -22,7 +22,6 @@ const fetchWrapper = async (...args) => {
   const res = await fetch(...args);
   const json = await res.json();
   if (res.ok) {
-    console.log(json);
     return json;
   } else if (json.code === 'UnauthorizedUserError') {
     alert(json.message);
@@ -42,16 +41,6 @@ export const getAllUsersRequest = async () => {
   });
 };
 
-export const getAllGroupRequest = async () => {
-  const url = `${config.restServerUri}/api/v2/group/get`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-};
-// getAllGroupRequest();
 export const removeUserRequest = async (username) => {
   const url = `${config.restServerUri}/api/v1/user`;
   const token = checkToken();
