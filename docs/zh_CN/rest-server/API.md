@@ -68,748 +68,1192 @@
     
     *Request*
     
-
-POST /api/v1/token
-
-    <br />*Parameters*
+    ```json
+    POST /api/v1/token
     
 
-{ "username": "your username", "password": "your password", "expiration": "expiration time in seconds" }
+*Parameters*
 
-    <br />*Response if succeeded*
-    
+```json
+{
+  "username": "your username",
+  "password": "your password",
+  "expiration": "expiration time in seconds"
+}
+```
 
+*Response if succeeded*
+
+```json
 Status: 200
 
-{ "token": "your access token", "user": "username", "admin": true if user is admin }
+{
+  "token": "your access token",
+  "user": "username",
+  "admin": true if user is admin
+}
+```
 
-    <br />*Response if user does not exist*
-    
+*Response if user does not exist*
 
+```json
 Status: 400
 
-{ "code": "NoUserError", "message": "User $username is not found." }
+{
+  "code": "NoUserError",
+  "message": "User $username is not found."
+}
+```
 
-    <br />*Response if password is incorrect*
-    
+*Response if password is incorrect*
 
+```json
 Status: 400
 
-{ "code": "IncorrectPassworkError", "message": "Password is incorrect." }
+{
+  "code": "IncorrectPassworkError",
+  "message": "Password is incorrect."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `PUT user`
-    
-    Update a user in the system.
-    Administrator can add user or change other user's password; user can change his own password.
-    
-    *Request*
-    
+### `PUT user`
 
-PUT /api/v1/user Authorization: Bearer <access_token>
+Update a user in the system. Administrator can add user or change other user's password; user can change his own password.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "username": "username in [_A-Za-z0-9]+ format", "password": "password at least 6 characters", "admin": true | false, "modify": true | false }
+```json
+PUT /api/v1/user
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "username": "username in [_A-Za-z0-9]+ format",
+  "password": "password at least 6 characters",
+  "admin": true | false,
+  "modify": true | false
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 201
 
-{ "message": "update successfully" }
+{
+  "message": "update successfully"
+}
+```
 
-    <br />*Response if not authorized*
-    
+*Response if not authorized*
 
+```json
 Status: 401
 
-{ "code": "UnauthorizedUserError", "message": "Guest is not allowed to do this operation." }
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
 
-    <br />*Response if current user has no permission*
-    
+*Response if current user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if updated user does not exist*
-    
+*Response if updated user does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoUserError", "message": "User $username is not found." }
+{
+  "code": "NoUserError",
+  "message": "User $username is not found."
+}
+```
 
-    <br />*Response if created user has a duplicate name*
-    
+*Response if created user has a duplicate name*
 
+```json
 Status: 409
 
-{ "code": "ConflictUserError", "message": "User name $username already exists." }
+{
+  "code": "ConflictUserError",
+  "message": "User name $username already exists."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `DELETE user` (administrator only)
-    
-    Remove a user in the system.
-    
-    *Request*
-    
+### `DELETE user` (administrator only)
 
-DELETE /api/v1/user Authorization: Bearer <access_token>
+Remove a user in the system.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "username": "username to be removed" }
+```json
+DELETE /api/v1/user
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "username": "username to be removed"
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 200
 
-{ "message": "remove successfully" }
+{
+  "message": "remove successfully"
+}
+```
 
-    <br />*Response if not authorized*
-    
+*Response if not authorized*
 
+```json
 Status: 401
 
-{ "code": "UnauthorizedUserError", "message": "Guest is not allowed to do this operation." }
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
 
-    <br />*Response if user has no permission*
-    
+*Response if user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if an admin will be removed*
-    
+*Response if an admin will be removed*
 
+```json
 Status: 403
 
-{ "code": "RemoveAdminError", "message": "Admin $username is not allowed to remove." }
+{
+  "code": "RemoveAdminError",
+  "message": "Admin $username is not allowed to remove."
+}
+```
 
-    <br />*Response if updated user does not exist*
-    
+*Response if updated user does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoUserError", "message": "User $username is not found." }
+{
+  "code": "NoUserError",
+  "message": "User $username is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `PUT user/:username/virtualClusters` (administrator only)
-    
-    Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
-    
-    *Request*
-    
+### `PUT user/:username/virtualClusters` (administrator only)
 
-PUT /api/v1/user/:username/virtualClusters Authorization: Bearer <access_token>
+Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)" }
+```json
+PUT /api/v1/user/:username/virtualClusters
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 201
 
-{ "message": "update user virtual clusters successfully" }
+{
+  "message": "update user virtual clusters successfully"
+}
+```
 
-    <br />*Response if the virtual cluster does not exist.*
-    
+*Response if the virtual cluster does not exist.*
 
+```json
 Status: 400
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if not authorized*
-    
+*Response if not authorized*
 
+```json
 Status: 401
 
-{ "code": "UnauthorizedUserError", "message": "Guest is not allowed to do this operation." }
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
 
-    <br />*Response if user has no permission*
-    
+*Response if user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if user does not exist.*
-    
+*Response if user does not exist.*
 
+```json
 Status: 404
 
-{ "code": "NoUserError", "message": "User $username is not found." }
+{
+  "code": "NoUserError",
+  "message": "User $username is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET jobs`
-    
-    Get the list of jobs.
-    
-    *Request*
-    
+### `GET jobs`
 
+Get the list of jobs.
+
+*Request*
+
+```json
 GET /api/v1/jobs
+```
 
-    <br />*Parameters*
-    
+*Parameters*
 
-{ "username": "filter jobs with username" }
+```json
+{
+  "username": "filter jobs with username"
+}
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ [ ... ] }
+{
+  [ ... ]
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET user/:username/jobs`
-    
-    Get the list of jobs of user.
-    
-    *Request*
-    
+### `GET user/:username/jobs`
 
+Get the list of jobs of user.
+
+*Request*
+
+```json
 GET /api/v1/user/:username/jobs
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ [ ... ] }
+{
+  [ ... ]
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET user/:username/jobs/:jobName`
-    
-    Get job status in the system.
-    
-    *Request*
-    
+### `GET user/:username/jobs/:jobName`
 
+Get job status in the system.
+
+*Request*
+
+```json
 GET /api/v1/user/:username/jobs/:jobName
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ name: "jobName", jobStatus: { username: "username", virtualCluster: "virtualCluster", state: "jobState", // raw frameworkState from frameworklauncher subState: "frameworkState", createdTime: "createdTimestamp", completedTime: "completedTimestamp", executionType: "executionType", // sum of retries retries: retries, retryDetails: { // Job failed due to user or unknown error user: userRetries, // Job failed due to platform error platform: platformRetries, // Job cannot get required resource to run within timeout resource: resourceRetries, }, appId: "applicationId", appProgress: "applicationProgress", appTrackingUrl: "applicationTrackingUrl", appLaunchedTime: "applicationLaunchedTimestamp", appCompletedTime: "applicationCompletedTimestamp", appExitCode: applicationExitCode, // please check https://github.com/Microsoft/pai/blob/master/src/job-exit-spec/config/job-exit-spec.md for more information appExitSpec: exitSpecObject, appExitTriggerMessage: "applicationExitTriggerMessage", appExitTriggerTaskRoleName: "applicationExitTriggerTaskRoleName", appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex", appExitDiagnostics: "applicationExitDiagnostics", // exit messages extracted from exitDiagnostics appExitMessages: { contaier: "containerStderr", // please check https://github.com/Microsoft/pai/blob/master/docs/rest-server/runtime-exit-spec.md for more information runtime: runtimeScriptErrorObject, launcher: "launcherExitMessage" }, // appExitType is deprecated, please use appExitSpec instead. appExitType: "applicationExitType", }, taskRoles: { // Name-details map "taskRoleName": { taskRoleStatus: { name: "taskRoleName" }, taskStatuses: { taskIndex: taskIndex, taskState: taskState, containerId: "containerId", containerIp: "containerIp", containerPorts: { // Protocol-port map "protocol": "portNumber" }, containerGpus: containerGpus, containerLog: containerLogHttpAddress, } }, ... } }
+{
+  name: "jobName",
+  jobStatus: {
+    username: "username",
+    virtualCluster: "virtualCluster",
+    state: "jobState",
+    // raw frameworkState from frameworklauncher
+    subState: "frameworkState",
+    createdTime: "createdTimestamp",
+    completedTime: "completedTimestamp",
+    executionType: "executionType",
+    // sum of retries
+    retries: retries,
+    retryDetails: {
+      // Job failed due to user or unknown error
+      user: userRetries,
+      // Job failed due to platform error
+      platform: platformRetries,
+      // Job cannot get required resource to run within timeout
+      resource: resourceRetries,
+    },
+    appId: "applicationId",
+    appProgress: "applicationProgress",
+    appTrackingUrl: "applicationTrackingUrl",
+    appLaunchedTime: "applicationLaunchedTimestamp",
+    appCompletedTime: "applicationCompletedTimestamp",
+    appExitCode: applicationExitCode,
+    // please check https://github.com/Microsoft/pai/blob/master/src/job-exit-spec/config/job-exit-spec.md for more information
+    appExitSpec: exitSpecObject,
+    appExitTriggerMessage: "applicationExitTriggerMessage",
+    appExitTriggerTaskRoleName: "applicationExitTriggerTaskRoleName",
+    appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex",
+    appExitDiagnostics: "applicationExitDiagnostics",
+    // exit messages extracted from exitDiagnostics
+    appExitMessages: {
+      contaier: "containerStderr",
+      // please check https://github.com/Microsoft/pai/blob/master/docs/rest-server/runtime-exit-spec.md for more information
+      runtime: runtimeScriptErrorObject,
+      launcher: "launcherExitMessage"
+    },
+    // appExitType is deprecated, please use appExitSpec instead.
+    appExitType: "applicationExitType",
+  },
+  taskRoles: {
+    // Name-details map
+    "taskRoleName": {
+      taskRoleStatus: {
+        name: "taskRoleName"
+      },
+      taskStatuses: {
+        taskIndex: taskIndex,
+        taskState: taskState,
+        containerId: "containerId",
+        containerIp: "containerIp",
+        containerPorts: {
+          // Protocol-port map
+          "protocol": "portNumber"
+        },
+        containerGpus: containerGpus,
+        containerLog: containerLogHttpAddress,
+      }
+    },
+    ...
+  }
+}
+```
 
-    <br />*Response if the job does not exist*
-    
+*Response if the job does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobError", "message": "Job $jobname is not found." }
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `POST user/:username/jobs`
-    
-    Submit a job in the system.
-    
-    *Request*
-    
+### `POST user/:username/jobs`
 
-POST /api/v1/user/:username/jobs Authorization: Bearer <access_token>
+Submit a job in the system.
 
-    <br />*Parameters*
-    
-    [job config json](../job_tutorial.md)
-    
-    *Response if succeeded*
-    
+*Request*
 
+```json
+POST /api/v1/user/:username/jobs
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+[job config json](../job_tutorial.md)
+
+*Response if succeeded*
+
+```json
 Status: 202
 
-{ "message": "update job $jobName successfully" }
+{
+  "message": "update job $jobName successfully"
+}
+```
 
-    <br />*Response if the virtual cluster does not exist.*
-    
+*Response if the virtual cluster does not exist.*
 
+```json
 Status: 400
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if user has no permission*
-    
+*Response if user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "User $username is not allowed to add job to $vcname }
+{
+  "code": "ForbiddenUserError",
+  "message": "User $username is not allowed to add job to $vcname
+}
+```
 
-    <br />*Response if there is a duplicated job submission*
-    
+*Response if there is a duplicated job submission*
 
+```json
 Status: 409
 
-{ "code": "ConflictJobError", "message": "Job name $jobname already exists." }
+{
+  "code": "ConflictJobError",
+  "message": "Job name $jobname already exists."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET user/:username/jobs/:jobName/config`
-    
-    Get job config JSON content.
-    
-    *Request*
-    
+### `GET user/:username/jobs/:jobName/config`
 
+Get job config JSON content.
+
+*Request*
+
+```json
 GET /api/v1/user/:username/jobs/:jobName/config
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ "jobName": "test", "image": "pai.run.tensorflow", ... }
+{
+  "jobName": "test",
+  "image": "pai.run.tensorflow",
+  ...
+}
+```
 
-    <br />*Response if the job does not exist*
-    
+*Response if the job does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobError", "message": "Job $jobname is not found." }
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
 
-    <br />*Response if the job config does not exist*
-    
+*Response if the job config does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobConfigError", "message": "Config of job $jobname is not found." }
+{
+  "code": "NoJobConfigError",
+  "message": "Config of job $jobname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET user/:username/jobs/:jobName/ssh`
-    
-    Get job SSH info.
-    
-    *Request*
-    
+### `GET user/:username/jobs/:jobName/ssh`
 
+Get job SSH info.
+
+*Request*
+
+```json
 GET /api/v1/user/:username/jobs/:jobName/ssh
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ "containers": [ { "id": "<container id>", "sshIp": "<ip to access the container's ssh service>", "sshPort": "<port to access the container's ssh service>" }, ... ], "keyPair": { "folderPath": "HDFS path to the job's ssh folder", "publicKeyFileName": "file name of the public key file", "privateKeyFileName": "file name of the private key file", "privateKeyDirectDownloadLink": "HTTP URL to download the private key file" } }
+{
+  "containers": [
+    {
+      "id": "<container id>",
+      "sshIp": "<ip to access the container's ssh service>",
+      "sshPort": "<port to access the container's ssh service>"
+    },
+    ...
+  ],
+  "keyPair": {
+    "folderPath": "HDFS path to the job's ssh folder",
+    "publicKeyFileName": "file name of the public key file",
+    "privateKeyFileName": "file name of the private key file",
+    "privateKeyDirectDownloadLink": "HTTP URL to download the private key file"
+  }
+}
+```
 
-    <br />*Response if the job does not exist*
-    
+*Response if the job does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobError", "message": "Job $jobname is not found." }
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
 
-    <br />*Response if the job SSH info does not exist*
-    
+*Response if the job SSH info does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobSshInfoError", "message": "SSH info of job $jobname is not found." }
+{
+  "code": "NoJobSshInfoError",
+  "message": "SSH info of job $jobname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `PUT user/:username/jobs/:jobName/executionType`
-    
-    Start or stop a job.
-    
-    *Request*
-    
+### `PUT user/:username/jobs/:jobName/executionType`
 
-PUT /api/v1/user/:username/jobs/:jobName/executionType Authorization: Bearer <access_token>
+Start or stop a job.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "value": "START" | "STOP" }
+```json
+PUT /api/v1/user/:username/jobs/:jobName/executionType
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "value": "START" | "STOP"
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 200
 
-{ "message": "execute job $jobName successfully" }
+{
+  "message": "execute job $jobName successfully"
+}
+```
 
-    <br />*Response if the job does not exist*
-    
+*Response if the job does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobError", "message": "Job $jobname is not found." }
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET virtual-clusters`
-    
-    Get the list of virtual clusters.
-    
-    *Request*
-    
+### `GET virtual-clusters`
 
+Get the list of virtual clusters.
+
+*Request*
+
+```json
 GET /api/v1/virtual-clusters
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ "vc1": { } ... }
+{
+  "vc1":
+  {
+  }
+  ...
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET virtual-clusters/:vcName`
-    
-    Get virtual cluster status in the system.
-    
-    *Request*
-    
+### `GET virtual-clusters/:vcName`
 
+Get virtual cluster status in the system.
+
+*Request*
+
+```json
 GET /api/v1/virtual-clusters/:vcName
+```
 
-    <br />*Response if succeeded*
-    
+*Response if succeeded*
 
+```json
 Status: 200
 
-{ //capacity percentage this virtual cluster can use of entire cluster "capacity":50, //max capacity percentage this virtual cluster can use of entire cluster "maxCapacity":100, // used capacity percentage this virtual cluster can use of entire cluster "usedCapacity":0, "numActiveJobs":0, "numJobs":0, "numPendingJobs":0, "resourcesUsed":{ "memory":0, "vCores":0, "GPUs":0 }, "state":"running" }
+{
+  //capacity percentage this virtual cluster can use of entire cluster
+  "capacity":50,
+  //max capacity percentage this virtual cluster can use of entire cluster
+  "maxCapacity":100,
+  // used capacity percentage this virtual cluster can use of entire cluster
+  "usedCapacity":0,
+  "numActiveJobs":0,
+  "numJobs":0,
+  "numPendingJobs":0,
+  "resourcesUsed":{
+   "memory":0,
+   "vCores":0,
+   "GPUs":0
+  },
+  "state":"running"
+}
+```
 
-    <br />*Response if the virtual cluster does not exist*
-    
+*Response if the virtual cluster does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `PUT virtual-clusters/:vcName` (administrator only)
-    
-    Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
-    
-    *Request*
-    
+### `PUT virtual-clusters/:vcName` (administrator only)
 
-PUT /api/v1/virtual-clusters/:vcName Authorization: Bearer <access_token>
+Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "vcCapacity": new capacity, "vcMaxCapacity": new max capacity, range of [vcCapacity, 100] }
+```json
+PUT /api/v1/virtual-clusters/:vcName
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "vcCapacity": new capacity,
+  "vcMaxCapacity": new max capacity, range of [vcCapacity, 100]
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 201
 
-{ "message": "Update vc: $vcName to capacity: $vcCapacity successfully." }
+{
+  "message": "Update vc: $vcName to capacity: $vcCapacity successfully."
+}
+```
 
-    <br />*Response if try to update "default" vc*
-    
+*Response if try to update "default" vc*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Don't allow to update default vc" }
+{
+  "code": "ForbiddenUserError",
+  "message": "Don't allow to update default vc"
+}
+```
 
-    <br />*Response if current user has no permission*
-    
+*Response if current user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if no enough quota*
-    
+*Response if no enough quota*
 
+```json
 Status: 403
 
-{ "code": "NoEnoughQuotaError", "message": "No enough quota in default vc." }
+{
+  "code": "NoEnoughQuotaError",
+  "message": "No enough quota in default vc."
+}
+```
 
-    <br />*Response if "default" virtual cluster does not exist*
-    
+*Response if "default" virtual cluster does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoVirtualClusterError", "message": "Default virtual cluster is not found, can't allocate or free resource." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Default virtual cluster is not found, can't allocate or free resource."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `DELETE virtual-clusters/:vcName` (administrator only)
-    
-    remove virtual cluster in the system, don't allow to operate "default" vc.
-    
-    *Request*
-    
+### `DELETE virtual-clusters/:vcName` (administrator only)
 
-DELETE /api/v1/virtual-clusters/:vcName Authorization: Bearer <access_token>
+remove virtual cluster in the system, don't allow to operate "default" vc.
 
-    <br />*Response if succeeded*
-    
+*Request*
 
+```json
+DELETE /api/v1/virtual-clusters/:vcName
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
 Status: 201
 
-{ "message": "Remove vc: $vcName successfully." }
+{
+  "message": "Remove vc: $vcName successfully."
+}
+```
 
-    <br />*Response if current user has no permission*
-    
+*Response if current user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if try to update "default" vc*
-    
+*Response if try to update "default" vc*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Don't allow to remove default vc." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Don't allow to remove default vc."
+}
+```
 
-    <br />*Response if the virtual cluster does not exist*
-    
+*Response if the virtual cluster does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if "default" virtual cluster does not exist*
-    
+*Response if "default" virtual cluster does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoVirtualClusterError", "message": "Default virtual cluster is not found, can't allocate or free resource." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Default virtual cluster is not found, can't allocate or free resource."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `PUT virtual-clusters/:vcName/status` (administrator only)
-    
-    Change virtual cluster status, don't allow to operate "default" vc.
-    
-    *Request*
-    
+### `PUT virtual-clusters/:vcName/status` (administrator only)
 
-PUT /api/v1/virtual-clusters/:vcName/status Authorization: Bearer <access_token>
+Change virtual cluster status, don't allow to operate "default" vc.
 
-    <br />*Parameters*
-    
+*Request*
 
-{ "vcStatus": "running" | "stopped" }
+```json
+PUT /api/v1/virtual-clusters/:vcName/status
+Authorization: Bearer <ACCESS_TOKEN>
+```
 
-    <br />*Response if succeeded*
-    
+*Parameters*
 
+```json
+{
+  "vcStatus": "running" | "stopped"
+}
+```
+
+*Response if succeeded*
+
+```json
 Status: 201
 
-{ "message": "Update vc: $vcName to status: $vcStatus successfully." }
+{
+  "message": "Update vc: $vcName to status: $vcStatus successfully."
+}
+```
 
-    <br />*Response if try to update "default" vc*
-    
+*Response if try to update "default" vc*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Don't allow to update default vc" }
+{
+  "code": "ForbiddenUserError",
+  "message": "Don't allow to update default vc"
+}
+```
 
-    <br />*Response if current user has no permission*
-    
+*Response if current user has no permission*
 
+```json
 Status: 403
 
-{ "code": "ForbiddenUserError", "message": "Non-admin is not allow to do this operation." }
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
 
-    <br />*Response if the virtual cluster does not exist*
-    
+*Response if the virtual cluster does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br /><br />## API v2
-    
-    ### `POST jobs`
-    
-    Submit a job v2 in the system.
-    
-    *Request*
-    
+## API v2
 
-POST /api/v2/jobs Content-Type: text/yaml Authorization: Bearer <access_token>
+### `POST jobs`
 
-    <br />*Parameters*
-    
-    [job protocol yaml](../pai-job-protocol.yaml)
-    
-    *Response if succeeded*
-    
+Submit a job v2 in the system.
 
+*Request*
+
+```json
+POST /api/v2/jobs
+Content-Type: text/yaml
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+[job protocol yaml](../pai-job-protocol.yaml)
+
+*Response if succeeded*
+
+```json
 Status: 202
 
-{ "message": "update job $jobName successfully" }
+{
+  "message": "update job $jobName successfully"
+}
+```
 
-    <br />*Response if the virtual cluster does not exist.*
-    
+*Response if the virtual cluster does not exist.*
 
+```json
 Status: 400
 
-{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
 
-    <br />*Response if user has no permission*
+*Response if user has no permission*
+
+    Status: 403
+    
+    {
+      "code": "ForbiddenUserError",
+      "message": "User $username is not allowed to add job to $vcname
+    }
     
 
-Status: 403
+*Response if there is a duplicated job submission*
 
-{ "code": "ForbiddenUserError", "message": "User $username is not allowed to add job to $vcname }
-
-    <br />*Response if there is a duplicated job submission*
-    
-
+```json
 Status: 409
 
-{ "code": "ConflictJobError", "message": "Job name $jobname already exists." }
+{
+  "code": "ConflictJobError",
+  "message": "Job name $jobname already exists."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" }
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
-    <br />### `GET jobs/:frameworkName/config`
-    
-    Get job config JSON or YAML content.
-    
-    *Request*
-    
+### `GET jobs/:frameworkName/config`
 
-GET /api/v2/jobs/:frameworkName/config Accept: json (for v1 jobs) Accept: yaml (for v2 jobs)
+Get job config JSON or YAML content.
 
-    <br />*Response if succeeded*
-    
+*Request*
 
+```json
+GET /api/v2/jobs/:frameworkName/config
+Accept: json (for v1 jobs)
+Accept: yaml (for v2 jobs)
+```
+
+*Response if succeeded*
+
+```json
 Status: 200
 
-{ "jobName": "test", "image": "pai.run.tensorflow", ... }
+{
+  "jobName": "test",
+  "image": "pai.run.tensorflow",
+  ...
+}
 
 or
 
-jobName: test protocolVersion: 2 ...
+jobName: test
+protocolVersion: 2
+...
+```
 
-    <br />*Response if the job does not exist*
-    
+*Response if the job does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobError", "message": "Job $jobname is not found." }
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
 
-    <br />*Response if the job config does not exist*
-    
+*Response if the job config does not exist*
 
+```json
 Status: 404
 
-{ "code": "NoJobConfigError", "message": "Config of job $jobname is not found." }
+{
+  "code": "NoJobConfigError",
+  "message": "Config of job $jobname is not found."
+}
+```
 
-    <br />*Response if a server error occured*
-    
+*Response if a server error occurred*
 
+```json
 Status: 500
 
-{ "code": "UnknownError", "message": "*Upstream error messages*" } ```
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
 ## About legacy jobs
 
