@@ -419,6 +419,7 @@
         "@types/fs-extra": "^5.0.4",
         "@types/globalize": "^0.0.34",
         "@types/globby": "^8.0.0",
+        "@types/js-yaml": "^3.12.1",
         "@types/lodash": "^4.14.117",
         "@types/mocha": "^5.2.5",
         "@types/nock": "^9.3.0",
@@ -437,8 +438,6 @@
         "vscode": "^1.1.21"
     },
     "dependencies": {
-        "@types/js-yaml": "^3.12.1",
-        "@types/yaml": "^1.0.2",
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
