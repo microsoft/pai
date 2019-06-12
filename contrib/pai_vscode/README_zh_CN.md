@@ -1,6 +1,6 @@
 # OpenPAI VS Code Client
 
-OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
+OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连接 OpenPAI 集群，提交 Job，在本地模拟运行 Job，管理文件等等。
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client) 
   - [连接到 OpenPAI 集群](#连接到-openpai-群集)
@@ -22,20 +22,20 @@ OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jo
 
 使用 OpenPAI VS Code Client 之前，按照以下步骤连接到 OpenPAI 集群。
 
-Notice, the version of OpenPAI cluster must equal or greater than 0.8.0.
+注意， OpenPAI 集群的版本必须大于或等于 0.8.0。
 
-1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
+1. 使用快捷键 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> 打开命令面板。
 2. 如下输入并查找 *PAI: Add PAI Cluster*。
   
-      ![add cluster](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
+      ![添加集群](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
       
 
-3. Press <kbd>Enter</kbd>, and input the host of an OpenPAI cluster. 可以是域名或者 IP 地址。 After that, press <kbd>Enter</kbd> again.
+3. 按下 <kbd>Enter</kbd>，并输入 OpenPAI 集群的地址。 可以是域名或者 IP 地址。 然后，再次按下 <kbd>Enter</kbd>。
   
-      ![add cluster host](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster_host.png)
+      ![添加集群](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
       
 
-4. A configuration file is opened, and username and password fields are needed at least. 完成后，点击右下角的 *Finish* 按钮。 注意，如果直接保存并关闭文件，则无法生效。
+4. 配置文件将会被打开，至少需要填入 username 和 password 字段。 完成后，点击右下角的 *Finish* 按钮。 注意，如果直接保存并关闭文件，则无法生效。
   
       ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
       
