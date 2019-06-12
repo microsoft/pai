@@ -6,6 +6,7 @@ import MonacoPanel from '../../../app/components/monaco-panel';
 import {JobBasicInfo} from '../models/jobBasicInfo';
 import {JobTaskRole} from '../models/jobTaskRole';
 import {JobParameter} from '../models/jobParameter';
+import {isNil} from 'lodash';
 
 const _exportFile = (data, filename, type) => {
   let file = new Blob([data], {type: type});
@@ -42,8 +43,12 @@ export const SubmissionSection = (props) => {
 
   const _closeEditor = () => {
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
-
     setEditorOpen(false);
+
+    if (isNil(updatedJob)) {
+      return;
+    }
+
     setjobProtocol(updatedJob);
     if (onChange === undefined) {
       return;
@@ -51,7 +56,8 @@ export const SubmissionSection = (props) => {
 
     const {taskRoles, deployments, prerequisites, parameters} = updatedJob;
     const updatedJobInformation = JobBasicInfo.fromProtocol(updatedJob);
-    const updatedParameters = Object.keys(parameters).map((key) => new JobParameter({key: key, value: parameters[key]}));
+    const updatedParameters = Object.keys(parameters)
+                                    .map((key) => new JobParameter({key: key, value: parameters[key]}));
     const updatedTaskRoles = Object.keys(taskRoles)
                                    .map((name) => JobTaskRole.fromProtocol(name, taskRoles[name], deployments, prerequisites));
     onChange(updatedJobInformation, updatedTaskRoles, updatedParameters);
@@ -59,7 +65,7 @@ export const SubmissionSection = (props) => {
 
   const _exportYaml = (event) => {
     event.preventDefault();
-    _exportFile(jobProtocol.toYaml(), (jobProtocol.jobBasicInfo.name || 'job') + '.yaml', 'application/x-yaml');
+    _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'application/x-yaml');
   };
 
   const _onYamlTextChange = (text) => {

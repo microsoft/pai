@@ -34,16 +34,15 @@ const tabFormStyle = getTabFromStyle();
 export class TabForm extends React.Component {
   constructor(props) {
     super(props);
-    const {defaultItems} = props;
+    const {items} = props;
 
     let selectedIndex;
-    if (defaultItems !== undefined && defaultItems.size !== 0) {
+    if (items !== undefined && items.size !== 0) {
       selectedIndex = 0;
     }
 
     this.state = {
       selectedIndex: selectedIndex,
-      items: defaultItems,
     };
   }
 
@@ -106,29 +105,24 @@ export class TabForm extends React.Component {
     }
 
     const itemIndex = this._getItemIndexByKey(itemKey);
-    const {items} = this.state;
-    const updatedItems = items.filter((_, index) => index !== itemIndex);
-
-    // TODO: use other policy to update index
-    const newSelectedIndex = 0;
-
-    this._onItemsChange(updatedItems);
+    const {items, onItemDelete} = this.props;
+    if (onItemDelete === undefined) {
+      return;
+    }
+    const newSelectedIndex = onItemDelete(items, itemIndex);
     this.setState({
-      items: updatedItems,
       selectedIndex: newSelectedIndex,
     });
   }
 
-  _onAddItem() {
-    const {items} = this.state;
-    const {createContentFunc, headerTextPrefix} = this.props;
-    const updatedItems = [...items, {headerText: `${headerTextPrefix} ${items.length + 1}`, content: createContentFunc()}];
-    const newSelectedIndex = updatedItems.length - 1;
-
-    this._onItemsChange(updatedItems);
+  _onItemAdd() {
+    const {items, onItemAdd} = this.props;
+    if (onItemAdd === undefined) {
+      return;
+    }
+    const newSelectedIndex = onItemAdd(items);
     this.setState({
       selectedIndex: newSelectedIndex,
-      items: updatedItems,
     });
   }
 
@@ -139,18 +133,16 @@ export class TabForm extends React.Component {
   }
 
   _onContentChange(index, itemContent) {
-    const {items} = this.state;
+    const {items} = this.props;
     const updatedItems = [...items];
     updatedItems[index].content = itemContent;
 
     this._onItemsChange(updatedItems);
-    this.setState({
-      items: updatedItems,
-    });
   }
 
   render() {
-    let {selectedIndex, items} = this.state;
+    let {selectedIndex} = this.state;
+    const {items} = this.props;
 
     const {formTabBar} = getFormClassNames();
     const contentItems = this._getContentItems(items);
@@ -171,7 +163,7 @@ export class TabForm extends React.Component {
             </Pivot>
           </Stack.Item>
           <Stack.Item disableShrink>
-            <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
+            <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onItemAdd.bind(this)}/>
           </Stack.Item>
         </Stack>
         <Stack styles={tabFormStyle.tabContent}>
@@ -183,9 +175,10 @@ export class TabForm extends React.Component {
 }
 
 TabForm.propTypes = {
-  defaultItems: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
+  onItemAdd: PropTypes.func.isRequired,
+  onItemDelete: PropTypes.func.isRequired,
   headerTextPrefix: PropTypes.string.isRequired,
-  createContentFunc: PropTypes.func.isRequired,
   onRenderTabContent: PropTypes.func.isRequired,
   onItemsChange: PropTypes.func,
 };

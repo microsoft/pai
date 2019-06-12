@@ -90,7 +90,7 @@ export class JobProtocol {
     let deployments = jobTaskRoles.map((taskRole) => taskRole.getDeployment())
                                   .filter((deploy) => !isNil(deploy))
                                   .reduce(keyValueArrayReducer, {});
-    deployments = {name: 'defaultDeployments', taskRoles: deployments};
+    deployments = {name: 'defaultDeployment', taskRoles: deployments};
 
     const dockerMap = JobProtocol._generateDockerPrerequisitesMap(jobTaskRoles);
     const taskRoles = JobProtocol._updateAndConvertTaskRoles(jobTaskRoles, dockerMap);

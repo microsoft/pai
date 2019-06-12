@@ -18,18 +18,36 @@ export const TaskRoles = (props) => {
     if (onChange === undefined) {
       return;
     }
-    onChange(items.map((item)=>item.content));
+    onChange(items.map((item) => item.content));
   };
 
-  const defaultItems = taskRoles.map((item, index) => {
+  const _onItemAdd = (items) => {
+    const updatedItems = [...items, {headerText: `Task role ${items.length + 1}`, content: new JobTaskRole({})}];
+    _onItemChange(updatedItems);
+    return updatedItems.length - 1;
+  };
+
+  const _onItemDelete = (items, itemIndex) => {
+    const updatedItems = items.filter((_, index) => index !== itemIndex)
+                              .map((item, index) => {
+                                item.headerText = `Task role ${index + 1}`;
+                                return item;
+                              });
+    _onItemChange(updatedItems);
+
+    // TODO: use other policy to update index
+    return 0;
+  };
+
+  const items = taskRoles.map((item, index) => {
     return {headerText: `Task role ${index + 1}`, content: item};
   });
 
   return (
-    <TabForm key={new Date().getSeconds()}
-             defaultItems={defaultItems}
+    <TabForm items={items}
              headerTextPrefix='Task Role'
-             createContentFunc={() => new JobTaskRole({})}
+             onItemAdd={_onItemAdd}
+             onItemDelete={_onItemDelete}
              onRenderTabContent={_onRenderTabContent}
              onItemsChange={_onItemChange} />
   );
