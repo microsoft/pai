@@ -37,18 +37,18 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 4. 配置文件将会被打开，至少需要填入 username 和 password 字段。 完成后，点击右下角的 *Finish* 按钮。 注意，如果直接保存并关闭文件，则无法生效。
   
-      ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
+      ![添加集群配置](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
       
 
 如果有多个 OpenPAI 群集，可以多次按照上述步骤进行。
 
 ## 提交 Job
 
-After added a cluster configuration, you can find the cluster in *PAI CLUSTER EXPLORER* pane as below.
+添加完集群配置后，可以在*PAI CLUSTER EXPLORER* 面板找到该集群。
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
-You can create a job configuration and submit to OpenPAI as below steps.
+可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
 
 1. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
