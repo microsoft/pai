@@ -44,3 +44,9 @@ if [ -d "/mnt/hadooptmp/nodemanager" ]; then
     rm -rf /mnt/hadooptmp/nodemanager
 
 fi
+
+if [ -d "/mnt/pai-service-log/node-manager" ]; then
+
+    rm -rf /mnt/pai-service-log/node-manager
+
+fi
