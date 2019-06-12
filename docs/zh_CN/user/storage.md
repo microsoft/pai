@@ -121,28 +121,28 @@ command 字段可分为以下几步。
   
   复制是指的一种方法，而不是某种工具或协议。 能传输文件的命令都可以成为复制的方法。 例如，SSH，SFTP，FTP，HTTP，SMB，NFS 等等。
   
-  This is an example of the command field, it uses `smbclient` and has the same functionality as the sharing example. It also uses the SMB protocol.
+  下面 command 字段的示例使用了 `smbclient`，与共享示例的功能相同。 `smbclient` 也是使用的 SMB 协议。
   
-  Note, if you'd like to have a try, the prerequisites are the same as the [general practice](#general-practice).
+  注意，此示例的先决条件与[通用流程](#通用流程)相同。
   
   ```bash
   apt update && apt install -y smbclient && mkdir /models && cd /models && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;recurse ON;mask *.py;mget *" -m=SMB2 && cd /models/research/slim && python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000 && smbclient --user=<UserName> //<AddressOfSharedServer>/<SharedFolder> <Password> -c "prompt OFF;cd /output;lcd /tmp/output;recurse ON;mput *" -m=SMB2
   ```
   
-  For more information about other protocols and tools, refer to corresponding documents.
+  更多详情与其它协议和工具，参考其相关文档。
 
 ### Docker 内置
 
 - 优点
   
-  - It saves time and IO to copy files for each running, as docker images are cached locally.
-  - It has good IO performance like copy as all files are at local.
-  - It can handle many small files, as files are in the docker image blob.
+  - 因为 Docker 映像会在本地缓存，所以每次运行都能节省复制文件的时间和 IO 消耗。
+  - 与复制方法类似，所有文件都在本地，也会有很好的 IO 性能。
+  - 因为文件都在 Docker 映像块文件中，大量小文件也能很好处理。
 
-- Shortcoming
+- 缺点
   
-  - It needs sharing or copy approach if output files need to be persistent.
-  - It needs to rebuild docker image if files are updated. All docker caches are expired also and need to be downloaded again.
+  - 如果输出文件需要被持久化，也需要使用共享或复制的方法。
+  - 如果文件有更新，需要重新构建 Docker 映像。 All docker caches are expired also and need to be downloaded again.
   - It's not suitable, if file size is large. In general, the docker image is about 2~4 GB. So, if files are more than 1GB, it's not suitable built into docker image.
 
 - Applicable scenarios
