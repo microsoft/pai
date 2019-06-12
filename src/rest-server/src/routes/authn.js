@@ -107,7 +107,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
-      function(req, res, next) {
+      async function(req, res, next) {
         try {
           const authCode = req.body.code;
           const scope = 'https://graph.microsoft.com/user.read';
@@ -135,7 +135,7 @@ if (authnConfig.authnMethod === 'OIDC') {
           console.log(error);
         }
       },
-      function(req, res, next) {
+      async function(req, res, next) {
         // TODO，check user name and return token
         const email = req._json.email;
         const username = email.substring(0, email.lastIndexOf('@'));
