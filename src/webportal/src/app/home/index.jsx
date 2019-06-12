@@ -38,7 +38,7 @@ const loginTarget = '/home.html';
 
 if ( config.authnMethod === 'OIDC') {
     const query = url.parse(window.location.href, true).query;
-    const expiration = 7 * 24 * 60 * 60;
+    const expiration = 7;
     if (query['token']) {
         cookies.set('user', query.user, {expires: expiration});
         cookies.set('token', query.token, {expires: expiration});
