@@ -386,7 +386,7 @@ export class PAIJobManager extends Singleton {
         statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
         try {
             await request.post(
-                PAIRestUri.jobs(cluster, undefined, 'api/v2'),
+                PAIRestUri.jobsV2(cluster),
                 {
                     headers: {
                         Authorization: `Bearer ${await this.getToken(cluster)}`,
