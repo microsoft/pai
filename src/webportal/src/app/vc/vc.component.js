@@ -266,7 +266,7 @@ $(document).ready(() => {
   };
   $(document).on('click', '.nav li', () => {
     resizeContentWrapper();
-   })
+   });
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 
