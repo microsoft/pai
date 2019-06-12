@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class FrameworkDescriptor implements Serializable {
   @Valid
-  @Size(max = 512)
+  @Size(max = 1024)
   private String description;
 
   @Valid
@@ -168,12 +168,20 @@ public class FrameworkDescriptor implements Serializable {
     return false;
   }
 
-  public int calcTotalGpuCount() {
-    int totalGpuCount = 0;
-    for (TaskRoleDescriptor taskRoleDescriptor : taskRoles.values()) {
-      totalGpuCount += taskRoleDescriptor.getTaskNumber() *
-          taskRoleDescriptor.getTaskService().getResource().getGpuNumber();
+  public int calcTotalGpuNumber() {
+    int totalGpuNumber = 0;
+    for (TaskRoleDescriptor taskRole : taskRoles.values()) {
+      totalGpuNumber += taskRole.getTaskNumber() *
+          taskRole.getTaskService().getResource().getGpuNumber();
     }
-    return totalGpuCount;
+    return totalGpuNumber;
+  }
+
+  public int calcTotalTaskNumber() {
+    int totalTaskNumber = 0;
+    for (TaskRoleDescriptor taskRole : taskRoles.values()) {
+      totalTaskNumber += taskRole.getTaskNumber();
+    }
+    return totalTaskNumber;
   }
 }

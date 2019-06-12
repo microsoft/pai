@@ -20,7 +20,9 @@ package com.microsoft.frameworklauncher.common.utils;
 import com.microsoft.frameworklauncher.common.model.Ports;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +36,7 @@ public class PortUtils {
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       List<ValueRange> coalescedPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
       // Assign static ports
-      List<ValueRange> staticPorts = new ArrayList();
+      List<ValueRange> staticPorts = new ArrayList<>();
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();

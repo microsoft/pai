@@ -1,6 +1,25 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 import os
 import sys
 import time
+import readline
 import logging
 import logging.config
 
@@ -75,10 +94,10 @@ class MachineCmd():
         etcd_parser.set_defaults(handler=self.etcd_fix)
 
         # ./paictl.py machine update ...
-        update_parser = machine_parser.add_parser("update")
-        update_parser.add_argument("-p", "--config-path", dest="config_path", default=None, help="the path of directory which stores the cluster configuration.")
-        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
-        update_parser.set_defaults(handler=self.machine_update)
+        #update_parser = machine_parser.add_parser("update")
+        #update_parser.add_argument("-p", "--config-path", dest="config_path", default=None, help="the path of directory which stores the cluster configuration.")
+        #update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+        #update_parser.set_defaults(handler=self.machine_update)
 
         def add_arguments(parser):
             parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="The path of your configuration directory.")

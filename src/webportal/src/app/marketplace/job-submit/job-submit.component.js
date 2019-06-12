@@ -24,7 +24,7 @@ const common = require('../template-common/template-search.component.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const userTemplate = require('./sub-components/user-template.js');
-const url = require('url');
+const querystring = require('querystring');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
@@ -122,7 +122,7 @@ $(document).ready(() => {
       }
     }, false);
 
-    const query = url.parse(window.location.href, true).query;
+    const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
     const type = query.type;
     const name = query.name;
     const username = query.user;
@@ -138,7 +138,11 @@ $(document).ready(() => {
     if (type != null && username != null && jobname != null) {
       const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
       $.get(url, (data) => {
-        userTemplate.updatePageFromYaml(data);
+        if (typeof data === 'string') {
+          userTemplate.updatePageFromYaml(data);
+        } else {
+          userTemplate.updatePageFromJson(data);
+        }
         $('#submitJob').attr('disabled', false);
       });
     }

@@ -24,6 +24,7 @@ import subprocess
 import time
 import copy
 import os
+import collections
 
 from prometheus_client import make_wsgi_app, Counter, Gauge, Histogram
 from prometheus_client.core import GaugeMetricFamily
@@ -59,6 +60,11 @@ def gen_gpu_mem_util_gauge():
             "gpu memory utilization of card",
             labels=["minor_number"])
 
+def gen_gpu_temperature_gauge():
+    return GaugeMetricFamily("nvidiasmi_temperature",
+            "gpu temperature of card",
+            labels=["minor_number"])
+
 def gen_gpu_ecc_counter():
     return GaugeMetricFamily("nvidiasmi_ecc_error_count",
             "count of nvidia ecc error",
@@ -84,6 +90,10 @@ def gen_gpu_used_by_zombie_container_counter():
             "count of gpu used by zombie container",
             labels=["minor_number", "container_id"])
 
+def gen_process_mem_usage_gauge():
+    return GaugeMetricFamily("process_mem_usage_byte",
+            "memory usage of process, to save space in prometheus, we only expose those who consume more than 500Mb of memory",
+            labels=["pid", "cmd"])
 
 class ResourceGauges(object):
     def __init__(self):
@@ -340,6 +350,7 @@ class GpuCollector(Collector):
         it easier to do unit test """
         core_utils = gen_gpu_util_gauge()
         mem_utils = gen_gpu_mem_util_gauge()
+        gpu_temp = gen_gpu_temperature_gauge()
         ecc_errors = gen_gpu_ecc_counter()
         mem_leak = gen_gpu_memory_leak_counter()
         external_process = gen_gpu_used_by_external_process_counter()
@@ -353,6 +364,8 @@ class GpuCollector(Collector):
 
             core_utils.add_metric([minor], info.gpu_util)
             mem_utils.add_metric([minor], info.gpu_mem_util)
+            if info.temperature is not None:
+                gpu_temp.add_metric([minor], info.temperature)
             ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
             ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
             if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
@@ -385,7 +398,7 @@ class GpuCollector(Collector):
                         external_process, zombie_container)
 
         return [core_utils, mem_utils, ecc_errors, mem_leak,
-            external_process, zombie_container]
+            external_process, zombie_container, gpu_temp]
 
     def collect_impl(self):
         gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
@@ -443,7 +456,16 @@ class ContainerCollector(Collector):
         "job-exporter",
         "yarn-exporter",
         "nvidia-drivers",
-        "docker-cleaner"
+        "docker-cleaner",
+
+        # Below are DLTS services
+        "nginx",
+        "restfulapi",
+        "weave",
+        "weave-npc",
+        "nvidia-device-plugin-ctr",
+        "mysql",
+        "jobmanager",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
@@ -768,15 +790,31 @@ class ProcessCollector(Collector):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
 
     def collect_impl(self):
-        process = ps.get_zombie_process(ProcessCollector.cmd_histogram,
+        process_info = ps.get_process_info(ProcessCollector.cmd_histogram,
                 ProcessCollector.cmd_timeout)
 
-        if len(process) > 0:
+        if len(process_info) > 0:
             zombie_metrics = gen_zombie_process_counter()
+            process_mem_metrics = gen_process_mem_usage_gauge()
+            zombie_count = collections.defaultdict(lambda : 0)
 
-            for cmd, count in process.items():
+            for info in process_info:
+                if info.state == "D":
+                    if "nvidia-smi" in info.cmd:
+                        # override command name to make alert rule easier
+                        zombie_count["nvidia-smi"] += 1
+                    else:
+                        cmd = info.cmd.split()[0] # remove args
+                        zombie_count[cmd] += 1
+
+                if info.rss > 500 * 1024 * 1024:
+                    # only record large memory consumption to save space in prometheus
+                    cmd = info.cmd.split()[0] # remove args
+                    process_mem_metrics.add_metric([str(info.pid), cmd], info.rss)
+
+            for cmd, count in zombie_count.items():
                 zombie_metrics.add_metric([cmd], count)
 
-            return [zombie_metrics]
+            return [zombie_metrics, process_mem_metrics]
 
         return None

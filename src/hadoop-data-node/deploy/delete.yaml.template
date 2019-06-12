@@ -15,6 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set folders = cluster_cfg[ "hadoop-data-node" ][ "storage_path" ] or cluster_cfg["cluster"]["common"][ "data-path" ] + "/hdfs/data" %}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -35,8 +36,10 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaning-image:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /mnt
-          name: data-path
+        {% for folder in folders.split(",") %}
+        - mountPath: /mnt/hdfs/data-{{ loop.index }}
+          name: data-path-{{ loop.index }}
+        {% endfor %}
         - mountPath: /hadoop-data-node-delete
           name: hadoop-data-node-delete-config
         env:
@@ -54,9 +57,11 @@ spec:
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
-      - name: data-path
+      {% for folder in folders.split(",") %}
+      - name: data-path-{{ loop.index }}
         hostPath:
-          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}
+          path: {{ folder }}
+      {% endfor %}
       - name: hadoop-data-node-delete-config
         configMap:
           name: hadoop-data-node-delete

@@ -70,7 +70,7 @@ In PAI dev-box, swith to folder contrib/storage-plugin
 
 Create server config using command:
 
-    python storagectl.py storage set teamA 10.0.0.1 /share/teamA --sharedfolders data --privatefolders users
+    python storagectl.py server set teamA nfs 10.0.0.1 /share/teamA --sharedfolders data --privatefolders users
     
 
 - This will do the following things: 

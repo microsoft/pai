@@ -25,9 +25,12 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const config = require('./index');
 const logger = require('./logger');
-const router = require('../routes/index');
-const routerV2 = require('../routes/indexV2');
 const createError = require('../util/error');
+const routers = {
+  v1: require('../routes/index'),
+  v2: require('../routes/v2/index'),
+};
+
 
 const app = express();
 
@@ -37,16 +40,17 @@ app.use(cors());
 app.use(compress());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(bodyParser.text({type: 'text/*'}));
 app.use(cookieParser());
 
 // setup the logger for requests
 app.use(morgan('dev', {'stream': logger.stream}));
 
 // mount all v1 APIs to /api/v1
-app.use('/api/v1', router);
+app.use('/api/v1', routers.v1);
 
 // mount all v2 APIs to /api/v2
-app.use('/api/v2', routerV2);
+app.use('/api/v2', routers.v2);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -34,7 +34,9 @@ const CPU_PER_GPU = 5;
 const MEMORY_PER_GPU = 50 * 1024;
 
 interface ITensorflowSingleNodeJobObject {
-  readonly type: "tensorflow-single-node";
+  readonly type: "tensorflow-single-task";
+  readonly image: string;
+  readonly virtualCluster: string;
   readonly gpuNumber: number;
   readonly command: string;
   readonly mountDirectories: IMountDirectoriesObject;
@@ -43,6 +45,8 @@ interface ITensorflowSingleNodeJobObject {
 export default class TensorflowSingleNodeJob extends Job {
   public constructor(
     private readonly name: string,
+    private readonly image: string,
+    private readonly virtualCluster: string,
     private readonly gpuNumber: number,
     private readonly command: string,
     public readonly mountDirectories: MountDirectories | null,
@@ -60,18 +64,20 @@ export default class TensorflowSingleNodeJob extends Job {
     paiTaskRole.command = this.getPaiCommand();
 
     const paiJob = Object.create(null);
-    paiJob.name = this.name;
-    paiJob.image = "openpai/pai.example.tensorflow:stable";
-    paiJob.virtualCluster = "default";
+    paiJob.jobName = this.name;
+    paiJob.image = this.image;
+    paiJob.virtualCluster = this.virtualCluster;
     paiJob.taskRoles = [paiTaskRole];
 
     return paiJob;
   }
 
   public toJSON() {
-    const {gpuNumber, command, mountDirectories} = this;
+    const {image, virtualCluster, gpuNumber, command, mountDirectories} = this;
     return {
-      type: "tensorflow-single-node",
+      type: "tensorflow-single-task",
+      image,
+      virtualCluster,
       gpuNumber,
       command,
       mountDirectories: mountDirectories !== null ? mountDirectories.toJSON() : null,
@@ -93,11 +99,13 @@ export default class TensorflowSingleNodeJob extends Job {
 
 interface IProps {
   name: string;
+  image: string;
+  virtualCluster: string;
   defaultValue: ITensorflowSingleNodeJobObject | null;
   onChange(job: TensorflowSingleNodeJob): void;
 }
 
-export function TensorflowSingleNodeJobForm({ name, defaultValue, onChange }: IProps) {
+export function TensorflowSingleNodeJobForm({ name, image, virtualCluster, defaultValue, onChange }: IProps) {
   const [gpuNumber, onGpuNumberChanged] = useNumericValue(get(defaultValue, "gpuNumber", 1));
   // tslint:disable:max-line-length
   const [command, onCommandChanged] = useValue(get(defaultValue, "command", `
@@ -110,8 +118,8 @@ python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dat
   const [mountDirectories, setMountDirectories] = useState<MountDirectories | null>(null);
 
   useEffect(() => {
-    onChange(new TensorflowSingleNodeJob(name, gpuNumber, command, mountDirectories));
-  }, [name, gpuNumber, command, mountDirectories]);
+    onChange(new TensorflowSingleNodeJob(name, image, virtualCluster, gpuNumber, command, mountDirectories));
+  }, [name, image, virtualCluster, gpuNumber, command, mountDirectories]);
 
   return (
     <>

@@ -53,7 +53,7 @@ machine-sku:
 
 machine-list:
 
-    - hostname: hostname (echo `hostname`)
+    - hostname: hostname1 (echo `hostname`)
       hostip: 10.0.0.1
       machine-type: D8SV3
       etcdid: etcdid1
@@ -66,7 +66,7 @@ machine-list:
       pai-master: "true"
 
 
-    - hostname: hostname
+    - hostname: hostname2
       hostip: 10.0.0.2
       machine-type: D8SV3
       etcdid: etcdid2
@@ -76,7 +76,7 @@ machine-list:
       k8s-role: master
 
 
-    - hostname: hostname
+    - hostname: hostname3
       hostip: 10.0.0.3
       machine-type: D8SV3
       etcdid: etcdid3
@@ -86,7 +86,7 @@ machine-list:
       k8s-role: master
 
 
-    - hostname: hostname
+    - hostname: hostname4
       hostip: 10.0.0.4
       machine-type: NC24R
       #sshport: PORT (Optional)
@@ -96,7 +96,7 @@ machine-list:
       pai-worker: "true"
 
 
-    - hostname: hostname
+    - hostname: hostname5
       hostip: 10.0.0.5
       machine-type: NC24R
       #sshport: PORT (Optional)
@@ -106,7 +106,7 @@ machine-list:
       pai-worker: "true"
 
 
-    - hostname: hostname
+    - hostname: hostname6
       hostip: 10.0.0.6
       machine-type: NC24R
       #sshport: PORT (Optional)

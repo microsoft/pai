@@ -19,6 +19,8 @@ import yaml from 'js-yaml';
 import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
+import {userLogout} from '../../../../user/user-logout/user-logout.component';
+import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
 const params = new URLSearchParams(window.location.search);
@@ -45,18 +47,31 @@ export async function fetchJobInfo() {
   }
 }
 
-export async function fetchJobConfig() {
+export async function fetchRawJobConfig() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
-  if (typeof(json) == 'string') {
-    // pai rest api sometimes returns a escaped string.
-    // So we need parse it twice. (safeLoad will unescape the string if it is escaped)
-    json = yaml.safeLoad(json);
+  if (res.ok) {
+    return json;
+  } else {
+    if (json.code === 'NoJobConfigError') {
+      throw new NotFoundError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
   }
+}
+
+export async function fetchJobConfig() {
+  const url = namespace
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
+  const res = await fetch(url);
+  const text = await res.text();
+  let json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
   } else {
@@ -85,11 +100,19 @@ export async function fetchSshInfo() {
   }
 }
 
-export function getJobMetricsUrl() {
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}`;
+export function getJobMetricsUrl(jobInfo) {
+  const from = jobInfo.jobStatus.createdTime;
+  let to = '';
+  const {state} = jobInfo.jobStatus;
+  if (state === 'RUNNING') {
+    to = Date.now();
+  } else {
+    to = jobInfo.jobStatus.completedTime;
+  }
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}&from=${from}&to=${to}`;
 }
 
-export function cloneJob(jobConfig) {
+export async function cloneJob(rawJobConfig) {
   const query = {
     op: 'resubmit',
     type: 'job',
@@ -98,32 +121,18 @@ export function cloneJob(jobConfig) {
   };
 
   // plugin
-  const pluginId = get(jobConfig, 'extras.submitFrom');
-  if (!isNil(pluginId)) {
-    const plugins = window.PAI_PLUGINS;
-    const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
-    if (pluginIndex === -1) {
-      alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
-    }
-    window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
+  const pluginId = get(rawJobConfig, 'extras.submitFrom');
+  if (isNil(pluginId)) {
+    window.location.href = `/submit.html?${qs.stringify(query)}`;
     return;
   }
-
-  // job v2
-  if (!isNil(jobConfig.protocolVersion)) {
-    window.location.href = `/submit-v2.html?${qs.stringify(query)}`;
-  } else {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
+  const plugins = window.PAI_PLUGINS;
+  const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
+  if (pluginIndex === -1) {
+    alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    return;
   }
-}
-
-export function checkToken(redirectToLogin=true) {
-  const authToken = cookies.get('token');
-  if (!authToken && redirectToLogin) {
-    window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
-  } else {
-    return authToken;
-  }
+  window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
 }
 
 export async function stopJob() {
@@ -146,14 +155,21 @@ export async function stopJob() {
     const json = await res.json();
     if (res.ok) {
       return json;
+    } else if (res.code === 'UnauthorizedUserError') {
+      alert(res.message);
+      userLogout();
     } else {
       throw new Error(json.message);
     }
   }
 }
 
-export async function getContainerLog(logUrl, type = '', fullLog = false) {
-  const res = await fetch(`${logUrl}${type}`);
+export async function getContainerLog(logUrl) {
+  const ret = {
+    fullLogLink: logUrl,
+    text: null,
+  };
+  const res = await fetch(logUrl);
   const text = await res.text();
   if (!res.ok) {
     throw new Error(res.statusText);
@@ -163,17 +179,30 @@ export async function getContainerLog(logUrl, type = '', fullLog = false) {
     const doc = parser.parseFromString(text, 'text/html');
     const content = doc.getElementsByClassName('content')[0];
     const pre = content.getElementsByTagName('pre')[0];
-    if (!fullLog || !pre.previousElementSibling) {
-      return pre.innerText;
+    ret.text = pre.innerText;
+    // fetch full log link
+    if (pre.previousElementSibling) {
+      const link = pre.previousElementSibling.getElementsByTagName('a');
+      if (link.length === 1) {
+        ret.fullLogLink = link[0].href;
+        // relative link
+        if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
+          const url = new URL(ret.fullLogLink, res.url);
+          ret.fullLogLink = url.href;
+        }
+      }
     }
-    // get full log link
-    const link = pre.previousElementSibling.getElementsByTagName('a');
-    if (link.length === 1) {
-      return getContainerLog(link[0].href);
-    } else {
-      return pre.innerText;
-    }
+    return ret;
   } catch (e) {
     throw new Error(`Log not available`);
   }
+}
+
+export function openJobAttemptsPage(retryCount) {
+  const search = namespace ? namespace + '~' + jobName : jobName;
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(config.yarnWebPortalUri);
 }

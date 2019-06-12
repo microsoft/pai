@@ -4,7 +4,7 @@ from deployment.confStorage.download import download_configuration
 from deployment.confStorage.synchronization import synchronization
 from deployment.confStorage.external_version_control.external_config import uploading_external_config
 from deployment.confStorage.get_cluster_id import get_cluster_id
-
+from utility import pai_version
 
 import logging
 import logging.config
@@ -118,7 +118,8 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                             "service-cluster-ip-range": service_cluster_ip_range,
                             "api-servers-url": api_servers_url,
                             "dashboard-host": dashboard_host,
-                            "dashboard-url": dashboard_url
+                            "dashboard-url": dashboard_url,
+                            "pai-version": pai_version.paictl_version()
                         }
                      }))
 

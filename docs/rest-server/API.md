@@ -440,18 +440,37 @@ Status: 200
     createdTime: "createdTimestamp",
     completedTime: "completedTimestamp",
     executionType: "executionType",
-    // Sum of succeededRetriedCount, transientNormalRetriedCount,
-    // transientConflictRetriedCount, nonTransientRetriedCount,
-    // and unKnownRetriedCount
-    retries: retriedCount,
+    // sum of retries
+    retries: retries,
+    retryDetails: {
+      // Job failed due to user or unknown error
+      user: userRetries,
+      // Job failed due to platform error
+      platform: platformRetries,
+      // Job cannot get required resource to run within timeout
+      resource: resourceRetries,
+    },
     appId: "applicationId",
     appProgress: "applicationProgress",
     appTrackingUrl: "applicationTrackingUrl",
     appLaunchedTime: "applicationLaunchedTimestamp",
     appCompletedTime: "applicationCompletedTimestamp",
     appExitCode: applicationExitCode,
-    appExitDiagnostics: "applicationExitDiagnostics"
-    appExitType: "applicationExitType"
+    // please check https://github.com/Microsoft/pai/blob/master/src/job-exit-spec/config/job-exit-spec.md for more information
+    appExitSpec: exitSpecObject,
+    appExitTriggerMessage: "applicationExitTriggerMessage",
+    appExitTriggerTaskRoleName: "applicationExitTriggerTaskRoleName",
+    appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex",
+    appExitDiagnostics: "applicationExitDiagnostics",
+    // exit messages extracted from exitDiagnostics
+    appExitMessages: {
+      contaier: "containerStderr",
+      // please check https://github.com/Microsoft/pai/blob/master/docs/rest-server/runtime-exit-spec.md for more information
+      runtime: runtimeScriptErrorObject,
+      launcher: "launcherExitMessage"
+    },
+    // appExitType is deprecated, please use appExitSpec instead.
+    appExitType: "applicationExitType",
   },
   taskRoles: {
     // Name-details map
@@ -461,6 +480,7 @@ Status: 200
       },
       taskStatuses: {
         taskIndex: taskIndex,
+        taskState: taskState,
         containerId: "containerId",
         containerIp: "containerIp",
         containerPorts: {
@@ -1010,6 +1030,132 @@ Status: 500
   "message": "*Upstream error messages*"
 }
 ```
+
+
+## API v2
+
+### `POST jobs`
+
+Submit a job v2 in the system.
+
+*Request*
+```
+POST /api/v2/jobs
+Content-Type: text/yaml
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+[job protocol yaml](../pai-job-protocol.yaml)
+
+*Response if succeeded*
+```
+Status: 202
+
+{
+  "message": "update job $jobName successfully"
+}
+```
+
+*Response if the virtual cluster does not exist.*
+```
+Status: 400
+
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
+
+*Response if user has no permission*
+```
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "User $username is not allowed to add job to $vcname
+}
+```
+
+*Response if there is a duplicated job submission*
+```
+Status: 409
+
+{
+  "code": "ConflictJobError",
+  "message": "Job name $jobname already exists."
+}
+```
+
+*Response if a server error occured*
+```
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `GET jobs/:frameworkName/config`
+
+Get job config JSON or YAML content.
+
+*Request*
+```
+GET /api/v2/jobs/:frameworkName/config
+Accept: json (for v1 jobs)
+Accept: yaml (for v2 jobs)
+```
+
+*Response if succeeded*
+```
+Status: 200
+
+{
+  "jobName": "test",
+  "image": "pai.run.tensorflow",
+  ...
+}
+
+or
+
+jobName: test
+protocolVersion: 2
+...
+```
+
+*Response if the job does not exist*
+```
+Status: 404
+
+{
+  "code": "NoJobError",
+  "message": "Job $jobname is not found."
+}
+```
+
+*Response if the job config does not exist*
+```
+Status: 404
+
+{
+  "code": "NoJobConfigError",
+  "message": "Config of job $jobname is not found."
+}
+```
+
+*Response if a server error occured*
+```
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
 
 ## About legacy jobs
 

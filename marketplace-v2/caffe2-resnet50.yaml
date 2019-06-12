@@ -1,0 +1,37 @@
+protocolVersion: 2
+name: caffe2_resnet50
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # Caffe2 ResNet50 Example
+  This example shows using caffe2 to train ResNet50 with fake data on OpenPAI.
+
+parameters:
+  epochSize: 1000
+  epochNum: 1
+
+prerequisites:
+  - protocolVersion: 2
+    name: caffe2_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example caffe2 Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/caffe2).
+    uri : openpai/pai.example.caffe2
+
+taskRoles:
+  train:
+    instances: 1
+    dockerImage: caffe2_example
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - >
+        python resnet50_trainer.py
+        --train_data null
+        --epoch_size <% $parameters.epochSize %>
+        --num_epochs <% $parameters.epochNum %>

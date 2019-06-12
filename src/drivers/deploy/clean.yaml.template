@@ -32,7 +32,7 @@ spec:
       hostPID: true # this is required by pkill dockerd
       containers:
       - name:  rollback-nvidia-runtime
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}drivers:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}drivers-{{ cluster_cfg["drivers"]["version"] }}:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         securityContext:
           privileged: true # this is required by pkill dockerd

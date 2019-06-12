@@ -34,8 +34,13 @@ class TestPS(base.TestBase):
         with open(sample_path, "r") as f:
             ps_result = f.read()
         parse_result = ps.parse_result(ps_result)
-        target_result = {"nvidia-smi": 1}
-        self.assertEqual(target_result, parse_result)
+
+        self.assertEqual(4, len(parse_result))
+        self.assertEqual("D", parse_result[0].state)
+        self.assertEqual("4", parse_result[0].pid)
+        self.assertEqual(2 * 1024, parse_result[0].rss)
+        self.assertEqual("/var/drivers/nvidia/current/bin/nvidia-smi -q -x",
+                parse_result[0].cmd)
 
 if __name__ == '__main__':
     unittest.main()

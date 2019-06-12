@@ -1,23 +1,21 @@
 # OpenPAI VS Code Client
 
-OpenPAI VS Code Client can submit AI jobs, simulate job running locally, manage HDFS files, and etc. It's an extension of Visual Studio Code.
+OpenPAI VS Code Client is the dedicated client tool for OpenPAI. It's an extension of [Visual Studio Code](https://code.visualstudio.com/). Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
 
-Visual Studio Code is a popular, free, lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
+With OpenPAI VS Code Client, you can submit jobs, simulate jobs locally, manage files, and etc. OpenPAI VS Code Client supports Windows, macOS, and Linux like Visual Studio Code.
 
 ## Installation
 
-1. Download and install [Visual Studio Code](https://code.visualstudio.com/) by several clicks.
+1. Install and launch [Visual Studio Code](https://code.visualstudio.com). Click green button to download and install Visual Studio Code if it's not installed yet.
 
-2. Install **OpenPAI Client**.
+    ![Download vs code](assets/download_vscode.png)
 
-    1. Launch VS Code.
-    2. Click the "Extensions" icon in Activity Bar or press **Ctrl+Shift+X** to bring up the Extensions view.
-    3. Input **openpai** in the text box, the OpenPAI VS Code Client will appear in the result list.
-    4. Click the **Install** button. The extension will be installed.
-    5. After a successful installation, you will see an introduction page. Follow the instructions there and try the PAI client.
+1. Click the *Extensions* icon on left side, after Visual Studio Code launched. And input *openpai* to search OpenPAI VS Code Client.
 
-    ![Extension](./assets/ext-install-1.png)
+    ![Extension](assets/ext-install-1.png)
 
-## Next step
+1. Click the **Install** button, and wait installation completes.
 
-Learn how to [use OpenPAI VS Code Client](./README.md)
+## How-to
+
+Learn how to [use OpenPAI VS Code Client](./README.md).

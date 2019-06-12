@@ -5,6 +5,7 @@
  */
 
 import * as vscode from 'vscode';
+
 import * as Singleton from './common/singleton';
 import { allSingletonClasses } from './root';
 

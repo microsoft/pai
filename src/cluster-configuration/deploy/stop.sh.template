@@ -31,8 +31,17 @@ if kubectl get configmap | grep -q "gpu-configuration"; then
     kubectl delete configmap gpu-configuration || exit $?
 fi
 
+if kubectl get configmap | grep -q "pai-version"; then
+    kubectl delete configmap pai-version || exit $?
+fi
+
+if kubectl get configmap | grep -q "k8s-version"; then
+    kubectl delete configmap k8s-version || exit $?
+fi
+
 if kubectl get secret | grep -q "{{ cluster_cfg['cluster']['docker-registry']['secret-name'] }}"; then
     kubectl delete secret {{ cluster_cfg['cluster']['docker-registry']['secret-name'] }} || exit $?
 fi
+
 
 popd > /dev/null

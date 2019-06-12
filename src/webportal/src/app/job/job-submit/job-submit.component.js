@@ -26,7 +26,7 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
-const url = require('url');
+const querystring = require('querystring');
 const stripJsonComments = require('strip-json-comments');
 
 const jobSubmitHtml = jobSubmitComponent({
@@ -36,6 +36,14 @@ const jobSubmitHtml = jobSubmitComponent({
 
 let editor;
 let jobDefaultConfig;
+
+const getChecksum = (str) => {
+  let res = 0;
+  for (const c of str) {
+    res^= c.charCodeAt(0) & 0xff;
+  }
+  return res.toString(16);
+};
 
 const isValidJson = (str) => {
   let valid = true;
@@ -52,7 +60,7 @@ const isValidJson = (str) => {
     valid = false;
   }
   if (!valid) {
-    alert('Please upload a valid json file: ' + errors);
+    alert('Please fix the invalid parameters: ' + errors);
   }
   return valid;
 };
@@ -103,6 +111,9 @@ const submitJob = (jobConfig) => {
         loading.hideLoading();
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
       },
     });
   });
@@ -136,6 +147,26 @@ $(document).ready(() => {
       $('#submitJob').prop('disabled', (editor.validate().length != 0));
     });
 
+    // choose the first edit json box
+    $('[title="Edit JSON"]').filter(':first').one('click', () => {
+      // disable old save button to avoid saving automatically
+      let oldSave = $('[title="Edit JSON"]').filter(':first').next('div').children('[title=Save]')[0];
+      let newSave = oldSave.cloneNode(true);
+      oldSave.parentNode.replaceChild(newSave, oldSave);
+
+      // add new click listener
+      $(newSave).on('click', () => {
+        let curConfig = editor.root.editjson_textarea.value;
+        if (isValidJson(curConfig)) {
+          editor.root.setValue(JSON.parse(curConfig));
+          editor.root.hideEditJSON();
+        }
+      });
+    });
+    $('[title="Object Properties"]').each((index, element) => {
+      $($(element).contents()[2]).replaceWith('More Properties');
+    });
+
     $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -159,7 +190,7 @@ $(document).ready(() => {
     window.onresize = function() {
       resize();
     };
-    const query = url.parse(window.location.href, true).query;
+    const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
     const op = query.op;
     const type = query.type;
     const username = query.user;
@@ -173,9 +204,17 @@ $(document).ready(() => {
           url: url,
           type: 'GET',
           success: (data) => {
-            let jobConfigObj = JSON.parse(data);
-            let timestamp = Date.now();
-            jobConfigObj.jobName += `_${timestamp}`;
+            let jobConfigObj = data;
+            if (typeof(jobConfigObj) === 'string') {
+              jobConfigObj = JSON.parse(data);
+            }
+            let name = jobConfigObj.jobName;
+            if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
+              name = name.slice(0, -9);
+            }
+            name = `${name}_${Date.now().toString(16).substr(-6)}`;
+            name = name + getChecksum(name);
+            jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
           },
           error: (xhr, textStatus, error) => {

@@ -211,7 +211,7 @@ class deploy:
                     self.logger.info(" package cleaner's work finished! ")
 
                     self.logger.info(" remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
-                    self.remote_host_cleaner(node_config, "{0}-deployment".format("proxy"))
+                    self.remote_host_cleaner(node_config, "{0}-deployment".format(role))
                     self.logger.info(" remote host cleaning job finished! ")
 
         kubectl_install_instance = kubectl_install.kubectl_install(com)

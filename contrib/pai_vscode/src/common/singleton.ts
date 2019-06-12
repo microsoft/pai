@@ -6,7 +6,7 @@
 
 import 'reflect-metadata'; // tslint:disable-line
 
-import { Container, injectable } from 'inversify';
+import { injectable, Container } from 'inversify';
 import * as vscode from 'vscode';
 
 import { __ } from './i18n';

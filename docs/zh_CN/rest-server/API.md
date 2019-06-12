@@ -338,7 +338,7 @@ GET /api/v1/user/:username/jobs/:jobName
 
 Status: 200
 
-{ name: "jobName", jobStatus: { username: "username", virtualCluster: "virtualCluster", state: "jobState", // raw frameworkState from frameworklauncher subState: "frameworkState", createdTime: "createdTimestamp", completedTime: "completedTimestamp", executionType: "executionType", // Sum of succeededRetriedCount, transientNormalRetriedCount, // transientConflictRetriedCount, nonTransientRetriedCount, // and unKnownRetriedCount retries: retriedCount, appId: "applicationId", appProgress: "applicationProgress", appTrackingUrl: "applicationTrackingUrl", appLaunchedTime: "applicationLaunchedTimestamp", appCompletedTime: "applicationCompletedTimestamp", appExitCode: applicationExitCode, appExitDiagnostics: "applicationExitDiagnostics" appExitType: "applicationExitType" }, taskRoles: { // Name-details map "taskRoleName": { taskRoleStatus: { name: "taskRoleName" }, taskStatuses: { taskIndex: taskIndex, containerId: "containerId", containerIp: "containerIp", containerPorts: { // Protocol-port map "protocol": "portNumber" }, containerGpus: containerGpus, containerLog: containerLogHttpAddress, } }, ... } }
+{ name: "jobName", jobStatus: { username: "username", virtualCluster: "virtualCluster", state: "jobState", // raw frameworkState from frameworklauncher subState: "frameworkState", createdTime: "createdTimestamp", completedTime: "completedTimestamp", executionType: "executionType", // sum of retries retries: retries, retryDetails: { // Job failed due to user or unknown error user: userRetries, // Job failed due to platform error platform: platformRetries, // Job cannot get required resource to run within timeout resource: resourceRetries, }, appId: "applicationId", appProgress: "applicationProgress", appTrackingUrl: "applicationTrackingUrl", appLaunchedTime: "applicationLaunchedTimestamp", appCompletedTime: "applicationCompletedTimestamp", appExitCode: applicationExitCode, // please check https://github.com/Microsoft/pai/blob/master/src/job-exit-spec/config/job-exit-spec.md for more information appExitSpec: exitSpecObject, appExitTriggerMessage: "applicationExitTriggerMessage", appExitTriggerTaskRoleName: "applicationExitTriggerTaskRoleName", appExitTriggerTaskIndex: "applicationExitTriggerTaskIndex", appExitDiagnostics: "applicationExitDiagnostics", // exit messages extracted from exitDiagnostics appExitMessages: { contaier: "containerStderr", // please check https://github.com/Microsoft/pai/blob/master/docs/rest-server/runtime-exit-spec.md for more information runtime: runtimeScriptErrorObject, launcher: "launcherExitMessage" }, // appExitType is deprecated, please use appExitSpec instead. appExitType: "applicationExitType", }, taskRoles: { // Name-details map "taskRoleName": { taskRoleStatus: { name: "taskRoleName" }, taskStatuses: { taskIndex: taskIndex, taskState: taskState, containerId: "containerId", containerIp: "containerIp", containerPorts: { // Protocol-port map "protocol": "portNumber" }, containerGpus: containerGpus, containerLog: containerLogHttpAddress, } }, ... } }
 
     <br />*Response if the job does not exist*
     
@@ -718,10 +718,101 @@ Status: 404
 
 Status: 500
 
+{ "code": "UnknownError", "message": "*Upstream error messages*" }
+
+    <br /><br />## API v2
+    
+    ### `POST jobs`
+    
+    Submit a job v2 in the system.
+    
+    *Request*
+    
+
+POST /api/v2/jobs Content-Type: text/yaml Authorization: Bearer <access_token>
+
+    <br />*Parameters*
+    
+    [job protocol yaml](../pai-job-protocol.yaml)
+    
+    *Response if succeeded*
+    
+
+Status: 202
+
+{ "message": "update job $jobName successfully" }
+
+    <br />*Response if the virtual cluster does not exist.*
+    
+
+Status: 400
+
+{ "code": "NoVirtualClusterError", "message": "Virtual cluster $vcname is not found." }
+
+    <br />*Response if user has no permission*
+    
+
+Status: 403
+
+{ "code": "ForbiddenUserError", "message": "User $username is not allowed to add job to $vcname }
+
+    <br />*Response if there is a duplicated job submission*
+    
+
+Status: 409
+
+{ "code": "ConflictJobError", "message": "Job name $jobname already exists." }
+
+    <br />*Response if a server error occured*
+    
+
+Status: 500
+
+{ "code": "UnknownError", "message": "*Upstream error messages*" }
+
+    <br />### `GET jobs/:frameworkName/config`
+    
+    Get job config JSON or YAML content.
+    
+    *Request*
+    
+
+GET /api/v2/jobs/:frameworkName/config Accept: json (for v1 jobs) Accept: yaml (for v2 jobs)
+
+    <br />*Response if succeeded*
+    
+
+Status: 200
+
+{ "jobName": "test", "image": "pai.run.tensorflow", ... }
+
+or
+
+jobName: test protocolVersion: 2 ...
+
+    <br />*Response if the job does not exist*
+    
+
+Status: 404
+
+{ "code": "NoJobError", "message": "Job $jobname is not found." }
+
+    <br />*Response if the job config does not exist*
+    
+
+Status: 404
+
+{ "code": "NoJobConfigError", "message": "Config of job $jobname is not found." }
+
+    <br />*Response if a server error occured*
+    
+
+Status: 500
+
 { "code": "UnknownError", "message": "*Upstream error messages*" } ```
 
 ## About legacy jobs
 
-从此版本开始，会启用 [Framework ACL](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL_zh_CN.md#Framework_ACL) ，Job 的命名空间会包含创建者的用户名。 jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version, jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
 
 In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced job as soon as possible.

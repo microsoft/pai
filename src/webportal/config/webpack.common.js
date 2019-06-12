@@ -17,67 +17,67 @@
 
 
 // module dependencies
-const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const markedConfig = require('./marked.config');
 const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
-const FABRIC_DIR = path.resolve(__dirname, '../src/app/job/job-view/fabric');
+const FABRIC_DIR = [
+  path.resolve(__dirname, '../src/app/job/job-view/fabric'),
+  path.resolve(__dirname, '../src/app/home'),
+  path.resolve(__dirname, '../src/app/components'),
+  path.resolve(__dirname, '../node_modules/tachyons'),
+];
 
-
-const htmlMinifierOptions = {
-  collapseWhitespace: true,
-  html5: true,
-  minifyCSS: true,
-  minifyJS: true,
-  removeComments: true,
-  removeEmptyAttributes: true,
-  removeTagWhitespace: true
-};
+function generateHtml(opt) {
+  return new HtmlWebpackPlugin(Object.assign({
+    title: title,
+    version: version,
+    template: './src/app/layout/layout.component.ejs',
+    minify: {
+      collapseWhitespace: true,
+      html5: true,
+      removeComments: true,
+      removeEmptyAttributes: true,
+      removeTagWhitespace: true,
+    },
+  }, opt));
+}
 
 const config = (env, argv) => ({
   entry: {
-    index: './src/app/index.js',
-    layout: './src/app/layout/layout.component.js',
-    register: './src/app/user/user-register/user-register.component.js',
-    userView: './src/app/user/user-view/user-view.component.js',
-    login: './src/app/user/user-login/user-login.component.js',
-    changePassword: './src/app/user/change-password/change-password.component.js',
-    dashboard: './src/app/dashboard/dashboard.component.js',
-    submit: './src/app/job/job-submit/job-submit.component.js',
-    jobList: ['babel-polyfill', './src/app/job/job-view/fabric/job-list.jsx'],
-    jobDetail: ['babel-polyfill', './src/app/job/job-view/fabric/job-detail.jsx'],
-    virtualClusters: './src/app/vc/vc.component.js',
-    services: './src/app/cluster-view/services/services.component.js',
-    hardware: './src/app/cluster-view/hardware/hardware.component.js',
-    hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
-    k8s: './src/app/cluster-view/k8s/k8s.component.js',
-    docs: './src/app/job/job-docs/job-docs.component.js',
-    jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
-    changeGitHubPAT: './src/app/user/change-github-pat/change-github-pat.component.js',
-    howToConfigGitHubPAT: './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
-    plugin: './src/app/plugin/plugin.component.js',
-
-    'plugins/marketplace': './src/plugins/marketplace',
+    'index': './src/app/home/index.jsx',
+    'home': './src/app/home/home.jsx',
+    'layout': './src/app/layout/layout.component.js',
+    'userView': './src/app/user/fabric/user-view.jsx',
+    'batchRegister': './src/app/user/fabric/batch-register.jsx',
+    'changePassword': './src/app/user/change-password/change-password.component.js',
+    'dashboard': './src/app/dashboard/dashboard.component.js',
+    'submit': './src/app/job/job-submit/job-submit.component.js',
+    'jobList': './src/app/job/job-view/fabric/job-list.jsx',
+    'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
+    'virtualClusters': './src/app/vc/vc.component.js',
+    'services': './src/app/cluster-view/services/services.component.js',
+    'hardware': './src/app/cluster-view/hardware/hardware.component.js',
+    'hardwareDetail': './src/app/cluster-view/hardware/hardware-detail.component.js',
+    'k8s': './src/app/cluster-view/k8s/k8s.component.js',
+    'docs': './src/app/job/job-docs/job-docs.component.js',
+    'plugin': './src/app/plugin/plugin.component.js',
   },
   output: {
     path: helpers.root('dist'),
-    filename: 'scripts/[name].bundle.js'
+    filename: 'scripts/[name].bundle.js',
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [helpers.root('node_modules'), helpers.root('src')],
-    alias: {
-      deepmerge$: path.resolve(helpers.root('node_modules/deepmerge/dist/umd.js')),
-    }
   },
   module: {
     rules: [
@@ -88,82 +88,124 @@ const config = (env, argv) => ({
           loader: 'babel-loader',
           options: {
             plugins: ['lodash'],
-            presets: ['@babel/preset-react', '@babel/preset-env'],
+            presets: ['@babel/preset-react',
+              ['@babel/preset-env', {
+                useBuiltIns: 'entry',
+                corejs: 3,
+              }],
+            ],
           },
         },
       },
       {
         test: /\.txt$/,
-        loader: 'raw-loader'
+        loader: 'raw-loader',
       },
       {
         test: /\.md$/,
         use: [
           {
-            loader: 'html-loader'
+            loader: 'html-loader',
           },
           {
             loader: 'markdown-loader',
             options: {
               pedantic: true,
-              renderer: markedConfig.renderer
-            }
-          }
-        ]
+              renderer: markedConfig.renderer,
+            },
+          },
+        ],
       },
       {
         test: /\.json$/,
-        loader: 'json-loader'
+        loader: 'json-loader',
       },
       {
         test: /\.ejs$/,
-        loader: 'ejs-loader'
+        loader: 'ejs-loader',
       },
       {
         test: /\.(css|scss)$/,
         include: FABRIC_DIR,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
+        use: [
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
               options: {
-                url: true,
-                minimize: true,
                 sourceMap: true,
-                modules: true,
-                camelCase: true,
-                localIdentName: '[name]-[local]--[hash:base64:5]',
               },
             },
-            'sass-loader',
-          ],
-        }),
+          {
+            loader: 'css-loader',
+            options: {
+              url: true,
+              sourceMap: true,
+              importLoaders: 2,
+              modules: true,
+              camelCase: true,
+              localIdentName: '[name]-[local]--[hash:base64:5]',
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('autoprefixer')(),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
       },
       {
         test: /\.(css|scss)$/,
         exclude: FABRIC_DIR,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
+        use: [
+          argv.mode === 'production'
+            ? MiniCssExtractPlugin.loader
+            : {
+              loader: 'style-loader',
               options: {
-                url: true,
-                minimize: true,
-                sourceMap: true
-              }
+                sourceMap: true,
+              },
             },
-            {
-              loader: 'sass-loader',
-              options: {
-                url: true,
-                minimize: true,
-                sourceMap: true
-              }
-            }
-          ]
-        })
+          {
+            loader: 'css-loader',
+            options: {
+              url: true,
+              sourceMap: true,
+              importLoaders: 2,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss2',
+              plugins: (loader) => [
+                require('postcss-import')({root: loader.resourcePath}),
+                require('autoprefixer')(),
+                require('cssnano')(),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
       },
       {
         test: /\.(jpg|png|gif|ico)$/,
@@ -173,233 +215,146 @@ const config = (env, argv) => ({
             options: {
               name: '[name].[ext]',
               publicPath: '/assets/img/',
-              outputPath: 'assets/img/'
-            }
-          }
-        ]
+              outputPath: 'assets/img/',
+            },
+          },
+        ],
       },
       {
-        test: /\.(eot|woff2?|svg|ttf)([\?]?.*)$/,
+        test: /\.(eot|woff2?|svg|ttf)([?]?.*)$/,
         use: [
           {
             loader: 'file-loader',
             options: {
               name: '[name].[ext]',
               publicPath: '/assets/font/',
-              outputPath: 'assets/font/'
-            }
-          }
-        ]
-      }
-    ]
+              outputPath: 'assets/font/',
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new webpack.WatchIgnorePlugin([
       /css\.d\.ts$/,
     ]),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^moment$/,
+      contextRegExp: /chart.js/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^esprima$/,
+      contextRegExp: /js-yaml/,
+    }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'css', 'ts', 'html']
+      languages: ['json', 'yaml'],
+      features: ['smartSelect'],
     }),
     new CopyWebpackPlugin([
-      { from: 'src/assets', to: 'assets' }
+      {from: 'src/assets', to: 'assets'},
+      {from: 'src/assets/img/favicon.ico', to: 'favicon.ico'},
     ]),
-    new ExtractTextPlugin({
-      filename: 'styles/[name].bundle.css'
+    new MiniCssExtractPlugin({
+      filename: 'styles/[name].bundle.css',
+    }),
+    // required by ejs loader
+    new webpack.ProvidePlugin({
+      _: 'lodash',
     }),
     new webpack.ProvidePlugin({
-      _: 'underscore'
+      '$': 'jquery',
+      'jQuery': 'jquery',
+      'window.jQuery': 'jquery',
     }),
     new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery'
+      'cookies': 'js-cookie',
+      'window.cookies': 'js-cookie',
     }),
-    new webpack.ProvidePlugin({
-      cookies: 'js-cookie',
-      'window.cookies': 'js-cookie'
-    }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'index.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'index']
+      chunks: ['index'],
+      template: './src/app/home/index.ejs',
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
-      filename: 'register.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'register']
+    generateHtml({
+      filename: 'home.html',
+      chunks: ['layout', 'home'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'user-view.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'userView']
+      chunks: ['layout', 'userView'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
-      filename: 'login.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'login']
+    generateHtml({
+      filename: 'batch-register.html',
+      chunks: ['layout', 'batchRegister'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'change-password.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'changePassword']
+      chunks: ['layout', 'changePassword'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'dashboard.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'dashboard']
+      chunks: ['layout', 'dashboard'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'submit.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'submit']
+      chunks: ['layout', 'submit'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'job-list.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'jobList']
+      chunks: ['layout', 'jobList'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'job-detail.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'jobDetail']
+      chunks: ['layout', 'jobDetail'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'virtual-clusters.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'virtualClusters']
+      chunks: ['layout', 'virtualClusters'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'cluster-view/services.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'services']
+      chunks: ['layout', 'services'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'cluster-view/hardware.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'hardware']
+      chunks: ['layout', 'hardware'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'cluster-view/k8s.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'k8s']
+      chunks: ['layout', 'k8s'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'cluster-view/hardware/detail.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'hardwareDetail']
+      chunks: ['layout', 'hardwareDetail'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'docs.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'docs']
+      chunks: ['layout', 'docs'],
     }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
-      filename: 'submit-v2.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'jobSubmit']
-    }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
-      filename: 'change-github-pat.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'changeGitHubPAT']
-    }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
-      filename: 'how-to-config-github-pat.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'howToConfigGitHubPAT']
-    }),
-    new HtmlWebpackPlugin({
-      title: title,
-      version: version,
+    generateHtml({
       filename: 'plugin.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'plugin']
+      chunks: ['layout', 'plugin'],
     }),
-  ].concat(argv.debug ? [] : [new UglifyJsPlugin({
-    cache: true,
-    parallel: true,
-    sourceMap: true
-  })]),
+  ],
+  devServer: {
+    contentBase: path.resolve(__dirname, '..', 'dist'),
+    port: 9286,
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+      }),
+    ],
+  },
   node: {
     global: true,
     fs: 'empty',
     process: true,
-    module: false
-  }
+    module: false,
+  },
 });
 
 module.exports = config;

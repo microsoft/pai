@@ -42,6 +42,8 @@ spec:
         volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-socket
+        - mountPath: /logs
+          name: cleaner-logs
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
@@ -53,6 +55,9 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
+      - name: cleaner-logs
+        hostPath:
+          path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/yarn/node/userlogs
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

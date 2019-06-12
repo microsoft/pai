@@ -1,0 +1,17 @@
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacitySchedulerConfiguration.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacitySchedulerConfiguration.java
+index 3a80856dfa5..11ee8e68d28 100644
+--- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacitySchedulerConfiguration.java
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacitySchedulerConfiguration.java
+@@ -318,8 +318,11 @@
+   public static final String MAX_ASSIGN_PER_HEARTBEAT = PREFIX
+       + "per-node-heartbeat.maximum-container-assignments";
+ 
++  /**
++   * Avoid potential risk that greedy assign multiple may involve
++   * */
+   @Private
+-  public static final int DEFAULT_MAX_ASSIGN_PER_HEARTBEAT = -1;
++  public static final int DEFAULT_MAX_ASSIGN_PER_HEARTBEAT = 100;
+ 
+   AppPriorityACLConfigurationParser priorityACLConfig = new AppPriorityACLConfigurationParser();
+ 

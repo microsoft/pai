@@ -1,0 +1,240 @@
+%YAML 1.2
+---
+# OpenPAI Job Protocol YAML
+
+protocolVersion: String, required # Protocol version, current version is 2.
+name: String, required
+type: String, required # Component type, should be "job" here.
+version: String, optional # Component version, default is latest.
+contributor: String, optional
+description: String, optional
+
+prerequisites: # Optional
+  # Each item is the protocol for data, script, dockerimage, or output type.
+  - protocolVersion: String, optional # If omitted, follow the protocolVersion in root.
+    name: String, required
+    type: String, required # Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job".
+    version: String, optional # Component version, Default is latest.
+    contributor: String, optional
+    description: String, optional
+    auth: Object, optional # Only available when the type is dockerimage.
+      username: String, optional
+      password: String, optional # If a password is needed, it should be referenced as a secret
+      registryuri: String, optional
+    uri: String or list, required # Only when the type is data can the uri be a list.
+
+# If specified, the whole parameters object can be referenced as `$parameters`.
+# Scope of reference `$parameters`: the reference is shared among all task roles.
+parameters: # Optional, can be omitted.
+  <param1>: value1 # Specify name and value of all the referencable parameters that will be used in the whole job template.
+  <param2>: value2 # Can be referenced by `<% $parameters.param1 %>`, `<% $parameters.param2 %>`.
+
+# If sensitive information including password or API key is needed in the protocol,
+# it should be specified here in secrets section and referenced as `$secrets`.
+# Scope of reference `$secrets`: the reference is shared among all task roles and docker image's `auth` field.
+# A system that supports PAI protocol should keep the secret information away from
+# unauthorized users (how to define unauthorized user is out of the scope of this protocol).
+# For example, the yaml file used for job cloning, the stdout/stderr should protect all information marked as secrets.
+secrets: # Optional, can be omitted.
+  <secret1>: password # Specify name and value of all secrets that will be used in the whole job template.
+  <secret2>: key # Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.
+
+jobRetryCount: Integer, optional # Default is 0.
+# Task roles are different types of task in the protocol.
+# One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.
+taskRoles:
+  <name>: String, required  # Name of the taskRole, string in ^[A-Za-z0-9\-._~]+$ format.
+    instances: Integer, optional # Default is 1, instances of a taskRole, no less than 1.
+    completion: # Completion poclicy for the job, https://github.com/Microsoft/pai/blob/master/subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy.
+      # Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure.
+      minFailedInstances: Integer or null, optional # Default is 1.
+      # Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedInstances is not triggered.
+      minSucceededInstances: Integer or null, optional # Default is null.
+    taskRetryCount: Integer, optional # Default is 0.
+    dockerImage: String, required # Should reference to a dockerimage defined in prerequisites.
+    # Scope of the reference `$data`, '$output', `$script`: the reference is only valid inside this task role.
+    # User cannot reference them from another task role. Reference for `$parameters` is global and shared among task roles.
+    data: String, optional # Select data defined in prerequisites, target can be referenced as `$data` in this task role.
+    output: String, optional # Select output defined in prerequisites, target can be referenced as `$output` in this task role.
+    script: String, optional # Select script defined in prerequisites, target can be referenced as `$script` in this task role.
+    extraContainerOptions:
+      shmMB: Integer, optional # Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.
+    resourcePerInstance:
+      cpu: Integer, required # CPU number, unit is CPU vcore
+      memoryMB: Integer, required # Memory number, unit is MB
+      gpu: Integer, required # GPU number, unit is GPU card
+      ports: # Optional
+        <portLabel>: Integer, required, minimum number is 1 # Port number for the port label. Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
+    commands:
+      - String, required
+
+# To handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field,
+# e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
+# In summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
+# One could have many deployments, but only one deployment can be activated at runtime by specifying in "defaults". User can choose the deployment and specify in "defaults" at submission time.
+deployments:
+  - name: String, required
+    taskRoles:
+      <name>: String, required # Should be in taskRoles
+        preCommands:
+          - String, required # Execute before the taskRole's command
+        postCommands:
+          - String, required # Execute after the taskRole's command
+
+
+defaults: # Optional, default cluster specific settings
+  virtualCluster: String, optional
+  deployment: String, optional # Should reference to deployment defined in deployments
+
+extras: # Optional, extra field, object, save any information that plugin may use
+  submitFrom: String, optional
+
+
+---
+# OpenPAI Job Protocol YAML Example for a Distributed TensorFlow Job
+
+protocolVersion: 2
+name: tensorflow_cifar10
+type: job
+version: 1.0
+contributor: Alice
+description: image classification, cifar10 dataset, tensorflow, distributed training
+
+prerequisites:
+  - protocolVersion: 2
+    name: tf_example
+    type: dockerimage
+    version: latest
+    contributor: Alice
+    description: python3.5, tensorflow
+    auth:
+      username: user
+      password: <% $secrets.docker_password %>
+      registryuri: openpai.azurecr.io
+    uri: openpai/pai.example.tensorflow
+  - protocolVersion: 2
+    name: tensorflow_cifar10_model
+    type: output
+    version: latest
+    contributor: Alice
+    description: cifar10 data output
+    uri: hdfs://10.151.40.179:9000/core/cifar10_model
+  - protocolVersion: 2
+    name: tensorflow_cnnbenchmarks
+    type: script
+    version: 84820935288cab696c9c2ac409cbd46a1f24723d
+    contributor: MaggieQi
+    description: tensorflow benchmarks
+    uri: github.com/MaggieQi/benchmarks
+  - protocolVersion: 2
+    name: cifar10
+    type: data
+    version: latest
+    contributor: Alice
+    description: cifar10 dataset, image classification
+    uri:
+      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+
+parameters:
+  model: resnet20
+  batchsize: 32
+
+secrets:
+  docker_password: password
+  github_token: cGFzc3dvcmQ=
+
+jobRetryCount: 1
+taskRoles:
+  worker:
+    instance: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    taskRetryCount: 0
+    dockerImage: tf_example
+    data: cifar10
+    output: tensorflow_cifar10_model
+    script: tensorflow_cnnbenchmarks
+    extraContainerOptions:
+      shmMB: 64
+    resourcePerInstance:
+      cpu: 2
+      memoryMB: 16384
+      gpu: 4
+      ports:
+        ssh: 0
+        http: 0
+    commands:
+      - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
+      - >
+        python tf_cnn_benchmarks.py --job_name=worker
+        --local_parameter_device=gpu
+        --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
+        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_name=<% $data.name %>
+        --data_dir=$PAI_WORK_DIR/data_<% $data.name %>
+        --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
+        --model=<% $parameters.model %>
+        --batch_size=<% $parameters.batchsize %>
+  ps_server:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: null
+    taskRetryCount: 0
+    dockerImage: tf_example
+    data: cifar10
+    output: tensorflow_cifar10_model
+    script: tensorflow_cnnbenchmarks
+    extraContainerOptions:
+      shmMB: 64
+    resourcePerInstanec:
+      cpu: 2
+      memoryMB: 8192
+      gpu: 0
+      ports:
+        ssh: 0
+        http: 0
+    commands:
+      - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
+      - >
+        python tf_cnn_benchmarks.py --job_name=ps
+        --local_parameter_device=gpu
+        --variable_update=parameter_server
+        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
+        --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+        --data_dir=$PAI_WORK_DIR/data_<% $data.name %>
+        --data_name=<% $data.name %>
+        --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
+        --model=<% $parameters.model %>
+        --batch_size=<% $parameters.batchsize %>
+
+deployments:
+  - name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs.
+    version: 1.0
+    taskRoles:
+      worker:
+        preCommands:
+          - wget <% $data.uri[0] %> -P data_<% $data.name %> # If local data cache deployed, one can copy data from local cache, only wget in case of cache miss.
+          - >
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
+            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
+            # Then the system will go ahead to execute worker's command.
+      ps_server:
+        preCommands:
+          - wget <% $data.uri[0] %> -P data_<% $data.name %>
+          - >
+            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
+            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
+            # Then the system will go ahead to execute ps_server's command.
+        postCommands:
+          # After the execution of ps_server's command, the system goes here.
+          - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
+          # Assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
+          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>".
+
+defaults:
+  deployment: prod # Use prod deployment in job submission.

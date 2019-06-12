@@ -18,9 +18,13 @@
 
 // module dependencies
 const async = require('async');
+const path = require('path');
+const fs = require('fs');
 const unirest = require('unirest');
+const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
+const yaml = require('js-yaml');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -30,6 +34,24 @@ const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 const azureEnv = require('../config/azure');
 const paiConfig = require('../config/paiConfig');
+const env = require('../util/env');
+
+let exitSpecPath;
+if (process.env[env.exitSpecPath]) {
+  exitSpecPath = process.env[env.exitSpecPath];
+  if (!path.isAbsolute(exitSpecPath)) {
+    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
+  }
+} else {
+  exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
+}
+const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+const positiveFallbackExitCode = 256;
+const negativeFallbackExitCode = -8000;
+const exitSpecMap = {};
+exitSpecList.forEach((val) => {
+  exitSpecMap[val.code] = val;
+});
 
 class Job {
   constructor(name, namespace, next) {
@@ -59,9 +81,9 @@ class Job {
         jobState = 'RUNNING';
         break;
       case 'FRAMEWORK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+        if (exitCode === 0) {
           jobState = 'SUCCEEDED';
-        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+        } else if (exitCode === -7351) {
           jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
@@ -71,6 +93,28 @@ class Job {
         jobState = 'UNKNOWN';
     }
     return jobState;
+  }
+
+  convertTaskState(taskState, exitCode) {
+    switch (taskState) {
+      case 'TASK_WAITING':
+      case 'CONTAINER_REQUESTED':
+      case 'CONTAINER_ALLOCATED':
+      case 'CONTAINER_COMPLETED':
+        return 'WAITING';
+      case 'CONTAINER_RUNNING':
+        return 'RUNNING';
+      case 'TASK_COMPLETED':
+        if (exitCode === 0) {
+          return 'SUCCEEDED';
+        } else if (exitCode === -7400) {
+          return 'STOPPED';
+        } else {
+          return 'FAILED';
+        }
+      default:
+        return 'UNKNOWN';
+    }
   }
 
   getJobList(query, namespace, next) {
@@ -90,22 +134,37 @@ class Job {
             return next(null, createError(res.status, 'UnknownError', res.raw_body));
           }
           let jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
-            let retries = 0;
-            ['succeededRetriedCount', 'transientNormalRetriedCount', 'transientConflictRetriedCount',
-              'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
-                retries += frameworkInfo.frameworkRetryPolicyState[retry];
-              });
+            // 1. transientNormalRetriedCount
+            //    Failed, and it can ensure that it will success within a finite retry times:
+            //    such as dependent components shutdown, machine error, network error,
+            //    configuration error, environment error...
+            // 2. transientConflictRetriedCount
+            //    A special TRANSIENT_NORMAL which indicate the exit due to resource conflict
+            //    and cannot get required resource to run.
+            // 3. unKnownRetriedCount
+            //    Usually caused by user's code.
+            const platformRetries = frameworkInfo.frameworkRetryPolicyState.transientNormalRetriedCount;
+            const resourceRetries = frameworkInfo.frameworkRetryPolicyState.transientConflictRetriedCount;
+            const userRetries = frameworkInfo.frameworkRetryPolicyState.unKnownRetriedCount;
             const job = {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
               executionType: frameworkInfo.executionType,
-              retries: retries,
+              retries: platformRetries + resourceRetries + userRetries,
+              retryDetails: {
+                user: userRetries,
+                platform: platformRetries,
+                resource: resourceRetries,
+              },
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
               virtualCluster: frameworkInfo.queue,
+              totalGpuNumber: frameworkInfo.totalGpuNumber,
+              totalTaskNumber: frameworkInfo.totalTaskNumber,
+              totalTaskRoleNumber: frameworkInfo.totalTaskRoleNumber,
             };
 
             const tildeIndex = job.name.indexOf('~');
@@ -252,7 +311,7 @@ class Job {
             null,
             (error, result) => {
               if (!error) {
-                next(null, JSON.stringify(JSON.parse(result.content), null, 2));
+                next(null, result.content);
               } else {
                 next(error);
               }
@@ -324,6 +383,67 @@ class Job {
     );
   }
 
+  generateExitSpec(code) {
+    if (!_.isNil(code)) {
+      if (!_.isNil(exitSpecMap[code])) {
+        return exitSpecMap[code];
+      } else {
+        if (code > 0) {
+          return {
+            ...exitSpecMap[positiveFallbackExitCode],
+            code,
+          };
+        } else {
+          return {
+            ...exitSpecMap[negativeFallbackExitCode],
+            code,
+          };
+        }
+      }
+    } else {
+      return null;
+    }
+  }
+
+  extractContainerStderr(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /ExitCodeException exitCode.*?:/;
+    const anchor2 = /at org\.apache\.hadoop\.util\.Shell\.runCommand/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      return diag.substring(start, end).trim();
+    }
+  }
+
+  extractRuntimeOutput(diag) {
+    if (_.isEmpty(diag)) {
+      return null;
+    }
+    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+    const match1 = diag.match(anchor1);
+    const match2 = diag.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      const output = diag.substring(start, end).trim();
+      return yaml.safeLoad(output);
+    }
+  }
+
+  extractLauncherOutput(diag, code) {
+    if (_.isEmpty(diag) || code > 0) {
+      return null;
+    }
+    const re = /^(.*)$/m;
+    return diag.match(re)[0].trim();
+  }
+
   generateJobDetail(framework) {
     let jobDetail = {
       'jobStatus': {},
@@ -333,22 +453,24 @@ class Job {
     if (frameworkStatus) {
       const jobState = this.convertJobState(
         frameworkStatus.frameworkState,
-        frameworkStatus.applicationExitCode);
-      let jobRetryCount = 0;
-      const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
-      jobRetryCount =
-        jobRetryCountInfo.succeededRetriedCount +
-        jobRetryCountInfo.transientNormalRetriedCount +
-        jobRetryCountInfo.transientConflictRetriedCount +
-        jobRetryCountInfo.nonTransientRetriedCount +
-        jobRetryCountInfo.unKnownRetriedCount;
+        frameworkStatus.applicationExitCode,
+      );
+
+      const platformRetries = frameworkStatus.frameworkRetryPolicyState.transientNormalRetriedCount;
+      const resourceRetries = frameworkStatus.frameworkRetryPolicyState.transientConflictRetriedCount;
+      const userRetries = frameworkStatus.frameworkRetryPolicyState.unKnownRetriedCount;
       jobDetail.jobStatus = {
         name: framework.name,
         username: 'unknown',
         state: jobState,
         subState: frameworkStatus.frameworkState,
         executionType: framework.summarizedFrameworkInfo.executionType,
-        retries: jobRetryCount,
+        retries: platformRetries + resourceRetries + userRetries,
+        retryDetails: {
+          user: userRetries,
+          platform: platformRetries,
+          resource: resourceRetries,
+        },
         createdTime: frameworkStatus.frameworkCreatedTimestamp,
         completedTime: frameworkStatus.frameworkCompletedTimestamp,
         appId: frameworkStatus.applicationId,
@@ -357,7 +479,17 @@ class Job {
         appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
         appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
         appExitCode: frameworkStatus.applicationExitCode,
+        appExitSpec: this.generateExitSpec(frameworkStatus.applicationExitCode),
         appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitMessages: {
+          container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
+          runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
+          launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
+        },
+        appExitTriggerMessage: frameworkStatus.applicationExitTriggerMessage,
+        appExitTriggerTaskRoleName: frameworkStatus.applicationExitTriggerTaskRoleName,
+        appExitTriggerTaskIndex: frameworkStatus.applicationExitTriggerTaskIndex,
+        // deprecated
         appExitType: frameworkStatus.applicationExitType,
       };
     }
@@ -388,6 +520,7 @@ class Job {
           }
           jobDetail.taskRoles[taskRole].taskStatuses.push({
             taskIndex: task.taskIndex,
+            taskState: this.convertTaskState(task.taskState, task.containerExitCode),
             containerId: task.containerId,
             containerIp: task.containerIp,
             containerPorts,
@@ -426,6 +559,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectPidFormat': '{{.State.Pid}}',
+          'infoDefaultRuntimeFormat': '{{json .DefaultRuntime}}',
           'jobEnvs': jobEnvs,
           'azRDMA': azureEnv.azRDMA === 'false' ? false : true,
           'isDebug': data.jobEnvs && data.jobEnvs.isDebug === true ? true : false,
@@ -497,7 +631,7 @@ class Job {
         'taskNumber': data.taskRoles[i].taskNumber,
         'taskService': {
           'version': 0,
-          'entryPoint': `source YarnContainerScripts/${i}.sh`,
+          'entryPoint': `bash YarnContainerScripts/${i}.sh`,
           'sourceLocations': [`/Container/${data.userName}/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,

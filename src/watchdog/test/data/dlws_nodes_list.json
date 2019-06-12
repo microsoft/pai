@@ -1,0 +1,158 @@
+{
+  "kind": "NodeList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/nodes",
+    "resourceVersion": "6263195"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "dltsp40-infra01",
+        "selfLink": "/api/v1/nodes/dltsp40-infra01",
+        "uid": "13334d00-4cc9-11e9-9957-000d3a1707fc",
+        "resourceVersion": "6263192",
+        "creationTimestamp": "2019-03-22T17:36:50Z",
+        "labels": {
+          "kubernetes.io/hostname": "dltsp40-infra01",
+          "yarnrm2": "active",
+          "freeflowrouter": "active",
+          "elasticsearch": "active",
+          "hdfsdatanode": "active",
+          "yarnrm1": "active",
+          "collectd-node-agent": "active",
+          "detectron": "active",
+          "fluentd-es-config-v0.1.0": "active",
+          "grafana": "active",
+          "hdfsjournal": "active",
+          "hdfsstandby": "active",
+          "journalnode": "active",
+          "nginx": "active",
+          "cloud-fluentd-es-v2.0.2": "active",
+          "webportal": "active",
+          "google-cadvisor": "active",
+          "hdfsnn1": "active",
+          "kibana": "active",
+          "namenode1": "active",
+          "sparknode": "active",
+          "all": "active",
+          "infrastructure": "active",
+          "nvidia-device-plugin-daemonset": "active",
+          "nvidiaheartbeat": "active",
+          "recogserver": "active",
+          "restfulapi": "active",
+          "yarnnodemanager": "active",
+          "zk": "active",
+          "datanode": "active",
+          "zookeeper": "active",
+          "default": "active",
+          "elasticsearch-logging": "active",
+          "jobmanager": "active",
+          "mysql": "active",
+          "zk-config": "active",
+          "cloud-collectd-node-agent": "active",
+          "beta.kubernetes.io/os": "linux",
+          "cloud-fluentd-es-config-v0.1.0": "active",
+          "fluentd-es-v2.0.2": "active",
+          "hdfsformat": "active",
+          "hdfsnn2": "active",
+          "zk-headless": "active",
+          "FragmentGPUJob": "active",
+          "dlws-grafana": "active",
+          "influxdb": "active",
+          "beta.kubernetes.io/arch": "amd64"
+        },
+        "annotations": {
+          "node.alpha.kubernetes.io/ttl": "0",
+          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+        }
+      },
+      "spec": {
+        "externalID": "dltsp40-infra01",
+        "providerID": "aztools://dltsp40-infra01",
+        "taints": [
+          {
+            "key": "node-role.kubernetes.io/master",
+            "effect": "NoSchedule"
+          }
+        ]
+      },
+      "status": {
+        "capacity": {
+          "alpha.kubernetes.io/nvidia-gpu": "4",
+          "cpu": "16",
+          "memory": "57709692Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "16",
+          "memory": "57607292Ki",
+          "pods": "110",
+          "alpha.kubernetes.io/nvidia-gpu": "4"
+        },
+        "conditions": [
+          {
+            "type": "OutOfDisk",
+            "status": "False",
+            "lastHeartbeatTime": "2019-04-18T08:44:11Z",
+            "lastTransitionTime": "2019-03-22T17:36:49Z",
+            "reason": "KubeletHasSufficientDisk",
+            "message": "kubelet has sufficient disk space available"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2019-04-18T08:44:11Z",
+            "lastTransitionTime": "2019-03-22T17:36:49Z",
+            "reason": "KubeletHasSufficientMemory",
+            "message": "kubelet has sufficient memory available"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2019-04-18T08:44:11Z",
+            "lastTransitionTime": "2019-03-22T17:36:49Z",
+            "reason": "KubeletHasNoDiskPressure",
+            "message": "kubelet has no disk pressure"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastHeartbeatTime": "2019-04-18T08:44:11Z",
+            "lastTransitionTime": "2019-03-22T17:37:10Z",
+            "reason": "KubeletReady",
+            "message": "kubelet is posting ready status. AppArmor enabled"
+          }
+        ],
+        "addresses": [
+          {
+            "type": "InternalIP",
+            "address": "192.168.255.1"
+          },
+          {
+            "type": "Hostname",
+            "address": "dltsp40-infra01"
+          }
+        ],
+        "daemonEndpoints": {
+          "kubeletEndpoint": {
+            "Port": 10250
+          }
+        },
+        "nodeInfo": {
+          "machineID": "0fcc50243f694b94b64db96ab895ee7c",
+          "systemUUID": "29e4606f-2997-0345-b916-11050543c01b",
+          "bootID": "32861647-ea09-44c7-82dd-38c92a831ebf",
+          "kernelVersion": "4.18.0-1013-azure",
+          "osImage": "Ubuntu 18.04.2 LTS",
+          "containerRuntimeVersion": "docker://18.9.3",
+          "kubeletVersion": "v1.9.0",
+          "kubeProxyVersion": "v1.9.0",
+          "operatingSystem": "linux",
+          "architecture": "amd64"
+        },
+        "images": []
+      }
+    }
+  ]
+}

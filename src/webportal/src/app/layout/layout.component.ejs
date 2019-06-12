@@ -39,6 +39,18 @@
     <aside class="main-sidebar">
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
+          <li id="sidebar-menu--home">
+            <a href="/home.html">
+              <i class="fa fa-home"></i>
+              <span>Home</span>
+            </a>
+          </li>
+          <li id="sidebar-menu--dashboard">
+            <a href="/dashboard.html">
+              <i class="fa fa-tachometer"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
           <li id="sidebar-menu--submit-job">
             <a href="/submit.html">
               <i class="fa fa-plus-circle"></i>
@@ -102,29 +114,17 @@
                   <span>&bull;&nbsp;&nbsp;&nbsp; Getting Started</span>
                 </a>
               </li>
-              <li id="sidebar-menu--documents--how-to-config-github-pat">
-                <a href="/how-to-config-github-pat.html">
-                  <span>&bull;&nbsp;&nbsp;&nbsp; How to config GitHub PAT</span>
-                </a>
-              </li>
             </ul>
           </li>
           <li id="sidebar-menu--feedback">
-            <a href="https://github.com/Microsoft/pai/issues/new?labels=v<%=
+            <a href="https://github.com/Microsoft/pai/issues/new?title=[Feedback%20v<%=
               encodeURIComponent(htmlWebpackPlugin.options.version)
-            %>" target="_blank">
+            %>]" target="_blank">
               <i class="fa fa-comments"></i>
               <span>Feedback</span>
               <span class="pull-right-container">
                 <small class="label pull-right bg-blue">v<%= htmlWebpackPlugin.options.version %></small>
               </span>
-            </a>
-          </li>
-          <li class="header">PREVIEW FEATURES</li>
-          <li id="sidebar-menu--submit-v2">
-            <a href="/submit-v2.html">
-              <i class="fa fa-plus-circle"></i>
-              <span>Submit Job V2</span>
             </a>
           </li>
         </ul>

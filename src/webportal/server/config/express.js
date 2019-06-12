@@ -32,18 +32,19 @@ const logger = require('./logger');
 const app = express();
 
 app.use(compress());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
 // setup the logger for requests
-app.use(morgan('dev', { 'stream': logger.stream }));
+app.use(morgan('dev', {'stream': logger.stream}));
+
+// setup favicon
+app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
 
 // setup the root path
 app.use(express.static(path.join(appRoot.path, 'dist')));
 
-// setup favicon
-app.use(favicon(path.join(appRoot.path, 'dist', 'assets', 'img', 'favicon.ico')));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -57,7 +58,7 @@ app.use((err, req, res, next) => {
   logger.warn('%s', err.stack);
   res.status(err.status || 500).json({
     message: err.message,
-    error: config.env === 'development' ? err.stack : {}
+    error: config.env === 'development' ? err.stack : {},
   });
 });
 

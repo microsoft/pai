@@ -69,26 +69,29 @@ class NvidiaGpuStatus(object):
         gpu_util the gpu util of this gpu, float number, range 0~100
         gpu_mem_util the gpu memory usage/total of this gpu, float number, range 0~100
         pids an array of pid numbers that uses this card
-        ecc_errors instance of EccError class """
-    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors, minor, uuid):
+        ecc_errors instance of EccError class
+        temperature will be None or float celsius """
+    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors, minor, uuid, temperature):
         self.gpu_util = gpu_util # float
         self.gpu_mem_util = gpu_mem_util # float
         self.pids = pids # list of int
         self.ecc_errors = ecc_errors # list of EccError
         self.minor = minor
         self.uuid = uuid # str
+        self.temperature = temperature # None or float celsius
 
     def __repr__(self):
-        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s" % \
-                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid)
+        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s, temperature %.3f" % \
+                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid, self.temperature)
 
-    def __eq__(self, o):
+    def __eq__(self, o): # for test
         return self.gpu_util == o.gpu_util and \
                 self.gpu_mem_util == o.gpu_mem_util and \
                 self.pids == o.pids and \
                 self.ecc_errors == o.ecc_errors and \
                 self.minor == o.minor and \
-                self.uuid == o.uuid
+                self.uuid == o.uuid and \
+                self.temperature == o.temperature
 
 
 def parse_smi_xml_result(smi):
@@ -126,21 +129,37 @@ def parse_smi_xml_result(smi):
                     process.getElementsByTagName("pid")[0].childNodes[0].data))
 
         ecc_single = ecc_double = 0
-        ecc_errors = gpu.getElementsByTagName("ecc_errors")
-        if len(ecc_errors) > 0:
-            volatile = ecc_errors[0].getElementsByTagName("volatile")
-            if len(volatile) > 0:
-                volatile = volatile[0]
-                single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
-                double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
-                single = single.childNodes[0].data
-                double = double.childNodes[0].data
-                if single != "N/A":
-                    ecc_single = int(single)
-                if double != "N/A":
-                    ecc_double = int(double)
+
+        """Here we try to get the ecc error count.
+        If there is no single_bit tag, it means that this GPU do not support 
+        """
+        try:
+            ecc_errors = gpu.getElementsByTagName("ecc_errors")
+            if len(ecc_errors) > 0:
+                volatile = ecc_errors[0].getElementsByTagName("volatile")
+                if len(volatile) > 0:
+                    volatile = volatile[0]
+                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
+                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
+                    single = single.childNodes[0].data
+                    double = double.childNodes[0].data
+                    if single != "N/A":
+                        ecc_single = int(single)
+                    if double != "N/A":
+                        ecc_double = int(double)
+        except IndexError:
+            pass
 
         uuid = gpu.getElementsByTagName("uuid")[0].childNodes[0].data
+
+        temperature = None
+        try:
+            temp_node = gpu.getElementsByTagName("temperature")
+            if len(temp_node) > 0:
+                temp_s = temp_node[0].getElementsByTagName("gpu_temp")[0].childNodes[0].data
+                temperature = float(re.findall(r"[0-9.]+", temp_s)[0])
+        except Exception:
+            pass
 
         status = NvidiaGpuStatus(
                 float(gpu_util),
@@ -148,18 +167,16 @@ def parse_smi_xml_result(smi):
                 pids,
                 EccError(single=ecc_single, double=ecc_double),
                 str(minor),
-                uuid)
+                uuid,
+                temperature)
 
         result[str(minor)] = result[uuid] = status
 
     return result
 
 def nvidia_smi(histogram, timeout):
-    driver_path = os.environ["NV_DRIVER"]
-    bin_path = os.path.join(driver_path, "bin/nvidia-smi")
-
     try:
-        smi_output = utils.exec_cmd([bin_path, "-q", "-x"],
+        smi_output = utils.exec_cmd(["nvidia-smi", "-q", "-x"],
                 histogram=histogram, timeout=timeout)
 
         return parse_smi_xml_result(smi_output)

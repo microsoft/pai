@@ -16,21 +16,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, FontClassNames} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
-import {isNil} from 'lodash';
+import {capitalize, isEmpty, isNil} from 'lodash';
 import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import localCss from './task-role-container-list.scss';
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
+import Context from './context';
 import MonacoPanel from './monaco-panel';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
+import StatusBadge from '../../../../../components/status-badge';
 
 const theme = createTheme({
   palette: {
@@ -69,7 +71,6 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      type: '',
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -80,18 +81,24 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const {logUrl, type} = this.state;
-    void getContainerLog(logUrl, type).then((res) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: res}});
+    const {logUrl} = this.state;
+    void getContainerLog(logUrl).then(({text, fullLogLink}) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {
+        monacoProps: {value: text},
+        monacoFooterButton: (
+          <PrimaryButton
+            text='View Full Log'
+            target='_blank'
+            styles={{
+              rootFocused: [ColorClassNames.white],
+            }}
+            href={fullLogLink}
+          />
+        ),
       }
-    }).catch((err) => {
-      const {logUrl: currentLogUrl} = this.state;
-      if (logUrl === currentLogUrl) {
-        this.setState({monacoProps: {value: err.message}});
-      }
-    });
+    )).catch((err) => this.setState(
+      (prevState) => prevState.logUrl === logUrl && {monacoProps: {value: err.message}}
+    ));
   }
 
   onDismiss() {
@@ -100,30 +107,21 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      type: '',
     });
   }
 
-  showContainerLog(logUrl, type, title) {
+  showContainerLog(logUrl, title) {
     this.setState({
       monacoProps: {value: 'Loading...'},
       monacoTitle: title,
-      monacoFooterButton: (
-        <PrimaryButton
-          text='View Full Log'
-          target='_blank'
-          href={`${logUrl}${type}`}
-        />
-      ),
       logUrl,
-      type,
     }, () => {
       this.logAutoRefresh(); // start immediately
     });
   }
 
   showSshInfo(id) {
-    const {sshInfo} = this.props;
+    const {sshInfo} = this.context;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
       this.setState({
@@ -134,11 +132,11 @@ export default class TaskRoleContainerList extends React.Component {
       const res = [];
       res.push('# Step 1. Open a Bash shell terminal.');
       res.push('# Step 2: Download the private key:');
-      res.push(`wget ${sshInfo.keyPair.privateKeyDirectDownloadLink} -O ${sshInfo.keyPair.privateKeyFileName}`);
+      res.push(`wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName}`);
       res.push('# Step 3: Set correct permission for the key file:');
       res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
       res.push('# Step 4: Connect to the container:');
-      res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} ${containerSshInfo.sshIp}`);
+      res.push(`ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`);
       res.push('');
       this.setState({
         monacoProps: {
@@ -154,7 +152,6 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   getColumns() {
-    const {jobStatus} = this.props;
     const columns = [
       {
         key: 'number',
@@ -240,13 +237,15 @@ export default class TaskRoleContainerList extends React.Component {
           );
         },
       },
-      /* TODO: wait for rest api
       {
         key: 'status',
         name: 'Status',
-        onRender: (item) => {}
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 100,
+        isResizable: true,
+        onRender: (item) => <StatusBadge status={capitalize(item.taskState)}/>,
       },
-      */
       {
         key: 'info',
         name: 'Info',
@@ -255,60 +254,62 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 300,
         maxWidth: 340,
         onRender: (item) => (
-          <div className={c(t.flex, t.h3)}>
-            <CommandBarButton
-              className={c(FontClassNames.mediumPlus)}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'CommandPrompt'}}
-              text='View SSH Info'
-              onClick={() => this.showSshInfo(item.containerId)}
-              disabled={isNil(item.containerId) || jobStatus !== 'Running'}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'TextDocument'}}
-              text='Stdout'
-              onClick={() => this.showContainerLog(item.containerLog, 'stdout', 'Standard Output (Last 4096 bytes)')}
-              disabled={isNil(item.containerId)}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              iconProps={{iconName: 'Error'}}
-              text='Stderr'
-              onClick={() => this.showContainerLog(item.containerLog, 'stderr', 'Standard Error (Last 4096 bytes)')}
-              disabled={isNil(item.containerId)}
-            />
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: {backgroundColor: 'transparent'},
-                rootDisabled: {backgroundColor: 'transparent'},
-              }}
-              menuIconProps={{iconName: 'More'}}
-              menuProps={{
-                items: [
-                  {
-                    key: 'yarnTrackingPage',
-                    name: 'Go to Yarn Tracking Page',
-                    iconProps: {iconName: 'Link'},
-                    href: item.containerLog,
-                    target: '_blank',
-                  },
-                ],
-              }}
-              disabled={isNil(item.containerId)}
-            />
+          <div className={c(t.h100, t.flex, t.justifyCenter, t.itemsCenter)}>
+            <div className={c(t.flex, t.h3)}>
+              <CommandBarButton
+                className={c(FontClassNames.mediumPlus)}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'CommandPrompt'}}
+                text='View SSH Info'
+                onClick={() => this.showSshInfo(item.containerId)}
+                disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'TextDocument'}}
+                text='Stdout'
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
+                disabled={isNil(item.containerId)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                iconProps={{iconName: 'Error'}}
+                text='Stderr'
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
+                disabled={isNil(item.containerId)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: {backgroundColor: 'transparent'},
+                  rootDisabled: {backgroundColor: 'transparent'},
+                }}
+                menuIconProps={{iconName: 'More'}}
+                menuProps={{
+                  items: [
+                    {
+                      key: 'yarnTrackingPage',
+                      name: 'Go to Yarn Tracking Page',
+                      iconProps: {iconName: 'Link'},
+                      href: item.containerLog,
+                      target: '_blank',
+                    },
+                  ],
+                }}
+                disabled={isNil(item.containerId)}
+              />
+            </div>
           </div>
         ),
       },
@@ -323,18 +324,8 @@ export default class TaskRoleContainerList extends React.Component {
     }}}/>;
   }
 
-  generateDummyTasks() {
-    const {jobStatus, taskConfig} = this.props;
-    if (isNil(taskConfig) || isNil(taskConfig.taskNumber)) {
-      return null;
-    }
-    return Array.from({length: taskConfig.taskNumber}, (v, idx) => ({
-      status: jobStatus,
-    }));
-  }
-
   render() {
-    const {monacoTitle, monacoProps, monacoFooterButton} = this.state;
+    const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
     const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
     return (
@@ -350,7 +341,7 @@ export default class TaskRoleContainerList extends React.Component {
           />
         </ThemeProvider>
         {/* Timer */}
-        <Timer interval={isNil(monacoProps) ? null : interval} func={this.logAutoRefresh} />
+        <Timer interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval} func={this.logAutoRefresh} />
         {/* Monaco Editor Panel */}
         <MonacoPanel
           isOpen={!isNil(monacoProps)}
@@ -364,11 +355,10 @@ export default class TaskRoleContainerList extends React.Component {
   }
 }
 
+TaskRoleContainerList.contextType = Context;
+
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  taskConfig: PropTypes.object,
   taskInfo: PropTypes.object,
-  jobStatus: PropTypes.string.isRequired,
-  sshInfo: PropTypes.object,
 };

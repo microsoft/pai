@@ -77,6 +77,10 @@ COPY docker-executor.patch /
 
 COPY hadoop-ai-fix.patch /
 
+COPY YARN-8896-2.9.0.patch /
+
+COPY hadoop-2.9.0-fix.patch /
+
 COPY build.sh /
 
 RUN chmod u+x build.sh

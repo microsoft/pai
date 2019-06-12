@@ -18,12 +18,13 @@ data:
       receiver: pai-alert
       group_wait: 30s
       group_interval: 5m
-      repeat_interval: 4h
+      repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname]
     receivers:
     - name: "pai-alert"
       email_configs:
         - to: {{ alert_info["receiver"] }}
+          send_resolved: true
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'

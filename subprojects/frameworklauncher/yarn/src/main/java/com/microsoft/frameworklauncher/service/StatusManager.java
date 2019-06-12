@@ -18,8 +18,9 @@
 package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
-import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitCode;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitInfo;
+import com.microsoft.frameworklauncher.common.exit.FrameworkExitSpec;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
@@ -33,7 +34,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.*;
 
 // Manage the CURD to ZK Status
@@ -42,6 +42,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   private final Service service;
   private final LauncherConfiguration conf;
+  private final UserContainerExitSpec userContainerExitSpec;
   private final ZookeeperStore zkStore;
 
 
@@ -70,10 +71,13 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION AbstractService
    */
-  public StatusManager(Service service, LauncherConfiguration conf, ZookeeperStore zkStore) {
+  public StatusManager(
+      Service service, LauncherConfiguration conf,
+      UserContainerExitSpec userContainerExitSpec, ZookeeperStore zkStore) {
     super(StatusManager.class.getName());
     this.service = service;
     this.conf = conf;
+    this.userContainerExitSpec = userContainerExitSpec;
     this.zkStore = zkStore;
   }
 
@@ -109,6 +113,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // Recover LauncherStatus to ZK
     LauncherStatus launcherStatus = new LauncherStatus();
     launcherStatus.setLauncherConfiguration(conf);
+    launcherStatus.setUserContainerExitSpec(userContainerExitSpec);
     launcherStatus.setLoggedInUser(loggedInUser);
     launcherStatus.setHadoopLibrarySupportsGpu(ResourceDescriptor.checkHadoopLibrarySupportsGpu());
     launcherStatus.setHadoopLibrarySupportsPort(ResourceDescriptor.checkHadoopLibrarySupportsPort());
@@ -236,8 +241,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     frameworkStatus.setApplicationLaunchedTimestamp(null);
     frameworkStatus.setApplicationCompletedTimestamp(null);
     frameworkStatus.setApplicationExitCode(null);
+    frameworkStatus.setApplicationExitDescription(null);
     frameworkStatus.setApplicationExitDiagnostics(null);
     frameworkStatus.setApplicationExitType(null);
+    frameworkStatus.setApplicationExitTriggerMessage(null);
+    frameworkStatus.setApplicationExitTriggerTaskRoleName(null);
+    frameworkStatus.setApplicationExitTriggerTaskIndex(null);
   }
 
   private void updateExtensionFrameworkStatusWithApplicationLiveness(String frameworkName, boolean isLive) {
@@ -331,8 +340,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     // Ensure the frameworkEvent is updated to the associated Application
     FrameworkEvent frameworkEvent = new FrameworkEvent().
-        setApplicationExitCode(ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED.toInt()).
-        setApplicationExitDiagnostics("UserApplication killed due to StopFrameworkRequest").
+        setApplicationExitCode(FrameworkExitCode.APP_STOP_FRAMEWORK_REQUESTED.toInt()).
         setSkipToPersist(true);
 
     // Update the frameworkEvent even if current FrameworkState is APPLICATION_RETRIEVING_DIAGNOSTICS
@@ -359,7 +367,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return frameworkStatuses.containsKey(frameworkName);
   }
 
-  public synchronized boolean containsFramework(FrameworkStatus frameworkStatus) throws IOException {
+  public synchronized boolean containsFramework(FrameworkStatus frameworkStatus) {
     String frameworkName = frameworkStatus.getFrameworkName();
 
     if (!containsFramework(frameworkName)) {
@@ -498,19 +506,25 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       disassociateFrameworkWithApplication(frameworkName);
     }
 
-    if (dstState == FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS ||
-        dstState == FrameworkState.APPLICATION_COMPLETED) {
+    if (dstState == FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS) {
       frameworkStatus.setApplicationExitCode(event.getApplicationExitCode());
       frameworkStatus.setApplicationExitDiagnostics(event.getApplicationExitDiagnostics());
+    }
 
-      // No need to Cleanup ZK here, since it will be cleaned up by next Application
-      // No need to Cleanup HDFS here, since it will be overwrote by next Application
-      // No need to Cleanup RM here, since it already cleaned up before here
-      if (dstState == FrameworkState.APPLICATION_COMPLETED) {
-        assert (event.getApplicationExitCode() != null);
-        frameworkStatus.setApplicationExitType(ExitDiagnostics.lookupExitType(
-            event.getApplicationExitCode(), event.getApplicationExitDiagnostics()));
-      }
+    // No need to Cleanup ZK here, since it will be cleaned up by next Application
+    // No need to Cleanup HDFS here, since it will be overwrote by next Application
+    // No need to Cleanup RM here, since it already cleaned up before here
+    if (dstState == FrameworkState.APPLICATION_COMPLETED) {
+      assert (event.getApplicationExitCode() != null);
+
+      FrameworkExitInfo exitInfo = FrameworkExitSpec.getExitInfo(event.getApplicationExitCode());
+      frameworkStatus.setApplicationExitCode(event.getApplicationExitCode());
+      frameworkStatus.setApplicationExitDescription(exitInfo.getDescription());
+      frameworkStatus.setApplicationExitDiagnostics(event.getApplicationExitDiagnostics());
+      frameworkStatus.setApplicationExitType(exitInfo.getType());
+      frameworkStatus.setApplicationExitTriggerMessage(event.getApplicationExitTriggerMessage());
+      frameworkStatus.setApplicationExitTriggerTaskRoleName(event.getApplicationExitTriggerTaskRoleName());
+      frameworkStatus.setApplicationExitTriggerTaskIndex(event.getApplicationExitTriggerTaskIndex());
     }
 
     // Framework will be Retried

@@ -33,7 +33,11 @@ router.route('/')
     .delete(token.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
 
     /** Get /api/v1/user - Get user info list */
-    .get(token.check, userController.getUserList);
+    .get(userController.getUserList);
+
+
+router.route('/:username/')
+    .get(token.check, userController.getUserInfo);
 
 router.route('/:username/virtualClusters')
     .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);

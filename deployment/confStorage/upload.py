@@ -22,19 +22,19 @@ import sys
 import subprocess
 import jinja2
 import argparse
+import readline
 import logging
 import logging.config
 
 from . import conf_storage_util
 from ..paiLibrary.common import file_handler, directory_handler
+from ..utility import pai_version
 
 
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 
-
 class upload_configuration:
-
 
     def __init__(self, config_path, kube_confg_path):
 
@@ -44,8 +44,6 @@ class upload_configuration:
             self.KUBE_CONFIG_DEFAULT_LOCATION = kube_confg_path
 
         self.config_path = config_path
-
-
 
     def check_cluster_id(self):
 
@@ -65,8 +63,6 @@ class upload_configuration:
         self.logger.info("Congratulations: Cluster-id checking passed.")
         return True
 
-
-
     def upload_latest_configuration(self):
 
         conf_dict = dict()
@@ -81,9 +77,8 @@ class upload_configuration:
                 "{0}/services-configuration.yaml.old".format(self.config_path))
         conf_storage_util.update_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION, conf_dict)
 
-
-
     def run(self):
 
         self.check_cluster_id()
+        pai_version.check_cluster_version()
         self.upload_latest_configuration()

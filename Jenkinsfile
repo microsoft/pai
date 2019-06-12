@@ -76,7 +76,7 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+sed -i "s/tag: \\(latest\\|v[[:digit:]]\\+.[[:digit:]]\\+.[[:digit:]]\\+\\)/tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry_new_com.sh $CONFIG_PATH
 # build images
@@ -146,7 +146,7 @@ cd /pai
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "s/tag: \\(latest\\|v[[:digit:]]\\+.[[:digit:]]\\+.[[:digit:]]\\+\\)/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
@@ -236,7 +236,7 @@ cd /pai
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "s/tag: \\(latest\\|v[[:digit:]]\\+.[[:digit:]]\\+.[[:digit:]]\\+\\)/tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
@@ -360,14 +360,6 @@ curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/$JOB_
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
-# Retrieve marketplace job templates
-sleep 10
-TotalCount=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v2/template/job \
-| python -c "import sys,json;sys.stdout.write(str(json.loads(sys.stdin.read())['totalCount']))"
-)
-if [ "$TotalCount" > 0 ]; then exit 0;
-else exit 1; fi
 '''
                   )
                 } catch (err) {
@@ -466,14 +458,6 @@ curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAM
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
-# Retrive marketplace job templates
-sleep 10
-TotalCount=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v2/template/job \
-| python -c "import sys,json;sys.stdout.write(str(json.loads(sys.stdin.read())['totalCount']))"
-)
-if [ "$TotalCount" > 0 ]; then exit 0;
-else exit 1; fi
 '''
                   )
                 } catch (err) {

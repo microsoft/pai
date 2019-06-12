@@ -1,0 +1,62 @@
+protocolVersion: 2
+name: mxnet_autoencoder
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # MXNet Autoencoder Example
+  Autoencoder architectures are often used for unsupervised feature learning.
+  This [link](http://ufldl.stanford.edu/tutorial/unsupervised/Autoencoders/) contains an introduction tutorial to autoencoders.
+  This example illustrates a simple autoencoder using a stack of convolutional layers for both the encoder and the decoder.
+
+  The idea of an autoencoder is to learn to use bottleneck architecture to encode the input and then try to decode it to reproduce the original.
+  By doing so, the network learns to effectively compress the information of the input,
+  the resulting embedding representation can then be used in several domains.
+  For example as featurized representation for visual search, or in anomaly detection.
+
+  Reference https://github.com/apache/incubator-mxnet/tree/master/example/autoencoder
+
+prerequisites:
+  - protocolVersion: 2
+    name: mxnet_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example MXNet Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/mxnet).
+    uri: openpai/pai.example.mxnet
+  - protocolVersion: 2
+    name: mnist_data
+    type: data
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is MNIST original dataset for scikit-learn.
+    uri:
+      - https://raw.githubusercontent.com/amplab/datascience-sp14/master/lab7/mldata/mnist-original.mat
+
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minSucceededTaskCount: 1
+    dockerImage: mxnet_example
+    data: mnist_data
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - python mnist_sae.py --gpu
+
+deployments:
+  - name: mxnet_example
+    taskRoles:
+      train:
+        preCommands:
+          - pip install scipy==1.1.0 scikit-learn==0.19.2
+          - wget <% $data.uri[0] %> -P /root/incubator-mxnet/data/mldata/
+          - cd incubator-mxnet/example/autoencoder
+
+defaults:
+  deployment: mxnet_example

@@ -34,7 +34,7 @@ Generated configuration means the object model after parsing. The parsed data wi
 ```yaml
 drivers:
     set-nvidia-runtme: false
-    version: 384.111
+    version: "384.111"
     pre-installed-nvidia-path: /usr/local/nvidia
 ```
 

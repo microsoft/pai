@@ -15,17 +15,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames} from '@uifabric/styling';
+import {FontClassNames, ColorClassNames, getTheme} from '@uifabric/styling';
 import c from 'classnames';
-import {IconButton} from 'office-ui-fabric-react/lib/Button';
+import {Icon, IconButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import yaml from 'js-yaml';
 
-import t from '../../tachyons.css';
+import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
+import Context from './context';
 import MonacoCallout from './monaco-callout';
 import TaskRoleContainerList from './task-role-container-list';
+import {getTaskConfig} from '../util';
+import {statusColor} from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
@@ -46,26 +50,83 @@ export default class TaskRole extends React.Component {
     this.setState({containerListExpanded: false});
   }
 
-  render() {
-    const {className, taskInfo, taskConfig, jobStatus, sshInfo} = this.props;
-    const {containerListExpanded} = this.state;
-    const name = (taskInfo && taskInfo.taskRoleStatus.name) || (taskConfig && taskConfig.name);
+  renderTaskRoleCount() {
+    const {taskInfo} = this.props;
+    const count = {
+      running: 0,
+      succeeded: 0,
+      failed: 0,
+      unknown: 0,
+    };
+    if (taskInfo && taskInfo.taskStatuses) {
+      for (const item of taskInfo.taskStatuses) {
+        switch (item.taskState) {
+          case 'RUNNING':
+          case 'WAITING':
+            count.running += 1;
+            break;
+          case 'SUCCEEDED':
+            count.succeeded += 1;
+            break;
+          case 'FAILED':
+            count.failed += 1;
+            break;
+          default:
+            count.unknown += 1;
+            break;
+        }
+      }
+    } else {
+      // task status info not available
+      return;
+    }
+
     return (
-      <div className={className}>
+      <div className={c(t.flex, t.itemsCenter)}>
+        {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
+          <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
+            <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}>
+            </div>
+            <div className={c(t.ml2)}>{count[x]}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  render() {
+    const {className, name, taskInfo, isFailed} = this.props;
+    const {containerListExpanded} = this.state;
+    const {semanticColors} = getTheme();
+    const {rawJobConfig} = this.context;
+    const taskConfig = getTaskConfig(rawJobConfig, name);
+    return (
+      <div className={c(t.bgWhite, className)}>
         {/* summary */}
-        <Card>
-          <div className={c(t.pv3, t.flex, t.itemsCenter, t.justifyBetween)} style={{paddingLeft: 32, paddingRight: 32}}>
+        <Card style={{backgroundColor: isFailed ? semanticColors.errorBackground : undefined}}>
+          <div className={c(t.pv3, t.ph5, t.flex, t.itemsCenter, t.justifyBetween)}>
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
+              {isFailed && (
+                <div className={c(t.mr3, FontClassNames.large)}>
+                  <Icon style={{color: semanticColors.errorText}} iconName='ErrorBadge' />
+                </div>
+              )}
               <div className={c(FontClassNames.large)}>
                 <span >Task Role:</span>
                 <span className={t.ml3}>{name}</span>
               </div>
               {taskConfig && (
-                <MonacoCallout language='json' value={JSON.stringify(taskConfig, null, 2)}>
+                <MonacoCallout language='yaml' value={yaml.safeDump(taskConfig)}>
                   <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}} />
                 </MonacoCallout>
               )}
+              {/* status */}
+              <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)}>
+                <div className={c(t.ml3)}>
+                  {this.renderTaskRoleCount()}
+                </div>
+              </div>
             </div>
             {/* right */}
             <div>
@@ -77,11 +138,8 @@ export default class TaskRole extends React.Component {
           </div>
           {containerListExpanded && (
             <TaskRoleContainerList
-              style={{paddingLeft: 32, paddingRight: 32}}
+              className={t.ph5}
               taskInfo={taskInfo}
-              taskConfig={taskConfig}
-              jobStatus={jobStatus}
-              sshInfo={sshInfo}
             />
           )}
         </Card>
@@ -90,10 +148,11 @@ export default class TaskRole extends React.Component {
   }
 }
 
+TaskRole.contextType = Context;
+
 TaskRole.propTypes = {
   className: PropTypes.string,
-  taskInfo: PropTypes.object,
-  jobStatus: PropTypes.string.isRequired,
-  taskConfig: PropTypes.object,
-  sshInfo: PropTypes.object,
+  name: PropTypes.string.isRequired,
+  taskInfo: PropTypes.object.isRequired,
+  isFailed: PropTypes.bool,
 };

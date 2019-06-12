@@ -22,17 +22,17 @@ import sys
 import subprocess
 import jinja2
 import argparse
+import readline
 import logging
 import logging.config
 
 from . import conf_storage_util
-
+from ..utility import pai_version
 
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 
 class download_configuration:
-
 
     def __init__(self, config_output_path, kube_config_path):
 
@@ -44,8 +44,6 @@ class download_configuration:
             self.config_path = config_output_path
         else:
             self.config_path = "."
-
-
 
     def check_cluster_id(self):
 
@@ -66,11 +64,9 @@ class download_configuration:
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
 
-
-
     def download_cluster_configuration(self, local_path):
 
-        #cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
+        # cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
         configuration_dict = conf_storage_util.get_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
         if configuration_dict is None:
@@ -81,9 +77,8 @@ class download_configuration:
         for key in configuration_dict:
             conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}".format(local_path, key))
 
-
-
     def run(self):
 
         self.check_cluster_id()
+        pai_version.check_cluster_version()
         self.download_cluster_configuration(self.config_path)

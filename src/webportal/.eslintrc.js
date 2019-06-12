@@ -6,7 +6,7 @@ module.exports = {
     "jquery": true,
   },
   "extends": [
-    "eslint:recommended", 
+    "eslint:recommended",
     "plugin:react/recommended",
     "google"
   ],
@@ -26,7 +26,13 @@ module.exports = {
   },
   "overrides": [
     {
-      "files": ["**/*.jsx", "src/app/job/job-view/fabric/**/*.js"],
+      "files": [
+        "**/*.jsx",
+        "src/app/job/job-view/fabric/**/*.js",
+        "src/app/components/**/*.js",
+        "src/app/home/**/*.js",
+        "src/app/user/fabric/**/*.js",
+      ],
       "parser": "babel-eslint"
     }
   ]

@@ -15,8 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 
+import {getTheme, ColorClassNames} from '@uifabric/styling';
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
 import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
@@ -24,7 +25,8 @@ import {ContextualMenuItemType} from 'office-ui-fabric-react/lib/ContextualMenu'
 
 import Context from './Context';
 import Filter from './Filter';
-import {getStatusText} from './utils';
+
+import webportalConfig from '../../../../config/webportal.config';
 
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
@@ -39,27 +41,75 @@ function FilterButton({defaultRender: Button, ...props}) {
     </Button>
   );
 }
+
+function KeywordSearchBox() {
+  const {filter, setFilter} = useContext(Context);
+  function onKeywordChange(keyword) {
+    const {users, virtualClusters, statuses} = filter;
+    setFilter(new Filter(keyword, users, virtualClusters, statuses));
+  }
+
+  /** @type {import('office-ui-fabric-react').IStyle} */
+  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
+  return (
+    <SearchBox
+      underlined
+      placeholder="Filter by keyword"
+      styles={{root: rootStyles}}
+      value={filter.keyword}
+      onChange={onKeywordChange}
+    />
+  );
+}
 /* eslint-enable react/prop-types */
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allJobs, refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+  const [users, setUser] = useState(Object.create(null));
+  const [virtualClusters, setVirtualClusters] = useState(Object.create(null));
 
-  const {users, virtualClusters, statuses} = useMemo(() => {
-    const users = Object.create(null);
-    const virtualClusters = Object.create(null);
-    const statuses = Object.create(null);
+  const statuses = {
+    Waiting: true,
+    Succeeded: true,
+    Running: true,
+    Stopped: true,
+    Failed: true,
+  };
 
-    if (allJobs !== null) {
-      allJobs.forEach(function(job) {
-        users[job.username] = true;
-        virtualClusters[job.virtualCluster] = true;
-        statuses[getStatusText(job)] = true;
+  const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
+
+  useEffect(() => {
+    fetch(`${webportalConfig.restServerUri}/api/v1/user`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        const allUsers = Object.create(null);
+        body.forEach((userBody) => {
+          allUsers[userBody['username']] = true;
+        });
+        setUser(allUsers);
+      }).catch((err) => {
+        alert(err.message);
       });
-    }
 
-    return {users, virtualClusters, statuses};
-  }, [allJobs]);
+    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+      .then((response) => {
+        return response.json();
+      }).then((body) => {
+        const allVirtualClusters = Object.create(null);
+        for (const virtualCluster of Object.keys(body)) {
+          allVirtualClusters[virtualCluster] = true;
+        }
+        setVirtualClusters(allVirtualClusters);
+
+        const allValidVC = Object.keys(body);
+        const {keyword, users, virtualClusters, statuses} = filter;
+        const filterVC = new Set(allValidVC.filter((vc) => virtualClusters.has(vc)));
+        setFilter(new Filter(keyword, users, filterVC, statuses));
+      }).catch((err) => {
+        alert(err.message);
+      });
+  }, []);
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -68,7 +118,10 @@ function TopBar() {
     return {
       key: 'stop',
       name: 'Stop',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {
+        root: {backgroundColor: 'transparent', height: '100%'},
+        icon: {fontSize: 14},
+      },
       iconProps: {
         iconName: 'StopSolid',
       },
@@ -108,26 +161,6 @@ function TopBar() {
     };
   }
 
-  const KeywordSearchBox = useCallback(function KeywordSearchBox() {
-    function onKeywordChange(keyword) {
-      const {users, virtualClusters, statuses} = filter;
-      setFilter(new Filter(keyword, users, virtualClusters, statuses));
-    }
-
-    /** @type {import('office-ui-fabric-react').IStyle} */
-    const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
-    return (
-      <SearchBox
-        underlined
-        disableAnimation
-        placeholder="Filter by keyword"
-        styles={{root: rootStyles}}
-        value={filter.keyword}
-        onChange={onKeywordChange}
-      />
-    );
-  });
-
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
    */
@@ -145,7 +178,6 @@ function TopBar() {
     return {
       key: 'filters',
       name: 'Filters',
-      buttonStyles: {root: {backgroundColor: 'transparent'}},
       iconProps: {iconName: 'Filter'},
       menuIconProps: {iconName: active ? 'ChevronUp' : 'ChevronDown'},
       onClick() {
@@ -157,6 +189,7 @@ function TopBar() {
             onClick={item.onClick}
             iconProps={item.iconProps}
             menuIconProps={item.menuIconProps}
+            styles={{root: {backgroundColor: 'transparent'}}}
           >
             Filter
           </CommandBarButton>
@@ -179,7 +212,6 @@ function TopBar() {
       },
       onClick() {
         setFilter(new Filter());
-        setActive(false);
       },
     };
   }
@@ -410,17 +442,22 @@ function TopBar() {
     getClear(),
   ];
 
+  const {spacing} = getTheme();
+
   return (
     <React.Fragment>
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: {backgroundColor: 'transparent', padding: 0}}}
       />
       { active ? <CommandBar
         items={filterBarItems}
         farItems={filterBarFarItems}
-        styles={{root: {backgroundColor: 'transparent'}}}
+        styles={{root: [
+          ColorClassNames.neutralLightBackground,
+          {marginTop: spacing.s2, paddingTop: spacing.m, paddingBottom: spacing.m, height: 'auto'},
+        ]}}
       /> : null }
     </React.Fragment>
   );

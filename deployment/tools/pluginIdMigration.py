@@ -30,15 +30,11 @@ if "webportal" in services_config and "plugins" in services_config["webportal"]:
         if "id" not in plugin:
             plugin["id"] = slugify(plugin["title"])
 else:
-    print "No webportal plugins to convert, exit..."
-    sys.exit(0)
+    print "No webportal plugins to convert"
 
 
 # write out the file
 service_config_file = os.path.join(output_dir, "services-configuration.yaml")
-if(os.path.exists(service_config_file)):
-    print"!!! Error, file already existing:", service_config_file
-    sys.exit(-1)
 
 with open(service_config_file, 'w') as outfile:
     yaml.dump(services_config, outfile, default_flow_style=False)

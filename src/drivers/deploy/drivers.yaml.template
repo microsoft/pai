@@ -57,6 +57,10 @@ spec:
         - mountPath: {{ cluster_cfg["drivers"]["pre-installed-nvidia-path"] }}
           name: pre-install-nv-driver-path
         env:
+        {% if cluster_cfg['drivers']['enable-ib-installation'] %}
+        - name: ENABLE_IB
+          value: "true"
+        {%- endif %}
         - name: DRIVER_PATH
           value: /var/drivers/nvidia
         - name: PRE_INSTALLED_NV_DRIVER_PATH

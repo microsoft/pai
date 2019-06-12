@@ -42,16 +42,22 @@ groups:
         expr: pai_node_count{disk_pressure="true"} > 0
         for: 5m
         annotations:
-          summary: "{{$labels.instance}} is under disk pressure"
+          summary: "{{$labels.name}} is under disk pressure"
 
       - alert: NodeOutOfDisk
         expr: pai_node_count{out_of_disk="true"} > 0
         for: 5m
         annotations:
-          summary: "{{$labels.instance}} is out of disk"
+          summary: "{{$labels.name}} is out of disk"
 
       - alert: NodeNotReady
         expr: pai_node_count{ready!="true"} > 0
         for: 5m
         annotations:
-          summary: "{{$labels.instance}} is not ready"
+          summary: "{{$labels.name}} is not ready"
+
+      - alert: AzureAgentConsumeTooMuchMem
+        expr: process_mem_usage_byte{cmd=~".*om[is]agent.*"} > 1073741824 # 1G
+        for: 5m
+        annotations:
+          summary: "{{$labels.cmd}} with pid {{$labels.pid}} in {{$labels.instance}} consume more than 1G of memory"

@@ -119,10 +119,11 @@ def create_path(server_name, user_name = None):
         if len(private_folders) > 0:
             logger.info("Get all users related to this external storage")
             user_data = get_storage_config("storage-user", "default")
-            for key, value in user_data.iteritems():
-                user_json = json.loads(value)
-                if server_name in user_json["externalStorages"]:
-                    users.append(os.path.splitext(key)[0])
+            if user_data is not None:
+                for key, value in user_data.iteritems():
+                    user_json = json.loads(value)
+                    if server_name in user_json["externalStorages"]:
+                        users.append(os.path.splitext(key)[0])
     else:
         users.append(user_name)
 

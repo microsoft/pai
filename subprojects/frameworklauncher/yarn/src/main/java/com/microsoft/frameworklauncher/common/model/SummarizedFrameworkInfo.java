@@ -27,6 +27,9 @@ public class SummarizedFrameworkInfo implements Serializable {
   private String frameworkDescription;
   private String userName;
   private String queue;
+  private Integer totalGpuNumber;
+  private Integer totalTaskNumber;
+  private Integer totalTaskRoleNumber;
   private Long firstRequestTimestamp;
   private Long lastRequestTimestamp;
 
@@ -46,6 +49,9 @@ public class SummarizedFrameworkInfo implements Serializable {
     sFrameworkInfo.setFrameworkDescription(frameworkDescriptor.getDescription());
     sFrameworkInfo.setUserName(frameworkDescriptor.getUser().getName());
     sFrameworkInfo.setQueue(frameworkDescriptor.getPlatformSpecificParameters().getQueue());
+    sFrameworkInfo.setTotalGpuNumber(frameworkDescriptor.calcTotalGpuNumber());
+    sFrameworkInfo.setTotalTaskNumber(frameworkDescriptor.calcTotalTaskNumber());
+    sFrameworkInfo.setTotalTaskRoleNumber(frameworkDescriptor.getTaskRoles().size());
     sFrameworkInfo.setFirstRequestTimestamp(frameworkRequest.getFirstRequestTimestamp());
     sFrameworkInfo.setLastRequestTimestamp(frameworkRequest.getLastRequestTimestamp());
 
@@ -102,6 +108,30 @@ public class SummarizedFrameworkInfo implements Serializable {
 
   public void setQueue(String queue) {
     this.queue = queue;
+  }
+
+  public Integer getTotalGpuNumber() {
+    return totalGpuNumber;
+  }
+
+  public void setTotalGpuNumber(Integer totalGpuNumber) {
+    this.totalGpuNumber = totalGpuNumber;
+  }
+
+  public Integer getTotalTaskNumber() {
+    return totalTaskNumber;
+  }
+
+  public void setTotalTaskNumber(Integer totalTaskNumber) {
+    this.totalTaskNumber = totalTaskNumber;
+  }
+
+  public Integer getTotalTaskRoleNumber() {
+    return totalTaskRoleNumber;
+  }
+
+  public void setTotalTaskRoleNumber(Integer totalTaskRoleNumber) {
+    this.totalTaskRoleNumber = totalTaskRoleNumber;
   }
 
   public Long getFirstRequestTimestamp() {

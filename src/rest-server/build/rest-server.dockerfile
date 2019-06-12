@@ -17,11 +17,8 @@
 
 FROM node:carbon
 
-RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
-    /etc/apt/sources.list.d/jessie-backports.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends -t \
-      jessie-backports \
+RUN apt-get update && \
+    apt-get install --assume-yes --no-install-recommends \
       dos2unix \
       openssh-server \
       && \
@@ -33,11 +30,9 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production \
     SERVER_PORT=8080
 
-COPY package.json ./
+COPY . .
 
 RUN yarn install
-
-COPY . .
 
 RUN dos2unix src/templates/*
 

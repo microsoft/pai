@@ -1,0 +1,23 @@
+spec:
+- code: 193
+  type: UNKNOWN
+  description: "BadCode: Duplicated code"
+- code: 193
+  type: TRANSIENT_NORMAL
+  description: "GoodCode: TRANSIENT_NORMAL"
+- code: 194
+  type: NON_TRANSIENT
+  description: "GoodCode: NON_TRANSIENT"
+- code: 195
+  description: "GoodCode: No Type"
+- type: NON_TRANSIENT
+  description: "BadCode: No Code"
+- code: 0
+  type: NON_TRANSIENT
+  description: "BadCode: Invalid Zero Code"
+- code: -100
+  type: NON_TRANSIENT
+  description: "BadCode: Invalid Negative Code"
+- code: 4
+  type: SUCCEEDED
+  description: "BadCode: Not Allowed Type"

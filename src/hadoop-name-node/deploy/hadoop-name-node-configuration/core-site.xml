@@ -17,28 +17,66 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://{HDFS_ADDRESS}:9000</value>
+    <description>
+           Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
+           none is given.
+    </description>
+  </property>
 
-<property>
-  <name>fs.defaultFS</name>
-  <value>hdfs://{HDFS_ADDRESS}:9000</value>
-  <description>
-         Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
-         none is given. 
-  </description>
-</property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/var/lib/hadoopdata</value>
+    <description>
+           A base for other temporary directories.
+    </description>
+  </property>
 
-<property>
-  <name>hadoop.tmp.dir</name>
-  <value>/var/lib/hadoopdata</value>
-  <description>
-         A base for other temporary directories.
-  </description>
-</property>
+  <property>
+    <name>ipc.server.max.response.size</name>
+    <value>5242880</value>
+  </property>
 
+  <property>
+    <name>hadoop.http.filter.initializers</name>
+    <value>org.apache.hadoop.http.lib.StaticUserWebFilter,org.apache.hadoop.security.HttpCrossOriginFilterInitializer</value>
+    <description>A comma separated list of class names. Each class in the list
+    must extend org.apache.hadoop.http.FilterInitializer. The corresponding
+    Filter will be initialized. Then, the Filter will be applied to all user
+    facing jsp and servlet web pages.  The ordering of the list defines the
+    ordering of the filters.</description>
+  </property>
 
-    <property>
-        <name>ipc.server.max.response.size</name>
-        <value>5242880</value>
-    </property>
+  <property>
+    <name>hadoop.http.cross-origin.enabled</name>
+    <value>true</value>
+  <description>Enables cross origin support for all web-services</description>
+  </property>
+
+  <property>
+    <name>hadoop.http.cross-origin.allowed-origins</name>
+    <value>*</value>
+    <description>Comma separated list of origins that are allowed, wildcards (*) and patterns allowed</description>
+  </property>
+
+  <property>
+    <name>hadoop.http.cross-origin.allowed-methods</name>
+    <value>GET,POST,HEAD,PUT,OPTIONS</value>
+    <description>Comma separated list of methods that are allowed</description>
+  </property>
+
+  <property>
+    <name>hadoop.http.cross-origin.allowed-headers</name>
+    <value>X-Requested-With,Content-Type,Origin</value>
+    <description>Comma separated list of headers that are allowed</description>
+  </property>
+
+  <property>
+    <name>hadoop.http.cross-origin.max-age</name>
+    <value>1800</value>
+    <description>Number of seconds a pre-flighted request can be cached</description>
+  </property>
 
 </configuration>
