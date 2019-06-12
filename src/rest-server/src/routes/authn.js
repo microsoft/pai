@@ -90,7 +90,9 @@ if (authnConfig.authnMethod === 'OIDC') {
           };
           // eslint-disable-next-line no-console
           console.log(config);
-          const response = await axios.post(requestUrl, data, config);
+          // eslint-disable-next-line no-console
+          console.log(querystring.stringify(data));
+          const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
           console.log(response);
         } catch (error) {
@@ -147,7 +149,9 @@ if (authnConfig.authnMethod === 'OIDC') {
           };
           // eslint-disable-next-line no-console
           console.log(config);
-          const response = await axios.post(requestUrl, data, config);
+          // eslint-disable-next-line no-console
+          console.log(querystring.stringify(data));
+          const response = await axios.post(requestUrl, querystring.stringify(data));
           // eslint-disable-next-line no-console
           console.log(response);
         } catch (error) {
