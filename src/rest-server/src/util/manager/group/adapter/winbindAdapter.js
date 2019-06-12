@@ -35,7 +35,9 @@ async function getUserGroupList(username, config) {
         'Accept': 'application/json',
       },
     });
-    return response['groups'];
+    // eslint-disable-next-line no-console
+    console.log(response['data']);
+    return response['data']['groups'];
   } catch (error) {
     throw error;
   }
