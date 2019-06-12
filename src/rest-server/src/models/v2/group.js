@@ -55,7 +55,7 @@ const getUserGrouplistFromExternal = async (username) => {
       const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
       const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
       for (const externalGroupname of externalGrouplist) {
-        if (externalName2Groupname.has(externalGroupname)) {
+        if (externalGroupname in externalName2Groupname) {
           response.push(externalName2Groupname[externalGroupname]);
         }
       }
