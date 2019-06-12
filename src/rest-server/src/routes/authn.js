@@ -19,9 +19,11 @@
 const express = require('express');
 const tokenConfig = require('../config/token');
 const param = require('../middlewares/parameter');
-const authnConfig = require('../config/authn');
 const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
+const azureADController = require('../controllers/v2/azureAD');
+
+const authnConfig = require('../config/authn');
 const querystring = require('querystring');
 const axios = require('axios');
 const createError = require('../util/error');
@@ -32,23 +34,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
-      async function(req, res, next) {
-        const tenantId = authnConfig.OIDCConfig.tenantID;
-        const clientId = authnConfig.OIDCConfig.clientID;
-        const responseType = 'code';
-        const redirectUri = authnConfig.OIDCConfig.redirectUrl;
-        const responseMode = 'form_post';
-        const scope = 'openid offline_access https://graph.microsoft.com/user.read';
-        const state = 'openpai';
-        return res.redirect('https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/authorize?'+ querystring.stringify({
-          client_id: clientId,
-          response_type: responseType,
-          redirect_uri: redirectUri,
-          response_mode: responseMode,
-          scope: scope,
-          state: state,
-        }));
-      }
+      azureADController.requestAuthCode
     );
 
   router.route('/oidc/logout')
@@ -62,32 +48,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
-      async function(req, res, next) {
-        try {
-          const authCode = req.body.code;
-          const scope = 'https://graph.microsoft.com/user.read';
-          const clientId = authnConfig.OIDCConfig.clientID;
-          const tenantId = authnConfig.OIDCConfig.tenantID;
-          const redirectUri = authnConfig.OIDCConfig.redirectUrl;
-          const grantType = 'authorization_code';
-          const clientSecret = authnConfig.OIDCConfig.clientSecret;
-          const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
-          const data = {
-            client_id: clientId,
-            scope: scope,
-            code: authCode,
-            redirect_uri: redirectUri,
-            grant_type: grantType,
-            client_secret: clientSecret,
-          };
-          const response = await axios.post(requestUrl, querystring.stringify(data));
-          req.IDToken = response.data.id_token;
-          req.accessToken = response.data.access_token;
-          req.refreshToken = response.data.access_token;
-        } catch (error) {
-          return next(createError.unknown(error));
-        }
-      },
+      azureADController.requestTokenWithCode,
       function(req, res, next) {
         // TODO，check user name and return token
         const email = req._json.email;
@@ -106,31 +67,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
-      async function(req, res, next) {
-        try {
-          const authCode = req.body.code;
-          const scope = 'https://graph.microsoft.com/user.read';
-          const clientId = authnConfig.OIDCConfig.clientID;
-          const tenantId = authnConfig.OIDCConfig.tenantID;
-          const redirectUri = authnConfig.OIDCConfig.redirectUrl;
-          const grantType = 'authorization_code';
-          const clientSecret = authnConfig.OIDCConfig.clientSecret;
-          const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
-          const data = {
-            client_id: clientId,
-            scope: scope,
-            code: authCode,
-            redirect_uri: redirectUri,
-            grant_type: grantType,
-            client_secret: clientSecret,
-          };
-          const response = await axios.post(requestUrl, querystring.stringify(data));
-          // eslint-disable-next-line no-console
-          console.log(response.data);
-        } catch (error) {
-          return next(createError.unknown(error));
-        }
-      },
+      azureADController.requestTokenWithCode,
       async function(req, res, next) {
         // TODO，check user name and return token
         const email = req._json.email;
