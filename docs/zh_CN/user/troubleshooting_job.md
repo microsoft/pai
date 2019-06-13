@@ -55,7 +55,7 @@
 
 在本地开发时，调试非常有用，但远程调试却很困难，而在生产环境中几乎无法进行调试。 日志可提供大量的信息，而且适用于各种环境。
 
-To improve log quality,
+要提高日志质量：
 
 1. 更多的使用日志。 在开发阶段，更多的查看日志，避免调试或一次性的打印输出。 如果日志还没有足够的信息，就需要进一步改进。
 2. 减少重复的日志。 重复的日志很容易将有用的信息掩盖住。 因此，重复的日志应该合并，或者完全禁用。
@@ -69,10 +69,10 @@ To improve log quality,
 
 OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 For example,
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如：
 
-- The resource specification in configuration is ignored, as in most case, the local computer is not powerful like a GPU server.
-- When code is simulating locally, it may be much slower, or out of memory. The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues quickly.
+- 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。
+- 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
 
 在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
 
@@ -80,9 +80,9 @@ OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在
 
 ### 充分了解资源瓶颈
 
-When using OpenPAI, user needs to specify needed resource, including CPU, GPU and memory. 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 So, to be aware and understand resource bottleneck is important.
+使用 OpenPAI 时，要说明需要的资源，包括 CPU、GPU 以及内存。 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 因此，知道并理解资源瓶颈很重要。
 
-OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime utilization of resource. 了解[如何查看 Job 指标](#查看-job-指标)。
+OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 了解[如何查看 Job 指标](#查看-job-指标)。
 
 ## 诊断问题
 
@@ -92,13 +92,13 @@ OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understa
 
 可以通过减少请求的资源来缩短 Job 等待的时间。
 
-Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers. One server may not meet all resources requirements including CPU, memory, and GPU. So, the job needs to still wait resources under this situation.
+注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。 因此，每台服务器可能都无法同时满足 CPU、内存和 GPU 的资源要求。 因此，在这种情况下，Job 仍会等待资源。
 
 ![waiting](imgs/web_job_list_waiting.png)
 
-### Job is running but retried many times
+### Job 重试了很多次
 
-If a job fails by system problems, OpenPAI will try to run the job again, for example, system is upgraded during job running. 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
+如果 Job 因为系统的问题而失败，OpenPAI 会尝试重新运行 Job。例如，Job 运行时系统进行了升级。 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
 
 ![retry](imgs/web_job_detail_retry.png)
 
@@ -114,7 +114,7 @@ Job 运行快慢是主观的，因此在试着“修复”这个问题前，需�
 
 Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
-1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 For example, if the servers have only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
+1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 例如，如果服务器只有 24 个 CPU 内核，但 Job 配置中请求了 48 个内核，就会造成 Job 失败。
   
   这种系统级的失败，错误类型为 *System Error*。
   
@@ -126,9 +126,9 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
   
-  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 The exit code is from command in job configuration usually, which is written by user. But the exit code of failure may be caused by OpenPAI occasionally.
+  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的。 但偶尔也会是 OpenPAI 的系统错误代码。
   
-  The meaning of error code depends on the failed command. For Linux system commands, there is [a specification of exit codes](http://www.tldp.org/LDP/abs/html/exitcodes.html).
+  错误代码的意义取决于具体的命令。 Linux 的系统命令，可参考[退出代码规范](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
   
   ![job user error](imgs/web_job_details_exitcode.png)
 
@@ -136,35 +136,35 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ### 查看 Job 指标
 
-- Click *Go to Job Metrics Page* in job details page.
+- 点击 Job 详情页面的 *Go to Job Metrics Page*。
 
 ![job link](imgs/web_job_details_metrics.png)
 
-- A new page is opened and show metrics of this job.
+- 将打开如下新页面并显示 Job 的指标。
 
 ![job link](imgs/web_job_metrics.png)
 
-- The *memory usage*, and *disk bandwidth* uses absolute value. The value is easy to understand.
-- *network traffic* shouldn't be regarded as an accurate value, as the collection approach is optimized for performance. If a data connection is alive for a short time, it may not be counted.
-- 100% of *CPU*, it means 100% usage of one virtual core. So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
-- *GPU Utilization* and *GPU memory* are total number, so it's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means average usage of those cards.
-- For distributed jobs, the value is average of all task instances. If a task role has multiple instances, it's average also.
+- *memory usage* 和 *disk bandwidth* 使用的是绝对值。 这些值很容易理解。
+- *network traffic* 的值不能作为精确值对待，因为收集指标的方法为性能进行了优化。 如果数据连接只活跃了很短时间，就有可能不会被统计到。
+- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 因此，此值可能会超过 100%。 例如，300% 表示 3 个虚拟核心被完全使用。
+- *GPU Utilization* 和 *GPU memory* 是总数，与 *CPU* 不相同。 例如，如果一个环境上分配了 4 块 GPU 卡，50% 表示的是 GPU 卡的平均使用率。
+- 对于分布式 Job，这些值都是所有 Task 实例的平均值。 如果一个 Task Role 有多个实例，这也是平均值。
 
 用户界面是由 [Grafana](https://grafana.com/) 实现，可查看其网站了解更多详情。
 
 ### 查看 Job 日志
 
-- Click *stdout* or *stderr* in job details page.
+- 点击 Job 详情页面的 *stdout* 或 *stderr*。
   
   ![job link](imgs/web_job_details_loglink.png)
 
-- It shows log content like below and contains latest 4096 bytes. It refreshes every 10 seconds automatically.
+- 会显示如下内容，包含了最新的 4096 字节。 它每 10 秒会自动刷新。
   
-  If it needs to view full log, click button *View Full Log*.
+  如果需要查看完整日志，点击 *View Full Log*。
   
   ![job link](imgs/web_job_details_logview.png)
   
-  The *stderr* and *stdout* is screen output of the task instance. All content, which prints to screen, displays there near real-time. Most errors during job running can be found in the two files.
+  *stderr* 和 *stdout* 都是 Task 实例的屏幕输出。 所有输出到屏幕的内容都会近实时的显示在这里。 大多数 Job 运行时的错误都能在这两个文件中找到。
 
 注意，如果 Task 实例还被未分配资源，就不会有日志文件。
 
@@ -176,7 +176,7 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-会显示如下信息。 Following steps can connect to the running docker container.
+会显示如下信息。 按照其中的步骤可连接到正在运行的 Docker 容器。
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
