@@ -143,37 +143,37 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 - *memory usage* 和 *disk bandwidth* 使用的是绝对值。 这些值很容易理解。
 - *network traffic* 的值不能作为精确值对待，因为收集指标的方法为性能进行了优化。 如果数据连接只活跃了很短时间，就有可能不会被统计到。
-- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
-- *GPU Utilization* and *GPU memory* are total number, so it's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means 2 GPU cards are used.
-- For distributed jobs, the value is average of all task instances. If a task role has multiple instances, it's average also.
+- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 因此，此值可能会超过 100%。 例如，300% 表示 3 个虚拟核心被完全使用。
+- *GPU Utilization* 和 *GPU memory* 是总数，与 *CPU* 不相同。 例如，如果一个环境上分配了 4 块 GPU 卡，50% 表示的是 GPU 卡的平均使用率。
+- 对于分布式 Job，这些值都是所有 Task 实例的平均值。 如果一个 Task Role 有多个实例，这也是平均值。
 
-The UI is implemented by [Grafana](https://grafana.com/), check its web site for more details.
+用户界面是由 [Grafana](https://grafana.com/) 实现，可查看其网站了解更多详情。
 
 ### 查看 Job 日志
 
-- Click *stdout* or *stderr* in job details page.
+- 点击 Job 详情页面的 *stdout* 或 *stderr*。
   
   ![job link](imgs/web_job_details_loglink.png)
 
-- It shows log content like below and contains latest 4096 bytes. It refreshes every 10 seconds automatically.
+- 会显示如下内容，包含了最新的 4096 字节。 它每 10 秒会自动刷新。
   
-  If it needs to view full log, click button *View Full Log*.
+  如果需要查看完整日志，点击 *View Full Log*。
   
   ![job link](imgs/web_job_details_logview.png)
   
-  The *stderr* and *stdout* is screen output of the task instance. All content, which prints to screen, displays there near real-time. Most errors during job running can be found in the two files.
+  *stderr* 和 *stdout* 都是 Task 实例的屏幕输出。 所有输出到屏幕的内容都会近实时的显示在这里。 大多数 Job 运行时的错误都能在这两个文件中找到。
 
-Note, if a task instance has no resource assigned, there is no log file.
+注意，如果 Task 实例还被未分配资源，就不会有日志文件。
 
-### Connect to running environments with SSH
+### 使用 SSH 远程连接
 
-With SSH, any command can be run in an environment, and it provides familiar ways for terminal users.
+通过 SSH，可以在环境中运行任何命令，这也为终端用户提供了熟悉的使用方法。
 
-For a running task instance, if it supports SSH connection, Click the link *View SSH Info*.
+如果正在运行的 Task 实例支持 SSH，点击 *View SSH Info*。
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-It pops up information as below. Follow steps in the dialog, can connect to the running docker container.
+会显示如下信息。 Follow steps in the dialog, can connect to the running docker container.
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
