@@ -24,9 +24,8 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 注意，此示例使用的是 Windows 的共享文件夹。 [Samba](https://www.samba.org/) 可在 Linux 下支持这样共享文件夹。 如果要尝试此示例，需要：
 
-    1. 克隆 [相应的代码](https://github.com/tensorflow/models) 并共享该文件夹。
-    2. 填写所有变量，包括：`<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, 以及 `<Password>`。
-    
+1. 克隆[相应的代码](https://github.com/tensorflow/models)并共享该文件夹。
+2. 替换所有变量为相应的值，包括：`<AddressOfSharedServer>`，`<SharedFolder>`，`<Username>`，以及 `<Password>`。
 
 ```json
 {

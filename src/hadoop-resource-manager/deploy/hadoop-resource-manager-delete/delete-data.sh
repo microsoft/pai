@@ -33,4 +33,10 @@ if [ -d "/mnt/hadooptmp/resourcemanager" ]; then
 
 fi
 
+if [ -d "/mnt/pai-service-log/resource-manager" ]; then
+
+    rm -rf /mnt/pai-service-log/resource-manager
+
+fi
+
 

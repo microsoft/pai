@@ -69,7 +69,10 @@
 
 OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如：
+
+- 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。
+- 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
 
 在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
 
@@ -89,7 +92,7 @@ OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的
 
 可以通过减少请求的资源来缩短 Job 等待的时间。
 
-注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。因此，服务器可能无法同时满足 CPU、内存和 GPU 的资源要求。
+注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。 因此，每台服务器可能都无法同时满足 CPU、内存和 GPU 的资源要求。 因此，在这种情况下，Job 仍会等待资源。
 
 ![waiting](imgs/web_job_list_waiting.png)
 
@@ -123,9 +126,9 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
   
-  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的，但偶尔也会因为 OpenPAI 系统而引起错误。
+  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的。 但偶尔也会是 OpenPAI 的系统错误代码。
   
-  错误代码的意义取决于失败的命令，一般的系统命令可参考 [Linux 下的错误代码说明](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
+  错误代码的意义取决于具体的命令。 Linux 的系统命令，可参考[退出代码规范](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
   
   ![job user error](imgs/web_job_details_exitcode.png)
 
@@ -173,7 +176,7 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-会显示如下信息。 按照这些步骤，可以连接到正在运行的 Docker 容器。
+会显示如下信息。 按照其中的步骤可连接到正在运行的 Docker 容器。
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
