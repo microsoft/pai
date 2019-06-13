@@ -29,7 +29,7 @@
     - [充分了解资源瓶颈](#充分了解资源瓶颈)
   - [诊断问题](#诊断问题) 
     - [Job 等待了数小时](#job-等待了数小时)
-    - [Job 重试了很多次](#job-is-running-but-retried-many-times)
+    - [Job 重试了很多次](#job-重试了很多次)
     - [Job 执行较慢](#job-执行较慢)
     - [Job 失败](#job-失败)
   - [指南](#指南) 
@@ -182,24 +182,24 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 对于分布式 Job，可以通过环境变量从一个容器连接到另一个容器。 例如，`ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` 在 Docker 容器中会被解析为 `ssh worker-0`。
 
-Note, the **SSH cannot be used in below cases**,
+注意，**以下情况无法使用 SSH**：
 
-- The task instance isn't running or ready.
-- The task instance is completed, and environment is recycled. From v0.11.0, the task instance can be reserved for debugging, refer to [reserve failed docker for debugging](#reserve-failed-docker-for-debugging).
-- The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
+- Task 实例还未准备好或没有运行。
+- Task 实例已经完成，环境已被回收。 从 v0.11.0 开始，可保留 Task 实例用于调试，参考[保留失败的 Docker 用于调试](#保留失败的-docker-用于调试)。
+- Docker 映像不支持 SSH 连接。 要支持 SSH 连接，必须在 Docker 映像中安装好 *openssh-server* 和 *curl*。
 
 ### 保留失败的 Docker 用于调试
 
-To reserve failed docker container for debugging, it needs to set the following property in the jobEnv field. 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
+要保留失败的 Docker 容器用于调试，需要在 jobEnv 字段中设置下列属性。 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
 
 ![debugging](./imgs/webportal-job-debugging.png)
 
 参考[这里](../job_tutorial.md)来在 Job 配置中支持 isDebug。
 
-**注意**，Job 启用调试后，Job 所用的资源也会被保留。 To save resources, this feature should be limited used, and shouldn't be enabled by default. 一般调试完成，要手动停止 Job 来释放资源。
+**注意**，Job 启用调试后，Job 所用的资源也会被保留。 为了节省资源，此功能应该只被有限制的使用，而且不应默认开启。 一般调试完成，要手动停止 Job 来释放资源。
 
 ### 寻求帮助
 
-Administrators of the OpenPAI cluster may be able to fix issues if this document doesn't work unfortunately.
+如果本文无法解决问题，可寻找 OpenPAI 集群管理员的帮助。
 
 如果管理员无法修复此问题，或者你就是管理员，欢迎[提交问题或建议](../../../README_zh_CN.md#寻求帮助)。
