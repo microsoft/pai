@@ -23,44 +23,46 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import React from 'react';
+import {FormTextField} from './form-text-field';
+import {FormPage} from './form-page';
+import {Text} from 'office-ui-fabric-react';
+import {FormSpinButton} from './form-spin-button';
 import PropTypes from 'prop-types';
-import {BasicSection} from './BasicSection';
-import {Completion} from '../models/completion';
-import {CSpinButton} from './CustomizedComponents';
+import {JobBasicInfo} from '../models/job-basic-info';
+import {VirtualCluster} from './virtual-cluster';
 
-export const CompletionSection= (props) => {
-  const {onChange, defaultValue} = props;
-  const [value, setValue] = useState(defaultValue);
-  const {minFailedInstances, minSuceedInstances} = value;
+export const JobInformation= (props) => {
+  const {jobInformation, onChange} = props;
+  const {name, jobRetryCount} = jobInformation;
 
   const _onChange = (keyName, newValue) => {
-    const completion = new Completion(value);
-    completion[keyName] = newValue;
+    const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
+    updatedJobBasicInfo[keyName] = newValue;
     if (onChange !== undefined) {
-      onChange(completion);
+      onChange(updatedJobBasicInfo);
     }
-    setValue(completion);
   };
 
   return (
-    <BasicSection sectionLabel={'Completion'} sectionOptional>
-      <Stack horizontal gap='s1'>
-        <CSpinButton label={'Min Failed Instances'}
-                     value={minFailedInstances}
-                     onChange={(v) => _onChange('minFailedInstances', v)}/>
-      </Stack>
-      <Stack horizontal gap='s1'>
-        <CSpinButton label={'Min Succeed Instances'}
-                     value={minSuceedInstances}
-                     onChange={(v) => _onChange('minSuceedInstances', v)}/>
-      </Stack>
-    </BasicSection>
+    <FormPage>
+      <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
+      <FormTextField sectionLabel={'Job name'}
+                     value={name}
+                     shortStyle
+                     onBlur={(value) => _onChange('name', value)}
+                     placeholder='Enter job name'/>
+      <VirtualCluster/>
+      <FormSpinButton sectionOptional
+                      sectionLabel={'Retry count'}
+                      shortStyle
+                      value={jobRetryCount}
+                      onChange={(value) => _onChange('jobRetryCount', value)}/>
+    </FormPage>
   );
 };
 
-CompletionSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(Completion).isRequired,
+JobInformation.propTypes = {
+  jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
   onChange: PropTypes.func,
 };

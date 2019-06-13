@@ -24,15 +24,18 @@
  */
 
 import React from 'react';
-import {Fabric, Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
-import {TabForm} from './TabForm';
-import {initializeIcons} from '@uifabric/icons';
-import {TabFormContent} from './TabFormContent';
-import {JobTaskRole} from '../models/jobTaskRole';
-import {JobInformation} from './JobInformation';
-import {Parameter} from './Parameter';
-import {getFormClassNames} from './formStyle';
+import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
+import {TabFormContent} from './tab-form-content';
+import {JobTaskRole} from '../models/job-task-role';
+import {JobInformation} from './job-information';
+import {Parameters} from './parameters';
+import {getFormClassNames} from './form-style';
 import {initTheme} from '../../../app/components/theme';
+import {JobBasicInfo} from '../models/job-basic-info';
+import {SubmissionSection} from './submission-section';
+import {TaskRoles} from './task-roles';
+import {Job} from '../models/job';
+import t from '../../../app/components/tachyons.scss';
 
 initTheme();
 initializeIcons();
@@ -41,9 +44,10 @@ export class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const items = [{headerText: 'Task role 1', content: new JobTaskRole({})}];
     this.state = {
-      items: items,
+      jobTaskRoles: [new JobTaskRole({})],
+      parameters: [],
+      jobInformation: new JobBasicInfo({}),
     };
   }
 
@@ -54,7 +58,7 @@ export class App extends React.Component {
   }
 
   render() {
-    const {items} = this.state;
+    const {jobTaskRoles, parameters, jobInformation} = this.state;
     const formLayout = getFormClassNames().formLayout;
     const topForm = getFormClassNames().topForm;
 
@@ -62,30 +66,28 @@ export class App extends React.Component {
       <Fabric>
         <Stack className={formLayout}>
           <Stack horizontal gap='l2'>
-            <Stack styles={{root: {width: '70%'}}} gap='l2'>
-              <Stack className={topForm}>
-                <JobInformation />
+            <StackItem grow styles={{root: {overflow: 'auto'}}}>
+              <Stack gap='l2'>
+                <StackItem className={topForm}>
+                  <JobInformation jobInformation={jobInformation}
+                                  onChange={(jobInformation) => this.setState({jobInformation: jobInformation})}/>
+                </StackItem>
+                <StackItem className={topForm}>
+                  <Stack gap='l1'>
+                    <TaskRoles taskRoles={[new JobTaskRole({})]}
+                               onChange={(jobTaskRoles) => this.setState({jobTaskRoles: jobTaskRoles})}/>
+                    <SubmissionSection job={new Job(jobInformation, jobTaskRoles, parameters)}/>
+                  </Stack>
+                </StackItem>
               </Stack>
-              <Stack className={topForm} gap='l1'>
-                <Stack>
-                  <TabForm defaultItems={items}
-                           headerTextPrefix='Task Role'
-                           createContentFunc={() => new JobTaskRole({})}
-                           onRenderTabContent={this._onRenderTabContent.bind(this)}
-                           onItemsChange={(items)=>this.setState({items: items})}/>
-                </Stack>
-                <Stack horizontal gap='s1' horizontalAlign='center'>
-                  <PrimaryButton>Submit</PrimaryButton>
-                  <DefaultButton>Edit YAML</DefaultButton>
-                  <DefaultButton>Export</DefaultButton>
-                </Stack>
+            </StackItem>
+            <StackItem disableShrink styles={{root: [t.w30]}}>
+              <Stack className={topForm} styles={{root: {position: 'fixed', maxHeight: '80%', overflow: 'auto'}}}>
+                <Parameters parameters={parameters}
+                            environment={[]}
+                            onChange={(parameters) => this.setState({parameters: parameters})}/>
               </Stack>
-            </Stack>
-            <Stack styles={{root: {width: '30%'}}}>
-              <Stack className={topForm}>
-                <Parameter/>
-              </Stack>
-            </Stack>
+            </StackItem>
           </Stack>
         </Stack>
       </Fabric>

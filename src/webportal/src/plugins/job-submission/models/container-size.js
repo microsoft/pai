@@ -7,7 +7,21 @@ export class ContainerSize {
     this.shmMB = shmMB;
   }
 
-  convertToProtocolFormat() {
+  getResourcePerInstance() {
+    return {
+      cpu: this.cpu,
+      memoryMB: this.memoryMB,
+      gpu: this.gpu,
+    };
+  }
+
+  getExtraContainerOptions() {
+    if (!this.shmMB) {
+      return;
+    }
+    return {
+      shmMB: this.shmMB,
+    };
   }
 
   getResetContainerSize() {

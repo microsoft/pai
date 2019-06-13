@@ -23,15 +23,30 @@
  * SOFTWARE.
  */
 
-export class DockerInfo {
+export class JobBasicInfo {
   constructor(props) {
-    const {name, uri, auth} = props;
+    const {name, jobRetryCount, virtualCluster} = props;
     this.name = name;
-    this.uri = uri;
-    this.auth = auth;
+    this.jobRetryCount = jobRetryCount;
+    this.virtualCluster = virtualCluster;
+  }
+
+  getDefaults() {
+    if (!this.virtualCluster) {
+      return;
+    }
+
+    return {
+      virtualCluster: this.virtualCluster,
+    };
   }
 
   convertToProtocolFormat() {
-    return {name: this.name, type: 'dockerimage', auth: this.auth, uri: this.uri};
+    return {
+      protocolVersion: 2,
+      name: this.name,
+      type: 'job',
+      jobRetryCount: this.jobRetryCount,
+    };
   }
 }

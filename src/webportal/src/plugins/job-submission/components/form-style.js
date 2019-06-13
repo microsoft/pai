@@ -39,7 +39,6 @@ export const getFormClassNames = () => {
     },
     formTabBar: {
       background: palette.neutralLighterAlt,
-      display: 'flex',
       alignItems: 'start',
     },
   });
@@ -47,12 +46,18 @@ export const getFormClassNames = () => {
 
 export const getTabFromStyle = () => {
   return ({
+    tabWapper: {
+      root: {
+        overflow: 'auto',
+      },
+    },
     tab: {
       text: {
         fontSize: FontSizes.icon,
       },
       root: {
         background: palette.white,
+        overflowY: 'hidden',
       },
     },
     tabIcon: {
@@ -78,7 +83,7 @@ export const getFormPageSytle = () => {
     },
     formFirstColumn: {
       root: {
-        width: '20%',
+        width: '18%',
       },
     },
     formSecondColunm: {
@@ -107,6 +112,7 @@ export const getFormBasicSectionStyle = (optional) => {
       root: {
         fontSize: FontSizes.icon,
         fontWeight: FontWeights.semibold,
+        padding: '0px',
       },
     },
     optionalText: {
@@ -121,12 +127,46 @@ export const getFormBasicSectionStyle = (optional) => {
 
 export const getParameterStyle = () => {
   return ({
-    flexContainer: {
-      alignItems: 'end',
-      height: 'auto',
+    headerText: {
+      root: {
+        fontSize: FontSizes.large,
+        fontWeight: FontWeights.semibold,
+      },
     },
+    actionButton: {
+      flexContainer: {
+        alignItems: 'end',
+        height: 'auto',
+      },
+      root: {
+        height: 'auto',
+      },
+    },
+  });
+};
+
+const spinButtonStyle = {
+  labelWrapper: {
+    minWidth: '40%',
+  },
+};
+
+export const getContainerSizeStyle = () => {
+  return ({
+    spinButton: spinButtonStyle,
+  });
+};
+
+export const getCompletionSectionStyle = () => {
+  return ({
+    spinButton: spinButtonStyle,
+  });
+};
+
+export const getFormShortSectionStyle = () => {
+  return ({
     root: {
-      height: 'auto',
+      width: '60%',
     },
   });
 };

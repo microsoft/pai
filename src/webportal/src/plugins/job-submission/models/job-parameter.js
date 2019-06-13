@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-// eslint-disable-next-line no-unused-vars
-class JobParameter {
-  constructor() {
-    this.key;
-    this.value;
+export class JobParameter {
+  constructor(props) {
+    const {key, value} = props;
+    this.key = key;
+    this.value = value;
   }
 
   convertToProtocolFormat() {
-    let parameter = {};
+    const parameter = {};
     parameter[this.key] = this.value;
     return parameter;
   }

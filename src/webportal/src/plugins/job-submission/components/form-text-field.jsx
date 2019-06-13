@@ -23,19 +23,35 @@
  * SOFTWARE.
  */
 
+import React from 'react';
+import {TextField, getId} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
-// eslint-disable-next-line no-unused-vars
-class JobBasicInfo {
-  convertToProtocolFormat() {
-    const jobRetryCount = this.jobRetryCount === undefined || typeof(jobRetryCount) !== 'number'? 0: this.jobRetryCount;
-    return {
-              protocolVersion: 2,
-              name: this.name,
-              type: 'job',
-              jobRetryCount: jobRetryCount,
-              default: {
-                virtualCluster: this.virtualCluster,
-              },
-            };
-  }
-}
+export const FormTextField = (props) => {
+  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
+  const textFieldId = getId('textField');
+  const _onBlur= (event) => {
+    if (onBlur === undefined) {
+      return;
+    }
+    onBlur(event.target.value);
+  };
+
+  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+
+  return (
+    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
+      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
+    </BasicSection>
+  );
+};
+
+FormTextField.propTypes = {
+  sectionLabel: PropTypes.string.isRequired,
+  onBlur: PropTypes.func,
+  textFiledProps: PropTypes.object,
+  sectionOptional: PropTypes.bool,
+  shortStyle: PropTypes.bool,
+};

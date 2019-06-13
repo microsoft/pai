@@ -23,15 +23,53 @@
  * SOFTWARE.
  */
 
-// eslint-disable-next-line no-unused-vars
-class Job {
-  constructor(jobBasicInfo, jobTaskRoles, JobParameters) {
+import {get, isNil} from 'lodash';
+
+export class Job {
+  constructor(jobBasicInfo, jobTaskRoles, jobParameters) {
+    this.jobBasicInfo = jobBasicInfo;
+    this.jobTaskRoles = jobTaskRoles;
+    this.jobParameters = jobParameters;
   }
 
   _initJob() {
   }
 
   _validateJobProperties() {
+  }
+
+  convertToProtocolFormat() {
+    const parameters = this.jobParameters.map((parameter) => parameter.convertToProtocolFormat());
+    const delpoyments = this.jobTaskRoles.map((taskRole) => taskRole.getDeployment());
+
+    const dockerMap = new Map();
+    const dockerPrerequisites = this.jobTaskRoles.map((taskRole) => taskRole.getDockerPrerequisite());
+    dockerPrerequisites.forEach((dockerPrerequisite, index) => {
+      const mapKey = dockerPrerequisite.uri;
+      if (dockerMap.has(mapKey)) {
+        return;
+      }
+      dockerPrerequisite['name'] = 'dockerImage-' + index;
+      dockerMap.set(dockerPrerequisite.uri, dockerPrerequisite);
+    });
+
+    const prerequisites = Array.from(dockerMap.values());
+    const taskRoels = this.jobTaskRoles.map((taskRole) => {
+      const dockerUri = get(taskRole, 'dockerInfo.uri');
+      if (!isNil(dockerUri) && dockerMap.has(dockerUri)) {
+        taskRole.setDockerImage(dockerMap.get(dockerUri).name);
+      }
+      return taskRole.convertToProtocolFormat();
+    });
+
+    const jobProtocol = {
+      ...this.jobBasicInfo.convertToProtocolFormat(),
+      parameters: parameters,
+      taskRoels: taskRoels,
+      prerequisites: prerequisites,
+      delpoyments: delpoyments,
+    };
+    return jobProtocol;
   }
 
   generateYaml() {

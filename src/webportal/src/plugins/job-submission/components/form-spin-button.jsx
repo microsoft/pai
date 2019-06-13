@@ -24,22 +24,38 @@
  */
 
 import React from 'react';
-import {FormTextFiled} from './FormTextFiled';
-import {FormPage} from './FormPage';
-import {Text, Dropdown} from 'office-ui-fabric-react';
-import {FormSpinButton} from './FormSpinButton';
-import {BasicSection} from './BasicSection';
+import {BasicSection} from './basic-section';
+import PropTypes from 'prop-types';
+import {CSpinButton} from './customized-components';
+import {FormShortSection} from './form-page';
 
+export const FormSpinButton = (props) => {
+  const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;
+  const _onChange = (value) => {
+    if (onChange !== undefined) {
+      onChange(Number(value));
+    }
+  };
 
-export const JobInformation= () => {
-  return (
-    <FormPage>
-      <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
-      <FormTextFiled sectionLabel={'Job name'}/>
-      <BasicSection sectionLabel={'Virutual cluster'}>
-        <Dropdown placeholder='Select an option'></Dropdown>
-      </BasicSection>
-      <FormSpinButton sectionOptional sectionLabel={'Retry count'}/>
-    </FormPage>
+  const spinButton = (
+    <CSpinButton {...props}
+                  min={0}
+                  step={1}
+                  value={value === undefined ? NaN.toString(): value}
+                  onChange={_onChange}/>
   );
+
+  return (
+    <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
+      {shortStyle ? (<FormShortSection>{spinButton}</FormShortSection>) : spinButton}
+    </BasicSection>
+  );
+};
+
+FormSpinButton.propTypes = {
+  sectionLabel: PropTypes.string.isRequired,
+  sectionOptional: PropTypes.bool,
+  onChange: PropTypes.func,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  shortStyle: PropTypes.bool,
 };

@@ -24,11 +24,10 @@
  */
 
  // TODO: This file need to change in the future. Submit job may no be a plugin
-const React = require('react');
-const ReactDOM = require('react-dom');
-
-const {parse} = require('querystring');
-const {App} = require('./components/App');
+import {createElement} from 'react';
+import {render, unmountComponentAtNode} from 'react-dom';
+import {parse} from 'querystring';
+import {App} from './components/app';
 
 // declare interface IWindow {
 //   PAI_PLUGINS: Array<{ id?: string, uri?: string, title?: string }>;
@@ -47,11 +46,11 @@ class PAIPluginElement extends HTMLElement {
 
     const query = parse(window.location.search.replace(/^\?/, ''));
 
-    ReactDOM.render(React.createElement(App), this);
+    render(createElement(App), this);
   }
 
   disconnectedCallback() {
-    ReactDOM.unmountComponentAtNode(this);
+    unmountComponentAtNode(this);
   }
 }
 

@@ -23,22 +23,20 @@
  * SOFTWARE.
  */
 
-
-import React, {useState} from 'react';
-import {KeyValueList} from './KeyValueList';
+import React from 'react';
+import {KeyValueList} from './key-value-list';
 import PropTypes from 'prop-types';
 import {Port} from '../models/port';
-import {BasicSection} from './BasicSection';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
 export const PortsList = (props) => {
-  const {onPortsChange, defaultValue} = props;
-  const [ports, setPorts] = useState(defaultValue);
+  const {onChange, ports} = props;
 
   const _onPortChange = (updatedPorts) => {
-    if (onPortsChange !== undefined) {
-      onPortsChange(updatedPorts);
+    if (onChange !== undefined) {
+      onChange(updatedPorts);
     }
-    setPorts(updatedPorts);
   };
 
   const _onPortAdd = (item) => {
@@ -54,16 +52,18 @@ export const PortsList = (props) => {
 
   return (
     <BasicSection sectionLabel='Ports' sectionOptional>
-      <KeyValueList items={ports.map((port) => {
-        return {itemKey: port.portLabel, itemValue: port.portNumber};
-      })}
-      onItemAdd={_onPortAdd}
-      onItemDelete={_onPortDelete}/>
+      <FormShortSection>
+        <KeyValueList items={ports.map((port) => {
+          return {itemKey: port.portLabel, itemValue: port.portNumber};
+        })}
+        onItemAdd={_onPortAdd}
+        onItemDelete={_onPortDelete}/>
+      </FormShortSection>
     </BasicSection>
   );
 };
 
 PortsList.propTypes = {
-  defaultValue: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
-  onPortsChange: PropTypes.func,
+  ports: PropTypes.arrayOf(PropTypes.instanceOf(Port)),
+  onChange: PropTypes.func,
 };

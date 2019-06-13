@@ -23,18 +23,20 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {BasicSection} from './BasicSection';
-import {ContainerSize} from '../models/containerSize';
-import {CSpinButton} from './CustomizedComponents';
+import {BasicSection} from './basic-section';
+import {ContainerSize} from '../models/container-size';
+import {CSpinButton} from './customized-components';
+import {getContainerSizeStyle} from './form-style';
+import {FormShortSection} from './form-page';
 
 const {spacing} = getTheme();
+const containerSizeStyle = getContainerSizeStyle();
 
 export const ContainerSizeSection = (props) => {
-  const {defaultValue, onChange, isContainerSizeEnabled, onEnable} = props;
-  const [value, setValue] = useState(defaultValue);
+  const {value, onChange, isContainerSizeEnabled, onEnable} = props;
   const {cpu, memoryMB, gpu, shmMB} = value;
 
   const _onChange = (keyName, newValue) => {
@@ -43,7 +45,6 @@ export const ContainerSizeSection = (props) => {
     if (onChange !== undefined) {
       onChange(containerSize);
     }
-    setValue(containerSize);
   };
 
   const _onEnable = (_, checked) => {
@@ -55,34 +56,42 @@ export const ContainerSizeSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'ContainerSize'}>
-      <Stack horizontal>
-        <CSpinButton label={'GPU count'}
-                      value={gpu}
-                      onChange={(value)=>_onChange('gpu', value)}/>
-        <Toggle checked={isContainerSizeEnabled}
-                label='Custom'
-                inlineLabel={true}
-                styles={{label: {order: -1, marginRight: spacing.s2}}}
-                onChange={_onEnable}/>
+      <Stack horizontal wrap gap='s1'>
+        <FormShortSection gap='m'>
+          <CSpinButton label={'GPU count'}
+                       value={gpu}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('gpu', value)}/>
+          <CSpinButton label={'CPU count'}
+                       disabled={!isContainerSizeEnabled}
+                       value={cpu}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('cpu', value)}/>
+          <CSpinButton label={'Memory (MB)'}
+                       disabled={!isContainerSizeEnabled}
+                       value={memoryMB}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('memoryMB', value)}/>
+          <CSpinButton label={'Shared memory (MB)'}
+                       value={shmMB}
+                       disabled={!isContainerSizeEnabled}
+                       styles={containerSizeStyle.spinButton}
+                       onChange={(value)=>_onChange('shmMB', value)}/>
+        </FormShortSection>
+        <Stack horizontalAlign='start'>
+          <Toggle checked={isContainerSizeEnabled}
+                  label='Custom'
+                  inlineLabel={true}
+                  styles={{label: {order: -1, marginRight: spacing.s2}}}
+                  onChange={_onEnable}/>
+        </Stack>
       </Stack>
-      <CSpinButton label={'CPU count'}
-                   disabled={!isContainerSizeEnabled}
-                   value={cpu}
-                   onChange={(value)=>_onChange('cpu', value)}/>
-      <CSpinButton label={'Memory (MB)'}
-                   disabled={!isContainerSizeEnabled}
-                   value={memoryMB}
-                   onChange={(value)=>_onChange('memoryMB', value)}/>
-      <CSpinButton label={'Shared memory (MB)'}
-                   value={shmMB}
-                   disabled={!isContainerSizeEnabled}
-                   onChange={(value)=>_onChange('shmMB', value)}/>
     </BasicSection>
   );
 };
 
 ContainerSizeSection.propTypes = {
-  defaultValue: PropTypes.instanceOf(ContainerSize).isRequired,
+  value: PropTypes.instanceOf(ContainerSize).isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,

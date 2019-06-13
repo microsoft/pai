@@ -23,31 +23,15 @@
  * SOFTWARE.
  */
 
-import {DockerInfo} from './dockerInfo';
-import {Completion} from './completion';
-import {Deployment} from './deployment';
-import {ContainerSize} from '../models/containerSize';
-
-export class JobTaskRole {
+export class DockerInfo {
   constructor(props) {
-    const {name, instances, taskRetryCount, dockerInfo, ports, command, completion, deployment, containerSize,
-           isContainerSizeEnabled} = props;
-    this.name = name;
-    this.instances = instances || 1;
-    this.taskRetryCount = taskRetryCount || 0;
-    this.dockerInfo = dockerInfo || new DockerInfo({});
-    this.ports = ports || [];
-    this.command = command;
-    this.completion = completion || new Completion({});
-    this.deployment = deployment|| new Deployment({});
-    this.containerSize = containerSize || new ContainerSize({});
-    this.isContainerSizeEnabled = isContainerSizeEnabled || false;
-  }
-
-  getTaskPrerequires() {
+    const {uri, auth} = props;
+    this.uri = uri;
+    this.auth = auth;
   }
 
   convertToProtocolFormat() {
+    return {type: 'dockerimage', auth: this.auth, uri: this.uri};
   }
 }
 

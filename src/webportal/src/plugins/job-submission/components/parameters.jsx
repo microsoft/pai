@@ -24,19 +24,22 @@
  */
 
 import React, {useState} from 'react';
-import {getParameterStyle} from './formStyle';
+import {getParameterStyle} from './form-style';
 import {Text, DetailsList, CheckboxVisibility, Stack, ActionButton} from 'office-ui-fabric-react';
-import {KeyValueList} from './KeyValueList';
+import PropTypes from 'prop-types';
+import {KeyValueList} from './key-value-list';
+import {JobParameter} from '../models/job-parameter';
 
 const parameterStyle = getParameterStyle();
 
 const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
                  {key: 'column2', name: 'Value', fieldName: 'itemValue'}];
 
-export const Parameter= () => {
+export const Parameters= (props) => {
+  const {parameters, environment, onChange} = props;
   const [isParameterOn, setParameterOn] = useState(false);
   const [iconName, setIconName] = useState('ChevronDown');
-  const onClick = () => {
+  const _onClick = () => {
     if (!isParameterOn) {
       setIconName('ChevronUp');
     } else {
@@ -45,11 +48,28 @@ export const Parameter= () => {
     setParameterOn(!isParameterOn);
   };
 
+  const _onParametersChange = (updatedParameters) => {
+    if (onChange !== undefined) {
+      onChange(updatedParameters);
+    }
+  };
+
+  const _onParameterAdd = (item) => {
+    const newParameter = new JobParameter({key: item.itemKey, value: item.itemValue});
+    const updatedParameters = [...parameters, newParameter];
+    _onParametersChange(updatedParameters);
+  };
+
+  const _onParameterDelete = (index) => {
+    const updatedParameters = parameters.filter((_, itemIndex) => index !== itemIndex);
+    _onParametersChange(updatedParameters);
+  };
+
   return (
     <Stack gap='m'>
       <Stack horizontal>
-        <Text variant='large'>Parameter</Text>
-        <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle} onClick={onClick}/>
+        <Text styles={parameterStyle.headerText}>Parameter</Text>
+        <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle.actionButton} onClick={_onClick}/>
       </Stack>
       {
         !isParameterOn && <Text>{'you could use these predefined parameters as command variables with prefix \'$\''}</Text>
@@ -57,11 +77,22 @@ export const Parameter= () => {
       {
         isParameterOn &&
         <React.Fragment>
-          <KeyValueList items={[]}/>
-          <Text variant='large'>Environment</Text>
-          <DetailsList items={[]} columns={columns} checkboxVisibility={CheckboxVisibility.hidden} compact/>
+          <KeyValueList items={parameters.map((parameter) => {
+                          return {itemKey: parameter.key, itemValue: parameter.value};
+                        })}
+                        onItemAdd={_onParameterAdd}
+                        onItemDelete={_onParameterDelete}/>
+          <Text styles={parameterStyle.headerText}>Environment</Text>
+          <DetailsList items={environment} columns={columns} checkboxVisibility={CheckboxVisibility.hidden} compact/>
         </React.Fragment>
       }
     </Stack>
   );
 };
+
+Parameters.propTypes = {
+  parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
+  environment: PropTypes.array.isRequired,
+  onChange: PropTypes.func,
+};
+

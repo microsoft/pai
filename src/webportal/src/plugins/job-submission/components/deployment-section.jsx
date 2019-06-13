@@ -24,32 +24,40 @@
  */
 
 import React from 'react';
-import {BasicSection} from './BasicSection';
+import {TextField} from 'office-ui-fabric-react';
+import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
-import {CSpinButton} from './CustomizedComponents';
+import {Deployment} from '../models/deployment';
 
-export const FormSpinButton = (props) => {
-  const {sectionLabel, sectionOptional, onChange, value} = props;
-  const _onChange = (value) => {
+export const DeploymentSection = (props) => {
+  const {onChange, value} = props;
+  const {preCommands, postCommands} = value;
+
+  const _onChange = (keyName, newValue) => {
+    const updatedDeployment = new Deployment(value);
+    updatedDeployment[keyName] = newValue;
     if (onChange !== undefined) {
-      onChange(value);
+      onChange(updatedDeployment);
     }
   };
 
   return (
-    <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
-      <CSpinButton {...props}
-                   min={0}
-                   step={1}
-                   value={value === undefined ? NaN.toString(): value}
-                   onChange={_onChange}/>
+    <BasicSection sectionLabel={'Deployment'} sectionOptional>
+      <TextField label={'PreCommands'}
+                 value={preCommands}
+                 onBlur={(e) => _onChange('preCommands', e.target.value)}
+                 multiline
+                 rows={3}/>
+      <TextField label={'PostCommands'}
+                 value={postCommands}
+                 multiline
+                 rows={3}
+                 onBlur={(e) => _onChange('postCommands', e.target.value)}/>
     </BasicSection>
   );
 };
 
-FormSpinButton.propTypes = {
-  sectionLabel: PropTypes.string.isRequired,
-  sectionOptional: PropTypes.bool,
+DeploymentSection.propTypes = {
+  value: PropTypes.instanceOf(Deployment).isRequired,
   onChange: PropTypes.func,
-  value: PropTypes.number,
 };

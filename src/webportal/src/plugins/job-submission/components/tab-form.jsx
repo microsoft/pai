@@ -26,7 +26,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Pivot, PivotItem, Icon, ActionButton, Stack} from 'office-ui-fabric-react';
-import {getFormClassNames, getTabFromStyle} from './formStyle';
+import {getFormClassNames, getTabFromStyle} from './form-style';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -163,12 +163,16 @@ export class TabForm extends React.Component {
     return (
       <>
         <Stack className={formTabBar} horizontal>
+          <Stack.Item styles={tabFormStyle.tabWapper}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
                    styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
                    selectedKey={this._getItemKeyByIndex(selectedIndex)}>
              {pivotItems}
             </Pivot>
+          </Stack.Item>
+          <Stack.Item disableShrink>
             <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onAddItem.bind(this)}/>
+          </Stack.Item>
         </Stack>
         <Stack styles={tabFormStyle.tabContent}>
           {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}

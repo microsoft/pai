@@ -24,41 +24,45 @@
  */
 
 import React from 'react';
-import {TextField} from 'office-ui-fabric-react';
-import {BasicSection} from './BasicSection';
+import {Stack} from 'office-ui-fabric-react';
+import {getFormPageSytle, getFormShortSectionStyle} from './form-style';
 import PropTypes from 'prop-types';
-import {Deployment} from '../models/deployment';
 
-export const DeploymentSection = (props) => {
-  const {onChange, value} = props;
-  const {preCommands, postCommands} = value;
+const {formPageStyle} = getFormPageSytle();
+const formShortSectionStyle = getFormShortSectionStyle();
 
-  const _onChange = (keyName, newValue) => {
-    if (onChange === undefined) {
-      return;
-    }
-    const deployment = new Deployment(value);
-    deployment[keyName] = newValue;
-    onChange(deployment);
-  };
-
+export const FormPage = (props) => {
   return (
-    <BasicSection sectionLabel={'Deployment'} sectionOptional>
-      <TextField label={'PreCommands'}
-                 value={preCommands}
-                 onChange={(_, v) => _onChange('preCommands', v)}
-                 multiline
-                 rows={3}/>
-      <TextField label={'PostCommands'}
-                 value={postCommands}
-                 multiline
-                 rows={3}
-                 onChange={(_, v) => _onChange('postCommands', v)}/>
-    </BasicSection>
+    <Stack styles={formPageStyle} gap={'l1'}>
+      {props.children}
+    </Stack>
   );
 };
 
-DeploymentSection.propTypes = {
-  value: PropTypes.instanceOf(Deployment).isRequired,
-  onChange: PropTypes.func,
+export const FormSection = (props) => {
+  return (
+    <Stack horizontal gap={'m'}>
+      {props.children}
+    </Stack>
+  );
+};
+
+export const FormShortSection = (props) => {
+  return (
+    <Stack {...props} styles={formShortSectionStyle}>
+      {props.children}
+    </Stack>
+  );
+};
+
+FormPage.propTypes = {
+  children: PropTypes.node,
+};
+
+FormSection.propTypes = {
+  children: PropTypes.node,
+};
+
+FormShortSection.propTypes = {
+  children: PropTypes.node,
 };

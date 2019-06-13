@@ -24,32 +24,41 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
-import {getFormPageSytle} from './formStyle';
+import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {DockerInfo} from '../models/docker-info';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
-const {formPageStyle} = getFormPageSytle();
+export const DockerSection = (props) => {
+  const {onValueChange, value} = props;
+  const {uri} = value;
+  const textFieldId = getId('textField');
 
-export const FormPage = (props) => {
+  const _onChange = (keyName, value) => {
+    const updatedDockerInfo = new DockerInfo(value);
+    updatedDockerInfo[keyName] = value;
+    if (onValueChange !== undefined) {
+      onValueChange(updatedDockerInfo);
+    }
+  };
+
   return (
-    <Stack styles={formPageStyle} gap={'20px'}>
-      {props.children}
-    </Stack>
+    <BasicSection sectionLabel={'Docker'}>
+      <Stack horizontal gap='s1' wrap >
+        <FormShortSection>
+          <TextField id={textFieldId}
+                     placeholder='Enter docker uri...'
+                     onBlur={(event) => _onChange('uri', event.target.value)}
+                     value={uri}/>
+         </FormShortSection>
+        <DefaultButton>Auth</DefaultButton>
+      </Stack>
+    </BasicSection>
   );
 };
 
-export const FormSection = (props) => {
-  return (
-    <Stack horizontal gap={'16px'}>
-      {props.children}
-    </Stack>
-  );
-};
-
-FormPage.propTypes = {
-  children: PropTypes.node,
-};
-
-FormSection.propTypes = {
-  children: PropTypes.node,
+DockerSection.propTypes = {
+  value: PropTypes.instanceOf(DockerInfo).isRequired,
+  onValueChange: PropTypes.func,
 };
