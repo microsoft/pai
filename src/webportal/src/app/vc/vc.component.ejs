@@ -11,7 +11,17 @@
   <div class="tab-content">
       <div role="tabpanel" class="tab-pane active box" id="sharedvc">
           <div class='box-body'>
-            <div class="message-text">Shared VCs share the physical cluster's GPU, CPU and Memory resources by percentage. It provides cluster the flexibility to allocate resources in different nodes in a transparent manner. We support users to add new shared VC from WebUI, the new shared VC's capacity will be allocated from the current default shared VC.</div>
+              <div class="ms-MessageBar">
+                  <div class="ms-MessageBar-content">
+                    <div class="ms-MessageBar-icon">
+                      <i class="ms-Icon ms-Icon--Info"></i>
+                    </div>
+                    <div class="ms-MessageBar-text">
+                        Shared VCs share the physical cluster's GPU, CPU and Memory resources by percentage. It provides cluster the flexibility to allocate resources in different nodes in a transparent manner. We support users to add new shared VC from WebUI, the new shared VC's capacity will be allocated from the current default shared VC.
+                      <br />
+                    </div>
+                  </div>
+                </div>
               <% if (isAdmin === 'true') { %>
                 <button class="btn btn-success btn-xl add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Shared VC</button>
                 <% } %>
@@ -82,7 +92,17 @@
         </div>
       <div role="tabpanel" class="tab-pane box" id="dedicatedvc">
           <div class='box-body'>
-            <div class="message-text ded-message">Dedicated VCs are designed for jobs need dedicated compute resource, a dedicated VC is binding to 1 or more physical nodes. When creating a dedicated VC, currently only supported in <a href="https://github.com/microsoft/pai/blob/master/docs/tools/dedicated_vc.md" class="ms-Link">cmdline tool</a>, we will allocate the nodes from the Shared VC pool and isolate these node(s) for jobs submitting to this new created dedicated VC only. Once the dedicated VC is created, shared VCs are no longer allowed to use compute resources on this dedicated VC.</div>
+              <div class="ms-MessageBar discription-dedvc">
+                <div class="ms-MessageBar-content">
+                  <div class="ms-MessageBar-icon">
+                    <i class="ms-Icon ms-Icon--Info"></i>
+                  </div>
+                  <div class="ms-MessageBar-text">
+                      Dedicated VCs are designed for jobs need dedicated compute resource, a dedicated VC is binding to 1 or more physical nodes. When creating a dedicated VC, currently only supported in <a href="https://github.com/microsoft/pai/blob/master/docs/tools/dedicated_vc.md" class="ms-Link">cmdline tool</a>, we will allocate the nodes from the Shared VC pool and isolate these node(s) for jobs submitting to this new created dedicated VC only. Once the dedicated VC is created, shared VCs are no longer allowed to use compute resources on this dedicated VC.
+                    <br />
+                  </div>
+                </div>
+              </div>
               <table id='dedicated-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
                 <thead>
                   <tr>
