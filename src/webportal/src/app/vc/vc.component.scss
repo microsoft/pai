@@ -109,3 +109,10 @@ ul, li{
 .discription-dedvc {
   margin-bottom: 10px;
 }
+.message-text {
+  background-color: rgb(244, 244, 244);
+  padding: 5px;
+  &.ded-message {
+    margin-bottom: 10px;
+  }
+}
