@@ -65,11 +65,11 @@
 
 ### 使用本机模拟机验证 Job
 
-Some bugs may happen within OpenPAI jobs only, so the code may work well at local, but failed remotely. With local simulator, more environment issues can be found locally.
+一些问题可能只在运行 OpenPAI Job 的时候才会发生，所以代码可能在本机能很好的运行，但在 Job 中却会失败。 使用本机模拟器，就能在本机找到更多环境相关的问题。
 
-OpenPAI Visual Studio Code Client can parse OpenPAI job configuration file and run it in Docker container locally. This simulation can find problems that related to configuration, like mismatched docker image with code dependencies, command line errors, environment variables and so on.
+OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-This simulation can cover most situations at remote, but still limited. For example, the resource specification in configuration is ignored, as in most case, the local computer is not powerful as a GPU server. And when code is simulating locally, it may be much slower, or out of memory. The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues.
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。 在本地模拟运行代码时，可能会非常慢，或者内存不够。 The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues.
 
 Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#local-simulation)。
 
