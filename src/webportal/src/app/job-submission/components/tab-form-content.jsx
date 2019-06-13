@@ -34,6 +34,7 @@ import {CompletionSection} from './completion-section';
 import {DeploymentSection} from './deployment-section';
 import {FormSpinButton} from './form-spin-button';
 import {ContainerSizeSection} from './container-size-section';
+import {CommandSection} from './command-section';
 
 export const TabFormContent = (props) => {
   const {jobTaskRole, onContentChange} = props;
@@ -84,11 +85,8 @@ export const TabFormContent = (props) => {
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          value={jobTaskRole.completion}/>
-      <FormTextField sectionLabel={'Command'}
-                     multiline={true}
-                     rows={10}
-                     value={jobTaskRole.commands}
-                     onBlur={(value)=>_onValueChange('commands', value)}/>
+      <CommandSection value={jobTaskRole.commands}
+                      onChange={(value)=>_onValueChange('commands', value)}/>
       <DeploymentSection value={jobTaskRole.deployment}
                          onChange={(deployment) => _onValueChange('deployment', deployment)}/>
     </FormPage>
