@@ -111,29 +111,29 @@ Job 运行快慢是主观的，因此在试着“修复”这个问题前，需�
 
 Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
-1. **运行之前的失败**，例如，请求的资源超过了限制。 If a job requests resources over what the cluster can provide, the job fails soon. For example, if the cluster has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
+1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 例如，如果服务器只有 24 个 CPU 内核，但 Job 配置中请求了 48 个内核，就会造成 Job 失败。
   
-  For this kind of system failures, the error type is *System Error*.
+  这种系统级的失败，错误类型为 *System Error*。
   
   ![over requested 1](imgs/web_job_details_over1.png)
   
-  Click *application summary* can see error details as below. It explains which resource is exceeded.
+  点击 *application summary* 可看到如下的错误详情。 这里解释了哪项资源超出了限制。
   
   ![over requested 1](imgs/web_job_details_over2.png)
 
-2. **Failures during job running**. If the error type is *User Error*, stdout and stderr provide details of failure. Learn [how to check job log](#how-to-check-job-log) to get failure details.
+2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
   
-  Note, OpenPAI determines job success or not by returned exit code of task instance. The exit code is from command in job configuration usually, which is written by user, but it may be caused by OpenPAI occasionally.
+  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的，但偶尔也会因为 OpenPAI 系统而引起错误。
   
-  The error code depends on the failed command, though there is [a document of exit codes](http://www.tldp.org/LDP/abs/html/exitcodes.html) in Linux.
+  错误代码的意义取决于失败的命令，一般的系统命令可参考 [Linux 下的错误代码说明](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
   
   ![job user error](imgs/web_job_details_exitcode.png)
 
 ## 指南
 
-### How to view job metrics
+### 查看 Job 指标
 
-- Click *Go to Job Metrics Page* in job details page.
+- 点击 Job 详情页面的 *Go to Job Metrics Page*。
 
 ![job link](imgs/web_job_details_metrics.png)
 
