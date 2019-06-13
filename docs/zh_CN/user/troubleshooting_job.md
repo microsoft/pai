@@ -29,7 +29,7 @@
     - [充分了解资源瓶颈](#充分了解资源瓶颈)
   - [诊断问题](#诊断问题) 
     - [Job 等待了数小时](#job-等待了数小时)
-    - [Job 重试了很多次](#job-重试了很多次)
+    - [Job 重试了很多次](#job-is-running-but-retried-many-times)
     - [Job 执行较慢](#job-执行较慢)
     - [Job 失败](#job-失败)
   - [指南](#指南) 
@@ -55,7 +55,7 @@
 
 在本地开发时，调试非常有用，但远程调试却很困难，而在生产环境中几乎无法进行调试。 日志可提供大量的信息，而且适用于各种环境。
 
-要提高日志质量：
+To improve log quality,
 
 1. 更多的使用日志。 在开发阶段，更多的查看日志，避免调试或一次性的打印输出。 如果日志还没有足够的信息，就需要进一步改进。
 2. 减少重复的日志。 重复的日志很容易将有用的信息掩盖住。 因此，重复的日志应该合并，或者完全禁用。
@@ -69,7 +69,10 @@
 
 OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 For example,
+
+- The resource specification in configuration is ignored, as in most case, the local computer is not powerful like a GPU server.
+- When code is simulating locally, it may be much slower, or out of memory. The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues quickly.
 
 在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
 
@@ -77,9 +80,9 @@ OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在
 
 ### 充分了解资源瓶颈
 
-使用 OpenPAI 时，要说明需要的资源，包括 CPU、GPU 以及内存。 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 因此，知道并理解资源瓶颈很重要。
+When using OpenPAI, user needs to specify needed resource, including CPU, GPU and memory. 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 So, to be aware and understand resource bottleneck is important.
 
-OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 了解[如何查看 Job 指标](#查看-job-指标)。
+OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime utilization of resource. 了解[如何查看 Job 指标](#查看-job-指标)。
 
 ## 诊断问题
 
@@ -89,13 +92,13 @@ OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的
 
 可以通过减少请求的资源来缩短 Job 等待的时间。
 
-注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。因此，服务器可能无法同时满足 CPU、内存和 GPU 的资源要求。
+Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers. One server may not meet all resources requirements including CPU, memory, and GPU. So, the job needs to still wait resources under this situation.
 
 ![waiting](imgs/web_job_list_waiting.png)
 
-### Job 重试了很多次
+### Job is running but retried many times
 
-如果 Job 因为系统的问题而失败，OpenPAI 会尝试重新运行 Job。例如，Job 运行时系统进行了升级。 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
+If a job fails by system problems, OpenPAI will try to run the job again, for example, system is upgraded during job running. 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
 
 ![retry](imgs/web_job_detail_retry.png)
 
@@ -111,7 +114,7 @@ Job 运行快慢是主观的，因此在试着“修复”这个问题前，需�
 
 Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
-1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 例如，如果服务器只有 24 个 CPU 内核，但 Job 配置中请求了 48 个内核，就会造成 Job 失败。
+1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 For example, if the servers have only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
   
   这种系统级的失败，错误类型为 *System Error*。
   
@@ -123,9 +126,9 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
   
-  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的，但偶尔也会因为 OpenPAI 系统而引起错误。
+  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 The exit code is from command in job configuration usually, which is written by user. But the exit code of failure may be caused by OpenPAI occasionally.
   
-  错误代码的意义取决于失败的命令，一般的系统命令可参考 [Linux 下的错误代码说明](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
+  The meaning of error code depends on the failed command. For Linux system commands, there is [a specification of exit codes](http://www.tldp.org/LDP/abs/html/exitcodes.html).
   
   ![job user error](imgs/web_job_details_exitcode.png)
 
@@ -133,35 +136,35 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ### 查看 Job 指标
 
-- 点击 Job 详情页面的 *Go to Job Metrics Page*。
+- Click *Go to Job Metrics Page* in job details page.
 
 ![job link](imgs/web_job_details_metrics.png)
 
-- 将打开如下新页面并显示 Job 的指标。
+- A new page is opened and show metrics of this job.
 
 ![job link](imgs/web_job_metrics.png)
 
-- *memory usage* 和 *disk bandwidth* 使用的是绝对值。 这些值很容易理解。
-- *network traffic* 的值不能作为精确值对待，因为收集指标的方法为性能进行了优化。 如果数据连接只活跃了很短时间，就有可能不会被统计到。
-- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 因此，此值可能会超过 100%。 例如，300% 表示 3 个虚拟核心被完全使用。
-- *GPU Utilization* 和 *GPU memory* 是总数，与 *CPU* 不相同。 例如，如果一个环境上分配了 4 块 GPU 卡，50% 表示的是 GPU 卡的平均使用率。
-- 对于分布式 Job，这些值都是所有 Task 实例的平均值。 如果一个 Task Role 有多个实例，这也是平均值。
+- The *memory usage*, and *disk bandwidth* uses absolute value. The value is easy to understand.
+- *network traffic* shouldn't be regarded as an accurate value, as the collection approach is optimized for performance. If a data connection is alive for a short time, it may not be counted.
+- 100% of *CPU*, it means 100% usage of one virtual core. So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
+- *GPU Utilization* and *GPU memory* are total number, so it's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means average usage of those cards.
+- For distributed jobs, the value is average of all task instances. If a task role has multiple instances, it's average also.
 
 用户界面是由 [Grafana](https://grafana.com/) 实现，可查看其网站了解更多详情。
 
 ### 查看 Job 日志
 
-- 点击 Job 详情页面的 *stdout* 或 *stderr*。
+- Click *stdout* or *stderr* in job details page.
   
   ![job link](imgs/web_job_details_loglink.png)
 
-- 会显示如下内容，包含了最新的 4096 字节。 它每 10 秒会自动刷新。
+- It shows log content like below and contains latest 4096 bytes. It refreshes every 10 seconds automatically.
   
-  如果需要查看完整日志，点击 *View Full Log*。
+  If it needs to view full log, click button *View Full Log*.
   
   ![job link](imgs/web_job_details_logview.png)
   
-  *stderr* 和 *stdout* 都是 Task 实例的屏幕输出。 所有输出到屏幕的内容都会近实时的显示在这里。 大多数 Job 运行时的错误都能在这两个文件中找到。
+  The *stderr* and *stdout* is screen output of the task instance. All content, which prints to screen, displays there near real-time. Most errors during job running can be found in the two files.
 
 注意，如果 Task 实例还被未分配资源，就不会有日志文件。
 
@@ -173,30 +176,30 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-会显示如下信息。 按照这些步骤，可以连接到正在运行的 Docker 容器。
+会显示如下信息。 Following steps can connect to the running docker container.
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
 对于分布式 Job，可以通过环境变量从一个容器连接到另一个容器。 例如，`ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` 在 Docker 容器中会被解析为 `ssh worker-0`。
 
-注意，**以下情况无法使用 SSH**：
+Note, the **SSH cannot be used in below cases**,
 
-- Task 实例还未准备好或没有运行。
-- Task 实例已经完成，环境已被回收。 从 v0.11.0 开始，可保留 Task 实例用于调试，参考[保留失败的 Docker 用于调试](#保留失败的-docker-用于调试)。
-- Docker 映像不支持 SSH 连接。 要支持 SSH 连接，必须在 Docker 映像中安装好 *openssh-server* 和 *curl*。
+- The task instance isn't running or ready.
+- The task instance is completed, and environment is recycled. From v0.11.0, the task instance can be reserved for debugging, refer to [reserve failed docker for debugging](#reserve-failed-docker-for-debugging).
+- The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
 
 ### 保留失败的 Docker 用于调试
 
-要保留失败的 Docker 容器用于调试，需要在 jobEnv 字段中设置下列属性。 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
+To reserve failed docker container for debugging, it needs to set the following property in the jobEnv field. 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
 
 ![debugging](./imgs/webportal-job-debugging.png)
 
 参考[这里](../job_tutorial.md)来在 Job 配置中支持 isDebug。
 
-**注意**，Job 启用调试后，Job 所用的资源也会被保留。 为了节省资源，此功能应该只被有限制的使用，而且不应默认开启。 一般调试完成，要手动停止 Job 来释放资源。
+**注意**，Job 启用调试后，Job 所用的资源也会被保留。 To save resources, this feature should be limited used, and shouldn't be enabled by default. 一般调试完成，要手动停止 Job 来释放资源。
 
 ### 寻求帮助
 
-如果本文无法解决问题，可寻找 OpenPAI 集群管理员的帮助。
+Administrators of the OpenPAI cluster may be able to fix issues if this document doesn't work unfortunately.
 
 如果管理员无法修复此问题，或者你就是管理员，欢迎[提交问题或建议](../../../README_zh_CN.md#寻求帮助)。
