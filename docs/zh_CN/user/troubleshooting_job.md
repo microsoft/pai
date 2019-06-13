@@ -21,18 +21,18 @@
 
 与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 本文有助于诊断 OpenPAI 上发生的问题。
 
-- [诊断调试 Job](#troubleshoot-jobs) 
-  - [最佳实践](#best-practice) 
-    - [在本机修复问题](#fix-issues-locally)
-    - [编写易于理解的日志](#write-log-easy-to-understand)
-    - [使用本机模拟机验证 Job](#validate-job-with-local-simulator)
-    - [充分了解资源瓶颈](#know-resource-bottleneck-well)
-  - [诊断问题](#diagnostic-issues) 
+- [诊断调试 Job](#诊断调试-job) 
+  - [最佳实践](#最佳实践) 
+    - [在本机修复问题](#在本机修复问题)
+    - [编写易于理解的日志](#编写易于理解的日志)
+    - [通过本机模拟验证 Job](#通过本机模拟验证-job)
+    - [充分了解资源瓶颈](#充分了解资源瓶颈)
+  - [诊断问题](#诊断问题) 
     - [Job 等待了数小时](#job-is-waiting-for-hours)
-    - [Job 重试了很多次](#job-is-running-and-retried-many-times)
+    - [Job 重试了很多次](#job-重试了很多次)
     - [Job 执行较慢](#job-runs-slowly)
     - [Job 失败](#job-is-failed)
-  - [指南](#guideline) 
+  - [指南](#指南) 
     - [查看 Job 指标](#how-to-view-job-metrics)
     - [查看 Job 日志](#how-to-check-job-log)
     - [使用 SSH 远程连接](#connect-to-running-environments-with-ssh)
@@ -63,7 +63,7 @@
 4. 将相关日志关联起来。 在并行的情况下，并发线程、进程或服务都会同时保存日志。 需要用一个上下文的 ID 将日志关联起来。 如果是分布式的服务，还需要考虑时间的同步。
 5. 什么应该在日志中？ 上文已经部分回答了这个问题。 如果某个内容对诊断问题，进一步分析有帮助，那就应该记录下来。 例如，完整的错误栈等等。
 
-### 使用本机模拟机验证 Job
+### 通过本机模拟验证 Job
 
 一些问题可能只在运行 OpenPAI Job 的时候才会发生，所以代码可能在本机能很好的运行，但在 Job 中却会失败。 使用本机模拟器，就能在本机找到更多环境相关的问题。
 
@@ -193,10 +193,10 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 参考[这里](../job_tutorial.md)来在 Job 配置中支持 isDebug。
 
-**Note**, with debugging is enabled for a job, the resource of this job is reserved also. To save resources for other jobs, this feature should be limited used, and shouldn't be enabled by default. And once debug is completed, the job should be stopped manually to release resources.
+**注意**，Job 启用调试后，Job 所用的资源也会被保留。 为了节省资源，此功能应该只被有限制的使用，而且不应默认开启。 一般调试完成，要手动停止 Job 来释放资源。
 
-### Ask helps
+### 寻求帮助
 
-Administrators of the OpenPAI cluster may be able to fix issues if this guidance doesn't work unfortunately.
+如果本文无法解决问题，可寻找 OpenPAI 集群管理员的帮助。
 
 如果管理员无法修复此问题，或者你就是管理员，欢迎[提交问题或建议](../../../README_zh_CN.md#寻求帮助)。
