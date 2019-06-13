@@ -24,8 +24,8 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 注意，此示例使用的是 Windows 的共享文件夹。 [Samba](https://www.samba.org/) 可在 Linux 下支持这样共享文件夹。 如果要尝试此示例，需要：
 
-1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
-2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
+1. 克隆[相应的代码](https://github.com/tensorflow/models)并共享该文件夹。
+2. 替换所有变量为相应的值，包括：`<AddressOfSharedServer>`，`<SharedFolder>`，`<Username>`，以及 `<Password>`。
 
 ```json
 {
@@ -46,15 +46,15 @@ OpenPAI 会管理计算资源，但不提供数据、代码或模型文件的持
 
 command 字段可分为以下几步。
 
-1. **Prepare environment**. The docker image prepares most dependencies. But if the job needs more components, it can be installed by apt, pip or other command. In this example, `apt update && apt install -y cifs-utils` installs `cifs-utils` to mount the code folder.
+1. **准备环境**。 Docker 镜像已经准备好了大部分依赖。 但如果 Job 需要更多的组件，可通过 apt，pip 或其它命令来安装。 此例中，`apt update && apt install -y cifs-utils` 安装了 `cifs-utils` 来挂载代码文件夹。
   
-  If all dependencies are included into the docker image, it can save time to download and install them during each running. But if dependencies are updated frequently, or various for different job types, they can be installed during job running.
+  如果将所有依赖都包含在 Docker 映像中，可以在每次运行前省下下载和安装时间。 但如果这些依赖更新得非常频繁，或不同的 Job 需要大量的依赖，则可以在 Job 运行时安装。
 
-2. **Prepare files**. `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim`, mounts a shared folder, which contains the code. If other folders contain data or model, they can be mounted as this place also.
+2. **准备文件**。 `mkdir /models && mount -t cifs //<AddressOfSharedServer>/<SharedFolder> /models -o username=<UserName>,password=<Password> && cd /models/research/slim`，挂在了包含代码的共享文件夹。 如果还有其它文件夹包含了数据或模型，也可以在此挂载上。
 
-3. **Run core logic**. The commands, `python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000`, are the same as in [the hello-world example](training.md#submit-a-hello-world-job).
+3. **执行核心逻辑**。 命令 `python3 download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python3 train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --train_dir=/tmp/output --max_number_of_steps=1000` 与 [hello-world 示例](training.md#提交-hello-world-job)中的一样。
 
-4. **Save outputs**. The docker container will be destroyed once job completed. So, if any result file is needed, it should be saved out of the docker container. The command, `cp -rf /tmp/output /models/output`, copies the trained model and checkpoints back to the shared folder.
+4. **保存输出**。 Docker 容器会在每次 Job 完成后被删除。 因此，如果需要任何结果文件，要将其保存到 Docker 容器之外。 命令 `cp -rf /tmp/output /models/output` 将训练后的模型和检查点都复制回了共享文件夹。
 
 注意，此例将所有步骤都放到了 command 字段中。 有些步骤可以放到 Bash 或 Python 脚本中，然后用一条命令来运行。这样可以用脚本来处理更复杂的逻辑。
 
