@@ -29,16 +29,16 @@ import {keyValueArrayReducer} from './utils';
 
 export class JobProtocol {
   constructor(props) {
-    const {protocolVersion, name, type, jobRetryCount, prerequisites,
+    const {name, jobRetryCount, prerequisites,
            parameters, taskRoles, deployments} = props;
-    this.protocolVersion = protocolVersion;
-    this.name = name;
-    this.type = type;
-    this.jobRetryCount = jobRetryCount;
-    this.prerequisites = prerequisites;
-    this.parameters = parameters;
-    this.taskRoles = taskRoles;
-    this.deployments = deployments;
+    this.protocolVersion = 2;
+    this.name = name || '';
+    this.type = 'job';
+    this.jobRetryCount = jobRetryCount || 0;
+    this.prerequisites = prerequisites || [];
+    this.parameters = parameters || {};
+    this.taskRoles = taskRoles || {};
+    this.deployments = deployments || {};
   }
 
   static fromJobComponents(jobBasicInfo, jobTaskRoles, jobParameters) {
