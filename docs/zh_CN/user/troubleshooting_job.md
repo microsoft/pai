@@ -77,9 +77,9 @@ OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在
 
 ### 充分了解资源瓶颈
 
-To use OpenPAI, user needs to specify resource specification, including CPU, GPU and memory. If requested resource is low, the job may be much slower than expected or out of memory. But if a job is assigned too much resource, it's waste also. So, to be aware and understand bottleneck is important.
+使用 OpenPAI 时，要说明需要的资源，包括 CPU、GPU 以及内存。 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 因此，知道并理解资源瓶颈很重要。
 
-OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime consumption of resource. Learn [how to view job metrics](#how-to-view-job-metrics) for details.
+OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 Learn [how to view job metrics](#how-to-view-job-metrics) for details.
 
 ## Diagnostic issues
 
