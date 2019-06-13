@@ -28,7 +28,7 @@
     - [使用本机模拟机验证 Job](#validate-job-with-local-simulator)
     - [充分了解资源瓶颈](#know-resource-bottleneck-well)
   - [诊断问题](#diagnostic-issues) 
-    - [Job 排队了数小时](#job-is-waiting-for-hours)
+    - [Job 等待了数小时](#job-is-waiting-for-hours)
     - [Job 重试了很多次](#job-is-running-and-retried-many-times)
     - [Job 执行较慢](#job-runs-slowly)
     - [Job 失败](#job-is-failed)
@@ -79,39 +79,39 @@ OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在
 
 使用 OpenPAI 时，要说明需要的资源，包括 CPU、GPU 以及内存。 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 因此，知道并理解资源瓶颈很重要。
 
-OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 Learn [how to view job metrics](#how-to-view-job-metrics) for details.
+OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 了解[如何查看 Job 指标](#查看-job-指标)。
 
-## Diagnostic issues
+## 诊断问题
 
-### Job is waiting for hours
+### Job 等待了数小时
 
-In general, jobs of OpenPAI stays in waiting status less than 1 minute. But if there is not enough resource, a job may stay in waiting status longer. When other jobs complete, waiting jobs have a chance getting resource.
+通常，OpenPAI 中的 Job 处于 Waiting 状态不会超过 1 分钟。 但如果没有足够的资源，Job 可能会长时间处于 Waiting 状态。 当其它 Job 完成后，等待的 Job 就有机会获得资源。
 
-One way to reduce waiting time, is to reduce requested resources.
+可以通过减少请求的资源来缩短 Job 等待的时间。
 
-Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers, so server may not meet all resources requirements including CPU, memory, and GPU.
+注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。因此，服务器可能无法同时满足 CPU、内存和 GPU 的资源要求。
 
 ![waiting](imgs/web_job_list_waiting.png)
 
-### Job is running and retried many times
+### Job 重试了很多次
 
-If a job fails by system reasons, OpenPAI will try to run the job again, for example, system is upgraded during job running. If a job retries many times and not this case, administrators of OpenPAI may needs to check what happens.
+如果 Job 因为系统的问题而失败，OpenPAI 会尝试重新运行 Job。例如，Job 运行时系统进行了升级。 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
 
 ![retry](imgs/web_job_detail_retry.png)
 
-### Job runs slowly
+### Job 执行较慢
 
-The running speed of job is subjective, so it needs data to measure, before trying to 'fix' something. Below are several reasons that may make job slowly in OpenPAI.
+Job 运行快慢是主观的，因此在试着“修复”这个问题前，需要通过数据来衡量。 下面是一些可能会造成 Job 在 OpenPAI 上较慢的原因。
 
-1. GPU is not used. Some frameworks, like TensorFlow, need to install GPU edition to enable GPU computing. In most case, the log of framework shows if GPU is in use. Some frameworks, like PyTorch, need to write code explicitly to use GPU. Learn [how to check job log](#how-to-check-job-log) to confirm it in log.
+1. 没有用上 GPU。 有些框架，如 TensorFlow，需要安装 GPU 版本才能使用上 GPU 的算力。 通常情况下，可以通过日志来查看是否用上了 GPU。 像 PyTorch 这样的框架，需要显式的写代码才能用上 GPU。 通过[查看 Job 日志](#查看-job-日志)来确认。
 
-2. Resource bottleneck. Computing resource is not only the potential bottleneck, sometime IO and memory capacity are also bottleneck. Metrics can be used to analyze bottleneck. Refer to [how to view job metrics](#how-to-view-job-metrics) for more information.
+2. 资源瓶颈。 不仅是计算资源有可能成为瓶颈，有时 IO 和内存容量也会是瓶颈。 指标可用来分析瓶颈。 参考[如何查看 Job 指标](#查看-job-指标)来了解详情。
 
-### Job is failed
+### Job 失败
 
-Job failures can be caused by many reasons. In general, it can be categorized to two types due to it happens in different phases.
+Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
-1. **Failures before running**, for example requested resources exceeded capacity. If a job requests resources over what the cluster can provide, the job fails soon. For example, if the cluster has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
+1. **运行之前的失败**，例如，请求的资源超过了限制。 If a job requests resources over what the cluster can provide, the job fails soon. For example, if the cluster has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
   
   For this kind of system failures, the error type is *System Error*.
   
@@ -129,7 +129,7 @@ Job failures can be caused by many reasons. In general, it can be categorized to
   
   ![job user error](imgs/web_job_details_exitcode.png)
 
-## Guideline
+## 指南
 
 ### How to view job metrics
 
@@ -149,7 +149,7 @@ Job failures can be caused by many reasons. In general, it can be categorized to
 
 The UI is implemented by [Grafana](https://grafana.com/), check its web site for more details.
 
-### How to check job log
+### 查看 Job 日志
 
 - Click *stdout* or *stderr* in job details page.
   
