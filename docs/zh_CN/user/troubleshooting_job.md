@@ -137,13 +137,13 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ![job link](imgs/web_job_details_metrics.png)
 
-- A new page is opened and show metrics of this job.
+- 将打开如下新页面并显示 Job 的指标。
 
 ![job link](imgs/web_job_metrics.png)
 
-- The *memory usage*, and *disk bandwidth* uses absolute value. It's easy to understand.
-- *network traffic* shouldn't be regarded as an accurate value, as the collection approach is optimized for performance. If a data connection is alive for a short time, it may not be counted.
-- 100% of *CPU*, it means 100% usage of one virtual core. So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
+- *memory usage* 和 *disk bandwidth* 使用的是绝对值。 这些值很容易理解。
+- *network traffic* 的值不能作为精确值对待，因为收集指标的方法为性能进行了优化。 如果数据连接只活跃了很短时间，就有可能不会被统计到。
+- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
 - *GPU Utilization* and *GPU memory* are total number, so it's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means 2 GPU cards are used.
 - For distributed jobs, the value is average of all task instances. If a task role has multiple instances, it's average also.
 
