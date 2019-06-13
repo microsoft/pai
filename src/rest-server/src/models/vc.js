@@ -22,7 +22,13 @@ const xml2js = require('xml2js');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
 const logger = require('../config/logger');
+const dbUtility = require('../util/dbUtil');
+const secretConfig = require('../config/secret');
 
+const db = dbUtility.getStorageObject('UserSecret', {
+  'paiUserNameSpace': secretConfig.paiUserNameSpace,
+  'requestConfig': secretConfig.requestConfig(),
+});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
@@ -132,7 +138,7 @@ class VirtualCluster {
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
-    this.getVcList((vcList, err) => {
+    this.getVcList(async (vcList, err) => {
       if (err) {
         return callback(err);
       } else if (!vcList) {
@@ -154,6 +160,23 @@ class VirtualCluster {
               'maximum-capacity': maxCapacity,
             };
           } else {
+            // update admin users' permission
+            try {
+              const userList = await db.get('', null);
+              for (const user of userList) {
+                if (user.admin === 'true') {
+                  const vc = user.virtualCluster.trim().split(',');
+                  if (!vc.find((x) => x === vcName)) {
+                    vc.push(vcName);
+                  }
+                  user.virtualCluster = vc.join(',');
+                  await db.set(user.username, user, {update: true});
+                }
+              }
+            } catch (e) {
+              return callback(e);
+            }
+
             data['add-queue'][vcName] = {
               'capacity': capacity,
               'maximum-capacity': maxCapacity,
@@ -263,7 +286,7 @@ class VirtualCluster {
           return callback(createError('Forbidden', 'RemoveRunningVcError',
             `Can't delete vc ${vcName}, ${vcList[vcName]['numJobs']} jobs are running, stop them before delete vc`));
         } else {
-          this.stopVc(vcName, (err) => {
+          this.stopVc(vcName, async (err) => {
             if (err) {
               return callback(err);
             } else {
@@ -283,6 +306,19 @@ class VirtualCluster {
                   [vcName]: null,
                 },
               };
+              // update permission
+              try {
+                const userList = await db.get('', null);
+                for (const user of userList) {
+                  const vc = user.virtualCluster.trim().split(',');
+                  if (vc.find((x) => x === vcName)) {
+                    user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
+                    await db.set(user.username, user, {update: true});
+                  }
+                }
+              } catch (e) {
+                return callback(e);
+              }
 
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
