@@ -19,96 +19,43 @@
 const express = require('express');
 const tokenConfig = require('../config/token');
 const param = require('../middlewares/parameter');
-const authnConfig = require('../config/authn');
-const passport = require('passport');
 const userController = require('../controllers/v2/user');
 const tokenV2Controller = require('../controllers/v2/token');
+const azureADController = require('../controllers/v2/azureAD');
+
+const authnConfig = require('../config/authn');
 
 const router = new express.Router();
 
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
-  /** POST /api/v1/auth/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
+  /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
     .get(
-      function(req, res, next) {
-        passport.authenticate('azuread-openidconnect', {
-            response: res,
-            resourceURL: authnConfig.OIDCConfig.resourceURL,
-            customState: 'my_state',
-            failureRedirect: '/',
-          }
-        )(req, res, next);
-      },
-      function(req, res) {
-        res.redirect('/');
-      }
+      azureADController.requestAuthCode
     );
 
   router.route('/oidc/logout')
-  /** POST /api/v1/auth/oidc/logout */
+  /** POST /api/v1/authn/oidc/logout */
     .get(
-      function(req, res) {
-        req.session.destroy(function(err) {
-          req.logOut();
-          res.redirect(authnConfig.OIDCConfig.destroySessionUrl);
-        });
-      }
+      azureADController.signoutAzureAD
     );
 
   router.route('/oidc/return')
-  /** GET /api/v1/auth/oidc/return - AAD AUTH RETURN */
+  /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
-      function(req, res, next) {
-        passport.authenticate('azuread-openidconnect',
-          {
-            response: res,
-            failureRedirect: '/',
-          }
-        )(req, res, next);
-      },
-      function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.userData = userBasicInfo;
-        next();
-      },
-      userController.createUserIfUserNotExist,
-      tokenV2Controller.get
-    )
-    /** POST /api/v1/auth/openid/return - AAD AUTH RETURN */
-    .post(
-      function(req, res, next) {
-        passport.authenticate('azuread-openidconnect',
-          {
-            response: res,
-            failureRedirect: '/',
-          }
-        )(req, res, next);
-      },
-      function(req, res, next) {
-        // TODO，check user name and return token
-        const email = req._json.email;
-        const username = email.substring(0, email.lastIndexOf('@'));
-        const oid = req._json.oid;
-        const userBasicInfo = {
-          email: email,
-          username: username,
-          oid: oid,
-        };
-        req.username = username;
-        req.userData = userBasicInfo;
-        next();
-      },
+      azureADController.requestTokenWithCode,
+      azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenV2Controller.get
+      tokenV2Controller.getAAD
+    )
+    /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
+    .post(
+      azureADController.requestTokenWithCode,
+      azureADController.parseTokenData,
+      userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
+      tokenV2Controller.getAAD
     );
 } else {
   router.route('/basic/login')

@@ -36,22 +36,22 @@ import url from 'url';
 
 const loginTarget = '/home.html';
 
+if ( config.authnMethod === 'OIDC') {
+    const query = url.parse(window.location.href, true).query;
+    const expiration = 7;
+    if (query['token']) {
+        cookies.set('user', query.user, {expires: expiration});
+        cookies.set('token', query.token, {expires: expiration});
+        cookies.set('admin', query.admin, {expires: expiration});
+        cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
+    }
+}
+
 if (checkToken(false)) {
   window.location.replace(loginTarget);
 }
 
 initializeIcons();
-
-if ( config.authnMethod === 'OIDC') {
-  const query = url.parse(window.location.href, true).query;
-  const expiration = 7 * 24 * 60 * 60;
-  if (query['token']) {
-    cookies.set('user', query.user, {expires: expiration});
-    cookies.set('token', query.token, {expires: expiration});
-    cookies.set('admin', query.admin, {expires: expiration});
-    cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
-  }
-}
 
 const Index = () => {
   const [loginModal, setLoginModal] = useState(false);
@@ -79,7 +79,7 @@ const Index = () => {
         if (config.authnMethod === 'basic') {
           setLoginModal(true);
         } else {
-          location.href = config.restServerUri + '/api/v1/auth/oidc/login?callback=' + encodeURIComponent(location.href);
+          location.href = config.restServerUri + '/api/v1/authn/oidc/login?callback=' + encodeURIComponent(location.href);
         }
       },
       [],

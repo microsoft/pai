@@ -57,6 +57,8 @@ spec:
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
+        - name: WEBPORTAL_URL
+          value: "{{ cluster_cfg['webportal']['webportal-address']}}"
 {% if not cluster_cfg['authentication']['OIDC'] %}
         - name: AUTHN_METHOD
           value: basic

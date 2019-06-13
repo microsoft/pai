@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,22 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+import os
+from hashlib import md5
+from jinja2 import Template
 
-if kubectl get daemonset | grep -q "pylon-ds"; then
-    kubectl delete ds pylon-ds || exit $?
-fi
+env = {}
+for key in os.environ:
+    env[key] = os.environ[key]
 
-if kubectl get service | grep -q "pylon"; then
-    kubectl delete service pylon || exit $?
-fi
+templateString = open('/pylon-config/nginx.conf.template', 'r').read()
 
-if kubectl get configmap | grep -q "https-config"; then
-    kubectl delete configmap https-config || exit $?
-fi
+env.setdefault('PYLON_CONF_ETAG', md5(templateString).hexdigest())
 
-if kubectl get configmap | grep -q "pylon-config"; then
-    kubectl delete configmap pylon-config || exit $?
-fi
-
-popd > /dev/null
+renderedString = Template(templateString).render(env)
+open('/root/nginx.conf', 'w').write(renderedString)

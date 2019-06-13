@@ -21,6 +21,7 @@ const tokenConfig = require('../../config/token');
 const createError = require('../../util/error');
 const userModel = require('../../models/v2/user');
 const authConfig = require('../../config/authn');
+const querystring = require('querystring');
 
 function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
   return new Promise((res, rej) => {
@@ -59,5 +60,31 @@ const get = async (req, res, next) => {
   }
 };
 
+/**
+ *  Get the token in AAD Mode.
+ */
+const getAAD = async (req, res, next) => {
+  try {
+    const username = req.username;
+    const userInfo = await userModel.getUser(username);
+    let admin = false;
+    if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      admin = true;
+    }
+    const token = await jwtSignPromise(userInfo, admin);
+    return res.redirect('http://' + process.env.WEBPORTAL_URL + '/index.html?'+ querystring.stringify({
+      user: userInfo.username,
+      token: token,
+      admin: admin,
+      hasGitHubPAT: userInfo.extension.hasOwnProperty('githubPAT')&& Boolean(userInfo.extension['githubPAT']),
+    }));
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
 // module exports
-module.exports = {get};
+module.exports = {
+  get,
+  getAAD,
+};
