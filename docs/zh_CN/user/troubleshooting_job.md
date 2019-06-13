@@ -69,13 +69,13 @@
 
 OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。 在本地模拟运行代码时，可能会非常慢，或者内存不够。 The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues.
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
 
-Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#local-simulation)。
+在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
 
-Note, as Docker on Windows doesn't support GPU, so TensorFlow needs a docker image with TensorFlow CPU edition for local simulation.
+注意，由于 Docker 在 Windows上不支持 GPU，因此在本机模拟时 TensorFlow 需要使用 CPU 版本的 Docker 映像。
 
-### Know resource bottleneck well
+### 充分了解资源瓶颈
 
 To use OpenPAI, user needs to specify resource specification, including CPU, GPU and memory. If requested resource is low, the job may be much slower than expected or out of memory. But if a job is assigned too much resource, it's waste also. So, to be aware and understand bottleneck is important.
 
