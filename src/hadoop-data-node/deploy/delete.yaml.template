@@ -42,6 +42,8 @@ spec:
         {% endfor %}
         - mountPath: /hadoop-data-node-delete
           name: hadoop-data-node-delete-config
+        - mountPath: /mnt/pai-service-log
+          name: log-path
         env:
         - name: DELETE_CONFIG
           value: hadoop-data-node-delete
@@ -65,3 +67,6 @@ spec:
       - name: hadoop-data-node-delete-config
         configMap:
           name: hadoop-data-node-delete
+      - name: log-path
+        hostPath:
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/pai-service-log
