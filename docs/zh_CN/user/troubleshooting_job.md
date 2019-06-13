@@ -19,7 +19,7 @@
 
 # 诊断调试 Job
 
-Like other remote platforms, job failures in OpenPAI need more effort to find and fix than local. This document helps troubleshooting issues on OpenPAI.
+与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 This document helps troubleshooting issues on OpenPAI.
 
 - [Troubleshoot jobs](#troubleshoot-jobs) 
   - [Best practice](#best-practice) 
