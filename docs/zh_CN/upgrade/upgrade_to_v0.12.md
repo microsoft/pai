@@ -1,4 +1,4 @@
-# Upgrade to v0.11
+# Upgrade to v0.12
 
 We have test the upgrade process against v0.8 and later. It takes hours or more, depends on the number of nodes in the cluster and the internet network speed. During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
 
@@ -13,9 +13,9 @@ Table of Contents
 
 ## Prepare
 
-### Setup a dev-box of v0.11
+### Setup a dev-box
 
-All the commands in the document excuted in dev-box. You will need to prepare a dev-box of v0.11 first. Run the fellow command to create one and work in it:
+All the commands in the document excuted in dev-box. You will need to prepare a dev-box first. Run the fellow command to create one and work in it:
 
 ```bash
 # create dev-box
@@ -28,7 +28,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box:v0.11.0
+        docker.io/openpai/dev-box:v0.12.0
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
@@ -70,7 +70,7 @@ There should be four files under the `path_to_backup_your_config`:
 
 ### Convert and customize cluster configuration
 
-PAI provide a script tools to convert configuration from old style to the v0.11 release.
+PAI provide a script tools to convert configuration from old style.
 
 Usage:
 
@@ -78,8 +78,7 @@ Usage:
 
 Then you could customize the generate config under the directory `path_to_output_new_style_config` per need.
 
-If you are using webportal plug-in before v0.11 (confirmed that if `webportal.plugins` in `services-configuration.yaml`), you need to run an extra script after above command:  
-`./deployment/tools/pluginIdMigration.py path_to_output_new_style_config path_to_output_new_style_config`
+If you are using webportal plug-in before v0.11 (confirmed that if `webportal.plugins` in `services-configuration.yaml`), you need to run an extra script after above command: `./deployment/tools/pluginIdMigration.py path_to_output_new_style_config path_to_output_new_style_config`
 
 ### Validate Cluster Configuration
 
@@ -89,7 +88,7 @@ PAI provide an `check` command for validating configuration, usage as below:
 
 ## Stop Services and Backup Data
 
-### Push The Converted v0.11 Configuration To Cluster
+### Push The Converted Configuration To Cluster
 
 Notices: the configuration pushed to cluster won't take effect until we restart the PAI Services. Use the command like below:
 
@@ -138,4 +137,4 @@ Now the PAI is up, you can visit the PAI dashboard.
 
 ## It's Done
 
-Now you have the release v0.11 install, please check the release-notes for new features.
+Now you have PAI upgraded, please check the release-notes for new features.
