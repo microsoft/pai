@@ -4,8 +4,6 @@ require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
-require('office-ui-fabric-js/dist/css/fabric.min.css');
-require('office-ui-fabric-js/dist/css/fabric.components.min.css');
 const url = require('url');
 //
 require('./vc.component.scss');
