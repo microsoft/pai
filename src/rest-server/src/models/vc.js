@@ -138,7 +138,7 @@ class VirtualCluster {
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
-    this.getVcList(async (vcList, err) => {
+    this.getVcList((vcList, err) => {
       if (err) {
         return callback(err);
       } else if (!vcList) {
@@ -160,23 +160,6 @@ class VirtualCluster {
               'maximum-capacity': maxCapacity,
             };
           } else {
-            // update admin users' permission
-            try {
-              const userList = await db.get('', null);
-              for (const user of userList) {
-                if (user.admin === 'true') {
-                  const vc = user.virtualCluster.trim().split(',');
-                  if (!vc.find((x) => x === vcName)) {
-                    vc.push(vcName);
-                  }
-                  user.virtualCluster = vc.join(',');
-                  await db.set(user.username, user, {update: true});
-                }
-              }
-            } catch (e) {
-              return callback(e);
-            }
-
             data['add-queue'][vcName] = {
               'capacity': capacity,
               'maximum-capacity': maxCapacity,
@@ -190,10 +173,26 @@ class VirtualCluster {
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
           // logger.debug('Xml send to yarn: ', vcdataXml);
-          this.sendUpdateInfo(vcdataXml, (err) => {
+          this.sendUpdateInfo(vcdataXml, async (err) => {
             if (err) {
               return callback(err);
             } else {
+              // update admin users' permission
+              try {
+                const userList = await db.get('', null);
+                for (const user of userList) {
+                  if (user.admin === 'true') {
+                    const vc = user.virtualCluster.trim().split(',');
+                    if (!vc.find((x) => x === vcName)) {
+                      vc.push(vcName);
+                    }
+                    user.virtualCluster = vc.join(',');
+                    await db.set(user.username, user, {update: true});
+                  }
+                }
+              } catch (e) {
+                return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+              }
               return callback(null);
             }
           });
@@ -286,7 +285,7 @@ class VirtualCluster {
           return callback(createError('Forbidden', 'RemoveRunningVcError',
             `Can't delete vc ${vcName}, ${vcList[vcName]['numJobs']} jobs are running, stop them before delete vc`));
         } else {
-          this.stopVc(vcName, async (err) => {
+          this.stopVc(vcName, (err) => {
             if (err) {
               return callback(err);
             } else {
@@ -306,24 +305,11 @@ class VirtualCluster {
                   [vcName]: null,
                 },
               };
-              // update permission
-              try {
-                const userList = await db.get('', null);
-                for (const user of userList) {
-                  const vc = user.virtualCluster.trim().split(',');
-                  if (vc.find((x) => x === vcName)) {
-                    user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
-                    await db.set(user.username, user, {update: true});
-                  }
-                }
-              } catch (e) {
-                return callback(e);
-              }
 
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
               // logger.debug('Xml send to yarn: ', vcdataXml);
-              this.sendUpdateInfo(vcdataXml, (err) => {
+              this.sendUpdateInfo(vcdataXml, async (err) => {
                 if (err) {
                   this.activeVc(vcName, (errInfo) => {
                     if (errInfo) {
@@ -333,6 +319,19 @@ class VirtualCluster {
                     }
                   });
                 } else {
+                  // update permission
+                  try {
+                    const userList = await db.get('', null);
+                    for (const user of userList) {
+                      const vc = user.virtualCluster.trim().split(',');
+                      if (vc.find((x) => x === vcName)) {
+                        user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
+                        await db.set(user.username, user, {update: true});
+                      }
+                    }
+                  } catch (e) {
+                    return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+                  }
                   return callback(null);
                 }
               });
