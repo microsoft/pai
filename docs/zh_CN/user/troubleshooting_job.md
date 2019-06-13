@@ -19,27 +19,27 @@
 
 # 诊断调试 Job
 
-与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 This document helps troubleshooting issues on OpenPAI.
+与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 本文有助于诊断 OpenPAI 上发生的问题。
 
-- [Troubleshoot jobs](#troubleshoot-jobs) 
-  - [Best practice](#best-practice) 
-    - [Fix issues locally](#fix-issues-locally)
-    - [Write log easy to understand](#write-log-easy-to-understand)
-    - [Validate job with local simulator](#validate-job-with-local-simulator)
-    - [Know resource bottleneck well](#know-resource-bottleneck-well)
-  - [Diagnostic issues](#diagnostic-issues) 
-    - [Job is waiting for hours](#job-is-waiting-for-hours)
-    - [Job is running and retried many times](#job-is-running-and-retried-many-times)
-    - [Job runs slowly](#job-runs-slowly)
-    - [Job is failed](#job-is-failed)
-  - [Guideline](#guideline) 
-    - [How to view job metrics](#how-to-view-job-metrics)
-    - [How to check job log](#how-to-check-job-log)
-    - [Connect to running environments with SSH](#connect-to-running-environments-with-ssh)
-    - [Reserve failed docker for debugging](#reserve-failed-docker-for-debugging)
-    - [Ask helps](#ask-helps)
+- [诊断调试 Job](#troubleshoot-jobs) 
+  - [最佳实践](#best-practice) 
+    - [在本机修复问题](#fix-issues-locally)
+    - [编写易于理解的日志](#write-log-easy-to-understand)
+    - [使用本机模拟机验证 Job](#validate-job-with-local-simulator)
+    - [充分了解资源瓶颈](#know-resource-bottleneck-well)
+  - [诊断问题](#diagnostic-issues) 
+    - [Job 排队了数小时](#job-is-waiting-for-hours)
+    - [Job 重试了很多次](#job-is-running-and-retried-many-times)
+    - [Job 执行较慢](#job-runs-slowly)
+    - [Job 失败](#job-is-failed)
+  - [指南](#guideline) 
+    - [查看 Job 指标](#how-to-view-job-metrics)
+    - [查看 Job 日志](#how-to-check-job-log)
+    - [使用 SSH 远程连接](#connect-to-running-environments-with-ssh)
+    - [保留失败的 Docker 来调试](#reserve-failed-docker-for-debugging)
+    - [寻求帮助](#ask-helps)
 
-## Best practice
+## 最佳实践
 
 With best practice, many issues could be addressed earlier, and some tough issues can be resolved easily.
 
