@@ -36,7 +36,7 @@
     - [查看 Job 指标](#how-to-view-job-metrics)
     - [查看 Job 日志](#how-to-check-job-log)
     - [使用 SSH 远程连接](#connect-to-running-environments-with-ssh)
-    - [保留失败的 Docker 来调试](#reserve-failed-docker-for-debugging)
+    - [保留失败的 Docker 用于调试](#reserve-failed-docker-for-debugging)
     - [寻求帮助](#ask-helps)
 
 ## 最佳实践
@@ -173,25 +173,25 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-会显示如下信息。 Follow steps in the dialog, can connect to the running docker container.
+会显示如下信息。 按照这些步骤，可以连接到正在运行的 Docker 容器。
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
-For distributed jobs, it's easy to connect from one to another container by environment variables. For example, `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` is parsed to `ssh worker-0` in a docker container.
+对于分布式 Job，可以通过环境变量从一个容器连接到另一个容器。 例如，`ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` 在 Docker 容器中会被解析为 `ssh worker-0`。
 
-Note, the **SSH connection doesn't support in below cases**,
+注意，**以下情况无法使用 SSH**：
 
-- The task instance isn't running or ready.
-- The task instance is completed, as environment is recycled. From v0.11.0, the task instance can be reserved for debugging, refer to [reserve failed docker for debugging](#reserve-failed-docker-for-debugging).
-- The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
+- Task 实例还未准备好或没有运行。
+- Task 实例已经完成，环境已被回收。 从 v0.11.0 开始，可保留 Task 实例用于调试，参考[保留失败的 Docker 用于调试](#保留失败的-docker-用于调试)。
+- Docker 映像不支持 SSH 连接。 要支持 SSH 连接，必须在 Docker 映像中安装好 *openssh-server* 和 *curl*。
 
-### Reserve failed docker for debugging
+### 保留失败的 Docker 用于调试
 
-To reserve failed docker for debugging, it needs to set the following property in the jobEnv field. If the job is failed by user's command, the container is kept for 1 week by default. The period may be configured by administrators. If the job is success, the container won't be reserved.
+要保留失败的 Docker 容器用于调试，需要在 jobEnv 字段中设置下列属性。 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
 
 ![debugging](./imgs/webportal-job-debugging.png)
 
-Refer to [here](../job_tutorial.md) to enable isDebug in job configuration file.
+参考[这里](../job_tutorial.md)来在 Job 配置中支持 isDebug。
 
 **Note**, with debugging is enabled for a job, the resource of this job is reserved also. To save resources for other jobs, this feature should be limited used, and shouldn't be enabled by default. And once debug is completed, the job should be stopped manually to release resources.
 
