@@ -24,8 +24,8 @@ Below job configuration is similar with the [hello-world example](training.md#su
 
 Note, this example uses a windows shared folder. [Samba](https://www.samba.org/) supports the shared folder on Linux. If you'd like to have a try, it needs to,
 
-  1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
-  2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
+1. Clone [corresponding code](https://github.com/tensorflow/models) and share the folder.
+2. Fill all statements, with corresponding value, including `<AddressOfSharedServer>`, `<SharedFolder>`, `<Username>`, and `<Password>`.
 
 ```json
 {
