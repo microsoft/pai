@@ -41,29 +41,29 @@
 
 ## 最佳实践
 
-With best practice, many issues could be addressed earlier, and some tough issues can be resolved easily.
+通过最佳实践，很多问题能被更早的发现，一些棘手的问题也能被更容易的解决。
 
-### Fix issues locally
+### 在本机修复问题
 
-Troubleshooting issues remotely is hard, so consider fixing an issue at local, instead of investigating it at remote server.
+远程诊断问题较困难，因此要考虑尽量在本机修复问题，而不是在远程服务器上就开始调研。
 
-- If some error happens in remote environment, reproduce it at local firstly, and then try to fix it. It may spend more time on reproducing, but it can be fixed easily in most case.
-- Minimize difference of code logic between local and remote. It makes more logic issue can be found locally.
-- Some issues may be caused by difference between local and remote environments, so that it's not possible to reproduce locally. Try to narrow down the scope where it happens. For example, to write a very small code snippet to reproduce it.
+- 如果远程环境中发生了错误，首先要尝试在本地复现，然后再试着修复它。 这可能会在复现上花更多的时间，但大多数情况下，修复会更容易。
+- 最大限度减少本地和远程代码逻辑的差异。 这样更多的逻辑问题能在本机找到。
+- 某些问题可能是因为远程和本地环境的不同而造成的，因此无法在本地重现。 这时要尝试缩小发生问题的范围。 例如，用非常小的代码片段来重现问题。
 
-### Write log easy to understand
+### 编写易于理解的日志
 
-Debug is very useful at local development, but it's hard to debug remotely, and impossible in production environment mostly. Log provides lots of information and works well in every environment.
+在本地开发时，调试非常有用，但远程调试却很困难，而在生产环境中几乎无法进行调试。 日志可提供大量的信息，而且适用于各种环境。
 
-To make log better,
+要提高日志质量：
 
-1. Use log more. In development phase, look log more and avoid debugging or printing output for one-time use. The log should be improved if it doesn't have enough information.
-2. Reduce duplicated log. The duplicated or repeated log is easy to bury useful information. So, duplicated log should be merged or disabled.
+1. 更多的使用日志。 在开发阶段，更多的查看日志，避免调试或一次性的打印输出。 如果日志还没有足够的信息，就需要进一步改进。
+2. 减少重复的日志。 重复的日志很容易将有用的信息掩盖住。 因此，重复的日志应该合并，或者完全禁用。
 3. Not only dump variables but tell story in log. People, who looks at log, may never see, or forget the code. Besides dump variables' value, the log needs to explain what variables mean in business logic. For example, the log should include why a value is considered as abnormal, how it's critical, how to fix it.
 4. Associate related log with context. In parallel cases, log is dumped by concurrent threads, processes, or servers in same time. A context id is necessary to associate log together. And time synchronization is needed for distributed servers.
 5. What should be logged? It's answered above partially. If something is helpful for troubleshooting, or further analyzing, it should be logged. For example, full error with call stack, and so on.
 
-### Validate job with local simulator
+### 使用本机模拟机验证 Job
 
 Some bugs may happen within OpenPAI jobs only, so the code may work well at local, but failed remotely. With local simulator, more environment issues can be found locally.
 
