@@ -6,11 +6,11 @@
   - [主要方法](#主要方法) 
     - [共享路径](#共享路径)
     - [复制](#复制)
-    - [Docker 内置](#Docker 内置)
+    - [Docker 内置](#docker-内置)
   - [云服务存储（Azure）](#云服务存储（Azure）)
   - [大量小文件](#大量小文件)
   - [大数据量](#大数据量)
-  - [OpenPAI 中的 HDFS](#OpenPAI 中的 HDFS)
+  - [OpenPAI 中的 HDFS](#openpai-中的-hdfs)
 
 ## 为什么要关注存储
 
