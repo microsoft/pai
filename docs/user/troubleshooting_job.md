@@ -92,7 +92,7 @@ In general, jobs of OpenPAI stays in waiting status less than 1 minute. But if t
 
 One way to reduce waiting time, is to reduce requested resources.
 
-Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers. One server may not meet all resources requirements including CPU, memory, and GPU. So the job needs to still wait resources under this situation.
+Note, there may display more free resources in the dashboard of web portal, but resources are distributed on different servers. One server may not meet all resources requirements including CPU, memory, and GPU. So, the job needs to still wait resources under this situation.
 
 ![waiting](imgs/web_job_list_waiting.png)
 
@@ -114,7 +114,7 @@ The running speed of job is subjective, so it needs data to measure, before tryi
 
 Job failures can be caused by many reasons. In general, it can be categorized to two types due to it happens in different phases.
 
-1. **Failures before running**, for example requested resources exceeded capacity. If a job requests resources over what the cluster can provide, the job fails soon. For example, if the servers has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
+1. **Failures before running**, for example requested resources exceeded capacity. If a job requests resources over what the cluster can provide, the job fails soon. For example, if the servers have only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
 
    For this kind of system failures, the error type is *System Error*.
 
