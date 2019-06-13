@@ -17,45 +17,46 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Train models on OpenPAI
+# 在 OpenPAI 上训练模型
 
-- [Train models on OpenPAI](#train-models-on-openpai) 
-  - [Submit a hello-world job](#submit-a-hello-world-job)
-  - [Understand job](#understand-job) 
-    - [Learn hello-world job](#learn-hello-world-job)
-    - [Exchange data](#exchange-data)
-    - [Job workflow](#job-workflow)
-  - [Reference](#reference)
+- [在 OpenPAI 上训练模型](#在-openpai-上训练模型) 
+  - [提交 hello-world Job](#提交-hello-world-job)
+  - [理解 Job](#理解-job) 
+    - [了解 hello-world Job](#了解-hello-world-job)
+    - [传入/传出文件](#传入传出文件)
+    - [Job 流程](#job-流程)
+  - [参考](#参考)
 
-This document is for beginners, who use OpenPAI to train machine learning models or execute other commands.
+本文档适用于 OpenPAI 的新用户。 其介绍了在 OpenPAI 上训练模型或执行其它类型命令的必需知识。
 
-It assumes that you know IP address or domain name and have an account of OpenPAI. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
+在开始之前，确保已经有了 OpenPAI 集群的 IP 地址或域名，以及它的用户名、密码。 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
-## Submit a hello-world job
+## 提交 hello-world Job
 
-The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
+**Job** 在 OpenPAI 中定义了在指定的环境中如何执行命令。 Job 可以是模型训练，其它用途的命令，或者分布在多台服务器上。
 
-Following this section to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow, on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpoenPAI. Next sections include more details to help on submitting real jobs.
+本节介绍了如何提交一个非常简单的 Job，这就像在学习编程语言时，从 hello-world 示例开始一样。 此示例使用 TensorFlow 在 CIFAR-10 数据集上训练模型。 其从互联网下载数据和代码，且没有将训练完的模型复制出来。 通过此示例可初步了解 OpenPAI。 接下来的章节会介绍更多内容，以便于提交真正实用的 Job。
 
-1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. If it doesn't require to login, click *login* link at top right side and input user/password.
+**注意**， Web 界面是提交 Job 的方法之一。 它学起来非常简单，但却不是最高效的提交和管理 Job 的方法。 推荐使用 [OpenPAI VS Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md)，来获得最好的体验。
+
+1. 浏览至 OpenPAI 的 Web 界面。 可从 OpenPAI 管理员那里获取 IP 地址或域名。 在登录页面中，点击 *sign in*，输入用户名、密码。
   
-  After that, OpenPAI will show dashboard as below.
+  之后，OpenPAI 会显示如下的 Job 列表。
   
-  ![dashboard](imgs/web_dashboard.png)
+  ![Job 列表](imgs/web_job_list.png)
 
-2. Click **Submit Job** on the left pane and reach this page.
+2. 单击左边的的 **Submit Job** 并转到此页面。
   
-      ![submit job](imgs/web_submit_job.png)
-      
+  ![提交 Job](imgs/web_submit_job.png)
 
-3. Click **JSON** button. Clear existing content and paste below content in the popped text box, then click save.
+3. 点击 **JSON** 按钮。 在弹出的文本框中，清除现有内容并粘贴下面的内容，然后单击“保存”。
   
-  The content is introduced in next sections.
+  内容将在下一节中介绍。
   
       json
        {
        "jobName": "tensorflow-cifar10",
-       "image": "ufoym/deepo:tensorflow-py36-cu90",
+       "image": "tensorflow/tensorflow:1.12.0-gpu-py3",
        "taskRoles": [
            {
            "name": "default",
@@ -63,107 +64,96 @@ Following this section to submit a very simple job like hello-world during learn
            "cpuNumber": 4,
            "memoryMB": 8192,
            "gpuNumber": 1,
-           "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
+           "command": "apt update && apt install -y git && git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000"
            }
        ]
        }
   
-      ![paste job](imgs/web_paste_json.png)
-      
+  ![粘贴 Job](imgs/web_paste_json.png)
 
-4. It will show as below. Click **Submit** button to submit the job to OpenPAI platform.
+4. 然后点击 **Submit** 按钮将 Job 提交到 OpenPAI 平台。
   
-      ![click submit job](imgs/web_click_submit_job.png)
-      
-      Note, Web portal is one of ways to submit jobs. It's not most efficient way, but simplest way to begin. [OpenPAI VS Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) is recommended to work with OpenPAI.
-      
+  ![点击提交 Job](imgs/web_click_submit_job.png)
 
-5. After submitted, the page redirects to job list, and the submitted job is in list as **waiting** status. Click **Jobs** on right pane can also reach this page.
+5. 提交后，页面重定向到作业列表，提交的作业在列表中为 **Waiting** 状态。 单击左边的 **Jobs** 也可以到达此页面。
   
-      ![job list](imgs/web_job_list.png)
-      
+  ![Job 列表](imgs/web_job_list.png)
 
-6. Click job name to view job details. Keep refreshing the details page, until job status is changed to *Running*, and IP address is assigned in below pane of task role. There are more details and actions, like status, tracking log and so on.
+6. 单击 Job 名称查看详细信息。 开始运行后，Job 状态会变为 *Running*，并且会在下面显示分配给 Task Role 的 IP 地址。 除此之外，还有更多的信息及操作，如状态、查看日志等。
   
-      ![job list](imgs/web_job_details.png)
-      
+  ![Job 列表](imgs/web_job_details.png)
 
-## Understand job
+## 理解 Job
 
-With submitting a hello-world job, this section introduces more knowledge about job, so that you can write your own job configuration easily.
+本届介绍了更多关于 Job 的知识，以便于编写自己的 Job 配置。
 
-### Learn hello-world job
+### 了解 hello-world Job
 
-The **job configuration** is a JSON file, which is posted to OpenPAI. Here uses the hello-world job configuration to understand key fields.
+**Job 配置**是一个发送到 OpenPAI 的 JSON 文件。 hello-world Job 的配置包含了以下必需的关键字段。
 
-The JSON file of job has two levels entries. The top level includes shared information of the job, including job name, docker image, task roles, and so on. The second level is taskRoles, it's an array. Each item in the array specifies commands and the corresponding running environment.
+JSON 文件中的字段有两个级别。 顶级节点是此 Job 的共享信息，包括 Job 名称，Docker 映像， Task Role 等等。 第二级是 taskRoles，是一个数组，其中每一项包含一个命令及其运行环境。
 
 以下是 Job 配置的必需字段，更多字段参考 [Job 配置手册](../job_tutorial.md)。
 
-- **jobName** is the unique name of current job, displays in web also. A meaningful name helps managing jobs well.
+- **jobName** 是当前 Job 的名称。 在每个用户账号中，其必需是唯一的。 有意义的名称有助于管理 Job。
 
 - **image**
   
-      OpenPAI uses [docker](https://www.docker.com/why-docker) to provide runtime environments. Docker is a popular technology to provide isolated environments on the same server. So that OpenPAI can serve multiple resource requests on the same server and provides consistent clean environments.
-      
-      The **image** field is the identity of docker image, which includes customized Python and system packages, to provide a clean and consistent environment for each running.
-      
-      Administrator may set a private docker repository. The hub.docker.com is a public docker repository with a lot of docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, from ufoym/deepo.
-      
-      If an appropriate docker image isn't found, it's not difficult to [build a docker image](../job_docker_env.md) from scratch.
-      
-      Note, if a docker image doesn't include *openssh-server* and *curl* components by default, it cannot use SSH feature of OpenPAI. If SSH is needed, another docker image can be built on top of this image and includes *openssh-server* and *curl*.
-      
-
-- **taskRoles** defines different roles in a job.
+  [Docker](https://www.docker.com/why-docker) 是在服务器上提供虚拟环境的常用技术。 OpenPAI 用 Docker 来提供一致、干净的环境。 通过 Docker，OpenPAI 可以在一台服务器上同时服务多个资源请求。
   
-      For single machine jobs, there is only one item in taskRoles.
-      
-      For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [an example](../job_tutorial.md#a-complete-example).
-      
-
-- **taskRoles/name** is the name of current task role and it's used in environment variables for communication in distributed jobs.
-
-- **taskRoles/taskNumber** is number of current task instances. For single server jobs, it should be 1. For distributed jobs, it depends on how many instances are needed for this task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 docker containers as workers should be instantiated for this task.
-
-- **taskRoles/cpuNumber**, **taskRoles/memoryMB**, **taskRoles/gpuNumber** are easy to understand. They specify corresponding hardware resources including count of CPU core, MB of memory, and count of GPU.
-
-- **taskRoles/command** is what user want to run in this task role. It can be multiple commands, which are joint by `&&` like in terminal. In the hello-world job configuration, it clones code from GitHub, downloads data and then executes the training progress within one line.
+  **image** 字段是 Docker 映像的标识，其中已经安装好了定制的 Python 和系统的组件包。
   
-      Like the hello-world job, user needs to construct command(s) to get code, data and trigger executing.
-      
-
-### Exchange data
-
-The data here doesn't only mean *dataset* of machine learning, also includes all files and information, like code, scripts, trained model, and so on. Most model training and other kinds of jobs need to exchange data between docker container and outside.
-
-OpenPAI creates a clean docker container. Some data can be built into docker image directly if it's changed rarely.
-
-If it needs to exchange data on runtime, the command, which passes to docker in job configuration, needs to initiate the data exchange progress. For example, use `git`, `wget`, `scp`, `sftp` or other commands to copy data in and out. If some command is not built in docker, it can be installed in the command by `apt install` or `python -m pip install`.
-
-It's better to check with administrator of the OpenPAI cluster, since there may be suggested approaches and examples already.
-
-### Job workflow
-
-Once job configuration is ready, next step is to submit it to OpenPAI. 推荐使用 [Visual Studio Code OpenPAI 扩展](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md)来提交 Job。 Both web UI and extension through [RESTful API of OpenPAI](../rest-server/API.md) to manage jobs. So, it's possible to implement your own script or tool.
-
-After received job configuration, OpenPAI processes it as below steps.
-
-1. Wait to allocate resource. As job configuration, OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts to run very soon. If there is not enough resource, job is queued and wait previous job to complete.
+  hub.docker.com 是共享的 Docker 存储库，有很多 Docker 映像。 深度学习训练任务推荐使用 hub.docker.com 上的 [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo)。 在 hello-world 示例中，使用了 ufoym/deepo 中的 Tensorflow 映像：*ufoym/deepo:tensorflow-py36-cu90*。 管理员可以设置专用的 Docker 存储库。
   
-      Note, distributed jobs start to run when first environment is ready. But user code can still wait until enough container(s) are running to execute actual progress. The job status is set to *Running* on OpenPAI as well, once one container is running.
-      
+  如果没有找到合适的 Docker 映像，可参考[构建 Docker 映像](../job_docker_env.md)，能很容易的定制一个 Docker 映像。
+  
+  注意，如果 Docker 映像没有包括 *openssh-server* 和 *curl* 包，则无法使用 OpenPAI 的 SSH 功能。 如果需要 SSH 功能，可在已有的 Docker 映像上构造一个包含 *openssh-server* 和 *curl* 的新 Docker 映像。
 
-2. Initialize docker container. OpenPAI pulls the docker image, which is specified in configuration, if it doesn't exist locally. After docker container started, OpenPAI executes some initialization and then run user's command(s).
+- **taskRoles** 定义了 Job 中的不同角色。
+  
+  对于单机运行的 Job，在 taskRoles 中只有一个角色。
+  
+  对于分布式的 Job，taskRoles 中可能会有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 相应的在 Job 配置中需要两个任务角色，参考[示例](../job_tutorial.md#a-complete-example)，来了解详细信息。
 
-3. Execute user commands. During user command executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. There also are metrics to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
+- **taskRoles/name** 是任务角色的名称，还会被用于分布式 Job 的环境变量中。
 
-4. Finalize job running. Once user's command completed. OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resource for next job.
+- **taskRoles/taskNumber** 是任务角色的实例数量。 在单服务器 Job 中，其为 1。 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 这表示 worker 角色会被实例化出 8 个 Docker 容器。
 
-When job is submitted to OpenPAI, user can see job's status changing from waiting, to running, then to succeeded or failed. It may be stopped if the job is interrupted by user or system.
+- **taskRoles/cpuNumber**，**taskRoles/memoryMB**，**taskRoles/gpuNumber** 非常容易理解。 它们指定了相应的硬件资源，包括 CPU 核数量，内存（MB），以及 GPU 数量。
 
-## Reference
+- **taskRoles/command** 是此任务角色要运行的命令。 可以是多个命令，像在终端中一样，通过 `&&` 组合到一起。 例如，在 hello-world Job 中，命令会从 GitHub 中克隆代码，下载数据，然后执行训练过程。
+  
+  像 hello-world Job 一样，用户需要构造命令来获取代码、数据，并开始执行。
 
-- [Full spec of job configuration](../job_tutorial.md)
-- [Examples](../../../examples)
-- [Troubleshooting job failure](troubleshooting_job.md)
+### 传入/传出文件
+
+大多数模型训练以及其它类型的 Job 都需要在运行环境内外间传输文件。 这些文件包括数据集、代码、脚本、训练好的模型等等。
+
+OpenPAI 会管理计算资源，但不会管理持久化的存储资源。 [如何使用存储](storage.md)可帮助 OpenPAI 用户来理解并使用存储。
+
+最好与 OpenPAI 集群的管理员确认如何传输文件，他们可能已经选出了最合适的方法和示例。
+
+### Job 流程
+
+Job 配置准备好后，下一步则需要将其提交到 OpenPAI。 推荐使用 [Visual Studio Code OpenPAI Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 来提交 Job。
+
+注意，WEB 界面和 Visual Studio Code Client 都通过 [RESTful API](../rest-server/API.md) 来访问 OpenPAI。 可使用 RESTful API 来定制客户端体验。
+
+收到 Job 配置后， OpenPAI 按以下步骤处理。
+
+1. 等待分配资源。 OpenPAI 会等待分配到足够的资源，包括 CPU，内存和 GPU。 如果资源足够，Job 会很快开始。 如果资源不够，Job 会进入队列，并等待前面的 Job 结束后释放资源。
+
+2. 初始化 Docker 容器。 如果指定的 Docker 映像不在本地， OpenPAI 会拉取它。 随后，OpenPAI 会初始化 Docker 容器。
+
+3. 运行配置中的命令。 在命令执行过程中，OpenPAI 会近实时的输出 [stdout 和 stderr](troubleshooting_job.md)。 还可通过一些指标来[监控工作负载](troubleshooting_job.md#查看-job-指标)。
+
+4. 结束 Job。 命令完成后，OpenPAI 会用最后的退出代码作为信号来决定 Job 是否成功结束。 0 表示成功，其它值表示失败。 随后，OpenPAI 会回收资源，以便运行下一个 Job。
+
+当 Job 提交到 OpenPAI 后， Job 会从 waiting，切换到 running，然后是 succeeded 或 failed。 如果 Job 被用户或系统中断了，状态也可能显示为 stopped。
+
+## 参考
+
+- [Job 配置的完整说明](../job_tutorial.md)
+- [示例](../../../examples)
+- [调研 Job 错误](troubleshooting_job.md)
+- [如何使用存储](storage.md)

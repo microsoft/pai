@@ -17,205 +17,189 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Troubleshoot job
+# 诊断调试 Job
 
-Like other platforms, the job failures in OpenPAI need more effort to find and fix than local code. This document helps troubleshooting issues on OpenPAI.
+与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 本文有助于诊断 OpenPAI 上发生的问题。
 
-- [Troubleshoot job](#troubleshoot-job) 
-  - [Best practice](#best-practice) 
-    - [Fix issues locally](#fix-issues-locally)
-    - [Make log clear](#make-log-clear)
-    - [Validate job with local simulator](#validate-job-with-local-simulator)
-    - [Know resource bottleneck well](#know-resource-bottleneck-well)
-  - [Diagnostic issues](#diagnostic-issues) 
-    - [Job is waiting for hours](#job-is-waiting-for-hours)
-    - [Job is running, but no IP address, ports, and GPU assigned](#job-is-running-but-no-ip-address-ports-and-gpu-assigned)
-    - [Job is running and retried many times](#job-is-running-and-retried-many-times)
-    - [Job runs slowly](#job-runs-slowly)
-    - [Job is failed](#job-is-failed)
-  - [Guidance](#guidance) 
-    - [How to view job metrics](#how-to-view-job-metrics)
-    - [How to check job log](#how-to-check-job-log)
-    - [Connect to running environments with SSH](#connect-to-running-environments-with-ssh)
-    - [Reserve failed docker for debugging](#reserve-failed-docker-for-debugging)
-    - [Ask helps](#ask-helps)
+- [诊断调试 Job](#诊断调试-job) 
+  - [最佳实践](#最佳实践) 
+    - [在本机修复问题](#在本机修复问题)
+    - [编写易于理解的日志](#编写易于理解的日志)
+    - [通过本机模拟验证 Job](#通过本机模拟验证-job)
+    - [充分了解资源瓶颈](#充分了解资源瓶颈)
+  - [诊断问题](#诊断问题) 
+    - [Job 等待了数小时](#job-等待了数小时)
+    - [Job 重试了很多次](#job-重试了很多次)
+    - [Job 执行较慢](#job-执行较慢)
+    - [Job 失败](#job-失败)
+  - [指南](#指南) 
+    - [查看 Job 指标](#查看-job-指标)
+    - [查看 Job 日志](#查看-job-日志)
+    - [使用 SSH 远程连接](#使用-ssh-远程连接)
+    - [保留失败的 Docker 用于调试](#保留失败的-docker-用于调试)
+    - [寻求帮助](#寻求帮助)
 
-## Best practice
+## 最佳实践
 
-With best practice, many issues could be addressed earlier with low cost, and some tough issues can be found easily also.
+通过最佳实践，很多问题能被更早的发现，一些棘手的问题也能被更容易的解决。
 
-### Fix issues locally
+### 在本机修复问题
 
-Troubleshooting issues remotely is hard, so keep in mind to consider fix an issue at local, not to investigate it at remote server immediately.
+远程诊断问题较困难，因此要考虑尽量在本机修复问题，而不是在远程服务器上就开始调研。
 
-- If some error happens in remote environment, try to reproduce it at local firstly, and then try to fix it. It may spend more time on reproducing, but the time returns later mostly.
-- Minimize code difference between local and remote. That makes it's easy to reproduce problems locally.
-- Some issues may be caused by difference between local and remote environments, try to narrow down the difference where it happens. For example, to write a very small code snippet to reproduce it remotely.
+- 如果远程环境中发生了错误，首先要尝试在本地复现，然后再试着修复它。 这可能会在复现上花更多的时间，但大多数情况下，修复会更容易。
+- 最大限度减少本地和远程代码逻辑的差异。 这样更多的逻辑问题能在本机找到。
+- 某些问题可能是因为远程和本地环境的不同而造成的，因此无法在本地重现。 这时要尝试缩小发生问题的范围。 例如，用非常小的代码片段来重现问题。
 
-### Make log clear
+### 编写易于理解的日志
 
-Debug is very useful at local development, but it's hard to use remotely, and most impossible in production environment. Log provides lots of information and works well in most environments.
+在本地开发时，调试非常有用，但远程调试却很困难，而在生产环境中几乎无法进行调试。 日志可提供大量的信息，而且适用于各种环境。
 
-To use log better,
+要提高日志质量：
 
-1. Use log more when developing. In development phase, avoid debugging, or printing output for one-time use. The log should be improved if it doesn't have enough information to understand an issue. Some issue may be fixed locally or happens seldom, but it may happen at remote environment. Once it happens, the log can help locating.
-2. Reduce duplicated content. The duplicated or repeated content is easy to bury useful information. So, duplicated content should be merged or disable.
-3. Tell story in log, not just dump variables. People, who look log, may never see code, or forget it. Besides dump variable's value, the log needs to explain what variables mean in business logic. For example, when some variable is abnormal, the log should include why it's considered as abnormal, how it's critical, how to fix it.
-4. Associate related log with context. In some parallel cases, log is dumped by concurrent threads, processes, or servers in same time. A context id is necessary to associate log together. And time synchronization is needed for distributed servers.
-5. What should be logged? It's answered above partially. If something is helpful for troubleshooting, or further analyzing, it should be logged. For example, full error with call stack, and so on.
+1. 更多的使用日志。 在开发阶段，更多的查看日志，避免调试或一次性的打印输出。 如果日志还没有足够的信息，就需要进一步改进。
+2. 减少重复的日志。 重复的日志很容易将有用的信息掩盖住。 因此，重复的日志应该合并，或者完全禁用。
+3. 不仅打印变量，还要讲故事。 查看日志的人可能永远不会看代码，或者已经忘记了代码逻辑。 除了打印变量值以外，日志还要解释变量在业务逻辑中的意义。 例如，日志应该说明为什么这个值被认为时异常值，它有多重要，如何修复。
+4. 将相关日志关联起来。 在并行的情况下，并发线程、进程或服务都会同时保存日志。 需要用一个上下文的 ID 将日志关联起来。 如果是分布式的服务，还需要考虑时间的同步。
+5. 什么应该在日志中？ 上文已经部分回答了这个问题。 如果某个内容对诊断问题，进一步分析有帮助，那就应该记录下来。 例如，完整的错误栈等等。
 
-### Validate job with local simulator
+### 通过本机模拟验证 Job
 
-Some bugs may happen within OpenPAI jobs only, so the code may run well at local, but failed remotely. With local simulator, more environment issues can be found locally.
+一些问题可能只在运行 OpenPAI Job 的时候才会发生，所以代码可能在本机能很好的运行，但在 Job 中却会失败。 使用本机模拟器，就能在本机找到更多环境相关的问题。
 
-OpenPAI VS Code Client can consume OpenPAI job configuration file and run in Docker container locally. This simulation can find problems that related to job configuration files, mismatched docker image with code dependencies, command line errors, environment variables and so on.
+OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在本机的 Docker 容器中运行 Job。 这样的模拟可以找到很多与配置相关的问题，比如 Docker 映像和代码中需要的依赖不相匹配，命令行写错了，环境变量等等。
 
-OpenPAI VS Code Client covers most situations at remote, but still limited, like the resource specification in configuration is ignored, as in most case, the local workstation is not powerful as a GPU server. When code is running locally, it may be much slower, and may be out of memory. The code or command can be modified to avoid this kind of issues and reduce training times at local to disclose more remote issues.
+虽然这样的模拟能覆盖大部分远程运行的情况，但仍然有其局限。 例如：
 
-Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to [here](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) to install and learn how to [simulate Job Running](../../../contrib/pai_vscode/README_zh_CN.md#simulate-job-running).
+- 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。
+- 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
 
-Note, as Docker on Windows doesn't support GPU, so TensorFlow may need a docker image with CPU package for local simulation.
+在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
 
-### Know resource bottleneck well
+注意，由于 Docker 在 Windows上不支持 GPU，因此在本机模拟时 TensorFlow 需要使用 CPU 版本的 Docker 映像。
 
-To use OpenPAI, user needs to specify resource specification, including CPU, GPU and memory. If requested resource is too low, the job may be much slower than expected or out of memory. But if a job is assigned too much resource, it's waste also. So, to be aware and understand bottleneck is important.
+### 充分了解资源瓶颈
 
-OpenPAI provides metrics of CPU, memory, and GPU, and it can be used to understand runtime consumption of resource. Learn [how to check job metrics](#how-to-check-job-metrics) for details.
+使用 OpenPAI 时，要说明需要的资源，包括 CPU、GPU 以及内存。 如果请求的资源太少， Job 可能会运行得非常慢或者出现内存不足的错误。 但如果给 Job 分配了过多的资源，就会被浪费掉。 因此，知道并理解资源瓶颈很重要。
 
-## Diagnostic issues
+OpenPAI 提供了 CPU、内存以及 GPU 的指标，可用来了解运行时的资源使用情况。 了解[如何查看 Job 指标](#查看-job-指标)。
 
-### Job is waiting for hours
+## 诊断问题
 
-In general, jobs of OpenPAI stays in waiting status less than 1 minute before running. But if there is not enough resource, a job may stay in waiting status longer. In this case, waiting jobs are in queue, and will be executed later.
+### Job 等待了数小时
+
+通常，OpenPAI 中的 Job 处于 Waiting 状态不会超过 1 分钟。 但如果没有足够的资源，Job 可能会长时间处于 Waiting 状态。 当其它 Job 完成后，等待的 Job 就有机会获得资源。
+
+可以通过减少请求的资源来缩短 Job 等待的时间。
+
+注意，Web 界面上可能会显示出有较多的空闲资源，但这些资源分布在不同的服务器上。 因此，每台服务器可能都无法同时满足 CPU、内存和 GPU 的资源要求。 因此，在这种情况下，Job 仍会等待资源。
 
 ![waiting](imgs/web_job_list_waiting.png)
 
-### Job is running, but no IP address, ports, and GPU assigned
+### Job 重试了很多次
 
-As the design of OpenPAI, there are two phases to request resources. In first phase, job is in waiting status. In second phase, job is running, but the task role(s) may be requesting resources yet. When a job is running, it doesn't mean task roles of the job are assigned resource. If there is no IP address displayed, it means the task roles are requesting resource. If there is enough resource, the task container can start in seconds. If there is not enough resource available, the task roles keep like below status.
-
-![no IP](imgs/web_job_detail_noip.png)
-
-When some jobs complete, the task roles of waiting jobs have a chance to get resource. One way to start waiting jobs earlier, is to reduce requested resources, so this job may get enough resource easier.
-
-Note, there may have more free resources than requested in dashboard of web portal. But resources are distributed on different servers, there may be no one server meet all resources requirement of CPU, memory, and GPU.
-
-### Job is running and retried many times
-
-If a job fails by system reasons, OpenPAI retries to run the job again.
-
-For example, as OpenPAI has two phases to request resources, it may be timeout in second phase. OpenPAI retries the job to request resources again. Check above [job is running, but no IP address, ports, and GPU assigned](#job-is-running-but-no-ip-address-ports-and-gpu-assigned) to check if it's caused by limited resource. If a job retries many times, and isn't caused by limited resource, administrators of OpenPAI may needs to check why it happens.
+如果 Job 因为系统的问题而失败，OpenPAI 会尝试重新运行 Job。例如，Job 运行时系统进行了升级。 如果 Job 重试了多次，并且不是因为这个原因，管理员可能需要检查发生了什么问题。
 
 ![retry](imgs/web_job_detail_retry.png)
 
-### Job runs slowly
+### Job 执行较慢
 
-The running speed of job is subjective sometime, so it needs more fact and data to measure, before trying to fix something. Below are several reasons that may make job slowly in OpenPAI.
+Job 运行快慢是主观的，因此在试着“修复”这个问题前，需要通过数据来衡量。 下面是一些可能会造成 Job 在 OpenPAI 上较慢的原因。
 
-1. GPU is not enabled. Some frameworks, like TensorFlow, need to install GPU package to enable GPU computing. In most case, the log of framework shows if GPU is in use. Some frameworks, like PyTorch, need to write code to use GPU explicitly. Learn [how to check job log](#how-to-check-job-log) to validate it in log.
+1. 没有用上 GPU。 有些框架，如 TensorFlow，需要安装 GPU 版本才能使用上 GPU 的算力。 通常情况下，可以通过日志来查看是否用上了 GPU。 像 PyTorch 这样的框架，需要显式的写代码才能用上 GPU。 通过[查看 Job 日志](#查看-job-日志)来确认。
 
-2. Resource bottleneck. Computing resource is not the only potential bottleneck, IO and memory capacity are also bottleneck sometime. When job is running in OpenPAI, metrics can be used to analyze bottleneck. Refer to [how to check job metrics](#how-to-check-job-metrics) for more information.
+2. 资源瓶颈。 不仅是计算资源有可能成为瓶颈，有时 IO 和内存容量也会是瓶颈。 指标可用来分析瓶颈。 参考[如何查看 Job 指标](#查看-job-指标)来了解详情。
 
-### Job is failed
+### Job 失败
 
-Job failures can be caused by many reasons. In general, it can be categorized to two types due to in different phases.
+Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
-1. **Failures before running**, for example requested resources over capacity. If a job requests resources over the OpenPAI cluster can provide, the job fails soon. For example, if the cluster has only 24 cores of CPU, but user requests 48 cores in a job configuration, it causes job failure.
+1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 例如，如果服务器只有 24 个 CPU 内核，但 Job 配置中请求了 48 个内核，就会造成 Job 失败。
   
-  For this kind of system failures, there is no resource assigned, no IP, ports and GPUs as below.
+  这种系统级的失败，错误类型为 *System Error*。
   
   ![over requested 1](imgs/web_job_details_over1.png)
   
-  Click *View Application Summary*, there is an exception like below. it specifies which resource is over than maximum number.
+  点击 *application summary* 可看到如下的错误详情。 这里解释了哪项资源超出了限制。
   
   ![over requested 1](imgs/web_job_details_over2.png)
-  
-  Note, there may be other kinds of failures happening. If no resource assigned, click *View Application Summary* to get details of failures.
 
-2. **Failures during job running**. If IP address and GPU are assigned, it means task instance is running. In this case, log provides details of failure. Learn [how to check job log](#how-to-check-job-log) to get failure details.
+2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
   
-  Note, OpenPAI detects job failure by returned non-zero exit code of task instance. The exit code is from specified command in job configuration usually, and it may be caused by OpenPAI errors occasionally.
+  注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的。 但偶尔也会是 OpenPAI 的系统错误代码。
   
-  The error code depends on the failed command, though there is [a document for exit codes](http://www.tldp.org/LDP/abs/html/exitcodes.html) of Linux.
+  错误代码的意义取决于具体的命令。 Linux 的系统命令，可参考[退出代码规范](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
   
-  ![job link](imgs/web_job_details_exitcode.png)
+  ![job user error](imgs/web_job_details_exitcode.png)
 
-## Guidance
+## 指南
 
-### How to view job metrics
+### 查看 Job 指标
 
-- Click *Go to Job Metrics Page* as below in job details page, if some tasks are assigned IP, and ports.
+- 点击 Job 详情页面的 *Go to Job Metrics Page*。
 
 ![job link](imgs/web_job_details_metrics.png)
 
-- A new page is opened and show metrics of this job.
+- 将打开如下新页面并显示 Job 的指标。
 
 ![job link](imgs/web_job_metrics.png)
 
-- The *memory usage*, and *disk bandwidth* uses absolute value. It's easy to understand.
-- *network traffic* shouldn't be regarded as an accurate value, as the collection approach is optimized for performance. If a data connection is alive for a short time, it may not be counted.
-- 100% of *CPU*, it means 100% of one virtual core. So, the value may be more than 100%. For example, 300% means 3 virtual cores are occupied fully.
-- *GPU Utilization* and *GPU memory* are total value. It's different with *CPU*. For example, if 4 GPU cards are assigned to an environment, 50% usage means 2 GPU cards are used.
-- For distributed jobs, the value is average of all task instances. If a task role has multiple instances, it's average also.
+- *memory usage* 和 *disk bandwidth* 使用的是绝对值。 这些值很容易理解。
+- *network traffic* 的值不能作为精确值对待，因为收集指标的方法为性能进行了优化。 如果数据连接只活跃了很短时间，就有可能不会被统计到。
+- *CPU* 的 100% 表示一个虚拟内核使用了 100%。 因此，此值可能会超过 100%。 例如，300% 表示 3 个虚拟核心被完全使用。
+- *GPU Utilization* 和 *GPU memory* 是总数，与 *CPU* 不相同。 例如，如果一个环境上分配了 4 块 GPU 卡，50% 表示的是 GPU 卡的平均使用率。
+- 对于分布式 Job，这些值都是所有 Task 实例的平均值。 如果一个 Task Role 有多个实例，这也是平均值。
 
-The UI is implemented by [Grafana](https://grafana.com/), check its web site for more details.
+用户界面是由 [Grafana](https://grafana.com/) 实现，可查看其网站了解更多详情。
 
-### How to check job log
+### 查看 Job 日志
 
-- Click *Go to Tracking Page* in job details page, if IP address, ports and GPU are assigned.
-
-![job link](imgs/web_job_details_loglink.png)
-
-- A new page is opened and shows log of yarn platform.
+- 点击 Job 详情页面的 *stdout* 或 *stderr*。
   
-  It may show like below, with file name only. Click file names, it shows last 4096 bytes of that file.
-  
-  ![job link](imgs/web_log_list1.png)
-  
-  Or it shows like below with last lines directly. Scroll down can find other files.
-  
-  ![job link](imgs/web_log_list2.png)
-  
-  In both cases, the page includes 4 files for a task instance, *DockerContainerDebug.log*, *YarnContainerDebug.log*, *stderr*, and *stdout*. Click *refresh* button of browser can show latest last 4k bytes. Click *here* shows the full log.
-  
-  *stderr* and *stdout* is screen output of the task instance. So, all content, that user prints to screen, displays there near real-time. Hints of most errors can be found in the two files. *DockerContainerDebug.log*, *YarnContainerDebug.log* can find some errors like out of memory for GPU, if there is no hint in *stderr* and *stdout*.
+  ![job link](imgs/web_job_details_loglink.png)
 
-Note, if a task instance has no resource assigned, there is no log file.
+- 会显示如下内容，包含了最新的 4096 字节。 它每 10 秒会自动刷新。
+  
+  如果需要查看完整日志，点击 *View Full Log*。
+  
+  ![job link](imgs/web_job_details_logview.png)
+  
+  *stderr* 和 *stdout* 都是 Task 实例的屏幕输出。 所有输出到屏幕的内容都会近实时的显示在这里。 大多数 Job 运行时的错误都能在这两个文件中找到。
 
-### Connect to running environments with SSH
+注意，如果 Task 实例还被未分配资源，就不会有日志文件。
 
-With SSH, any command can be run in an environment, and it provides familiar ways for terminal users.
+### 使用 SSH 远程连接
 
-For a running task instance, if it supports SSH connection, Click the link *View SSH Info*.
+通过 SSH，可以在环境中运行任何命令，这也为终端用户提供了熟悉的使用方法。
+
+如果正在运行的 Task 实例支持 SSH，点击 *View SSH Info*。
 
 ![job SSH](imgs/web_job_detail_ssh.png)
 
-It pops up information as below. Follow steps in the dialog, can connect to the running docker container.
+会显示如下信息。 按照其中的步骤可连接到正在运行的 Docker 容器。
 
 ![job SSH info](imgs/web_job_details_ssh_info.png)
 
-For distributed jobs, it's easy to connect from one to another container by environment variables. For example, `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` is parsed to `ssh worker-0` in a docker container.
+对于分布式 Job，可以通过环境变量从一个容器连接到另一个容器。 例如，`ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` 在 Docker 容器中会被解析为 `ssh worker-0`。
 
-Note, the **SSH connection doesn't support in below cases**,
+注意，**以下情况无法使用 SSH**：
 
-- The task instance isn't running or ready.
-- The task instance is completed, as environment is recycled. From v0.11.0, the task instance can be reserved for debugging, refer to [reserve failed docker for debugging](#reserve-failed-docker-for-debugging).
-- The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
+- Task 实例还未准备好或没有运行。
+- Task 实例已经完成，环境已被回收。 从 v0.11.0 开始，可保留 Task 实例用于调试，参考[保留失败的 Docker 用于调试](#保留失败的-docker-用于调试)。
+- Docker 映像不支持 SSH 连接。 要支持 SSH 连接，必须在 Docker 映像中安装好 *openssh-server* 和 *curl*。
 
-### Reserve failed docker for debugging
+### 保留失败的 Docker 用于调试
 
-*It supports from OpenPAI v0.11.0*.
-
-To reserve failed docker for debugging, it needs to set the following property in the jobEnv field. If the job is failed by user's command, the container is kept for 1 week by default. The period may be configured by administrators. If the job is success, the container won't be reserved.
+要保留失败的 Docker 容器用于调试，需要在 jobEnv 字段中设置下列属性。 如果 Job 因为 command 字段的命令失败，容器默认可以保留一周。 时间周期可由管理员进行配置。 如果 Job 成功执行，容器不会被保留。
 
 ![debugging](./imgs/webportal-job-debugging.png)
 
-Refer to [here](../job_tutorial.md) to enable isDebug in job configuration file.
+参考[这里](../job_tutorial.md)来在 Job 配置中支持 isDebug。
 
-**Note**, with debugging is enabled for a job, the resource of this job is reserved also. To save resources for other jobs, this feature should be limited used, and shouldn't be enabled by default. And once debug is completed, the job should be stopped manually to release resources.
+**注意**，Job 启用调试后，Job 所用的资源也会被保留。 为了节省资源，此功能应该只被有限制的使用，而且不应默认开启。 一般调试完成，要手动停止 Job 来释放资源。
 
-### Ask helps
+### 寻求帮助
 
-Administrators of the OpenPAI cluster may be able to fix issues if this guidance doesn't work unfortunately.
+如果本文无法解决问题，可寻找 OpenPAI 集群管理员的帮助。
 
-If it isn't fixed by administrators, or you are administrator, you are welcome to [ask questions or submit issues](../../../README_zh_CN.md#get-involved) to us.
+如果管理员无法修复此问题，或者你就是管理员，欢迎[提交问题或建议](../../../README_zh_CN.md#寻求帮助)。
