@@ -353,7 +353,7 @@ export function MountDirectoriesForm({
     return oriPath.replace(/%USER/ig, user).replace(/%JOB/ig, jobName).replace("//", "/");
   };
 
-  const { api, user } = useContext(Context);
+  const { api, user, token } = useContext(Context);
 
   const [userGroups, setUserGroups] = useState<string[]>([]);
   const [serverNames, setServerNames] = useState<string[]>([]);
@@ -362,10 +362,15 @@ export function MountDirectoriesForm({
 
   useEffect(() => {
     const userInfoUrl = `${api}/api/v2/user/${user}`;
-    fetch(userInfoUrl).then((response: Response) => {
+    fetch(userInfoUrl, {
+      headers:{
+        'Authorization': `Bearer ${token}`,
+      }
+    }).then((response: Response) => {
       if (response.ok) {
         response.json().then((responseData) => responseData.grouplist).then((groupList) => {
           setUserGroups(groupList);
+          console.log(groupList);
         });
       } else {
         // setUserGroups(["paigroup"]);
@@ -379,7 +384,7 @@ export function MountDirectoriesForm({
       return;
     }
 
-    const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-config`;
+    const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
     fetch(storageConfigUrl).then(responseToData).then((storageConfigData) => {
       const newConfigs = [];
       for (const gpn of userGroups) {
@@ -420,7 +425,7 @@ export function MountDirectoriesForm({
       setServerNames(serverNames.concat());
     });
 
-    const storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-user`;
+    const storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-user`;
     try {
        fetch(storageUserUrl).then(responseToData).then((storageUserData) => {
         if (user in storageUserData) {
@@ -441,7 +446,7 @@ export function MountDirectoriesForm({
   const [servers, setServers] = useState<IServer[]>([]);
   useEffect(() => {
     // Get Server info
-    const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/secrets/storage-server`;
+    const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
     try {
        fetch(storageServerUrl).then(responseToData).then((storageServerData) => {
         for (const serverName of serverNames) {

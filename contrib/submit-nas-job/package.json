@@ -1,7 +1,7 @@
 {
-  "name": "simple-nfs-job",
+  "name": "submit-nas-job",
   "version": "1.0.0",
-  "description": "A web portal plugin to submit job with data on NFS.",
+  "description": "A web portal plugin to submit job with data on NAS.",
   "main": "src/index.ts",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
@@ -35,7 +35,7 @@
     "@types/webpack-dev-server": "^3.1.4",
     "ts-loader": "^5.3.3",
     "ts-node": "^8.0.3",
-    "tslint": "^5.16.0",
+    "tslint": "^5.17.0",
     "tslint-react": "^3.6.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.6",
