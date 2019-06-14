@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useContext, useState, useEffect} from 'react';
-
+const token = cookies.get('token');
 import {getTheme, ColorClassNames} from '@uifabric/styling';
 import {CommandBarButton} from 'office-ui-fabric-react/lib/Button';
 import {SearchBox} from 'office-ui-fabric-react/lib/SearchBox';
@@ -79,7 +79,10 @@ function TopBar() {
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
   useEffect(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`)
+    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }})
       .then((response) => {
         return response.json();
       }).then((body) => {
