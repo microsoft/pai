@@ -71,6 +71,10 @@ const getAAD = async (req, res, next) => {
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
     }
+    // eslint-disable-next-line no-console
+    console.log(userInfo);
+    // eslint-disable-next-line no-console
+    console.log(admin);
     const token = await jwtSignPromise(userInfo, admin);
     return res.redirect('http://' + process.env.WEBPORTAL_URL + '/index.html?'+ querystring.stringify({
       user: userInfo.username,
