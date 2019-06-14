@@ -60,8 +60,7 @@ const config = (env, argv) => ({
     'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
-    'submit': './src/app/job/job-submit/job-submit.component.js',
-    'submit2': './src/app/job-submission/job-submission.jsx',
+    'submit': './src/app/job-submission/job-submission.jsx',
     'jobList': './src/app/job/job-view/fabric/job-list.jsx',
     'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
     'virtualClusters': './src/app/vc/vc.component.js',
@@ -71,7 +70,6 @@ const config = (env, argv) => ({
     'k8s': './src/app/cluster-view/k8s/k8s.component.js',
     'docs': './src/app/job/job-docs/job-docs.component.js',
     'plugin': './src/app/plugin/plugin.component.js',
-    'plugins/jobsubmission': './src/plugins/job-submission',
   },
   output: {
     path: helpers.root('dist'),
@@ -301,10 +299,6 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'submit.html',
       chunks: ['layout', 'submit'],
-    }),
-    generateHtml({
-      filename: 'submit2.html',
-      chunks: ['layout', 'submit2'],
     }),
     generateHtml({
       filename: 'job-list.html',

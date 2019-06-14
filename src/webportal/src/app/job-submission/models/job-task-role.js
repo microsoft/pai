@@ -27,9 +27,9 @@ import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
 import {ContainerSize} from '../models/container-size';
-import {isEmpty, get, isNil} from 'lodash';
+import {get, isNil, isEmpty} from 'lodash';
 import {Port} from './port';
-import {keyValueArrayReducer} from './utils';
+import {keyValueArrayReducer, removeEmptyProperties} from './utils';
 
 export class JobTaskRole {
   constructor(props) {
@@ -51,19 +51,19 @@ export class JobTaskRole {
     const {instances, completion, taskRetryCount, dockerImage,
            extraContainerOptions, resourcePerInstance, commands} = taskRoleProtocol;
     const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
-    const dockerInfo = prerequisites.filter((prerequisite) => prerequisite.name === dockerImage)[0];
+    const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage);
     const ports = isNil(resourcePerInstance.ports) ? []:
       Object.keys(resourcePerInstance.ports).map((key) => new Port(key, resourcePerInstance.ports[key]));
 
     const jobTaskRole = new JobTaskRole({
       name: name,
       instances: instances,
-      completion: new Completion(completion),
+      completion: Completion.fromProtocol(completion),
       taskRetryCount: taskRetryCount,
-      commands: commands,
-      containerSize: new ContainerSize({...resourcePerInstance, extraContainerOptions}),
-      deployment: new Deployment(taskDeployment),
-      dockerInfo: new DockerInfo({uri: dockerInfo.uri, auth: dockerInfo.auth}),
+      commands: commands.join('\n'),
+      containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
+      deployment: Deployment.fromProtocol(taskDeployment),
+      dockerInfo: DockerInfo.fromProtocol(dockerInfo),
       ports: ports,
     });
 
@@ -78,13 +78,7 @@ export class JobTaskRole {
   }
 
   getDeployment() {
-    const deployment = {};
-    if (isEmpty(this.name)) {
-      return null;
-    }
-
-    deployment[this.name] = this.deployment.convertToProtocolFormat();
-    return deployment;
+    return this.deployment.convertToProtocolFormat();
   }
 
   setDockerImage(dockerImage) {
@@ -95,15 +89,19 @@ export class JobTaskRole {
     const taskRole = {};
     const ports = this.ports.map((port) => port.convertToProtocolFormat())
                             .reduce(keyValueArrayReducer, {});
+    const resourcePerInstance = removeEmptyProperties({...this.containerSize.getResourcePerInstance(), ports: ports});
+    const extraContainerOptions = this.containerSize.getExtraContainerOptions();
 
-    taskRole[this.name] = {
+    taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
       completion: this.completion,
       taskRetryCount: this.taskRetryCount,
       dockerImage: this.dockerImage,
-      resourcePerInstance: {...this.containerSize.getResourcePerInstance(), ports: ports},
-      commands: this.commands,
-    };
+      resourcePerInstance: resourcePerInstance,
+      commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n'),
+      extraContainerOptions: extraContainerOptions,
+    });
+
     return taskRole;
   }
 }

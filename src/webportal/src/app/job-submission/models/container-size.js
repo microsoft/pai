@@ -14,6 +14,11 @@ export class ContainerSize {
     return (cpu == 4 && memoryMB == 8192 && gpu == 0 && isNil(shmMB));
   }
 
+  static fromProtocol(containerSizeProtocol) {
+    const {resourcePerInstance, extraContainerOptions} = containerSizeProtocol;
+    return new ContainerSize({...resourcePerInstance, ...extraContainerOptions});
+  }
+
   getResourcePerInstance() {
     return {
       cpu: this.cpu,

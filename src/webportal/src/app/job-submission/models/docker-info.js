@@ -32,6 +32,10 @@ export class DockerInfo {
     this.auth = auth;
   }
 
+  static fromProtocol(dockerInfoProtocol) {
+    return new DockerInfo(dockerInfoProtocol);
+  }
+
   convertToProtocolFormat() {
     const dockerProtocolFormat = {type: 'dockerimage', auth: this.auth, uri: this.uri};
     if (isNil(this.auth)) {

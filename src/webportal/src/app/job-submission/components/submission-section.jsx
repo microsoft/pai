@@ -7,6 +7,9 @@ import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {JobParameter} from '../models/job-parameter';
 import {isNil} from 'lodash';
+import {submitJob} from './conn';
+
+const user = cookies.get('user');
 
 const _exportFile = (data, filename, type) => {
   let file = new Blob([data], {type: type});
@@ -65,16 +68,23 @@ export const SubmissionSection = (props) => {
 
   const _exportYaml = (event) => {
     event.preventDefault();
-    _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'application/x-yaml');
+    _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'text/yaml');
   };
 
   const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
   };
 
+  const _submitJob = (event) => {
+    event.preventDefault();
+    submitJob(jobProtocol.toYaml()).then(() => {
+      window.location.href = `/job-detail.html?username=${user}&jobName=${jobProtocol.name}`;
+    }).catch((err) => alert(err));
+  };
+
   return (
     <Stack horizontal gap='s1' horizontalAlign='center'>
-      <PrimaryButton>Submit</PrimaryButton>
+      <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
       <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
       <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
       <MonacoPanel isOpen={isEditorOpen}
@@ -83,7 +93,8 @@ export const SubmissionSection = (props) => {
                    monacoProps={{language: 'yaml',
                                  options: {wordWrap: 'on', readOnly: false},
                                  value: protocolYaml,
-                                 onChange: _onYamlTextChange}}
+                                 onChange: _onYamlTextChange,
+                                }}
       />
     </Stack>);
 };

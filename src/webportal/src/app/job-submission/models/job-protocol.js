@@ -23,9 +23,9 @@
  * SOFTWARE.
  */
 
-import {get, isNil} from 'lodash';
+import {get, isEmpty, isNil} from 'lodash';
 import yaml from 'js-yaml';
-import {keyValueArrayReducer} from './utils';
+import {keyValueArrayReducer, removeEmptyProperties} from './utils';
 
 export class JobProtocol {
   constructor(props) {
@@ -78,19 +78,25 @@ export class JobProtocol {
         taskRole.setDockerImage(dockerMap.get(dockerUri).name);
       }
       return taskRole.convertToProtocolFormat();
-    }).filter((taskRole) => !isNil(taskRole))
-      .reduce(keyValueArrayReducer, {});
+    }).reduce(keyValueArrayReducer, {});
 
     return taskRoles;
+  }
+
+  static _generateDeployments(jobTaskRoles) {
+    const deployments = jobTaskRoles.map((taskRole) => {
+      const deployment = {};
+      deployment[taskRole.name] = taskRole.getDeployment();
+      return deployment;
+    }).reduce(keyValueArrayReducer, {});
+    return removeEmptyProperties(deployments);
   }
 
   static _convertToProtocolFormat(jobBasicInfo, jobTaskRoles, jobParameters) {
     const parameters = jobParameters.map((parameter) => parameter.convertToProtocolFormat())
                                     .reduce(keyValueArrayReducer, {});
-    let deployments = jobTaskRoles.map((taskRole) => taskRole.getDeployment())
-                                  .filter((deploy) => !isNil(deploy))
-                                  .reduce(keyValueArrayReducer, {});
-    deployments = {name: 'defaultDeployment', taskRoles: deployments};
+    let deployments = JobProtocol._generateDeployments(jobTaskRoles);
+    deployments = isEmpty(deployments) ? [] : [{name: 'defaultDeployment', taskRoles: deployments}];
 
     const dockerMap = JobProtocol._generateDockerPrerequisitesMap(jobTaskRoles);
     const taskRoles = JobProtocol._updateAndConvertTaskRoles(jobTaskRoles, dockerMap);
@@ -100,19 +106,17 @@ export class JobProtocol {
       parameters: parameters,
       taskRoles: taskRoles,
       prerequisites: Array.from(dockerMap.values()),
-      deployments: [deployments],
+      deployments: deployments,
     };
+
     return jobProtocol;
   }
 
   toYaml() {
     try {
-      return yaml.safeDump(this);
+      return yaml.safeDump(removeEmptyProperties(this));
     } catch (e) {
       alert(e.message);
     }
-  }
-
-  submit() {
   }
 }

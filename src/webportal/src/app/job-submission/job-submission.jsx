@@ -23,6 +23,10 @@
  * SOFTWARE.
  */
 
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
+
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {Fabric, Stack, initializeIcons, StackItem, getTheme} from 'office-ui-fabric-react';
