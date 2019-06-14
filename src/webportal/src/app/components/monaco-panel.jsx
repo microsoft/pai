@@ -37,7 +37,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           main: [ColorClassNames.neutralPrimaryBackground],
           headerText: [ColorClassNames.white],
           overlay: [ColorClassNames.blackTranslucent40Background],
-          content: [t.flex, t.flexAuto],
+          content: [t.flex, t.flexAuto, t.flexColumn],
           scrollableContent: [t.flex, t.flexAuto, {overflowY: 'visible'}],
           closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
         }}

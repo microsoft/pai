@@ -25,24 +25,27 @@
 
 import {get, isEmpty, isNil} from 'lodash';
 import yaml from 'js-yaml';
-import {keyValueArrayReducer, removeEmptyProperties} from './utils';
+import Joi from 'joi-browser';
+import {jobProtocolSchema} from '../models/protocol-schema';
+import {keyValueArrayReducer, removeEmptyProperties} from '../utils/utils';
 
 export class JobProtocol {
   constructor(props) {
-    const {name, jobRetryCount, prerequisites,
-           parameters, taskRoles, deployments} = props;
+    const {name, jobRetryCount, prerequisites, parameters, taskRoles, deployments,
+           description, contributor, secrets, defaults, extras} = props;
     this.protocolVersion = 2;
     this.name = name || '';
+    this.description = description || '';
+    this.contributor = contributor || '';
     this.type = 'job';
     this.jobRetryCount = jobRetryCount || 0;
     this.prerequisites = prerequisites || [];
     this.parameters = parameters || {};
     this.taskRoles = taskRoles || {};
     this.deployments = deployments || {};
-  }
-
-  static fromJobComponents(jobBasicInfo, jobTaskRoles, jobParameters) {
-    return new JobProtocol(JobProtocol._convertToProtocolFormat(jobBasicInfo, jobTaskRoles, jobParameters));
+    this.secrets = secrets || {};
+    this.defaults = defaults || {};
+    this.extras = extras || {};
   }
 
   static fromYaml(protocolYaml) {
@@ -55,7 +58,37 @@ export class JobProtocol {
     }
   }
 
-  static _generateDockerPrerequisitesMap(jobTaskRoles) {
+  static validateFromYaml(protocolYaml) {
+    try {
+      const protocol = yaml.safeLoad(protocolYaml);
+      const result = Joi.validate(protocol, jobProtocolSchema);
+      return String(result.error || '');
+    } catch (err) {
+      return String(err.message);
+    }
+  }
+
+  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters) {
+    const parameters = jobParameters.map((parameter) => parameter.convertToProtocolFormat())
+                                    .reduce(keyValueArrayReducer, {});
+    let deployments = this._generateDeployments(jobTaskRoles);
+    const delpoyName = get(this, 'defaults.deployment', 'defaultDeployment');
+    deployments = isEmpty(deployments) ? [] : [{name: delpoyName, taskRoles: deployments}];
+
+    const dockerMap = this._generateDockerPrerequisitesMap(jobTaskRoles);
+    const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles, dockerMap);
+
+    return new JobProtocol({
+      ...this,
+      ...jobBasicInfo.convertToProtocolFormat(),
+      parameters: parameters,
+      taskRoles: taskRoles,
+      prerequisites: Array.from(dockerMap.values()),
+      deployments: deployments,
+    });
+  }
+
+  _generateDockerPrerequisitesMap(jobTaskRoles) {
     const dockerMap = new Map();
     const dockerPrerequisites = jobTaskRoles.map((taskRole) => taskRole.getDockerPrerequisite());
     dockerPrerequisites.forEach((dockerPrerequisite, index) => {
@@ -63,14 +96,17 @@ export class JobProtocol {
       if (dockerMap.has(mapKey)) {
         return;
       }
-      dockerPrerequisite['name'] = 'dockerImage-' + index;
-      dockerMap.set(dockerPrerequisite.uri, dockerPrerequisite);
+      // Since prerequisites is small, iterate will not impact the performance
+      const oldValue = this.prerequisites.find((prerequisite) => prerequisite.uri === mapKey);
+      const name = get(oldValue, 'name', `dockerImage-${index}`);
+      dockerPrerequisite['name'] = name;
+      dockerMap.set(dockerPrerequisite.uri, {...oldValue, ...dockerPrerequisite});
     });
 
     return dockerMap;
   }
 
-  static _updateAndConvertTaskRoles(jobTaskRoles, dockerMap) {
+  _updateAndConvertTaskRoles(jobTaskRoles, dockerMap) {
     const taskRoles = jobTaskRoles.map((taskRole) => {
       const dockerUri = get(taskRole, 'dockerInfo.uri');
 
@@ -83,33 +119,13 @@ export class JobProtocol {
     return taskRoles;
   }
 
-  static _generateDeployments(jobTaskRoles) {
+  _generateDeployments(jobTaskRoles) {
     const deployments = jobTaskRoles.map((taskRole) => {
       const deployment = {};
       deployment[taskRole.name] = taskRole.getDeployment();
       return deployment;
     }).reduce(keyValueArrayReducer, {});
     return removeEmptyProperties(deployments);
-  }
-
-  static _convertToProtocolFormat(jobBasicInfo, jobTaskRoles, jobParameters) {
-    const parameters = jobParameters.map((parameter) => parameter.convertToProtocolFormat())
-                                    .reduce(keyValueArrayReducer, {});
-    let deployments = JobProtocol._generateDeployments(jobTaskRoles);
-    deployments = isEmpty(deployments) ? [] : [{name: 'defaultDeployment', taskRoles: deployments}];
-
-    const dockerMap = JobProtocol._generateDockerPrerequisitesMap(jobTaskRoles);
-    const taskRoles = JobProtocol._updateAndConvertTaskRoles(jobTaskRoles, dockerMap);
-
-    const jobProtocol = {
-      ...jobBasicInfo.convertToProtocolFormat(),
-      parameters: parameters,
-      taskRoles: taskRoles,
-      prerequisites: Array.from(dockerMap.values()),
-      deployments: deployments,
-    };
-
-    return jobProtocol;
   }
 
   toYaml() {

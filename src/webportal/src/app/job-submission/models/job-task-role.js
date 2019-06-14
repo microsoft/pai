@@ -29,7 +29,7 @@ import {Deployment} from './deployment';
 import {ContainerSize} from '../models/container-size';
 import {get, isNil, isEmpty} from 'lodash';
 import {Port} from './port';
-import {keyValueArrayReducer, removeEmptyProperties} from './utils';
+import {keyValueArrayReducer, removeEmptyProperties} from '../utils/utils';
 
 export class JobTaskRole {
   constructor(props) {
@@ -52,6 +52,8 @@ export class JobTaskRole {
            extraContainerOptions, resourcePerInstance, commands} = taskRoleProtocol;
     const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
     const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage);
+
+    // Use get to refactor this
     const ports = isNil(resourcePerInstance.ports) ? []:
       Object.keys(resourcePerInstance.ports).map((key) => new Port(key, resourcePerInstance.ports[key]));
 
@@ -60,7 +62,7 @@ export class JobTaskRole {
       instances: instances,
       completion: Completion.fromProtocol(completion),
       taskRetryCount: taskRetryCount,
-      commands: commands.join('\n'),
+      commands: isNil(commands) ? '' : commands.join('\n'),
       containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo),

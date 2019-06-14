@@ -1,5 +1,5 @@
 import {isEmpty, isNil} from 'lodash';
-import {removeEmptyProperties} from './utils';
+import {removeEmptyProperties} from '../utils/utils';
 
 export class Deployment {
   constructor(props) {

@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import {Stack, DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
+import {Stack, DefaultButton, PrimaryButton, Text} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {JobProtocol} from '../models/job-protocol';
 import MonacoPanel from '../../../app/components/monaco-panel';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {JobParameter} from '../models/job-parameter';
-import {isNil} from 'lodash';
-import {submitJob} from './conn';
+import {isNil, debounce} from 'lodash';
+import {submitJob} from '../utils/conn';
 
 const user = cookies.get('user');
 
@@ -33,13 +33,13 @@ export const SubmissionSection = (props) => {
   const {jobInformation, jobTaskRoles, parameters, onChange} = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
-  const [jobProtocol, setjobProtocol] =
-    useState(JobProtocol.fromJobComponents(jobInformation, jobTaskRoles, parameters));
-  const [protocolYaml, setProtocolYaml] = useState(jobProtocol.toYaml());
+  const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
+  const [protocolYaml, setProtocolYaml] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const _openEditor = (event) => {
     event.preventDefault();
-    const protocol = JobProtocol.fromJobComponents(jobInformation, jobTaskRoles, parameters);
+    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters);
     setEditorOpen(true);
     setProtocolYaml(protocol.toYaml());
   };
@@ -73,6 +73,7 @@ export const SubmissionSection = (props) => {
 
   const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
+    setErrorMsg(JobProtocol.validateFromYaml(text));
   };
 
   const _submitJob = (event) => {
@@ -90,10 +91,11 @@ export const SubmissionSection = (props) => {
       <MonacoPanel isOpen={isEditorOpen}
                    onDismiss={_closeEditor}
                    title='Protocol YAML Editor'
+                   header={<Text block className={{color: 'white'}}>{String(errorMsg)}</Text>}
                    monacoProps={{language: 'yaml',
                                  options: {wordWrap: 'on', readOnly: false},
                                  value: protocolYaml,
-                                 onChange: _onYamlTextChange,
+                                 onChange: debounce(_onYamlTextChange, 100),
                                 }}
       />
     </Stack>);

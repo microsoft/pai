@@ -36,7 +36,7 @@ const completionSectionStyle = getCompletionSectionStyle();
 
 export const CompletionSection= (props) => {
   const {onChange, value} = props;
-  const {minFailedInstances, minSuceedInstances} = value;
+  const {minFailedInstances, minSucceededInstances} = value;
 
   const _onChange = (keyName, newValue) => {
     const completion = new Completion(value);
@@ -57,9 +57,9 @@ export const CompletionSection= (props) => {
         </Stack>
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Succeed Instances'}
-                       value={minSuceedInstances}
+                       value={minSucceededInstances}
                        styles={completionSectionStyle.spinButton}
-                       onChange={(v) => _onChange('minSuceedInstances', v)}/>
+                       onChange={(v) => _onChange('minSucceededInstances', v)}/>
         </Stack>
       </FormShortSection>
     </BasicSection>

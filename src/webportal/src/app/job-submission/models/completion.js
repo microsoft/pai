@@ -2,9 +2,9 @@ import {isNil} from 'lodash';
 
 export class Completion {
   constructor(props) {
-    const {minFailedInstances, minSuceedInstances} = props;
+    const {minFailedInstances, minSucceededInstances} = props;
     this.minFailedInstances = minFailedInstances || 1;
-    this.minSuceedInstances = minSuceedInstances || null;
+    this.minSucceededInstances = minSucceededInstances || null;
   }
 
   static fromProtocol(completionProtocol) {
@@ -18,7 +18,7 @@ export class Completion {
   convertToProtocolFormat() {
     return {
       minFailedInstances: this.minFailedInstances,
-      minSuceedInstances: this.minSuceedInstances,
+      minSucceededInstances: this.minSucceededInstances,
     };
   }
 }
