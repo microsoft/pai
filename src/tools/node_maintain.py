@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import time
 import re
@@ -93,7 +95,7 @@ def refresh_yarn_nodes(args):
     while True:
         yarn_operator.decommission_nodes()
         node_info = yarn_operator.get_nodes_info()
-        current_status = {k: v["state"] for k, v in node_info.iteritems()}
+        current_status = {k: v["state"] for k, v in node_info.items()}
         decommissioned_nodes = k8s_operator.get_nodes()
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
@@ -132,7 +134,7 @@ def is_dedicated_vc(queue_name, queue_attr):
 def get_resource_by_label(nodes_info):
     labels_dict = {}
     default_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
-    for node, info in nodes_info.iteritems():
+    for node, info in nodes_info.items():
         if info["nodeLabel"] not in labels_dict:
             labels_dict[info["nodeLabel"]] = {
                 "resource": default_resource
@@ -167,7 +169,7 @@ def get_dedicate_vc(args):
 
 def convert_percentage_to_gpus(queues_info, partition_resource):
     new_queues_info = copy.deepcopy(queues_info)
-    for queue, info in new_queues_info.iteritems():
+    for queue, info in new_queues_info.items():
         p = info["capacity"] / float(100)
         info["gpus"] = partition_resource.gpus * p
     return new_queues_info
@@ -176,7 +178,7 @@ def convert_percentage_to_gpus(queues_info, partition_resource):
 def convert_gpus_to_percentage(queues_info, partition_resource):
     new_queues_info = copy.deepcopy(queues_info)
     if partition_resource.gpus > 0:
-        for queue, info in new_queues_info.iteritems():
+        for queue, info in new_queues_info.items():
             gpus = info["gpus"]
             info["capacity"] = float(gpus) / partition_resource.gpus * 100
     return new_queues_info
@@ -185,14 +187,14 @@ def convert_gpus_to_percentage(queues_info, partition_resource):
 def normalize_percentage(queues_info):
     new_queues_info = copy.deepcopy(queues_info)
     sum_percentage = 0
-    for queue, info in new_queues_info.iteritems():
+    for queue, info in new_queues_info.items():
         sum_percentage += info["capacity"]
 
     if sum_percentage != 100:
         logger.warning("Renormalize percentage to 100%, current: {}%".format(sum_percentage))
     new_queues_info["default"]["capacity"] -= sum_percentage - 100
 
-    for queue, info in new_queues_info.iteritems():
+    for queue, info in new_queues_info.items():
         if queue != "default":
             info["maxCapacity"] = info["capacity"]
 
@@ -227,7 +229,7 @@ def add_dedicate_vc(args):
             queues_info["default"]["maxCapacity"] = 100.0
 
         added_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
-        for node, info in nodes_info.iteritems():
+        for node, info in nodes_info.items():
             if node in nodes and info["nodeLabel"] == "":
                 added_resource += info["resource"]
 
@@ -249,7 +251,7 @@ def add_dedicate_vc(args):
         new_queues_percentage = convert_gpus_to_percentage(queues_info_with_gpus, new_default_partition_resource)
         new_queues_percentage = normalize_percentage(new_queues_percentage)
         updated_dict = {}
-        for queue, info in new_queues_percentage.iteritems():
+        for queue, info in new_queues_percentage.items():
             updated_dict[queue] = {
                 "capacity": info["capacity"],
                 "maximum-capacity": info["maxCapacity"]
@@ -280,7 +282,7 @@ def remove_dedicate_vc(args):
             queues_info["default"]["maxCapacity"] = 100.0
 
         removed_resource = Resource(**{"cpus": 0, "memory": 0, "gpus": 0})
-        for node, info in nodes_info.iteritems():
+        for node, info in nodes_info.items():
             if node in nodes and info["nodeLabel"] == vc_name:
                 removed_resource += info["resource"]
 
@@ -296,7 +298,7 @@ def remove_dedicate_vc(args):
         new_queues_percentage = convert_gpus_to_percentage(queues_info_with_gpus, new_default_partition_resource)
         new_queues_percentage = normalize_percentage(new_queues_percentage)
         updated_dict = {}
-        for queue, info in new_queues_percentage.iteritems():
+        for queue, info in new_queues_percentage.items():
             updated_dict[queue] = {
                 "capacity": info["capacity"],
                 "maximum-capacity": info["maxCapacity"]

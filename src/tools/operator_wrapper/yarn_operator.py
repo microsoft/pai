@@ -340,8 +340,8 @@ class YarnOperator(BaseOperator):
         # Todo: current we use global-updates to update capacity due to dicttoxml package limitation
         # Todo: change it to update-queue after this pr: https://github.com/quandyfactory/dicttoxml/pull/64
         raw_dict = {"global-updates": []}
-        for queue, info in update_dict.iteritems():
-            for attribute, value in info.iteritems():
+        for queue, info in update_dict.items():
+            for attribute, value in info.items():
                 key = "yarn.scheduler.capacity.root.{}.{}".format(queue, attribute)
                 raw_dict["global-updates"].append({
                     "key": key,
