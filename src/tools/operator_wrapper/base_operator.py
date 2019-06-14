@@ -26,6 +26,14 @@ class BaseOperator(object):
     def execute(self, command, redirect_stderr=True, shell=True, **kwargs):
         logger.debug(command)
         stderr = subprocess.STDOUT if redirect_stderr else None
-        output = subprocess.check_output(command, stderr=stderr, shell=shell, **kwargs).decode("utf8")
+        output = subprocess.check_output(command, stderr=stderr, shell=shell, **kwargs)
+        try:
+            output = output.decode("utf8")
+        except AttributeError:
+            pass
         return output
+
+
+if __name__ == '__main__':
+    pass
 
