@@ -16,10 +16,6 @@
   color: silver;
 }
 
-.add-vc-btn{
-  margin: 10px 0 20px 0;
-}
-
 ul, li{
   margin: 0;
   padding: 0;
@@ -69,7 +65,7 @@ ul, li{
     }
   }
 }
-#vc-table{
+#common-table, #dedicated-table {
   .state-vc{
     display: inline-block;
     padding: .2em .6em .3em;
@@ -94,6 +90,10 @@ ul, li{
     background: #d2d6de;
     color: #444;
   }
+  .state-stopping {
+    background: #d2d6de;
+    color: #444;
+  }
   .item-btn{
     cursor: pointer;
   }
@@ -101,4 +101,15 @@ ul, li{
     color: #c0c0c0;
     cursor: default;
   }
+}
+.discription-dedvc {
+  margin-bottom: 10px;
+}
+.message-text {
+  background-color: rgb(244, 244, 244);
+  padding: 5px;
+  margin-bottom: 10px;
+}
+.dataTables_wrapper {
+  margin-top: 20px;
 }
