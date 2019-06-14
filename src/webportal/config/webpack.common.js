@@ -38,20 +38,6 @@ const FABRIC_DIR = [
 ];
 
 function generateHtml(opt) {
-  const testValue = new HtmlWebpackPlugin(Object.assign({
-    title: title,
-    version: version,
-    authnMethod: authnMethod,
-    template: './src/app/layout/layout.component.ejs',
-    minify: {
-      collapseWhitespace: true,
-      html5: true,
-      removeComments: true,
-      removeEmptyAttributes: true,
-      removeTagWhitespace: true,
-    },
-  }, opt));
-  console.log(testValue);
   return new HtmlWebpackPlugin(Object.assign({
     title: title,
     version: version,
