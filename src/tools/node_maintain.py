@@ -1,3 +1,20 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from __future__ import print_function
 
 import argparse
@@ -27,7 +44,7 @@ def get_unready_nodes(decommissioned_nodes, current_status):
 
 
 def validate_string_is_ip(validated_str):
-    ip_pattern = re.compile(r'^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])(\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)){3}$')
+    ip_pattern = re.compile(r"^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])(\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)){3}$")
     found = ip_pattern.match(validated_str) is not None
     return found
 
@@ -100,7 +117,7 @@ def refresh_yarn_nodes(args):
         unready_nodes = get_unready_nodes(decommissioned_nodes, current_status)
         if len(unready_nodes) == 0:
             break
-        unready_info = ','.join([node_name+' in '+status for node_name, status in unready_nodes.items()])
+        unready_info = ','.join([node_name+" in "+status for node_name, status in unready_nodes.items()])
         logger.info("Unready nodes: {}. Waiting...".format(unready_info))
         time.sleep(30)
     logger.info("Successfully refresh nodes.")
@@ -353,15 +370,15 @@ def setup_parser():
     parser_get.set_defaults(func=get_decommission_nodes)
 
     parser_add = blacklist_subparsers.add_parser("add", parents=[parent_parser], help="add nodes to blacklist")
-    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', required=True)
+    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help="support comma-delimited node list", required=True)
     parser_add.set_defaults(func=add_decommission_nodes)
 
     parser_remove = blacklist_subparsers.add_parser("remove", parents=[parent_parser], help="remove nodes from blacklist")
-    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', required=True)
+    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help="support comma-delimited node list", required=True)
     parser_remove.set_defaults(func=remove_decommission_nodes)
 
     parser_update = blacklist_subparsers.add_parser("update", parents=[parent_parser], help="update blacklist")
-    parser_update.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
+    parser_update.add_argument("-n", "--nodes", type=convert_nodes, help="support comma-delimited node list")
     parser_update.set_defaults(func=update_decommission_nodes)
 
     parser_refresh = blacklist_subparsers.add_parser("enforce", parents=[parent_parser],
@@ -376,13 +393,13 @@ def setup_parser():
     parser_get.set_defaults(func=get_dedicate_vc)
 
     parser_add = dedicated_vc_subparsers.add_parser("add", parents=[parent_parser], help="add dedicate vc")
-    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list', default={})
+    parser_add.add_argument("-n", "--nodes", type=convert_nodes, help="support comma-delimited node list", default={})
     parser_add.add_argument("-v", "--vc-name", type=validate_vc_name, required=True)
     parser_add.set_defaults(func=add_dedicate_vc)
 
     parser_remove = dedicated_vc_subparsers.add_parser("remove", parents=[parent_parser], help="remove dedicate vc")
     parser_remove.add_argument("-v", "--vc-name", type=validate_vc_name, required=True)
-    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help='support comma-delimited node list')
+    parser_remove.add_argument("-n", "--nodes", type=convert_nodes, help="support comma-delimited node list")
     parser_remove.set_defaults(func=remove_dedicate_vc)
 
     return top_parser
