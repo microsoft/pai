@@ -1,22 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-//
-
 require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -33,8 +14,7 @@ const webportalConfig = require('../config/webportal.config.js');
 const userAuth = require('../user/user-auth/user-auth.component');
 
 //
-let commonTable = null;
-let dedicateTable = null;
+let table = null;
 let isAdmin = cookies.get('admin');
 //
 
@@ -54,14 +34,7 @@ const loadData = (specifiedVc) => {
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
-      commonTable = $('#common-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
-        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
-        columnDefs: [
-          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
-        ],
-      }).api();
-      dedicateTable = $('#dedicated-table').dataTable({
+      table = $('#vc-table').dataTable({
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
@@ -87,13 +60,9 @@ const formatNumber = (x, precision) => {
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
-  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 386)) + 'px');
-  if (commonTable != null) {
-    commonTable.columns.adjust().draw();
-  }
-  if (dedicateTable != null) {
-    dedicateTable.columns.adjust().draw();
+  if (table != null) {
+    $('.dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 335 : 265))) + 'px');
+    table.columns.adjust().draw();
   }
 };
 
@@ -281,11 +250,11 @@ const addGroup = () => {
       return false;
     }
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/user/create/`,
+      url: `${webportalConfig.restServerUri}/api/v2/group/create`,
       data: JSON.stringify({
         'groupname': vcName,
-        'description': `This group of the same name is created by creating a Virtual Cluster named ${vcName}`,
-        'externalName': `No extensions yet`,
+        'description': ``,
+        'externalName': ``,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -340,9 +309,6 @@ $(document).ready(() => {
   window.onresize = function(envent) {
     resizeContentWrapper();
   };
-  $(document).on('click', '.nav li', () => {
-    resizeContentWrapper();
-   });
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 
