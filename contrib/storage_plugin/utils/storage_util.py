@@ -28,6 +28,32 @@ from kubernetes.client.rest import ApiException
 
 logger = logging.getLogger(__name__)
 
+def confirm_namespace(namespace):
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+
+    try:
+        api_response = api_instance.read_namespace(namespace)
+
+    except ApiException as e:
+        if e.status == 404:
+            logger.info("Couldn't find namespace {0}. Create new namespace".format(namespace))
+            try:
+                meta_data = client.V1ObjectMeta(name=namespace)
+                body = client.V1ConfigMap(metadata=meta_data)
+                api_response = api_instance.create_namespace(body)
+                logger.info("Namesapce {0} is created".format(namespace))
+            except ApiException as ie:
+                logger.error("Exception when calling CoreV1Api->create_namespace: {0}".format(str(ie)))
+                sys.exit(1)
+        else:
+            logger.error("Exception when calling CoreV1Api->read_namespace: {0}".format(str(e)))
+            sys.exit(1)
+
+    return api_response.data
+
+
+
 # List usernames from pai-user secrets
 def get_pai_users():
     users = []
@@ -50,19 +76,9 @@ def get_pai_users():
     return users
 
 
-def get_storage_config_files(storage_config_name):
-    # List storage users
-    data = get_storage_config(storage_config_name, "default")
-    if data != None:
-        files = []
-        for item in data.keys():
-            files.append(item)
-        return files
-    else:
-        return None
-
-
 def update_configmap(name, data_dict, namespace):
+    confirm_namespace(namespace)
+
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -91,6 +107,8 @@ def update_configmap(name, data_dict, namespace):
 
 
 def get_storage_config(storage_config_name, namespace):
+    confirm_namespace(namespace)
+
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -109,6 +127,8 @@ def get_storage_config(storage_config_name, namespace):
 
 
 def patch_secret(name, data_dict, namespace):
+    confirm_namespace(namespace)
+
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -136,6 +156,8 @@ def patch_secret(name, data_dict, namespace):
 
 
 def get_secret(name, namespace):
+    confirm_namespace(namespace)
+
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -153,6 +175,8 @@ def get_secret(name, namespace):
 
 
 def delete_secret_content(name, key, namespace):
+    confirm_namespace(namespace)
+    
     config.load_kube_config()
     api_instance = client.CoreV1Api()
     try:

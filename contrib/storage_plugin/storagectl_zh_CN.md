@@ -30,38 +30,38 @@ Manage server in PAI. Server how PAI access a nas server.
 
 #### Set nfs server <a name="Server_set_nfs"></a> 
 ```
-./storagectl.py server set NAME nfs ADDRESS ROOTPATH
+python storagectl.py server set NAME nfs ADDRESS ROOTPATH
 ```
 
 #### Set samba server <a name="Server_set_samba"></a> 
 ```
-./storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
+python storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
 ```
 
 #### Set azurefile server <a name="Server_set_azurefile"></a> 
 ```
-./storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
+python storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY [-p PROXY_ADDRESS PROXY_PASSWORD]
 ```
 
 #### Set azureblob server <a name="Server_set_azureblob"></a> 
 ```
-./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
+python storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
 ```
 
 #### Set hdfs server <a name="Server_set_hdfs"></a> 
 ```
-./storagectl.py server set NAME hdfs NAMENODE PORT
+python storagectl.py server set NAME hdfs NAMENODE PORT
 ```
 
 ### List server <a name="Server_list"></a> 
 ```
-./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
+python storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
 ```
 - If -n specified, list certain servers. Otherwise list all servers.
 
 ### Delete server <a name="Server_delete"></a> 
 ```
-./storagectl.py user delete SERVER_NAME
+python storagectl.py user delete SERVER_NAME
 ```
 
 
@@ -69,7 +69,7 @@ Manage server in PAI. Server how PAI access a nas server.
 Manage configs for group in PAI. Config defines a set of mount infos. Every config belongs to a group. That is to say, one group may have 0 to n configs.
 ### Set config <a name="Config_set"></a> 
 ```
-./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
 ```
 - GROUP_NAME means All members of GROUP_NAME can use this config.
 - -s defines config useable servers.
@@ -80,19 +80,19 @@ Manage configs for group in PAI. Config defines a set of mount infos. Every conf
 
 For example, suppose we have set config using:
 ```
-./storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER users/%USER/jobs/%job
+python storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER users/%USER/jobs/%job
 ```
 If current user is 'paiuser' and current job is 'job-TEST'. This config will mount SAMPLE_SERVER/users/paiuser/jobs/job-TEST to /mnt/job
 
 ### List config <a name="Config_list"></a> 
 ```
-./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...]
+python storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...]
 ```
 - If -n specified, list certain configs. Otherwise list all config.
 
 ### Delete config <a name="Config_delete"></a> 
 ```
-./storagectl.py config delete CONFIG_NAME
+python storagectl.py config delete CONFIG_NAME
 ```
 
 
@@ -100,16 +100,16 @@ If current user is 'paiuser' and current job is 'job-TEST'. This config will mou
 Manage PAI user's specific servers.
 ### Set user config <a name="User_set"></a> 
 ```
-./storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
+python storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
 ```
 
 ### List user config <a name="User_list"></a> 
 ```
-./storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
+python storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
 ```
 - If -n specified, list certain users. Otherwise list all users.
 
 ### Delete user config <a name="User_delete"></a> 
 ```
-./storagectl.py user delete USER_NAME
+python storagectl.py user delete USER_NAME
 ```
