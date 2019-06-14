@@ -65,6 +65,14 @@ vi watchdog-xx.log
 | ---------------------- | ------------------------------------------------------------------------------------------------------------ |
 | k8s_api_server_count | use label `error` to represent status, if `error` != "ok", means k8s api server is not functioning correctly |
 
+## K8s resource Metrics
+
+| Metric name              | Description                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| k8s_node_gpu_total     | Total Gpu                                                                                            |
+| k8s_node_gpu_available | Total gpu count - used gpu count                                                                     |
+| k8s_node_gpu_reserved  | If node is marked as unschedulable via `kubectl cordon $node` all unused gpus are deemed as reserved |
+
 ## Other Metrics
 
 | Metric name                              | Description                                      |

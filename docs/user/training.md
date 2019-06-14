@@ -37,7 +37,7 @@ The **job** of OpenPAI defines how to execute command(s) in specified environmen
 
 Follow to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
 
-**Note**, Web portal is one of ways to submit jobs. It's the simplest way to begin, but's not most efficient way to submit and manage jobs. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended, as it provides best experience.
+**Note**, web portal is one of ways to submit jobs. It's the simplest way to begin, but's not most efficient way to submit and manage jobs. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended, as it provides best experience.
 
 1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input username, password, once login page shows.
 
@@ -102,7 +102,7 @@ Below is required fields and [full spec of job configuration](../job_tutorial.md
 
   [Docker](https://www.docker.com/why-docker) is a popular technology to provide virtual environments on a server. OpenPAI uses Docker to provide consistent and clean environments. With Docker, OpenPAI can serve multiple resource requests on the same server.
 
-  The **image** field is the identity of a Docker image, which includes customized Python or system packages.
+  The **image** field is the identity of a Docker image, which is installed customized Python and system packages.
 
   The hub.docker.com is a public Docker repository with a lot of Docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. Administrator may set a private Docker repository.
 

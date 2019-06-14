@@ -67,7 +67,7 @@ export default function JobList() {
     if (['vcName', 'status', 'user'].some((x) => !isEmpty(query[x]))) {
       const queryFilter = new Filter();
       if (query['vcName']) {
-        queryFilter.virtualClusters = new Set(query['vcName']);
+        queryFilter.virtualClusters = new Set([query['vcName']]);
       }
       if (query['status']) {
         queryFilter.statuses = new Set([query['status']]);

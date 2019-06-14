@@ -146,7 +146,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
     azRDMA: azureEnv.azRDMA === 'true' ? true : false,
     reqAzRDMA: false,
     inspectPidFormat: '{{.State.Pid}}',
-    infoDefaultRuntimeFormat: '{{json .DefaultRuntime}}',
+    infoDefaultRuntimeFormat: '"{{json .DefaultRuntime}}"',
   });
   return yarnContainerScript;
 };
@@ -261,6 +261,26 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   return frameworkDescription;
 };
 
+
+async function get(frameworkName) {
+  const [userName] = frameworkName.split('~');
+
+  // send request to framework launcher
+  const response = await axios({
+    method: 'get',
+    url: launcherConfig.frameworkPath(frameworkName),
+    headers: launcherConfig.webserviceRequestHeaders(userName),
+  });
+  if (response.status === status('OK')) {
+    return response.data;
+  }
+  if (response.status === status('Not Found')) {
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  } else {
+    throw createError(response.status, 'UnknownError', response.data.raw_body);
+  }
+}
+
 async function put(frameworkName, config, rawConfig) {
   const [userName] = frameworkName.split('~');
   // check user vc
@@ -286,7 +306,7 @@ async function put(frameworkName, config, rawConfig) {
   }
 }
 
-async function getJobConfig(frameworkName) {
+async function getConfig(frameworkName) {
   const [userName] = frameworkName.split('~');
   const hdfs = new HDFS(launcherConfig.webhdfsUri);
   const readFile = async (path) => {
@@ -312,6 +332,7 @@ async function getJobConfig(frameworkName) {
 
 // module exports
 module.exports = {
-  getJobConfig,
+  get,
   put,
+  getConfig,
 };

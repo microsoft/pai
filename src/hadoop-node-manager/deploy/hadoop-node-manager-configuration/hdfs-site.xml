@@ -20,7 +20,7 @@
 
 <property>
   <name>dfs.replication</name>
-  <value>2</value>
+  <value>3</value>
   <description>
          Default block replication. The actual number of replicas can be specified when
          the file is created. The default is used if replication is not specified at
@@ -234,7 +234,7 @@
           rejected. It is recommended that this setting be left on to prevent accidental
           registration of datanodes listed by hostname in the excludes file during a DNS
           outage. Only set this to false in environments where there is no infrastructure
-          to support reverse DNS lookup.  
+          to support reverse DNS lookup.
   </description>
 </property>
 
@@ -345,6 +345,19 @@
       NEVER: never add a new datanode. DEFAULT: Let r be the replication number.
       Let n be the number of existing datanodes. Add a new datanode only if r is greater than or equal to 3 and either
       (1) floor(r/2) is greater than or equal to n; or (2) r is greater than n and the block is hflushed/appended.
+  </description>
+</property>
+
+<property>
+  <name>dfs.client.block.write.replace-datanode-on-failure.best-effort</name>
+  <value>true</value>
+  <description>
+      This property is used only if the value of dfs.client.block.write.replace-datanode-on-failure.enable is true.
+      Best effort means that the client will try to replace a failed datanode in write pipeline (provided that the
+      policy is satisfied), however, it continues the write operation in case that the datanode replacement also fails.
+      Suppose the datanode replacement fails. false: An exception should be thrown so that the write will fail.
+      true : The write should be resumed with the remaining datandoes. Note that setting this property to true allows
+      writing to a pipeline with a smaller number of datanodes. As a result, it increases the probability of data loss.
   </description>
 </property>
 

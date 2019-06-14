@@ -32,4 +32,10 @@ if [ -d "/mnt/hadooptmp/namenode" ]; then
 
 fi
 
+if [ -d "/mnt/pai-service-log/name-node" ]; then
+
+    rm -rf /mnt/pai-service-log/name-node
+
+fi
+
 

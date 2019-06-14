@@ -30,9 +30,11 @@ import t from '../../components/tachyons.scss';
 
 const GpuChart = ({style, gpuPerNode}) => {
   const maxVal = Math.max(...Object.values(gpuPerNode));
-  const data = Array(maxVal + 1).fill(0);
+  const data = Array(maxVal).fill(0);
   for (const key of Object.keys(gpuPerNode)) {
-    data[gpuPerNode[key]] += 1;
+    if (gpuPerNode[key] > 0) {
+      data[gpuPerNode[key] - 1] += 1;
+    }
   }
 
   const chartRef = useRef(null);
@@ -41,7 +43,7 @@ const GpuChart = ({style, gpuPerNode}) => {
     new Chart(chartRef.current, {
       type: 'bar',
       data: {
-        labels: range(maxVal + 1),
+        labels: range(1, maxVal + 1),
         datasets: [{
           backgroundColor: statusColor.succeeded,
           label: 'nodeCount',

@@ -229,10 +229,14 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
-        const data = yaml.safeLoad(result);
-        const type = req.accepts(['json', 'yaml']) || 'json';
-        const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
-        return res.status(200).type(type).send(body);
+        try {
+          const data = yaml.safeLoad(result);
+          const type = req.accepts(['json', 'yaml']) || 'json';
+          const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
+          return res.status(200).type(type).send(body);
+        } catch (e) {
+          return next(createError.unknown(e));
+        }
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`));
       } else {
