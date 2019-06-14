@@ -575,7 +575,7 @@ def process_pods(k8s_api_addr, ca_path, headers, pods_info, service_endpoints, v
         process_vc_info(vc_info, vc_usage, vc_total, vc_avail, vc_preemptive_avail)
     except Exception as e:
         error_counter.labels(type="parse").inc()
-        logger.exception("failed to process pods from namespace %s", ns)
+        logger.exception("failed to process pods")
 
     return [pai_pod_gauge, pai_container_gauge, vc_total, vc_avail, vc_preemptive_avail]
 
