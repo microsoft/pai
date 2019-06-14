@@ -68,8 +68,8 @@ const formatNumber = (x, precision) => {
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 376))) + 'px');
-  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 376)) + 'px');
+  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
+  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 386)) + 'px');
   if (commonTable != null) {
     commonTable.columns.adjust().draw();
   }
@@ -112,6 +112,71 @@ const virtualClustersAdd = () => {
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         $('#virtualClustersList').modal('hide');
+        alert(data.message);
+      },
+      error: (xhr, textStatus, error) => {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
+      },
+    });
+  });
+};
+
+//
+const addGroup = () => {
+  userAuth.checkToken((token) => {
+    let vcName = $('#virtualClustersList input[name="vcname"]').val();
+    let capacity = $('#virtualClustersList input[name="capacity"]').val();
+    if (!vcName) {
+      $('#virtualClustersList input[name="vcname"]').focus();
+      return false;
+    }
+    if (!capacity) {
+      $('#virtualClustersList input[name="capacity"]').focus();
+      return false;
+    }
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v2/user/create/${vcName}`,
+      data: JSON.stringify({
+        'description': `This group of the same name is created by creating a Virtual Cluster named ${vcName}`,
+        'externalName': ``,
+      }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'PUT',
+      dataType: 'json',
+      success: (data) => {
+        alert(data.message);
+      },
+      error: (xhr, textStatus, error) => {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
+      },
+    });
+  });
+};
+
+//
+const deleteGroup = (groupname) => {
+  if (name == 'default') return false;
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v2/group/delete/${groupname}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'DELETE',
+      dataType: 'json',
+      success: (data) => {
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -256,6 +321,8 @@ window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
 window.changeVcState = changeVcState;
 window.convertState = convertState;
+window.addGroup = addGroup;
+window.deleteGroup = deleteGroup;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
@@ -271,6 +338,7 @@ $(document).ready(() => {
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();
+    addGroup();
   });
 
   $(document).on('click', '#virtualClustersListEdit', () => {
