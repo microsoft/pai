@@ -50,9 +50,6 @@ def confirm_namespace(namespace):
             logger.error("Exception when calling CoreV1Api->read_namespace: {0}".format(str(e)))
             sys.exit(1)
 
-    return api_response.data
-
-
 
 # List usernames from pai-user secrets
 def get_pai_users():
