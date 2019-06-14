@@ -60,27 +60,27 @@ In PAI dev-box, swith to folder pai/contrib/storage-plugin
 Create server config using command:
 - NFS:
 ```
-./storagectl.py server set NAME nfs ADDRESS ROOTPATH
+python storagectl.py server set NAME nfs ADDRESS ROOTPATH
 ```
 
 - Samba:
 ```
-./storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
+python storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
 ```
 
 - Azurefile:
 ```
-./storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY
+python storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY
   ```
 
 - Azureblob:
 ``` 
-./storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
+python storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
 ```
 
 - HDFS:
 ``` 
-./storagectl.py server set NAME hdfs NAMENODE PORT
+python storagectl.py server set NAME hdfs NAMENODE PORT
 ```
 
 ### Create storage config in PAI <a name="Usages_config"></a>  
@@ -88,7 +88,7 @@ In PAI dev-box, swith to folder pai/contrib/storage-plugin
 
 Create config using command:
 ```
-./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
 ```
 
 ### Create storage user in PAI (optional) <a name="Usages_user"></a>
@@ -96,7 +96,7 @@ In PAI dev-box, swith to folder pai/contrib/storage-plugin
 
 Create user config using command:
 ```
-./storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
+python storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
 ```
 User config defines user's permissions on servers.
 
@@ -116,8 +116,8 @@ The structure of samba server is as follows:
 ```
 Now we want all members of "paigroup" mount server's data folder to /data, and user's data (e.g user1) to /user by default. The admin should setup storage config in PAI using:
 ```bash
-./storagectl.py server set smbserver samba 10.0.0.1 root paismb paipwd local
-./storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver users/%USER -d
+python storagectl.py server set smbserver samba 10.0.0.1 root paismb paipwd local
+python storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver users/%USER -d
 ```
 Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be shown and user can choose whether to use it <br/>
 

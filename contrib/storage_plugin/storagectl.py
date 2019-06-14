@@ -42,11 +42,11 @@ logger = logging.getLogger(__name__)
 def save_secret(secret_name, name, content_dict):
     secret_dict = dict()
     secret_dict[name] = base64.b64encode(json.dumps(content_dict))
-    patch_secret(secret_name, secret_dict, "default")
+    patch_secret(secret_name, secret_dict, "pai-storage")
 
 
 def show_secret(args):
-    secret_data = get_secret(args.secret_name, "default")
+    secret_data = get_secret(args.secret_name, "pai-storage")
     if secret_data is None:
         logger.info("No secret found.")
     else:
@@ -56,7 +56,7 @@ def show_secret(args):
                 print(base64.b64decode(value))
 
 def delete_secret(args):
-    delete_secret_content(args.secret_name, args.name, "default")
+    delete_secret_content(args.secret_name, args.name, "pai-storage")
 
 
 def server_set(args):
