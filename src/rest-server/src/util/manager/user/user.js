@@ -20,7 +20,7 @@ const crypto = require('crypto');
 
 const userSchema = Joi.object().keys({
   username: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'username')
     .required(),
   email: Joi.string()
     .email()

@@ -47,7 +47,7 @@ const userAdminPermissionUpdateInputSchema = Joi.object().keys({
 // define the input schema for the 'create user' api
 const userCreateInputSchema = Joi.object().keys({
   username: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'username')
     .required(),
   email: Joi.string()
     .email()
