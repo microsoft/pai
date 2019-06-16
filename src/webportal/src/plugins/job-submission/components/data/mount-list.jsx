@@ -1,18 +1,20 @@
-import React from 'react'
-import c from 'classnames'
-import { FontClassNames } from '@uifabric/styling'
+import React from 'react';
+import c from 'classnames';
+import {FontClassNames} from '@uifabric/styling';
 import {
   DetailsList,
   IColumn,
   SelectionMode,
-} from 'office-ui-fabric-react/lib/DetailsList'
-import { PrimaryButton } from 'office-ui-fabric-react/lib/Button'
-import { cloneDeep } from 'lodash'
+} from 'office-ui-fabric-react/lib/DetailsList';
+import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {cloneDeep} from 'lodash';
+import PropTypes from 'prop-types';
 
-import { MountItem } from '../../util/constants'
-import t from '../../tachyons.css'
+import {InputData} from '../../models/data/input-data';
+import t from '../../../../app/components/tachyons.scss';
 
-export const MountList = ({ mountList, setMountList }: Props): JSX.Element => {
+export const MountList = (props) => {
+  const {dataList, setDataList} = props;
   const columes = [
     {
       key: 'mountPath',
@@ -20,8 +22,9 @@ export const MountList = ({ mountList, setMountList }: Props): JSX.Element => {
       headerClassName: FontClassNames.medium,
       minWidth: 50,
       maxWidth: 200,
+      // eslint-disable-next-line react/display-name
       onRender: (item) => {
-        return <div className={FontClassNames.medium}>{item.mountPath}</div>
+        return <div className={FontClassNames.medium}>{item.mountPath}</div>;
       },
     },
     {
@@ -30,12 +33,13 @@ export const MountList = ({ mountList, setMountList }: Props): JSX.Element => {
       headerClassName: FontClassNames.medium,
       minWidth: 50,
       maxWidth: 400,
-      onRender: (item: MountItem) => {
+      // eslint-disable-next-line react/display-name
+      onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>{`${item.dataSource} ( ${
             item.sourceType
           } )`}</div>
-        )
+        );
       },
     },
     {
@@ -43,24 +47,25 @@ export const MountList = ({ mountList, setMountList }: Props): JSX.Element => {
       name: 'Actions',
       headerClassName: FontClassNames.medium,
       minWidth: 50,
-      onRender: (_item: MountItem, index: number | undefined) => {
+      // eslint-disable-next-line react/display-name
+      onRender: (_item, index) => {
         return (
           <div className={c(t.flex)}>
             <PrimaryButton
               text='Delete'
               onClick={() => {
-                const newMountList = cloneDeep(mountList)
+                const newDataList = cloneDeep(dataList);
                 if (index !== undefined) {
-                  newMountList.splice(index, 1)
+                  newDataList.splice(index, 1);
                 }
-                setMountList(newMountList)
+                setDataList(newDataList);
               }}
             />
           </div>
-        )
+        );
       },
     },
-  ]
+  ];
 
   return (
     <div className={c(t.mb2)}>
@@ -68,8 +73,14 @@ export const MountList = ({ mountList, setMountList }: Props): JSX.Element => {
         columns={columes}
         disableSelectionZone
         selectionMode={SelectionMode.none}
-        items={mountList}
+        items={dataList}
       />
     </div>
-  )
-}
+  );
+};
+
+MountList.propTypes = {
+  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
+  setDataList: PropTypes.func,
+  setDataType: PropTypes.func,
+};

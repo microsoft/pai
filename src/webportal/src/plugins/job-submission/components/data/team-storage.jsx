@@ -3,10 +3,13 @@ import {Stack} from 'office-ui-fabric-react';
 import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
+import PropTypes from 'prop-types';
 
+import {InputData} from '../../models/data/input-data';
+import {MountList} from './mount-list';
 import t from '../../../../app/components/tachyons.scss';
 
-export const TeamStorage = (Props) => {
+export const TeamStorage = ({dataList, setDataList}) => {
   const [nfsEnable, setNfsEnable] = useState(false);
   const [hdfsEnable, setHdfsEnable] = useState(false);
 
@@ -33,6 +36,12 @@ export const TeamStorage = (Props) => {
           }}
         />
       </Stack>
+      <MountList dataList={dataList} setDataList={setDataList} />
     </div>
   );
+};
+
+TeamStorage.propTypes = {
+  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
+  setDataList: PropTypes.func,
 };

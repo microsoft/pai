@@ -3,10 +3,10 @@ import c from 'classnames';
 import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import PropTypes from 'prop-types';
 
-// import {AddHttp} from './addHttp';
-import {AddLocal} from './addLocal';
-// // import {AddGit} from './addGit';
-// import {AddHDFS} from './addHDFS';
+import {AddHttp} from './add-http';
+import {AddLocal} from './add-local';
+import {AddGit} from './add-git';
+import {AddHDFS} from './add-hdfs';
 import {InputData} from '../../models/data/input-data';
 
 import t from '../../../../app/components/tachyons.scss';
@@ -65,7 +65,7 @@ export const AddDataSource = (props) => {
             setDataType={setDataType}
           />
         )}
-        {/* {dataType === 'http' && (
+        {dataType === 'http' && (
           <AddHttp
             dataList={dataList}
             setDataList={setDataList}
@@ -78,7 +78,7 @@ export const AddDataSource = (props) => {
             setDataList={setDataList}
             setDataType={setDataType}
           />
-        )} */}
+        )}
         {/* {dataType === 'hdfs' && (
           <Context.Consumer>
             {value => (

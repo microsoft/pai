@@ -5,13 +5,13 @@ import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
 
 export const DataComponent = (Props) => {
-  const [dataCommand, setDataCommand] = useState([]);
+  // const [dataCommand, setDataCommand] = useState([]);
   const [dataList, setDataList] = useState([]);
 
   return (
   <BasicSection sectionLabel='Data' sectionOptional>
-    <TeamStorage />
-    <CustomStorage dataList={dataList} setDataCommand={setDataList}/>
+    <TeamStorage dataList={dataList} setDataList={setDataList}/>
+    <CustomStorage dataList={dataList} setDataList={setDataList}/>
   </BasicSection>
   );
 };
