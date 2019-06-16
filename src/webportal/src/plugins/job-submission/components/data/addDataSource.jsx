@@ -1,91 +1,85 @@
-import React, { useState } from 'react'
-import c from 'classnames'
-import { PrimaryButton } from 'office-ui-fabric-react/lib/Button'
+import React, {useState} from 'react';
+import c from 'classnames';
+import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import PropTypes from 'prop-types';
 
-import { AddHttp } from './addHttp'
-import { AddLocal } from './addLocal'
-import { AddGit } from './addGit'
-import { AddHDFS } from './addHDFS'
-import { MountItem } from '../../util/constants'
-import { Context } from '../../util/context'
-import s from '../../spacing.scss'
+// import {AddHttp} from './addHttp';
+import {AddLocal} from './addLocal';
+// // import {AddGit} from './addGit';
+// import {AddHDFS} from './addHDFS';
+import {InputData} from '../../models/data/input-data';
 
-interface Props {
-  mountList: MountItem[]
-  setMountList: (mountList: MountItem[]) => void
-}
+import t from '../../../../app/components/tachyons.scss';
 
-export const AddDataSource = ({
-  mountList,
-  setMountList,
-}: Props): JSX.Element => {
-  const [mountType, setMountType] = useState()
+export const AddDataSource = (props) => {
+  const {dataList, setDataList} = props;
+  const [dataType, setDataType] = useState();
 
   const menuItems = [
     {
       key: 'local',
       text: 'From local ( size<1G )',
-      iconProps: { iconName: 'Documentation' },
+      iconProps: {iconName: 'Documentation'},
       onClick: () => {
-        setMountType('local')
+        setDataType('local');
       },
     },
     {
       key: 'http',
       text: 'From http/https source',
-      iconProps: { iconName: 'InternetSharing' },
+      iconProps: {iconName: 'InternetSharing'},
       onClick: () => {
-        setMountType('http')
+        setDataType('http');
       },
     },
     {
       key: 'git',
       text: 'From github public repo',
-      iconProps: { iconName: 'GitGraph' },
+      iconProps: {iconName: 'GitGraph'},
       onClick: () => {
-        setMountType('git')
+        setDataType('git');
       },
     },
     {
       key: 'hdfs',
       text: 'From PAI HDFS',
-      iconProps: { iconName: 'Cloudy' },
+      iconProps: {iconName: 'Cloudy'},
       onClick: () => {
-        setMountType('hdfs')
+        setDataType('hdfs');
       },
     },
-  ]
+  ];
 
   return (
     <div>
       <PrimaryButton
-        iconProps={{ iconName: 'Add' }}
+        iconProps={{iconName: 'Add'}}
         text='Add Data Source'
-        menuProps={{ items: menuItems }}
+        menuProps={{items: menuItems}}
       />
-      <div className={c(s.mb2)}>
-        {mountType === 'local' && (
+      <div className={c(t.mb2)}>
+        {dataType === 'local' && (
           <AddLocal
-            mountList={mountList}
-            setMountList={setMountList}
-            setMountType={setMountType}
+            dataList={dataList}
+            setDataList={setDataList}
+            setDataType={setDataType}
           />
         )}
-        {mountType === 'http' && (
+        {/* {dataType === 'http' && (
           <AddHttp
-            mountList={mountList}
-            setMountList={setMountList}
-            setMountType={setMountType}
+            dataList={dataList}
+            setDataList={setDataList}
+            setDataType={setDataType}
           />
         )}
-        {mountType === 'git' && (
+        {dataType === 'git' && (
           <AddGit
-            mountList={mountList}
-            setMountList={setMountList}
-            setMountType={setMountType}
+            dataList={dataList}
+            setDataList={setDataList}
+            setDataType={setDataType}
           />
-        )}
-        {mountType === 'hdfs' && (
+        )} */}
+        {/* {dataType === 'hdfs' && (
           <Context.Consumer>
             {value => (
               <AddHDFS
@@ -97,8 +91,13 @@ export const AddDataSource = ({
               />
             )}
           </Context.Consumer>
-        )}
+        )} */}
       </div>
     </div>
-  )
-}
+  );
+};
+
+AddDataSource.propTypes = {
+  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
+  setDataList: PropTypes.func,
+};

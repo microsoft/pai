@@ -1,52 +1,45 @@
-import React, { useState } from 'react'
-import c from 'classnames'
-import { PrimaryButton } from 'office-ui-fabric-react/lib/Button'
-import { TextField } from 'office-ui-fabric-react/lib/TextField'
-import { cloneDeep } from 'lodash'
-import { FontClassNames } from '@uifabric/styling'
-import { Icon } from 'office-ui-fabric-react/lib/Icon'
-import { Dropdown } from 'office-ui-fabric-react/lib/Dropdown'
+import React, {useState} from 'react';
+import c from 'classnames';
+import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {TextField} from 'office-ui-fabric-react/lib/TextField';
+import {cloneDeep} from 'lodash';
+import {FontClassNames} from '@uifabric/styling';
+import {Icon} from 'office-ui-fabric-react/lib/Icon';
+import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
+import PropTypes from 'prop-types';
 
-import { STORAGE_PREFIX, MountItem } from '../../util/constants'
-import t from '../../tachyons.css'
-import s from '../../spacing.scss'
+import {InputData} from '../../models/data/input-data';
+import t from '../../../../app/components/tachyons.scss';
 
-interface Props {
-  mountList: MountItem[]
-  setMountList: (mountList: MountItem[]) => void
-  setMountType: (mountType: string) => void
-}
+const STORAGE_PREFIX = '/test';
 
-export const AddLocal = ({
-  mountList,
-  setMountList,
-  setMountType,
-}: Props): JSX.Element => {
-  const [mountPath, setMountPath] = useState()
-  const [files, setFiles] = useState()
-  const [uploadType, setUploadType] = useState('Files')
-  const submitMount = (): void => {
-    const newMountList = cloneDeep(mountList)
-    const dataSource = files.map((file: any) => file.name).join(', ') // eslint-disable-line @typescript-eslint/no-explicit-any
-    const uploadFiles = files
+export const AddLocal = (props) => {
+  const {dataList, setDataList, setDataType} = props;
+  const [mountPath, setMountPath] = useState();
+  const [files, setFiles] = useState();
+  const [uploadType, setUploadType] = useState('Files');
+  const submitMount = () => {
+    const newMountList = cloneDeep(dataList);
+    const dataSource = files.map((file) => file.name).join(', '); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const uploadFiles = files;
     newMountList.push({
       mountPath,
       dataSource,
       sourceType: 'local',
       uploadFiles,
-    })
+    });
     newMountList.sort((a, b) => {
       if (a.mountPath < b.mountPath) {
-        return -1
+        return -1;
       }
       if (a.mountPath > b.mountPath) {
-        return 1
+        return 1;
       }
-      return 0
-    })
-    setMountList(newMountList)
-    setMountType('none')
-  }
+      return 0;
+    });
+    setDataList(newMountList);
+    setDataType('none');
+  };
   return (
     <div>
       <div className={c(t.flex, t.itemsEnd, t.justifyBetween)}>
@@ -55,9 +48,9 @@ export const AddLocal = ({
           prefix={STORAGE_PREFIX}
           label='The path in container'
           onChange={(_event, newValue) => {
-            setMountPath(`${STORAGE_PREFIX}${newValue}`)
+            setMountPath(`${STORAGE_PREFIX}${newValue}`);
           }}
-          className={c(s.w20)}
+          className={c(t.w20)}
         />
         <label
           htmlFor='upload'
@@ -65,8 +58,8 @@ export const AddLocal = ({
             FontClassNames.medium,
             t.flex,
             t.itemsCenter,
-            s.w20,
-            s.h2,
+            t.w20,
+            t.h2,
             t.bgLightGray,
           )}
         >
@@ -74,16 +67,16 @@ export const AddLocal = ({
             <input
               id='upload'
               type='file'
-              onChange={event => {
-                const fileList = []
+              onChange={(event) => {
+                const fileList = [];
                 if (event.target.files !== null) {
                   for (let i = 0; i < event.target.files.length; i += 1) {
-                    fileList.push(event.target.files[i])
+                    fileList.push(event.target.files[i]);
                   }
                 }
-                setFiles(fileList)
+                setFiles(fileList);
               }}
-              style={{ display: 'none' }}
+              style={{display: 'none'}}
               multiple
             />
           )}
@@ -92,22 +85,22 @@ export const AddLocal = ({
             <input
               id='upload'
               type='file'
-              onChange={event => {
-                const fileList = []
+              onChange={(event) => {
+                const fileList = [];
                 if (event.target.files !== null) {
                   for (let i = 0; i < event.target.files.length; i += 1) {
-                    fileList.push(event.target.files[i])
+                    fileList.push(event.target.files[i]);
                   }
                 }
-                setFiles(fileList)
+                setFiles(fileList);
               }}
-              style={{ display: 'none' }}
+              style={{display: 'none'}}
               webkitdirectory=''
               multiple
             />
           )}
-          <Icon iconName='Upload' className={c(s.mh2, s.pt1)} />
-          <div className={c(s.w4)}>
+          <Icon iconName='Upload' className={c(t.mh2, t.pt1)} />
+          <div className={c(t.w4)}>
             {files === undefined && `Upload ${uploadType}`}
             {files !== undefined && files.length === 1 && files[0].name}
             {files !== undefined && files.length > 1 && `${files.length} Files`}
@@ -121,27 +114,33 @@ export const AddLocal = ({
               text: 'Files',
               title: 'select files to upload',
             },
-            { key: 'folder', text: 'Folder', title: 'select folder to upload' },
+            {key: 'folder', text: 'Folder', title: 'select folder to upload'},
           ]}
-          className={c(s.w4, s.mr4)}
+          className={c(t.w4, t.mr4)}
           onChange={(_event, item) => {
             if (item !== undefined) {
-              setUploadType(item.text)
+              setUploadType(item.text);
             }
           }}
         />
         <PrimaryButton
           text='submit'
-          className={c(s.mr2)}
+          className={c(t.mr2)}
           onClick={submitMount}
         />
         <PrimaryButton
           text='cancel'
           onClick={() => {
-            setMountType('none')
+            setDataType('none');
           }}
         />
       </div>
     </div>
-  )
-}
+  );
+};
+
+AddLocal.propTypes = {
+  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
+  setDataList: PropTypes.func,
+  setDataType: PropTypes.func,
+};

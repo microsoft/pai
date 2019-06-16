@@ -4,7 +4,6 @@ import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
 
-import {MountList} from './mount-list';
 import t from '../../../../app/components/tachyons.scss';
 
 export const TeamStorage = (Props) => {
