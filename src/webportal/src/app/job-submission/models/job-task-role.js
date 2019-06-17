@@ -66,7 +66,7 @@ export class JobTaskRole {
       instances: instances,
       completion: Completion.fromProtocol(completion),
       taskRetryCount: taskRetryCount,
-      commands: isNil(commands) ? '' : commands.join('\n'),
+      commands: commands.join('\n'),
       containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo),

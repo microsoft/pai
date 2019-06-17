@@ -54,7 +54,7 @@ export const PortsList = (props) => {
     <BasicSection sectionLabel='Ports' sectionOptional>
       <FormShortSection>
         <KeyValueList items={ports.map((port) => {
-          return {itemKey: port.portLabel, itemValue: port.portNumber};
+          return {itemKey: port.portLabel, itemValue: String(port.portNumber)};
         })}
         onItemAdd={_onPortAdd}
         onItemDelete={_onPortDelete}/>
