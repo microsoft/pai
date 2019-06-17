@@ -32,6 +32,7 @@ import {FormPage} from './form-page';
 import {JobTaskRole} from '../models/job-task-role';
 import {CompletionSection} from './completion-section';
 import {DeploymentSection} from './deployment-section';
+import {DataComponent} from './data/data-component';
 import {FormSpinButton} from './form-spin-button';
 import {ContainerSizeSection} from './container-size-section';
 
@@ -84,6 +85,7 @@ export const TabFormContent = (props) => {
                       onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          value={jobTaskRole.completion}/>
+      <DataComponent />
       <FormTextField sectionLabel={'Command'}
                      multiline={true}
                      rows={10}

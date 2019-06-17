@@ -50,7 +50,7 @@ export const AddGit = (props) => {
           required={true} // eslint-disable-line react/jsx-boolean-value
           prefix={STORAGE_PREFIX}
           label='The path in container'
-          className={c(t.w5, t.mr3)}
+          className={c(t.w30, t.mr3)}
           onChange={(_event, newValue) => {
             setMountPath(`${STORAGE_PREFIX}${newValue}`);
           }}
@@ -58,7 +58,7 @@ export const AddGit = (props) => {
         <TextField
           required={true} // eslint-disable-line react/jsx-boolean-value
           label='The git repo address'
-          className={c(t.w5, t.mr3)}
+          className={c(t.w30, t.mr3)}
           onChange={(_event, newValue) => {
             setHttpUrl(newValue);
           }}

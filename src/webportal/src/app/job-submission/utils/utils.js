@@ -1,4 +1,5 @@
 import {isObject, isEmpty, isNil, isArrayLike} from 'lodash';
+import {basename} from 'path';
 
 export const keyValueArrayReducer = (acc, cur) => {
   acc = {...acc, ...cur};
@@ -18,11 +19,27 @@ export function removeEmptyProperties(obj) {
     }
 
     // ignore non-array-like primitive type
-    if (!isObject(checkedEle) && !isArrayLike(checkedEle) && !isNil(checkedEle)) {
+    if (
+      !isObject(checkedEle) &&
+      !isArrayLike(checkedEle) &&
+      !isNil(checkedEle)
+    ) {
       return;
     }
 
     delete newObj[key];
   });
   return newObj;
+}
+
+export function getFileNameFromHttp(url) {
+  return basename(url, '.git');
+}
+
+export function getProjectNameFromGit(url) {
+  return basename(url, '.git');
+}
+
+export function getFolderNameFromHDFS(path) {
+  return basename(path);
 }
