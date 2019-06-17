@@ -57,7 +57,7 @@ export const AddDataSource = (props) => {
         text='Add Data Source'
         menuProps={{items: menuItems}}
       />
-      <div className={c(t.mb2)}>
+      <div className={c(t.mb1)}>
         {dataType === 'local' && (
           <AddLocal
             dataList={dataList}

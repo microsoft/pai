@@ -2,46 +2,91 @@ import React, {useState} from 'react';
 import {Stack} from 'office-ui-fabric-react';
 import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {FontClassNames} from '@uifabric/styling';
+import {cloneDeep} from 'lodash';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 
 import {InputData} from '../../models/data/input-data';
-import {MountList} from './mount-list';
+import {
+  SMB_CONFIG,
+  NFS_CONFIG,
+  DFNFS_CONFIG,
+} from '../../models/data/team-data-list';
+import {TeamMountList} from './team-mount-list';
 import t from '../../../../app/components/tachyons.scss';
 
-export const TeamStorage = ({dataList, setDataList}) => {
+export const TeamStorage = ({teamDataList, setTeamDataList}) => {
   const [nfsEnable, setNfsEnable] = useState(false);
-  const [hdfsEnable, setHdfsEnable] = useState(false);
+  const [dfnfsEnable, setDfnfsEnable] = useState(false);
+  const [smbEnable, setSmbEnable] = useState(false);
 
   return (
     <div>
-      <div className={c(FontClassNames.large, t.pb1)}>
-        Team Storage
-      </div>
+      <div className={c(FontClassNames.large, t.pb1)}>Team Share Storage</div>
       <Stack horizontal disableShrink gap='s1'>
         <DefaultButton
           text='dfnfs'
           toggle={true}
+          checked={dfnfsEnable}
+          onClick={() => {
+            let newTeamDataList;
+            if (dfnfsEnable === false) {
+              newTeamDataList = cloneDeep(teamDataList);
+              for (const source of DFNFS_CONFIG) {
+                newTeamDataList.push({
+                  mountPath: source[0],
+                  dataSource: source[1],
+                  sourceType: 'dfnfs',
+                });
+              }
+            } else {
+              newTeamDataList = teamDataList.filter((element) => {
+                return element.sourceType !== 'dfnfs';
+              });
+            }
+            setTeamDataList(newTeamDataList);
+            setDfnfsEnable(!dfnfsEnable);
+          }}
+        />
+        <DefaultButton
+          text='nfs'
+          toggle={true}
           checked={nfsEnable}
           onClick={() => {
+            let newTeamDataList;
+            if (nfsEnable === false) {
+              newTeamDataList = cloneDeep(teamDataList);
+              for (const source of NFS_CONFIG) {
+                newTeamDataList.push({
+                  mountPath: source[0],
+                  dataSource: source[1],
+                  sourceType: 'nfs',
+                });
+              }
+            } else {
+              newTeamDataList = teamDataList.filter((element) => {
+                return element.sourceType !== 'nfs';
+              });
+            }
+            setTeamDataList(newTeamDataList);
             setNfsEnable(!nfsEnable);
           }}
         />
         <DefaultButton
-          text='hdfs'
+          text='smb'
           toggle={true}
-          checked={hdfsEnable}
+          checked={smbEnable}
           onClick={() => {
-            setHdfsEnable(!hdfsEnable);
+            setSmbEnable(!smbEnable);
           }}
         />
       </Stack>
-      <MountList dataList={dataList} setDataList={setDataList} />
+      <TeamMountList dataList={teamDataList} setDataList={setTeamDataList} />
     </div>
   );
 };
 
 TeamStorage.propTypes = {
-  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
-  setDataList: PropTypes.func,
+  teamDataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
+  setTeamDataList: PropTypes.func,
 };

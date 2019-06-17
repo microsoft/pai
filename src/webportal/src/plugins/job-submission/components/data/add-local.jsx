@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import c from 'classnames';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {TextField} from 'office-ui-fabric-react/lib/TextField';
 import {cloneDeep} from 'lodash';
 import {FontClassNames} from '@uifabric/styling';
@@ -99,7 +99,7 @@ export const AddLocal = (props) => {
               multiple
             />
           )}
-          <Icon iconName='Upload' className={c(t.mh2, t.pt1)} />
+          <Icon iconName='Upload' className={c(t.mh2, t.h2)} />
           <div className={c(t.w4)}>
             {files === undefined && `Upload ${uploadType}`}
             {files !== undefined && files.length === 1 && files[0].name}
@@ -123,17 +123,19 @@ export const AddLocal = (props) => {
             }
           }}
         />
-        <PrimaryButton
-          text='submit'
-          className={c(t.mr2)}
-          onClick={submitMount}
-        />
-        <PrimaryButton
-          text='cancel'
-          onClick={() => {
-            setDataType('none');
-          }}
-        />
+        <div>
+          <DefaultButton
+            text='add'
+            className={c(t.mr2)}
+            onClick={submitMount}
+          />
+          <DefaultButton
+            text='cancel'
+            onClick={() => {
+              setDataType('none');
+            }}
+          />
+        </div>
       </div>
     </div>
   );
