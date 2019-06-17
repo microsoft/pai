@@ -19,7 +19,7 @@ import {ThemeProvider} from '@uifabric/foundation';
 import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {capitalize, isEmpty, isNil} from 'lodash';
-import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint} from 'office-ui-fabric-react';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -223,18 +223,40 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'GPUs',
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
-        minWidth: 60,
-        maxWidth: 120,
+        minWidth: 40,
+        maxWidth: 60,
         isResizable: true,
         onRender: (item) => {
-          const gpuAttr = item.containerGpus;
-          return !isNil(gpuAttr) && (
-            <div>
-              {parseGpuAttr(gpuAttr).map((x) => (
-                <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
-              ))}
-            </div>
-          );
+          const gpuAttr = !isNil(item.containerGpus) && parseGpuAttr(item.containerGpus);
+          if (isNil(gpuAttr)) {
+            return null;
+          } else if (gpuAttr.length === 0) {
+            return <div>0</div>;
+          } else {
+            return (
+              <div>
+                <TooltipHost
+                  calloutProps={{
+                    isBeakVisible: false,
+                  }}
+                  tooltipProps={{
+                    onRenderContent: () => (
+                      <div>
+                        {gpuAttr.map((x) => (
+                          <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
+                        ))}
+                      </div>
+                    ),
+                  }}
+                  directionalHint={DirectionalHint.topLeftEdge}
+                >
+                  <div>
+                    {gpuAttr.length}
+                  </div>
+                </TooltipHost>
+              </div>
+            );
+          }
         },
       },
       {
