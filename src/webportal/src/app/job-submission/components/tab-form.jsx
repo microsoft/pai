@@ -25,7 +25,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Pivot, PivotItem, Icon, ActionButton, Stack} from 'office-ui-fabric-react';
+import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-fabric-react';
 import {getFormClassNames, getTabFromStyle} from './form-style';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
@@ -152,18 +152,30 @@ export class TabForm extends React.Component {
       selectedIndex = 0;
     }
 
+    const {spacing} = getTheme();
+
     return (
       <>
         <Stack className={formTabBar} horizontal>
           <Stack.Item styles={tabFormStyle.tabWapper}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
-                   styles={{text: tabFormStyle.tab.text, root: tabFormStyle.tab.root}}
+                   styles={{
+                     text: tabFormStyle.tab.text,
+                     root: tabFormStyle.tab.root,
+                     link: [{margin: 0, padding: `0 ${spacing.l1}`}],
+                     linkIsSelected: [{margin: 0, padding: `0 ${spacing.l1}`}],
+                    }}
                    selectedKey={this._getItemKeyByIndex(selectedIndex)}>
              {pivotItems}
             </Pivot>
           </Stack.Item>
           <Stack.Item disableShrink>
-            <ActionButton iconProps={{iconName: 'CircleAddition'}} text='Add new task role' onClick={this._onItemAdd.bind(this)}/>
+            <ActionButton
+              styles={{root: {padding: `0 ${spacing.l1}`}}}
+              iconProps={{iconName: 'CircleAddition'}}
+              text='Add new task role'
+              onClick={this._onItemAdd.bind(this)}
+            />
           </Stack.Item>
         </Stack>
         <Stack styles={tabFormStyle.tabContent}>

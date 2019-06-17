@@ -29,7 +29,7 @@ import 'whatwg-fetch';
 
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
-import {Fabric, Stack, initializeIcons, StackItem, getTheme} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
 import {JobTaskRole} from './models/job-task-role';
 import {JobInformation} from './components/job-information';
 import {Parameters} from './components/parameters';
@@ -44,7 +44,6 @@ import {isEmpty} from 'lodash';
 initTheme();
 initializeIcons();
 
-const {spacing} = getTheme();
 const formLayout = getFormClassNames().formLayout;
 const topForm = getFormClassNames().topForm;
 
@@ -71,31 +70,40 @@ const JobSubmission = () => {
     <Fabric>
       <Stack className={formLayout}>
         <Stack horizontal gap='l2'>
+          {/* left column */}
           <StackItem grow styles={{root: {overflow: 'auto'}}}>
             <Stack gap='l2'>
               <StackItem className={topForm}>
                 <JobInformation jobInformation={jobInformation}
                                 onChange={(jobInformation) => setJobInformation(jobInformation)}/>
               </StackItem>
-              <StackItem className={topForm}>
-                <Stack gap='l1'>
-                  <TaskRoles taskRoles={jobTaskRoles}
-                              onChange={(jobTaskRoles) => setJobTaskRoles(taskRolesGuard(jobTaskRoles))}/>
-                  <SubmissionSection jobInformation={jobInformation}
-                                      jobTaskRoles={jobTaskRoles}
-                                      parameters={parameters}
-                                      onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
-                                        setJobInformation(updatedJobInfo);
-                                        setJobTaskRoles(taskRolesGuard(updatedTaskRoles));
-                                        setParameters(updatedParameters);
-                                      }}/>
-                </Stack>
+              <StackItem>
+                {/* pivot */}
+                <TaskRoles
+                  taskRoles={jobTaskRoles}
+                  onChange={(jobTaskRoles) => setJobTaskRoles(taskRolesGuard(jobTaskRoles))}
+                />
+              </StackItem>
+              <StackItem>
+                <SubmissionSection
+                  jobInformation={jobInformation}
+                  jobTaskRoles={jobTaskRoles}
+                  parameters={parameters}
+                  onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
+                    setJobInformation(updatedJobInfo);
+                    setJobTaskRoles(taskRolesGuard(updatedTaskRoles));
+                    setParameters(updatedParameters);
+                  }}
+                />
               </StackItem>
             </Stack>
           </StackItem>
+          {/* right column */}
           <StackItem disableShrink styles={{root: [t.w30]}}>
-            <Stack className={topForm} styles={{root: {position: 'fixed',
-                   maxHeight: '80%', overflow: 'auto', marginRight: spacing.l1}}}>
+            <Stack className={topForm} styles={{root: {
+              position: 'sticky',
+              overflow: 'auto',
+            }}}>
               <Parameters parameters={parameters}
                           environment={[]}
                           onChange={(parameters) => setParameters(parameters)}/>
