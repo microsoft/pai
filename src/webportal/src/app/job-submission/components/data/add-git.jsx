@@ -39,7 +39,7 @@ export const AddGit = (props) => {
     //   return;
     // }
     const newDataList = cloneDeep(dataList);
-    newDataList.push({mountPath, dataSource: httpUrl, sourceType: 'git'});
+    newDataList.push(new InputData(mountPath, httpUrl, 'git'));
     setDataList(newDataList);
     setDataType('none');
   };

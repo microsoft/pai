@@ -22,12 +22,7 @@ export const AddLocal = (props) => {
     const newMountList = cloneDeep(dataList);
     const dataSource = files.map((file) => file.name).join(', '); // eslint-disable-line @typescript-eslint/no-explicit-any
     const uploadFiles = files;
-    newMountList.push({
-      mountPath,
-      dataSource,
-      sourceType: 'local',
-      uploadFiles,
-    });
+    newMountList.push(new InputData(mountPath, dataSource, 'local', uploadFiles));
     newMountList.sort((a, b) => {
       if (a.mountPath < b.mountPath) {
         return -1;

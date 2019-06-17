@@ -1,8 +1,8 @@
 export class InputData {
-  constructor(dataType, containerPath, dataSource, uploadFiles=null) {
-    this.data_type = dataType;
-    this.container_path = containerPath;
-    this.data_source = dataSource;
+  constructor(mountPath, dataSource, sourceType, uploadFiles=null) {
+    this.mountPath = mountPath;
+    this.sourceType = sourceType;
+    this.dataSource = dataSource;
     this.uploadFiles = uploadFiles;
   }
 }

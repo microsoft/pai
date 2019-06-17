@@ -16,7 +16,7 @@ export const AddHttp = (props) => {
   const [httpUrl, setHttpUrl] = useState();
   const submitMount = () => {
     const newMountList = cloneDeep(dataList);
-    newMountList.push({mountPath, dataSource: httpUrl, sourceType: 'http'});
+    newMountList.push(new InputData(mountPath, httpUrl, 'http'));
     setDataList(newMountList);
     setDataType('none');
   };

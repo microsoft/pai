@@ -8,7 +8,7 @@ export class TrieNode {
 
 export class MountPathTrie {
   constructor(rootLabel) {
-    this.root = {fullpath: rootLabel, label: rootLabel, subpaths: undefined};
+    this.root = new TrieNode(rootLabel, rootLabel);
   }
 
   get rootNode() {
@@ -42,20 +42,12 @@ export class MountPathTrie {
     }
     while (queryIndex < query.length) {
       if (pivot.subpaths) {
-        const newNode = {
-          fullpath: query.slice(0, queryIndex + 1).join(''),
-          label: query[queryIndex],
-          subpaths: undefined,
-        };
+        const newNode = new TrieNode(query.slice(0, queryIndex + 1).join(''), query[queryIndex]);
         pivot.subpaths.push(newNode);
         pivot = newNode;
       } else {
         pivot.subpaths = [
-          {
-            fullpath: query.slice(0, queryIndex + 1).join(''),
-            label: query[queryIndex],
-            subpaths: undefined,
-          },
+          new TrieNode(query.slice(0, queryIndex + 1).join(''), query[queryIndex]),
         ];
         [pivot] = pivot.subpaths;
       }

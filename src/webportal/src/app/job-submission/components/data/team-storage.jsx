@@ -33,11 +33,7 @@ export const TeamStorage = ({teamDataList, setTeamDataList}) => {
             if (dfnfsEnable === false) {
               newTeamDataList = cloneDeep(teamDataList);
               for (const source of DFNFS_CONFIG) {
-                newTeamDataList.push({
-                  mountPath: source[0],
-                  dataSource: source[1],
-                  sourceType: 'dfnfs',
-                });
+                newTeamDataList.push(new InputData(source[0], source[1], 'dfnfs'));
               }
             } else {
               newTeamDataList = teamDataList.filter((element) => {
@@ -57,11 +53,7 @@ export const TeamStorage = ({teamDataList, setTeamDataList}) => {
             if (nfsEnable === false) {
               newTeamDataList = cloneDeep(teamDataList);
               for (const source of NFS_CONFIG) {
-                newTeamDataList.push({
-                  mountPath: source[0],
-                  dataSource: source[1],
-                  sourceType: 'nfs',
-                });
+                newTeamDataList.push(new InputData(source[0], source[1], 'nfs'));
               }
             } else {
               newTeamDataList = teamDataList.filter((element) => {
