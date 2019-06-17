@@ -48,13 +48,17 @@ export class JobTaskRole {
   }
 
   static fromProtocol(name, taskRoleProtocol, deployments, prerequisites) {
-    const {instances, completion, taskRetryCount, dockerImage,
-           extraContainerOptions, resourcePerInstance, commands} = taskRoleProtocol;
-    const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
-    const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage);
+    const instances = get(taskRoleProtocol, 'instances', 1);
+    const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
+    const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
+    const dockerImage = get(taskRoleProtocol, 'dockerImage');
+    const extraContainerOptions = get(taskRoleProtocol, 'extraContainerOptions', {});
+    const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {});
+    const commands = get(taskRoleProtocol, 'commands', []);
 
-    // Use get to refactor this
-    const ports = isNil(resourcePerInstance.ports) ? []:
+    const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
+    const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage) || {};
+    const ports = isNil(resourcePerInstance.ports) ? [] :
       Object.keys(resourcePerInstance.ports).map((key) => new Port(key, resourcePerInstance.ports[key]));
 
     const jobTaskRole = new JobTaskRole({

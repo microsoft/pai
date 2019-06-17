@@ -53,6 +53,13 @@ const JobSubmission = () => {
   const [parameters, setParameters] = useState([]);
   const [jobInformation, setJobInformation] = useState(new JobBasicInfo({}));
 
+  const taskRolesGuard = (taskRoles)=> {
+    if (isEmpty(taskRoles)) {
+      return [new JobTaskRole({})];
+    }
+    return taskRoles;
+  };
+
   useEffect(() => {
     if (isEmpty(cookies.get('user'))) {
       // layout.component.js will redirect user to index page.
@@ -73,13 +80,13 @@ const JobSubmission = () => {
               <StackItem className={topForm}>
                 <Stack gap='l1'>
                   <TaskRoles taskRoles={jobTaskRoles}
-                              onChange={(jobTaskRoles) => setJobTaskRoles(jobTaskRoles)}/>
+                              onChange={(jobTaskRoles) => setJobTaskRoles(taskRolesGuard(jobTaskRoles))}/>
                   <SubmissionSection jobInformation={jobInformation}
                                       jobTaskRoles={jobTaskRoles}
                                       parameters={parameters}
                                       onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
                                         setJobInformation(updatedJobInfo);
-                                        setJobTaskRoles(updatedTaskRoles);
+                                        setJobTaskRoles(taskRolesGuard(updatedTaskRoles));
                                         setParameters(updatedParameters);
                                       }}/>
                 </Stack>

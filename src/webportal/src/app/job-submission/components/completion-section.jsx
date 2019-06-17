@@ -29,10 +29,10 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
 import {Completion} from '../models/completion';
 import {CSpinButton} from './customized-components';
-import {getCompletionSectionStyle} from './form-style';
+import {getSpinButtonStyle} from './form-style';
 import {FormShortSection} from './form-page';
 
-const completionSectionStyle = getCompletionSectionStyle();
+const spinButtonStyle = getSpinButtonStyle();
 
 export const CompletionSection= (props) => {
   const {onChange, value} = props;
@@ -52,13 +52,13 @@ export const CompletionSection= (props) => {
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Failed Instances'}
                        value={minFailedInstances}
-                       styles={completionSectionStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(v) => _onChange('minFailedInstances', v)}/>
         </Stack>
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Succeed Instances'}
                        value={minSucceededInstances}
-                       styles={completionSectionStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(v) => _onChange('minSucceededInstances', v)}/>
         </Stack>
       </FormShortSection>

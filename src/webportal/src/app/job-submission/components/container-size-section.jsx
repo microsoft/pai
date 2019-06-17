@@ -29,11 +29,11 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
 import {ContainerSize} from '../models/container-size';
 import {CSpinButton} from './customized-components';
-import {getContainerSizeStyle} from './form-style';
+import {getSpinButtonStyle} from './form-style';
 import {FormShortSection} from './form-page';
 
 const {spacing} = getTheme();
-const containerSizeStyle = getContainerSizeStyle();
+const spinButtonStyle = getSpinButtonStyle();
 
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
@@ -60,22 +60,22 @@ export const ContainerSizeSection = (props) => {
         <FormShortSection gap='m'>
           <CSpinButton label={'GPU count'}
                        value={gpu}
-                       styles={containerSizeStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(value)=>_onChange('gpu', value)}/>
           <CSpinButton label={'CPU count'}
                        disabled={!isContainerSizeEnabled}
                        value={cpu}
-                       styles={containerSizeStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(value)=>_onChange('cpu', value)}/>
           <CSpinButton label={'Memory (MB)'}
                        disabled={!isContainerSizeEnabled}
                        value={memoryMB}
-                       styles={containerSizeStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(value)=>_onChange('memoryMB', value)}/>
           <CSpinButton label={'Shared memory (MB)'}
                        value={shmMB}
                        disabled={!isContainerSizeEnabled}
-                       styles={containerSizeStyle.spinButton}
+                       styles={spinButtonStyle}
                        onChange={(value)=>_onChange('shmMB', value)}/>
         </FormShortSection>
         <Stack horizontalAlign='start'>

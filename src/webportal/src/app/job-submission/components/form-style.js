@@ -145,21 +145,11 @@ export const getParameterStyle = () => {
   });
 };
 
-const spinButtonStyle = {
-  labelWrapper: {
-    minWidth: '40%',
-  },
-};
-
-export const getContainerSizeStyle = () => {
+export const getSpinButtonStyle = () => {
   return ({
-    spinButton: spinButtonStyle,
-  });
-};
-
-export const getCompletionSectionStyle = () => {
-  return ({
-    spinButton: spinButtonStyle,
+    labelWrapper: {
+      width: '120px',
+    },
   });
 };
 
