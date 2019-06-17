@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
 import {capitalize, isEmpty, isNil} from 'lodash';
-import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint} from 'office-ui-fabric-react';
+import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint, Icon} from 'office-ui-fabric-react';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -251,7 +251,10 @@ export default class TaskRoleContainerList extends React.Component {
                   directionalHint={DirectionalHint.topLeftEdge}
                 >
                   <div>
-                    {gpuAttr.length}
+                    <span>
+                      {gpuAttr.length}
+                      <Icon iconName='Info' styles={{root: [{fontSize: FontSizes.small, verticalAlign: 'bottom'}, t.ml2, ColorClassNames.neutralSecondary]}} />
+                    </span>
                   </div>
                 </TooltipHost>
               </div>
@@ -276,7 +279,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 300,
         maxWidth: 340,
         onRender: (item) => (
-          <div className={c(t.h100, t.flex, t.justifyCenter, t.itemsCenter)}>
+          <div className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}>
             <div className={c(t.flex, t.h3)}>
               <CommandBarButton
                 className={c(FontClassNames.mediumPlus)}
