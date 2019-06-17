@@ -32,7 +32,7 @@ module.exports = {
         "src/app/components/**/*.js",
         "src/app/home/**/*.js",
         "src/app/user/fabric/**/*.js",
-        "src/plugins/job-submission/**/*.js",
+        "src/app/job-submission/**/*.js",
       ],
       "parser": "babel-eslint"
     }

@@ -60,7 +60,7 @@ const config = (env, argv) => ({
     'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
-    'submit': './src/app/job/job-submit/job-submit.component.js',
+    'submit': './src/app/job-submission/job-submission.jsx',
     'jobList': './src/app/job/job-view/fabric/job-list.jsx',
     'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
     'virtualClusters': './src/app/vc/vc.component.js',
@@ -250,7 +250,7 @@ const config = (env, argv) => ({
     }),
     new MonacoWebpackPlugin({
       languages: ['json', 'yaml'],
-      features: ['smartSelect'],
+      features: ['suggest', 'hover'],
     }),
     new CopyWebpackPlugin([
       {from: 'src/assets', to: 'assets'},
