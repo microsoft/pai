@@ -99,10 +99,10 @@ const JobSubmission = () => {
             </Stack>
           </StackItem>
           {/* right column */}
+          {/* todo: sticky component */}
           <StackItem disableShrink styles={{root: [t.w30]}}>
             <Stack className={topForm} styles={{root: {
               position: 'sticky',
-              overflow: 'auto',
             }}}>
               <Parameters parameters={parameters}
                           environment={[]}
