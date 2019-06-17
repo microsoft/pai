@@ -18,7 +18,7 @@
 import {ThemeProvider} from '@uifabric/foundation';
 import {createTheme, ColorClassNames, FontClassNames, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
-import {capitalize, isEmpty, isNil} from 'lodash';
+import {capitalize, isEmpty, isNil, flatten} from 'lodash';
 import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint, Icon} from 'office-ui-fabric-react';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
@@ -155,10 +155,10 @@ export default class TaskRoleContainerList extends React.Component {
     const columns = [
       {
         key: 'number',
-        name: 'Number',
+        name: 'No.',
         headerClassName: FontClassNames.medium,
         minWidth: 50,
-        maxWidth: 80,
+        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return !isNil(idx) && (
@@ -205,15 +205,10 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: (item) => {
           const ports = item.containerPorts;
           return !isNil(ports) && (
-            <div className={c(t.flex, t.itemsCenter)}>
-              {
-                Object.keys(ports).map((key, idx) => (
-                  <div className={c(idx !== 0 && t.ml3)} key={key}>
-                    <span>{`${key}:`}</span>
-                    <span className={t.ml2}>{ports[key]}</span>
-                  </div>
-                ))
-              }
+            <div className={c(t.truncate)}>
+              {flatten(Object.keys(ports).map(
+                (key, idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`}></span>, `${key}: ${ports[key]}`]
+              ))}
             </div>
           );
         },
@@ -241,11 +236,11 @@ export default class TaskRoleContainerList extends React.Component {
                   }}
                   tooltipProps={{
                     onRenderContent: () => (
-                      <div>
+            <div>
                         {gpuAttr.map((x) => (
-                          <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
-                        ))}
-                      </div>
+                <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
+              ))}
+            </div>
                     ),
                   }}
                   directionalHint={DirectionalHint.topLeftEdge}
@@ -258,7 +253,7 @@ export default class TaskRoleContainerList extends React.Component {
                   </div>
                 </TooltipHost>
               </div>
-            );
+          );
           }
         },
       },
