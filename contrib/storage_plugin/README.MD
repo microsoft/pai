@@ -3,14 +3,123 @@
 A tool to manage external storage in PAI.
 
 ## Index
+- [ What is team wise storage](#Team_storage)
+- [ Team wise storage usages ](#Usages)
+    - [ Setup server ](#Usages_setup_server)	
+    - [ Create storage server in PAI ](#Usages_server)
+    - [ Create storage config in PAI ](#Usages_config)
+    - [ Create storage user in PAI(optional) ](#Usages_user)
+    - [ Use Storage in PAI ](#Usages_job)
+    - [ Example ](#Usages_example)
 - [ Storage data structure ](#Data_structure)
     - [ Server data structure ](#Server_data)
+        - [ Nfs Server data structure ](#Nfs_data)
+        - [ Samba Server data structure ](#Samba_data)
+        - [ Azurefile Server data structure ](#Azurefile_data)
+        - [ Azureblob Server data structure ](#Azureblob_data)
+        - [ Hdfs Server data structure ](#Hdfs_data)
+    - [ Config data structure ](#Config_data)
     - [ User data structure ](#User_data)
-- [ Team wise storage usages ](#Usages)
-    - [ Setup NFS server ](#Usages_nfs)
-    - [ Create server config in PAI storage plugin ](#Usages_server)
-    - [ Create user config in PAI storage plugin ](#Usages_user)
-    - [ Use Storage info in job container ](#Usages_job)
+
+## What is team wise storage <a name="Team_storage"></a>
+Team wise storage is a solution that helps admin to manage NAS(network attached storage) by team/group. After admin configured team wise storage settings, users can easily use NAS in their jobs.<br/>
+Team wise storage solution offers:
+- Multiple NAS support, including NFS, Samba, Azurefile, Azureblob and HDFS
+- Configurable mount structure settings
+- Mixed usage for different NAS
+- Configuration for Team/Group scope
+
+## Team wise storage usages <a name="Usages"></a>
+
+### Setup server <a name="Usages_setup_server"></a>
+- NFS
+Edit /etc/exports, export /root/path/to/share 
+```
+/root/path/to/share (rw, sync, no_root_squash) 
+```
+no_root_squash is needed for storage plugin to creae folders.
+
+- Samba
+After create samba server, create user for PAI to use samba.
+```
+useradd paismb
+smbpasswd -a paismb
+#Input password for paismb
+```
+
+- Azurefile
+Create Azurefile share through azure web portal.
+
+- Azureblob
+Create Azureblob share through azure web portal.
+
+
+### Create storage server in PAI <a name="Usages_server"></a>  
+In PAI dev-box, swith to folder pai/contrib/storage-plugin
+
+Create server config using command:
+- NFS:
+```
+python storagectl.py server set NAME nfs ADDRESS ROOTPATH
+```
+
+- Samba:
+```
+python storagectl.py server set NAME samba ADDRESS ROOTPATH USERNAME PASSWORD DOMAIN
+```
+
+- Azurefile:
+```
+python storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME KEY
+  ```
+
+- Azureblob:
+``` 
+python storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
+```
+
+- HDFS:
+``` 
+python storagectl.py server set NAME hdfs NAMENODE PORT
+```
+
+### Create storage config in PAI <a name="Usages_config"></a>  
+In PAI dev-box, swith to folder pai/contrib/storage-plugin
+
+Create config using command:
+```
+python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+```
+
+### Create storage user in PAI (optional) <a name="Usages_user"></a>
+In PAI dev-box, swith to folder pai/contrib/storage-plugin
+
+Create user config using command:
+```
+python storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
+```
+User config defines user's permissions on servers.
+
+### Use Storage info in job container <a name="Usages_job"></a>
+User can use team wise storage through job submit page. Please refer to related page for details.
+
+### Example <a name="Usages_example"></a>
+Suppose admin has set up a new samba server "smbserver" on "10.0.0.0", created PAI account "paismb" with password "paipwd".
+The structure of samba server is as follows:
+```
+-- root
+    -- data
+    -- users
+        -- user1
+        -- user2
+        ...
+```
+Now we want all members of "paigroup" mount server's data folder to /data, and user's data (e.g user1) to /user by default. The admin should setup storage config in PAI using:
+```bash
+python storagectl.py server set smbserver samba 10.0.0.1 root paismb paipwd local
+python storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver users/%USER -d
+```
+Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be shown and user can choose whether to use it <br/>
 
 
 ## Team wise storage data structures <a name="Data_structure"></a>
@@ -18,97 +127,100 @@ A tool to manage external storage in PAI.
 ### Server data structure <a name="Server_data"></a>
 ```json
 {
+	"spn": "servername",
+	"type": "nfs|samba|azurefile|azureblob"
+}
+```
+#### Nfs Server data structure <a name="Nfs_data"></a>
+```json
+{
+	"spn": "servername",
 	"type": "nfs",
-	"title": "default nfs",
-	"address": "10.0.0.1",
-	"rootPath": "/mnt",
-	"sharedFolders": ["data"],
-	"privateFolders": ["users"]
+	"address": "server/address",
+	"rootPath": "server/root/path"
 }
 ```
 
-- type: Remote server type, currently support nfs.
-- title: Shown name on server selection.
-- address: Remote server address.
-- rootPath: The root share folder on remote server.
-- sharedFolders: The shared folders under root path. Remote server will create folders like [rootPath]/[sharedFolder].
-- privateFolders: The private folders for users. The value is the parent folder before user name. Remote server will create folders like [rootPath]/[privateFolder]/[userName]
-
-
-### User data structure <a name="User_data"></a>
+#### Samba Server data structure <a name="Samba_data"></a>
 ```json
 {
-	"defaultStorage": "storage name",
-	"externalStorages": [
-		"storage name",
-		"storage name2"
+	"spn": "servername",
+	"type": "samba",
+	"address": "server/address",
+	"rootPath": "server/root/path",
+	"userName": "username",
+	"password": "password",
+	"domain": "userdomain"
+}
+```
+
+#### Azurefile Server data structure <a name="Azurefile_data"></a>
+```json
+{
+	"spn": "servername",
+	"type": "azurefile",
+	"dataStore": "datastore",
+	"fileShare": "fileshare",
+	"accountName": "accountname",
+	"key": "key"
+}
+```
+
+#### Azureblob Server data structure <a name="Azureblob_data"></a>
+```json
+{
+	"spn": "servername",
+	"type": "azureblob",
+	"dataStore": "datastore",
+	"containerName": "containername",
+	"accountName": "accountname",
+	"key": "key"
+}
+```
+
+#### Hdfs Server data structure <a name="Hdfs_data"></a>
+```json
+{
+	"spn": "servername",
+	"type": "hdfs",
+	"namenode": "namenode",
+	"port": "port",
+}
+```
+
+### Config data structure <a name="Config_data"></a>
+```json
+{
+	"name": "configname",
+	"gpn": "groupname",
+	"default": false,
+	"servers": [
+		"servername",
+	],
+	"mountInfos": [
+	    {
+	        "mountpoint": "local/mount/point",
+	        "server": "servername",
+	        "path": "server/sub/path"
+	    },
 	]
 }
 ```
 
-- defaultStorage: The default storage config used for user.
-- externalStorages: User will have permission and his own private folders on all servers in externamStorages according to storage settings.
-
-
-## Team wise storage usages <a name="Usages"></a>
-
-### Setup NFS server <a name="Usages_nfs"></a>
-- Remote server: 10.0.0.1
-- Root folder: /share/teamA
-
-Edit /etc/exports, export /share/teamA 
-```
-/share/teamA (rw, sync, no_root_squash) 
-```
-no_root_squash is needed for storage plugin to creae folders.
-
-
-### Create server config in PAI storage plugin <a name="Usages_server"></a>  
-In PAI dev-box, swith to folder contrib/storage-plugin
-
-Create server config using command:
-```
-python storagectl.py server set teamA nfs 10.0.0.1 /share/teamA --sharedfolders data --privatefolders users
+- MountInfo: How user mount server path to local.
+```json
+{
+	"mountpoint": "local/mount/point",
+	"server": "servername",
+	"path": "server/sub/path"
+}
 ```
 
-- This will do the following things:
-	- Update k8s configmap, save server config
-	- Check remote nfs exports
-	- Create temp folder, mount remote folder, 
-		Check and create /share/teamA/data on server as public folder if needed
-		Create private folder /share/teamA/users/[user name] for all users who have access to the server
-	- Unmount and delete temp folder
-   
-
-### Create user config in PAI storage plugin <a name="Usages_user"></a>
-In PAI dev-box, swith to folder contrib/storage-plugin
-
-Create user config using command:
-```
-python storagectl.py user setdefault user1 teamA
-```
-
-- This will do the following things:
-	- Set server teamA as user1's default external storage server
-	- Add teamA in to user1's available storage servers
-	- Create user1's private folder on teamA server
-
-
-### Use Storage info in job container <a name="Usages_job"></a>
-On webportal, we can get all server info and user info through URL:
-```TypeScript
-storageExternalUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/configmaps/storage-external`;
-storageUserUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/default/configmaps/storage-user`;
-
-fetch(storageExternalUrl).then(responseToData);
-fetch(storageUserUrl).then(responseToData);
-```
-
-Then we can get user's default storage config through user name, and get the server detail.
-```TypeScript
-const content = storageUserData[`${user}.json`];
-const { defaultStorage } = JSON.parse(content);
-storageKey = defaultStorage;
-const storageContent = storageExternalData[storageKey];
-const { type, address, rootPath } = JSON.parse(storageContent);
+### User data structure <a name="User_data"></a>
+```json
+{
+	"servers": [
+		"servername",
+	]
+}
 ```
