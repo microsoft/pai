@@ -15,7 +15,7 @@ A tool to manage external storage in PAI.
     - [ Server data structure ](#Server_data)
         - [ Nfs Server data structure ](#Nfs_data)
         - [ Samba Server data structure ](#Samba_data)
-        - [ Azurefile Server data structure ](#Azurfile_data)
+        - [ Azurefile Server data structure ](#Azurefile_data)
         - [ Azureblob Server data structure ](#Azureblob_data)
         - [ Hdfs Server data structure ](#Hdfs_data)
     - [ Config data structure ](#Config_data)
@@ -109,10 +109,10 @@ The structure of samba server is as follows:
 ```
 -- root
     -- data
-        -- users
-            -- user1
-            -- user2
-            ...
+    -- users
+        -- user1
+        -- user2
+        ...
 ```
 Now we want all members of "paigroup" mount server's data folder to /data, and user's data (e.g user1) to /user by default. The admin should setup storage config in PAI using:
 ```bash
@@ -166,7 +166,7 @@ Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be 
 }
 ```
 
-#### Azureblob Server data structure <a name="Azurefile_data"></a>
+#### Azureblob Server data structure <a name="Azureblob_data"></a>
 ```json
 {
 	"spn": "servername",
@@ -198,7 +198,11 @@ Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be 
 		"servername",
 	],
 	"mountInfos": [
-		MountInfo,
+	    {
+	        "mountpoint": "local/mount/point",
+	        "server": "servername",
+	        "path": "server/sub/path"
+	    },
 	]
 }
 ```
