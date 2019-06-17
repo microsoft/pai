@@ -95,9 +95,9 @@ const JobSubmission = () => {
           </StackItem>
           <StackItem disableShrink styles={{root: [t.w30]}}>
             <Stack className={topForm} styles={{root: {position: 'fixed',
-                   maxHeight: '80%', overflow: 'auto', marginRight: spacing.l1}}}>
+                   maxHeight: '80%', overflow: 'auto', marginRight: spacing.l1,
+                   width: `calc(30% - ${spacing.l2} - ${spacing.l1} - ${spacing.l1} - ${spacing.s1})`}}}>
               <Parameters parameters={parameters}
-                          environment={[]}
                           onChange={(parameters) => setParameters(parameters)}/>
             </Stack>
           </StackItem>

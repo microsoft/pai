@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {Stack, DefaultButton, PrimaryButton, Text, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {JobProtocol} from '../models/job-protocol';
@@ -63,6 +63,8 @@ export const SubmissionSection = (props) => {
   const [protocolYaml, setProtocolYaml] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  const monaco = useRef(null);
+
   const _openEditor = (event) => {
     event.preventDefault();
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters);
@@ -90,6 +92,9 @@ export const SubmissionSection = (props) => {
     const updatedTaskRoles = Object.keys(taskRoles)
                                    .map((name) => JobTaskRole.fromProtocol(name, taskRoles[name], deployments, prerequisites));
     onChange(updatedJobInformation, updatedTaskRoles, updatedParameters);
+
+    // Change to the default theme
+    monaco.current.editor.setTheme('vs');
   };
 
   const _exportYaml = (event) => {
@@ -118,6 +123,7 @@ export const SubmissionSection = (props) => {
                    onDismiss={_closeEditor}
                    title='Protocol YAML Editor'
                    header={<Text className={{color: palette.white}}>{String(errorMsg)}</Text>}
+                   monacoRef={monaco}
                    monacoProps={{language: 'yaml',
                                  options: {wordWrap: 'on', readOnly: false},
                                  value: protocolYaml,

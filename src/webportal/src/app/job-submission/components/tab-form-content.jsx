@@ -78,11 +78,6 @@ export const TabFormContent = (props) => {
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
       <PortsList ports={jobTaskRole.ports}
                  onChange={(ports) => _onValueChange('ports', ports)}/>
-      <FormSpinButton sectionLabel={'Task retry count'}
-                      shortStyle
-                      sectionOptional
-                      value={jobTaskRole.taskRetryCount}
-                      onChange={(value)=>_onValueChange('taskRetryCount', value)}/>
       <CompletionSection onChange={(completion)=>_onValueChange('completion', completion)}
                          value={jobTaskRole.completion}/>
       <CommandSection value={jobTaskRole.commands}

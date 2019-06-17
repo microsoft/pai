@@ -26,6 +26,7 @@
 import React from 'react';
 import {SpinButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {debounce} from 'lodash';
 
 export const CSpinButton = (props) => {
   const {onChange, onIncrement, onDecrement, onValidate} = props;
@@ -47,9 +48,9 @@ export const CSpinButton = (props) => {
 
   return (
     <SpinButton {...props}
-      onIncrement={_onIncrement}
-      onDecrement={_onDecrement}
-      onValidate={_onValidate} />
+      onIncrement={debounce(_onIncrement)}
+      onDecrement={debounce(_onDecrement)}
+      onValidate={debounce(_onValidate)} />
   );
 };
 

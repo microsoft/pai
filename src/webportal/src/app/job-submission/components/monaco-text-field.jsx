@@ -1,11 +1,11 @@
 import React from 'react';
 import {Label} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import MonacoEditor from '../../../app/components/monaco-editor';
-import {isNil} from 'lodash';
+import MonacoEditor from '../../components/monaco-editor';
+import {isNil, debounce} from 'lodash';
 
 export const MonacoTextFiled = (props) => {
-  const {value, onChange, label, completionItems, monacoProps} = props;
+  const {value, onChange, label, completionItems, monacoProps, monacoRef} = props;
 
   return (
     <div>
@@ -13,6 +13,7 @@ export const MonacoTextFiled = (props) => {
       <MonacoEditor
         style={{flex: '1 1 100%', minHeight: 0, border: 'solid 1px rgb(194, 194, 194)', paddingTop: '6px', overflow: 'auto'}}
         completionItems={completionItems}
+        monacoRef={monacoRef}
         monacoProps={{
           theme: 'vs',
           language: 'plaintext',
@@ -20,9 +21,10 @@ export const MonacoTextFiled = (props) => {
             wordWrap: 'on',
             readOnly: false,
             theme: 'vs',
+            defaultEOL: 1,
           },
           value: value,
-          onChange: onChange,
+          onChange: debounce(onChange, 100),
           ...monacoProps,
         }}
       />
@@ -36,4 +38,5 @@ MonacoTextFiled.propTypes = {
   label: PropTypes.string,
   completionItems: PropTypes.array,
   monacoProps: PropTypes.object,
+  monacoRef: PropTypes.object,
 };

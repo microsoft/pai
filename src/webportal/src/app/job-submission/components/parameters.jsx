@@ -32,12 +32,25 @@ import {JobParameter} from '../models/job-parameter';
 
 const parameterStyle = getParameterStyle();
 
-const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey'},
-                 {key: 'column2', name: 'Value', fieldName: 'itemValue'}];
+const columns = [{key: 'column1', name: 'Environment Variable Name', fieldName: 'itemKey', isResizable: true},
+                 {key: 'column2', name: 'Description', fieldName: 'itemValue', isResizable: true}];
+
+const environment = [{itemKey: 'PAI_JOB_NAME', itemValue: ''},
+                     {itemKey: 'PAI_USER_NAME', itemValue: ''},
+                     {itemKey: 'PAI_DEFAULT_FS_URI', itemValue: ''},
+                     {itemKey: 'PAI_TASK_ROLE_COUNT', itemValue: ''},
+                     {itemKey: 'PAI_TASK_ROLE_LIST', itemValue: ''},
+                     {itemKey: 'PAI_TASK_ROLE_TASK_COUNT', itemValue: ''},
+                     {itemKey: 'PAI_HOST_IP', itemValue: ''},
+                     {itemKey: 'PAI_JOB_NAME', itemValue: ''},
+                     {itemKey: 'PAI_JOB_NAME', itemValue: ''},
+                     {itemKey: 'PAI_DATA_DIR', itemValue: ''},
+                     {itemKey: 'PAI_CODE_DIR', itemValue: ''},
+                     {itemKey: 'PAI_OUTPUT_DIR', itemValue: ''}];
 
 export const Parameters= (props) => {
-  const {parameters, environment, onChange} = props;
-  const [isParameterOn, setParameterOn] = useState(false);
+  const {parameters, onChange} = props;
+  const [isParameterOn, setParameterOn] = useState(true);
   const [iconName, setIconName] = useState('ChevronDown');
   const _onClick = () => {
     if (!isParameterOn) {
@@ -92,7 +105,5 @@ export const Parameters= (props) => {
 
 Parameters.propTypes = {
   parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
-  environment: PropTypes.array.isRequired,
   onChange: PropTypes.func,
 };
-

@@ -24,7 +24,7 @@ import MonacoEditor from './monaco-editor';
 
 import t from './tachyons.scss';
 
-const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas}) => {
+const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
   return (
     <div>
       <Panel
@@ -48,6 +48,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
         <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
           <MonacoEditor
             style={{flex: '1 1 100%', minHeight: 0}}
+            monacoRef={monacoRef}
             monacoProps={{
               theme: 'vs-dark',
               language: 'text',
@@ -93,6 +94,7 @@ MonacoPanel.propTypes = {
   monacoProps: PropTypes.object,
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
+  monacoRef: PropTypes.object,
 };
 
 export default MonacoPanel;

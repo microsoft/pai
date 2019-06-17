@@ -27,6 +27,7 @@ import React from 'react';
 import {Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
         DetailsListLayoutMode, ColumnActionsMode, Text, DetailsRow} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'lodash';
 
 const newKeyValueItem = (itemKey, itemValue, onItemDelete) => {
   return ({
@@ -90,7 +91,9 @@ export class KeyValueList extends React.Component {
                  itemValue: <TextField placeholder='Enter a value...'
                                        value={itemValue}
                                        onChange = {(_, itemValue) => this.setState({itemValue: itemValue})}/>,
-                 button: <DefaultButton text='Add' onClick={this._onItemAdd.bind(this)}/>}}
+                 button: <DefaultButton text='Add'
+                                        onClick={this._onItemAdd.bind(this)}
+                                        disabled={isEmpty(itemKey) || isEmpty(itemValue)}/>}}
           itemIndex={-1}
         />
       </Stack>
@@ -101,8 +104,8 @@ export class KeyValueList extends React.Component {
     const {items} = this.props;
     const dataItems= this._renderItems(items);
 
-    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey', minWidth: 100, maxWidth: 150, isResizable: true},
-                     {key: 'column2', name: 'Value', fieldName: 'itemValue', minWidth: 100, maxWidth: 150, isResizable: true},
+    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey', minWidth: 100, maxWidth: 120, isResizable: true},
+                     {key: 'column2', name: 'Value', fieldName: 'itemValue', minWidth: 100, maxWidth: 120, isResizable: true},
                      {key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled, maxWidth: 80, isResizable: true}];
     return (
       <Stack>
