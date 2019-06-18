@@ -38,27 +38,6 @@ const getAllGroup = async (req, res, next) => {
   }
 };
 
-const createGroupIfGroupNotExist = async (req, res, next) => {
-  try {
-    const groupData = req.groupData;
-    const groupname = groupData.groupname;
-    const groupValue = {
-      groupname: groupData.groupname,
-      description: groupData.description,
-      externalName: groupData.externalName,
-      extension: {},
-    };
-    await groupModel.createGroup(groupname, groupValue);
-    next();
-  } catch (error) {
-    if (error.status === 409) {
-      next();
-    } else {
-      return next(createError.unknown(error));
-    }
-  }
-};
-
 const createGroup = async (req, res, next) => {
   try {
     const groupname = req.body.groupname;
@@ -66,7 +45,7 @@ const createGroup = async (req, res, next) => {
       groupname: req.body.groupname,
       description: req.body.description,
       externalName: req.body.externalName,
-      extension: {},
+      extension: req.body.extension,
     };
     await groupModel.createGroup(groupname, groupValue);
     return res.status(201).json({
@@ -156,7 +135,6 @@ const deleteGroup = async (req, res, next) => {
 module.exports = {
   getGroup,
   getAllGroup,
-  createGroupIfGroupNotExist,
   createGroup,
   updateGroupExtension,
   updateGroupDescription,

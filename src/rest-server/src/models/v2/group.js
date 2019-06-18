@@ -75,6 +75,9 @@ const deleteGroup = async (groupname) => {
     for (let userItem of userList) {
       if (userItem['grouplist'].includes(groupname)) {
         userItem['grouplist'].splice(userItem['grouplist'].indexOf(groupname), 1);
+        if (userItem['extension']['virtualCluster'] && userItem['extension']['virtualCluster'].includes(groupname)) {
+          userItem['extension']['virtualCluster'].splice(userItem['extension']['virtualCluster'].indexOf(groupname), 1);
+        }
         updateUserList.push(userItem);
       }
     }
@@ -138,17 +141,6 @@ const virtualCluster2GroupList = async (virtualCluster) => {
   const groupList = virtualCluster.slice(0);
   return groupList;
 };
-
-const groupList2VirtualCluster = async (grouplist) => {
-  let ret = [];
-  for (const groupname of grouplist) {
-    if (groupname !== authConfig.groupConfig.adminGroup.groupname) {
-      ret.push(groupname);
-    }
-  }
-  return ret;
-};
-
 
 if (config.env !== 'test') {
   (async function() {
@@ -334,7 +326,6 @@ module.exports = {
   createGroup,
   updateGroup,
   virtualCluster2GroupList,
-  groupList2VirtualCluster,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
 };

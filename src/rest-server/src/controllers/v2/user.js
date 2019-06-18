@@ -85,7 +85,9 @@ const createUserIfUserNotExist = async (req, res, next) => {
         }
       }
     } else {
+      grouplist = [];
       for (let [key, value] of Object.entries(groupType)) {
+        grouplist.push(key);
         if (value === 'vc') {
           virtualCluster.push(key);
         }
