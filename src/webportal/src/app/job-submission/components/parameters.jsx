@@ -35,18 +35,7 @@ const parameterStyle = getParameterStyle();
 const columns = [{key: 'column1', name: 'Environment Variable Name', fieldName: 'itemKey', isResizable: true},
                  {key: 'column2', name: 'Description', fieldName: 'itemValue', isResizable: true}];
 
-const environment = [{itemKey: 'PAI_JOB_NAME', itemValue: ''},
-                     {itemKey: 'PAI_USER_NAME', itemValue: ''},
-                     {itemKey: 'PAI_DEFAULT_FS_URI', itemValue: ''},
-                     {itemKey: 'PAI_TASK_ROLE_COUNT', itemValue: ''},
-                     {itemKey: 'PAI_TASK_ROLE_LIST', itemValue: ''},
-                     {itemKey: 'PAI_TASK_ROLE_TASK_COUNT', itemValue: ''},
-                     {itemKey: 'PAI_HOST_IP', itemValue: ''},
-                     {itemKey: 'PAI_JOB_NAME', itemValue: ''},
-                     {itemKey: 'PAI_JOB_NAME', itemValue: ''},
-                     {itemKey: 'PAI_DATA_DIR', itemValue: ''},
-                     {itemKey: 'PAI_CODE_DIR', itemValue: ''},
-                     {itemKey: 'PAI_OUTPUT_DIR', itemValue: ''}];
+const environment = [];
 
 export const Parameters= (props) => {
   const {parameters, onChange} = props;

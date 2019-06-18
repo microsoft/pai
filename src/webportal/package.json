@@ -22,8 +22,6 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
-    "@uifabric/fluent-theme": "^0.16.9",
-    "@uifabric/merge-styles": "^6.17.4",
     "@webcomponents/custom-elements": "^1.2.1",
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",

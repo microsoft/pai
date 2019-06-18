@@ -180,3 +180,27 @@ export const getImportButtonStyle = () => {
     },
   });
 };
+
+export const getDockerSectionStyle = () => {
+  return ({
+    auth: {
+      outerForm: {
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+        top: 0,
+        left: 0,
+        zIndex: 1,
+      },
+      innerForm: {
+        width: '450px',
+        padding: spacing.l1,
+        boxSizing: 'border-box',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
+        borderStyle: '1px solid rgba(0, 0, 0, 0.2)',
+        borderRadius: '6px',
+        backgroundColor: palette.white,
+      },
+    },
+  });
+};

@@ -100,7 +100,7 @@ export class JobTaskRole {
       completion: this.completion,
       dockerImage: this.dockerImage,
       resourcePerInstance: resourcePerInstance,
-      commands: isEmpty(this.commands) ? [] : this.commands.split('\n').map((line)=>(line.trim())),
+      commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
       extraContainerOptions: extraContainerOptions,
     });
 
