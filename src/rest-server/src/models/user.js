@@ -295,7 +295,7 @@ if (config.env !== 'test') {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);
         } else {
-          logger.warn('users:', userInfoList);
+          // logger.warn('users:', userInfoList);
           if (userInfoList.length === 0) {
             setDefaultAdmin();
           }

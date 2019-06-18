@@ -48,6 +48,7 @@
     "jsonwebtoken": "~8.1.0",
     "lodash": "^4.17.11",
     "mocha": "~5.0.0",
+    "module-alias": "^2.2.0",
     "morgan": "~1.9.0",
     "mustache": "~2.3.0",
     "nock": "~9.1.6",
@@ -59,6 +60,15 @@
     "unirest": "~0.5.1",
     "winston": "~2.4.0",
     "xml2js": "~0.4.19"
+  },
+  "_moduleAliases": {
+    "@config": "src/config",
+    "@routes": "src/routes",
+    "@middlewares": "src/middlewares",
+    "@controllers": "src/controllers",
+    "@templates": "src/templates",
+    "@models": "src/models",
+    "@utils": "src/util"
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",

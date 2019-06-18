@@ -25,22 +25,22 @@ const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
-const launcherConfig = require('../config/launcher');
-const userModel = require('./user');
-const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const Hdfs = require('../util/hdfs');
-const azureEnv = require('../config/azure');
-const paiConfig = require('../config/paiConfig');
-const env = require('../util/env');
+const launcherConfig = require('@config/launcher');
+const userModel = require('@models/user');
+const yarnContainerScriptTemplate = require('@templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@templates/dockerContainerScript');
+const createError = require('@utils/error');
+const logger = require('@config/logger');
+const Hdfs = require('@utils/hdfs');
+const azureEnv = require('@config/azure');
+const paiConfig = require('@config/paiConfig');
+const env = require('@utils/env');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
   exitSpecPath = process.env[env.exitSpecPath];
   if (!path.isAbsolute(exitSpecPath)) {
-    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
+    exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
   }
 } else {
   exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';

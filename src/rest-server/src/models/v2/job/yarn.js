@@ -23,17 +23,17 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModel = require('../user');
-const {protocolConvert} = require('../../util/converter');
-const HDFS = require('../../util/hdfs');
-const createError = require('../../util/error');
-const protocolSecret = require('../../util/protocolSecret');
-const logger = require('../../config/logger');
-const azureEnv = require('../../config/azure');
-const paiConfig = require('../../config/paiConfig');
-const launcherConfig = require('../../config/launcher');
-const yarnContainerScriptTemplate = require('../../templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('../../templates/dockerContainerScript');
+const userModel = require('@models/user');
+const {protocolConvert} = require('@utils/converter');
+const HDFS = require('@utils/hdfs');
+const createError = require('@utils/error');
+const protocolSecret = require('@utils/protocolSecret');
+const logger = require('@config/logger');
+const azureEnv = require('@config/azure');
+const paiConfig = require('@config/paiConfig');
+const launcherConfig = require('@config/launcher');
+const yarnContainerScriptTemplate = require('@templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@templates/dockerContainerScript');
 
 
 const generateFrameworkDescription = (frameworkName, userName, config) => {

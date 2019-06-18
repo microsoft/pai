@@ -22,6 +22,7 @@
  */
 
 // module dependencies
+require('module-alias/register');
 const config = require('./config/index');
 const launcherConfig = require('./config/launcher');
 const logger = require('./config/logger');

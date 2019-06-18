@@ -20,7 +20,7 @@
 const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('../../middlewares/v2/asyncHandler');
-const job = require('../../models/v2/job');
+const job = require('@models/v2/job');
 const createError = require('../../util/error');
 
 

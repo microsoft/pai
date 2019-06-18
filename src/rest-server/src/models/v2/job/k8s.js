@@ -16,44 +16,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const Joi = require('joi');
-
-// get config from environment variables
-let yarnConfig = {
-  yarnUri: process.env.YARN_URI,
-  webserviceRequestHeaders: {
-    'Accept': 'application/json',
-  },
-  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
-  webserviceUpdateQueueHeaders: {
-    'Content-Type': 'application/xml',
-  },
-  yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
+const get = async (frameworkName) => {
+  return null;
 };
 
+const put = async (frameworkName, config, rawConfig) => {
+  return null;
+};
 
-const yarnConfigSchema = Joi.object().keys({
-  yarnUri: Joi.string()
-    .uri()
-    .required(),
-  webserviceRequestHeaders: Joi.object()
-    .required(),
-  yarnVcInfoPath: Joi.string()
-    .uri()
-    .required(),
-  webserviceUpdateQueueHeaders: Joi.object()
-    .required(),
-  yarnVcUpdatePath: Joi.string()
-    .uri()
-    .required(),
-}).required();
+const getConfig = (frameworkName) => {
+  return null;
+};
 
-const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
-if (error) {
-  throw new Error(`yarn config error\n${error}`);
-}
-yarnConfig = value;
-
-
-module.exports = yarnConfig;
+// module exports
+module.exports = {
+  get,
+  put,
+  getConfig,
+};

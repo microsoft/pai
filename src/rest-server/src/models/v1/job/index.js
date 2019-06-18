@@ -17,43 +17,34 @@
 
 
 // module dependencies
-const Joi = require('joi');
+const unirest = require('unirest');
+const config = require('@config/index');
+const logger = require('@config/logger');
+const yarnConfig = require('@config/yarn');
+const launcherConfig = require('@config/launcher');
 
-// get config from environment variables
-let yarnConfig = {
-  yarnUri: process.env.YARN_URI,
-  webserviceRequestHeaders: {
-    'Accept': 'application/json',
-  },
-  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
-  webserviceUpdateQueueHeaders: {
-    'Content-Type': 'application/xml',
-  },
-  yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
-};
-
-
-const yarnConfigSchema = Joi.object().keys({
-  yarnUri: Joi.string()
-    .uri()
-    .required(),
-  webserviceRequestHeaders: Joi.object()
-    .required(),
-  yarnVcInfoPath: Joi.string()
-    .uri()
-    .required(),
-  webserviceUpdateQueueHeaders: Joi.object()
-    .required(),
-  yarnVcUpdatePath: Joi.string()
-    .uri()
-    .required(),
-}).required();
-
-const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
-if (error) {
-  throw new Error(`yarn config error\n${error}`);
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
+      }
+    });
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@models/v1/job/yarn');
 }
-yarnConfig = value;
-
-
-module.exports = yarnConfig;

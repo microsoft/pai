@@ -18,73 +18,10 @@
 
 // module dependencies
 const Joi = require('joi');
-const unirest = require('unirest');
-const config = require('./index');
-const logger = require('./logger');
 
 
-// get config from environment variables
-let launcherConfig = {
-  hdfsUri: process.env.HDFS_URI,
-  webhdfsUri: process.env.WEBHDFS_URI,
-  webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
-  webserviceRequestHeaders: (namespace) => {
-    const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    if (namespace) {
-      headers['UserName'] = namespace;
-    }
-    return headers;
-  },
-  jobRootDir: './frameworklauncher',
-  jobDirCleanUpIntervalSecond: 7200,
-  jobConfigFileName: 'JobConfig.json',
-  frameworkDescriptionFilename: 'FrameworkDescription.json',
-  amResource: {
-    cpuNumber: 1,
-    memoryMB: 1024,
-    diskType: 0,
-    diskMB: 0,
-  },
-};
-
-launcherConfig.healthCheckPath = () => {
-  return `${launcherConfig.webserviceUri}/v1`;
-};
-
-launcherConfig.frameworksPath = () => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks`;
-};
-
-launcherConfig.frameworkPath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}`;
-};
-
-launcherConfig.frameworkStatusPath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
-};
-
-launcherConfig.frameworkAggregatedStatusPath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/AggregatedFrameworkStatus`;
-};
-
-launcherConfig.frameworkRequestPath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
-};
-
-launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
-};
-
-launcherConfig.frameworkInfoWebhdfsPath = (frameworkName) => {
-  return `${launcherConfig.webhdfsUri}/webhdfs/v1/Launcher/${frameworkName}/FrameworkInfo.json?op=OPEN`;
-};
-
-// define launcher config schema
-const launcherConfigSchema = Joi.object().keys({
+// define yarn launcher config schema
+const yarnLauncherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
     .uri()
     .required(),
@@ -148,26 +85,74 @@ const launcherConfigSchema = Joi.object().keys({
       .min(0)
       .default(0),
   }),
-
 }).required();
 
-const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema);
-if (error) {
-  throw new Error(`launcher config error\n${error}`);
-}
-launcherConfig = value;
+let launcherConfig;
+const launcherType = process.env.LAUNCHER_TYPE;
+if (launcherType === 'yarn') {
+  // get config from environment variables
+  launcherConfig = {
+    hdfsUri: process.env.HDFS_URI,
+    webhdfsUri: process.env.WEBHDFS_URI,
+    webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
+    webserviceRequestHeaders: (namespace) => {
+      const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
 
-// framework launcher health check
-if (config.env !== 'test') {
-  unirest.get(launcherConfig.healthCheckPath())
-  .timeout(2000)
-  .end((res) => {
-    if (res.status === 200) {
-      logger.info('connected to framework launcher successfully');
-    } else {
-      throw new Error('cannot connect to framework launcher');
-    }
-  });
+      if (namespace) {
+        headers['UserName'] = namespace;
+      }
+      return headers;
+    },
+    jobRootDir: './frameworklauncher',
+    jobDirCleanUpIntervalSecond: 7200,
+    jobConfigFileName: 'JobConfig.json',
+    frameworkDescriptionFilename: 'FrameworkDescription.json',
+    amResource: {
+      cpuNumber: 1,
+      memoryMB: 1024,
+      diskType: 0,
+      diskMB: 0,
+    },
+    healthCheckPath: () => {
+      return `${launcherConfig.webserviceUri}/v1`;
+    },
+    frameworksPath: () => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks`;
+    },
+    frameworkPath: (frameworkName) => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}`;
+    },
+    frameworkStatusPath: (frameworkName) => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
+    },
+    frameworkAggregatedStatusPath: (frameworkName) => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/AggregatedFrameworkStatus`;
+    },
+    frameworkRequestPath: (frameworkName) => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
+    },
+    frameworkExecutionTypePath: (frameworkName) => {
+      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
+    },
+    frameworkInfoWebhdfsPath: (frameworkName) => {
+      return `${launcherConfig.webhdfsUri}/webhdfs/v1/Launcher/${frameworkName}/FrameworkInfo.json?op=OPEN`;
+    },
+  };
+
+  const {error, value} = Joi.validate(launcherConfig, yarnLauncherConfigSchema);
+  if (error) {
+    throw new Error(`launcher config error\n${error}`);
+  }
+  launcherConfig = value;
+  launcherConfig.type = launcherType;
+} else if (launcherType === 'k8s') {
+  launcherConfig = {};
+  launcherConfig.type = launcherType;
+} else {
+  throw new Error(`unknown launcher type ${launcherType}`);
 }
 
 // module exports
