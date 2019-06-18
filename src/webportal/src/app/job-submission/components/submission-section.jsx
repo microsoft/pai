@@ -24,7 +24,7 @@
  */
 
 import React, {useState, useRef} from 'react';
-import {Stack, DefaultButton, PrimaryButton, Text, getTheme} from 'office-ui-fabric-react';
+import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {JobProtocol} from '../models/job-protocol';
 import MonacoPanel from '../../../app/components/monaco-panel';
@@ -33,9 +33,11 @@ import {JobTaskRole} from '../models/job-task-role';
 import {JobParameter} from '../models/job-parameter';
 import {isNil, debounce} from 'lodash';
 import {submitJob} from '../utils/conn';
+import {getImportButtonStyle} from './form-style';
 
 const user = cookies.get('user');
 const {palette} = getTheme();
+const importButtonStyle = getImportButtonStyle();
 
 const _exportFile = (data, filename, type) => {
   let file = new Blob([data], {type: type});
@@ -72,10 +74,8 @@ export const SubmissionSection = (props) => {
     setProtocolYaml(protocol.toYaml());
   };
 
-  const _closeEditor = () => {
+  const _udpatedComponent = (protocolYaml) => {
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
-    setEditorOpen(false);
-
     if (isNil(updatedJob)) {
       return;
     }
@@ -92,6 +92,11 @@ export const SubmissionSection = (props) => {
     const updatedTaskRoles = Object.keys(taskRoles)
                                    .map((name) => JobTaskRole.fromProtocol(name, taskRoles[name], deployments, prerequisites));
     onChange(updatedJobInformation, updatedTaskRoles, updatedParameters);
+  };
+
+  const _closeEditor = () => {
+    setEditorOpen(false);
+    _udpatedComponent(protocolYaml);
 
     // Change to the default theme
     monaco.current.editor.setTheme('vs');
@@ -100,6 +105,24 @@ export const SubmissionSection = (props) => {
   const _exportYaml = (event) => {
     event.preventDefault();
     _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'text/yaml');
+  };
+
+  const _importFile = (event) => {
+    event.preventDefault();
+    const files = event.target.files;
+    if (!files || !files[0]) {
+      return;
+    }
+    const fileReader = new FileReader();
+    fileReader.addEventListener('load', () => {
+      const text = String(fileReader.result);
+      try {
+        _udpatedComponent(text);
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+    fileReader.readAsText(files[0]);
   };
 
   const _onYamlTextChange = (text) => {
@@ -119,6 +142,12 @@ export const SubmissionSection = (props) => {
       <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
       <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
       <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+      <DefaultButton>
+        <Label styles={{root: importButtonStyle.label}}>
+          {'Import'}
+          <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
+        </Label>
+      </DefaultButton>
       <MonacoPanel isOpen={isEditorOpen}
                    onDismiss={_closeEditor}
                    title='Protocol YAML Editor'
