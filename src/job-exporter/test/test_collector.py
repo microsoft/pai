@@ -45,6 +45,7 @@ class TestContainerCollector(base.TestBase):
                 "trialslot_nnimain_d65bc5ac",
                 "tuner",
                 "0",
+                "this_is_pod_name_val",
                 "0,1,",
                 12345)
 
@@ -55,7 +56,8 @@ class TestContainerCollector(base.TestBase):
                 "username": "openmindstudio",
                 "job_name": "trialslot_nnimain_d65bc5ac",
                 "role_name": "tuner",
-                "task_index": "0"}
+                "task_index": "0",
+                "pod_name": "this_is_pod_name_val"}
 
         self.assertEqual(target_labels, labels)
 

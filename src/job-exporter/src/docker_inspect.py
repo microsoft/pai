@@ -27,29 +27,32 @@ logger = logging.getLogger(__name__)
 
 class InspectResult(object):
     """ Represents a task meta data, parsed from docker inspect result """
-    def __init__(self, username, job_name, role_name, task_index, gpu_ids, pid):
+    def __init__(self, username, job_name, role_name, task_index, pod_name,
+            gpu_ids, pid):
         self.username = username
         self.job_name = job_name
         self.role_name = role_name
         self.task_index = task_index
+        self.pod_name = pod_name
         self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
         self.pid = pid
 
     def __repr__(self):
-        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, pid %s" % \
-                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.pid)
+        return "username %s, job_name %s, role_name %s, task_index %s, pod_name %s, gpu_ids %s, pid %s" % \
+                (self.username, self.job_name, self.role_name, self.task_index, self.pod_name, self.gpu_ids, self.pid)
 
     def __eq__(self, o):
         return self.username == o.username and \
                 self.job_name == o.job_name and \
                 self.role_name == o.role_name and \
                 self.task_index == o.task_index and \
+                self.pod_name == o.pod_name and \
                 self.gpu_ids == o.gpu_ids and \
                 self.pid == o.pid
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
-        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
+        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME", "POD_NAME"}
 
 
 def parse_docker_inspect(inspect_output):
@@ -83,6 +86,7 @@ def parse_docker_inspect(inspect_output):
             m.get("PAI_JOB_NAME") or m.get("DLWS_JOB_ID"),
             m.get("PAI_CURRENT_TASK_ROLE_NAME"),
             m.get("PAI_TASK_INDEX"),
+            m.get("POD_NAME") or m.get("PAI_JOB_NAME"),
             m.get("GPU_ID"),
             pid)
 
