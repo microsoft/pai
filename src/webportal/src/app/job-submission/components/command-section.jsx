@@ -26,36 +26,27 @@
 import React from 'react';
 import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
-import {Deployment} from '../models/deployment';
 import {MonacoTextFiled} from './monaco-text-field';
 
-export const DeploymentSection = (props) => {
+export const CommandSection = (props) => {
   const {onChange, value} = props;
-  const {preCommands, postCommands} = value;
 
-  const _onChange = (keyName, newValue) => {
-    const updatedDeployment = new Deployment(value);
-    updatedDeployment[keyName] = newValue;
+  const _onChange = (newValue) => {
     if (onChange !== undefined) {
-      onChange(updatedDeployment);
+      onChange(newValue);
     }
   };
 
   return (
-    <BasicSection sectionLabel={'Deployment'} sectionOptional>
-      <MonacoTextFiled monacoProps={{height: 120}}
-                  label={'PreCommands'}
-                  value={preCommands}
-                  onChange={(newValue) => _onChange('preCommands', newValue)}/>
-      <MonacoTextFiled monacoProps={{height: 120}}
-                       label={'PostCommands'}
-                       value={postCommands}
-                       onChange={(newValue) => _onChange('postCommands', newValue)}/>
+    <BasicSection sectionLabel={'Command'}>
+      <MonacoTextFiled monacoProps={{height: 240}}
+                       value={value}
+                       onChange={_onChange}/>
     </BasicSection>
   );
 };
 
-DeploymentSection.propTypes = {
-  value: PropTypes.instanceOf(Deployment).isRequired,
+CommandSection.propTypes = {
+  value: PropTypes.string.isRequired,
   onChange: PropTypes.func,
 };

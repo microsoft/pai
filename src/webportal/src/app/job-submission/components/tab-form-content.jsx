@@ -32,6 +32,7 @@ import {JobTaskRole} from '../models/job-task-role';
 import {DataComponent} from './data/data-component';
 import {FormSpinButton} from './form-spin-button';
 import {ContainerSizeSection} from './container-size-section';
+import {CommandSection} from './command-section';
 
 export const TabFormContent = (props) => {
   const {jobTaskRole, onContentChange} = props;
@@ -73,12 +74,8 @@ export const TabFormContent = (props) => {
                             })}
                             onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
-      <DataComponent />
-      <FormTextField sectionLabel={'Command'}
-                     multiline={true}
-                     rows={10}
-                     value={jobTaskRole.commands}
-                     onBlur={(value)=>_onValueChange('commands', value)}/>
+      <CommandSection value={jobTaskRole.commands}
+                      onChange={(value)=>_onValueChange('commands', value)}/>
     </FormPage>
   );
 };

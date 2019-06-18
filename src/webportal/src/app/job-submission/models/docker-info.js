@@ -23,13 +23,13 @@
  * SOFTWARE.
  */
 
-import {isNil} from 'lodash';
+import {removeEmptyProperties} from '../utils/utils';
 
 export class DockerInfo {
   constructor(props) {
     const {uri, auth} = props;
     this.uri = uri || '';
-    this.auth = auth;
+    this.auth = auth || {};
   }
 
   static fromProtocol(dockerInfoProtocol) {
@@ -37,11 +37,7 @@ export class DockerInfo {
   }
 
   convertToProtocolFormat() {
-    const dockerProtocolFormat = {type: 'dockerimage', auth: this.auth, uri: this.uri};
-    if (isNil(this.auth)) {
-      delete dockerProtocolFormat.auth;
-    }
-    return dockerProtocolFormat;
+    return removeEmptyProperties({type: 'dockerimage', auth: this.auth, uri: this.uri});
   }
 }
 

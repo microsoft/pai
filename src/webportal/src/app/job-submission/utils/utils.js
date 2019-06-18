@@ -13,17 +13,13 @@ export function removeEmptyProperties(obj) {
 
   const newObj = {...obj};
   Object.keys(newObj).forEach((key) => {
-    const checkedEle = newObj[key];
-    if (!isEmpty(checkedEle)) {
+    const onCheckingElement = newObj[key];
+    if (!isEmpty(onCheckingElement)) {
       return;
     }
 
     // ignore non-array-like primitive type
-    if (
-      !isObject(checkedEle) &&
-      !isArrayLike(checkedEle) &&
-      !isNil(checkedEle)
-    ) {
+    if (!isObject(onCheckingElement) && !isArrayLike(onCheckingElement) && !isNil(onCheckingElement)) {
       return;
     }
 

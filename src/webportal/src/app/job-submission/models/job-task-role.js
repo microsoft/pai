@@ -33,11 +33,10 @@ import {keyValueArrayReducer, removeEmptyProperties} from '../utils/utils';
 
 export class JobTaskRole {
   constructor(props) {
-    const {name, instances, taskRetryCount, dockerInfo, ports, commands, completion, deployment, containerSize,
+    const {name, instances, dockerInfo, ports, commands, completion, deployment, containerSize,
            isContainerSizeEnabled} = props;
     this.name = name || '';
     this.instances = instances || 1;
-    this.taskRetryCount = taskRetryCount || 0;
     this.dockerInfo = dockerInfo || new DockerInfo({});
     this.ports = ports || [];
     this.commands = commands || '';
@@ -50,7 +49,6 @@ export class JobTaskRole {
   static fromProtocol(name, taskRoleProtocol, deployments, prerequisites) {
     const instances = get(taskRoleProtocol, 'instances', 1);
     const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
-    const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
     const dockerImage = get(taskRoleProtocol, 'dockerImage');
     const extraContainerOptions = get(taskRoleProtocol, 'extraContainerOptions', {});
     const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {});
@@ -65,8 +63,7 @@ export class JobTaskRole {
       name: name,
       instances: instances,
       completion: Completion.fromProtocol(completion),
-      taskRetryCount: taskRetryCount,
-      commands: isNil(commands) ? '' : commands.join('\n'),
+      commands: commands.join('\n'),
       containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo),
@@ -101,10 +98,9 @@ export class JobTaskRole {
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
       completion: this.completion,
-      taskRetryCount: this.taskRetryCount,
       dockerImage: this.dockerImage,
       resourcePerInstance: resourcePerInstance,
-      commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n'),
+      commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
       extraContainerOptions: extraContainerOptions,
     });
 

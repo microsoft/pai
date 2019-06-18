@@ -23,24 +23,88 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {TextField, DefaultButton, Stack, getId} from 'office-ui-fabric-react';
+import React, {useState, useRef} from 'react';
+import {TextField, DefaultButton, Stack, getId, PrimaryButton, Label, StackItem} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/docker-info';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
+import {getDockerSectionStyle} from './form-style';
+import t from '../../components/tachyons.scss';
+
+const dockerSectionStyle = getDockerSectionStyle();
+
+const AuthTextFiled = (props) => {
+  const {label, value, componentRef, type} = props;
+  return (
+    <Stack horizontal gap='s1'>
+      <StackItem styles={{root: [t.w30]}}>
+        <Label>{label}</Label>
+      </StackItem>
+      <StackItem grow>
+        <TextField value={value} componentRef={componentRef} type={type}/>
+      </StackItem>
+    </Stack>
+  );
+};
+
+AuthTextFiled.propTypes = {
+  value: PropTypes.string,
+  label: PropTypes.string.isRequired,
+  componentRef: PropTypes.object,
+  type: PropTypes.string,
+};
 
 export const DockerSection = (props) => {
   const {onValueChange, value} = props;
-  const {uri} = value;
+  const {uri, auth} = value;
+
+  const nameInput = useRef(null);
+  const password = useRef(null);
+  const registryuri = useRef(null);
+
   const textFieldId = getId('textField');
 
-  const _onChange = (keyName, value) => {
+  const [showAuth, setShowAuth] = useState(false);
+
+  const _onChange = (keyName, propValue) => {
     const updatedDockerInfo = new DockerInfo(value);
-    updatedDockerInfo[keyName] = value;
+    updatedDockerInfo[keyName] = propValue;
     if (onValueChange !== undefined) {
       onValueChange(updatedDockerInfo);
     }
+  };
+
+  const _onAuthClick = () => {
+    setShowAuth(true);
+  };
+
+  const _onAuthSubmit = () => {
+    setShowAuth(false);
+    _onChange('auth', {username: nameInput.current.value,
+                       password: password.current.value,
+                       registryuri: registryuri.current.value});
+  };
+
+  const _authSection = () => {
+    return (
+      <Stack horizontalAlign='center' verticalAlign='center' styles={{root: dockerSectionStyle.auth.outerForm}}>
+        <Stack gap='l1' styles={{root: dockerSectionStyle.auth.innerForm}}>
+          <span>Auth</span>
+          <Stack gap='m'>
+            <AuthTextFiled label='username' value={auth.username} componentRef={nameInput}/>
+            <AuthTextFiled label='password' value={auth.username} componentRef={nameInput} type='password'/>
+            <AuthTextFiled label='registryuri' value={auth.username} componentRef={nameInput}/>
+          </Stack>
+          <Stack>
+            <Stack horizontal gap='m' horizontalAlign='center'>
+              <PrimaryButton onClick={_onAuthSubmit} >Submit</PrimaryButton>
+              <DefaultButton onClick={()=>setShowAuth(false)}>Cancel</DefaultButton>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
+    );
   };
 
   return (
@@ -52,13 +116,15 @@ export const DockerSection = (props) => {
                      onBlur={(event) => _onChange('uri', event.target.value)}
                      value={uri}/>
          </FormShortSection>
-        <DefaultButton>Auth</DefaultButton>
+        <DefaultButton onClick={_onAuthClick}>Auth</DefaultButton>
       </Stack>
+      {showAuth && _authSection()}
     </BasicSection>
   );
 };
 
 DockerSection.propTypes = {
   value: PropTypes.instanceOf(DockerInfo).isRequired,
+  auth: PropTypes.object,
   onValueChange: PropTypes.func,
 };
