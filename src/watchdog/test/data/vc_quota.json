@@ -1,0 +1,34 @@
+{
+  "result": [
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":20}",
+      "vcName": "platform"
+    },
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":6}",
+      "vcName": "vc1"
+    },
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":0}",
+      "vcName": "bert"
+    },
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":0}",
+      "vcName": "multimedia"
+    },
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":0}",
+      "vcName": "quantus"
+    },
+    {
+      "metadata": "{\"P40\":{\"num_gpu_per_node\":4}}",
+      "quota": "{\"P40\":0}",
+      "vcName": "relevance"
+    }
+  ]
+}

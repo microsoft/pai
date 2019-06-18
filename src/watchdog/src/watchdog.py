@@ -61,6 +61,9 @@ list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
 list_nodes_histogram = Histogram("k8s_api_list_nodes_latency_seconds",
         "Response latency for list nodes from k8s api (seconds)")
 
+list_vc_quota_histogram = Histogram("list_vc_quota_latency_seconds",
+        "Response latency for list vc quota from restful api (seconds)")
+
 def gen_pai_pod_gauge():
     return GaugeMetricFamily("pai_pod_count", "count of pai pod",
             labels=["service_name", "name", "namespace", "phase", "host_ip",
@@ -100,6 +103,20 @@ service_response_histogram = Histogram("service_response_latency_seconds",
 
 service_response_counter = Counter("service_response_code",
         "total count of http return code", ["service_name", "service_ip", "code"])
+
+def gen_k8s_vc_gpu_total():
+    return GaugeMetricFamily("k8s_vc_gpu_total", "gpu total in vc",
+            labels=["vc_name", "gpu_type"])
+
+def gen_k8s_vc_gpu_available():
+    return GaugeMetricFamily("k8s_vc_gpu_available",
+            "gpu available for non preemptable job in vc",
+            labels=["vc_name", "gpu_type"])
+
+def gen_k8s_vc_gpu_preemptive_available():
+    return GaugeMetricFamily("k8s_vc_gpu_preemptive_availabe",
+            "gpu available for preemptable job in vc",
+            labels=["vc_name", "gpu_type"])
 
 ##### watchdog will generate above metrics
 
@@ -202,7 +219,6 @@ class PodInfo(object):
     def __repr__(self):
         return "%s: %s" % (self.name, self.gpu)
 
-
 def process_service_endpoints(service_name, host_ip, annotations, service_endpoints):
     annotation_ns = "monitor.watchdog"
     port_key = annotation_ns + "/port"
@@ -231,7 +247,7 @@ def process_service_endpoints(service_name, host_ip, annotations, service_endpoi
                 ServiceEndpoint(service_name, host_ip, port, path, timeout))
 
 
-def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_endpoints):
+def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_endpoints, vc_usage):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
@@ -250,6 +266,19 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_e
                     "nvidia.com/gpu") or 0)
             used_gpu += max(req_gpu, limit_gpu)
     pods_info[host_ip].append(PodInfo(pod_name, used_gpu))
+
+    vc = walk_json_field_safe(pod, "metadata", "labels", "vcName")
+    preemptable = walk_json_field_safe(pod, "metadata", "labels", "preemptionAllowed")
+
+    if vc is not None and preemptable is not None:
+        gpu_type = walk_json_field_safe(pod, "metadata", "labels", "gpuType")
+        if gpu_type is None:
+            gpu_type = ""
+
+        if preemptable == "True" or preemptable == "true":
+            vc_usage.add_preemptable_used(vc, gpu_type, used_gpu)
+        else:
+            vc_usage.add_used(vc, gpu_type, used_gpu)
 
     labels = pod["metadata"].get("labels")
     if labels is None or "app" not in labels:
@@ -317,14 +346,14 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info, service_e
 
 
 def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
-        pods_info, service_endpoints):
+        pods_info, service_endpoints, vc_usage):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
                 "catch exception when parsing pod item",
                 None,
                 item,
                 pai_pod_gauge, pai_container_gauge,
-                pods_info, service_endpoints)
+                pods_info, service_endpoints, vc_usage)
 
     list(map(_map_fn, pods_object["items"]))
 
@@ -460,22 +489,95 @@ def process_nodes_status(nodes_object, pods_info):
             node_gpu_avail, node_gpu_total, node_gpu_reserved]
 
 
-def process_pods(k8s_api_addr, ca_path, headers, pods_info, service_endpoints):
+def process_vc_quota(vc_object):
+    result = {}
+
+    for vc_info in vc_object["result"]:
+        name = vc_info["vcName"]
+        quota = json.loads(vc_info["quota"])
+        result[name] = quota # quota is a map which key is gpu_type, value is int count
+
+    return result
+
+
+def query_vc_quota_info(vc_quota_url):
+    if vc_quota_url is None:
+        return {}
+
+    vc_object = request_with_histogram(vc_quota_url, list_vc_quota_histogram,
+            None, None)
+    return process_vc_quota(vc_object)
+
+
+class VcUsage(object):
+    def __init__(self):
+        # key is vc_name, value is a map with key to be gpu_type and value is an
+        # array of two int.
+        # The first is total used, the second is those non-preemptable used
+        self.map = collections.defaultdict(lambda :
+                collections.defaultdict(lambda : [0, 0]))
+
+    def add_preemptable_used(self, vc, gpu_type, count):
+        self.map[vc][gpu_type][0] += count
+
+    def add_used(self, vc, gpu_type, count):
+        self.map[vc][gpu_type][0] += count
+        self.map[vc][gpu_type][1] += count
+
+
+def process_vc_info(vc_info, vc_usage, vc_total_gauge, vc_avail_gauge,
+    vc_preemptive_avail_gauge):
+    for vc_name, gpu_info in vc_info.items():
+        for gpu_type, total in gpu_info.items():
+            vc_total_gauge.add_metric([vc_name, gpu_type], total)
+
+            if vc_name not in vc_usage.map or gpu_type not in vc_usage.map[vc_name]:
+                # no job running in this vc or using this gpu type
+                vc_avail_gauge.add_metric([vc_name, gpu_type], total)
+                vc_preemptive_avail_gauge.add_metric([vc_name, gpu_type], total)
+
+    for vc_name, vc_usage_info in vc_usage.map.items():
+        for gpu_type, vc_used in vc_usage_info.items():
+            if vc_name not in vc_info:
+                logger.warning("ignore used gpu in %s, but vc quota do not have this vc, possible due to job template error", vc_name)
+                continue
+
+            if gpu_type not in vc_info[vc_name]:
+                logger.warning("ignore used gpu %s in %s, but vc quota do not have this gpu_type", gpu_type, vc_name)
+                continue
+
+            total = vc_info[vc_name][gpu_type]
+            total_used, non_preemptable_used = vc_used
+            vc_avail_gauge.add_metric([vc_name, gpu_type], total - total_used)
+            vc_preemptive_avail_gauge.add_metric([vc_name, gpu_type],
+                    total - non_preemptable_used)
+
+
+def process_pods(k8s_api_addr, ca_path, headers, pods_info, service_endpoints, vc_quota_url):
     list_pods_url = "{}/api/v1/pods".format(k8s_api_addr)
 
     pai_pod_gauge = gen_pai_pod_gauge()
     pai_container_gauge = gen_pai_container_gauge()
 
+    vc_total = gen_k8s_vc_gpu_total()
+    vc_avail = gen_k8s_vc_gpu_available()
+    vc_preemptive_avail = gen_k8s_vc_gpu_preemptive_available()
+
+    vc_usage = VcUsage()
+
     try:
+        vc_info = query_vc_quota_info(vc_quota_url)
+
         pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
                 ca_path, headers)
         process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
-                pods_info, service_endpoints)
+                pods_info, service_endpoints, vc_usage)
+        process_vc_info(vc_info, vc_usage, vc_total, vc_avail, vc_preemptive_avail)
     except Exception as e:
         error_counter.labels(type="parse").inc()
-        logger.exception("failed to process pods from namespace %s", ns)
+        logger.exception("failed to process pods")
 
-    return [pai_pod_gauge, pai_container_gauge]
+    return [pai_pod_gauge, pai_container_gauge, vc_total, vc_avail, vc_preemptive_avail]
 
 
 def process_nodes(k8s_api_addr, ca_path, headers, pods_info):
@@ -605,6 +707,8 @@ def loop(args, services_ref, result_ref):
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
 
+    vc_quota_url = args.vc_url
+
     ca_path = args.ca
     bearer_path = args.bearer
     if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
@@ -626,8 +730,10 @@ def loop(args, services_ref, result_ref):
             pods_info = collections.defaultdict(lambda : [])
 
             service_endpoints = []
+
             result.extend(process_pods(address, ca_path, headers, pods_info,
-                service_endpoints))
+                service_endpoints, vc_quota_url))
+
             services_ref.set(service_endpoints, datetime.datetime.now())
 
             result.extend(process_nodes(address, ca_path, headers, pods_info))
@@ -669,6 +775,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
     parser.add_argument("--ca", "-c", help="ca file path")
     parser.add_argument("--bearer", "-b", help="bearer token file path")
+    parser.add_argument("--vc_url", "-u", required=False, help="url to list vc quota")
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",

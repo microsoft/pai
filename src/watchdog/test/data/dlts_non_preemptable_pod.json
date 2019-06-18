@@ -1,0 +1,260 @@
+{
+    "metadata": {
+        "name": "27cd4600-692e-4410-b514-a2547d88ad71-worker1",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/27cd4600-692e-4410-b514-a2547d88ad71-worker1",
+        "uid": "51b28641-61b9-11e9-9957-000d3a1707fc",
+        "resourceVersion": "14592494",
+        "creationTimestamp": "2019-04-18T09:06:57Z",
+        "labels": {
+            "distPort": "3040",
+            "distRole": "worker",
+            "jobName": "tutorialtensorflow",
+            "podName": "27cd4600-692e-4410-b514-a2547d88ad71-worker1",
+            "run": "27cd4600-692e-4410-b514-a2547d88ad71",
+            "userName": "dixu",
+            "vcName": "some_vc_name",
+            "preemptionAllowed": "False",
+            "gpuType": "P40"
+        }
+    },
+    "spec": {
+        "volumes": [
+            {
+                "name": "resolv",
+                "hostPath": {
+                    "path": "/etc/resolv.conf",
+                    "type": ""
+                }
+            },
+            {
+                "name": "6aba981baa894bceaed0f041a123145e",
+                "hostPath": {
+                    "path": "/dlwsdata/work/dixu",
+                    "type": ""
+                }
+            },
+            {
+                "name": "job",
+                "hostPath": {
+                    "path": "/dlwsdata/work/dixu/jobs/190418/27cd4600-692e-4410-b514-a2547d88ad71/worker1",
+                    "type": ""
+                }
+            },
+            {
+                "name": "work",
+                "hostPath": {
+                    "path": "/dlwsdata/work/dixu",
+                    "type": ""
+                }
+            },
+            {
+                "name": "data",
+                "hostPath": {
+                    "path": "/dlwsdata/storage/imagenet",
+                    "type": ""
+                }
+            },
+            {
+                "name": "rootsshkey",
+                "hostPath": {
+                    "path": "/dlwsdata/work/dixu/.ssh",
+                    "type": ""
+                }
+            },
+            {
+                "name": "dshm",
+                "emptyDir": {
+                    "medium": "Memory"
+                }
+            },
+            {
+                "name": "default-token-xqzf9",
+                "secret": {
+                    "secretName": "default-token-xqzf9",
+                    "defaultMode": 420
+                }
+            }
+        ],
+        "containers": [
+            {
+                "name": "27cd4600-692e-4410-b514-a2547d88ad71",
+                "image": "dlws/tutorial-tensorflow:1.5",
+                "command": [
+                    "bash",
+                    "/job/launch-27cd4600-692e-4410-b514-a2547d88ad71-worker1.sh"
+                ],
+                "ports": [
+                    {
+                        "hostPort": 3040,
+                        "containerPort": 3040,
+                        "protocol": "TCP"
+                    }
+                ],
+                "env": [
+                    {
+                        "name": "FAMILY_TOKEN",
+                        "value": "3b5817949c704aeeb0438516c2816fcf"
+                    },
+                    {
+                        "name": "DLWS_REST_API",
+                        "value": "None"
+                    },
+                    {
+                        "name": "DLWS_USER_NAME",
+                        "value": "dixu"
+                    },
+                    {
+                        "name": "DLWS_JOB_ID",
+                        "value": "27cd4600-692e-4410-b514-a2547d88ad71"
+                    },
+                    {
+                        "name": "DLWS_NUM_PS",
+                        "value": "1"
+                    },
+                    {
+                        "name": "DLWS_NUM_WORKER",
+                        "value": "2"
+                    },
+                    {
+                        "name": "DLWS_NUM_GPU_PER_WORKER",
+                        "value": "1"
+                    },
+                    {
+                        "name": "POD_NAME",
+                        "valueFrom": {
+                            "fieldRef": {
+                                "apiVersion": "v1",
+                                "fieldPath": "metadata.name"
+                            }
+                        }
+                    },
+                    {
+                        "name": "POD_IP",
+                        "valueFrom": {
+                            "fieldRef": {
+                                "apiVersion": "v1",
+                                "fieldPath": "status.podIP"
+                            }
+                        }
+                    },
+                    {
+                        "name": "LD_LIBRARY_PATH",
+                        "value": "/usr/local/nvidia/lib64/"
+                    }
+                ],
+                "resources": {
+                    "limits": {
+                        "nvidia.com/gpu": "1"
+                    },
+                    "requests": {
+                        "cpu": "1",
+                        "nvidia.com/gpu": "1"
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "name": "6aba981baa894bceaed0f041a123145e",
+                        "mountPath": "/home/dixu"
+                    },
+                    {
+                        "name": "job",
+                        "mountPath": "/job"
+                    },
+                    {
+                        "name": "work",
+                        "mountPath": "/work"
+                    },
+                    {
+                        "name": "data",
+                        "mountPath": "/data"
+                    },
+                    {
+                        "name": "rootsshkey",
+                        "mountPath": "/sshkey/.ssh"
+                    },
+                    {
+                        "name": "resolv",
+                        "mountPath": "/etc/resolv.conf"
+                    },
+                    {
+                        "name": "dshm",
+                        "mountPath": "/dev/shm"
+                    },
+                    {
+                        "name": "default-token-xqzf9",
+                        "readOnly": true,
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                    }
+                ],
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "imagePullPolicy": "Always"
+            }
+        ],
+        "restartPolicy": "Never",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "dltsp40-worker-bgbizu",
+        "securityContext": {
+        },
+        "imagePullSecrets": [
+            {
+                "name": "regcred"
+            }
+        ],
+        "schedulerName": "default-scheduler"
+    },
+    "status": {
+        "phase": "Failed",
+        "conditions": [
+            {
+                "type": "Initialized",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2019-04-18T09:06:58Z"
+            },
+            {
+                "type": "Ready",
+                "status": "False",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2019-05-30T11:40:21Z",
+                "reason": "ContainersNotReady",
+                "message": "containers with unready status: [27cd4600-692e-4410-b514-a2547d88ad71]"
+            },
+            {
+                "type": "PodScheduled",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2019-04-18T09:06:57Z"
+            }
+        ],
+        "hostIP": "192.168.0.7",
+        "podIP": "10.2.192.5",
+        "startTime": "2019-04-18T09:06:58Z",
+        "containerStatuses": [
+            {
+                "name": "27cd4600-692e-4410-b514-a2547d88ad71",
+                "state": {
+                    "terminated": {
+                        "exitCode": 137,
+                        "reason": "Error",
+                        "startedAt": "2019-04-18T09:07:00Z",
+                        "finishedAt": "2019-05-30T11:40:07Z",
+                        "containerID": "docker://107e0ed00d8c0a38ed4af1fcfe33cb0e259fe4e7009ebe03f7cbcdecbf3e35e1"
+                    }
+                },
+                "lastState": {
+                },
+                "ready": false,
+                "restartCount": 0,
+                "image": "dlws/tutorial-tensorflow:1.5",
+                "imageID": "docker-pullable://dlws/tutorial-tensorflow@sha256:cf850a71c7d54bdf0e41f544d2661677919ec6f26ab833ef8a7b39ec0ef429d1",
+                "containerID": "docker://107e0ed00d8c0a38ed4af1fcfe33cb0e259fe4e7009ebe03f7cbcdecbf3e35e1"
+            }
+        ],
+        "qosClass": "Burstable"
+    }
+}
