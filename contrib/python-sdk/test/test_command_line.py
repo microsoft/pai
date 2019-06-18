@@ -34,7 +34,7 @@ def run_test_command(cmd: Union[str, list], flags: dict, args: Union[list, str]=
 
 
 def gen_expected(dic: dict, **kwargs):
-    dic2 = {k.replace("-", "_"): v if k!="passwd" else "******" for k, v in dic.items()}
+    dic2 = {k.replace("-", "_"): v if k!="password" else "******" for k, v in dic.items()}
     dic2.update(kwargs)
     return dic2
 
@@ -44,7 +44,7 @@ class TestCliArgs(unittest.TestCase):
         "cluster-alias": "cluster-for-test",
         "pai-uri": "http://x.x.x.x",
         "user": "myuser",
-        "passwd": "password",
+        "password": "password",
     }
     hdfs_ut = {
         "storage-alias": "hdfs-for-test",
@@ -61,18 +61,20 @@ class TestCliArgs(unittest.TestCase):
         alias = self.cluster_ut["cluster-alias"]
         # test for command `opai cluster add` and `opai cluster list`
         run_command("opai unset cluster-alias")
+        run_command("opai cluster delete %s" % alias)
         run_test_command("opai cluster add", self.cluster_ut)
         cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
         expectedOutput = gen_expected(self.cluster_ut)
-        expectedOutput["storages"] = []
+        expectedOutput.update(storages=[], default_storage_alias=None)
         self.assertDictEqual(expectedOutput, cluster_bk)
 
         # test for command `opai cluster attach-hdfs`
         with self.assertRaises(CalledProcessError):
-            run_test_command("opai cluster attach-hdfs", self.hdfs_ut)
-        run_test_command("opai cluster attach-hdfs -a %s" % alias, self.hdfs_ut)
+            run_test_command("opai cluster attach-hdfs", self.hdfs_ut, "> /dev/null 2>&1")
+        run_test_command("opai cluster attach-hdfs -a %s --default" % alias, self.hdfs_ut)
         cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
         expectedOutput["storages"].append(gen_expected(self.hdfs_ut, user="myuser", protocol="webHDFS"))
+        expectedOutput["default_storage_alias"] = self.hdfs_ut["storage-alias"]
         self.assertDictEqual(expectedOutput, cluster_bk)
 
     def test_job(self):
@@ -83,10 +85,14 @@ class TestCliArgs(unittest.TestCase):
         self.assertFalse(alias in clusters)
         run_command("opai unset cluster-alias")
 
+        # `job submit`
+        self.assertDictEqual(EngineRelease().process(['job', 'submit', '--preview', 'mnist.yaml']), from_file('mnist.yaml'))
+        print("job submit test successfully")
+
         # `opai job sub` with incompleted args
         for k in self.job_c.keys():
             print("test sub command without flag --%s" % k)
-            self.run_test_sub(self.job_c, "ls", ignore_job_c=[k])
+            self.run_test_sub(self.job_c, "ls > /dev/null 2>&1", ignore_job_c=[k])
 
         # `opai job sub`
         self.job_c["gpu"] = 1
@@ -114,8 +120,7 @@ class TestCliArgs(unittest.TestCase):
 
     @property
     def job_cfg_file(self):
-        return Job.get_config_file(Namespace(job_name=self.job_c["job-name"], v2=False))
-
+        return Job.get_config_file(job_name=self.job_c["job-name"], v2=False)
 
     def run_test_sub(self, job_c: dict, user_cmd, error_expected: bool=True, ignore_job_c: list=[]):
             rmtree(os.path.join(".openpai", "jobs", job_c["job-name"]), ignore_errors=True)

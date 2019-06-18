@@ -16,17 +16,15 @@ class foobar(Namespace):
     __type__ = 'foobar'
     __fields__ = {
         "aa": "xx",
-        "bb": {
-            "help": "message for bb",
-            "default": "yy",
-        }
+        "bb":  "yy",
+        "dd": dict()
     }
 
     def define(self,
                parser, #type: argparse.ArgumentParser
                ):
         super().define(parser)
-        self.add_argument(parser, '--foo', default='bar')
+        parser.add_argument('--foo', default='bar')
 
 
 class TestCliArgs(unittest.TestCase):
@@ -57,10 +55,13 @@ class TestCliArgs(unittest.TestCase):
 
     def test_namespace(self):
         dic = dict(a=1, b=2, x=10, y=100)
-        dic2 = dict(type='foobar', foo="bar", aa="xx", bb="yy", **dic)
+        dic2 = dict(foo="bar", aa="xx", bb="yy", dd={}, **dic)
         self.compare_namespace_with_dic(Namespace(**dic), dic)
         self.compare_namespace_with_dic(Namespace().from_dict(dic), dic)
         self.compare_namespace_with_dic(foobar().from_dict(dic), dic2)
+        dic2["dd"] = dict(hello="world")
+        self.compare_namespace_with_dic(foobar().from_dict(dic2), dic2)
+
 
     def compare_namespace_with_dic(self,
                                    ns, #type: Namespace

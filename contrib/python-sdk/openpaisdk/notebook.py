@@ -42,20 +42,20 @@ def submit_notebook(
     extra_args=[] # type: list
     ):
     """submit_notebook submit current notebook to openpai
-    
+
     Arguments:
         image {str} -- docker image
-    
+
     Keyword Arguments:
         job_dir {str} -- remote storage path to upload code, if None, use user/$USER/jobs/$JOB_NAME (default: {None})
         nb_file {str} -- notebook path, if None, use current notebook (default: {None})
-        client {Cluster} -- OpenPAI client, if None, use Cluster.from_json('openpai.json', alias) (default: {None})
+        client {ClusterClient} -- OpenPAI client, if None, use ClusterClient.from_json('openpai.json', alias) (default: {None})
         alias {str} -- client alias (default: {None})
         job_name {str} -- job name, if None, use notebook name plus random string (default: {None})
         resources {dict} -- resource requirements (default: {{}})
         sources {list} -- source files to be uploaded (default: {[]})
         pip_requirements {list} -- pip install commands to execute first
-    
+
     Returns:
         [str] -- job name
     """

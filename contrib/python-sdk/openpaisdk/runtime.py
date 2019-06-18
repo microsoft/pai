@@ -9,7 +9,7 @@ import os
 def runtime_deployment(job_config: dict, wdir: str=''):
     t_name = os.environ.get('PAI_CURRENT_TASK_ROLE_NAME', 'main')
     req_dic = {getattr(req, r).__type__: getattr(req, r) for r in dir(req) if r.endswith('Requirement')}
-    for r in job_config['extras']['prequisites']:
+    for r in job_config['extras']['prerequisites']:
         if r['task_role_name'] in [None, t_name]:
             a = req_dic[r['type']](**r)  # type: req.Requirement
             a.process()

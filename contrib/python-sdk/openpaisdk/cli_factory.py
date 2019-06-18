@@ -1,7 +1,7 @@
 import argparse
 from openpaisdk import __logger__
 from openpaisdk.job import Job
-
+from openpaisdk.core import ClusterList
 
 class ArgumentError(Exception):
 
@@ -37,15 +37,18 @@ class ActionFactory(Action):
         self.define_arguments = getattr(self, "define_arguments_" + suffix, super().define_arguments)
         self.check_arguments = getattr(self, "check_arguments_" + suffix, super().check_arguments)
         self.do_action = getattr(self, "do_action_" + suffix, None)
+        self.__job__ = Job()
+        self.__clusters__ = ClusterList()
 
     def restore(self, args):
         if getattr(args, 'job_name', None):
-            self.__job__ = Job.restore(args.job_name)
+            self.__job__.load(job_name=args.job_name)
+        self.__clusters__.load()
         return self
 
     def store(self, args):
-        if getattr(self, '__job__', None):
-            self.__job__.store()
+        self.__job__.save()
+        self.__clusters__.save()
         return self
 
 

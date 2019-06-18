@@ -1,159 +1,145 @@
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
-from openpaisdk.io_utils import from_file, to_file
-from openpaisdk.utils import merge_two_object, psel
-from openpaisdk.utils import OrganizedList as ol
-from openpaisdk import __jobs_cache__, __install__, __logger__, __cluster_config_file__, __defaults__, __sdk_branch__
-from openpaisdk import get_client_cfg
 import argparse
 import os
+from typing import Union
+from copy import deepcopy
+
+from openpaisdk import (__cluster_config_file__, __defaults__, __install__,
+                        __jobs_cache__, __logger__, __sdk_branch__)
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not, get_args
+from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.utils import OrganizedList as ol
+from openpaisdk.utils import merge_two_object, psel
 
 
-class JobSpec(Namespace):
-    __type__ = 'job-common-spec'
-    __fields__ = {
-        "requirements": [], # prerequisites
-    }
+__protocol_filename__ = "job_protocol.yaml"
+__config_filename__ = "job_config.json"
+__protocol_unit_types__ = ["job", "data", "script", "dockerimage", "output"]
 
-    def define(self, parser: argparse.ArgumentParser):
-        super().define(parser)
-        cli_add_arguments(self, parser, [
-            '--job-name',
-            '--cluster-alias',
-            '--storage-alias', # use which storage for code transfer
-            '--workspace',
-            '--code-dir',
-            '--sources',
-            '--image',
-            '--disable-sdk-install'
-        ])
+
+class ProtocolUnit:
+
+    @staticmethod
+    def validate(u: dict):
+        assert u["protocolVersion"] in ["1", "2", 1, 2], "invalid protocolVersion (%s)" % u["protocolVersion"]
+        assert u["type"] in __protocol_unit_types__, "invalid type (%s)" % u["type"]
+        assert u["name"], "invalid name"
+        if u["type"] == "dockerimage":
+            assert u["uri"], "dockerimage must have a uri"
+
+class TaskRole:
+
+    @staticmethod
+    def validate(t: dict):
+        assert t["dockerImage"], "unkown dockerImage"
+        assert t["resourcePerInstance"]["cpu"] > 0, "invalid cpu number (%d)" % t["resourcePerInstance"]["cpu"]
+        assert t["resourcePerInstance"]["gpu"] >= 0, "invalid gpu number (%d)" % t["resourcePerInstance"]["gpu"]
+        assert t["resourcePerInstance"]["memoryMB"] > 0, "invalid memoryMB number (%d)" % t["resourcePerInstance"]["memoryMB"]
+        for label, port in t["resourcePerInstance"].get("ports", {}).items():
+            assert port >= 0, "invalid port (%s : %d)" % (label, port)
+        assert isinstance(t["commands"], list) and t["commands"], "empty commands"
+
+
+class Deployment:
+
+    @staticmethod
+    def validate(d: dict, task_role_names: list):
+        assert d["name"], "deployment should have a name"
+        for t, c in d["taskRoles"].items():
+            assert t in task_role_names, "invalid taskrole name (%s)" % (t)
+            assert isinstance(["preCommands"], list), "preCommands should be a list"
+            assert isinstance(["postCommands"], list), "postCommands should be a list"
+
+
+class Job:
+
+    def __init__(self):
+        self.protocol = dict() # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+
+    def new(self, name: str, **kwargs):
+        self.protocol = {
+            "name": name,
+            "protocolVersion": 2,
+            "type": "job",
+            "prerequisites": [],
+            "parameters": dict(),
+            "secrets": dict(),
+            "taskRoles": dict(),
+            "deployments": [],
+            "defaults": dict(),
+            "extras": dict(),
+        }
+        self.protocol.update(kwargs)
+        return self
+
+    def load(self, fname: str=None, job_name: str=None):
+        if not fname:
+            fname = Job.job_cache_file(job_name)
+        self.protocol = from_file(fname, default={})
+        self.protocol.setdefault('protocolVersion', '1') # v1 protocol (json) has no protocolVersion
+        return self
+
+    def save(self):
+        if self.name:
+            to_file(self.protocol, Job.job_cache_file(self.name))
+        return self
+
+    def add_taskrole(self, name: str, t_cfg: dict):
+        self.protocol["taskRoles"].setdefault(name, {}).update(t_cfg)
+        return self
 
     def validate(self):
-        not_not(self, [
-            '--job-name',
-            '--cluster-alias',
-            '--workspace',
-            '--image',
-        ])
-        for a in ['sources']:
-            if getattr(self, a) is None:
-                setattr(self, a, [])
+        assert self.protocolVersion in ["1", "2"], "unknown protocolVersion (%s)" % self.protocol["protocolVersion"]
+        assert self.name is not None, "job name is null %s" % self.protocol
+        if self.protocolVersion == "2":
+            assert self.protocol["type"] == "job", "type must be job (%s)" % self.protocol["type"]
+            for t in self.protocol["taskRoles"].values():
+                TaskRole.validate(t)
+            for d in self.protocol.get("deployments", []):
+                Deployment.validate(d, list(self.protocol["taskRoles"].keys()))
+        return self
 
+    @property
+    def protocolVersion(self):
+        return str(self.protocol.get("protocolVersion", "1"))
 
-    def add_source(self, fname: str):
-        if fname not in self.sources:
-            self.sources.append(fname)
-
-    def add_to(self, target: str, elem):
-        lst = getattr(self, target)
-        if elem not in lst:
-            lst.append(elem)
-
-
-class TaskRole(Namespace):
-    __type__ = 'task-role-spec'
-
-    def define(self, parser: argparse.ArgumentParser):
-        super().define(parser)
-        cli_add_arguments(self, parser, [
-            '--job-name',
-            '--task-role-name',
-            '--task-number',
-            '--cpu', '--gpu', '--mem',
-            'commands'
-        ])
-
-
-__known_executables__ = ['python', 'python3', 'shell', 'sh', 'bash', 'ksh', 'csh', 'perl']
-
-
-class Job(JobSpec):
-    __type__ = 'job'
-    __fields__ = merge_two_object(JobSpec.__fields__, {
-        "taskroles": [] # taskrole definitions
-    })
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        t_objs = [TaskRole(**t) for t in self.taskroles]
-        self.taskroles = t_objs
-
-    def store(self):
-        if self.job_name:
-            self.to_file(Job.job_cache_file(self.job_name))
+    @property
+    def name(self):
+        return self.protocol.get("name" if self.protocolVersion == "2" else "jobName", None)
 
     @staticmethod
-    def restore(job_name):
-        fname = Job.job_cache_file(job_name)
-        if os.path.isfile(fname):
-            __logger__.debug('restore Job config from %s', fname)
-            dic = from_file(fname)
-            return Job(**dic)
-        return Job()
-
-    def to_file(self, fname: str):
-        to_file(self.to_dict(), fname)
-
-    def to_job_config_v1(self, save_to_file: str=None, cluster_info: dict=None) -> dict:
-        dic = dict(
-            jobName=self.job_name,
-            image=self.image,
-            codeDir='', dataDir='', outputDir='',
-            jobEnvs={},
-            extras=dict(prequisites=self.requirements),
-        )
-        dic["extras"]["__signature__"] = "python-sdk@%s" % __sdk_branch__
-
-        dic['taskRoles'] = self.to_job_config_taskroles_v1()
-        dic['extras']['userCommands'] = {t.task_role_name: t.commands for t in self.taskroles}
-
-        # Sources
-        dic['jobEnvs']['PAI_SDK_JOB_WORKSPACE'] = self.workspace
-        dic['jobEnvs']['PAI_SDK_JOB_OUTPUT_DIR'] = self.get_workspace_folder('output')
-        dic['jobEnvs']['PAI_SDK_JOB_CODE_DIR'] = self.code_dir if self.code_dir else self.get_workspace_folder('code')
-        if self.workspace:
-            dic['codeDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('code'))
-            dic['outputDir'] = "$PAI_DEFAULT_FS_URI{}".format(self.get_workspace_folder('output'))
-
-        dic['extras']['__clusters__'] = ol.filter(get_client_cfg(None)["all"], "cluster_alias", self.cluster_alias)["matches"]
-        dic['extras']['__defaults__'] = __defaults__
-        dic['extras']['__sources__'] = self.sources
-
-        if save_to_file:
-            to_file(dic, save_to_file)
-        return dic
-
-    def to_job_config_taskroles_v1(self):
-        commands = []
-        if not self.disable_sdk_install:
-            commands.append('pip install -U %s' % __install__)
-        commands.append('opai runtime execute --working-dir . code/job_config.json')
-        taskroles = []
-        for t in self.taskroles:
-            assert len(t.commands) >0, 'empty commands'
-            dic = dict(
-                name=t.task_role_name,
-                taskNumber=t.task_number,
-                cpuNumber=t.cpu, gpuNumber=t.gpu, memoryMB=t.mem,
-            )
-            dic['command'] = ' && '.join(commands)
-            taskroles.append(dic)
-        return taskroles
-
-    # storage based job management
-
-    def get_workspace_folder(self, folder: str= 'code'):
-        if not self.workspace:
-            return None
-        return '{}/jobs/{}/{}'.format(self.workspace, self.job_name, folder)
-
-    @staticmethod
-    def job_cache_file(job_name: str, fname: str = 'cache.json'):
+    def job_cache_file(job_name: str, fname: str=__protocol_filename__):
         return os.path.join(__jobs_cache__, job_name, fname)
 
     @staticmethod
-    def get_config_file(args):
-        fname = 'job_config.yaml' if getattr(args, 'v2', False) else 'job_config.json'
-        return os.path.join(__jobs_cache__, args.job_name, fname)
+    def get_config_file(job_name: str, v2: bool=True):
+        return Job.job_cache_file(job_name, __protocol_filename__ if v2 else __config_filename__)
 
-    def get_cache_file(self):
-        return Job.job_cache_file(self.job_name)
+    def get_config(self):
+        if self.protocolVersion == "2":
+            if "deployments" in self.protocol and len(self.protocol["deployments"]) == 0:
+                del self.protocol["deployments"]
+            for t in self.protocol["taskRoles"].values():
+                if "ports" in t["resourcePerInstance"] and len(t["resourcePerInstance"]["ports"]) == 0:
+                    del t["resourcePerInstance"]["ports"]
+            return self.protocol
+        else:
+            dic = deepcopy(self.protocol)
+            del dic["protocolVersion"]
+            return dic
+
+    # methods only for SDK-enabled jobs
+    def one_liner(self, commands: Union[list, str], image: str, workspace: str=None, gpu: int=0, cpu: int=1, memoryMB: int=10240, ports: dict={}, **kwargs):
+        self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
+        self.add_taskrole("main", {
+            "dockerImage": "docker_image",
+            "resourcePerInstance": {
+                "gpu": gpu, "cpu": cpu, "memoryMB": memoryMB, "ports": ports
+            },
+            "commands": commands if isinstance(commands, list) else [commands]
+        })
+        self.protocol["extras"]["workspace"] = workspace
+        self.protocol["extras"]["submitFrom"] = "python-sdk@" + __sdk_branch__
+
+    @staticmethod
+    def new_unit(name: str, type: str, protocolVersion: int=2, **kwargs):
+        return get_args()

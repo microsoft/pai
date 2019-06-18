@@ -3,18 +3,17 @@ import json
 import os
 import sys
 from copy import deepcopy
-from os.path import commonpath
 
 import yaml
 
 import openpaisdk as pai
 import openpaisdk.runtime_requires as req
-from openpaisdk import __logger__, get_client_cfg
+from openpaisdk import __logger__
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
-from openpaisdk.core import Cluster
+from openpaisdk.core import ClusterClient
 from openpaisdk.io_utils import from_file, to_file
-from openpaisdk.job import Job, JobSpec, TaskRole
+from openpaisdk.job import Job, TaskRole
 from openpaisdk.runtime import runtime_execute
 from openpaisdk.utils import OrganizedList as ol
 
@@ -26,19 +25,11 @@ def pprint(s, fmt: str='yaml', **kwargs):
         print(yaml.dump(s, default_flow_style=False))
 
 
-def get_client(alias):
-    try:
-        cfg = get_client_cfg(alias)["match"]
-        return Cluster(**cfg)
-    except:
-        __logger__.error('Cannot find cluster named %s', alias, exc_info=1)
+def extract_args(args: argparse.Namespace, ignore_list: list=["scene", "action"]):
+    return {k: v for k, v in vars(args).items() if k not in ignore_list}
 
 
-def get_storage(args):
-    return get_client(args.cluster_alias).get_storage(getattr(args, 'storage_alias', None))
-
-
-def submit_job(args, job_config: dict, client: Cluster=None):
+def submit_job(args, job_config: dict, client: ClusterClient=None):
     if client is None:
         client = get_client(args.cluster_alias)
     envs, params = job_config.get("jobEnvs", {}), job_config.get("extras", {})
@@ -84,42 +75,28 @@ class ActionFactoryForDefault(ActionFactory):
 class ActionFactoryForCluster(ActionFactory):
 
     def define_arguments_list(self, parser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
+        cli_add_arguments(None, parser, [])
 
     def do_action_list(self, args):
-        cfgs = ol.as_dict(get_client_cfg(None, True)["all"], "cluster_alias")
-        if args.name:
-            return list(cfgs.keys())
-        return cfgs
+        return ol.as_dict(self.__clusters__.tell(), "cluster_alias")
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
-        Cluster().define(parser)
-
+        cli_add_arguments(self, parser, [
+            '--cluster-alias', '--pai-uri', '--user', '--password',
+        ])
     def check_arguments_add(self, args):
         if not args.pai_uri.startswith("http://") or not args.pai_uri.startswith("https://"):
             __logger__.warn("pai-uri not starts with http:// or https://")
 
     def do_action_add(self, args):
-        cfgs = get_client_cfg(args.cluster_alias)["all"]
-        cfg_new = Cluster(**{k: getattr(args, k, None) for k in 'pai_uri cluster_alias user passwd'.split()}).config
-        __logger__.debug('new cluster info is %s', cfg_new)
-        result = ol.notified_add(cfgs, "cluster_alias", cfg_new)
-        to_file(cfgs, pai.__cluster_config_file__)
-        return result
+        return self.__clusters__.add(extract_args(args))
 
     def define_arguments_delete(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['cluster_alias'])
 
     def do_action_delete(self, args):
-        f = get_client_cfg(args.cluster_alias)
-        if not f["match"]:
-            result = "cannot find cluster with alias %s", args.cluster_alias
-            __logger__.warn(result)
-        else:
-            ol.delete(f["all"], "cluster_alias", args.cluster_alias)
-            to_file(f["all"], pai.__cluster_config_file__)
-            result = "cluster %s deleted" % args.cluster_alias
-            __logger__.debug(result)
+        self.__clusters__.delete(args.cluster_alias)
+        result = "cluster %s deleted" % args.cluster_alias
         return result
 
     def define_arguments_select(self, parser: argparse.ArgumentParser):
@@ -132,7 +109,7 @@ class ActionFactoryForCluster(ActionFactory):
         return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
 
     def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri', '--user'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--default', '--storage-alias', '--web-hdfs-uri', '--user'])
 
     def check_arguments_attach_hdfs(self, args):
         not_not(args, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri'])
@@ -140,33 +117,33 @@ class ActionFactoryForCluster(ActionFactory):
             __logger__.warn("web-hdfs-uri not starts with http:// or https://")
 
     def do_action_attach_hdfs(self, args):
-        f = get_client_cfg(args.cluster_alias)
         elem = {
             "storage_alias": args.storage_alias,
             "protocol": "webHDFS",
             "web_hdfs_uri": args.web_hdfs_uri,
-            "user": args.user if args.user else f["match"]['user'],
+            "user": args.user,
         }
-        result = ol.notified_add(f["match"].setdefault('storages', []), "storage_alias", elem)
-        to_file(f["all"], pai.__cluster_config_file__)
-        return result
+        return self.__clusters__.attach_storage(args.cluster_alias, elem, as_default=args.default)
 
 
 class ActionFactoryForJob(ActionFactory):
 
     # basic commands
     def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--name'])
+        cli_add_arguments(None, parser, ['--cluster-alias'])
         parser.add_argument('job_name', metavar='job name', nargs='?')
         parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
 
+    def check_arguments_list(self, args):
+        if args.query:
+            assert args.job_name, "must specify a job name"
+
     def do_action_list(self, args):
-        client = get_client(args.cluster_alias)
-        result = client.rest_api_jobs(args.job_name, args.query)
-        if args.name:
-            assert not args.query, 'cannot use --name with query at the same time'
-            result = ol.as_dict(result, 'name')
-        return result
+        client = self.__clusters__.get_client(args.cluster_alias)
+        jobs = client.rest_api_jobs(args.job_name, args.query)
+        if not args.job_name:
+            return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
+        return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--preview', 'config'])
@@ -176,51 +153,32 @@ class ActionFactoryForJob(ActionFactory):
 
     def do_action_submit(self, args):
         if not args.config:
-            args.config = Job.get_config_file(args)
-            self.__job__.validate()
-            if args.v2:
-                raise NotImplementedError
-            else:
-                self.__job__.to_job_config_v1(save_to_file=args.config)
-        job_config = from_file(args.config)
-        job_name = job_config["jobName" if not args.v2 else "name"]
-        if not args.job_name:
-            args.job_name = job_name
-        else:
-            assert args.job_name == job_name, "job name mismatch %s <> %s" % (args.job_name, job_name)
+            args.config = Job.get_config_file(args.job_name, args.v2)
+        self.__job__.load(fname=args.config)
         if args.preview:
-            return job_config
-        return submit_job(args, job_config)
-
-    def define_arguments_new(self, parser: argparse.ArgumentParser):
-        JobSpec().define(parser)
-        cli_add_arguments(None, parser, ['--dont-set-as-default'])
-
-    def check_arguments_new(self, args):
-        not_not(args, ['--job-name'])
-
-    def do_action_new(self, args):
-        if os.path.isfile(Job.job_cache_file(args.job_name)):
-            raise Exception("Job cache already exists: ", Job.job_cache_file(args.job_name))
-        self.__job__.from_dict(vars(args), ignore_unkown=True)
-        if not args.dont_set_as_default:
-            Engine().process(['set', 'job-name={}'.format(args.job_name)])
-        else:
-            Engine().process(['unset', 'job-name'])
-        return self.__job__.to_dict()
+            return self.__job__.validate().get_config()
+        return self.__clusters__.submit(args.cluster_alias, self.__job__)
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
-        JobSpec().define(parser)
-        TaskRole().define(parser)
-        cli_add_arguments(None, parser, ['--v2', '--preview', '--pip-flags'])
+        cli_add_arguments(None, parser, [
+            '--job-name',
+            '--cluster-alias',
+            '--storage-alias', # use which storage for code transfer
+            '--workspace',
+            '--sources',
+            '--image',
+            '--disable-sdk-install',
+            '--cpu', '--gpu', '--memoryMB',
+            '--v2', '--preview', '--pip-flags',
+            'commands'
+        ])
 
     def do_action_sub(self, args):
-        Engine().process_args(Namespace().from_dict(args, action='new', dont_set_as_default=True))
-        args_task = TaskRole().from_dict(vars(args), ignore_unkown=True, scene='task', action='add')
-        Engine().process_args(args_task)
-        if getattr(args, 'pip_flags', None):
-            Engine().process(['require', 'pip'] + args.pip_flags)
-        return Engine().process_args(Namespace().from_dict(args, action="submit", config=None))
+        self.__job__.new(args.job_name).one_liner(**extract_args(args))
+        if args.preview:
+            return self.__job__.validate().get_config()
+        return self.__clusters__.submit(args.cluster_alias, self.__job__)
+
 
 
 class ActionFactoryForTaskRole(ActionFactory):
@@ -429,7 +387,12 @@ def main():
         return 0
     except AssertionError as identifier:
         print(identifier)
+        __logger__.exception("Value error")
         return 1
+    except Exception as identifier:
+        print(identifier)
+        __logger__.exception("Error")
+        return 2
     else:
         return -1
 

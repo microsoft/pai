@@ -51,29 +51,31 @@ class Namespace(argparse.Namespace):
     __type__ = ''
     __fields__ = dict(
         # field_name: default_value
-        # field_name: { # compatible with argparse.add_argument arguments format
-        #   "help": "help message",
-        #   "default": default_value
-        # }
     )
 
     def __init__(self, **kwargs):
-        if self.__type__:
-            self.type = self.__type__
         self.from_dict(kwargs)
 
-    def add_argument(self, parser: argparse.ArgumentParser, *args, **kwargs):
-        # assert isinstance(parser, argparse.ArgumentParser), "wrong type %s of parser" % type(parser)
-        if get_dest_name(args[0]) in [a.dest for a in parser._actions]:
-            return None
-        return parser.add_argument(*args, **kwargs)
+    def from_dict(self, dic: Union[dict, "Namespace"], ignore_unkown: bool = False, **kwargs):
+        """inherite from a dict or another Namespace"""
+        if isinstance(dic, argparse.Namespace):
+            dic = vars(dic)
+        dic.update(kwargs)
+        dic2 = deepcopy(dic)
+        self.define(self.parser)
+        lst = dict_to_argv(self.parser, dic2)
+        print(lst)
+        self.parser.parse_known_args(lst, self)
+        if not ignore_unkown:
+            for k, v in dic2.items():
+                setattr(self, k, v)
+        return self
 
     def params_help(self):
-        parser = argparse.ArgumentParser(add_help=False)
-        self.define(parser)
+        self.parser.print_help()
 
     def to_dict(self):
-        dic = vars(self)
+        dic = {k:v for k, v in vars(self).items() if not k.startswith("_")}
         for k, v in dic.items():
             if isinstance(v, Namespace):
                 dic[k] = v.to_dict()
@@ -83,24 +85,29 @@ class Namespace(argparse.Namespace):
 
     def define(self, parser: argparse.ArgumentParser):
         for key, value in self.__fields__.items():
-            dic = value if isinstance(value, dict) else {"default": value}
-            self.add_argument(parser, "--" + key, **dic)
+            setattr(self, key, value)
         return parser
 
-    def from_dict(self, dic: Union[dict, "Namespace"], ignore_unkown: bool = False, **kwargs):
-        if isinstance(dic, argparse.Namespace):
-            dic = vars(dic)
-        dic.update(kwargs)
-        dic2 = deepcopy(dic)
-        parser = argparse.ArgumentParser(add_help=False)
-        self.define(parser)
-        lst = dict_to_argv(parser, dic2)
-        print(lst)
-        parser.parse_known_args(lst, self)
-        if not ignore_unkown:
-            for k, v in dic2.items():
-                setattr(self, k, v)
-        return self
+    @property
+    def parser(self):
+        if not getattr(self, "__parser__", None):
+            cls_name = self.__module__ + "." + self.__class__.__name__
+            self.__parser__ = argparse.ArgumentParser(
+                add_help=False,
+                conflict_handler='resolve',
+                prog=cls_name,
+                description="define parameters for class %s" % cls_name
+            )
+        return self.__parser__
+
+    def update_argument(self, parser: argparse.ArgumentParser, option: str, **kwargs):
+        for a in parser._actions:
+            if option in a.option_strings:
+                dic = vars(a)
+                for k, v in kwargs.items():
+                    setattr(a, k, v)
+                return
+        raise Exception("option %s not found", option)
 
 
 class ArgumentFactory:
@@ -114,7 +121,7 @@ class ArgumentFactory:
 
         self.add_argument('--pai-uri', help="uri of openpai cluster, in format of http://x.x.x.x")
         self.add_argument('--user', help='username')
-        self.add_argument('--passwd', help="password")
+        self.add_argument('--password', help="password")
 
         # storage
         self.add_argument('--storage-alias', help='storage alias')
@@ -138,7 +145,8 @@ class ArgumentFactory:
         self.add_argument('folder', help="target folder")
 
         # common
-        self.add_argument('--name', help='if asserted, show name / alias only; otherwise show all details', action='store_true', default=False)
+        self.add_argument('--details', help='if asserted, show details of the job (or cluster)', action='store_true', default=False)
+        self.add_argument('--default', help='set current as default', action='store_true', default=False)
         self.add_argument('--update', '-u', action='store_true', default=False, help='update current job cache')
         self.add_argument('--dont-set-as-default', action="store_true", default=False, help="dont set current (job) as default")
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
@@ -148,7 +156,7 @@ class ArgumentFactory:
         self.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
         self.add_argument('--cpu', type=int, default=__defaults__.get('cpu', 1), help='cpu number per instance')
         self.add_argument('--gpu', type=int, default=__defaults__.get('gpu', 0), help='gpu number per instance')
-        self.add_argument('--mem', type=int, default=__defaults__.get('memMB', 1024), help='memory #MB per instance')
+        self.add_argument('--memoryMB', type=int, default=__defaults__.get('memMB', 1024), help='memory #MB per instance')
         self.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
 
         # runtime
@@ -176,10 +184,8 @@ __arguments_factory__ = ArgumentFactory()
 def cli_add_arguments(target: Namespace, parser: argparse.ArgumentParser, args: list):
     for a in args:
         args, kwargs = __arguments_factory__.get(a)
-        if target is None:
-            parser.add_argument(*args, **kwargs)
-        else:
-            target.add_argument(parser, *args, **kwargs)
+        # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
+        parser.add_argument(*args, **kwargs)
 
 
 def not_not(args: typing.Union[argparse.Namespace, Namespace], keys: list):

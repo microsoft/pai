@@ -29,19 +29,6 @@ def from_yaml_file(fname: str, **kwargs):
 		return yaml.load(fp, **kwargs)
 
 
-def get_client_cfg(alias, mask_passwd: bool=False):
-    cfgs = from_yaml_file(__cluster_config_file__, default=[])
-    if mask_passwd:
-        for c in cfgs:
-            c["passwd"] = "******"
-    f = [(c,i) for i, c in enumerate(cfgs) if not alias or c['cluster_alias'] == alias]
-    return {
-        "all": cfgs,
-        "match": f[0][0] if f else None,
-        "index": f[0][1] if f else -1,
-    }
-
-
 __cluster_config_file__ = os.path.join(os.path.expanduser('~'), '.openpai', 'clusters.yaml')
 __cache__ = '.openpai'
 __local_default_file__ = os.path.join(__cache__, 'defaults.json')
