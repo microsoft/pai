@@ -19,7 +19,7 @@ data:
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
-      group_by: [alertname]
+      group_by: [alertname, alertstate]
     receivers:
     - name: "pai-alert"
       email_configs:
