@@ -22,7 +22,13 @@ const xml2js = require('xml2js');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
 const logger = require('../config/logger');
+const dbUtility = require('../util/dbUtil');
+const secretConfig = require('../config/secret');
 
+const db = dbUtility.getStorageObject('UserSecret', {
+  'paiUserNameSpace': secretConfig.paiUserNameSpace,
+  'requestConfig': secretConfig.requestConfig(),
+});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
@@ -167,10 +173,26 @@ class VirtualCluster {
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
           // logger.debug('Xml send to yarn: ', vcdataXml);
-          this.sendUpdateInfo(vcdataXml, (err) => {
+          this.sendUpdateInfo(vcdataXml, async (err) => {
             if (err) {
               return callback(err);
             } else {
+              // update admin users' permission
+              try {
+                const userList = await db.get('', null);
+                for (const user of userList) {
+                  if (user.admin === 'true') {
+                    const vc = user.virtualCluster.trim().split(',');
+                    if (!vc.find((x) => x === vcName)) {
+                      vc.push(vcName);
+                    }
+                    user.virtualCluster = vc.join(',');
+                    await db.set(user.username, user, {update: true});
+                  }
+                }
+              } catch (e) {
+                return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+              }
               return callback(null);
             }
           });
@@ -287,7 +309,7 @@ class VirtualCluster {
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
               // logger.debug('Xml send to yarn: ', vcdataXml);
-              this.sendUpdateInfo(vcdataXml, (err) => {
+              this.sendUpdateInfo(vcdataXml, async (err) => {
                 if (err) {
                   this.activeVc(vcName, (errInfo) => {
                     if (errInfo) {
@@ -297,6 +319,19 @@ class VirtualCluster {
                     }
                   });
                 } else {
+                  // update permission
+                  try {
+                    const userList = await db.get('', null);
+                    for (const user of userList) {
+                      const vc = user.virtualCluster.trim().split(',');
+                      if (vc.find((x) => x === vcName)) {
+                        user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
+                        await db.set(user.username, user, {update: true});
+                      }
+                    }
+                  } catch (e) {
+                    return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+                  }
                   return callback(null);
                 }
               });
