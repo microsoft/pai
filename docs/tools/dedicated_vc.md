@@ -20,8 +20,8 @@ shared_vc_resource = shared_resource * shared_vc_capacity
 dedicated_vc_resource = sum(dedicated_vc_nodes)
 ```
 
-A job submitted to Shared VC might be scheduler to any shared nodes, 
-oppositely, the one submitted to Dedicated VC could only be scheduler to corresponding VC dedicated nodes.
+A job submitted to Shared VC might be scheduled to any shared nodes,
+oppositely, the one submitted to Dedicated VC could only be scheduled to corresponding dedicated nodes.
 
 
 Currently we support configure shared_vc by web UI, but only cmdline tool for dedicated_vc. 
@@ -40,7 +40,7 @@ python node_maintain.py dedicated-vc {get,add,remove}
 ```bash
 python node_maintain.py dedicated-vc get -m {master_ip}
 ```
-This command output dedicated vc name, nodes and total resource,
+This command output dedicated vc name, nodes and resource,
 
 #### Examples:
 
@@ -61,7 +61,7 @@ dedicated_2:
 python node_maintain.py dedicated-vc add -m {master_ip} -v {added_vc_name} [-n {added_nodes}]
 ```
 This command added {added_nodes} to {added_vc_name}, if {added_vc_name} was not found, this command would create it firstly.
-The dedicated_vc resource is allocated from Shared VC pool and subtracted from DEFAULT VC quota. 
+Dedicated_vc resource is allocated from Shared VC pool and subtracted from DEFAULT VC quota. 
 The remaining Shared VCs' capacity will be recalculated to ensure a constant **GPU** quota.
 If no enough DEFAULT quota, allocation will raise error.
 
