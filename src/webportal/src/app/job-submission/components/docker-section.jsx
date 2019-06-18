@@ -45,7 +45,7 @@ export const DockerSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'Docker'}>
-      <Stack horizontal gap='s1' wrap >
+      <Stack horizontal gap='l1'>
         <FormShortSection>
           <TextField id={textFieldId}
                      placeholder='Enter docker uri...'

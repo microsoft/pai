@@ -67,16 +67,14 @@ export const Parameters= (props) => {
 
   return (
     <Stack gap='m'>
-      <Stack horizontal>
+      <Stack horizontal horizontalAlign='space-between'>
         <Text styles={parameterStyle.headerText}>Parameter</Text>
         <ActionButton iconProps={{iconName: iconName}} styles={parameterStyle.actionButton} onClick={_onClick}/>
       </Stack>
       {
-        !isParameterOn && <Text>{'you could use these predefined parameters as command variables with prefix \'$\''}</Text>
-      }
-      {
         isParameterOn &&
         <React.Fragment>
+          <Text>{'you could use these predefined parameters as command variables with prefix \'$\''}</Text>
           <KeyValueList items={parameters.map((parameter) => {
                           return {itemKey: parameter.key, itemValue: parameter.value};
                         })}

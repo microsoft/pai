@@ -47,6 +47,7 @@ export const CSpinButton = (props) => {
 
   return (
     <SpinButton {...props}
+      styles={{labelWrapper: [{width: '160px'}]}}
       onIncrement={_onIncrement}
       onDecrement={_onDecrement}
       onValidate={_onValidate} />

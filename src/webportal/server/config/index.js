@@ -17,7 +17,7 @@
 
 
 // module dependencies
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const dotenv = require('dotenv');
 
 
@@ -27,7 +27,7 @@ dotenv.config();
 let config = {
   env: process.env.NODE_ENV,
   logLevel: process.env.LOG_LEVEL,
-  serverPort: process.env.SERVER_PORT
+  serverPort: process.env.SERVER_PORT,
 };
 
 // define config schema
@@ -42,7 +42,7 @@ const configSchema = Joi.object().keys({
     .integer()
     .min(8000)
     .max(65535)
-    .default(9286)
+    .default(9286),
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);

@@ -27,14 +27,13 @@ import React from 'react';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
 import {Text} from 'office-ui-fabric-react';
-import {FormSpinButton} from './form-spin-button';
 import PropTypes from 'prop-types';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {VirtualCluster} from './virtual-cluster';
 
 export const JobInformation= (props) => {
   const {jobInformation, onChange} = props;
-  const {name, jobRetryCount} = jobInformation;
+  const {name} = jobInformation;
 
   const _onChange = (keyName, newValue) => {
     const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
@@ -53,11 +52,6 @@ export const JobInformation= (props) => {
                      onBlur={(value) => _onChange('name', value)}
                      placeholder='Enter job name'/>
       <VirtualCluster/>
-      <FormSpinButton sectionOptional
-                      sectionLabel={'Retry count'}
-                      shortStyle
-                      value={jobRetryCount}
-                      onChange={(value) => _onChange('jobRetryCount', value)}/>
     </FormPage>
   );
 };

@@ -56,7 +56,7 @@ export const ContainerSizeSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'ContainerSize'}>
-      <Stack horizontal wrap gap='s1'>
+      <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
           <CSpinButton label={'GPU count'}
                        value={gpu}
@@ -82,7 +82,7 @@ export const ContainerSizeSection = (props) => {
           <Toggle checked={isContainerSizeEnabled}
                   label='Custom'
                   inlineLabel={true}
-                  styles={{label: {order: -1, marginRight: spacing.s2}}}
+                  styles={{label: {order: -1, marginLeft: 0, marginRight: spacing.s2}}}
                   onChange={_onEnable}/>
         </Stack>
       </Stack>

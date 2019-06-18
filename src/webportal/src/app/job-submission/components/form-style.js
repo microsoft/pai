@@ -31,10 +31,10 @@ const {spacing, palette} = getTheme();
 export const getFormClassNames = () => {
   return mergeStyleSets({
     formLayout: {
-      margin: spacing.l1,
+      padding: spacing.l1,
     },
     topForm: {
-      border: spacing.l1 + ' solid white',
+      padding: spacing.l1,
       background: palette.white,
     },
     formTabBar: {
@@ -63,12 +63,13 @@ export const getTabFromStyle = () => {
     tabIcon: {
       root: {
         fontSize: IconFontSizes.medium,
-        margin: `0, ${spacing.s1}`,
+        marginLeft: spacing.m,
       },
     },
     tabContent: {
       root: {
-        paddingTop: spacing.l2,
+        background: palette.white,
+        padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`,
       },
     },
   });
