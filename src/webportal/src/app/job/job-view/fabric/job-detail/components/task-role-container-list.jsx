@@ -236,11 +236,11 @@ export default class TaskRoleContainerList extends React.Component {
                   }}
                   tooltipProps={{
                     onRenderContent: () => (
-            <div>
+                      <div>
                         {gpuAttr.map((x) => (
-                <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
-              ))}
-            </div>
+                          <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
+                        ))}
+                      </div>
                     ),
                   }}
                   directionalHint={DirectionalHint.topLeftEdge}
@@ -253,7 +253,7 @@ export default class TaskRoleContainerList extends React.Component {
                   </div>
                 </TooltipHost>
               </div>
-          );
+            );
           }
         },
       },
