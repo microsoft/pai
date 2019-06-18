@@ -6361,13 +6361,6 @@ office-ui-fabric-core@5.0.1:
   resolved "https://registry.yarnpkg.com/office-ui-fabric-core/-/office-ui-fabric-core-5.0.1.tgz#f6f27eb793ceca62366419877b73970de4841e52"
   integrity sha1-9vJ+t5POymI2ZBmHe3OXDeSEHlI=
 
-office-ui-fabric-js@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/office-ui-fabric-js/-/office-ui-fabric-js-1.5.0.tgz#d77b778f79a6178f843dd757e4639ae05709d340"
-  integrity sha1-13t3j3mmF4+EPddX5GOa4FcJ00A=
-  dependencies:
-    office-ui-fabric-core "5.0.1"
-
 office-ui-fabric-react@^6.143.0:
   version "6.143.0"
   resolved "https://registry.yarnpkg.com/office-ui-fabric-react/-/office-ui-fabric-react-6.143.0.tgz#8859a2e23780999c3372d73c80e1e32cb7dd2b5d"
