@@ -1,5 +1,7 @@
 import {isObject, isEmpty, isNil, isArrayLike} from 'lodash';
 import {basename} from 'path';
+import {JobBasicInfo} from '../models/job-basic-info';
+import {JobTaskRole} from '../models/job-task-role';
 
 export const keyValueArrayReducer = (acc, cur) => {
   acc = {...acc, ...cur};
@@ -38,4 +40,34 @@ export function getProjectNameFromGit(url) {
 
 export function getFolderNameFromHDFS(path) {
   return basename(path);
+}
+
+export function getJobComponentsFormConfig(jobConfig) {
+  if (isNil(jobConfig)) {
+    return;
+  }
+
+  const parameters = jobConfig.parameters || [];
+  const taskRoles = jobConfig.taskRoles || [];
+  const deployments = jobConfig.deployments || [];
+  const prerequisites = jobConfig.prerequisites || [];
+  const secrets = jobConfig.secrets || {};
+
+  const updatedJobInformation = JobBasicInfo.fromProtocol(jobConfig);
+  const updatedParameters = Object.keys(parameters).map((key) => {
+    return {key: key, value: parameters[key]};
+  });
+  const updatedSecrets = Object.keys(secrets).map((key) => {
+    return {key: key, value: secrets[key]};
+  });
+  const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
+    JobTaskRole.fromProtocol(
+      name,
+      taskRoles[name],
+      deployments,
+      prerequisites,
+      secrets,
+    ),
+  );
+  return [updatedJobInformation, updatedTaskRoles, updatedParameters, updatedSecrets];
 }

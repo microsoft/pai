@@ -61,6 +61,7 @@ const config = (env, argv) => ({
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
     'submit': './src/app/job-submission/job-submission.jsx',
+    'submit_v1': './src/app/job/job-submit-v1/job-submit.component.js',
     'jobList': './src/app/job/job-view/fabric/job-list.jsx',
     'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
     'virtualClusters': './src/app/vc/vc.component.js',
@@ -299,6 +300,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'submit.html',
       chunks: ['layout', 'submit'],
+    }),
+    generateHtml({
+      filename: 'submit_v1.html',
+      chunks: ['layout', 'submit_v1'],
     }),
     generateHtml({
       filename: 'job-list.html',

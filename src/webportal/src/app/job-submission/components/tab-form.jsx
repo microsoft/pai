@@ -149,7 +149,8 @@ export class TabForm extends React.Component {
     const contentItems = this._getContentItems(items);
     const pivotItems = this._renderPivotItems(contentItems);
 
-    if (selectedIndex === undefined && items.length) {
+    if ((selectedIndex === undefined && items.length) ||
+        (selectedIndex > items.length - 1)) {
       selectedIndex = 0;
     }
 

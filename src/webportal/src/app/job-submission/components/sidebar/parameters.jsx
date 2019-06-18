@@ -28,7 +28,6 @@ import {Stack, CommandBarButton, getTheme, CheckboxVisibility, DetailsList, Deta
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
-import {JobParameter} from '../../models/job-parameter';
 
 export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => {
   const onAdd = useCallback(() => {
@@ -41,7 +40,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
 
   const onKeyChange = useCallback((idx, val) => {
     const updatedParameters = [...parameters];
-    updatedParameters[idx].name = val;
+    updatedParameters[idx].key = val;
     onChange(updatedParameters);
   });
 
@@ -64,7 +63,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
       minWidth: 200,
       onRender: (item, idx) => (
         <TextField
-          value={item.name}
+          value={item.key}
           onChange={(e, val) => onKeyChange(idx, val)}
         />
       ),
@@ -133,7 +132,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
 });
 
 Parameters.propTypes = {
-  parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
+  parameters: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,

@@ -29,29 +29,32 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
 
-export const FormTextField = (props) => {
+export const FormTextField = React.memo((props) => {
   const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
   const textFieldId = getId('textField');
-  const _onBlur= (event) => {
+  const _onBlur = (event) => {
     if (onBlur === undefined) {
       return;
     }
     onBlur(event.target.value);
   };
 
-  const textField = (<TextField {...props} id={textFieldId} onBlur={_onBlur}/>);
+  const textField = <TextField {...props} id={textFieldId} onBlur={_onBlur} />;
 
   return (
     <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
-      {shortStyle ? (<FormShortSection>{textField}</FormShortSection>) : textField}
+      {shortStyle ? (
+        <FormShortSection>{textField}</FormShortSection>
+      ) : (
+        textField
+      )}
     </BasicSection>
   );
-};
+});
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
   onBlur: PropTypes.func,
-  textFiledProps: PropTypes.object,
   sectionOptional: PropTypes.bool,
   shortStyle: PropTypes.bool,
 };

@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {get, isNil} from 'lodash';
+import {isNil} from 'lodash';
 import {DateTime, Interval} from 'luxon';
 
 export function getHumanizedJobStateString(jobInfo) {
@@ -96,8 +96,6 @@ export function isClonable(rawJobConfig) {
     return false;
   } else if (!isNil(rawJobConfig.protocol_version)) {
     return false;
-  } else if (!isNil(rawJobConfig.protocolVersion)) {
-    return !isNil(get(rawJobConfig, 'extras.submitFrom'));
   } else {
     return true;
   }

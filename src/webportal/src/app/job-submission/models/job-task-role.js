@@ -46,7 +46,7 @@ export class JobTaskRole {
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
   }
 
-  static fromProtocol(name, taskRoleProtocol, deployments, prerequisites) {
+  static fromProtocol(name, taskRoleProtocol, deployments, prerequisites, secrets) {
     const instances = get(taskRoleProtocol, 'instances', 1);
     const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
     const dockerImage = get(taskRoleProtocol, 'dockerImage');
@@ -66,7 +66,7 @@ export class JobTaskRole {
       commands: commands.join('\n'),
       containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
       deployment: Deployment.fromProtocol(taskDeployment),
-      dockerInfo: DockerInfo.fromProtocol(dockerInfo),
+      dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
       ports: ports,
     });
 
@@ -84,10 +84,6 @@ export class JobTaskRole {
     return this.deployment.convertToProtocolFormat();
   }
 
-  setDockerImage(dockerImage) {
-    this.dockerImage = dockerImage;
-  }
-
   convertToProtocolFormat() {
     const taskRole = {};
     const ports = this.ports.map((port) => port.convertToProtocolFormat())
@@ -98,7 +94,7 @@ export class JobTaskRole {
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
       completion: this.completion,
-      dockerImage: this.dockerImage,
+      dockerImage: this.dockerInfo.name,
       resourcePerInstance: resourcePerInstance,
       commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
       extraContainerOptions: extraContainerOptions,

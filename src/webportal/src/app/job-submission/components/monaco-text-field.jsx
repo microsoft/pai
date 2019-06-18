@@ -5,15 +5,28 @@ import MonacoEditor from '../../components/monaco-editor';
 import {isNil, debounce} from 'lodash';
 
 export const MonacoTextFiled = (props) => {
-  const {value, onChange, label, completionItems, monacoProps, monacoRef} = props;
+  const {
+    value,
+    onChange,
+    label,
+    completionItems,
+    monacoProps,
+    monacoRef,
+  } = props;
   const {palette, spacing} = getTheme();
 
   return (
     <div>
-      { !isNil(label) && <Label>{label}</Label>}
+      {!isNil(label) && <Label>{label}</Label>}
       <MonacoEditor
-        style={{flex: '1 1 100%', minHeight: 0, border: 'solid 1px',
-                borderColor: palette.neutralTertiary, paddingTop: spacing.s1, overflow: 'auto'}}
+        style={{
+          flex: '1 1 100%',
+          minHeight: 0,
+          border: 'solid 1px',
+          borderColor: palette.neutralTertiary,
+          paddingTop: spacing.s1,
+          overflow: 'auto',
+        }}
         completionItems={completionItems}
         monacoRef={monacoRef}
         monacoProps={{

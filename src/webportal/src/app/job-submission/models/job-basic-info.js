@@ -23,22 +23,29 @@
  * SOFTWARE.
  */
 
+import {isEmpty} from 'lodash';
+
 export class JobBasicInfo {
   constructor(props) {
     const {name, jobRetryCount, virtualCluster} = props;
     this.name = name || '';
     this.jobRetryCount = jobRetryCount || 0;
-    this.virtualCluster = virtualCluster || null;
+    this.virtualCluster = virtualCluster || '';
   }
 
   static fromProtocol(protocol) {
     const {name, jobRetryCount} = protocol;
-    return new JobBasicInfo({name: name, jobRetryCount: jobRetryCount});
+    const {virtualCluster} = protocol.defaults;
+    return new JobBasicInfo({
+      name: name,
+      jobRetryCount: jobRetryCount,
+      virtualCluster: virtualCluster,
+    });
   }
 
   getDefaults() {
-    if (!this.virtualCluster) {
-      return;
+    if (isEmpty(this.virtualCluster)) {
+      return '';
     }
 
     return {
