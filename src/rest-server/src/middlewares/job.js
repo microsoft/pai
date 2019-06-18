@@ -17,9 +17,9 @@
 
 
 // module dependencies
-const param = require('./parameter');
-const jobConfig = require('../config/job');
-const createError = require('../util/error');
+const param = require('@middlewares/parameter');
+const jobConfig = require('@config/job');
+const createError = require('@utils/error');
 
 
 const checkMinTaskNumber = (req, res, next) => {

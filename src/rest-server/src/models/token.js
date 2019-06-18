@@ -15,9 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const userModel = require('./user');
+const userModel = require('@models/user');
 const util = require('util');
-const createError = require('../util/error');
+const createError = require('@utils/error');
 
 const check = (username, password, callback) => {
   const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));

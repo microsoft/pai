@@ -18,8 +18,8 @@
 
 // module dependencies
 const express = require('express');
-const controller = require('../../controllers/v2/index');
-const jobRouter = require('./job');
+const controller = require('@controllers/v2');
+const jobRouter = require('@routes/v2/job');
 
 
 const router = new express.Router();

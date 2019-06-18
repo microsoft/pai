@@ -15,10 +15,10 @@
 
 // module dependencies
 const express = require('express');
-const vcController = require('../controllers/vc');
-const token = require('../middlewares/token');
-const param = require('../middlewares/parameter');
-const vcConfig = require('../config/vc');
+const vcController = require('@controllers/vc');
+const token = require('@middlewares/token');
+const param = require('@middlewares/parameter');
+const vcConfig = require('@config/vc');
 
 const router = new express.Router();
 

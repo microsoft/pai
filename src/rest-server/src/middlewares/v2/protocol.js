@@ -19,8 +19,8 @@
 // module dependencies
 const yaml = require('js-yaml');
 const mustache = require('mustache');
-const createError = require('../../util/error');
-const protocolSchema = require('../../config/v2/protocol');
+const createError = require('@utils/error');
+const protocolSchema = require('@config/v2/protocol');
 
 
 const mustacheWriter = new mustache.Writer();

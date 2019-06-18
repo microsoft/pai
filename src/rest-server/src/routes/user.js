@@ -17,11 +17,11 @@
 
 // module dependencies
 const express = require('express');
-const token = require('../middlewares/token');
-const userConfig = require('../config/user');
-const userController = require('../controllers/user');
-const param = require('../middlewares/parameter');
-const jobRouter = require('./job');
+const token = require('@middlewares/token');
+const userConfig = require('@config/user');
+const userController = require('@controllers/user');
+const param = require('@middlewares/parameter');
+const jobRouter = require('@routes/job');
 
 const router = new express.Router();
 

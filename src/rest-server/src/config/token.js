@@ -17,7 +17,7 @@
 
 // module dependencies
 const Joi = require('joi');
-const config = require('./index');
+const config = require('@config');
 
 // define input schema
 const tokenPostInputSchema = Joi.object().keys({

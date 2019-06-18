@@ -17,14 +17,14 @@
 
 
 // module dependencies
-const crypto = require('crypto');
-const config = require('../config/index');
-const dbUtility = require('../util/dbUtil');
-const secretConfig = require('../config/secret');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const VirtualCluster = require('./vc');
 const util = require('util');
+const crypto = require('crypto');
+const config = require('@config/index');
+const dbUtility = require('@utils/dbUtil');
+const secretConfig = require('@config/secret');
+const createError = require('@utils/error');
+const logger = require('@config/logger');
+const VirtualCluster = require('@models/vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;

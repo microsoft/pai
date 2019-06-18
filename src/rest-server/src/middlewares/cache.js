@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const dbUtility = require('../util/dbUtil');
-const logger = require('../config/logger');
+const dbUtility = require('@utils/dbUtil');
+const logger = require('@config/logger');
 
 /**
  * A K-V store with 10-min timeout.

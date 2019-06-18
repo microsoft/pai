@@ -18,12 +18,12 @@
 
 // module dependencies
 const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
-const vcRouter = require('./vc');
-const kubernetesProxy = require('../controllers/kubernetes-proxy');
+const controller = require('@controllers/index');
+const tokenRouter = require('@routes/token');
+const userRouter = require('@routes/user');
+const jobRouter = require('@routes/job');
+const vcRouter = require('@routes/vc');
+const kubernetesProxy = require('@controllers/kubernetes-proxy');
 
 const router = new express.Router();
 

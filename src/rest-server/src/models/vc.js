@@ -19,9 +19,9 @@
 // module dependencies
 const unirest = require('unirest');
 const xml2js = require('xml2js');
-const yarnConfig = require('../config/yarn');
-const createError = require('../util/error');
-const logger = require('../config/logger');
+const yarnConfig = require('@config/yarn');
+const createError = require('@utils/error');
+const logger = require('@config/logger');
 
 
 class VirtualCluster {

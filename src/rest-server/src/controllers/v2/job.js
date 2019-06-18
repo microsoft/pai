@@ -19,9 +19,9 @@
 // module dependencies
 const yaml = require('js-yaml');
 const status = require('statuses');
-const asyncHandler = require('../../middlewares/v2/asyncHandler');
+const asyncHandler = require('@middlewares/v2/asyncHandler');
 const job = require('@models/v2/job');
-const createError = require('../../util/error');
+const createError = require('@utils/error');
 
 
 const update = asyncHandler(async (req, res) => {

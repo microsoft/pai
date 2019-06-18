@@ -17,9 +17,9 @@
 
 // module dependencies
 const jwt = require('jsonwebtoken');
-const tokenConfig = require('../config/token');
-const tokenModel = require('../models/token');
-const createError = require('../util/error');
+const tokenConfig = require('@config/token');
+const tokenModel = require('@models/token');
+const createError = require('@utils/error');
 
 /**
  * Get the token.

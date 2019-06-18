@@ -19,8 +19,8 @@
 const yaml = require('js-yaml');
 const url = require('url');
 const Job = require('@models/v1/job/yarn');
-const createError = require('../util/error');
-const logger = require('../config/logger');
+const createError = require('@utils/error');
+const logger = require('@config/logger');
 
 /**
  * Load job and append to req.

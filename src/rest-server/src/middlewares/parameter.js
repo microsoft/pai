@@ -18,7 +18,7 @@
 
 // module dependencies
 const Joi = require('joi');
-const createError = require('../util/error');
+const createError = require('@utils/error');
 
 /**
  * Validate parameters.
