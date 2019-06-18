@@ -3,23 +3,6 @@ The `Python` SDK and CLI for `OpenPAI`
 
 This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool for the [OpenPAI](www.github.com/microsoft/pai).
 
-- [1. Benefits and scenarios](#1-benefits-and-scenarios)
-  - [1.1. Easily accessible `OpenPAI` interface](#11-easily-accessible-openpai-interface)
-  - [1.2. Powerful runtime support](#12-powerful-runtime-support)
-  - [1.3. Unified workflow](#13-unified-workflow)
-- [2. Get started](#2-get-started)
-  - [2.1. Installation](#21-installation)
-  - [2.2. Define your cluster](#22-define-your-cluster)
-  - [2.3. Define cluster in command line](#23-define-cluster-in-command-line)
-  - [2.4. CLI tools](#24-cli-tools)
-  - [2.5. Python binding](#25-python-binding)
-  - [2.6. Runtime supports](#26-runtime-supports)
-  - [2.7. Notebook tutorials](#27-notebook-tutorials)
-- [3. Make contributions](#3-make-contributions)
-  - [3.1. Release plan](#31-release-plan)
-  - [3.2. Debug the SDK](#32-debug-the-sdk)
-  - [3.3. Unit tests](#33-unit-tests)
-
 # 1. Benefits and scenarios
 
 ## 1.1. Easily accessible `OpenPAI` interface
@@ -88,7 +71,7 @@ _*: the functions provided by the SDK or CLI_
 
 # 2. Get started
 
-This section will give guidance about installation, cluster management and setting up the variables frequently used. Refer to [examples/0-install-sdk-specify-openpai-cluster.ipynb](examples/0-install-sdk-specify-openpai-cluster.ipynb) for more details.
+This section will give guidance about installation, cluster management. User may find more details not covered in the [command line ref](docs/command-line-references.md).
 
 ## 2.1. Installation
 
@@ -113,20 +96,22 @@ And you may also change it to another branch (only take effect in the job contai
 Please store your cluster information into `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the file.
 
 ```yaml
-- cluster_alias: myalias
+- cluster_alias: cluster-for-test
   pai_uri: http://x.x.x.x
   user: myuser
-  passwd: '******'
+  password: mypassword
+  default_storage_alias: hdfs
   storages:
-  - storage_alias: default
-    protocol: webHDFS
+  - protocol: webHDFS
+    storage_alias: hdfs
     web_hdfs_uri: http://x.x.x.x:port
+    user: myuser
 ```
 
 Now below command shows all your clusters would be displayed.
 
 ```bash
-opai cluster list [--name] [-a <cluster-alias>]
+opai cluster list
 ```
 
 ## 2.3. Define cluster in command line
@@ -134,25 +119,60 @@ opai cluster list [--name] [-a <cluster-alias>]
 In some cases, user may want to define the cluster information without writing a file manually. Below commands will do the same thing as above section.
 
 ```bash
-opai cluster add --cluster-alias myalias --pai-uri http://x.x.x.x --user myuser
-opai cluster select myalias
-opai cluster attach-hdfs --storage-alias default --web-hdfs-uri http://x.x.x.x:port
+! opai cluster add --cluster-alias cluster-for-test --pai-uri http://x.x.x.x --user myuser --password mypassword
+! opai cluster attach-hdfs --default --cluster-alias cluster-for-test --storage-alias hdfs --web-hdfs-uri http://x.x.x.x:port
 ```
+
+In many commands (such as storage access, job submitting), you have to specify the cluster to connect by `--cluster-alias <your-cluster-alias>`, this is annoying. We provide a command to select a cluster to use by
+```
+opai cluster select <your-cluster-alias>
+```
+
+Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <your-cluster-alias>`, which can be overwritten explicitly.
+
+The mechanism behind the `select` command is that we support setting some default variables in `.openpai/defaults.json` in your current working directory, you may use
+```opai set <var-name>=<var-value>```
+
+to add new default variables, and use `opai unset <var-name>` to remove. Some commonly used default variables includes `cluster-alias` (used in `select` command), `image` (the docker image to use), `workspace` (user storage path for jobs). User could find a detailed lists in [command line ref](docs/command0line-reference.md).
 
 ## 2.4. CLI tools
 
 The command line tool `opai` provides several useful subcommands.
 
-| Scene | Action | Description |
-| -- | -- | -- |
-| `cluster` | `list`, `add`, `select` | cluster configuration management |
-| `job` | `list`, `new`, `submit`, `sub` | query, create and summit a job |
-| `task` | `add` | add a task role to a job |
-| `storage` | `list`, `status`, `upload`, `download`, `delete` | remote storage access |
-| `require` | `pip`, `weblink` | add requirements (prerequisites) to a job or task role |
-| `runtime` | `execute` | python SDK run as the runtime |
+| Command                    | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| `opai cluster list`        | list clusters defined in `~/.openpai/clusters.yaml`          |
+| `opai cluster add`         | add a cluster                                                |
+| `opai cluster attach-hdfs` | attach a `hdfs` storage through `WebHDFS`                    |
+| `opai job list`            | list all jobs of current user (in a given cluster)           |
+| `opai job submit`          | submit a given job config file to cluster                    |
+| `opai job sub`             | shortcut to generate job config and submit from a given command |
+| `opai storage <operation>` | execute `<operation>`* on selected storage (of a given cluster) |
 
-Refer to [the doc](docs/command-line-references.md) and tutorials under [examples](examples/) for more details.
+_Note_
+_*: operations include `list`, `status`, `upload`, `download` and `delete`_
+
+Refer to [command line ref](docs/command-line-references.md) and tutorials under [examples](examples/) for more details.
+
+### Example: submit a job with existing job config file
+
+User may submit a job with an existing job config file by
+
+```bash
+opai job submit --cluster-alias <your-cluster> <job-config-file>
+```
+
+The `<job-config-file>` can be a `JSON` or `YAML` file, which should be compatible with the [job config v1]() or [job protocol v2](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). The CLI would judge whether it is `v1` or `v2` job configuration and call corresponding REST API to submit it.
+
+This command also provide the functions to change some parts of the job configuration, refer to  [command line ref](docs/command-line-references.md) for more details.
+
+### Example: submit a job with given command
+
+In some cases, user just want to execute a simple command in `OpenPAI` cluster. The CLI provides a shortcut command to do this.
+
+```bash
+opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> python script.py ...
+```
 
 ## 2.5. Python binding
 

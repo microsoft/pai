@@ -176,7 +176,7 @@ class ClusterClient:
         use_v2 = str(job.get("protocolVersion", 1)) == "2"
         if use_v2:
             return get_response(
-                '{}/rest-server/api/v2/jobs'.format(self.pai_uri, self.user),
+                '{}/rest-server/api/v2/jobs'.format(self.pai_uri),
                 headers = {
                     'Authorization': 'Bearer {}'.format(self.token),
                     'Content-Type': 'text/yaml',

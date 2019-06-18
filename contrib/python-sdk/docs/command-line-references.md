@@ -4,7 +4,7 @@ This section will give guidance about installation, cluster management and setti
 
 ## 1.1. Installation
 
-Refer to [README](../README.md) for how to install the sdk and specify your cluster information.
+Refer to [README](../README.md#21-Installation)  for how to install the sdk and specify your cluster information.
 
 ## 1.2. Set default values
 
@@ -12,7 +12,7 @@ It is annoying that specify some arguments every time, (e.g. `-a <alias>` or `-i
 
 ```bash
 opai set [<variable1>=<value1> [<var2>=<val2> [...]]] 
-opai set <variable1> [<var2> [...]]
+opai unset <variable1> [<var2> [...]]
 ```
 
 Here are some frequently used variables. 
