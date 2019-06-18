@@ -77,9 +77,18 @@ const createUserIfUserNotExist = async (req, res, next) => {
         return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
       }
     }
-    for (const groupname of grouplist) {
-      if (groupType[groupname] === 'vc') {
-        virtualCluster.push(groupname);
+    const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    if (!admin) {
+      for (const groupname of grouplist) {
+        if (groupType[groupname] === 'vc') {
+          virtualCluster.push(groupname);
+        }
+      }
+    } else {
+      for (let [key, value] of Object.entries(groupType)) {
+        if (value === 'vc') {
+          virtualCluster.push(key);
+        }
       }
     }
     req.virtualCluster = virtualCluster;
@@ -125,17 +134,36 @@ const createUser = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
+    let groupInfoList = await groupModel.getAllGroup();
+    let groupType = {};
+    for (const groupItem of groupInfoList) {
+      const name = groupItem['groupname'];
+      const type = groupItem['extension']['groupType'] ? groupItem['extension']['groupType'] : 'vc';
+      if (name === authConfig.groupConfig.adminGroup.groupname) {
+        groupType[name] = 'admin';
+      } else {
+        groupType[name] = type;
+      }
+    }
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
-    if (req.body.admin) {
-      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
-    }
-    if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
-      grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
-    }
     let extension = req.body.extension;
-    extension['virtualCluster'] = req.body.virtualCluster;
-    if (!extension['virtualCluster'].includes(authConfig.groupConfig.defaultGroup.groupname)) {
-      extension['virtualCluster'].push(authConfig.groupConfig.defaultGroup.groupname);
+    if (req.body.admin) {
+      grouplist = [];
+      extension['virtualCluster'] = [];
+      for (let [key, value] of Object.entries(groupType)) {
+        grouplist.push(key);
+        if (value === 'vc') {
+          extension['virtualCluster'].push(key);
+        }
+      }
+    } else {
+      if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+      }
+      extension['virtualCluster'] = req.body.virtualCluster;
+      if (!extension['virtualCluster'].includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        extension['virtualCluster'].push(authConfig.groupConfig.defaultGroup.groupname);
+      }
     }
     const username = req.body.username;
     const userValue = {
