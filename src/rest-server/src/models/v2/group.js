@@ -205,18 +205,25 @@ if (config.env !== 'test') {
       try {
         logger.info('Create admin user account configured in configuration.');
         const groupInfoList = authConfig.groupConfig.grouplist;
-        const groupnameList = [];
+        let groupnameList = [];
+        let virtualCluster = [];
         for (let groupItem of groupInfoList) {
           groupnameList.push(groupItem['groupname']);
+          if (groupItem['extension']['groupType'] === 'vc') {
+            virtualCluster.push(groupItem['groupname']);
+          }
         }
         groupnameList.push(authConfig.groupConfig.adminGroup.groupname);
         groupnameList.push(authConfig.groupConfig.defaultGroup.groupname);
+        virtualCluster.push(authConfig.groupConfig.defaultGroup.groupname);
         const userValue = {
           username: secretConfig.adminName,
           email: '',
           password: secretConfig.adminPass,
           grouplist: groupnameList,
-          extension: {},
+          extension: {
+            virtualCluster: virtualCluster,
+          },
         };
         await userModel.createUserIfNonExistent(userValue.username, userValue);
         logger.info('Create admin user account successfully.');
