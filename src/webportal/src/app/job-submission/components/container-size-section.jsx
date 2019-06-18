@@ -82,7 +82,7 @@ export const ContainerSizeSection = (props) => {
           <Toggle checked={isContainerSizeEnabled}
                   label='Custom'
                   inlineLabel={true}
-                  styles={{label: {order: -1, marginLeft: 0, marginRight: spacing.s2}}}
+                  styles={{label: {order: -1, marginLeft: 0, marginRight: spacing.s1}}}
                   onChange={_onEnable}/>
         </Stack>
       </Stack>

@@ -24,11 +24,11 @@
  */
 
 import React, {useState} from 'react';
-import {getParameterStyle} from './form-style';
+import {getParameterStyle} from '../form-style';
 import {Text, DetailsList, CheckboxVisibility, Stack, ActionButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {KeyValueList} from './key-value-list';
-import {JobParameter} from '../models/job-parameter';
+import {KeyValueList} from '../key-value-list';
+import {JobParameter} from '../../models/job-parameter';
 
 const parameterStyle = getParameterStyle();
 

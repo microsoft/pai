@@ -27,12 +27,12 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import ReactDOM from 'react-dom';
 import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
 import {JobTaskRole} from './models/job-task-role';
 import {JobInformation} from './components/job-information';
-import {Parameters} from './components/parameters';
+import {Parameters} from './components/right/parameters';
 import {getFormClassNames} from './components/form-style';
 import {initTheme} from '../components/theme';
 import {JobBasicInfo} from './models/job-basic-info';
@@ -48,16 +48,17 @@ const formLayout = getFormClassNames().formLayout;
 const topForm = getFormClassNames().topForm;
 
 const JobSubmission = () => {
-  const [jobTaskRoles, setJobTaskRoles] = useState([new JobTaskRole({})]);
+  const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({})]);
   const [parameters, setParameters] = useState([]);
   const [jobInformation, setJobInformation] = useState(new JobBasicInfo({}));
 
-  const taskRolesGuard = (taskRoles)=> {
+  const setJobTaskRoles = useCallback((taskRoles) => {
     if (isEmpty(taskRoles)) {
-      return [new JobTaskRole({})];
+      setJobTaskRolesState([new JobTaskRole({})]);
+    } else {
+      setJobTaskRolesState(taskRoles);
     }
-    return taskRoles;
-  };
+  });
 
   useEffect(() => {
     if (isEmpty(cookies.get('user'))) {
@@ -71,17 +72,19 @@ const JobSubmission = () => {
       <Stack className={formLayout}>
         <Stack horizontal gap='l2'>
           {/* left column */}
-          <StackItem grow styles={{root: {overflow: 'auto'}}}>
+          <StackItem grow>
             <Stack gap='l2'>
               <StackItem className={topForm}>
-                <JobInformation jobInformation={jobInformation}
-                                onChange={(jobInformation) => setJobInformation(jobInformation)}/>
+                <JobInformation
+                  jobInformation={jobInformation}
+                  onChange={setJobInformation}
+                />
               </StackItem>
               <StackItem>
                 {/* pivot */}
                 <TaskRoles
                   taskRoles={jobTaskRoles}
-                  onChange={(jobTaskRoles) => setJobTaskRoles(taskRolesGuard(jobTaskRoles))}
+                  onChange={setJobTaskRoles}
                 />
               </StackItem>
               <StackItem>
@@ -91,7 +94,7 @@ const JobSubmission = () => {
                   parameters={parameters}
                   onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
                     setJobInformation(updatedJobInfo);
-                    setJobTaskRoles(taskRolesGuard(updatedTaskRoles));
+                    setJobTaskRoles(updatedTaskRoles);
                     setParameters(updatedParameters);
                   }}
                 />
@@ -99,13 +102,13 @@ const JobSubmission = () => {
             </Stack>
           </StackItem>
           {/* right column */}
-          {/* todo: sticky component */}
           <StackItem disableShrink styles={{root: [t.w30]}}>
-            <Stack className={topForm} styles={{root: {position: 'fixed',
-                   maxHeight: '80%', overflow: 'auto', marginRight: spacing.l1,
-                   width: `calc(30% - ${spacing.l2} - ${spacing.l1} - ${spacing.l1} - ${spacing.s1})`}}}>
-              <Parameters parameters={parameters}
-                          onChange={(parameters) => setParameters(parameters)}/>
+            <Stack gap='l2'>
+              <Parameters
+                className={topForm}
+                parameters={parameters}
+                onChange={setParameters}
+              />
             </Stack>
           </StackItem>
         </Stack>
@@ -119,3 +122,12 @@ const contentWrapper = document.getElementById('content-wrapper');
 ReactDOM.render(<JobSubmission />, contentWrapper);
 
 document.getElementById('sidebar-menu--job-submission').classList.add('active');
+
+function layout() {
+  setTimeout(function() {
+    contentWrapper.style.height = contentWrapper.style.minHeight;
+  }, 10);
+}
+
+window.addEventListener('resize', layout);
+window.addEventListener('load', layout);

@@ -155,7 +155,7 @@ export class TabForm extends React.Component {
     const {spacing} = getTheme();
 
     return (
-      <>
+      <div>
         <Stack className={formTabBar} horizontal>
           <Stack.Item styles={tabFormStyle.tabWapper}>
             <Pivot onLinkClick={this._onLinkClick.bind(this)}
@@ -181,7 +181,7 @@ export class TabForm extends React.Component {
         <Stack styles={tabFormStyle.tabContent}>
           {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}
         </Stack>
-      </>
+      </div>
     );
   }
 }
