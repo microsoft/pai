@@ -20,6 +20,7 @@ const env = require('../src/util/env');
 
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
+process.env.LAUNCHER_TYPE = 'yarn';
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:5070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
