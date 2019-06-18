@@ -279,18 +279,34 @@ if (config.env !== 'test') {
         groupnameList.push(groupItem['groupname']);
       }
       for (let userItem of userList) {
-        let updateUser = false;
+        let updateUserGrouplist = false;
+        let updateUserVirtualCluster = false;
         let userGroupList = [];
+        let userVirtualClusterList = [];
+        let newUserInfo = userItem;
         for (let groupname of userItem['grouplist']) {
           if (groupnameList.includes(groupname)) {
             userGroupList.push(groupname);
           } else {
-            updateUser = true;
+            updateUserGrouplist = true;
           }
         }
-        if (updateUser) {
-          let newUserInfo = userItem;
+        if (updateUserGrouplist) {
           newUserInfo['grouplist'] = userGroupList;
+        }
+        if (userItem['extension']['virtualCluster']) {
+          for (let virtualClusterName of userItem['extension']['virtualCluster']) {
+            if (groupnameList.includes(virtualClusterName)) {
+              userVirtualClusterList.push(virtualClusterName);
+            } else {
+              updateUserVirtualCluster = true;
+            }
+          }
+          if (updateUserVirtualCluster) {
+            newUserInfo['extension']['virtualCluster'] = userVirtualClusterList;
+          }
+        }
+        if (updateUserVirtualCluster || updateUserGrouplist) {
           updateUserList.push(newUserInfo);
         }
       }
