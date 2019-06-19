@@ -99,13 +99,15 @@ class TransferClient:
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
         grouplist = []
+        virtual_cluster = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
         for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
+            virtual_cluster.append(vc_name)
         extension = {
-          'virtualCluster': grouplist
+          'virtualCluster': virtual_cluster
         }
         if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
