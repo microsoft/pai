@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
-    "ajv-merge-patch": "^4.1.0",
+    "ajv-merge-patch": "~4.1.0",
     "async": "~2.5.0",
     "axios": "^0.18.0",
     "chai": "~4.1.2",
@@ -38,7 +38,7 @@
     "eslint": "~4.17.0",
     "eslint-config-google": "~0.9.1",
     "express": "~4.16.2",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "~7.0.1",
     "http-errors": "~1.6.3",
     "http-proxy-middleware": "^0.19.1",
     "joi": "~13.0.1",

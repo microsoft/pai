@@ -1,0 +1,910 @@
+{
+    "scheduler": {
+        "schedulerInfo": {
+            "type": "capacityScheduler",
+            "capacity": 100,
+            "usedCapacity": 25,
+            "maxCapacity": 100,
+            "queueName": "root",
+            "queues": {
+                "queue": [
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 90,
+                        "usedCapacity": 27.77784,
+                        "maxCapacity": 95,
+                        "absoluteCapacity": 90,
+                        "absoluteMaxCapacity": 95,
+                        "absoluteUsedCapacity": 25,
+                        "numApplications": 9,
+                        "queueName": "default",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 3072,
+                            "vCores": 2,
+                            "GPUs": 1
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "*"
+                        ],
+                        "allocatedContainers": 6,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 90,
+                                    "usedCapacity": 27.77784,
+                                    "maxCapacity": 95,
+                                    "absoluteCapacity": 90,
+                                    "absoluteUsedCapacity": 25,
+                                    "absoluteMaxCapacity": 95,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "label_ex",
+                                    "capacity": 0,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "label_non",
+                                    "capacity": 100,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 100,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "capacity": 0,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 0
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 3072,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 94208,
+                                        "vCores": 11,
+                                        "GPUs": 2
+                                    }
+                                },
+                                {
+                                    "partitionName": "label_ex",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                },
+                                {
+                                    "partitionName": "label_non",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 8192,
+                                        "vCores": 8,
+                                        "GPUs": 3
+                                    },
+                                    "amUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 1
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 2,
+                        "numPendingApplications": 7,
+                        "numContainers": 2,
+                        "maxApplications": 9000,
+                        "maxApplicationsPerUser": 9000,
+                        "userLimit": 100,
+                        "users": {
+                            "user": [
+                                {
+                                    "username": "zimiao",
+                                    "resourcesUsed": {
+                                        "memory": 3072,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    },
+                                    "numPendingApplications": 7,
+                                    "numActiveApplications": 2,
+                                    "AMResourceUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "userResourceLimit": {
+                                        "memory": 2048,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    },
+                                    "resources": {
+                                        "resourceUsagesByPartition": [
+                                            {
+                                                "partitionName": "",
+                                                "used": {
+                                                    "memory": 3072,
+                                                    "vCores": 2,
+                                                    "GPUs": 1
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 1024,
+                                                    "vCores": 1,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 94208,
+                                                    "vCores": 11,
+                                                    "GPUs": 2
+                                                }
+                                            },
+                                            {
+                                                "partitionName": "label_non",
+                                                "used": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 1024,
+                                                    "vCores": 1,
+                                                    "GPUs": 1
+                                                },
+                                                "amLimit": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                }
+                                            },
+                                            {
+                                                "partitionName": "test_vc",
+                                                "used": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "userWeight": 1,
+                                    "isActive": true
+                                }
+                            ]
+                        },
+                        "userLimitFactor": 100,
+                        "AMResourceLimit": {
+                            "memory": 94208,
+                            "vCores": 11,
+                            "GPUs": 2
+                        },
+                        "usedAMResource": {
+                            "memory": 1024,
+                            "vCores": 1,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 94208,
+                            "vCores": 11,
+                            "GPUs": 2
+                        },
+                        "preemptionDisabled": false,
+                        "defaultNodeLabelExpression": "",
+                        "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 0,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 0,
+                        "absoluteMaxCapacity": 0,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 0,
+                        "queueName": "label_ex",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "label_ex"
+                        ],
+                        "allocatedContainers": 0,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 0,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "label_ex",
+                                    "capacity": 100,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 100,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 50
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                },
+                                {
+                                    "partitionName": "label_ex",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 0,
+                        "numPendingApplications": 0,
+                        "numContainers": 0,
+                        "maxApplications": 10000,
+                        "maxApplicationsPerUser": 10000,
+                        "userLimit": 100,
+                        "users": null,
+                        "userLimitFactor": 100,
+                        "AMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": true,
+                        "defaultNodeLabelExpression": "label_ex",
+                        "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 10,
+                        "usedCapacity": 0,
+                        "maxCapacity": 10,
+                        "absoluteCapacity": 10,
+                        "absoluteMaxCapacity": 10,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 1,
+                        "queueName": "vc_a",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "*"
+                        ],
+                        "allocatedContainers": 2,
+                        "reservedContainers": 0,
+                        "pendingContainers": 1,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 10,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 10,
+                                    "absoluteCapacity": 10,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 10,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "capacity": 0,
+                                    "usedCapacity": 100,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 4.166667,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 0
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 2048,
+                                        "vCores": 1,
+                                        "GPUs": 1
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 11264,
+                                        "vCores": 2,
+                                        "GPUs": 1
+                                    }
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "used": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 1,
+                        "numPendingApplications": 0,
+                        "numContainers": 1,
+                        "maxApplications": 1000,
+                        "maxApplicationsPerUser": 1000,
+                        "userLimit": 100,
+                        "users": {
+                            "user": [
+                                {
+                                    "username": "zimiao",
+                                    "resourcesUsed": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "numPendingApplications": 0,
+                                    "numActiveApplications": 1,
+                                    "AMResourceUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "userResourceLimit": {
+                                        "memory": 1024,
+                                        "vCores": 1,
+                                        "GPUs": 0
+                                    },
+                                    "resources": {
+                                        "resourceUsagesByPartition": [
+                                            {
+                                                "partitionName": "",
+                                                "used": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 11264,
+                                                    "vCores": 2,
+                                                    "GPUs": 1
+                                                }
+                                            },
+                                            {
+                                                "partitionName": "test_vc",
+                                                "used": {
+                                                    "memory": 1024,
+                                                    "vCores": 1,
+                                                    "GPUs": 0
+                                                },
+                                                "reserved": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "pending": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                },
+                                                "amUsed": {
+                                                    "memory": 1024,
+                                                    "vCores": 1,
+                                                    "GPUs": 0
+                                                },
+                                                "amLimit": {
+                                                    "memory": 0,
+                                                    "vCores": 0,
+                                                    "GPUs": 0
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "userWeight": 1,
+                                    "isActive": true
+                                }
+                            ]
+                        },
+                        "userLimitFactor": 1,
+                        "AMResourceLimit": {
+                            "memory": 11264,
+                            "vCores": 2,
+                            "GPUs": 1
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 11264,
+                            "vCores": 2,
+                            "GPUs": 1
+                        },
+                        "preemptionDisabled": true,
+                        "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 0,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 0,
+                        "absoluteMaxCapacity": 0,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 0,
+                        "queueName": "test_vc",
+                        "state": "STOPPED",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "test_vc"
+                        ],
+                        "allocatedContainers": -2,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 0,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 0,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 0,
+                                    "maxAMLimitPercentage": 50
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "capacity": 100,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 100,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 50
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    }
+                                },
+                                {
+                                    "partitionName": "test_vc",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 104448,
+                                        "vCores": 12,
+                                        "GPUs": 2
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 0,
+                        "numPendingApplications": 0,
+                        "numContainers": 0,
+                        "maxApplications": 10000,
+                        "maxApplicationsPerUser": 10000,
+                        "userLimit": 100,
+                        "users": null,
+                        "userLimitFactor": 100,
+                        "AMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": true,
+                        "defaultNodeLabelExpression": "test_vc",
+                        "defaultPriority": 0
+                    }
+                ]
+            },
+            "capacities": {
+                "queueCapacitiesByPartition": [
+                    {
+                        "partitionName": "",
+                        "capacity": 100,
+                        "usedCapacity": 25,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 100,
+                        "absoluteUsedCapacity": 25,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                    },
+                    {
+                        "partitionName": "label_ex",
+                        "capacity": 100,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 100,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                    },
+                    {
+                        "partitionName": "label_non",
+                        "capacity": 100,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 100,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                    },
+                    {
+                        "partitionName": "test_vc",
+                        "capacity": 100,
+                        "usedCapacity": 4.166667,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 100,
+                        "absoluteUsedCapacity": 4.166667,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                    }
+                ]
+            },
+            "health": {
+                "lastrun": 1559116721367,
+                "operationsInfo": {
+                    "entry": {
+                        "key": "last-release",
+                        "value": {
+                            "nodeId": "10.151.40.132:8041",
+                            "containerId": "container_e29_1558612027309_0038_01_000001",
+                            "queue": "root.default"
+                        }
+                    }
+                },
+                "lastRunDetails": [
+                    {
+                        "operation": "releases",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                    },
+                    {
+                        "operation": "allocations",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                    },
+                    {
+                        "operation": "reservations",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

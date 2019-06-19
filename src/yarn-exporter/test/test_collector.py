@@ -22,6 +22,7 @@ import logging
 import json
 
 import base
+from collections import defaultdict
 
 sys.path.append(os.path.abspath("../src/"))
 
@@ -37,18 +38,19 @@ class TestYarnCollector(base.TestBase):
 
     def test_gen_nodes_metrics(self):
         with open("data/nodes") as f:
-            obj = json.loads(f.read())
+            obj = json.load(f)
 
-        total_resource = yarn_exporter.ResourceItem()
+        labeled_resource = defaultdict(yarn_exporter.ResourceItem)
+
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, total_resource, node_count)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
         self.assertEqual(1, node_count.total)
         self.assertEqual(1, node_count.active)
 
-        self.assertEqual(24, total_resource.cpu)
-        self.assertEqual(184320 * 1024 * 1024, total_resource.mem)
-        self.assertEqual(4, total_resource.gpu)
+        self.assertEqual(24, labeled_resource[""].cpu)
+        self.assertEqual(184320 * 1024 * 1024, labeled_resource[""].mem)
+        self.assertEqual(4, labeled_resource[""].gpu)
 
         self.assertEqual(6, len(metrics))
         # total cpu
@@ -77,16 +79,17 @@ class TestYarnCollector(base.TestBase):
 
     def test_gen_scheduler_metrics(self):
         with open("data/nodes") as f:
-            obj = json.loads(f.read())
+            obj = json.load(f)
 
-        total_resource = yarn_exporter.ResourceItem()
+        labeled_resource = defaultdict(yarn_exporter.ResourceItem)
+
         node_count = yarn_exporter.NodeCount()
-        YarnCollector.gen_nodes_metrics(obj, total_resource, node_count)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
         with open("data/scheduler") as f:
-            obj = json.loads(f.read())
+            obj = json.load(f)
 
-        metrics = YarnCollector.gen_scheduler_metrics(obj, total_resource)
+        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource)
 
         self.assertEqual(10, len(metrics))
 
@@ -132,13 +135,54 @@ class TestYarnCollector(base.TestBase):
         self.assertEqual(1, len(metrics[9].samples))
         self.assertEqual(0, metrics[9].samples[0].value)
 
+
+    def test_gen_metrics_with_label(self):
+        with open("data/nodes_with_label.json") as f:
+            obj = json.load(f)
+
+        labeled_resource = defaultdict(yarn_exporter.ResourceItem)
+
+        node_count = yarn_exporter.NodeCount()
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
+
+        self.assertDictEqual(labeled_resource, {"": yarn_exporter.ResourceItem(cpu=24, gpu=4, mem=204*1024*1024*1024),
+                                                "test_vc": yarn_exporter.ResourceItem(cpu=24, gpu=4, mem=204*1024*1024*1024)})
+
+        with open("data/scheduler_with_label.json") as f:
+            obj = json.load(f)
+
+        metrics = YarnCollector.gen_scheduler_metrics(obj, labeled_resource)
+
+        self.assertEqual(10, len(metrics))
+        self.assertEqual(4, len(metrics[0].samples))
+
+        ## total gpu
+        for sample in metrics[4].samples:
+            if sample.labels["queue"] == "default":
+                self.assertEqual(sample.value, 3.6)
+            elif sample.labels["queue"] == "test_vc":
+                self.assertEqual(sample.value, 4)
+            elif sample.labels["queue"] == "vc_a":
+                self.assertEqual(sample.value, 0.4)
+
+        ## available gpu
+        for sample in metrics[5].samples:
+            if sample.labels["queue"] == "default":
+                self.assertEqual(sample.value, 2.6)
+            elif sample.labels["queue"] == "test_vc":
+                self.assertEqual(sample.value, 4)
+            elif sample.labels["queue"] == "vc_a":
+                self.assertEqual(sample.value, 0.4)
+
+
     def test_gen_nodes_metrics_using_empty_nodes(self):
         with open("data/empty_nodes") as f:
-            obj = json.loads(f.read())
+            obj = json.load(f)
 
-        total_resource = yarn_exporter.ResourceItem()
+        labeled_resource = defaultdict(yarn_exporter.ResourceItem)
+
         node_count = yarn_exporter.NodeCount()
-        metrics = YarnCollector.gen_nodes_metrics(obj, total_resource, node_count)
+        metrics = YarnCollector.gen_nodes_metrics(obj, node_count, labeled_resource)
 
 if __name__ == '__main__':
     unittest.main()
