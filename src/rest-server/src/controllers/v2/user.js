@@ -60,8 +60,6 @@ const createUserIfUserNotExist = async (req, res, next) => {
     let grouplist = [];
     let virtualCluster = [];
     let groupType = await groupModel.getAllGroupTypeObject();
-    // eslint-disable-next-line no-console
-    console.log(groupType);
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
       grouplist = await groupModel.getUserGrouplistFromExternal(username);
       req.grouplist = grouplist;
@@ -85,8 +83,6 @@ const createUserIfUserNotExist = async (req, res, next) => {
         }
       }
     }
-    // eslint-disable-next-line no-console
-    console.log(virtualCluster);
     req.virtualCluster = virtualCluster;
     const userValue = {
       username: userData.username,
