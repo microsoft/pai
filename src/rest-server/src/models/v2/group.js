@@ -101,6 +101,10 @@ const addGroupIntoAdminUser = async (groupname, groupValue) => {
   try {
     let userList = await userModel.getAllUser();
     let updateUserList = [];
+    // eslint-disable-next-line no-console
+    console.log(userList);
+    // eslint-disable-next-line no-console
+    console.log(groupValue);
     for (let userItem of userList) {
       if (!userItem['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
         continue;
