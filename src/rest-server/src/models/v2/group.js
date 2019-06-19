@@ -136,7 +136,7 @@ const addGroupIntoAdminUser = async (groupname, groupValue) => {
 const createGroup = async (groupname, groupValue) => {
   try {
     const ret = await crudGroup.create(groupname, groupValue, crudConfig);
-    await addGroupIntoAdminUser();
+    await addGroupIntoAdminUser(groupname, groupValue);
     return ret;
   } catch (error) {
     throw error;
@@ -157,7 +157,7 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
   } catch (error) {
     if (error.status === 404) {
       await createGroup(groupname, groupValue);
-      await addGroupIntoAdminUser();
+      await addGroupIntoAdminUser(groupname, groupValue);
     } else {
       throw error;
     }
