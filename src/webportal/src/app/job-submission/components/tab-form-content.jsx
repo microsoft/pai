@@ -29,7 +29,6 @@ import {FormTextField} from './form-text-field';
 import {DockerSection} from './docker-section';
 import {FormPage} from './form-page';
 import {JobTaskRole} from '../models/job-task-role';
-import {DataComponent} from './data/data-component';
 import {FormSpinButton} from './form-spin-button';
 import {ContainerSizeSection} from './container-size-section';
 import {CommandSection} from './command-section';
