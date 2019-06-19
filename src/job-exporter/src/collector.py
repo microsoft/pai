@@ -103,6 +103,7 @@ class ResourceGauges(object):
                 "role_name",
                 "task_index",
                 "pod_name",
+                "user_email",
                 ]
         self.service_labels = ["name"]
 
@@ -512,6 +513,7 @@ class ContainerCollector(Collector):
         result_labels["role_name"] = inspect_info.role_name or "unknown"
         result_labels["task_index"] = inspect_info.task_index or "unknown"
         result_labels["pod_name"] = inspect_info.pod_name or "unknown"
+        result_labels["user_email"] = inspect_info.email or "unknown"
 
         if inspect_info.gpu_ids:
             ids = inspect_info.gpu_ids.replace("\"", "").split(",")
