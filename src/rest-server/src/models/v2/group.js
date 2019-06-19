@@ -177,6 +177,24 @@ const virtualCluster2GroupList = async (virtualCluster) => {
   return groupList;
 };
 
+const getAllGroupTypeObject = async () => {
+  try {
+    let groupInfoList = await getAllGroup();
+    let groupType = {};
+    for (const groupItem of groupInfoList) {
+      const name = groupItem['groupname'];
+      const type = groupItem['extension']['groupType'] ? groupItem['extension']['groupType'] : 'vc';
+      if (name === authConfig.groupConfig.adminGroup.groupname) {
+        groupType[name] = 'admin';
+      } else {
+        groupType[name] = type;
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 if (config.env !== 'test') {
   (async function() {
     try {
@@ -370,4 +388,5 @@ module.exports = {
   virtualCluster2GroupList,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
+  getAllGroupTypeObject,
 };

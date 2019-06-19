@@ -59,17 +59,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
     const username = userData.username;
     let grouplist = [];
     let virtualCluster = [];
-    let groupInfoList = await groupModel.getAllGroup();
-    let groupType = {};
-    for (const groupItem of groupInfoList) {
-      const name = groupItem['groupname'];
-      const type = groupItem['extension']['groupType'] ? groupItem['extension']['groupType'] : 'vc';
-      if (name === authConfig.groupConfig.adminGroup.groupname) {
-        groupType[name] = 'admin';
-      } else {
-        groupType[name] = type;
-      }
-    }
+    let groupType = await groupModel.getAllGroupTypeObject();
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
       grouplist = await groupModel.getUserGrouplistFromExternal(username);
       req.grouplist = grouplist;
@@ -136,17 +126,7 @@ const createUser = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
-    let groupInfoList = await groupModel.getAllGroup();
-    let groupType = {};
-    for (const groupItem of groupInfoList) {
-      const name = groupItem['groupname'];
-      const type = groupItem['extension']['groupType'] ? groupItem['extension']['groupType'] : 'vc';
-      if (name === authConfig.groupConfig.adminGroup.groupname) {
-        groupType[name] = 'admin';
-      } else {
-        groupType[name] = type;
-      }
-    }
+    let groupType = await groupModel.getAllGroupTypeObject();
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     let extension = req.body.extension;
     if (req.body.admin) {
@@ -211,17 +191,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     let virtualCluster = req.body.virtualCluster;
     if (req.user.admin || req.user.username === username) {
-      let groupInfoList = await groupModel.getAllGroup();
-      let groupType = {};
-      for (const groupItem of groupInfoList) {
-        const name = groupItem['groupname'];
-        const type = groupItem['extension']['groupType'] ? groupItem['extension']['groupType'] : 'vc';
-        if (name === authConfig.groupConfig.adminGroup.groupname) {
-          groupType[name] = 'admin';
-        } else {
-          groupType[name] = type;
-        }
-      }
+      let groupType = await groupModel.getAllGroupTypeObject();
       let userInfo = await userModel.getUser(username);
       for (const groupname of userInfo['grouplist']) {
         if (groupType[groupname] && !(groupname in grouplist) && groupType[groupname] != 'vc') {
