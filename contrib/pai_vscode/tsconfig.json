@@ -13,8 +13,8 @@
         "noUnusedLocals": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "plugins": [{ 
-            "name": "tslint-language-service",
+        "plugins": [{
+            "name": "typescript-tslint-plugin",
             "alwaysShowRuleFailuresAsWarnings": false,
             "ignoreDefinitionFiles": true
         }]
