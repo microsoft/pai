@@ -30,7 +30,7 @@ import 'whatwg-fetch';
 import {isEmpty} from 'lodash';
 import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
-import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, StackItem, ScrollablePane, Sticky, StickyPositionType} from 'office-ui-fabric-react';
 import {JobTaskRole} from './models/job-task-role';
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
@@ -77,33 +77,38 @@ const JobSubmission = () => {
 
   return (
     <Fabric style={{height: '100%'}}>
-      <Stack className={formLayout} styles={{root: {height: '100%'}}} horizontal gap='l2'>
+      <Stack className={formLayout} styles={{root: {height: '100%'}}} horizontal gap='l1'>
         {/* left column */}
-        <StackItem grow shrink>
-          <Stack gap='l2' styles={{root: {height: '100%', overflowY: 'auto'}}}>
-            <JobInformation
-              jobInformation={jobInformation}
-              onChange={setJobInformation}
-            />
-            {/* pivot */}
-            <TaskRoles
-              taskRoles={jobTaskRoles}
-              onChange={setJobTaskRoles}
-            />
-            <SubmissionSection
-              jobInformation={jobInformation}
-              jobTaskRoles={jobTaskRoles}
-              parameters={parameters}
-              onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
-                setJobInformation(updatedJobInfo);
-                setJobTaskRoles(updatedTaskRoles);
-                setParameters(updatedParameters);
-              }}
-            />
-          </Stack>
+        <StackItem grow shrink styles={{root: {position: 'relative'}}}>
+          <ScrollablePane
+            styles={{stickyBelow: {boxShadow: 'rgba(0, 0, 0, 0.06) 0px -2px 4px, rgba(0, 0, 0, 0.05) 0px -0.5px 1px'}}}
+          >
+            <Stack gap='l2'>
+              <JobInformation
+                jobInformation={jobInformation}
+                onChange={setJobInformation}
+              />
+              <TaskRoles
+                taskRoles={jobTaskRoles}
+                onChange={setJobTaskRoles}
+              />
+              <Sticky stickyPosition={StickyPositionType.Footer}>
+                <SubmissionSection
+                  jobInformation={jobInformation}
+                  jobTaskRoles={jobTaskRoles}
+                  parameters={parameters}
+                  onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
+                    setJobInformation(updatedJobInfo);
+                    setJobTaskRoles(updatedTaskRoles);
+                    setParameters(updatedParameters);
+                  }}
+                />
+              </Sticky>
+            </Stack>
+          </ScrollablePane>
         </StackItem>
         {/* right column */}
-        <StackItem disableShrink styles={{root: {width: 450}}}>
+        <StackItem disableShrink styles={{root: {width: 500}}}>
           <Stack gap='l2' styles={{root: {height: '100%'}}}>
             <Parameters
               parameters={parameters}
