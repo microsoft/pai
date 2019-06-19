@@ -133,15 +133,18 @@ class ActionFactoryForJob(ActionFactory):
         return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--job-name', '--cluster-alias', '--v2', '--preview', 'config'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--v2', '--preview', '--update', 'config'])
 
     def check_arguments_submit(self, args):
-        assert args.job_name or args.config, "please specify --job-name or give a job config file"
+        assert args.config, "please specify a job config file (json or yaml format)"
 
     def do_action_submit(self, args):
-        if not args.config:
-            args.config = Job.get_config_file(args.job_name, args.v2)
+        # TODO key-value pair in --update option would support nested key, e.g. taskRoles::prerequisites::0::name=new-name
         self.__job__.load(fname=args.config)
+        if args.update:
+            for s in args.update:
+                key, value = s.split("=")
+                self.__job__.protocol[key] = value
         if args.preview:
             return self.__job__.validate().get_config()
         return self.__clusters__.submit(args.cluster_alias, self.__job__)
@@ -154,7 +157,6 @@ class ActionFactoryForJob(ActionFactory):
             '--workspace',
             '--sources',
             '--image',
-            '--disable-sdk-install',
             '--cpu', '--gpu', '--memoryMB',
             '--v2', '--preview', '--pip-flags',
             'commands'

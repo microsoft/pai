@@ -30,7 +30,7 @@ class TaskRole:
 
     @staticmethod
     def validate(t: dict):
-        assert t["dockerImage"], "unkown dockerImage"
+        assert t["dockerImage"], "unknown dockerImage"
         assert t["resourcePerInstance"]["cpu"] > 0, "invalid cpu number (%d)" % t["resourcePerInstance"]["cpu"]
         assert t["resourcePerInstance"]["gpu"] >= 0, "invalid gpu number (%d)" % t["resourcePerInstance"]["gpu"]
         assert t["resourcePerInstance"]["memoryMB"] > 0, "invalid memoryMB number (%d)" % t["resourcePerInstance"]["memoryMB"]

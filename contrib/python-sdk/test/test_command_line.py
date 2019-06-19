@@ -3,7 +3,7 @@ import os
 from copy import deepcopy
 from subprocess import CalledProcessError
 from shutil import rmtree
-from openpaisdk.command_line import EngineRelease
+from openpaisdk.command_line import Engine
 from openpaisdk.utils import run_command
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.job import Job, Namespace, from_file
@@ -63,7 +63,7 @@ class TestCliArgs(unittest.TestCase):
         run_command("opai unset cluster-alias")
         run_command("opai cluster delete %s" % alias)
         run_test_command("opai cluster add", self.cluster_ut)
-        cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
+        cluster_bk = Engine().process(['cluster', 'list'])[alias]
         expectedOutput = gen_expected(self.cluster_ut)
         expectedOutput.update(storages=[], default_storage_alias=None)
         self.assertDictEqual(expectedOutput, cluster_bk)
@@ -72,7 +72,7 @@ class TestCliArgs(unittest.TestCase):
         with self.assertRaises(CalledProcessError):
             run_test_command("opai cluster attach-hdfs", self.hdfs_ut, "> /dev/null 2>&1")
         run_test_command("opai cluster attach-hdfs -a %s --default" % alias, self.hdfs_ut)
-        cluster_bk = EngineRelease().process(['cluster', 'list'])[alias]
+        cluster_bk = Engine().process(['cluster', 'list'])[alias]
         expectedOutput["storages"].append(gen_expected(self.hdfs_ut, user="myuser", protocol="webHDFS"))
         expectedOutput["default_storage_alias"] = self.hdfs_ut["storage-alias"]
         self.assertDictEqual(expectedOutput, cluster_bk)
@@ -81,12 +81,12 @@ class TestCliArgs(unittest.TestCase):
         alias = self.cluster_ut["cluster-alias"]
         # cluster delete
         run_test_command("opai cluster delete", {}, alias)
-        clusters = EngineRelease().process(['cluster', 'list'])
+        clusters = Engine().process(['cluster', 'list'])
         self.assertFalse(alias in clusters)
         run_command("opai unset cluster-alias")
 
         # `job submit`
-        self.assertDictEqual(EngineRelease().process(['job', 'submit', '--preview', 'mnist.yaml']), from_file('mnist.yaml'))
+        self.assertDictEqual(Engine().process(['job', 'submit', '--preview', 'mnist.yaml']), from_file('mnist.yaml'))
         print("job submit test successfully")
 
         # `opai job sub` with incompleted args
@@ -110,12 +110,12 @@ class TestCliArgs(unittest.TestCase):
             get_cmd("opai cluster attach-hdfs", self.hdfs_ut),
             get_cmd("opai job sub --preview", self.job_c, "ls")
         )
-        defaults = EngineRelease().process(['set'])
+        defaults = Engine().process(['set'])
         self.assertEqual(defaults["cluster-alias"], alias)
         job_config = from_file(self.job_cfg_file)
         self.assertEqual(alias, job_config["extras"]["__clusters__"][0]["cluster_alias"])
 
-        job_config2 = EngineRelease().process(['job', 'submit', '--preview', self.job_cfg_file])
+        job_config2 = Engine().process(['job', 'submit', '--preview', self.job_cfg_file])
         self.assertDictEqual(job_config, job_config2)
 
     @property

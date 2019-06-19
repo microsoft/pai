@@ -1,13 +1,16 @@
 import json
 import os
+import time
+from typing import Union
 from copy import deepcopy
-from openpaisdk.storage import Storage
-from openpaisdk.utils import get_response
-from openpaisdk.cli_arguments import get_args, cli_add_arguments, Namespace
+
+from openpaisdk import __cluster_config_file__, __defaults__, __logger__
+from openpaisdk.cli_arguments import Namespace, cli_add_arguments, get_args
+from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.job import Job
-from openpaisdk.io_utils import to_file, from_file
-from openpaisdk import __defaults__, __logger__, __cluster_config_file__
+from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList as ol
+from openpaisdk.utils import get_response
 
 
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
@@ -55,9 +58,10 @@ class ClusterList:
     def __init__(self):
         self.clusters = []
 
-    def load(self):
-        self.clusters = from_file(__cluster_config_file__, default=[])
+    def load(self, fname: str=__cluster_config_file__):
+        self.clusters = from_file(fname, default=[])
         assert isinstance(self.clusters, list), "contents in %s should be a list" % __cluster_config_file__
+        return self
 
     def save(self):
         to_file(self.clusters, __cluster_config_file__)
@@ -95,6 +99,7 @@ class ClusterList:
         client = self.get_client(alias)
         client.get_token().rest_api_submit(job.get_config())
         return client.get_job_link(job.name)
+
 
 class ClusterClient:
 
@@ -194,3 +199,16 @@ class ClusterClient:
                 body = job,
                 allowed_status=[202, 201]
             )
+
+    def wait(self, jobs: Union[str, list], t_sleep: float=10, timeout: float=3600):
+        if isinstance(jobs, str):
+            jobs = [jobs]
+        states = [self.rest_api_jobs(j)["jobStatus"].get("state", None) for j in jobs]
+        t = 0
+        while not all(s in ["SUCCEEDED", "FAILED"] for s in states) or t >= timeout:
+            assert all(s in ["WAITING", "RUNNING"] for s in states), "unknown state %s" % states
+            time.sleep(t_sleep)
+            t = t + t_sleep
+            print('.', end='', flush=True)
+            states = [self.rest_api_jobs(j)["jobStatus"].get("state", None) for j in jobs]
+        return states

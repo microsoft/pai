@@ -147,8 +147,7 @@ class ArgumentFactory:
         # common
         self.add_argument('--details', help='if asserted, show details of the job (or cluster)', action='store_true', default=False)
         self.add_argument('--default', help='set current as default', action='store_true', default=False)
-        self.add_argument('--update', '-u', action='store_true', default=False, help='update current job cache')
-        self.add_argument('--dont-set-as-default', action="store_true", default=False, help="dont set current (job) as default")
+        self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value')
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
 
         # task role
