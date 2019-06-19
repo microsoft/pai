@@ -21,6 +21,7 @@ export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';
+export const COMMAND_CREATE_YAML_JOB_CONFIG = 'paiext.cluster.job.create-yaml-config';
 export const COMMAND_CONTAINER_HDFS_BACK = 'paiext.container.hdfs.back';
 export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
 export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';

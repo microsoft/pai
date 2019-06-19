@@ -29,6 +29,7 @@ let yarnConfig = {
     'Accept': 'application/json',
   },
   yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+  yarnNodeInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/nodes`,
   webserviceUpdateQueueHeaders: {
     'Content-Type': 'application/xml',
   },
@@ -43,6 +44,9 @@ const yarnConfigSchema = Joi.object().keys({
   webserviceRequestHeaders: Joi.object()
     .required(),
   yarnVcInfoPath: Joi.string()
+    .uri()
+    .required(),
+  yarnNodeInfoPath: Joi.string()
     .uri()
     .required(),
   webserviceUpdateQueueHeaders: Joi.object()

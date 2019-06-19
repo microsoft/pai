@@ -42,9 +42,6 @@ router.route('/:username/')
 router.route('/:username/virtualClusters')
     .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
 
-router.route('/:username/githubPAT')
-    .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
-
 router.use('/:username/jobs', jobRouter);
 
 // module exports
