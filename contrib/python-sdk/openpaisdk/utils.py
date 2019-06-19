@@ -3,6 +3,7 @@ common functions to
 """
 import importlib
 import os
+from typing import Union
 from copy import deepcopy
 from requests import Response, request
 import subprocess
@@ -52,19 +53,39 @@ class OrganizedList:
         return lst
 
 
-def psel(*args, default=None):
-    """select with priority"""
-    for a in args:
-        if not a:
-            continue
-        return a
-    return default
+class Nested:
 
+    def __init__(self, t, sep: str=":"):
+        self.__sep__ = sep
+        self.content = t
 
-def merge_two_object(a: dict, b: dict):
-    y = deepcopy(a)
-    y.update(b)
-    return y
+    def get(self, keys: str):
+        return Nested.s_get(self.content, keys.split(self.__sep__))
+
+    def set(self, keys: str, value):
+        return Nested.s_set(self.content, keys.split(self.__sep__), value)
+
+    @staticmethod
+    def _validate(context: Union[list, dict], idx: Union[str, int]):
+        return int(idx) if isinstance(context, list) else idx
+
+    @staticmethod
+    def s_get(target, keys: list):
+        k = Nested._validate(target, keys[0])
+        if len(keys) == 1:
+            return target[k]
+        return Nested.s_get(target[k], keys[1:])
+
+    @staticmethod
+    def s_set(target, keys: list, value):
+        # ! not allow to create a list
+        k = Nested._validate(target, keys[0])
+        if len(keys) == 1:
+            target[k] = value
+            return
+        if isinstance(target, dict) and k not in target:
+            target[k] = dict()
+        return Nested.s_set(target[k], keys[1:], value)
 
 
 def getobj(name: str):

@@ -4,7 +4,8 @@ import argparse
 import inspect
 import typing
 from copy import deepcopy
-from openpaisdk import __defaults__, __logger__
+from openpaisdk import __local_default_file__, __logger__
+from openpaisdk.io_utils import from_file
 from typing import Union
 
 
@@ -114,9 +115,10 @@ class ArgumentFactory:
 
     def __init__(self):
         self.factory = dict()
-
+        __defaults__ = from_file(__local_default_file__, default={})
         # cluster
         self.add_argument('--cluster-alias', '-a', default=__defaults__.get('cluster-alias', None), help='cluster alias to select')
+        self.add_argument('--virtual-cluster', '--vc', default=__defaults__.get('virtual-cluster', None), help='virtual cluster to use')
         self.add_argument('cluster_alias', help='cluster alias to select')
 
         self.add_argument('--pai-uri', help="uri of openpai cluster, in format of http://x.x.x.x")
@@ -130,11 +132,8 @@ class ArgumentFactory:
         # job spec
         self.add_argument('--job-name', '-j', help='job name', default=__defaults__.get('job-name', None))
         self.add_argument('--workspace', '-w', default=__defaults__.get('workspace', None), help='remote path for workspace (store code, output, ...)')
-        self.add_argument('--code-dir', help="use a existing remote directory as code directory, if not specified, use <workspace>/jobs/<job-name>/code instead")
         self.add_argument('--v2', action="store_true", default=False, help="use job protocol version 2")
-        self.add_argument('--rename', action="store_true", default=False, help="change name in config file according to --job-name")
         self.add_argument('--sources', '-s', action='append', help='sources files')
-        self.add_argument('--disable-sdk-install', '-d', action='store_true', default=False, help='disable installing of openpaisdk from github')
 
         # requirements
         self.add_argument('--image', '-i', default=__defaults__.get('image', None), help='docker image')
@@ -147,7 +146,7 @@ class ArgumentFactory:
         # common
         self.add_argument('--details', help='if asserted, show details of the job (or cluster)', action='store_true', default=False)
         self.add_argument('--default', help='set current as default', action='store_true', default=False)
-        self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value')
+        self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value (key1:key2:...=value for nested objects)')
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
 
         # task role

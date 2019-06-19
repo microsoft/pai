@@ -6,9 +6,7 @@ from copy import deepcopy
 
 import yaml
 
-import openpaisdk as pai
-import openpaisdk.runtime_requires as req
-from openpaisdk import __logger__
+from openpaisdk import __logger__, __cluster_config_file__, __local_default_file__
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import ClusterClient
@@ -16,6 +14,7 @@ from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.job import Job, TaskRole
 from openpaisdk.runtime import runtime_execute
 from openpaisdk.utils import OrganizedList as ol
+from openpaisdk.utils import Nested
 
 
 def pprint(s, fmt: str='yaml', **kwargs):
@@ -36,26 +35,28 @@ class ActionFactoryForDefault(ActionFactory):
         parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
     def do_action_set(self, args):
+        __defaults__ = from_file(__local_default_file__, default={})
         if not args.contents:
-            return pai.__defaults__
+            return __defaults__
         for kv in args.contents:
             key, value = kv.split('=')
-            pai.__defaults__[key] = value
-        to_file(pai.__defaults__, pai.__local_default_file__)
-        return pai.__defaults__
+            __defaults__[key] = value
+        to_file(__defaults__, __local_default_file__)
+        return __defaults__
 
     def define_arguments_unset(self, parser: argparse.ArgumentParser):
         parser.add_argument('variables', nargs='+', help='(variable=value) pair to be set as default')
 
     def do_action_unset(self, args):
         result = []
+        __defaults__ = from_file(__local_default_file__, default={})
         for key in args.variables:
-            if key not in pai.__defaults__:
+            if key not in __defaults__:
                 result.append("cannot unset default variable %s because it doesn't exist" % key)
                 continue
-            value = pai.__defaults__.pop(key, None)
+            value = __defaults__.pop(key, None)
             result.append("default variable {} (previously {}) deleted".format(key, value))
-        to_file(pai.__defaults__, pai.__local_default_file__)
+        to_file(__defaults__, __local_default_file__)
         return result
 
 
@@ -139,12 +140,12 @@ class ActionFactoryForJob(ActionFactory):
         assert args.config, "please specify a job config file (json or yaml format)"
 
     def do_action_submit(self, args):
-        # TODO key-value pair in --update option would support nested key, e.g. taskRoles::prerequisites::0::name=new-name
+        # TODO key-value pair in --update option would support nested key, e.g. defaults->virtualCluster=<your-virtual-cluster>
         self.__job__.load(fname=args.config)
         if args.update:
             for s in args.update:
                 key, value = s.split("=")
-                self.__job__.protocol[key] = value
+                Nested(self.__job__.protocol).set(key, value)
         if args.preview:
             return self.__job__.validate().get_config()
         return self.__clusters__.submit(args.cluster_alias, self.__job__)
@@ -153,6 +154,7 @@ class ActionFactoryForJob(ActionFactory):
         cli_add_arguments(None, parser, [
             '--job-name',
             '--cluster-alias',
+            '--virtual-cluster',
             '--storage-alias', # use which storage for code transfer
             '--workspace',
             '--sources',
@@ -217,18 +219,14 @@ class ActionFactoryForStorage(ActionFactory):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=getattr(args, "overwrite", False))
 
 
-def is_beta_version():
-    return not pai.__sdk_branch__.startswith("sdk-release-")
-
-
 __cli_structure__ = {
     "cluster": {
         "help": "cluster management",
         "factory": ActionFactoryForCluster,
         "actions": {
-            "list": "list clusters in config file %s" % pai.__cluster_config_file__,
-            "add": "add a cluster to config file %s" % pai.__cluster_config_file__,
-            "delete": "delete a cluster from config file %s" % pai.__cluster_config_file__,
+            "list": "list clusters in config file %s" % __cluster_config_file__,
+            "add": "add a cluster to config file %s" % __cluster_config_file__,
+            "delete": "delete a cluster from config file %s" % __cluster_config_file__,
             "select": "select a cluster as default",
             "attach-hdfs": "attach hdfs storage to cluster",
         }

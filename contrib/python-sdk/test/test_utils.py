@@ -3,6 +3,7 @@ from argparse import Namespace
 from copy import deepcopy
 
 from openpaisdk.utils import OrganizedList as ol
+from openpaisdk.utils import Nested
 
 
 class TestOrganizedList(unittest.TestCase):
@@ -30,3 +31,31 @@ class TestOrganizedList(unittest.TestCase):
         ol.delete(lst, "d", 2)
         del lst2[2]
         self.assertListEqual(lst, lst2)
+
+
+class TestNested(unittest.TestCase):
+
+    def test_set(self):
+        nested_obj = {
+            "a": [
+                {
+                    "aa0": {
+                        "aaa": "val_aaa"
+                    },
+                },
+                {
+                    "aa1": {
+                        "aaa1": "val_aaa1"
+                    }
+                }
+
+            ],
+            "b": "haha"
+        }
+        n = Nested(nested_obj, sep="->")
+        self.assertEqual(n.get("a->0->aa0->aaa"), "val_aaa")
+        with self.assertRaises(KeyError):
+            nested_obj["a"][1]["aa2"]["aaa"]
+        n.set("a->1->aa2->aaa", "val_aaa2")
+        self.assertEqual(nested_obj["a"][1]["aa2"]["aaa"], "val_aaa2")
+

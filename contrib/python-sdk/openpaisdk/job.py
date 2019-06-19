@@ -8,7 +8,6 @@ from openpaisdk import (__cluster_config_file__, __defaults__, __install__,
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not, get_args
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import merge_two_object, psel
 
 
 __protocol_filename__ = "job_protocol.yaml"
@@ -139,6 +138,8 @@ class Job:
         })
         self.protocol["extras"]["workspace"] = workspace
         self.protocol["extras"]["submitFrom"] = "python-sdk@" + __sdk_branch__
+        if kwargs.get("virtual_cluster", None):
+            self.protocol["defaults"]["virtualClusters"] = kwargs["virtual_cluster"]
 
     @staticmethod
     def new_unit(name: str, type: str, protocolVersion: int=2, **kwargs):
