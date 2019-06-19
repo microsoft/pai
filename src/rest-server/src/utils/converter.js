@@ -21,7 +21,7 @@ const util = require('util');
 const yaml = require('js-yaml');
 const HDFS = require('./hdfs');
 const createError = require('./error');
-const launcherConfig = require('@config/launcher');
+const launcherConfig = require('@pai/config/launcher');
 
 const prerequisiteMapping = {
   data: 'dataDir',

@@ -62,13 +62,7 @@
     "xml2js": "~0.4.19"
   },
   "_moduleAliases": {
-    "@config": "src/config",
-    "@routes": "src/routes",
-    "@middlewares": "src/middlewares",
-    "@controllers": "src/controllers",
-    "@templates": "src/templates",
-    "@models": "src/models",
-    "@utils": "src/util"
+    "@pai": "src"
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",

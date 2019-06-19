@@ -23,9 +23,9 @@
 
 // module dependencies
 require('module-alias/register');
-const config = require('@config');
-const logger = require('@config/logger');
-const app = require('@config/express');
+const config = require('@pai/config');
+const logger = require('@pai/config/logger');
+const app = require('@pai/config/express');
 
 
 logger.info('config: %j', config);

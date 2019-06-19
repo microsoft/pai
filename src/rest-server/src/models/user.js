@@ -19,12 +19,12 @@
 // module dependencies
 const util = require('util');
 const crypto = require('crypto');
-const config = require('@config/index');
-const dbUtility = require('@utils/dbUtil');
-const secretConfig = require('@config/secret');
-const createError = require('@utils/error');
-const logger = require('@config/logger');
-const VirtualCluster = require('@models/vc');
+const config = require('@pai/config/index');
+const dbUtility = require('@pai/utils/dbUtil');
+const secretConfig = require('@pai/config/secret');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const VirtualCluster = require('@pai/models/vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;

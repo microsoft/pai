@@ -18,9 +18,9 @@
 // module dependencies
 const yaml = require('js-yaml');
 const url = require('url');
-const Job = require('@models/v1/job/yarn');
-const createError = require('@utils/error');
-const logger = require('@config/logger');
+const Job = require('@pai/models/v1/job/yarn');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
 
 /**
  * Load job and append to req.

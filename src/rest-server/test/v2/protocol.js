@@ -18,8 +18,8 @@
 
 // module dependencies
 const yaml = require('js-yaml');
-const protocolSchema = require('../../src/config/v2/protocol');
-const protocolMiddleware = require('../../src/middlewares/v2/protocol');
+const protocolSchema = require('@pai/config/v2/protocol');
+const protocolMiddleware = require('@pai/middlewares/v2/protocol');
 
 
 const validprotocolObjs = {

@@ -18,10 +18,10 @@
 
 // module dependencies
 const unirest = require('unirest');
-const config = require('@config/index');
-const logger = require('@config/logger');
-const yarnConfig = require('@config/yarn');
-const launcherConfig = require('@config/launcher');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
 
 if (launcherConfig.type === 'yarn') {
   if (config.env !== 'test') {
@@ -46,5 +46,5 @@ if (launcherConfig.type === 'yarn') {
       }
     });
   }
-  module.exports = require('@models/v1/job/yarn');
+  module.exports = require('@pai/models/v1/job/yarn');
 }

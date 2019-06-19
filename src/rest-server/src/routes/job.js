@@ -18,11 +18,11 @@
 
 // module dependencies
 const express = require('express');
-const token = require('@middlewares/token');
-const jobController = require('@controllers/job');
-const jobParam = require('@middlewares/job');
-const jobConfig = require('@config/job');
-const param = require('@middlewares/parameter');
+const token = require('@pai/middlewares/token');
+const jobController = require('@pai/controllers/job');
+const jobParam = require('@pai/middlewares/job');
+const jobConfig = require('@pai/config/job');
+const param = require('@pai/middlewares/parameter');
 
 
 const router = new express.Router({mergeParams: true});

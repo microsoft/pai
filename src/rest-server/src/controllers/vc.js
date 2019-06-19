@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const VirtualCluster = require('@models/vc');
-const createError = require('@utils/error');
+const VirtualCluster = require('@pai/models/vc');
+const createError = require('@pai/utils/error');
 
 /**
  * Validation, not allow operation to "default" vc.

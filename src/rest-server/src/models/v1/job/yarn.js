@@ -25,16 +25,16 @@ const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
-const launcherConfig = require('@config/launcher');
-const userModel = require('@models/user');
-const yarnContainerScriptTemplate = require('@templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('@templates/dockerContainerScript');
-const createError = require('@utils/error');
-const logger = require('@config/logger');
-const Hdfs = require('@utils/hdfs');
-const azureEnv = require('@config/azure');
-const paiConfig = require('@config/paiConfig');
-const env = require('@utils/env');
+const launcherConfig = require('@pai/config/launcher');
+const userModel = require('@pai/models/user');
+const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const Hdfs = require('@pai/utils/hdfs');
+const azureEnv = require('@pai/config/azure');
+const paiConfig = require('@pai/config/paiConfig');
+const env = require('@pai/utils/env');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {

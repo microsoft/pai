@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const userModel = require('@models/user');
-const createError = require('@utils/error');
+const userModel = require('@pai/models/user');
+const createError = require('@pai/utils/error');
 
 /**
  * Create / update a user.

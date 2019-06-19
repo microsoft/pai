@@ -16,7 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const env = require('../src/util/env');
+require('module-alias/register');
+const env = require('@pai/utils/env');
 
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
@@ -39,7 +40,7 @@ const mustache = require('mustache');
 const nock = require('nock');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../src/index');
+const server = require('@pai');
 
 chai.use(chaiHttp);
 
