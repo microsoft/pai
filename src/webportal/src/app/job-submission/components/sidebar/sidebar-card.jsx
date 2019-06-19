@@ -47,7 +47,7 @@ const style = {
 };
 
 export const SidebarCard = ({title, selected, onSelect, children}) => (
-  <Card style={{minHeight: 0}}>
+  <Card style={{minHeight: selected ? 0 : null}}>
     <Stack gap='m' styles={{root: {height: '100%'}}}>
       <Stack horizontal horizontalAlign='space-between'>
         <Text styles={style.headerText}>{title}</Text>

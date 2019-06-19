@@ -101,7 +101,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
 
   return (
     <SidebarCard
-      title='Parameter'
+      title='Parameters'
       selected={selected}
       onSelect={onSelect}
     >

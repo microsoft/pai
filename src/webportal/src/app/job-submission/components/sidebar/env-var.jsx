@@ -82,22 +82,6 @@ const items = [
     key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
     desc: 'Index of current task in current task role, starting from 0',
   },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-    desc: 'Index of current task in current task role, starting from 0',
-  },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-    desc: 'Index of current task in current task role, starting from 0',
-  },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-    desc: 'Index of current task in current task role, starting from 0',
-  },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-    desc: 'Index of current task in current task role, starting from 0',
-  },
 ];
 
 const columns = [

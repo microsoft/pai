@@ -27,6 +27,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-fabric-react';
 import {getFormClassNames, getTabFromStyle} from './form-style';
+import Card from '../../components/card';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -178,8 +179,10 @@ export class TabForm extends React.Component {
             />
           </Stack.Item>
         </Stack>
-        <Stack styles={tabFormStyle.tabContent}>
-          {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}
+        <Stack>
+          <Card style={{padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`}}>
+            {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}
+          </Card>
         </Stack>
       </div>
     );

@@ -26,14 +26,15 @@
 import React, {useState, useRef} from 'react';
 import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {isNil, debounce} from 'lodash';
+import {getImportButtonStyle} from './form-style';
 import {JobProtocol} from '../models/job-protocol';
-import MonacoPanel from '../../../app/components/monaco-panel';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {JobParameter} from '../models/job-parameter';
-import {isNil, debounce} from 'lodash';
 import {submitJob} from '../utils/conn';
-import {getImportButtonStyle} from './form-style';
+import Card from '../../components/card';
+import MonacoPanel from '../../components/monaco-panel';
 
 const user = cookies.get('user');
 const {palette} = getTheme();
@@ -138,28 +139,31 @@ export const SubmissionSection = (props) => {
   };
 
   return (
-    <Stack horizontal gap='s1' horizontalAlign='center'>
-      <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
-      <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-      <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
-      <DefaultButton>
-        <Label styles={{root: importButtonStyle.label}}>
-          {'Import'}
-          <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
-        </Label>
-      </DefaultButton>
-      <MonacoPanel isOpen={isEditorOpen}
-                   onDismiss={_closeEditor}
-                   title='Protocol YAML Editor'
-                   header={<Text className={{color: palette.white}}>{String(errorMsg)}</Text>}
-                   monacoRef={monaco}
-                   monacoProps={{language: 'yaml',
-                                 options: {wordWrap: 'on', readOnly: false},
-                                 value: protocolYaml,
-                                 onChange: debounce(_onYamlTextChange, 100),
-                                }}
-      />
-    </Stack>);
+    <Card>
+      <Stack horizontal gap='s1' horizontalAlign='center'>
+        <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
+        <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+        <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+        <DefaultButton>
+          <Label styles={{root: importButtonStyle.label}}>
+            {'Import'}
+            <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
+          </Label>
+        </DefaultButton>
+        <MonacoPanel isOpen={isEditorOpen}
+                    onDismiss={_closeEditor}
+                    title='Protocol YAML Editor'
+                    header={<Text className={{color: palette.white}}>{String(errorMsg)}</Text>}
+                    monacoRef={monaco}
+                    monacoProps={{language: 'yaml',
+                                  options: {wordWrap: 'on', readOnly: false},
+                                  value: protocolYaml,
+                                  onChange: debounce(_onYamlTextChange, 100),
+                                  }}
+        />
+      </Stack>
+    </Card>
+  );
 };
 
 SubmissionSection.propTypes = {
