@@ -126,26 +126,6 @@ export const getFormBasicSectionStyle = (optional) => {
   });
 };
 
-export const getParameterStyle = () => {
-  return ({
-    headerText: {
-      root: {
-        fontSize: FontSizes.large,
-        fontWeight: FontWeights.semibold,
-      },
-    },
-    actionButton: {
-      flexContainer: {
-        alignItems: 'end',
-        height: 'auto',
-      },
-      root: {
-        height: 'auto',
-      },
-    },
-  });
-};
-
 export const getSpinButtonStyle = () => {
   return ({
     labelWrapper: {

@@ -4,7 +4,7 @@ import {TabFormContent} from './tab-form-content';
 import {JobTaskRole} from '../models/job-task-role';
 import PropTypes from 'prop-types';
 
-export const TaskRoles = (props) => {
+export const TaskRoles = React.memo((props) => {
   const {taskRoles, onChange} = props;
   const _onRenderTabContent = (keyName, content, defaultOnContentChange) => {
     return (
@@ -51,7 +51,7 @@ export const TaskRoles = (props) => {
              onRenderTabContent={_onRenderTabContent}
              onItemsChange={_onItemChange} />
   );
-};
+});
 
 TaskRoles.propTypes = {
   taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
