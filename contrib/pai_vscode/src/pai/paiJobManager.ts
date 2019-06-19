@@ -38,6 +38,7 @@ import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
 import { PAIRestUri, PAIWebPortalUri } from './paiUri';
 import { RecentJobManager } from './recentJobManager';
+import { registerYamlSchemaSupport } from './yamlSchemaSupport';
 
 interface ITokenItem {
     token: string;
@@ -369,6 +370,10 @@ export class PAIJobManager extends Singleton {
         } finally {
             statusBarItem.dispose();
         }
+    }
+
+    public async onActivate(): Promise<void> {
+        await registerYamlSchemaSupport();
     }
 
     private async submitJobWithYamlConfig(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {

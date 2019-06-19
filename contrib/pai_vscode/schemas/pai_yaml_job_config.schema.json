@@ -146,7 +146,10 @@
                     "required": ["cpu", "memoryMB", "gpu"]
                 },
                 "commands": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "required": ["dockerImage", "resourcePerInstance", "commands"]
@@ -240,8 +243,8 @@
             "type": "integer"
         },
         "taskRoles": {
-            "type": "array",
-            "items": {
+            "type": "object",
+            "additionalProperties": {
                 "$ref": "#/definitions/taskRole"
             }
         },
