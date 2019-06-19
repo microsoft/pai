@@ -59,8 +59,8 @@ export const TabFormContent = (props) => {
                      value={jobTaskRole.name}
                      onBlur={(value) => _onValueChange('name', value)}
                      placeholder='Enter task role name...'/>
-      <DockerSection value={jobTaskRole.dockerInfo}
-                     onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
+      <CommandSection value={jobTaskRole.commands}
+                      onChange={(value)=>_onValueChange('commands', value)}/>
       <FormSpinButton sectionLabel={'Instances'}
                       shortStyle
                       textFiledProps={{placeholder: 'Enter instance number...'}}
@@ -73,8 +73,8 @@ export const TabFormContent = (props) => {
                             })}
                             onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
-      <CommandSection value={jobTaskRole.commands}
-                      onChange={(value)=>_onValueChange('commands', value)}/>
+      <DockerSection value={jobTaskRole.dockerInfo}
+                     onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
     </FormPage>
   );
 };

@@ -66,12 +66,6 @@ export const getTabFromStyle = () => {
         marginLeft: spacing.m,
       },
     },
-    tabContent: {
-      root: {
-        background: palette.white,
-        padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`,
-      },
-    },
   });
 };
 
