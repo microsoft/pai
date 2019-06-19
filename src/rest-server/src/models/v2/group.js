@@ -189,6 +189,7 @@ const getAllGroupTypeObject = async () => {
         groupType[name] = type;
       }
     }
+    return groupType;
   } catch (error) {
     throw error;
   }
