@@ -11,10 +11,10 @@ export const DataComponent = (Props) => {
   const [teamDataList, setTeamDataList] = useState([]);
 
   return (
-  <BasicSection sectionLabel='Data' sectionOptional>
+  <div style={{backgroundColor: 'white', padding: 10}}>
     <TeamStorage teamDataList={teamDataList} setTeamDataList={setTeamDataList}/>
     <CustomStorage dataList={dataList} setDataList={setDataList}/>
     <MountTreeView dataList={teamDataList.concat(dataList)} />
-  </BasicSection>
+  </div>
   );
 };

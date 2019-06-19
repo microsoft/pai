@@ -33,6 +33,7 @@ import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react'
 import {JobTaskRole} from './models/job-task-role';
 import {JobInformation} from './components/job-information';
 import {Parameters} from './components/right/parameters';
+import {DataComponent} from './components/data/data-component';
 import {getFormClassNames} from './components/form-style';
 import {initTheme} from '../components/theme';
 import {JobBasicInfo} from './models/job-basic-info';
@@ -109,6 +110,9 @@ const JobSubmission = () => {
                 parameters={parameters}
                 onChange={setParameters}
               />
+            </Stack>
+            <Stack gap='l2' padding='l1 0 0 0'>
+              <DataComponent />
             </Stack>
           </StackItem>
         </Stack>
