@@ -44,6 +44,7 @@ export const MountList = (props) => {
       onRender: (item, idx) => {
         return (
           <TextField
+            prefix={STORAGE_PREFIX}
             value={item.value}
             onChange={(e, val) => onMountPathChange(idx, val)}
           />
@@ -59,7 +60,6 @@ export const MountList = (props) => {
       onRender: (item, idx) => {
         return (
           <TextField
-            prefix={STORAGE_PREFIX}
             value={item.value}
             onChange={(e, val) => onDataSourceChange(idx, val)}
           />

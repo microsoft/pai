@@ -1,11 +1,15 @@
 import React, {useState} from 'react';
 import c from 'classnames';
-import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
-import {TextField} from 'office-ui-fabric-react/lib/TextField';
+import {
+  DefaultButton,
+  CommandBarButton,
+  Stack,
+  TextField,
+  FontClassNames,
+  Icon,
+  Dropdown,
+} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
-import {FontClassNames} from '@uifabric/styling';
-import {Icon} from 'office-ui-fabric-react/lib/Icon';
-import {Dropdown} from 'office-ui-fabric-react/lib/Dropdown';
 import PropTypes from 'prop-types';
 
 import {InputData} from '../../models/data/input-data';
@@ -22,7 +26,9 @@ export const AddLocal = (props) => {
     const newMountList = cloneDeep(dataList);
     const dataSource = files.map((file) => file.name).join(', '); // eslint-disable-line @typescript-eslint/no-explicit-any
     const uploadFiles = files;
-    newMountList.push(new InputData(mountPath, dataSource, 'local', uploadFiles));
+    newMountList.push(
+      new InputData(mountPath, dataSource, 'local', uploadFiles),
+    );
     newMountList.sort((a, b) => {
       if (a.mountPath < b.mountPath) {
         return -1;
@@ -37,101 +43,82 @@ export const AddLocal = (props) => {
   };
   return (
     <div>
-      <div className={c(t.flex, t.itemsEnd, t.justifyBetween)}>
+      <Stack horizontal horizontalAlign='space-between' className={c(t.pb2)}>
         <TextField
           required
           prefix={STORAGE_PREFIX}
-          label='The path in container'
+          label='Container Path'
           onChange={(_event, newValue) => {
             setMountPath(`${STORAGE_PREFIX}${newValue}`);
           }}
-          className={c(t.w20)}
+          styles={{minWidth: 150}}
         />
-        <label
-          htmlFor='upload'
-          className={c(
-            FontClassNames.medium,
-            t.flex,
-            t.itemsCenter,
-            t.w20,
-            t.h2,
-            t.bgLightGray,
-          )}
-        >
-          {uploadType === 'Files' && (
-            <input
-              id='upload'
-              type='file'
-              onChange={(event) => {
-                const fileList = [];
-                if (event.target.files !== null) {
-                  for (let i = 0; i < event.target.files.length; i += 1) {
-                    fileList.push(event.target.files[i]);
-                  }
-                }
-                setFiles(fileList);
-              }}
-              style={{display: 'none'}}
-              multiple
-            />
-          )}
-          {uploadType === 'Folder' && (
-            // @ts-ignore
-            <input
-              id='upload'
-              type='file'
-              onChange={(event) => {
-                const fileList = [];
-                if (event.target.files !== null) {
-                  for (let i = 0; i < event.target.files.length; i += 1) {
-                    fileList.push(event.target.files[i]);
-                  }
-                }
-                setFiles(fileList);
-              }}
-              style={{display: 'none'}}
-              webkitdirectory=''
-              multiple
-            />
-          )}
-          <Icon iconName='Upload' className={c(t.mh2, t.h2)} />
-          <div className={c(t.w4)}>
-            {files === undefined && `Upload ${uploadType}`}
-            {files !== undefined && files.length === 1 && files[0].name}
-            {files !== undefined && files.length > 1 && `${files.length} Files`}
-          </div>
-        </label>
-        <Dropdown
-          placeholder='Files'
-          options={[
-            {
-              key: 'files',
-              text: 'Files',
-              title: 'select files to upload',
-            },
-            {key: 'folder', text: 'Folder', title: 'select folder to upload'},
-          ]}
-          className={c(t.w4, t.mr4)}
-          onChange={(_event, item) => {
-            if (item !== undefined) {
-              setUploadType(item.text);
-            }
-          }}
-        />
-        <div>
+        <Stack.Item align='end'>
           <DefaultButton
-            text='add'
-            className={c(t.mr2)}
-            onClick={submitMount}
-          />
-          <DefaultButton
-            text='cancel'
+            iconProps={{iconName: 'Upload'}}
+            text='upload file'
+            split={true}
             onClick={() => {
-              setDataType('none');
+              console.log('click');
+            }}
+            menuProps={{
+              items: [
+                {key: 'file', name: 'Files', icon: 'File'},
+                {key: 'folder', name: 'Folder', icon: 'Folder'},
+              ],
             }}
           />
+        </Stack.Item>
+        <input
+          id='upload'
+          type='file'
+          onChange={(event) => {
+            const fileList = [];
+            if (event.target.files !== null) {
+              for (let i = 0; i < event.target.files.length; i += 1) {
+                fileList.push(event.target.files[i]);
+              }
+            }
+            setFiles(fileList);
+          }}
+          style={{display: 'none'}}
+          multiple
+        />
+        <input
+          id='upload'
+          type='file'
+          onChange={(event) => {
+            const fileList = [];
+            if (event.target.files !== null) {
+              for (let i = 0; i < event.target.files.length; i += 1) {
+                fileList.push(event.target.files[i]);
+              }
+            }
+            setFiles(fileList);
+          }}
+          style={{display: 'none'}}
+          webkitdirectory=''
+          multiple
+        />
+
+        {/* <div>
+        <Icon iconName='Upload' className={c(t.mh2, t.h2)} />
+        <div className={c(t.w4)}>
+          {files === undefined && `Upload ${uploadType}`}
+          {files !== undefined && files.length === 1 && files[0].name}
+          {files !== undefined && files.length > 1 && `${files.length} Files`}
         </div>
-      </div>
+      </div> */}
+      </Stack>
+      <Stack horizontal horizontalAlign='end'>
+        <DefaultButton text='add' className={c(t.mr2)} onClick={submitMount} />
+        <DefaultButton
+          text='cancel'
+          onClick={() => {
+            setDataType('none');
+          }}
+        />
+      </Stack>
     </div>
   );
 };
