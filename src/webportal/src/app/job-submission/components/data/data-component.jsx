@@ -1,20 +1,30 @@
 import React, {useState} from 'react';
+import PropTypes from 'prop-types';
 
-import {BasicSection} from '../basic-section';
 import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
 import {MountTreeView} from './mount-tree-view';
+import {SidebarCard} from '../sidebar/sidebar-card';
 
-export const DataComponent = (Props) => {
+export const DataComponent = React.memo((props) => {
   // const [dataCommand, setDataCommand] = useState([]);
   const [dataList, setDataList] = useState([]);
   const [teamDataList, setTeamDataList] = useState([]);
 
   return (
-  <div style={{backgroundColor: 'white', padding: 10}}>
+    <SidebarCard
+      title='Data'
+      selected={props.selected}
+      onSelect={props.onSelect}
+    >
     <TeamStorage teamDataList={teamDataList} setTeamDataList={setTeamDataList}/>
     <CustomStorage dataList={dataList} setDataList={setDataList}/>
     <MountTreeView dataList={teamDataList.concat(dataList)} />
-  </div>
+  </SidebarCard>
   );
+});
+
+DataComponent.propTypes = {
+  selected: PropTypes.bool,
+  onSelect: PropTypes.func,
 };

@@ -42,6 +42,7 @@ import {TaskRoles} from './components/task-roles';
 import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
 import {EnvVar} from './components/sidebar/env-var';
+import {DataComponent} from './components/data/data-component';
 
 initTheme();
 initializeIcons();
@@ -51,6 +52,7 @@ const formLayout = getFormClassNames().formLayout;
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
+const SIDEBAR_DATA = 'data';
 
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({})]);
@@ -120,6 +122,10 @@ const JobSubmission = () => {
             <EnvVar
               selected={selected === SIDEBAR_ENVVAR}
               onSelect={() => onSelect(SIDEBAR_ENVVAR)}
+            />
+            <DataComponent
+              selected={selected === SIDEBAR_DATA}
+              onSelect={() => onSelect(SIDEBAR_DATA)}
             />
           </Stack>
         </StackItem>
