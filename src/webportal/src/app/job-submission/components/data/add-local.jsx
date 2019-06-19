@@ -8,6 +8,7 @@ import {
   FontClassNames,
   Icon,
   Dropdown,
+  IconButton,
 } from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
@@ -42,66 +43,65 @@ export const AddLocal = (props) => {
     setDataType('none');
   };
   return (
-    <div>
-      <Stack horizontal horizontalAlign='space-between' className={c(t.pb2)}>
-        <TextField
-          required
-          prefix={STORAGE_PREFIX}
-          label='Container Path'
-          onChange={(_event, newValue) => {
-            setMountPath(`${STORAGE_PREFIX}${newValue}`);
+    <Stack horizontal horizontalAlign='space-between'>
+      <TextField
+        required
+        prefix={STORAGE_PREFIX}
+        label='Container Path'
+        onChange={(_event, newValue) => {
+          setMountPath(`${STORAGE_PREFIX}${newValue}`);
+        }}
+        className={c(t.w40, t.mr3)}
+      />
+      <Stack.Item align='end'>
+        <DefaultButton
+          iconProps={{iconName: 'Upload'}}
+          text='upload file'
+          split={true}
+          onClick={() => {
+            console.log('click');
           }}
-          styles={{minWidth: 150}}
+          menuProps={{
+            items: [
+              {key: 'file', name: 'Files', icon: 'File'},
+              {key: 'folder', name: 'Folder', icon: 'Folder'},
+            ],
+          }}
         />
-        <Stack.Item align='end'>
-          <DefaultButton
-            iconProps={{iconName: 'Upload'}}
-            text='upload file'
-            split={true}
-            onClick={() => {
-              console.log('click');
-            }}
-            menuProps={{
-              items: [
-                {key: 'file', name: 'Files', icon: 'File'},
-                {key: 'folder', name: 'Folder', icon: 'Folder'},
-              ],
-            }}
-          />
-        </Stack.Item>
-        <input
-          id='upload'
-          type='file'
-          onChange={(event) => {
-            const fileList = [];
-            if (event.target.files !== null) {
-              for (let i = 0; i < event.target.files.length; i += 1) {
-                fileList.push(event.target.files[i]);
-              }
+      </Stack.Item>
+      <input
+        id='upload'
+        type='file'
+        onChange={(event) => {
+          const fileList = [];
+          if (event.target.files !== null) {
+            for (let i = 0; i < event.target.files.length; i += 1) {
+              fileList.push(event.target.files[i]);
             }
-            setFiles(fileList);
-          }}
-          style={{display: 'none'}}
-          multiple
-        />
-        <input
-          id='upload'
-          type='file'
-          onChange={(event) => {
-            const fileList = [];
-            if (event.target.files !== null) {
-              for (let i = 0; i < event.target.files.length; i += 1) {
-                fileList.push(event.target.files[i]);
-              }
+          }
+          setFiles(fileList);
+        }}
+        style={{display: 'none'}}
+        multiple
+      />
+      <input
+        id='upload'
+        type='file'
+        onChange={(event) => {
+          const fileList = [];
+          if (event.target.files !== null) {
+            for (let i = 0; i < event.target.files.length; i += 1) {
+              fileList.push(event.target.files[i]);
             }
-            setFiles(fileList);
-          }}
-          style={{display: 'none'}}
-          webkitdirectory=''
-          multiple
-        />
+          }
+          setFiles(fileList);
+        }}
+        style={{display: 'none'}}
+        webkitdirectory=''
+        multiple
+      />
 
-        {/* <div>
+      {/* <div>
         <Icon iconName='Upload' className={c(t.mh2, t.h2)} />
         <div className={c(t.w4)}>
           {files === undefined && `Upload ${uploadType}`}
@@ -109,17 +109,17 @@ export const AddLocal = (props) => {
           {files !== undefined && files.length > 1 && `${files.length} Files`}
         </div>
       </div> */}
-      </Stack>
-      <Stack horizontal horizontalAlign='end'>
-        <DefaultButton text='add' className={c(t.mr2)} onClick={submitMount} />
-        <DefaultButton
-          text='cancel'
+      <Stack.Item align='end'>
+        <IconButton iconProps={{iconName: 'Accept'}} onClick={submitMount} />
+      </Stack.Item>
+      <Stack.Item align='end'>
+        <IconButton iconProps={{iconName: 'Cancel'}}
           onClick={() => {
             setDataType('none');
           }}
         />
-      </Stack>
-    </div>
+      </Stack.Item>
+    </Stack>
   );
 };
 

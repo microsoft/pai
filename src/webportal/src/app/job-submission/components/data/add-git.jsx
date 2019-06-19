@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import c from 'classnames';
-import {DefaultButton, Stack, TextField} from 'office-ui-fabric-react';
+import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -48,7 +48,7 @@ export const AddGit = (props) => {
         required={true} // eslint-disable-line react/jsx-boolean-value
         prefix={STORAGE_PREFIX}
         label='Container Path'
-        className={c(t.w30, t.mr3)}
+        className={c(t.w40, t.mr3)}
         onChange={(_event, newValue) => {
           setMountPath(`${STORAGE_PREFIX}${newValue}`);
         }}
@@ -56,17 +56,17 @@ export const AddGit = (props) => {
       <TextField
         required={true} // eslint-disable-line react/jsx-boolean-value
         label='Git repo address'
-        className={c(t.w30, t.mr3)}
+        className={c(t.w40, t.mr3)}
         onChange={(_event, newValue) => {
           setHttpUrl(newValue);
         }}
       />
       <Stack.Item align='end'>
-        <DefaultButton text='add' className={c(t.mr2)} onClick={submitMount} />
+        <IconButton iconProps={{iconName: 'Accept'}} onClick={submitMount} />
       </Stack.Item>
       <Stack.Item align='end'>
-        <DefaultButton
-          text='cancel'
+        <IconButton
+          iconProps={{iconName: 'Cancel'}}
           onClick={() => {
             setDataType('none');
           }}
