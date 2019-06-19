@@ -101,10 +101,6 @@ const addGroupIntoAdminUser = async (groupname, groupValue) => {
   try {
     let userList = await userModel.getAllUser();
     let updateUserList = [];
-    // eslint-disable-next-line no-console
-    console.log(userList);
-    // eslint-disable-next-line no-console
-    console.log(groupValue);
     for (let userItem of userList) {
       if (!userItem['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
         continue;
@@ -130,7 +126,6 @@ const addGroupIntoAdminUser = async (groupname, groupValue) => {
   } catch (error) {
     throw error;
   }
-
 };
 
 const createGroup = async (groupname, groupValue) => {
@@ -234,8 +229,6 @@ const updateGroup2ExnternalMapper = async () => {
 const initGrouplistInCfg = async () => {
   try {
     logger.info('Create admin group configured in configuration.');
-    // eslint-disable-next-line no-console
-    console.log(authConfig.groupConfig.adminGroup.extension);
     const adminGroup = {
       'groupname': authConfig.groupConfig.adminGroup.groupname,
       'description': authConfig.groupConfig.adminGroup.description,
