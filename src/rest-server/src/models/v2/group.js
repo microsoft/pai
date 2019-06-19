@@ -97,9 +97,43 @@ const deleteGroup = async (groupname) => {
   }
 };
 
+const addGroupIntoAdminUser = async (groupname, groupValue) => {
+  try {
+    let userList = await userModel.getAllUser();
+    let updateUserList = [];
+    for (let userItem of userList) {
+      if (!userItem['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
+        continue;
+      }
+      if (!userItem['grouplist'].includes(groupname)) {
+        userItem['grouplist'].push(groupname);
+        if (groupValue['extension']['groupType'] === 'vc' && !userItem['extension']['virtualCluster'].includes(groupname)) {
+          userItem['extension']['virtualCluster'].push(groupname);
+        }
+        updateUserList.push(userItem);
+      }
+    }
+    if (updateUserList.length !== 0) {
+      logger.info('User list to be updated has been prepared.');
+      logger.info('Begin to update user\' group list.');
+      await Promise.all(updateUserList.map(async (userData) => {
+        await userModel.updateUser(userData['username'], userData);
+      }));
+      logger.info('Update group info successfully.');
+    } else {
+      logger.info('No user\' grouplist need to be updated.');
+    }
+  } catch (error) {
+    throw error;
+  }
+
+};
+
 const createGroup = async (groupname, groupValue) => {
   try {
-    return await crudGroup.create(groupname, groupValue, crudConfig);
+    const ret = await crudGroup.create(groupname, groupValue, crudConfig);
+    await addGroupIntoAdminUser();
+    return ret;
   } catch (error) {
     throw error;
   }
@@ -119,6 +153,7 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
   } catch (error) {
     if (error.status === 404) {
       await createGroup(groupname, groupValue);
+      await addGroupIntoAdminUser();
     } else {
       throw error;
     }
