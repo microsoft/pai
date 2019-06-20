@@ -17,9 +17,9 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
-const tokenController = require('../controllers/token');
-const param = require('../middlewares/parameter');
+const tokenConfig = require('@pai/config/token');
+const tokenController = require('@pai/controllers/token');
+const param = require('@pai/middlewares/parameter');
 
 const router = new express.Router();
 

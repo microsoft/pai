@@ -19,7 +19,7 @@
 // module dependencies
 const util = require('util');
 const winston = require('winston');
-const config = require('./index');
+const config = require('@pai/config');
 
 
 const logTransports = {

@@ -17,14 +17,14 @@
 
 
 // module dependencies
-const crypto = require('crypto');
-const config = require('../config/index');
-const dbUtility = require('../util/dbUtil');
-const secretConfig = require('../config/secret');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const VirtualCluster = require('./vc');
 const util = require('util');
+const crypto = require('crypto');
+const config = require('@pai/config/index');
+const dbUtility = require('@pai/utils/dbUtil');
+const secretConfig = require('@pai/config/secret');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const VirtualCluster = require('@pai/models/vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -259,7 +259,7 @@ if (config.env !== 'test') {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);
         } else {
-          logger.warn('users:', userInfoList);
+          // logger.warn('users:', userInfoList);
           if (userInfoList.length === 0) {
             setDefaultAdmin();
           }
