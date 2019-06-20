@@ -64,7 +64,7 @@ if (authnConfig.authnMethod !== 'OIDC') {
     paiUserNameSpace: Joi.string()
       .default('pai-user'),
     adminName: Joi.string()
-      .token()
+      .regex(/^[\w.-]+$/, 'username')
       .required(),
     adminPass: Joi.string()
       .min(6)

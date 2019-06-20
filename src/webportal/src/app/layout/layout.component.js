@@ -31,7 +31,6 @@ const pluginComponent = require('./plugins.component.ejs');
 const authnMethod = require('../config/webportal.config.js').authnMethod;
 const isAdmin = cookies.get('admin');
 
-
 const userLoginNavHtml = userLoginNavComponent({cookies});
 
 window.userLogout = userLogoutComponent.userLogout;
@@ -43,6 +42,7 @@ if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--vc').hide();
   $('#sidebar-menu--cluster-view').hide();
 }
+
 
 if (authnMethod === 'OIDC') {
   $('#sidebar-menu--cluster-view--user-management').hide();
