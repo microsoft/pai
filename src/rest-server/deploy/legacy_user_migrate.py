@@ -99,12 +99,16 @@ class TransferClient:
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
         grouplist = []
+        virtual_cluster = []
         if base64.b64decode(user_info_item['data']['admin']) == 'true':
             grouplist.append(self.admin_group)
         for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
-        extension = {}
+            virtual_cluster.append(vc_name)
+        extension = {
+          'virtualCluster': virtual_cluster
+        }
         if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
             extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
         user_dict = {
@@ -123,7 +127,9 @@ class TransferClient:
     def secret_data_prepare_v2_group(self, groupname):
         meta_dict = dict()
         meta_dict['name'] = (''.join([hex(ord(c)).replace('0x', '') for c in groupname]))
-        extension = {}
+        extension = {
+          'groupType': 'vc'
+        }
         group_dict = {
             'groupname': str(base64.b64encode(groupname.encode('utf-8')), 'utf-8'),
             'description': str(base64.b64encode('vc {0}\'s group'.format(groupname).encode('utf-8')), 'utf-8'),

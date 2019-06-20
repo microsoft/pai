@@ -86,7 +86,6 @@ const createUserIfNonExistent = async (username, userValue) => {
   }
 };
 
-
 const checkUserGroup = async (username, groupname) => {
   try {
     let ret = false;
@@ -103,5 +102,30 @@ const checkUserGroup = async (username, groupname) => {
   }
 };
 
+const checkUserVC = async (username, vcName) => {
+  try {
+    let ret = false;
+    const userInfo = await crudUser.read(username, crudConfig);
+    if (userInfo.extension.virtualCluster.includes(vcName)) {
+      ret = true;
+    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      ret = true;
+    }
+    return ret;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // module exports
-module.exports = {getUser, getAllUser, createUser, updateUser, deleteUser, getEncryptPassword, createUserIfNonExistent, checkUserGroup};
+module.exports = {
+  getUser,
+  getAllUser,
+  createUser,
+  updateUser,
+  deleteUser,
+  getEncryptPassword,
+  createUserIfNonExistent,
+  checkUserGroup,
+  checkUserVC,
+};

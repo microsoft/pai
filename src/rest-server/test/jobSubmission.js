@@ -91,7 +91,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
         },
         'data': {
           'email': '',
-          'extension': 'e30=',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
           'username': 'dXNlcjE=',
@@ -218,7 +218,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
         },
         'data': {
           'email': '',
-          'extension': 'e30=',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
           'username': 'dXNlcjE=',
@@ -387,7 +387,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
         },
         'data': {
           'email': '',
-          'extension': 'e30=',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
           'username': 'dXNlcjE=',
@@ -660,7 +660,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
         },
         'data': {
           'email': '',
-          'extension': 'e30=',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
           'username': 'dXNlcjE=',

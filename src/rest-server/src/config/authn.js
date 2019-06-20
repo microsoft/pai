@@ -43,20 +43,26 @@ try {
         'groupname': 'adminGroup',
         'description': 'group for admin',
         'externalName': '',
-        'extension': {},
+        'extension': {
+          'groupType': 'admin',
+        },
       },
       'defaultGroup': {
         'groupname': 'default',
         'description': 'group for default vc.',
         'externalName': '',
-        'extension': {},
+        'extension': {
+          'groupType': 'vc',
+        },
       },
       'grouplist': [
         {
           'groupname': 'testGroup',
           'description': 'group for test',
           'externalName': '',
-          'extension': {},
+          'extension': {
+            'groupType': 'vc',
+          },
         },
       ],
     };

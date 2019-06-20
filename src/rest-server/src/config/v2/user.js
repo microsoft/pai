@@ -23,9 +23,14 @@ const userExtensionUpdateInputSchema = Joi.object().keys({
   extension: Joi.object().pattern(/\w+/, Joi.required()),
 }).required();
 
-// define the input schema for the 'update user grouplist' api
+// define the input schema for the 'update user virtualCluster' api
 const userVirutalClusterUpdateInputSchema = Joi.object().keys({
   virtualCluster: Joi.array().items(Joi.string()).required(),
+});
+
+// define the input schema for the 'update user grouplist' api
+const userGrouplistUpdateInputSchema = Joi.object().keys({
+  grouplist: Joi.array().items(Joi.string()).required(),
 });
 
 // define the input schema for the 'update user password' api
@@ -69,6 +74,7 @@ const userCreateInputSchema = Joi.object().keys({
 module.exports = {
   userExtensionUpdateInputSchema,
   userVirutalClusterUpdateInputSchema,
+  userGrouplistUpdateInputSchema,
   userPasswordUpdateInputSchema,
   userEmailUpdateInputSchema,
   userCreateInputSchema,

@@ -302,7 +302,7 @@ class Job {
       if (!(data.virtualCluster in vcList)) {
         throw createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`);
       }
-      const hasPermission = await userModelV2.checkUserGroup(data.userName, data.virtualCluster);
+      const hasPermission = await userModelV2.checkUserVC(data.userName, data.virtualCluster);
       if (!hasPermission) {
         throw createError('Forbidden', 'ForbiddenUserError', `User ${data.userName} is not allowed to do operation in ${data.virtualCluster}`);
       }

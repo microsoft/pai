@@ -63,6 +63,9 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/update/:username/admin')
     .put(token.check, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
+
+  router.route('/:username/grouplist')
+    .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
 }
 
 router.use('/:username/jobs', jobRouter);

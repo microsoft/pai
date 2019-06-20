@@ -25,9 +25,8 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
-    const virtualCluster = await groupModel.groupList2VirtualCluster(userInfo['grouplist']);
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
-    userInfo['virtualCluster'] = virtualCluster;
+    userInfo['virtualCluster'] = userInfo['extension']['virtualCluster'] ? userInfo['extension']['virtualCluster'] : [];
     delete userInfo['password'];
     return res.status(200).json(userInfo);
   } catch (error) {
@@ -43,9 +42,8 @@ const getAllUser = async (req, res, next) => {
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
-      const virtualCluster = await groupModel.groupList2VirtualCluster(userItem['grouplist']);
       userItem['admin'] = userItem.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
-      userItem['virtualCluster'] = virtualCluster;
+      userItem['virtualCluster'] = userItem['extension']['virtualCluster'] ? userItem['extension']['virtualCluster'] : [];
       delete userItem['password'];
       retUserList.push(userItem);
     }
@@ -60,6 +58,8 @@ const createUserIfUserNotExist = async (req, res, next) => {
     const userData = req.userData;
     const username = userData.username;
     let grouplist = [];
+    let virtualCluster = [];
+    let groupType = await groupModel.getAllGroupTypeObject();
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
       grouplist = await groupModel.getUserGrouplistFromExternal(username);
       req.grouplist = grouplist;
@@ -67,12 +67,31 @@ const createUserIfUserNotExist = async (req, res, next) => {
         return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
       }
     }
+    const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    if (!admin) {
+      for (const groupname of grouplist) {
+        if (groupType[groupname] === 'vc') {
+          virtualCluster.push(groupname);
+        }
+      }
+    } else {
+      grouplist = [];
+      for (let [key, value] of Object.entries(groupType)) {
+        grouplist.push(key);
+        if (value === 'vc') {
+          virtualCluster.push(key);
+        }
+      }
+    }
+    req.virtualCluster = virtualCluster;
     const userValue = {
       username: userData.username,
       email: userData.email,
       password: userData.oid,
       grouplist: grouplist,
-      extension: {},
+      extension: {
+        'virtualCluster': virtualCluster,
+      },
     };
     await userModel.createUser(username, userValue);
     req.updateResult = true;
@@ -93,6 +112,7 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
       const username = req.userData.username;
       let userInfo = await userModel.getUser(username);
       userInfo['grouplist'] = req.grouplist;
+      userInfo['extension']['virtualCluster'] = req.virtualCluster;
       await userModel.updateUser(username, userInfo);
     }
     next();
@@ -106,12 +126,26 @@ const createUser = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
+    let groupType = await groupModel.getAllGroupTypeObject();
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    let extension = req.body.extension;
     if (req.body.admin) {
-      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
-    }
-    if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
-      grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+      grouplist = [];
+      extension['virtualCluster'] = [];
+      for (let [key, value] of Object.entries(groupType)) {
+        grouplist.push(key);
+        if (value === 'vc') {
+          extension['virtualCluster'].push(key);
+        }
+      }
+    } else {
+      if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+      }
+      extension['virtualCluster'] = req.body.virtualCluster;
+      if (!extension['virtualCluster'].includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        extension['virtualCluster'].push(authConfig.groupConfig.defaultGroup.groupname);
+      }
     }
     const username = req.body.username;
     const userValue = {
@@ -119,7 +153,7 @@ const createUser = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       grouplist: grouplist,
-      extension: req.body.extension,
+      extension: extension,
     };
     await userModel.createUser(username, userValue);
     return res.status(201).json({
@@ -155,15 +189,23 @@ const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    let virtualCluster = req.body.virtualCluster;
     if (req.user.admin || req.user.username === username) {
+      let groupType = await groupModel.getAllGroupTypeObject();
       let userInfo = await userModel.getUser(username);
-      if (userInfo['grouplist'].includes(authConfig.groupConfig.adminGroup.groupname)) {
-        grouplist.push(authConfig.groupConfig.adminGroup.groupname);
+      for (const groupname of userInfo['grouplist']) {
+        if (groupType[groupname] && !(groupname in grouplist) && groupType[groupname] != 'vc') {
+          grouplist.push(groupname);
+        }
       }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
       }
+      if (!virtualCluster.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        virtualCluster.push(authConfig.groupConfig.defaultGroup.groupname);
+      }
       userInfo['grouplist'] = grouplist;
+      userInfo['extension']['virtualCluster'] = virtualCluster;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user virtualCluster data successfully.',
@@ -173,6 +215,25 @@ const updateUserVirtualCluster = async (req, res, next) => {
     }
   } catch (error) {
     return next(createError.unknown((error)));
+  }
+};
+
+const updateUserGroupList = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    const username = req.params.username;
+    const vcAndGroup = groupModel.updateVirtualClusterWithGrouplist(req.body.grouplist);
+    let userValue = await userModel.getUser(username);
+    userValue['grouplist'] = vcAndGroup.grouplist;
+    userValue['extension']['virtualCluster'] = vcAndGroup.virtualCluster;
+    await userModel.updateUser(username, userValue);
+    return res.status(201).json({
+      message: 'update user grouplist successfully.',
+    });
+  } catch (error) {
+    return next(createError.unknown(error));
   }
 };
 
@@ -230,10 +291,15 @@ const updateUserAdminPermission = async (req, res, next) => {
       if (!existed && admin) {
         const groupInfoList = await groupModel.getAllGroup();
         let groupnameList = [];
+        let virtualCluster = [];
         for (let groupItem of groupInfoList) {
           groupnameList.push(groupItem['groupname']);
+          if (groupItem['extension']['groupType'] === 'vc') {
+            virtualCluster.push(groupItem['groupname']);
+          }
         }
         userInfo['grouplist'] = groupnameList;
+        userInfo['extension']['virtualCluster'] = virtualCluster;
       } else if (existed && !admin) {
         userInfo['grouplist'].splice(userInfo['grouplist'].indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
       }
@@ -291,6 +357,7 @@ module.exports = {
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,
+  updateUserGroupList,
   updateUserEmail,
   updateUserAdminPermission,
   deleteUser,
