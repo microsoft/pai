@@ -154,7 +154,7 @@ const groupAdd = (groupmane) => {
         'groupname': groupmane,
         'description': ``,
         'externalName': ``,
-        'extension': `{"group-type": "vc"}`,
+        'extension': `{"groupType": "vc"}`,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
