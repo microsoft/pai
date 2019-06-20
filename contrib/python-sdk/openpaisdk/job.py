@@ -139,7 +139,7 @@ class Job:
         self.protocol["extras"]["workspace"] = workspace
         self.protocol["extras"]["submitFrom"] = "python-sdk@" + __sdk_branch__
         if kwargs.get("virtual_cluster", None):
-            self.protocol["defaults"]["virtualClusters"] = kwargs["virtual_cluster"]
+            self.protocol["defaults"]["virtualCluster"] = kwargs["virtual_cluster"]
 
     @staticmethod
     def new_unit(name: str, type: str, protocolVersion: int=2, **kwargs):

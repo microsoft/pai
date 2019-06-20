@@ -155,16 +155,16 @@ class ActionFactoryForJob(ActionFactory):
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
-            '--storage-alias', # use which storage for code transfer
-            '--workspace',
-            '--sources',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
-            '--v2', '--preview', '--pip-flags',
+            '--preview',
+            '--cmd-sep',
             'commands'
         ])
 
     def do_action_sub(self, args):
+        cmds = " ".join(args.commands).split(args.cmd_sep)
+        args.commands = cmds
         self.__job__.new(args.job_name).one_liner(**extract_args(args))
         if args.preview:
             return self.__job__.validate().get_config()

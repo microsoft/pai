@@ -174,6 +174,8 @@ In some cases, user just want to execute a simple command in `OpenPAI` cluster. 
 opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> python script.py ...
 ```
 
+_Note: put your commands in a pair of quotes (like `"git clone ... && python ..."`) and combine them with `&&` if you have multiple commands to run_
+
 ## 2.5. Python binding
 
 See more descriptions about the `Cluster` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().

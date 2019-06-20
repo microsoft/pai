@@ -155,6 +155,7 @@ class ArgumentFactory:
         self.add_argument('--cpu', type=int, default=__defaults__.get('cpu', 1), help='cpu number per instance')
         self.add_argument('--gpu', type=int, default=__defaults__.get('gpu', 0), help='gpu number per instance')
         self.add_argument('--memoryMB', type=int, default=__defaults__.get('memMB', 1024), help='memory #MB per instance')
+        self.add_argument('--cmd-sep', default="&&", help="command separator, default is (&&)")
         self.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
 
         # runtime

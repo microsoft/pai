@@ -200,15 +200,21 @@ class ClusterClient:
                 allowed_status=[202, 201]
             )
 
-    def wait(self, jobs: Union[str, list], t_sleep: float=10, timeout: float=3600):
-        if isinstance(jobs, str):
-            jobs = [jobs]
-        states = [self.rest_api_jobs(j)["jobStatus"].get("state", None) for j in jobs]
+    def wait(self, jobs: list, t_sleep: float=10, timeout: float=3600):
+        states_successful, states_failed, states_unfinished = ["SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
+        states_completed = states_successful + states_failed
+        states_valid = states_completed + states_unfinished
+
+        assert isinstance(jobs, list), "input should be a list of job names"
+
         t = 0
-        while not all(s in ["SUCCEEDED", "FAILED"] for s in states) or t >= timeout:
-            assert all(s in ["WAITING", "RUNNING"] for s in states), "unknown state %s" % states
-            time.sleep(t_sleep)
-            t = t + t_sleep
-            print('.', end='', flush=True)
+        while True:
             states = [self.rest_api_jobs(j)["jobStatus"].get("state", None) for j in jobs]
+            assert all(s in states_valid for s in states), "unknown states founded in %s" % states
+            if all(s in states_completed for s in states) or t >= timeout:
+                break
+            else:
+                time.sleep(t_sleep)
+                t = t + t_sleep
+                print('.', end='', flush=True)
         return states
