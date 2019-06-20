@@ -1,20 +1,22 @@
 import React, {useState} from 'react';
 
 import {BasicSection} from '../basic-section';
-import {TeamStorage} from './team-storage';
+import {MountDirectories, TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
 import {MountTreeView} from './mount-tree-view';
+import {JobInformation} from '../job-information';
 
-export const DataComponent = (Props) => {
+export const DataComponent = (props) => {
   // const [dataCommand, setDataCommand] = useState([]);
+  const {jobInformation} = props;
   const [dataList, setDataList] = useState([]);
-  const [teamDataList, setTeamDataList] = useState([]);
+  const [mountDirectories, setMountDirectories] = useState(null);
 
   return (
   <div style={{backgroundColor: 'white', padding: 10}}>
-    <TeamStorage teamDataList={teamDataList} setTeamDataList={setTeamDataList}/>
+    <TeamStorage onChange={setMountDirectories} jobName={jobInformation.name}/>
     <CustomStorage dataList={dataList} setDataList={setDataList}/>
-    <MountTreeView dataList={teamDataList.concat(dataList)} />
+    <MountTreeView dataList={mountDirectories == null ? dataList : mountDirectories.getTeamDataList().concat(dataList)} />
   </div>
   );
 };

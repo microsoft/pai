@@ -112,7 +112,7 @@ const JobSubmission = () => {
               />
             </Stack>
             <Stack gap='l2' padding='l1 0 0 0'>
-              <DataComponent />
+              <DataComponent jobInformation={jobInformation}/>
             </Stack>
           </StackItem>
         </Stack>
