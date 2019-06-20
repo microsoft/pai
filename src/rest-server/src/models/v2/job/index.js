@@ -15,42 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
-const jwt = require('jsonwebtoken');
-const tokenConfig = require('@pai/config/token');
-const tokenModel = require('@pai/models/token');
-const createError = require('@pai/utils/error');
+const unirest = require('unirest');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
 
-/**
- * Get the token.
- */
-const get = (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const expiration = req.body.expiration;
-  tokenModel.check(username, password, (err, state, admin, hasGitHubPAT) => {
-    if (err) {
-      return next(createError.unknown(err));
-    }
-    if (!state) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    jwt.sign({
-      username: username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      if (signError) {
-        return next(createError.unknown(signError));
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
       }
-      return res.status(200).json({
-        user: username,
-        token: token,
-        admin: admin,
-        hasGitHubPAT: hasGitHubPAT,
-      });
     });
-  });
-};
-
-// module exports
-module.exports = {get};
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@pai/models/v2/job/yarn');
+} else if (launcherConfig.type === 'k8s') {
+  module.exports = require('@pai/models/v2/job/k8s');
+} else {
+  throw new Error(`unknown launcher type ${launcherConfig.type}`);
+}

@@ -22,14 +22,13 @@
  */
 
 // module dependencies
-const config = require('./config/index');
-const launcherConfig = require('./config/launcher');
-const logger = require('./config/logger');
-const app = require('./config/express');
+require('module-alias/register');
+const config = require('@pai/config');
+const logger = require('@pai/config/logger');
+const app = require('@pai/config/express');
 
 
 logger.info('config: %j', config);
-logger.info('launcher config: %j', launcherConfig);
 
 // start the server
 app.listen(config.serverPort, () => {

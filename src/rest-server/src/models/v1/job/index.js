@@ -15,28 +15,36 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
-const Joi = require('joi');
-const config = require('@pai/config');
+const unirest = require('unirest');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
 
-// define input schema
-const tokenPostInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
-    .required(),
-  password: Joi.string()
-    .min(6)
-    .required(),
-  expiration: Joi.number()
-    .integer()
-    .min(60)
-    .max(7 * 24 * 60 * 60)
-    .default(24 * 60 * 60),
-}).required();
-
-// module exports
-module.exports = {
-  secret: config.jwtSecret,
-  userProperty: 'user',
-  tokenPostInputSchema: tokenPostInputSchema,
-};
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
+      }
+    });
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@pai/models/v1/job/yarn');
+}
