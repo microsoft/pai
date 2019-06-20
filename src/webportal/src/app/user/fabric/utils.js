@@ -17,7 +17,7 @@
 
 const Joi = require('joi-browser');
 
-const usernameSchema = Joi.string().token().required();
+const usernameSchema = Joi.string().regex(/^[\w.-]+$/, 'username').required();
 export const checkUsername = (value) => {
   const {error} = Joi.validate(value, usernameSchema);
   if (error) {
