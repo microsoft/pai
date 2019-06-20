@@ -60,7 +60,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
     {
       key: 'key',
       name: 'Key',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
           value={item.name}
@@ -71,7 +71,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
     {
       key: 'value',
       name: 'Value',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
           value={item.value}

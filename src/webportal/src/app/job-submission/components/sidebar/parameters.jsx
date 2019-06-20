@@ -32,7 +32,7 @@ import {JobParameter} from '../../models/job-parameter';
 
 export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => {
   const onAdd = useCallback(() => {
-    onChange([...parameters, {key: '', value: ''}]);
+    onChange([...parameters, new JobParameter('', '')]);
   });
 
   const onRemove = useCallback((idx) => {
@@ -61,7 +61,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
     {
       key: 'key',
       name: 'Key',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
           value={item.name}
@@ -72,7 +72,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
     {
       key: 'value',
       name: 'Value',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
           value={item.value}

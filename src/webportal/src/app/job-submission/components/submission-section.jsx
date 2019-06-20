@@ -24,7 +24,7 @@
  */
 
 import React, {useState, useRef} from 'react';
-import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label} from 'office-ui-fabric-react';
+import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label, StackItem, Toggle} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {isNil, debounce} from 'lodash';
 import {getImportButtonStyle} from './form-style';
@@ -33,8 +33,8 @@ import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {JobParameter} from '../models/job-parameter';
 import {submitJob} from '../utils/conn';
-import Card from '../../components/card';
 import MonacoPanel from '../../components/monaco-panel';
+import Card from '../../components/card';
 
 const user = cookies.get('user');
 const {palette} = getTheme();
@@ -59,7 +59,7 @@ const _exportFile = (data, filename, type) => {
 };
 
 export const SubmissionSection = (props) => {
-  const {jobInformation, jobTaskRoles, parameters, onChange} = props;
+  const {jobInformation, jobTaskRoles, parameters, onChange, advanceFlag, onToggleAdvanceFlag} = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
@@ -140,16 +140,30 @@ export const SubmissionSection = (props) => {
 
   return (
     <Card>
-      <Stack horizontal gap='s1' horizontalAlign='center'>
-        <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
-        <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-        <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
-        <DefaultButton>
-          <Label styles={{root: importButtonStyle.label}}>
-            {'Import'}
-            <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
-          </Label>
-        </DefaultButton>
+      <Stack horizontal>
+        <StackItem grow>
+          <Stack horizontal gap='s1' horizontalAlign='center'>
+            <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
+            <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+          </Stack>
+        </StackItem>
+        <Stack gap='s1' horizontal>
+          <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+          <DefaultButton>
+            <Label styles={{root: importButtonStyle.label}}>
+              {'Import'}
+              <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
+            </Label>
+          </DefaultButton>
+          <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
+            <div>Advanced</div>
+            <Toggle
+              styles={{root: {margin: 0}}}
+              checked={advanceFlag}
+              onChange={onToggleAdvanceFlag}
+            />
+          </Stack>
+        </Stack>
         <MonacoPanel isOpen={isEditorOpen}
                     onDismiss={_closeEditor}
                     title='Protocol YAML Editor'
@@ -171,4 +185,6 @@ SubmissionSection.propTypes = {
   jobTaskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
   onChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
+  onToggleAdvanceFlag: PropTypes.func,
 };

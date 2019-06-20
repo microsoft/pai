@@ -30,18 +30,20 @@ import 'whatwg-fetch';
 import {isEmpty} from 'lodash';
 import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
-import {Fabric, Stack, initializeIcons, StackItem, ScrollablePane, Sticky, StickyPositionType} from 'office-ui-fabric-react';
-import {JobTaskRole} from './models/job-task-role';
+import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
 import {initTheme} from '../components/theme';
-import {JobBasicInfo} from './models/job-basic-info';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 // sidebar
 import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
 import {EnvVar} from './components/sidebar/env-var';
+// models
+import {JobBasicInfo} from './models/job-basic-info';
+import {JobTaskRole} from './models/job-task-role';
+import {JobParameter} from './models/job-parameter';
 
 initTheme();
 initializeIcons();
@@ -54,10 +56,11 @@ const SIDEBAR_ENVVAR = 'envvar';
 
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({})]);
-  const [parameters, setParameters] = useState([{key: '', value: ''}]);
+  const [parameters, setParameters] = useState([new JobParameter('', '')]);
   const [secrets, setSecrets] = useState([{key: '', value: ''}]);
   const [jobInformation, setJobInformation] = useState(new JobBasicInfo({}));
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
+  const [advanceFlag, setAdvanceFlag] = useState(false);
 
   const setJobTaskRoles = useCallback((taskRoles) => {
     if (isEmpty(taskRoles)) {
@@ -75,40 +78,40 @@ const JobSubmission = () => {
     }
   }, [selected, setSelected]);
 
+  const onToggleAdvanceFlag = useCallback(() => {
+    setAdvanceFlag(!advanceFlag);
+  }, [advanceFlag, setAdvanceFlag]);
+
   return (
     <Fabric style={{height: '100%'}}>
       <Stack className={formLayout} styles={{root: {height: '100%'}}} horizontal gap='l1'>
         {/* left column */}
-        <StackItem grow shrink styles={{root: {position: 'relative'}}}>
-          <ScrollablePane
-            styles={{stickyBelow: {boxShadow: 'rgba(0, 0, 0, 0.06) 0px -2px 4px, rgba(0, 0, 0, 0.05) 0px -0.5px 1px'}}}
-          >
-            <Stack gap='l2'>
-              <JobInformation
-                jobInformation={jobInformation}
-                onChange={setJobInformation}
-              />
-              <TaskRoles
-                taskRoles={jobTaskRoles}
-                onChange={setJobTaskRoles}
-              />
-              <Sticky stickyPosition={StickyPositionType.Footer}>
-                <SubmissionSection
-                  jobInformation={jobInformation}
-                  jobTaskRoles={jobTaskRoles}
-                  parameters={parameters}
-                  onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
-                    setJobInformation(updatedJobInfo);
-                    setJobTaskRoles(updatedTaskRoles);
-                    setParameters(updatedParameters);
-                  }}
-                />
-              </Sticky>
-            </Stack>
-          </ScrollablePane>
+        <StackItem grow shrink styles={{root: {height: '100%'}}}>
+          <Stack gap='l2' styles={{root: {height: '100%', overflowY: 'auto'}}}>
+            <JobInformation
+              jobInformation={jobInformation}
+              onChange={setJobInformation}
+            />
+            <TaskRoles
+              taskRoles={jobTaskRoles}
+              onChange={setJobTaskRoles}
+            />
+            <SubmissionSection
+              jobInformation={jobInformation}
+              jobTaskRoles={jobTaskRoles}
+              parameters={parameters}
+              advanceFlag={advanceFlag}
+              onToggleAdvanceFlag={onToggleAdvanceFlag}
+              onChange={(updatedJobInfo, updatedTaskRoles, updatedParameters) => {
+                setJobInformation(updatedJobInfo);
+                setJobTaskRoles(updatedTaskRoles);
+                setParameters(updatedParameters);
+              }}
+            />
+          </Stack>
         </StackItem>
         {/* right column */}
-        <StackItem disableShrink styles={{root: {width: 500}}}>
+        <StackItem disableShrink styles={{root: {width: 600}}}>
           <Stack gap='l2' styles={{root: {height: '100%'}}}>
             <Parameters
               parameters={parameters}

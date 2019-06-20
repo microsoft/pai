@@ -90,14 +90,14 @@ const columns = [
     name: 'Key',
     fieldName: 'key',
     isMultiline: true,
-    minWidth: 150,
+    minWidth: 200,
   },
   {
     key: 'desc',
     name: 'Description',
     isMultiline: true,
     fieldName: 'desc',
-    minWidth: 180,
+    minWidth: 200,
   },
 ];
 

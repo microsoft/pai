@@ -115,7 +115,7 @@ export const DockerSection = (props) => {
                      placeholder='Enter docker uri...'
                      onBlur={(event) => _onChange('uri', event.target.value)}
                      value={uri}/>
-         </FormShortSection>
+        </FormShortSection>
         <DefaultButton onClick={_onAuthClick}>Auth</DefaultButton>
       </Stack>
       {showAuth && _authSection()}
