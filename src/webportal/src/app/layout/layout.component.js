@@ -29,6 +29,7 @@ const userLogoutComponent = require('../user/user-logout/user-logout.component.j
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 const pluginComponent = require('./plugins.component.ejs');
 const authnMethod = require('../config/webportal.config.js').authnMethod;
+const isAdmin = cookies.get('admin');
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
 
@@ -42,12 +43,11 @@ if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
 }
 
+
 if (authnMethod === 'OIDC') {
-  document.getElementById('sidebar-menu--cluster-view--user-management').style.display = 'none';
-} else {
-  document.getElementById('sidebar-menu--cluster-view--user-management').style.display = 'block';
+  $('#sidebar-menu--cluster-view--user-management').hide();
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
+  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS, isAdmin}));
 }
