@@ -242,7 +242,7 @@ const updateVirtualClusterWithGrouplist = async (grouplist) => {
     } else {
       retGrouplist = grouplist.slice(0);
       for (const groupName in grouplist) {
-        if (groupType[groupName] === 'vc'){
+        if (groupType[groupName] === 'vc') {
           retVirtualCluster.push(groupName);
         }
       }
