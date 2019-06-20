@@ -22,7 +22,13 @@ const xml2js = require('xml2js');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
 const logger = require('../config/logger');
+const dbUtility = require('../util/dbUtil');
+const secretConfig = require('../config/secret');
 
+const db = dbUtility.getStorageObject('UserSecret', {
+  'paiUserNameSpace': secretConfig.paiUserNameSpace,
+  'requestConfig': secretConfig.requestConfig(),
+});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
@@ -30,15 +36,36 @@ class VirtualCluster {
 
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
+        let queueDefaultLabel = queueInfo.defaultNodeLabelExpression;
+        if (typeof queueDefaultLabel === 'undefined' || queueDefaultLabel === '<DEFAULT_PARTITION>') {
+          queueDefaultLabel = '';
+        }
+        let defaultPartitionInfo = null;
+        for (let partition of queueInfo.capacities.queueCapacitiesByPartition) {
+          if (partition.partitionName === queueDefaultLabel) {
+            defaultPartitionInfo = partition;
+            break;
+          }
+        }
+        let defaultPartitionResource = null;
+        for (let partition of queueInfo.resources.resourceUsagesByPartition) {
+          if (partition.partitionName === queueDefaultLabel) {
+            defaultPartitionResource = partition;
+            break;
+          }
+        }
+
         queueDict[queueInfo.queueName] = {
-          capacity: Math.round(queueInfo.absoluteCapacity),
-          maxCapacity: Math.round(queueInfo.absoluteMaxCapacity),
-          usedCapacity: queueInfo.absoluteUsedCapacity,
+          capacity: defaultPartitionInfo.absoluteCapacity,
+          maxCapacity: defaultPartitionInfo.absoluteMaxCapacity,
+          usedCapacity: defaultPartitionInfo.absoluteUsedCapacity,
           numActiveJobs: queueInfo.numActiveApplications,
           numJobs: queueInfo.numApplications,
           numPendingJobs: queueInfo.numPendingApplications,
-          resourcesUsed: queueInfo.resourcesUsed,
+          resourcesUsed: defaultPartitionResource.used,
           status: queueInfo.state,
+          defaultLabel: queueDefaultLabel,
+          dedicated: queueDefaultLabel !== '',
         };
       } else {
         for (let i = 0; i < queueInfo.queues.queue.length; i++) {
@@ -51,6 +78,73 @@ class VirtualCluster {
     return queues;
   }
 
+  getResourceByLabel(nodeInfo) {
+    let resourceByLabel = {};
+    for (let node of nodeInfo) {
+      let nodeLabel = node.nodeLabels || [''];
+      nodeLabel = nodeLabel[0];
+      if (!resourceByLabel.hasOwnProperty(nodeLabel)) {
+        resourceByLabel[nodeLabel] = {
+          vCores: 0,
+          memory: 0,
+          GPUs: 0,
+        };
+      }
+      resourceByLabel[nodeLabel].vCores += node.usedVirtualCores + node.availableVirtualCores;
+      resourceByLabel[nodeLabel].memory += node.usedMemoryMB + node.availMemoryMB;
+      resourceByLabel[nodeLabel].GPUs += node.usedGPUs + node.availableGPUs;
+    }
+    return resourceByLabel;
+  }
+
+  getNodesByLabel(nodeInfo) {
+    let nodesByLabel = {};
+    for (let node of nodeInfo) {
+      let nodeLabel = node.nodeLabels || [''];
+      nodeLabel = nodeLabel[0];
+      let nodeHostName = node.nodeHostName;
+      if (!nodesByLabel.hasOwnProperty(nodeLabel)) {
+        nodesByLabel[nodeLabel] = [];
+      }
+      nodesByLabel[nodeLabel].push(nodeHostName);
+    }
+    return nodesByLabel;
+  }
+
+  addDedicatedInfo(vcInfo, next) {
+    unirest.get(yarnConfig.yarnNodeInfoPath)
+      .headers(yarnConfig.webserviceRequestHeaders)
+      .end((res) => {
+        try {
+          const resJson = typeof res.body === 'object' ?
+            res.body : JSON.parse(res.body);
+          const nodeInfo = resJson.nodes.node;
+          let labeledResource = this.getResourceByLabel(nodeInfo);
+          let labeledNodes = this.getNodesByLabel(nodeInfo);
+          for (let vcName of Object.keys(vcInfo)) {
+            let resourcesTotal = {
+              vCores: 0,
+              memory: 0,
+              GPUs: 0,
+            };
+            let vcLabel = vcInfo[vcName].defaultLabel;
+            delete vcInfo[vcName].defaultLabel;
+            if (labeledResource.hasOwnProperty(vcLabel)) {
+              let p = vcInfo[vcName].capacity;
+              resourcesTotal.vCores = labeledResource[vcLabel].vCores * p / 100;
+              resourcesTotal.memory = labeledResource[vcLabel].memory * p / 100;
+              resourcesTotal.GPUs = labeledResource[vcLabel].GPUs * p / 100;
+            }
+            vcInfo[vcName].resourcesTotal = resourcesTotal;
+            vcInfo[vcName].nodeList = labeledNodes[vcLabel] || [];
+          }
+          next(vcInfo, null);
+        } catch (error) {
+          next(null, error);
+        }
+    });
+  }
+
   getVcList(next) {
     unirest.get(yarnConfig.yarnVcInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -60,8 +154,9 @@ class VirtualCluster {
             res.body : JSON.parse(res.body);
           const schedulerInfo = resJson.scheduler.schedulerInfo;
           if (schedulerInfo.type === 'capacityScheduler') {
-            const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
-            next(vcInfo, null);
+            let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+            // next(vcInfo, null);
+            this.addDedicatedInfo(vcInfo, next);
           } else {
             next(null, createError('Internal Server Error', 'BadConfigurationError',
               `Scheduler type ${schedulerInfo.type} is not supported.`));
@@ -174,13 +269,22 @@ class VirtualCluster {
         if (!vcList.hasOwnProperty('default')) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `No default vc found, can't allocate quota`));
         } else {
-          let defaultQuotaIfUpdated = vcList['default']['capacity'] + (vcList[vcName] ? vcList[vcName]['capacity'] : 0) - capacity;
+          // let defaultQuotaIfUpdated = vcList['default']['capacity'] + (vcList[vcName] ? vcList[vcName]['capacity'] : 0) - capacity;
+          let defaultQuotaIfUpdated = 100.0;
+          defaultQuotaIfUpdated -= capacity;
+          for (let vc of Object.keys(vcList)) {
+            if (vc !== vcName && vc !== 'default' && vcList[vc].dedicated === false) {
+              defaultQuotaIfUpdated -= vcList[vc].capacity;
+            }
+          }
           if (defaultQuotaIfUpdated < 0) {
             return callback(createError('Forbidden', 'NoEnoughQuotaError', `No enough quota`));
           }
-
           let data = {'add-queue': {}, 'update-queue': {}};
           if (vcList.hasOwnProperty(vcName)) {
+            if (vcList[vcName].dedicated) {
+              return callback(createError('Forbidden', 'ReadOnlyVcError', `Dedicated vc is read-only, can't be updated by rest-api`));
+            }
             data['update-queue'][vcName] = {
               'capacity': capacity,
               'maximum-capacity': maxCapacity,
@@ -195,14 +299,33 @@ class VirtualCluster {
             'capacity': defaultQuotaIfUpdated,
             'maximum-capacity': defaultQuotaIfUpdated,
           };
+          if (vcList.default.maxCapacity === 100 || vcList.default.maxCapacity > vcList.default.capacity) {
+            data['update-queue']['default']['maximum-capacity'] = 100;
+          }
 
           // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
           // logger.debug('Xml send to yarn: ', vcdataXml);
-          this.sendUpdateInfo(vcdataXml, (err) => {
+          this.sendUpdateInfo(vcdataXml, async (err) => {
             if (err) {
               return callback(err);
             } else {
+              // update admin users' permission
+              try {
+                const userList = await db.get('', null);
+                for (const user of userList) {
+                  if (user.admin === 'true') {
+                    const vc = user.virtualCluster.trim().split(',');
+                    if (!vc.find((x) => x === vcName)) {
+                      vc.push(vcName);
+                    }
+                    user.virtualCluster = vc.join(',');
+                    await db.set(user.username, user, {update: true});
+                  }
+                }
+              } catch (e) {
+                return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+              }
               return callback(null);
             }
           });
@@ -291,6 +414,8 @@ class VirtualCluster {
           return callback(createError('Not Found', 'NoVirtualClusterError', `No default vc found, can't free quota`));
         } else if (!vcList.hasOwnProperty(vcName)) {
           return callback(createError('Not Found', 'NoVirtualClusterError', `Can't delete a nonexistent vc ${vcName}`));
+        } else if (vcList[vcName].dedicated) {
+          return callback(createError('Forbidden', 'ReadOnlyVcError', `Dedicated vc is read-only, can't be removed by rest-api`));
         } else if (vcList[vcName]['numJobs'] > 0) {
           return callback(createError('Forbidden', 'RemoveRunningVcError',
             `Can't delete vc ${vcName}, ${vcList[vcName]['numJobs']} jobs are running, stop them before delete vc`));
@@ -299,7 +424,12 @@ class VirtualCluster {
             if (err) {
               return callback(err);
             } else {
-              let defaultQuotaIfUpdated = vcList['default']['capacity'] + vcList[vcName]['capacity'];
+              let defaultQuotaIfUpdated = 100.0;
+              for (let vc of Object.keys(vcList)) {
+                if (vc !== vcName && vc !== 'default' && vcList[vc].dedicated === false) {
+                  defaultQuotaIfUpdated -= vcList[vc].capacity;
+                }
+              }
               let data = {
                 'update-queue': {
                   [vcName]: {
@@ -315,11 +445,14 @@ class VirtualCluster {
                   [vcName]: null,
                 },
               };
+              if (vcList.default.maxCapacity === 100 || vcList.default.maxCapacity > vcList.default.capacity) {
+                data['update-queue']['default']['maximum-capacity'] = 100;
+              }
 
               // logger.debug('Raw data to generate: ', data);
               const vcdataXml = this.generateUpdateInfo(data);
               // logger.debug('Xml send to yarn: ', vcdataXml);
-              this.sendUpdateInfo(vcdataXml, (err) => {
+              this.sendUpdateInfo(vcdataXml, async (err) => {
                 if (err) {
                   this.activeVc(vcName, (errInfo) => {
                     if (errInfo) {
@@ -329,6 +462,19 @@ class VirtualCluster {
                     }
                   });
                 } else {
+                  // update permission
+                  try {
+                    const userList = await db.get('', null);
+                    for (const user of userList) {
+                      const vc = user.virtualCluster.trim().split(',');
+                      if (vc.find((x) => x === vcName)) {
+                        user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
+                        await db.set(user.username, user, {update: true});
+                      }
+                    }
+                  } catch (e) {
+                    return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
+                  }
                   return callback(null);
                 }
               });

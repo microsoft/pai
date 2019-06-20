@@ -55,7 +55,6 @@ userSecretConfig.requestConfig = () => {
   return config;
 };
 
-
 let userSecretConfigSchema = {};
 if (authnConfig.authnMethod !== 'OIDC') {
   userSecretConfigSchema = Joi.object().keys({

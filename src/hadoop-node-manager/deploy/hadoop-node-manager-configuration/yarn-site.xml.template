@@ -15,267 +15,268 @@
 
 <configuration>
 
-    <property>
-        <name>yarn.nodemanager.resource.cpu-vcores</name>
-        <value>{cpu_vcores}</value>
-        <description>Number of CPU cores that can be allocated for containers.</description>
-    </property>
-
-    <property>
-        <name>yarn.nodemanager.resource.memory-mb</name>
-        <value>{mem_total}</value>
-        <description>Number of memory that can be allocated for containers.</description>
-    </property>
-
-    <property>
-        <name>yarn.nodemanager.vmem-pmem-ratio</name>
-        <value>6</value>
-        <description>
-            Ratio between virtual memory to physical memory when setting memory limits for containers.
-            Container allocations are expressed in terms of physical memory, and virtual memory usage
-            is allowed to exceed this allocation by this ratio.
-        </description>
-    </property>
-
-    <property>
-        <name>yarn.resourcemanager.max-completed-applications</name>
-        <value>1000</value>
-        <description>maximum number of completed applications</description>
-    </property>
-
-    <property>
-        <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>1048576</value>
-        <description>default is 8GB, here we set 1024G</description>
-    </property>
-
-    <property>
-      <name>yarn.resourcemanager.scheduler.class</name>
-      <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
-      <value>org.apache.hadoop.mapred.ShuffleHandler</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.delete.debug-delay-sec</name>
-      <value>604800</value>
-    </property>
-
-    <property>
-      <name>yarn.resourcemanager.store.class</name>
-      <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
-    </property>
-
-    <property>
-      <name>yarn.resourcemanager.zk-address</name>
-      <value>{ZOOKEEPER_QUORUM}</value>
-    </property>
-
-    <property>
-      <name>yarn.resourcemanager.recovery.enabled</name>
-      <value>true</value>
-    </property>
-
-    <property>
-      <name>yarn.log-aggregation-enable</name>
-      <value>true</value>
-    </property>
-
-    <property>
-      <name>yarn.log-aggregation.retain-seconds</name>
-      <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "yarn_log_retain_seconds" ] }}</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.remote-app-log-dir</name>
-      <value>/sys/logs</value>
-    </property>
-
-    <property>
-      <name>yarn.resourcemanager.hostname</name>
-      <value>{RESOURCEMANAGER_ADDRESS}</value>
-    <description>The hostname of the RM.</description>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.hostname</name>
-      <value>{POD_IP}</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.aux-services</name>
-      <value>mapreduce_shuffle</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage</name>
-      <value>95.0</value>
-    </property>
-
-    <property>
-      <name>yarn.node-labels.enabled</name>
-      <value>true</value>
-    </property>
-
-    <property>
-      <name>yarn.node-labels.fs-store.root-dir</name>
-      <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
-    </property>
-
-    <property>
-      <name>yarn.app.mapreduce.am.staging-dir</name>
-      <value>/tmp/hadoop-yarn/staging</value>
-    </property>
-
-    <property>
-      <name>yarn.log.server.url</name>
-      <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
-    </property>
-
-    <property>
-      <name>yarn.log.server.web-service.url</name>
-      <value>http://{LOGSERVER_ADDRESS}:8188/ws/v1/applicationhistory</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.recovery.enabled</name>
-      <value>true</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.recovery.dir</name>
-      <value>/var/lib/yarn/yarn-nm-recovery</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.log-dirs</name>
-      <value>/var/lib/yarn/userlogs</value>
-    </property>
-
-    <property>
-      <name>yarn.nodemanager.address</name>
-      <value>{POD_IP}:8041</value>
-    </property>
-
-    <property>
-       <name>yarn.timeline-service.enabled</name>
-       <value>true</value>
-    </property>
-
-    <property>
-      <description>
-        Error filename pattern, to identify the file in the container's
-        Log directory which contain the container's error log. As error file
-        redirection is done by client/AM and yarn will not be aware of the error
-        file name. YARN uses this pattern to identify the error file and tail
-        the error log as diagnostics when the container execution returns non zero
-        value. Filename patterns are case sensitive and should match the
-        specifications of FileSystem.globStatus(Path) api. If multiple filenames
-        matches the pattern, first file matching the pattern will be picked.
-      </description>
-      <name>yarn.nodemanager.container.stderr.pattern</name>
-      <value>runtime.pai.agg.error</value>
-    </property>
-    <property>
-      <description>
-        Size of the container error file which needs to be tailed, in bytes.
-        To avoid unexpected diagnostics truncation:
-        40KB = 10 * default(4096)
-      </description>
-      <name>yarn.nodemanager.container.stderr.tail.bytes</name>
-      <value>40960</value>
-    </property>
-    <property>
-      <description>
-        Maximum size of contain's diagnostics to keep for relaunching container case.
-        To avoid unexpected diagnostics truncation:
-        100KB = 10 * default(10000)
-      </description>
-      <name>yarn.nodemanager.container-diagnostics-maximum-size</name>
-      <value>100000</value>
-    </property>
-    <property>
-      <description>
-        Defines the limit of the diagnostics message of an application
-        attempt, in kilo characters (character count * 1024).
-        When using ZooKeeper to store application state behavior, it's
-        important to limit the size of the diagnostic messages to
-        prevent YARN from overwhelming ZooKeeper. In cases where
-        yarn.resourcemanager.state-store.max-completed-applications is set to
-        a large number, it may be desirable to reduce the value of this property
-        to limit the total data stored.
-        To avoid unexpected diagnostics truncation:
-        640KB = 10 * default(64)
-      </description>
-      <name>yarn.app.attempt.diagnostics.limit.kc</name>
-      <value>640</value>
-    </property>
-
-    <property>
-       <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
-       <value>true</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.generic-application-history.enabled</name>
-        <value>true</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.hostname</name>
-        <value>{TIMELINE_SERVER_ADDRESS}</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.bind-host</name>
-        <value>0.0.0.0</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.generic-application-history.max-applications</name>
-        <value>1000</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.generic-application-history.fs-history-store.uri</name>
-        <value>/yarn/timeline/generic-history</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.ttl-enable</name>
-        <value>true</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.ttl-ms</name>
-        <value>2419200000</value>
-    </property>
-
-    <property>
-        <name>yarn.timeline-service.handler-thread-count</name>
-        <value>16</value>
-    </property>
-
-    <property>
-       <name>yarn.timeline-service.generic-application-history.store-class</name>
-       <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
-    </property>
-
-   <property>
-       <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
-        <value>true</value>
-   </property>
-
-    <property>
-        <name>yarn.timeline-service.http-cross-origin.enabled</name>
-        <value>true</value>
-    </property>
+  <property>
+    <name>yarn.nodemanager.resource.cpu-vcores</name>
+    <value>{cpu_vcores}</value>
+    <description>Number of CPU cores that can be allocated for containers.</description>
+  </property>
 
   <property>
-    <description>Percentage of GPU that can be allocated
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>{mem_total}</value>
+    <description>Number of memory that can be allocated for containers.</description>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.vmem-pmem-ratio</name>
+    <value>6</value>
+    <description>
+      Ratio between virtual memory to physical memory when setting memory limits for containers.
+      Container allocations are expressed in terms of physical memory, and virtual memory usage
+      is allowed to exceed this allocation by this ratio.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.max-completed-applications</name>
+    <value>1000</value>
+    <description>maximum number of completed applications</description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>1572864</value>
+    <description>default is 8GB, here we set 1.5TB</description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.scheduler.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+    <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.delete.debug-delay-sec</name>
+    <value>604800</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.zk-address</name>
+    <value>{ZOOKEEPER_QUORUM}</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.recovery.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.log-aggregation.retain-seconds</name>
+    <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "yarn_log_retain_seconds" ] }}</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.remote-app-log-dir</name>
+    <value>/sys/logs</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>{RESOURCEMANAGER_ADDRESS}</value>
+    <description>The hostname of the RM.</description>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.hostname</name>
+    <value>{POD_IP}</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage</name>
+    <value>95.0</value>
+  </property>
+
+  <property>
+    <name>yarn.node-labels.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.node-labels.fs-store.root-dir</name>
+    <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
+  </property>
+
+  <property>
+    <name>yarn.app.mapreduce.am.staging-dir</name>
+    <value>/tmp/hadoop-yarn/staging</value>
+  </property>
+
+  <property>
+    <name>yarn.log.server.url</name>
+    <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
+  </property>
+
+  <property>
+    <name>yarn.log.server.web-service.url</name>
+    <value>http://{LOGSERVER_ADDRESS}:8188/ws/v1/applicationhistory</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.recovery.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.recovery.dir</name>
+    <value>/var/lib/yarn/yarn-nm-recovery</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.log-dirs</name>
+    <value>/var/lib/yarn/userlogs</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.address</name>
+    <value>{POD_IP}:8041</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <description>
+      Error filename pattern, to identify the file in the container's
+      Log directory which contain the container's error log. As error file
+      redirection is done by client/AM and yarn will not be aware of the error
+      file name. YARN uses this pattern to identify the error file and tail
+      the error log as diagnostics when the container execution returns non zero
+      value. Filename patterns are case sensitive and should match the
+      specifications of FileSystem.globStatus(Path) api. If multiple filenames
+      matches the pattern, first file matching the pattern will be picked.
+    </description>
+    <name>yarn.nodemanager.container.stderr.pattern</name>
+    <value>runtime.pai.agg.error</value>
+  </property>
+  <property>
+    <description>
+      Size of the container error file which needs to be tailed, in bytes.
+      To avoid unexpected diagnostics truncation:
+      40KB = 10 * default(4096)
+    </description>
+    <name>yarn.nodemanager.container.stderr.tail.bytes</name>
+    <value>40960</value>
+  </property>
+  <property>
+    <description>
+      Maximum size of contain's diagnostics to keep for relaunching container case.
+      To avoid unexpected diagnostics truncation:
+      100KB = 10 * default(10000)
+    </description>
+    <name>yarn.nodemanager.container-diagnostics-maximum-size</name>
+    <value>100000</value>
+  </property>
+  <property>
+    <description>
+      Defines the limit of the diagnostics message of an application
+      attempt, in kilo characters (character count * 1024).
+      When using ZooKeeper to store application state behavior, it's
+      important to limit the size of the diagnostic messages to
+      prevent YARN from overwhelming ZooKeeper. In cases where
+      yarn.resourcemanager.state-store.max-completed-applications is set to
+      a large number, it may be desirable to reduce the value of this property
+      to limit the total data stored.
+      To avoid unexpected diagnostics truncation:
+      640KB = 10 * default(64)
+    </description>
+    <name>yarn.app.attempt.diagnostics.limit.kc</name>
+    <value>640</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.generic-application-history.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.hostname</name>
+    <value>{TIMELINE_SERVER_ADDRESS}</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.bind-host</name>
+    <value>0.0.0.0</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.generic-application-history.max-applications</name>
+    <value>1000</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.generic-application-history.fs-history-store.uri</name>
+    <value>/yarn/timeline/generic-history</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.ttl-enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.ttl-ms</name>
+    <value>2419200000</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.handler-thread-count</name>
+    <value>16</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.generic-application-history.store-class</name>
+    <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-cross-origin.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <description>
+      Percentage of GPU that can be allocated
       for containers. This setting allows users to limit the amount of
       GPU that YARN containers use. Currently functional only
       on Linux using cgroups. The default is to use 100% of GPU.
@@ -302,10 +303,12 @@
     <value>[100-65535]</value>
   </property>
   <property>
-    <description>Rounds of updating ports. This parameter is circle controller for updating
+    <description>
+      Rounds of updating ports. This parameter is circle controller for updating
       local allocated ports info, since the ports info is big. We can control the
       update frequency to have balance with cluster scale and ports info's
-      accuracy</description>
+      accuracy
+    </description>
     <name>yarn.nodemanager.resource.ports-update-rounds</name>
     <value>10</value>
   </property>
@@ -359,8 +362,8 @@
 
   <property>
     <description>
-    The duration (in ms) the YARN client waits for an expected state change
-    to occur.  -1 means unlimited wait time.
+      The duration (in ms) the YARN client waits for an expected state change
+      to occur.  -1 means unlimited wait time.
     </description>
     <name>yarn.client.application-client-protocol.poll-timeout-ms</name>
     <value>900000</value>
@@ -379,8 +382,8 @@
   <name>yarn.nodemanager.container-executor.class</name>
   <value>org.apache.hadoop.yarn.server.nodemanager.DockerContainerExecutor</value>
   <description>
-     This is the container executor setting that ensures that all
-jobs are started with the DockerContainerExecutor.
+    This is the container executor setting that ensures that all
+    jobs are started with the DockerContainerExecutor.
   </description>
 </property>
 
@@ -393,7 +396,7 @@ jobs are started with the DockerContainerExecutor.
   <name>yarn.nodemanager.docker-container-executor.exec-option</name>
   <value>-v /dev:/dev -v /var/run/docker.sock:/var/run/docker.sock -v /var/drivers:/var/drivers -v {HOST_YARN_NODEMANAGER_STORAGE}:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v {HOST_HADOOP_TMP_STORAGE}:/var/lib/hadoopdata -e HDFS_ADDRESS={HDFS_ADDRESS} -e LOGSERVER_ADDRESS={LOGSERVER_ADDRESS} -e TIMELINE_SERVER_ADDRESS={TIMELINE_SERVER_ADDRESS} -e RESOURCEMANAGER_ADDRESS={RESOURCEMANAGER_ADDRESS} -e ZOOKEEPER_QUORUM={ZOOKEEPER_QUORUM}</value>
   <description>
-     Docker run option when launch container.
+    Docker run option when launch container.
   </description>
 </property>
 
@@ -401,7 +404,7 @@ jobs are started with the DockerContainerExecutor.
   <name>yarn.nodemanager.docker-container-executor.script-command</name>
   <value> trap &quot; &quot; TERM; cp -r /docker/* /usr/bin/  &amp;&amp; cp /hadoop-configuration-for-jobs/* $HADOOP_CONF_DIR/ </value>
   <description>
-      Image command before launch_container script.
+    Image command before launch_container script.
   </description>
 </property>
 

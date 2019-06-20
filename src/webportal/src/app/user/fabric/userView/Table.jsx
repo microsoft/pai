@@ -29,7 +29,6 @@ import Ordering from './Ordering';
 
 export default function Table() {
   const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser} = useContext(Context);
-
   /**
    * @type {import('office-ui-fabric-react').Selection}
    */
