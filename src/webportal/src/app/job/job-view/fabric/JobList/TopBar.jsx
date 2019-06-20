@@ -27,7 +27,8 @@ import Context from './Context';
 import Filter from './Filter';
 
 import webportalConfig from '../../../../config/webportal.config';
-
+import {checkToken} from'../../../../user/user-auth/user-auth.component';
+ 
 /* eslint-disable react/prop-types */
 function FilterButton({defaultRender: Button, ...props}) {
   const {subMenuProps: {items}} = props;
@@ -79,7 +80,12 @@ function TopBar() {
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
   useEffect(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`)
+    const token = checkToken();
+    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         return response.json();
       }).then((body) => {
