@@ -131,6 +131,7 @@ const JobSubmission = () => {
             <DataComponent
               selected={selected === SIDEBAR_DATA}
               onSelect={() => onSelect(SIDEBAR_DATA)}
+              jobName={jobInformation.name}
             />
           </Stack>
         </StackItem>

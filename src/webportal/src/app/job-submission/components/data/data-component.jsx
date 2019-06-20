@@ -5,11 +5,9 @@ import {MountDirectories, TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
 import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
-import {JobInformation} from '../job-information';
 
 export const DataComponent = React.memo((props) => {
   // const [dataCommand, setDataCommand] = useState([]);
-  const {selected, onSelect, jobInformation} = props;
   const [dataList, setDataList] = useState([]);
   const [mountDirectories, setMountDirectories] = useState(null);
 
@@ -19,7 +17,7 @@ export const DataComponent = React.memo((props) => {
       selected={props.selected}
       onSelect={props.onSelect}
     >
-      <TeamStorage onChange={setMountDirectories} jobName={jobInformation.name}/>
+      <TeamStorage onChange={setMountDirectories} jobName={props.jobName}/>
       <CustomStorage dataList={dataList} setDataList={setDataList}/>
       <MountTreeView dataList={mountDirectories == null ? dataList : mountDirectories.getTeamDataList().concat(dataList)} />
     </SidebarCard>
@@ -29,5 +27,5 @@ export const DataComponent = React.memo((props) => {
 DataComponent.propTypes = {
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-  jobInformation: PropTypes.instanceOf(JobInformation),
+  jobName: PropTypes.string,
 };
