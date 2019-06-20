@@ -21,7 +21,7 @@ const Joi = require('joi');
 // define the input schema for the 'update user' api
 const userPutInputSchema = Joi.object().keys({
   username: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'username')
     .required(),
   admin: Joi.boolean(),
   modify: Joi.boolean()
@@ -36,7 +36,7 @@ const userPutInputSchema = Joi.object().keys({
 // define the input schema for the 'remove user' api
 const userDeleteInputSchema = Joi.object().keys({
   username: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'username')
     .required(),
 }).required();
 

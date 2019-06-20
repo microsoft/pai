@@ -22,7 +22,7 @@ const config = require('./index');
 // define input schema
 const tokenPostInputSchema = Joi.object().keys({
   username: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'username')
     .required(),
   password: Joi.string()
     .min(6)
