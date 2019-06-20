@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const { protocolConvert } = require('../src/util/converter');
+const { protocolConvert } = require('@pai/utils/converter');
 
 
 const jobConfigs = {

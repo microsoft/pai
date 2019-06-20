@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const protocolSecret = require('../src/util/protocolSecret');
+const protocolSecret = require('@pai/utils/protocolSecret');
 
 const protocolYAMLs = {
   secrets_example: `

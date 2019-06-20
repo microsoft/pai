@@ -41,6 +41,8 @@ spec:
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
         env:
+        - name: LAUNCHER_TYPE
+          value: yarn
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI

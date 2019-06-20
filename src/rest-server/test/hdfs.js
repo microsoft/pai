@@ -23,9 +23,9 @@ describe('The HDFS module', () => {
     }
   });
 
-  const Hdfs = require('../src/util/hdfs');
+  const Hdfs = require('../src/utils/hdfs');
   const hdfs = new Hdfs(global.webhdfsUri);
-  
+
   //
   // Positive cases
   //

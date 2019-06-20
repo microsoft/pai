@@ -15,28 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
-const Joi = require('joi');
-const config = require('@pai/config');
 
-// define input schema
-const tokenPostInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
-    .required(),
-  password: Joi.string()
-    .min(6)
-    .required(),
-  expiration: Joi.number()
-    .integer()
-    .min(60)
-    .max(7 * 24 * 60 * 60)
-    .default(24 * 60 * 60),
-}).required();
+const get = async (frameworkName) => {
+  return null;
+};
+
+const put = async (frameworkName, config, rawConfig) => {
+  return null;
+};
+
+const getConfig = (frameworkName) => {
+  return null;
+};
 
 // module exports
 module.exports = {
-  secret: config.jwtSecret,
-  userProperty: 'user',
-  tokenPostInputSchema: tokenPostInputSchema,
+  get,
+  put,
+  getConfig,
 };
