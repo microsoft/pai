@@ -7,10 +7,9 @@ import {TagPicker, ITag} from 'office-ui-fabric-react/lib/Pickers';
 import {FontClassNames} from '@uifabric/styling';
 import PropTypes from 'prop-types';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import t from '../../../../app/components/tachyons.scss';
-
-const STORAGE_PREFIX = '/test';
 
 // interface Props {
 //   mountList: MountItem[]

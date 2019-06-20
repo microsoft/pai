@@ -11,10 +11,9 @@ import {
   getFolderNameFromHDFS,
 } from '../../utils/utils';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import t from '../../../../app/components/tachyons.scss';
-
-const STORAGE_PREFIX = '/test';
 
 function convertToTree(dataList) {
   const mountTrie = new MountPathTrie(STORAGE_PREFIX);

@@ -24,42 +24,51 @@
  */
 
 import React from 'react';
-import {FormTextField} from './form-text-field';
-import {FormPage} from './form-page';
-import {Text} from 'office-ui-fabric-react';
+import {Text, Stack, ActionButton, FontSizes, FontWeights} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {JobBasicInfo} from '../models/job-basic-info';
-import {VirtualCluster} from './virtual-cluster';
-import Card from '../../components/card';
+import Card from '../../../components/card';
 
-export const JobInformation = React.memo((props) => {
-  const {jobInformation, onChange} = props;
-  const {name} = jobInformation;
+const style = {
+  headerText: {
+    root: {
+      fontSize: FontSizes.large,
+      fontWeight: FontWeights.semibold,
+    },
+  },
+  actionButton: {
+    flexContainer: {
+      alignItems: 'end',
+      height: 'auto',
+    },
+    root: {
+      height: 'auto',
+    },
+  },
+};
 
-  const _onChange = (keyName, newValue) => {
-    const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
-    updatedJobBasicInfo[keyName] = newValue;
-    if (onChange !== undefined) {
-      onChange(updatedJobBasicInfo);
-    }
-  };
+export const SidebarCard = ({title, selected, onSelect, children}) => (
+  <Card style={{minHeight: selected ? 0 : null}}>
+    <Stack gap='m' styles={{root: {height: '100%'}}}>
+      <Stack horizontal horizontalAlign='space-between'>
+        <Text styles={style.headerText}>{title}</Text>
+        <ActionButton
+          iconProps={{iconName: selected ? 'ChevronUp' : 'ChevronDown'}}
+          styles={style.actionButton}
+          onClick={onSelect}
+        />
+      </Stack>
+      {selected && (
+        <div style={{overflowY: 'auto'}}>
+          {children}
+        </div>
+      )}
+    </Stack>
+  </Card>
+);
 
-  return (
-    <Card>
-      <FormPage>
-        <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
-        <FormTextField sectionLabel={'Job name'}
-                      value={name}
-                      shortStyle
-                      onBlur={(value) => _onChange('name', value)}
-                      placeholder='Enter job name'/>
-        <VirtualCluster/>
-      </FormPage>
-    </Card>
-  );
-});
-
-JobInformation.propTypes = {
-  jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
-  onChange: PropTypes.func,
+SidebarCard.propTypes = {
+  title: PropTypes.string,
+  selected: PropTypes.bool,
+  onSelect: PropTypes.func,
+  children: PropTypes.node,
 };

@@ -27,31 +27,39 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import React, {useState, useEffect, useCallback} from 'react';
+import {isEmpty} from 'lodash';
+import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
-import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
+import {Fabric, Stack, initializeIcons, StackItem, ScrollablePane, Sticky, StickyPositionType} from 'office-ui-fabric-react';
 import {JobTaskRole} from './models/job-task-role';
 import {JobInformation} from './components/job-information';
-import {Parameters} from './components/right/parameters';
-import {DataComponent} from './components/data/data-component';
 import {getFormClassNames} from './components/form-style';
 import {initTheme} from '../components/theme';
 import {JobBasicInfo} from './models/job-basic-info';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
-import t from '../components/tachyons.scss';
-import {isEmpty} from 'lodash';
+// sidebar
+import {Parameters} from './components/sidebar/parameters';
+import {Secrets} from './components/sidebar/secrets';
+import {EnvVar} from './components/sidebar/env-var';
+import {DataComponent} from './components/data/data-component';
 
 initTheme();
 initializeIcons();
 
 const formLayout = getFormClassNames().formLayout;
-const topForm = getFormClassNames().topForm;
+
+const SIDEBAR_PARAM = 'param';
+const SIDEBAR_SECRET = 'secret';
+const SIDEBAR_ENVVAR = 'envvar';
+const SIDEBAR_DATA = 'data';
 
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({})]);
-  const [parameters, setParameters] = useState([]);
+  const [parameters, setParameters] = useState([{key: '', value: ''}]);
+  const [secrets, setSecrets] = useState([{key: '', value: ''}]);
   const [jobInformation, setJobInformation] = useState(new JobBasicInfo({}));
+  const [selected, setSelected] = useState(SIDEBAR_PARAM);
 
   const setJobTaskRoles = useCallback((taskRoles) => {
     if (isEmpty(taskRoles)) {
@@ -59,36 +67,34 @@ const JobSubmission = () => {
     } else {
       setJobTaskRolesState(taskRoles);
     }
-  });
+  }, [setJobTaskRolesState]);
 
-  useEffect(() => {
-    if (isEmpty(cookies.get('user'))) {
-      // layout.component.js will redirect user to index page.
-      return;
+  const onSelect = useCallback((x) => {
+    if (x === selected) {
+      setSelected(null);
+    } else {
+      setSelected(x);
     }
-  }, []);
+  }, [selected, setSelected]);
 
   return (
-    <Fabric>
-      <Stack className={formLayout}>
-        <Stack horizontal gap='l2'>
-          {/* left column */}
-          <StackItem grow>
+    <Fabric style={{height: '100%'}}>
+      <Stack className={formLayout} styles={{root: {height: '100%'}}} horizontal gap='l1'>
+        {/* left column */}
+        <StackItem grow shrink styles={{root: {position: 'relative'}}}>
+          <ScrollablePane
+            styles={{stickyBelow: {boxShadow: 'rgba(0, 0, 0, 0.06) 0px -2px 4px, rgba(0, 0, 0, 0.05) 0px -0.5px 1px'}}}
+          >
             <Stack gap='l2'>
-              <StackItem className={topForm}>
-                <JobInformation
-                  jobInformation={jobInformation}
-                  onChange={setJobInformation}
-                />
-              </StackItem>
-              <StackItem>
-                {/* pivot */}
-                <TaskRoles
-                  taskRoles={jobTaskRoles}
-                  onChange={setJobTaskRoles}
-                />
-              </StackItem>
-              <StackItem>
+              <JobInformation
+                jobInformation={jobInformation}
+                onChange={setJobInformation}
+              />
+              <TaskRoles
+                taskRoles={jobTaskRoles}
+                onChange={setJobTaskRoles}
+              />
+              <Sticky stickyPosition={StickyPositionType.Footer}>
                 <SubmissionSection
                   jobInformation={jobInformation}
                   jobTaskRoles={jobTaskRoles}
@@ -99,23 +105,35 @@ const JobSubmission = () => {
                     setParameters(updatedParameters);
                   }}
                 />
-              </StackItem>
+              </Sticky>
             </Stack>
-          </StackItem>
-          {/* right column */}
-          <StackItem disableShrink styles={{root: [t.w30]}}>
-            <Stack gap='l2'>
-              <Parameters
-                className={topForm}
-                parameters={parameters}
-                onChange={setParameters}
-              />
-            </Stack>
-            <Stack gap='l2' padding='l1 0 0 0'>
-              <DataComponent jobInformation={jobInformation}/>
-            </Stack>
-          </StackItem>
-        </Stack>
+          </ScrollablePane>
+        </StackItem>
+        {/* right column */}
+        <StackItem disableShrink styles={{root: {width: 500}}}>
+          <Stack gap='l2' styles={{root: {height: '100%'}}}>
+            <Parameters
+              parameters={parameters}
+              onChange={setParameters}
+              selected={selected === SIDEBAR_PARAM}
+              onSelect={() => onSelect(SIDEBAR_PARAM)}
+            />
+            <Secrets
+              secrets={secrets}
+              onChange={setSecrets}
+              selected={selected === SIDEBAR_SECRET}
+              onSelect={() => onSelect(SIDEBAR_SECRET)}
+            />
+            <EnvVar
+              selected={selected === SIDEBAR_ENVVAR}
+              onSelect={() => onSelect(SIDEBAR_ENVVAR)}
+            />
+            <DataComponent
+              selected={selected === SIDEBAR_DATA}
+              onSelect={() => onSelect(SIDEBAR_DATA)}
+            />
+          </Stack>
+        </StackItem>
       </Stack>
     </Fabric>
   );

@@ -1,5 +1,6 @@
 import {isObject, isEmpty, isNil, isArrayLike} from 'lodash';
 import {basename} from 'path';
+import { string } from 'prop-types';
 
 export const keyValueArrayReducer = (acc, cur) => {
   acc = {...acc, ...cur};
@@ -38,4 +39,12 @@ export function getProjectNameFromGit(url) {
 
 export function getFolderNameFromHDFS(path) {
   return basename(path);
+}
+
+export function removePathPrefix(path, prefix) {
+  return path.replace(prefix, '');
+}
+
+export function addPathPrefix(path, prefix) {
+  return prefix.concat(path);
 }

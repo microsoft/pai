@@ -66,12 +66,6 @@ export const getTabFromStyle = () => {
         marginLeft: spacing.m,
       },
     },
-    tabContent: {
-      root: {
-        background: palette.white,
-        padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`,
-      },
-    },
   });
 };
 
@@ -121,26 +115,6 @@ export const getFormBasicSectionStyle = (optional) => {
         fontSize: FontSizes.mini,
         display: 'flex',
         alignItems: 'center',
-      },
-    },
-  });
-};
-
-export const getParameterStyle = () => {
-  return ({
-    headerText: {
-      root: {
-        fontSize: FontSizes.large,
-        fontWeight: FontWeights.semibold,
-      },
-    },
-    actionButton: {
-      flexContainer: {
-        alignItems: 'end',
-        height: 'auto',
-      },
-      root: {
-        height: 'auto',
       },
     },
   });
