@@ -195,6 +195,67 @@ const getAllGroupTypeObject = async () => {
   }
 };
 
+const updateGrouplistWithVirtualCluster = async (grouplist, virtualCluster) => {
+  try {
+    let retVirtualCluster = [];
+    let retGrouplist = [];
+    const groupType = getAllGroupTypeObject();
+    const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    if (admin) {
+      for (let [key, value] of Object.entries(groupType)) {
+        retGrouplist.push(key);
+        if (value === 'vc') {
+          retVirtualCluster.push(key);
+        }
+      }
+    } else {
+      retVirtualCluster = virtualCluster.slice(0);
+      retGrouplist = virtualCluster.slice(0);
+      for (const groupName in grouplist) {
+        if (groupType[groupName] !== 'vc') {
+          retGrouplist.push(groupName);
+        }
+      }
+    }
+    return {
+      virtualCluster: retVirtualCluster,
+      grouplist: retGrouplist,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateVirtualClusterWithGrouplist = async (grouplist) => {
+  try {
+    let retVirtualCluster = [];
+    let retGrouplist = [];
+    const groupType = getAllGroupTypeObject();
+    const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
+    if (admin) {
+      for (let [key, value] of Object.entries(groupType)) {
+        retGrouplist.push(key);
+        if (value === 'vc') {
+          retVirtualCluster.push(key);
+        }
+      }
+    } else {
+      retGrouplist = grouplist.slice(0);
+      for (const groupName in grouplist) {
+        if (groupType[groupName] === 'vc'){
+          retVirtualCluster.push(groupName);
+        }
+      }
+    }
+    return {
+      virtualCluster: retVirtualCluster,
+      grouplist: retGrouplist,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 const updateGroup2ExnternalMapper = async () => {
   try {
     logger.info('Begin to update group info.');
@@ -377,5 +438,7 @@ module.exports = {
   virtualCluster2GroupList,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
+  updateVirtualClusterWithGrouplist,
+  updateGrouplistWithVirtualCluster,
   getAllGroupTypeObject,
 };

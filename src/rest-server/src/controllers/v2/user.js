@@ -218,6 +218,25 @@ const updateUserVirtualCluster = async (req, res, next) => {
   }
 };
 
+const updateUserGroupList = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    const username = req.params.username;
+    const vcAndGroup = groupModel.updateVirtualClusterWithGrouplist(req.body.grouplist);
+    let userValue = await userModel.getUser(username);
+    userValue['grouplist'] = vcAndGroup.grouplist;
+    userValue['extension']['virtualCluster'] = vcAndGroup.virtualCluster;
+    await userModel.updateUser(username, userValue);
+    return res.status(201).json({
+      message: 'update user grouplist successfully.',
+    });
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
 const updateUserPassword = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -338,6 +357,7 @@ module.exports = {
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,
+  updateUserGroupList,
   updateUserEmail,
   updateUserAdminPermission,
   deleteUser,
