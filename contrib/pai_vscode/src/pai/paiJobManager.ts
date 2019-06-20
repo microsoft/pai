@@ -165,7 +165,7 @@ export class PAIJobManager extends Singleton {
         const defaultSaveDir: string = path.join(parent, `${jobName}.pai.yaml`);
 
         const config: IPAIYamlJobConfig = {
-            protocolVersion: '2',
+            protocolVersion: 2,
             name: jobName,
             type: 'job',
             prerequisites: [

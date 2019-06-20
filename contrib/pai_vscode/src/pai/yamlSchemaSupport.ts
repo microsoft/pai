@@ -5,7 +5,7 @@
  */
 
 import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as yaml from 'js-yaml';
 import * as vscode from 'vscode';
 
 import {
@@ -62,8 +62,29 @@ async function activateYamlExtension(): Promise<any | undefined> {
     return yamlPlugin;
 }
 
-function requestYamlSchemaUriCallback(): string | undefined {
-    return OPENPAI_YAML_SCHEMA_PREFIX + SCHEMA_YAML_JOB_CONFIG;
+function requestYamlSchemaUriCallback(resource: string): string | undefined {
+    const textEditor: vscode.TextEditor | undefined =
+        vscode.window.visibleTextEditors.find((editor) => editor.document.uri.toString() === resource);
+    const paiYamlJobConfigSchemaUri: string = OPENPAI_YAML_SCHEMA_PREFIX + SCHEMA_YAML_JOB_CONFIG;
+
+    if (textEditor) {
+        if (textEditor.document.uri.toString().toLowerCase().endsWith('.pai.yaml')) {
+            // If the yaml file name match '*.pai.yaml', it will report it is a pai job conifg file.
+            return paiYamlJobConfigSchemaUri;
+        }
+
+        try {
+            const docs: any = yaml.safeLoad(textEditor.document.getText());
+            if (docs.protocolVersion && docs.protocolVersion === 2) {
+                // If the yaml document contains 'protocolVersion: 2', it will report it is a pai job conifg file.
+                return paiYamlJobConfigSchemaUri;
+            }
+        } catch (_) {
+            return undefined;
+        }
+    }
+
+    return undefined;
 }
 
 function requestYamlSchemaContentCallback(uri: string): string | undefined {
