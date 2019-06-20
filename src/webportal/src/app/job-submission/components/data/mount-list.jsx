@@ -10,10 +10,10 @@ import {
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
+import {removePathPrefix} from '../../utils/utils';
 import t from '../../../../app/components/tachyons.scss';
-
-const STORAGE_PREFIX = '/test';
 
 export const MountList = (props) => {
   const {dataList, setDataList} = props;
@@ -45,7 +45,7 @@ export const MountList = (props) => {
         return (
           <TextField
             prefix={STORAGE_PREFIX}
-            value={item.value}
+            value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
             onChange={(e, val) => onMountPathChange(idx, val)}
           />
         );
@@ -60,7 +60,8 @@ export const MountList = (props) => {
       onRender: (item, idx) => {
         return (
           <TextField
-            value={item.value}
+            value={item.dataSource}
+            disabled={item.sourceType === 'local'}
             onChange={(e, val) => onDataSourceChange(idx, val)}
           />
         );

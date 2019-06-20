@@ -4,10 +4,9 @@ import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import t from '../../../../app/components/tachyons.scss';
-
-const STORAGE_PREFIX = '/test';
 
 export const AddHttp = (props) => {
   const {dataList, setDataList, setDataType} = props;

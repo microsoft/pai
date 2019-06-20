@@ -1,28 +1,38 @@
 import React, {useState} from 'react';
-import c from 'classnames';
 import {
   DefaultButton,
-  CommandBarButton,
   Stack,
   TextField,
-  FontClassNames,
-  Icon,
-  Dropdown,
   IconButton,
 } from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import t from '../../../../app/components/tachyons.scss';
 
-const STORAGE_PREFIX = '/test';
-
-export const AddLocal = (props) => {
-  const {dataList, setDataList, setDataType} = props;
+export const AddLocal = ({dataList, setDataList, setDataType}) => {
   const [mountPath, setMountPath] = useState();
   const [files, setFiles] = useState();
   const [uploadType, setUploadType] = useState('Files');
+  const uploadFile = React.createRef();
+  const uploadFolder = React.createRef();
+  const getUploadText = () => {
+    if (files === undefined) {
+      return `Upload ${uploadType}`;
+    } else if (files !== undefined && files.length ===1) {
+      return files[0].name;
+    } else if (files !== undefined && files.length > 1) {
+      return `${files.length} Files`;
+    }
+  };
+  const clickUpload = () => {
+    if (uploadType === 'Files') {
+      uploadFile.current.click();
+    } else if (uploadType === 'Folder') {
+      uploadFolder.current.click();
+    }
+  };
   const submitMount = () => {
     const newMountList = cloneDeep(dataList);
     const dataSource = files.map((file) => file.name).join(', '); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -51,20 +61,31 @@ export const AddLocal = (props) => {
         onChange={(_event, newValue) => {
           setMountPath(`${STORAGE_PREFIX}${newValue}`);
         }}
-        className={c(t.w40, t.mr3)}
+        styles={{root: {maxWidth: 200}}}
       />
       <Stack.Item align='end'>
         <DefaultButton
           iconProps={{iconName: 'Upload'}}
-          text='upload file'
+          text={getUploadText()}
           split={true}
-          onClick={() => {
-            console.log('click');
-          }}
+          onClick={clickUpload}
+          styles={{root: {minWidth: 150}}}
           menuProps={{
             items: [
-              {key: 'file', name: 'Files', icon: 'File'},
-              {key: 'folder', name: 'Folder', icon: 'Folder'},
+              {
+                key: 'Files',
+                name: 'Files',
+                onClick: (ev, item) => {
+                  setUploadType(item.key);
+                },
+              },
+              {
+                key: 'Folder',
+                name: 'Folder',
+                onClick: (ev, item) => {
+                  setUploadType(item.key);
+                },
+              },
             ],
           }}
         />
@@ -72,6 +93,7 @@ export const AddLocal = (props) => {
       <input
         id='upload'
         type='file'
+        ref={uploadFile}
         onChange={(event) => {
           const fileList = [];
           if (event.target.files !== null) {
@@ -87,6 +109,7 @@ export const AddLocal = (props) => {
       <input
         id='upload'
         type='file'
+        ref={uploadFolder}
         onChange={(event) => {
           const fileList = [];
           if (event.target.files !== null) {
@@ -100,20 +123,12 @@ export const AddLocal = (props) => {
         webkitdirectory=''
         multiple
       />
-
-      {/* <div>
-        <Icon iconName='Upload' className={c(t.mh2, t.h2)} />
-        <div className={c(t.w4)}>
-          {files === undefined && `Upload ${uploadType}`}
-          {files !== undefined && files.length === 1 && files[0].name}
-          {files !== undefined && files.length > 1 && `${files.length} Files`}
-        </div>
-      </div> */}
       <Stack.Item align='end'>
         <IconButton iconProps={{iconName: 'Accept'}} onClick={submitMount} />
       </Stack.Item>
       <Stack.Item align='end'>
-        <IconButton iconProps={{iconName: 'Cancel'}}
+        <IconButton
+          iconProps={{iconName: 'Cancel'}}
           onClick={() => {
             setDataType('none');
           }}
