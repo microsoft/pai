@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import {camelCase} from 'lodash';
+import {camelCase, cloneDeep} from 'lodash';
 import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect} from 'react';
@@ -45,22 +45,22 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
   }, [onChange, value]);
 
   const onKeyChange = useCallback((idx, val) => {
-    const updated = [...value];
-    updated[idx][keyField] = val;
-    onChange(updated);
+    onChange([...value.slice(0, idx), {...value[idx], [keyField]: val}, ...value.slice(idx + 1)]);
   }, [onChange, value, keyField]);
 
   const onValueChange = useCallback((idx, val) => {
-    const updated = [...value];
-    updated[idx][valueField] = val;
-    onChange(updated);
+    onChange([...value.slice(0, idx), {...value[idx], [valueField]: val}, ...value.slice(idx + 1)]);
   }, [onChange, value, valueField]);
+
+  const getKey = useCallback((item, idx) => idx, []);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
     dispatchResizeEvent();
   }, []);
+
+  const {spacing} = getTheme();
 
   const columns = [
     {
@@ -69,6 +69,7 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
       minWidth: columnWidth,
       onRender: (item, idx) => (
         <TextField
+          errorMessage={item.dup && 'duplicated key'}
           value={item[keyField]}
           onChange={(e, val) => onKeyChange(idx, val)}
         />
@@ -92,7 +93,7 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
       minWidth: 50,
       style: {padding: 0},
       onRender: (item, idx) => (
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
+        <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'center', height: '100%'}}>
           <IconButton
             key={`remove-button-${idx}`}
             iconProps={{iconName: 'Delete'}}
@@ -103,15 +104,20 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
     },
   ];
 
-  const {spacing} = getTheme();
-
-  const getKey = useCallback((item, idx) => idx, []);
+  const keyCount = value.reduce((res, x) => {
+    if (res[x[keyField]] === undefined) {
+      res[x[keyField]] = 0;
+    }
+    res[x[keyField]] += 1;
+    return res;
+  }, {});
+  const newVal = cloneDeep(value).map((x) => ({...x, dup: keyCount[x[keyField]] > 1}));
 
   return (
       <Stack gap='m'>
         <div>
           <DetailsList
-            items={value}
+            items={newVal}
             columns={columns}
             getKey={getKey}
             checkboxVisibility={CheckboxVisibility.hidden}
