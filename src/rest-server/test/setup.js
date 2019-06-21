@@ -28,6 +28,7 @@ process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
 process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
+process.env.AUTHN_METHOD = 'basic';
 process.env.YARN_URI = 'http://yarn.test.pai:8088';
 process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
 process.env.AZ_RDMA = 'false';
@@ -39,7 +40,7 @@ const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
 const nock = require('nock');
 const chai = require('chai');
-const chaiAsPromised = require("chai-as-promised");
+const chaiAsPromised = require('chai-as-promised');
 const chaiHttp = require('chai-http');
 const server = require('@pai');
 
