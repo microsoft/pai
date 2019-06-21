@@ -274,9 +274,9 @@ describe('Add new user: put /api/v2/user', () => {
         'data': {
           'username': 'bm9uX2FkbWlu',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIl0=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19'
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         },
       })
       .reply(200, {
@@ -293,9 +293,9 @@ describe('Add new user: put /api/v2/user', () => {
         'data': {
           'username': 'bm9uX2FkbWlu',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIl0=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19'
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         },
         'type': 'Opaque'
       });
@@ -428,13 +428,18 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 2 (Positive): Add non_admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .post('/api/v2/user/create')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'non_admin', 'password': '123456', 'modify': false })
+      .send({
+        'username': 'non_admin',
+        'password': '123456',
+        'email': 'test@pai.com',
+
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        global.chai.expect(res.body.message, 'response message').equal('User is created successfully');
         done();
       });
   });
