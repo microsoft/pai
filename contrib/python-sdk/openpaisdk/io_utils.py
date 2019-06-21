@@ -4,7 +4,7 @@ import shutil
 import fnmatch
 from contextlib import contextmanager
 import json
-from openpaisdk import __logger__, from_json_file, from_yaml_file
+from openpaisdk import __logger__, __local_default_file__
 from urllib.request import urlopen
 from urllib.parse import urlparse, urlsplit
 from urllib.request import urlretrieve
@@ -14,6 +14,36 @@ import cgi
 __yaml_exts__ = ['.yaml', '.yml']
 __json_exts__ = ['.json', '.jsn']
 
+
+def get_defaults():
+    return from_file(__local_default_file__, default={})
+
+
+def return_default_if_error(func):
+    def f(*args, default="==FATAL==", **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as identifier:
+            if default == "==FATAL==":
+                __logger__.error('Error: %s', e, exc_info=True)
+            __logger__.debug('error occurs, return default (%s)', default)
+            return default
+    return f
+
+
+@return_default_if_error
+def from_json_file(fname: str, **kwargs):
+	import json
+	with open(fname) as fp:
+		return json.load(fp, **kwargs)
+
+
+@return_default_if_error
+def from_yaml_file(fname: str, **kwargs):
+	import yaml
+	with open(fname) as fp:
+		kwargs.setdefault('Loader', yaml.FullLoader)
+		return yaml.load(fp, **kwargs)
 
 def get_url_filename_from_server(url):
     try:

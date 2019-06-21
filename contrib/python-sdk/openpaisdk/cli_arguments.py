@@ -4,8 +4,8 @@ import argparse
 import inspect
 import typing
 from copy import deepcopy
-from openpaisdk import __local_default_file__, __logger__
-from openpaisdk.io_utils import from_file
+from openpaisdk import __logger__
+from openpaisdk.io_utils import from_file, get_defaults
 from typing import Union
 
 
@@ -115,10 +115,10 @@ class ArgumentFactory:
 
     def __init__(self):
         self.factory = dict()
-        __defaults__ = from_file(__local_default_file__, default={})
+        defaults = get_defaults()
         # cluster
-        self.add_argument('--cluster-alias', '-a', default=__defaults__.get('cluster-alias', None), help='cluster alias to select')
-        self.add_argument('--virtual-cluster', '--vc', default=__defaults__.get('virtual-cluster', None), help='virtual cluster to use')
+        self.add_argument('--cluster-alias', '-a', default=defaults.get('cluster-alias', None), help='cluster alias to select')
+        self.add_argument('--virtual-cluster', '--vc', default=defaults.get('virtual-cluster', None), help='virtual cluster to use')
         self.add_argument('cluster_alias', help='cluster alias to select')
 
         self.add_argument('--pai-uri', help="uri of openpai cluster, in format of http://x.x.x.x")
@@ -130,13 +130,13 @@ class ArgumentFactory:
         self.add_argument('--web-hdfs-uri', help="uri of web hdfs, in format of http://x.x.x.x:port")
 
         # job spec
-        self.add_argument('--job-name', '-j', help='job name', default=__defaults__.get('job-name', None))
-        self.add_argument('--workspace', '-w', default=__defaults__.get('workspace', None), help='remote path for workspace (store code, output, ...)')
+        self.add_argument('--job-name', '-j', help='job name', default=defaults.get('job-name', None))
+        self.add_argument('--workspace', '-w', default=defaults.get('workspace', None), help='remote path for workspace (store code, output, ...)')
         self.add_argument('--v2', action="store_true", default=False, help="use job protocol version 2")
         self.add_argument('--sources', '-s', action='append', help='sources files')
 
         # requirements
-        self.add_argument('--image', '-i', default=__defaults__.get('image', None), help='docker image')
+        self.add_argument('--image', '-i', default=defaults.get('image', None), help='docker image')
         self.add_argument('--pip-flags', '-p', action='append', help='pip install -U <all-is-flags>')
         self.add_argument('pip_flags', nargs='*', help='pip install -U <all-is-flags>')
         self.add_argument("--rename", "-r", help="rename downloaded file")
@@ -152,9 +152,9 @@ class ArgumentFactory:
         # task role
         self.add_argument('--task-role-name', '-t', default='main', help='task role name')
         self.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
-        self.add_argument('--cpu', type=int, default=__defaults__.get('cpu', 1), help='cpu number per instance')
-        self.add_argument('--gpu', type=int, default=__defaults__.get('gpu', 0), help='gpu number per instance')
-        self.add_argument('--memoryMB', type=int, default=__defaults__.get('memMB', 1024), help='memory #MB per instance')
+        self.add_argument('--cpu', type=int, default=defaults.get('cpu', 1), help='cpu number per instance')
+        self.add_argument('--gpu', type=int, default=defaults.get('gpu', 0), help='gpu number per instance')
+        self.add_argument('--memoryMB', type=int, default=defaults.get('memMB', 1024), help='memory #MB per instance')
         self.add_argument('--cmd-sep', default="&&", help="command separator, default is (&&)")
         self.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
 

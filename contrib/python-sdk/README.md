@@ -204,6 +204,8 @@ For users those want to improve the functions themselves, you may create the bra
 opai default add sdk-branch=<your/branch>
 ```
 
+To set the internal logger to debug level, create an empty file `.openpai/debug_enable` to let sdk enable debugging logging. And remove the empty file make it work normally.
+
 ## 3.3. Unit tests
 
 Please execute below command under the `tests` directory to have a quick unit test.

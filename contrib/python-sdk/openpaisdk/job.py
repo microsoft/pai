@@ -1,14 +1,15 @@
-import argparse
+import json
+import yaml
 import os
 from typing import Union
 from copy import deepcopy
 
-from openpaisdk import (__cluster_config_file__, __defaults__, __install__,
-                        __jobs_cache__, __logger__, __sdk_branch__)
+from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __sdk_branch__, __cache__
+from openpaisdk import get_install_uri
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not, get_args
-from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.io_utils import from_file, to_file, get_defaults
 from openpaisdk.utils import OrganizedList as ol
-
+from openpaisdk.cluster import ClusterList
 
 __protocol_filename__ = "job_protocol.yaml"
 __config_filename__ = "job_config.json"
@@ -127,6 +128,30 @@ class Job:
             return dic
 
     # methods only for SDK-enabled jobs
+    def submit(self, alias: str):
+        self.validate()
+        client = ClusterList().load().get_client(alias)
+        client.get_token().rest_api_submit(self.get_config())
+        return client.get_job_link(self.name)
+
+    def decorate(self, alias: str, only_it: bool=True):
+        clusters = ClusterList().load().clusters
+        if only_it:
+            clusters = ol.filter(clusters, 'cluster_alias', alias)["matches"]
+        version = get_defaults().get("sdk-branch", __sdk_branch__)
+        self.protocol["secrets"]["clusters"] = yaml.dump(clusters)
+        self.protocol["secrets"]["cluster_alias"] = alias
+        c_dir = '~/{}'.format(__cache__)
+        sdk_install_cmds = [
+            "pip install --upgrade pip",
+            "pip install -U {}".format(get_install_uri(version)),
+            "mkdir %s" % c_dir,
+            "echo <% $secrets.clusters %> > {}/{}".format(c_dir, os.path.basename(__cluster_config_file__)),
+            "opai cluster select <% $secrets.cluster_alias %>",
+        ]
+        self.new_deployment("sdk_install", pre_commands=sdk_install_cmds)
+        self.protocol["extras"]["submitFrom"] = "python-sdk@" + version
+
     def one_liner(self, commands: Union[list, str], image: str, workspace: str=None, gpu: int=0, cpu: int=1, memoryMB: int=10240, ports: dict={}, **kwargs):
         self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
         self.add_taskrole("main", {
@@ -136,10 +161,27 @@ class Job:
             },
             "commands": commands if isinstance(commands, list) else [commands]
         })
-        self.protocol["extras"]["workspace"] = workspace
-        self.protocol["extras"]["submitFrom"] = "python-sdk@" + __sdk_branch__
+        self.protocol["parameters"]["PAI_JOB_WORKSPACE"] = '{}/jobs/{}'.format(workspace, self.name) if workspace else ""
         if kwargs.get("virtual_cluster", None):
             self.protocol["defaults"]["virtualCluster"] = kwargs["virtual_cluster"]
+        return self
+
+    def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True):
+        deployment = {
+            "name": name,
+            "taskRoles": {}
+        }
+        for t in self.protocol["taskRoles"]:
+            dic = {}
+            if pre_commands:
+                dic["preCommands"] = pre_commands
+            if post_commands:
+                dic["postCommands"] = post_commands
+            deployment["taskRoles"][t] = dic
+        self.protocol["deployments"].append(deployment)
+        if as_default:
+            self.protocol["defaults"]["deployment"] = name
+        return self
 
     @staticmethod
     def new_unit(name: str, type: str, protocolVersion: int=2, **kwargs):

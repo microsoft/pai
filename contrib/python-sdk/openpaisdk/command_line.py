@@ -10,7 +10,7 @@ from openpaisdk import __logger__, __cluster_config_file__, __local_default_file
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import ClusterClient
-from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.io_utils import from_file, to_file, get_defaults
 from openpaisdk.job import Job, TaskRole
 from openpaisdk.runtime import runtime_execute
 from openpaisdk.utils import OrganizedList as ol
@@ -35,28 +35,28 @@ class ActionFactoryForDefault(ActionFactory):
         parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
     def do_action_set(self, args):
-        __defaults__ = from_file(__local_default_file__, default={})
+        defaults = get_defaults()
         if not args.contents:
-            return __defaults__
+            return defaults
         for kv in args.contents:
             key, value = kv.split('=')
-            __defaults__[key] = value
-        to_file(__defaults__, __local_default_file__)
-        return __defaults__
+            defaults[key] = value
+        to_file(defaults, __local_default_file__)
+        return defaults
 
     def define_arguments_unset(self, parser: argparse.ArgumentParser):
         parser.add_argument('variables', nargs='+', help='(variable=value) pair to be set as default')
 
     def do_action_unset(self, args):
         result = []
-        __defaults__ = from_file(__local_default_file__, default={})
+        defaults = get_defaults()
         for key in args.variables:
-            if key not in __defaults__:
+            if key not in defaults:
                 result.append("cannot unset default variable %s because it doesn't exist" % key)
                 continue
-            value = __defaults__.pop(key, None)
+            value = defaults.pop(key, None)
             result.append("default variable {} (previously {}) deleted".format(key, value))
-        to_file(__defaults__, __local_default_file__)
+        to_file(defaults, __local_default_file__)
         return result
 
 
@@ -148,7 +148,7 @@ class ActionFactoryForJob(ActionFactory):
                 Nested(self.__job__.protocol).set(key, value)
         if args.preview:
             return self.__job__.validate().get_config()
-        return self.__clusters__.submit(args.cluster_alias, self.__job__)
+        return self.__job__.submit(args.cluster_alias)
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, [
@@ -168,7 +168,7 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.new(args.job_name).one_liner(**extract_args(args))
         if args.preview:
             return self.__job__.validate().get_config()
-        return self.__clusters__.submit(args.cluster_alias, self.__job__)
+        return self.__job__.submit(args.cluster_alias)
 
 
 class ActionFactoryForRuntime(ActionFactory):
