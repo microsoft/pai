@@ -227,6 +227,7 @@ class VirtualCluster {
         // eslint-disable-next-line no-console
         console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+        // eslint-disable-next-line no-console
         console.log(vcInfo);
         let ret = await this.addDedicatedInfoPromise(vcInfo);
         // eslint-disable-next-line no-console
