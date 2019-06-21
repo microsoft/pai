@@ -1,21 +1,9 @@
 import React from 'react';
 import {TabForm} from './tab-form';
-import {TabFormContent} from './tab-form-content';
 import {JobTaskRole} from '../models/job-task-role';
 import PropTypes from 'prop-types';
 
-export const TaskRoles = React.memo((props) => {
-  const {taskRoles, onChange} = props;
-  const _onRenderTabContent = (keyName, content, defaultOnContentChange) => {
-    return (
-      <TabFormContent
-        key={keyName}
-        jobTaskRole={content}
-        onContentChange={defaultOnContentChange}
-      />
-    );
-  };
-
+export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   const _onItemChange = (items) => {
     if (onChange === undefined) {
       return;
@@ -58,8 +46,8 @@ export const TaskRoles = React.memo((props) => {
       headerTextPrefix='Task Role'
       onItemAdd={_onItemAdd}
       onItemDelete={_onItemDelete}
-      onRenderTabContent={_onRenderTabContent}
       onItemsChange={_onItemChange}
+      advanceFlag={advanceFlag}
     />
   );
 });
@@ -67,4 +55,5 @@ export const TaskRoles = React.memo((props) => {
 TaskRoles.propTypes = {
   taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   onChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
 };

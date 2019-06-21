@@ -28,9 +28,9 @@ import {
   getId,
   Label,
   Stack,
-  Text,
   Icon,
   StackItem,
+  FontClassNames,
 } from 'office-ui-fabric-react';
 import {FormSection} from './form-page';
 import {getFormPageSytle, getFormBasicSectionStyle} from './form-style';
@@ -43,37 +43,29 @@ export const BasicSection = (props) => {
   const textFieldId = getId('textField');
   const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 
-  const [isSectionOn, setSectionOn] = useState(false);
-  const [iconName, setIconName] = useState('CaretSolidRight');
-  const onOpenItem = () => {
-    if (isSectionOn) {
-      setIconName('CaretSolidRight');
-    } else {
-      setIconName('CaretDown8');
-    }
+  const [isSectionOn, setSectionOn] = useState(true);
+  const onToggle = () => {
     setSectionOn(!isSectionOn);
   };
 
   return (
     <FormSection>
       <StackItem styles={formPageStyle.formFirstColumn}>
-        <Stack horizontal gap='s2' wrap verticalAlign='center'>
-          <StackItem>
-            <Icon
-              iconName={iconName}
-              styles={basicSectionStyle.icon}
-              onClick={onOpenItem}
-            />
-          </StackItem>
-          <StackItem>
-            <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>
-              {sectionLabel}
-            </Label>
-          </StackItem>
-          <StackItem>
-            {sectionOptional && (
-              <Text styles={basicSectionStyle.optionalText}>Optional</Text>
-            )}
+        <Stack horizontal gap='s1' verticalAlign='baseline'>
+          <Icon
+            iconName={isSectionOn ? 'CaretDown8' : 'CaretSolidRight'}
+            styles={basicSectionStyle.icon}
+            onClick={onToggle}
+          />
+          <StackItem grow>
+            <div>
+              <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>
+                {sectionLabel}
+              </Label>
+              {sectionOptional && (
+                <div className={FontClassNames.tiny}>Optional</div>
+              )}
+            </div>
           </StackItem>
         </Stack>
       </StackItem>

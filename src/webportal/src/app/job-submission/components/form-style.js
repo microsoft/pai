@@ -110,13 +110,6 @@ export const getFormBasicSectionStyle = (optional) => {
         padding: '0px',
       },
     },
-    optionalText: {
-      root: {
-        fontSize: FontSizes.mini,
-        display: 'flex',
-        alignItems: 'center',
-      },
-    },
   });
 };
 
