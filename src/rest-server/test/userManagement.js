@@ -435,7 +435,8 @@ describe('Add new user: put /api/v2/user', () => {
         'username': 'non_admin',
         'password': '123456',
         'email': 'test@pai.com',
-
+        'virtualCluster': ['default','vc1','vc2'],
+        'admin': false,
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
