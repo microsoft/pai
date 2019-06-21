@@ -238,6 +238,7 @@
             "Env": [
                 "NVIDIA_VISIBLE_DEVICES=GPU-7c583998-b3ff-a885-8979-2d32d334cde4",
                 "DLWS_USER_NAME=dixu",
+                "DLWS_USER_EMAIL=dixu@example.com",
                 "JOB_ID=0c435eee-d31f-43d5-a1b3-442845fa1d0c",
                 "DLWS_JOB_ID=0c435eee-d31f-43d5-a1b3-442845fa1d0c",
                 "DLWS_NUM_GPU_PER_WORKER=1",
