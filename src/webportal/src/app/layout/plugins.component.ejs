@@ -1,5 +1,6 @@
 <li class="header">PLUGINS</li>
 <% for (var i = 0, l = plugins.length; i < l; i++) { var plugin = plugins[i]; %>
+<% if (!isAdmin && plugin['id'] === 'group manage') continue; %>
 <li class="plugin-<%= i %>">
   <a href="/plugin.html?index=<%= i %>">
     <i class="fa fa-puzzle-piece fa-lg"></i>
