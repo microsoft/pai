@@ -131,7 +131,7 @@ export const getSpinButtonStyle = () => {
 export const getFormShortSectionStyle = () => {
   return ({
     root: {
-      width: '60%',
+      width: '80%',
     },
   });
 };

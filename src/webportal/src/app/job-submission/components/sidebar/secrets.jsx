@@ -40,7 +40,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
 
   const onKeyChange = useCallback((idx, val) => {
     const updatedParameters = [...secrets];
-    updatedParameters[idx].name = val;
+    updatedParameters[idx].key = val;
     onChange(updatedParameters);
   });
 
@@ -60,10 +60,10 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
     {
       key: 'key',
       name: 'Key',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
-          value={item.name}
+          value={item.key}
           onChange={(e, val) => onKeyChange(idx, val)}
         />
       ),
@@ -71,7 +71,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
     {
       key: 'value',
       name: 'Value',
-      minWidth: 150,
+      minWidth: 200,
       onRender: (item, idx) => (
         <TextField
           value={item.value}

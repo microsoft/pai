@@ -23,18 +23,21 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef} from 'react';
-import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {isNil, debounce} from 'lodash';
+import React, {useState, useRef, useEffect, useContext} from 'react';
+import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label, StackItem, Toggle} from 'office-ui-fabric-react';
+
 import {getImportButtonStyle} from './form-style';
 import {JobProtocol} from '../models/job-protocol';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
-import {JobParameter} from '../models/job-parameter';
 import {submitJob} from '../utils/conn';
-import Card from '../../components/card';
 import MonacoPanel from '../../components/monaco-panel';
+import Card from '../../components/card';
+import {getJobComponentsFormConfig} from '../utils/utils';
+import Context from './Context';
+
+import PropTypes from 'prop-types';
+import {isNil, debounce, isEqual} from 'lodash';
 
 const user = cookies.get('user');
 const {palette} = getTheme();
@@ -59,7 +62,7 @@ const _exportFile = (data, filename, type) => {
 };
 
 export const SubmissionSection = (props) => {
-  const {jobInformation, jobTaskRoles, parameters, onChange} = props;
+  const {jobInformation, jobTaskRoles, parameters, secrets, onChange, advanceFlag, onToggleAdvanceFlag} = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
@@ -68,11 +71,29 @@ export const SubmissionSection = (props) => {
 
   const monaco = useRef(null);
 
+  const {vcNames} = useContext(Context);
+
+  useEffect(() => {
+    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
+    if (isEqual(jobProtocol, protocol)) {
+      return;
+    }
+    setjobProtocol(protocol);
+  });
+
   const _openEditor = (event) => {
     event.preventDefault();
-    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters);
     setEditorOpen(true);
-    setProtocolYaml(protocol.toYaml());
+    setProtocolYaml(jobProtocol.toYaml());
+  };
+
+
+  const _PruneComponent = (jobInformation) => {
+    const virtualCluster = jobInformation.virtualCluster;
+    if (vcNames.find((vcName) => vcName === virtualCluster)) {
+      return;
+    }
+    jobInformation.virtualCluster = '';
   };
 
   const _udpatedComponent = (protocolYaml) => {
@@ -86,13 +107,15 @@ export const SubmissionSection = (props) => {
       return;
     }
 
-    const {taskRoles, deployments, prerequisites, parameters} = updatedJob;
-    const updatedJobInformation = JobBasicInfo.fromProtocol(updatedJob);
-    const updatedParameters = Object.keys(parameters)
-                                    .map((key) => new JobParameter({key: key, value: parameters[key]}));
-    const updatedTaskRoles = Object.keys(taskRoles)
-                                   .map((name) => JobTaskRole.fromProtocol(name, taskRoles[name], deployments, prerequisites));
-    onChange(updatedJobInformation, updatedTaskRoles, updatedParameters);
+    const [
+      updatedJobInformation,
+      updatedTaskRoles,
+      updatedParameters,
+      updatedSecrets,
+    ] = getJobComponentsFormConfig(updatedJob);
+
+    _PruneComponent(updatedJobInformation);
+    onChange(updatedJobInformation, updatedTaskRoles, updatedParameters, updatedSecrets);
   };
 
   const _closeEditor = () => {
@@ -140,16 +163,30 @@ export const SubmissionSection = (props) => {
 
   return (
     <Card>
-      <Stack horizontal gap='s1' horizontalAlign='center'>
-        <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
-        <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-        <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
-        <DefaultButton>
-          <Label styles={{root: importButtonStyle.label}}>
-            {'Import'}
-            <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
-          </Label>
-        </DefaultButton>
+      <Stack horizontal>
+        <StackItem grow>
+          <Stack horizontal gap='s1' horizontalAlign='center'>
+            <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
+            <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+          </Stack>
+        </StackItem>
+        <Stack gap='s1' horizontal>
+          <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+          <DefaultButton>
+            <Label styles={{root: importButtonStyle.label}}>
+              {'Import'}
+              <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
+            </Label>
+          </DefaultButton>
+          <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
+            <div>Advanced</div>
+            <Toggle
+              styles={{root: {margin: 0}}}
+              checked={advanceFlag}
+              onChange={onToggleAdvanceFlag}
+            />
+          </Stack>
+        </Stack>
         <MonacoPanel isOpen={isEditorOpen}
                     onDismiss={_closeEditor}
                     title='Protocol YAML Editor'
@@ -169,6 +206,9 @@ export const SubmissionSection = (props) => {
 SubmissionSection.propTypes = {
   jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
   jobTaskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
-  parameters: PropTypes.arrayOf(PropTypes.instanceOf(JobParameter)).isRequired,
+  parameters: PropTypes.array.isRequired,
+  secrets: PropTypes.array.isRequired,
   onChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
+  onToggleAdvanceFlag: PropTypes.func,
 };

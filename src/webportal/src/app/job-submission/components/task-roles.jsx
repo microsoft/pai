@@ -8,9 +8,11 @@ export const TaskRoles = React.memo((props) => {
   const {taskRoles, onChange} = props;
   const _onRenderTabContent = (keyName, content, defaultOnContentChange) => {
     return (
-      <TabFormContent key={keyName}
-                      jobTaskRole={content}
-                      onContentChange={defaultOnContentChange}/>
+      <TabFormContent
+        key={keyName}
+        jobTaskRole={content}
+        onContentChange={defaultOnContentChange}
+      />
     );
   };
 
@@ -22,17 +24,24 @@ export const TaskRoles = React.memo((props) => {
   };
 
   const _onItemAdd = (items) => {
-    const updatedItems = [...items, {headerText: `Task role ${items.length + 1}`, content: new JobTaskRole({})}];
+    const updatedItems = [
+      ...items,
+      {
+        headerText: `Task role ${items.length + 1}`,
+        content: new JobTaskRole({}),
+      },
+    ];
     _onItemChange(updatedItems);
     return updatedItems.length - 1;
   };
 
   const _onItemDelete = (items, itemIndex) => {
-    const updatedItems = items.filter((_, index) => index !== itemIndex)
-                              .map((item, index) => {
-                                item.headerText = `Task role ${index + 1}`;
-                                return item;
-                              });
+    const updatedItems = items
+      .filter((_, index) => index !== itemIndex)
+      .map((item, index) => {
+        item.headerText = `Task role ${index + 1}`;
+        return item;
+      });
     _onItemChange(updatedItems);
 
     // TODO: use other policy to update index
@@ -44,12 +53,14 @@ export const TaskRoles = React.memo((props) => {
   });
 
   return (
-    <TabForm items={items}
-             headerTextPrefix='Task Role'
-             onItemAdd={_onItemAdd}
-             onItemDelete={_onItemDelete}
-             onRenderTabContent={_onRenderTabContent}
-             onItemsChange={_onItemChange} />
+    <TabForm
+      items={items}
+      headerTextPrefix='Task Role'
+      onItemAdd={_onItemAdd}
+      onItemDelete={_onItemDelete}
+      onRenderTabContent={_onRenderTabContent}
+      onItemsChange={_onItemChange}
+    />
   );
 });
 
@@ -57,4 +68,3 @@ TaskRoles.propTypes = {
   taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   onChange: PropTypes.func,
 };
-

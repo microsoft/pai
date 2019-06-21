@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useCallback, useReducer} from 'react';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
 import {Text} from 'office-ui-fabric-react';
@@ -32,28 +32,58 @@ import {JobBasicInfo} from '../models/job-basic-info';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 
+function reducer(state, action) {
+  let jobInfo;
+  switch (action.type) {
+    case 'name':
+      jobInfo = new JobBasicInfo({...state, name: action.value});
+      action.onChange(jobInfo);
+      return jobInfo;
+    case 'virtualCluster':
+      jobInfo = new JobBasicInfo({...state, virtualCluster: action.value});
+      action.onChange(jobInfo);
+      return jobInfo;
+    default:
+      throw new Error('Unrecognized type');
+  }
+}
+
 export const JobInformation = React.memo((props) => {
   const {jobInformation, onChange} = props;
-  const {name} = jobInformation;
+  const {name, virtualCluster} = jobInformation;
+  const [, dispatch] = useReducer(reducer, jobInformation);
 
-  const _onChange = (keyName, newValue) => {
-    const updatedJobBasicInfo = new JobBasicInfo(jobInformation);
-    updatedJobBasicInfo[keyName] = newValue;
+  const _onChange = useCallback((updatedValue) => {
     if (onChange !== undefined) {
-      onChange(updatedJobBasicInfo);
+      onChange(updatedValue);
     }
-  };
+  }, [onChange]);
+
+  const _onNameChange = useCallback((name) => {
+    dispatch({type: 'name', value: name, onChange: _onChange});
+  }, [_onChange]);
+
+  const _onVirtualClusterChange = useCallback((virtualCluster) => {
+    dispatch({type: 'virtualCluster', value: virtualCluster, onChange: _onChange});
+  }, [_onChange]);
 
   return (
     <Card>
       <FormPage>
-        <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>Job Information</Text>
-        <FormTextField sectionLabel={'Job name'}
-                      value={name}
-                      shortStyle
-                      onBlur={(value) => _onChange('name', value)}
-                      placeholder='Enter job name'/>
-        <VirtualCluster/>
+        <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>
+          Job Information
+        </Text>
+        <FormTextField
+          sectionLabel={'Job name'}
+          value={name}
+          shortStyle
+          onBlur={_onNameChange}
+          placeholder='Enter job name'
+        />
+        <VirtualCluster
+          onChange={_onVirtualClusterChange}
+          virtualCluster={virtualCluster}
+        />
       </FormPage>
     </Card>
   );

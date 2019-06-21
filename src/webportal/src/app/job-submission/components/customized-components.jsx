@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import {SpinButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {debounce} from 'lodash';
@@ -31,7 +31,7 @@ import {debounce} from 'lodash';
 export const CSpinButton = (props) => {
   const {onChange, onIncrement, onDecrement, onValidate} = props;
 
-  const _onChange = (value, operateFunc, defaultReturnValue) => {
+  const _onChange = useCallback((value, operateFunc, defaultReturnValue) => {
     let newValue = defaultReturnValue;
     if (operateFunc !== undefined) {
       newValue = operateFunc(value);
@@ -40,18 +40,20 @@ export const CSpinButton = (props) => {
       return newValue;
     }
     return onChange(newValue);
-  };
+  });
 
   const _onIncrement = (value) => _onChange(value, onIncrement, +value + 1);
   const _onDecrement = (value) => _onChange(value, onDecrement, +value - 1);
   const _onValidate = (value) => _onChange(value, onValidate, value);
 
   return (
-    <SpinButton {...props}
+    <SpinButton
+      {...props}
       styles={{labelWrapper: [{width: '160px'}]}}
       onIncrement={debounce(_onIncrement)}
       onDecrement={debounce(_onDecrement)}
-      onValidate={debounce(_onValidate)} />
+      onValidate={debounce(_onValidate)}
+    />
   );
 };
 

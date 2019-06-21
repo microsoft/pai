@@ -18,8 +18,16 @@
 import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
+import yaml from 'js-yaml';
 
 const token = cookies.get('token');
+
+export class NotFoundError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = 'NotFoundError';
+  }
+}
 
 async function fetchWrapper(...args) {
   const res = await fetch(...args);
@@ -48,3 +56,22 @@ export async function submitJob(jobProtocol) {
     });
 }
 
+export async function fetchJobConfig(userName, jobName) {
+  const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`;
+  const res = await fetch(url);
+  const text = await res.text();
+  let json = yaml.safeLoad(text);
+  if (res.ok) {
+    return json;
+  } else {
+    if (json.code === 'NoJobConfigError') {
+      throw new NotFoundError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
+  }
+}
+
+export async function listVirtualClusters() {
+  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
+}

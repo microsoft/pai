@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import {get, isEmpty, isNil} from 'lodash';
+import {get, isEmpty} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
 import {jobProtocolSchema} from '../models/protocol-schema';
@@ -68,51 +68,50 @@ export class JobProtocol {
     }
   }
 
-  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters) {
-    const parameters = jobParameters.map((parameter) => parameter.convertToProtocolFormat())
-                                    .reduce(keyValueArrayReducer, {});
+  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets) {
+    const parameters = removeEmptyProperties(
+      jobParameters
+        .map((parameter) => {
+          const param = {};
+          param[parameter.key] = parameter.value;
+          return param;
+        })
+        .reduce(keyValueArrayReducer, {}),
+    );
     let deployments = this._generateDeployments(jobTaskRoles);
     const delpoyName = get(this, 'defaults.deployment', 'defaultDeployment');
     deployments = isEmpty(deployments) ? [] : [{name: delpoyName, taskRoles: deployments}];
 
-    const dockerMap = this._generateDockerPrerequisitesMap(jobTaskRoles);
-    const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles, dockerMap);
+    const prerequisites = this._getTaskRolesPrerequisites(jobTaskRoles);
+    const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
+    const secrets = removeEmptyProperties(jobSecrets.map((secret) => {
+      const s = {};
+      s[secret.key] = secret.value;
+      return s;
+    }).reduce(keyValueArrayReducer, {}));
+    const defaultsField = removeEmptyProperties(jobBasicInfo.getDefaults());
 
     return new JobProtocol({
       ...this,
       ...jobBasicInfo.convertToProtocolFormat(),
       parameters: parameters,
       taskRoles: taskRoles,
-      prerequisites: Array.from(dockerMap.values()),
+      prerequisites: prerequisites,
       deployments: deployments,
+      secrets: secrets,
+      defaults: defaultsField,
     });
   }
 
-  _generateDockerPrerequisitesMap(jobTaskRoles) {
-    const dockerMap = new Map();
-    const dockerPrerequisites = jobTaskRoles.map((taskRole) => taskRole.getDockerPrerequisite());
-    dockerPrerequisites.forEach((dockerPrerequisite, index) => {
-      const mapKey = dockerPrerequisite.uri;
-      if (dockerMap.has(mapKey)) {
-        return;
-      }
-      // Since prerequisites is small, iterate will not impact the performance
-      const oldValue = this.prerequisites.find((prerequisite) => prerequisite.uri === mapKey);
-      const name = get(oldValue, 'name', `dockerImage-${index}`);
-      dockerPrerequisite['name'] = name;
-      dockerMap.set(dockerPrerequisite.uri, {...oldValue, ...dockerPrerequisite});
-    });
-
-    return dockerMap;
+  _getTaskRolesPrerequisites(jobTaskRoles) {
+    const map = new Map();
+    const prerequisites = jobTaskRoles.map((taskRole) => taskRole.getDockerPrerequisite());
+    prerequisites.forEach((value) => map.set(value.name, value));
+    return Array.from(map.values());
   }
 
-  _updateAndConvertTaskRoles(jobTaskRoles, dockerMap) {
+  _updateAndConvertTaskRoles(jobTaskRoles) {
     const taskRoles = jobTaskRoles.map((taskRole) => {
-      const dockerUri = get(taskRole, 'dockerInfo.uri');
-
-      if (!isNil(dockerUri) && dockerMap.has(dockerUri)) {
-        taskRole.setDockerImage(dockerMap.get(dockerUri).name);
-      }
       return taskRole.convertToProtocolFormat();
     }).reduce(keyValueArrayReducer, {});
 

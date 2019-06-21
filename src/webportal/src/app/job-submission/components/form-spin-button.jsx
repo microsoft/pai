@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
 import {CSpinButton} from './customized-components';
@@ -31,23 +31,29 @@ import {FormShortSection} from './form-page';
 
 export const FormSpinButton = (props) => {
   const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;
-  const _onChange = (value) => {
+  const _onChange = useCallback((value) => {
     if (onChange !== undefined) {
       onChange(Number(value));
     }
-  };
+  }, [onChange]);
 
   const spinButton = (
-    <CSpinButton {...props}
-                  min={0}
-                  step={1}
-                  value={value === undefined ? NaN.toString(): value}
-                  onChange={_onChange}/>
+    <CSpinButton
+      {...props}
+      min={0}
+      step={1}
+      value={value === undefined ? NaN.toString() : value}
+      onChange={_onChange}
+    />
   );
 
   return (
     <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
-      {shortStyle ? (<FormShortSection>{spinButton}</FormShortSection>) : spinButton}
+      {shortStyle ? (
+        <FormShortSection>{spinButton}</FormShortSection>
+      ) : (
+        spinButton
+      )}
     </BasicSection>
   );
 };

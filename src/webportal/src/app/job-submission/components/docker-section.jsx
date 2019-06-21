@@ -23,14 +23,23 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef} from 'react';
-import {TextField, DefaultButton, Stack, getId, PrimaryButton, Label, StackItem} from 'office-ui-fabric-react';
+import React, {useState, useRef, useCallback} from 'react';
+import {
+  TextField,
+  DefaultButton,
+  Stack,
+  getId,
+  PrimaryButton,
+  Label,
+  StackItem,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/docker-info';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
 import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
+import {isEmpty} from 'lodash';
 
 const dockerSectionStyle = getDockerSectionStyle();
 
@@ -42,7 +51,7 @@ const AuthTextFiled = (props) => {
         <Label>{label}</Label>
       </StackItem>
       <StackItem grow>
-        <TextField value={value} componentRef={componentRef} type={type}/>
+        <TextField value={value} componentRef={componentRef} type={type} />
       </StackItem>
     </Stack>
   );
@@ -67,39 +76,74 @@ export const DockerSection = (props) => {
 
   const [showAuth, setShowAuth] = useState(false);
 
-  const _onChange = (keyName, propValue) => {
+  const _onChange = useCallback((keyName, propValue) => {
     const updatedDockerInfo = new DockerInfo(value);
     updatedDockerInfo[keyName] = propValue;
+    updatedDockerInfo.updateTime = Date.now();
     if (onValueChange !== undefined) {
       onValueChange(updatedDockerInfo);
     }
-  };
+  }, [value, onValueChange]);
 
-  const _onAuthClick = () => {
+  const _onAuthClick = useCallback(() => {
     setShowAuth(true);
-  };
+  }, []);
 
-  const _onAuthSubmit = () => {
+  const _onAuthSubmit = useCallback(() => {
+    if (
+      isEmpty(nameInput.current.value) ||
+      isEmpty(password.current.value) ||
+      isEmpty(registryuri.current.value)
+    ) {
+      alert('please input all fileds');
+      return;
+    }
+
     setShowAuth(false);
-    _onChange('auth', {username: nameInput.current.value,
-                       password: password.current.value,
-                       registryuri: registryuri.current.value});
-  };
+    _onChange('auth', {
+      username: nameInput.current.value,
+      password: password.current.value,
+      registryuri: registryuri.current.value,
+    });
+  }, [_onChange]);
+
+  const _onUriChange = useCallback((e) => {
+    _onChange('uri', e.target.value);
+  }, [_onChange]);
 
   const _authSection = () => {
     return (
-      <Stack horizontalAlign='center' verticalAlign='center' styles={{root: dockerSectionStyle.auth.outerForm}}>
+      <Stack
+        horizontalAlign='center'
+        verticalAlign='center'
+        styles={{root: dockerSectionStyle.auth.outerForm}}
+      >
         <Stack gap='l1' styles={{root: dockerSectionStyle.auth.innerForm}}>
           <span>Auth</span>
           <Stack gap='m'>
-            <AuthTextFiled label='username' value={auth.username} componentRef={nameInput}/>
-            <AuthTextFiled label='password' value={auth.username} componentRef={nameInput} type='password'/>
-            <AuthTextFiled label='registryuri' value={auth.username} componentRef={nameInput}/>
+            <AuthTextFiled
+              value={auth.username}
+              label='username'
+              componentRef={nameInput}
+            />
+            <AuthTextFiled
+              value={auth.password}
+              label='password'
+              componentRef={password}
+              type='password'
+            />
+            <AuthTextFiled
+              value={auth.registryuri}
+              label='registryuri'
+              componentRef={registryuri}
+            />
           </Stack>
           <Stack>
             <Stack horizontal gap='m' horizontalAlign='center'>
-              <PrimaryButton onClick={_onAuthSubmit} >Submit</PrimaryButton>
-              <DefaultButton onClick={()=>setShowAuth(false)}>Cancel</DefaultButton>
+              <PrimaryButton onClick={_onAuthSubmit}>Submit</PrimaryButton>
+              <DefaultButton onClick={() => setShowAuth(false)}>
+                Cancel
+              </DefaultButton>
             </Stack>
           </Stack>
         </Stack>
@@ -111,11 +155,13 @@ export const DockerSection = (props) => {
     <BasicSection sectionLabel={'Docker'}>
       <Stack horizontal gap='l1'>
         <FormShortSection>
-          <TextField id={textFieldId}
-                     placeholder='Enter docker uri...'
-                     onBlur={(event) => _onChange('uri', event.target.value)}
-                     value={uri}/>
-         </FormShortSection>
+          <TextField
+            id={textFieldId}
+            placeholder='Enter docker uri...'
+            onBlur={_onUriChange}
+            value={uri}
+          />
+        </FormShortSection>
         <DefaultButton onClick={_onAuthClick}>Auth</DefaultButton>
       </Stack>
       {showAuth && _authSection()}

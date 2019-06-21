@@ -27,6 +27,7 @@ import React from 'react';
 import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
 import {MonacoTextFiled} from './monaco-text-field';
+import {FormShortSection} from './form-page';
 
 export const CommandSection = (props) => {
   const {onChange, value} = props;
@@ -39,9 +40,11 @@ export const CommandSection = (props) => {
 
   return (
     <BasicSection sectionLabel={'Command'}>
-      <MonacoTextFiled monacoProps={{height: 240}}
-                       value={value}
-                       onChange={_onChange}/>
+      <FormShortSection>
+        <MonacoTextFiled monacoProps={{height: 200}}
+                        value={value}
+                        onChange={_onChange}/>
+      </FormShortSection>
     </BasicSection>
   );
 };

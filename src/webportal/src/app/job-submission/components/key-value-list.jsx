@@ -24,17 +24,26 @@
  */
 
 import React from 'react';
-import {Stack, TextField, DefaultButton, DetailsList, CheckboxVisibility,
-        DetailsListLayoutMode, ColumnActionsMode, Text, DetailsRow} from 'office-ui-fabric-react';
+import {
+  Stack,
+  TextField,
+  DefaultButton,
+  DetailsList,
+  CheckboxVisibility,
+  DetailsListLayoutMode,
+  ColumnActionsMode,
+  Text,
+  DetailsRow,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {isEmpty} from 'lodash';
 
 const newKeyValueItem = (itemKey, itemValue, onItemDelete) => {
-  return ({
+  return {
     itemKey: <Text>{itemKey}</Text>,
     itemValue: <Text>{itemValue}</Text>,
-    button: <DefaultButton text='Remove' onClick={onItemDelete}/>,
-  });
+    button: <DefaultButton text='Remove' onClick={onItemDelete} />,
+  };
 };
 
 export class KeyValueList extends React.Component {
@@ -51,9 +60,12 @@ export class KeyValueList extends React.Component {
       return [];
     }
 
-    return items.map((item, index) => newKeyValueItem(item.itemKey,
-                                                      item.itemValue,
-                                                      this._onItemDelete.bind(this, index))
+    return items.map((item, index) =>
+      newKeyValueItem(
+        item.itemKey,
+        item.itemValue,
+        this._onItemDelete.bind(this, index),
+      ),
     );
   }
 
@@ -85,15 +97,31 @@ export class KeyValueList extends React.Component {
         <DetailsRow
           {...detailsHeaderProps}
           columns={detailsHeaderProps.columns}
-          item={{itemKey: <TextField placeholder='Enter a key...'
-                                     value={itemKey}
-                                     onChange = {(_, itemKey) => this.setState({itemKey: itemKey})}/>,
-                 itemValue: <TextField placeholder='Enter a value...'
-                                       value={itemValue}
-                                       onChange = {(_, itemValue) => this.setState({itemValue: itemValue})}/>,
-                 button: <DefaultButton text='Add'
-                                        onClick={this._onItemAdd.bind(this)}
-                                        disabled={isEmpty(itemKey) || isEmpty(itemValue)}/>}}
+          item={{
+            itemKey: (
+              <TextField
+                placeholder='Enter a key...'
+                value={itemKey}
+                onChange={(_, itemKey) => this.setState({itemKey: itemKey})}
+              />
+            ),
+            itemValue: (
+              <TextField
+                placeholder='Enter a value...'
+                value={itemValue}
+                onChange={(_, itemValue) =>
+                  this.setState({itemValue: itemValue})
+                }
+              />
+            ),
+            button: (
+              <DefaultButton
+                text='Add'
+                onClick={this._onItemAdd.bind(this)}
+                disabled={isEmpty(itemKey) || isEmpty(itemValue)}
+              />
+            ),
+          }}
           itemIndex={-1}
         />
       </Stack>
@@ -102,19 +130,43 @@ export class KeyValueList extends React.Component {
 
   render() {
     const {items} = this.props;
-    const dataItems= this._renderItems(items);
+    const dataItems = this._renderItems(items);
 
-    const columns = [{key: 'column1', name: 'Key', fieldName: 'itemKey', minWidth: 100, maxWidth: 120, isResizable: true},
-                     {key: 'column2', name: 'Value', fieldName: 'itemValue', minWidth: 100, maxWidth: 120, isResizable: true},
-                     {key: 'column3', fieldName: 'button', columnActionsMode: ColumnActionsMode.disabled, maxWidth: 80, isResizable: true}];
+    const columns = [
+      {
+        key: 'column1',
+        name: 'Key',
+        fieldName: 'itemKey',
+        minWidth: 100,
+        maxWidth: 120,
+        isResizable: true,
+      },
+      {
+        key: 'column2',
+        name: 'Value',
+        fieldName: 'itemValue',
+        minWidth: 100,
+        maxWidth: 120,
+        isResizable: true,
+      },
+      {
+        key: 'column3',
+        fieldName: 'button',
+        columnActionsMode: ColumnActionsMode.disabled,
+        maxWidth: 80,
+        isResizable: true,
+      },
+    ];
     return (
       <Stack>
-        <DetailsList items={dataItems}
-                     columns={columns}
-                     checkboxVisibility={CheckboxVisibility.hidden}
-                     layoutMode={DetailsListLayoutMode.fixedColumns}
-                     onRenderDetailsHeader={this._onRenderDetailsHeader.bind(this)}
-                     compact/>
+        <DetailsList
+          items={dataItems}
+          columns={columns}
+          checkboxVisibility={CheckboxVisibility.hidden}
+          layoutMode={DetailsListLayoutMode.fixedColumns}
+          onRenderDetailsHeader={this._onRenderDetailsHeader.bind(this)}
+          compact
+        />
       </Stack>
     );
   }

@@ -58,32 +58,44 @@ export const ContainerSizeSection = (props) => {
     <BasicSection sectionLabel={'ContainerSize'}>
       <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
-          <CSpinButton label={'GPU count'}
-                       value={gpu}
-                       styles={spinButtonStyle}
-                       onChange={(value)=>_onChange('gpu', value)}/>
-          <CSpinButton label={'CPU count'}
-                       disabled={!isContainerSizeEnabled}
-                       value={cpu}
-                       styles={spinButtonStyle}
-                       onChange={(value)=>_onChange('cpu', value)}/>
-          <CSpinButton label={'Memory (MB)'}
-                       disabled={!isContainerSizeEnabled}
-                       value={memoryMB}
-                       styles={spinButtonStyle}
-                       onChange={(value)=>_onChange('memoryMB', value)}/>
-          <CSpinButton label={'Shared memory (MB)'}
-                       value={shmMB}
-                       disabled={!isContainerSizeEnabled}
-                       styles={spinButtonStyle}
-                       onChange={(value)=>_onChange('shmMB', value)}/>
+          <CSpinButton
+            label={'GPU count'}
+            value={gpu}
+            styles={spinButtonStyle}
+            onChange={(value) => _onChange('gpu', value)}
+          />
+          <CSpinButton
+            label={'CPU count'}
+            disabled={!isContainerSizeEnabled}
+            value={cpu}
+            styles={spinButtonStyle}
+            onChange={(value) => _onChange('cpu', value)}
+          />
+          <CSpinButton
+            label={'Memory (MB)'}
+            disabled={!isContainerSizeEnabled}
+            value={memoryMB}
+            styles={spinButtonStyle}
+            onChange={(value) => _onChange('memoryMB', value)}
+          />
+          <CSpinButton
+            label={'Shared memory (MB)'}
+            value={shmMB}
+            disabled={!isContainerSizeEnabled}
+            styles={spinButtonStyle}
+            onChange={(value) => _onChange('shmMB', value)}
+          />
         </FormShortSection>
         <Stack horizontalAlign='start'>
-          <Toggle checked={isContainerSizeEnabled}
-                  label='Custom'
-                  inlineLabel={true}
-                  styles={{label: {order: -1, marginLeft: 0, marginRight: spacing.s1}}}
-                  onChange={_onEnable}/>
+          <Toggle
+            checked={isContainerSizeEnabled}
+            label='Custom'
+            inlineLabel={true}
+            styles={{
+              label: {order: -1, marginLeft: 0, marginRight: spacing.s1},
+            }}
+            onChange={_onEnable}
+          />
         </Stack>
       </Stack>
     </BasicSection>

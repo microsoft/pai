@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+import {isEmpty} from 'lodash';
+
 export class JobParameter {
   constructor(props) {
     const {key, value} = props;
@@ -32,6 +34,9 @@ export class JobParameter {
 
   convertToProtocolFormat() {
     const parameter = {};
+    if (isEmpty(this.key)) {
+      return {};
+    }
     parameter[this.key] = this.value;
     return parameter;
   }

@@ -23,21 +23,47 @@
  * SOFTWARE.
  */
 
+import {get, isNil, isEmpty} from 'lodash';
 import {removeEmptyProperties} from '../utils/utils';
 
+const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 export class DockerInfo {
   constructor(props) {
-    const {uri, auth} = props;
+    const {uri, auth, secretRef} = props;
     this.uri = uri || '';
     this.auth = auth || {};
+    this.updateTime = Date.now();
+    this.secretRef = !isEmpty(secretRef) ? secretRef : '';
+    this.name = name || '';
   }
 
-  static fromProtocol(dockerInfoProtocol) {
-    return new DockerInfo(dockerInfoProtocol);
+  static fromProtocol(dockerInfoProtocol, secrets) {
+    let secretRef = get(dockerInfoProtocol, 'auth.password', '');
+    let auth;
+    if (!isNil(secretRef)) {
+      let secretKey = SECRET_PATTERN.exec(secretRef);
+      secretKey = isEmpty(secretKey) ? '' : secretKey[1];
+      if (!isEmpty(secretKey) && !isNil(secrets[secretKey])) {
+        auth = {...dockerInfoProtocol.auth, password: secrets[secretKey]};
+      } else {
+        auth = {};
+        secretRef = '';
+      }
+    }
+    return new DockerInfo({...dockerInfoProtocol, auth: auth, secretRef: secretRef});
   }
 
   convertToProtocolFormat() {
-    return removeEmptyProperties({type: 'dockerimage', auth: this.auth, uri: this.uri});
+    const prunedAuth = {...this.auth};
+    if (!isEmpty(this.secretRef)) {
+      prunedAuth.password = this.secretRef;
+    }
+    return removeEmptyProperties({
+      type: 'dockerimage',
+      auth: prunedAuth,
+      uri: this.uri,
+      name: this.name,
+    });
   }
 }
 
