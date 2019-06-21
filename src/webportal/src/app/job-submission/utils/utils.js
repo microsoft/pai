@@ -1,7 +1,11 @@
-import {isObject, isEmpty, isNil, isArrayLike} from 'lodash';
+import {debounce, isObject, isEmpty, isNil, isArrayLike} from 'lodash';
 import {basename} from 'path';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
+
+export const dispatchResizeEvent = debounce(() => {
+  window.dispatchEvent(new Event('resize'));
+}, 200);
 
 export const keyValueArrayReducer = (acc, cur) => {
   acc = {...acc, ...cur};

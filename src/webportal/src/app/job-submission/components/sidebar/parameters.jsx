@@ -23,113 +23,32 @@
  * SOFTWARE.
  */
 
-import React, {useCallback, useLayoutEffect} from 'react';
-import {Stack, CommandBarButton, getTheme, CheckboxVisibility, DetailsList, DetailsListLayoutMode, IconButton, TextField} from 'office-ui-fabric-react';
+import React from 'react';
+import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
+import {KeyValueList} from '../controls/key-value-list';
 
-export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => {
-  const onAdd = useCallback(() => {
-    onChange([...parameters, new JobParameter('', '')]);
-  });
-
-  const onRemove = useCallback((idx) => {
-    onChange([...parameters.slice(0, idx), ...parameters.slice(idx + 1)]);
-  });
-
-  const onKeyChange = useCallback((idx, val) => {
-    const updatedParameters = [...parameters];
-    updatedParameters[idx].key = val;
-    onChange(updatedParameters);
-  });
-
-  const onValueChange = useCallback((idx, val) => {
-    const updatedParameters = [...parameters];
-    updatedParameters[idx].value = val;
-    onChange(updatedParameters);
-  });
-
-  // workaround for fabric's bug
-  // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
-  useLayoutEffect(() => {
-    window.dispatchEvent(new Event('resize'));
-  });
-
-  const columns = [
-    {
-      key: 'key',
-      name: 'Key',
-      minWidth: 200,
-      onRender: (item, idx) => (
-        <TextField
-          value={item.key}
-          onChange={(e, val) => onKeyChange(idx, val)}
+export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => (
+  <SidebarCard
+    title='Parameters'
+    selected={selected}
+    onSelect={onSelect}
+  >
+    <Stack gap='m'>
+      <Hint>
+        You could reference these parameters in command by <code>{'<% $parameters.paramKey %>'}</code>
+      </Hint>
+      <div>
+        <KeyValueList
+          value={parameters}
+          onChange={onChange}
         />
-      ),
-    },
-    {
-      key: 'value',
-      name: 'Value',
-      minWidth: 200,
-      onRender: (item, idx) => (
-        <TextField
-          value={item.value}
-          onChange={(e, val) => onValueChange(idx, val)}
-        />
-      ),
-    },
-    {
-      key: 'remove',
-      name: 'Remove',
-      minWidth: 50,
-      style: {padding: 0},
-      onRender: (item, idx) => (
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
-          <IconButton
-            key={`remove-button-${idx}`}
-            iconProps={{iconName: 'Delete'}}
-            onClick={() => onRemove(idx)}
-          />
-        </div>
-      ),
-    },
-  ];
-
-  const {spacing} = getTheme();
-
-  return (
-    <SidebarCard
-      title='Parameters'
-      selected={selected}
-      onSelect={onSelect}
-    >
-      <Stack gap='m'>
-        <Hint>
-          You could reference these parameters in command by <code>{'<% $parameters.paramKey %>'}</code>
-        </Hint>
-        <div>
-          <DetailsList
-            items={parameters}
-            columns={columns}
-            checkboxVisibility={CheckboxVisibility.hidden}
-            layoutMode={DetailsListLayoutMode.fixedColumns}
-            compact
-          />
-        </div>
-        <div>
-          <CommandBarButton
-            styles={{root: {padding: spacing.s1}}}
-            iconProps={{iconName: 'Add'}}
-            onClick={onAdd}
-          >
-            Add
-          </CommandBarButton>
-        </div>
-      </Stack>
-    </SidebarCard>
-  );
-});
+      </div>
+    </Stack>
+  </SidebarCard>
+));
 
 Parameters.propTypes = {
   parameters: PropTypes.array.isRequired,
