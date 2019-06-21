@@ -16,158 +16,158 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const schedulerResponse = {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
+  'scheduler': {
+    'schedulerInfo': {
+      'queues': {
+        'queue': [
+          {
+            'queueName': 'default',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            "absoluteCapacity": 30.000002,
+            "absoluteMaxCapacity": 100,
+            "capacities": {
+              "queueCapacitiesByPartition": [
                 {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
+                  "partitionName": "",
+                  "capacity": 30.000002,
+                  "usedCapacity": 0,
+                  "maxCapacity": 100,
                   "absoluteCapacity": 30.000002,
+                  "absoluteUsedCapacity": 0,
                   "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
-                      {
-                        "partitionName": "",
-                        "capacity": 30.000002,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 30.000002,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
-                  },
-                  "resources": {
-                    "resourceUsagesByPartition": [
-                      {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
-                      {
-                        "partitionName": "",
-                        "capacity": 30.000002,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 30.000002,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
-                  },
-                  "resources": {
-                    "resourceUsagesByPartition": [
-                      {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
-                      {
-                        "partitionName": "",
-                        "capacity": 30.000002,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 30.000002,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
-                  },
-                  "resources": {
-                    "resourceUsagesByPartition": [
-                      {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
+                  "maxAMLimitPercentage": 0
                 }
               ]
             },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      };
-
-const nodeResponse = {
-      "nodes": {
-        "node": [
-          {
-            "rack": "/default-rack",
-            "state": "RUNNING",
-            "id": "10.151.40.132:8041",
-            "nodeHostName": "10.151.40.132",
-            "nodeHTTPAddress": "10.151.40.132:8042",
-            "numContainers": 2,
-            "usedMemoryMB": 3072,
-            "availMemoryMB": 205824,
-            "usedVirtualCores": 2,
-            "availableVirtualCores": 22,
-            "usedGPUs": 1,
-            "availableGPUs": 3,
-            "availableGPUAttribute": 14,
-            "nodeLabels": [
-                "test_vc"
-            ],
+            "resources": {
+              "resourceUsagesByPartition": [
+                {
+                  "partitionName": "",
+                  "used": {
+                    "memory": 0,
+                    "vCores": 0,
+                    "GPUs": 0
+                  }
+                }
+              ]
+            }
           },
           {
-            "rack": "/default-rack",
-            "state": "RUNNING",
-            "id": "10.151.40.131:8041",
-            "nodeHostName": "10.151.40.131",
-            "nodeHTTPAddress": "10.151.40.131:8042",
-            "numContainers": 2,
-            "usedMemoryMB": 3072,
-            "availMemoryMB": 205824,
-            "usedVirtualCores": 2,
-            "availableVirtualCores": 22,
-            "usedGPUs": 1,
-            "availableGPUs": 3,
-            "availableGPUAttribute": 14,
+            'queueName': 'vc1',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            "capacity": 50.000002,
+            "absoluteCapacity": 0,
+            "absoluteMaxCapacity": 100,
+            "capacities": {
+              "queueCapacitiesByPartition": [
+                {
+                  "partitionName": "",
+                  "capacity": 30.000002,
+                  "usedCapacity": 0,
+                  "maxCapacity": 100,
+                  "absoluteCapacity": 30.000002,
+                  "absoluteUsedCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                  "maxAMLimitPercentage": 0
+                }
+              ]
+            },
+            "resources": {
+              "resourceUsagesByPartition": [
+                {
+                  "partitionName": "",
+                  "used": {
+                    "memory": 0,
+                    "vCores": 0,
+                    "GPUs": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            'queueName': 'vc2',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            "capacity": 19.999996,
+            "absoluteCapacity": 0,
+            "absoluteMaxCapacity": 100,
+            "capacities": {
+              "queueCapacitiesByPartition": [
+                {
+                  "partitionName": "",
+                  "capacity": 30.000002,
+                  "usedCapacity": 0,
+                  "maxCapacity": 100,
+                  "absoluteCapacity": 30.000002,
+                  "absoluteUsedCapacity": 0,
+                  "absoluteMaxCapacity": 100,
+                  "maxAMLimitPercentage": 0
+                }
+              ]
+            },
+            "resources": {
+              "resourceUsagesByPartition": [
+                {
+                  "partitionName": "",
+                  "used": {
+                    "memory": 0,
+                    "vCores": 0,
+                    "GPUs": 0
+                  }
+                }
+              ]
+            }
           }
         ]
+      },
+      'type': 'capacityScheduler',
+      'usedCapacity': 0.0
+    }
+  }
+};
+
+const nodeResponse = {
+  "nodes": {
+    "node": [
+      {
+        "rack": "/default-rack",
+        "state": "RUNNING",
+        "id": "10.151.40.132:8041",
+        "nodeHostName": "10.151.40.132",
+        "nodeHTTPAddress": "10.151.40.132:8042",
+        "numContainers": 2,
+        "usedMemoryMB": 3072,
+        "availMemoryMB": 205824,
+        "usedVirtualCores": 2,
+        "availableVirtualCores": 22,
+        "usedGPUs": 1,
+        "availableGPUs": 3,
+        "availableGPUAttribute": 14,
+        "nodeLabels": [
+          "test_vc"
+        ],
+      },
+      {
+        "rack": "/default-rack",
+        "state": "RUNNING",
+        "id": "10.151.40.131:8041",
+        "nodeHostName": "10.151.40.131",
+        "nodeHTTPAddress": "10.151.40.131:8042",
+        "numContainers": 2,
+        "usedMemoryMB": 3072,
+        "availMemoryMB": 205824,
+        "usedVirtualCores": 2,
+        "availableVirtualCores": 22,
+        "usedGPUs": 1,
+        "availableGPUs": 3,
+        "availableGPUAttribute": 14,
       }
-    };
+    ]
+  }
+};
 
 describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   afterEach(function() {
