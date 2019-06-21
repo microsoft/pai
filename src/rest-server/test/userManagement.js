@@ -421,7 +421,7 @@ describe('Add new user: put /api/v2/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        global.chai.expect(res.body.message, 'response message').equal('User is created successfully');
         done();
       });
   });
