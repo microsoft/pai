@@ -5,11 +5,10 @@
  */
 
 import * as fs from 'fs-extra';
-import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
 
-import { findNodeAtPosition, parse, util, YamlDocument, YamlNode } from 'node-yaml-parser';
+import { parse, util, YamlDocument, YamlNode } from 'node-yaml-parser';
 
 import {
     OPENPAI_SCHEMA,
