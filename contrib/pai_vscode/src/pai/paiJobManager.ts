@@ -17,11 +17,15 @@ import * as uuid from 'uuid';
 import * as vscode from 'vscode';
 
 import {
-    COMMAND_CREATE_JOB_CONFIG, COMMAND_CREATE_YAML_JOB_CONFIG, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
+    COMMAND_CREATE_JOB_CONFIG,
+    COMMAND_CREATE_YAML_JOB_CONFIG, COMMAND_SIMULATE_JOB,
+    COMMAND_SUBMIT_JOB,
     OCTICON_CLOUDUPLOAD,
     SCHEMA_JOB_CONFIG,
     SETTING_JOB_GENERATEJOBNAME_ENABLED,
-    SETTING_JOB_UPLOAD_ENABLED, SETTING_JOB_UPLOAD_EXCLUDE, SETTING_JOB_UPLOAD_INCLUDE,
+    SETTING_JOB_UPLOAD_ENABLED,
+    SETTING_JOB_UPLOAD_EXCLUDE,
+    SETTING_JOB_UPLOAD_INCLUDE,
     SETTING_SECTION_JOB
 } from '../common/constants';
 
@@ -38,6 +42,7 @@ import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
 import { PAIRestUri, PAIWebPortalUri } from './paiUri';
 import { RecentJobManager } from './recentJobManager';
+import { YamlJobConfigCompletionProvider } from './yamlJobConfigCompletionProvider';
 import { registerYamlSchemaSupport } from './yamlSchemaSupport';
 
 interface ITokenItem {
@@ -130,7 +135,8 @@ export class PAIJobManager extends Singleton {
                         await this.submitJob();
                     }
                 }
-            )
+            ),
+            vscode.languages.registerCompletionItemProvider('yaml', new YamlJobConfigCompletionProvider())
         );
     }
 

@@ -1,0 +1,19 @@
+name: taskRole
+label: OpenPAI Job taskRole
+documentation: OpenPAI Job taskRole
+insertText: |2
+  ${1:<name>}:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    dockerImage: ${2:<image>}
+    data: ${3:<data>}
+    output: ${4:<output>}
+    script: ${5:<script>}
+    resourcePerInstance:
+      cpu: ${6:1}
+      memoryMB: ${7:16384}
+      gpu: ${8:1}
+    commands:
+      - ${9:<script>}
