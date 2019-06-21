@@ -21,7 +21,7 @@ const authConfig = require('@pai/config/authn');
 const secretConfig = require('@pai/config/secret');
 const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
-const userModel = require('@pai/model/v2/user');
+const userModel = require('@pai/models/v2/user');
 const logger = require('@pai/config/logger');
 
 const crudType = 'k8sSecret';
