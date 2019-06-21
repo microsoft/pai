@@ -450,24 +450,17 @@ describe('Add new user: put /api/v2/user', () => {
   // Negative cases
   //
 
-  it('Case 3 (Negative): Should fail to add new user with modify=true.', (done) => {
+  it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'newuser', 'password': '123456', 'admin': true, 'modify': true })
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(404);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
-        done();
-      });
-  });
-
-  it('Case 4 (Negative): Should fail to add user with non-admin token.', (done) => {
-    global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/craete')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send({ 'username': 'test_user', 'password': '123456', 'admin': true, 'modify': false })
+      .send({
+        'username': 'test_user',
+        'password': '123456',
+        'email': 'test@pai.com',
+        'virtualCluster': ['default','vc1','vc2'],
+        'admin': false,
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
