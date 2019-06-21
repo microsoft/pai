@@ -19,7 +19,7 @@
 const Joi = require('joi');
 const yaml = require('js-yaml');
 const fs = require('fs');
-const logger = require('./logger');
+const logger = require('@pai/config/logger');
 
 let paiMachineList = [];
 try {

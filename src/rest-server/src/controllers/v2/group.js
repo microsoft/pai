@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const createError = require('../../util/error');
-const groupModel = require('../../models/v2/group');
+const createError = require('@pai/utils/error');
+const groupModel = require('@pai/models/v2/group');
 
 const getGroup = async (req, res, next) => {
   try {

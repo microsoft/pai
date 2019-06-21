@@ -15,34 +15,36 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
-const express = require('express');
-const token = require('../middlewares/token');
-const userConfig = require('../config/user');
-const userController = require('../controllers/user');
-const param = require('../middlewares/parameter');
-const jobRouter = require('./job');
+const unirest = require('unirest');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
 
-const router = new express.Router();
-
-router.route('/')
-    /** PUT /api/v1/user - Create or update a user */
-    .put(token.check, param.validate(userConfig.userPutInputSchema), userController.update)
-
-    /** DELETE /api/v1/user - Remove a user */
-    .delete(token.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
-
-    /** Get /api/v1/user - Get user info list */
-    .get(userController.getUserList);
-
-
-router.route('/:username/')
-    .get(token.check, userController.getUserInfo);
-
-router.route('/:username/virtualClusters')
-    .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
-
-router.use('/:username/jobs', jobRouter);
-
-// module exports
-module.exports = router;
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
+      }
+    });
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@pai/models/v1/job/yarn');
+}

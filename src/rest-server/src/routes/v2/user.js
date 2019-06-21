@@ -17,12 +17,12 @@
 
 // module dependencies
 const express = require('express');
-const token = require('../../middlewares/token');
-const userController = require('../../controllers/v2/user');
-const userInputSchema = require('../../config/v2/user');
-const param = require('../../middlewares/parameter');
-const jobRouter = require('../job');
-const authnConfig = require('../../config/authn');
+const token = require('@pai/middlewares/token');
+const userController = require('@pai/controllers/v2/user');
+const userInputSchema = require('@pai/config/v2/user');
+const param = require('@pai/middlewares/parameter');
+const jobRouter = require('@pai/routes/job');
+const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 

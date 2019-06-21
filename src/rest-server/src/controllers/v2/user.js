@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const userModel = require('../../models/v2/user');
-const createError = require('../../util/error');
-const authConfig = require('../../config/authn');
-const groupModel = require('../../models/v2/group');
+const userModel = require('@pai/models/v2/user');
+const createError = require('@pai/utils/error');
+const authConfig = require('@pai/config/authn');
+const groupModel = require('@pai/models/v2/group');
 
 const getUser = async (req, res, next) => {
   try {

@@ -17,25 +17,38 @@
 
 
 // module dependencies
-const express = require('express');
-const token = require('@pai/middlewares/token');
-const controller = require('@pai/controllers/v2/job');
-const protocol = require('@pai/middlewares/v2/protocol');
+const unirest = require('unirest');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
 
-
-const router = new express.Router();
-
-router.route('/')
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
-
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
-
-// module exports
-module.exports = router;
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
+      }
+    });
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@pai/models/v2/job/yarn');
+} else if (launcherConfig.type === 'k8s') {
+  module.exports = require('@pai/models/v2/job/k8s');
+} else {
+  throw new Error(`unknown launcher type ${launcherConfig.type}`);
+}

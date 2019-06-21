@@ -16,10 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const env = require('../src/util/env');
+require('module-alias/register');
+const env = require('@pai/utils/env');
 
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
+process.env.LAUNCHER_TYPE = 'yarn';
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:5070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
@@ -39,7 +41,7 @@ const nock = require('nock');
 const chai = require('chai');
 const chaiAsPromised = require("chai-as-promised");
 const chaiHttp = require('chai-http');
-const server = require('../src/index');
+const server = require('@pai');
 
 chai.use(chaiHttp);
 chai.use(chaiAsPromised);

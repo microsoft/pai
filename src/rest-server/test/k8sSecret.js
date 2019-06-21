@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-const dbUtility = require('../src/util/dbUtil');
 const util = require('util');
+const dbUtility = require('@pai/utils/dbUtil');
 
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': 'pai-user',

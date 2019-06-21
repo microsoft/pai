@@ -17,10 +17,10 @@
 
 // module dependencies
 const express = require('express');
-const groupController = require('../../controllers/v2/group');
-const token = require('../../middlewares/token');
-const param = require('../../middlewares/parameter');
-const groupInputSchema = require('../../config/v2/group');
+const groupController = require('@pai/controllers/v2/group');
+const token = require('@pai/middlewares/token');
+const param = require('@pai/middlewares/parameter');
+const groupInputSchema = require('@pai/config/v2/group');
 
 const router = new express.Router();
 

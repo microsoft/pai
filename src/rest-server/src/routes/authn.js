@@ -17,13 +17,12 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
-const param = require('../middlewares/parameter');
-const userController = require('../controllers/v2/user');
-const tokenV2Controller = require('../controllers/v2/token');
-const azureADController = require('../controllers/v2/azureAD');
-
-const authnConfig = require('../config/authn');
+const tokenConfig = require('@pai/config/token');
+const param = require('@pai/middlewares/parameter');
+const userController = require('@pai/controllers/v2/user');
+const tokenV2Controller = require('@pai/controllers/v2/token');
+const azureADController = require('@pai/controllers/v2/azureAD');
+const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 

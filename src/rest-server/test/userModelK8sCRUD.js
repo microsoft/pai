@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-const userK8sCRUD = require('../src/util/manager/user/crudK8sSecret');
+const userK8sCRUD = require('@pai/utils/manager/user/crudK8sSecret');
 
 const userK8sCRUDConfig = userK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
 

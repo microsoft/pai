@@ -25,25 +25,24 @@ const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
-const launcherConfig = require('../config/launcher');
-const userModel = require('./user');
-const vcModel = require('./vc');
-const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const Hdfs = require('../util/hdfs');
-const azureEnv = require('../config/azure');
-const paiConfig = require('../config/paiConfig');
-const env = require('../util/env');
+const userModelV2 = require('@pai/models/v2/user' );
 const axios = require('axios');
-const userModelV2 = require('./v2/user' );
+const launcherConfig = require('@pai/config/launcher');
+const userModel = require('@pai/models/user');
+const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const Hdfs = require('@pai/utils/hdfs');
+const azureEnv = require('@pai/config/azure');
+const paiConfig = require('@pai/config/paiConfig');
+const env = require('@pai/utils/env');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
   exitSpecPath = process.env[env.exitSpecPath];
   if (!path.isAbsolute(exitSpecPath)) {
-    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
+    exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
   }
 } else {
   exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
