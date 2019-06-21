@@ -255,41 +255,9 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     // Add OS platform check
     // Since ssh-keygen package only works for Linux
@@ -382,41 +350,9 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
   };
 
   const prepareNockForCaseN03 = () => {
@@ -774,41 +710,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     // Add OS platform check
     // Since ssh-keygen package only works for Linux

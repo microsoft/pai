@@ -224,6 +224,8 @@ class VirtualCluster {
         response : JSON.parse(response);
       // eslint-disable-next-line no-console
       console.log(resJson);
+      // eslint-disable-next-line no-console
+      console.log(resJson.scheduler.schedulerInfo.queues);
       const schedulerInfo = resJson.scheduler.schedulerInfo;
       if (schedulerInfo.type === 'capacityScheduler') {
         // eslint-disable-next-line no-console
