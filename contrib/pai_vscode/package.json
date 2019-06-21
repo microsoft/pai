@@ -446,7 +446,6 @@
         "fuzzysearch": "^1.0.3",
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
-        "install": "^0.12.2",
         "inversify": "^4.14.0",
         "js-yaml": "^3.13.1",
         "json-inline-doc": "^2.0.1",
