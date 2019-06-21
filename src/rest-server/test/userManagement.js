@@ -186,7 +186,7 @@ const validToken = global.jwt.sign({ username: 'new_user', admin: true }, proces
 const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
 
-describe('Add new user: put /api/v1/user', () => {
+describe('Add new user: put /api/v2/user', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -198,7 +198,7 @@ describe('Add new user: put /api/v1/user', () => {
 
     // mock for case1 username=newuser
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/6e657775736572')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/6e657775736572')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -220,13 +220,14 @@ describe('Add new user: put /api/v1/user', () => {
       .reply(200, nodeResponse);
 
     nock(apiServerRootUri)
-      .post('/api/v1/namespaces/pai-user/secrets', {
+      .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e657775736572'},
         'data': {
-          'username': 'bmV3dXNlcg==',
-          'admin': 'dHJ1ZQ==',
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
-          'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
+          'username': 'bmV3dXNlcg==',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         }
       })
       .reply(200, {
@@ -235,23 +236,24 @@ describe('Add new user: put /api/v1/user', () => {
         'metadata': {
             'name': '6e657775736572',
             'namespace': 'pai-user',
-            'selfLink': '/api/v1/namespaces/pai-user/secrets/6e657775736572',
+            'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e657775736572',
             'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
             'resourceVersion': '1116114',
             'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
-          'username': 'bmV3dXNlcg==',
-          'admin': 'dHJ1ZQ==',
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
-          'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
+          'username': 'bmV3dXNlcg==',
+          'email': 'dGVzdEBwYWkuY29t',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         },
         'type': 'Opaque'
       });
 
     // mock for case2 add non-admin user
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/6e6f6e5f61646d696e')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -267,12 +269,14 @@ describe('Add new user: put /api/v1/user', () => {
       });
 
     nock(apiServerRootUri)
-      .post('/api/v1/namespaces/pai-user/secrets', {
+      .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e6f6e5f61646d696e'},
         'data': {
           'username': 'bm9uX2FkbWlu',
-          'admin': 'ZmFsc2U=',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19'
         },
       })
       .reply(200, {
@@ -281,23 +285,24 @@ describe('Add new user: put /api/v1/user', () => {
         'metadata': {
             'name': '6e6f6e5f61646d696e',
             'namespace': 'pai-user',
-            'selfLink': '/api/v1/namespaces/pai-user/secrets/6e6f6e5f61646d696e',
+            'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e',
             'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
             'resourceVersion': '1116114',
             'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
           'username': 'bm9uX2FkbWlu',
-          'admin': 'ZmFsc2U=',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19'
         },
         'type': 'Opaque'
       });
 
     // mock for case3 username=newuser.
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/6e657775736572')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/6e657775736572')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
@@ -314,7 +319,7 @@ describe('Add new user: put /api/v1/user', () => {
 
     // mock for case5 username=existuser.
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/657869737475736572')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -322,12 +327,76 @@ describe('Add new user: put /api/v1/user', () => {
           'name': '657869737475736572',
         },
         'data': {
-          'admin': 'dHJ1ZQ==',
+          'email': 'dGVzdEBwYWkuY29t',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'ZXhpc3R1c2Vy',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJd',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19',
         },
         'type': 'Opaque'
+      });
+
+
+    // Mock for case1 return all groupinfo
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .reply(200, {
+        'kind': 'SecretList',
+        'apiVersion': 'v1',
+        'metadata': {
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+          'resourceVersion': '1062682'
+        },
+        'items': [
+          {
+            'metadata': {
+              'name': 'cantest001',
+            },
+            'data': {
+              'groupname': 'ZGVmYXVsdA==',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test',
+            },
+            'data': {
+              'groupname': 'dmMx',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9'
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test',
+            },
+            'data': {
+              'groupname': 'dmMy',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9'
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test',
+            },
+            'data': {
+              'groupname': 'YWRtaW5Hcm91cA==',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJhZG1pbiJ9'
+            },
+            'type': 'Opaque'
+          },
+        ]
       });
 
 
@@ -340,9 +409,15 @@ describe('Add new user: put /api/v1/user', () => {
 
   it('Case 1 (Positive): Add admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/create')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'newuser', 'password': '123456', 'admin': 'true', 'modify': false })
+      .send({
+          'username': 'newuser',
+          'password': '123456',
+          'email': 'test@pai.com',
+          'virtualCluster': ['default','vc1','vc2'],
+          'admin': true,
+        })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
