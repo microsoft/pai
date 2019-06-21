@@ -27,7 +27,7 @@ import {get, isEmpty} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
 import {jobProtocolSchema} from '../models/protocol-schema';
-import {keyValueArrayReducer, removeEmptyProperties} from '../utils/utils';
+import {removeEmptyProperties} from '../utils/utils';
 
 export class JobProtocol {
   constructor(props) {
@@ -71,12 +71,10 @@ export class JobProtocol {
   getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets) {
     const parameters = removeEmptyProperties(
       jobParameters
-        .map((parameter) => {
-          const param = {};
-          param[parameter.key] = parameter.value;
-          return param;
-        })
-        .reduce(keyValueArrayReducer, {}),
+        .reduce((res, parameter) => {
+          res[parameter.key] = parameter.value;
+          return res;
+        }, {})
     );
     let deployments = this._generateDeployments(jobTaskRoles);
     const delpoyName = get(this, 'defaults.deployment', 'defaultDeployment');
@@ -84,11 +82,10 @@ export class JobProtocol {
 
     const prerequisites = this._getTaskRolesPrerequisites(jobTaskRoles);
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
-    const secrets = removeEmptyProperties(jobSecrets.map((secret) => {
-      const s = {};
-      s[secret.key] = secret.value;
-      return s;
-    }).reduce(keyValueArrayReducer, {}));
+    const secrets = removeEmptyProperties(jobSecrets.reduce((res, secret) => {
+      res[secret.key] = secret.value;
+      return res;
+    }, {}));
     const defaultsField = removeEmptyProperties(jobBasicInfo.getDefaults());
 
     return new JobProtocol({
@@ -111,19 +108,17 @@ export class JobProtocol {
   }
 
   _updateAndConvertTaskRoles(jobTaskRoles) {
-    const taskRoles = jobTaskRoles.map((taskRole) => {
-      return taskRole.convertToProtocolFormat();
-    }).reduce(keyValueArrayReducer, {});
-
-    return taskRoles;
+    return jobTaskRoles.reduce((res, taskRole) => ({
+      ...res,
+      ...taskRole.convertToProtocolFormat(),
+    }), {});
   }
 
   _generateDeployments(jobTaskRoles) {
-    const deployments = jobTaskRoles.map((taskRole) => {
-      const deployment = {};
-      deployment[taskRole.name] = taskRole.getDeployment();
-      return deployment;
-    }).reduce(keyValueArrayReducer, {});
+    const deployments = jobTaskRoles.reduce((res, taskRole) => {
+      res[taskRole.name] = taskRole.getDeployment();
+      return res;
+    }, {});
     return removeEmptyProperties(deployments);
   }
 

@@ -32,10 +32,10 @@ import {JobTaskRole} from '../models/job-task-role';
 import {FormSpinButton} from './form-spin-button';
 import {ContainerSizeSection} from './container-size-section';
 import {CommandSection} from './command-section';
+import {CompletionPolicy} from './task-role/completion-policy';
+import {PortsList} from './task-role/ports-list';
 
-export const TabFormContent = (props) => {
-  const {jobTaskRole, onContentChange} = props;
-
+export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
   const _onValueChange = (propertyName, propertyValue) => {
     const udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
     udpatedJobTaskRole[propertyName] = propertyValue;
@@ -75,6 +75,25 @@ export const TabFormContent = (props) => {
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
       <DockerSection value={jobTaskRole.dockerInfo}
                      onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
+      {advanceFlag && (
+        <React.Fragment>
+          <PortsList
+            ports={jobTaskRole.ports}
+            onChange={(ports) => _onValueChange('ports', ports)}
+          />
+          <FormSpinButton
+            sectionLabel={'Task retry count'}
+            shortStyle
+            sectionOptional
+            value={jobTaskRole.taskRetryCount || 0}
+            onChange={(value)=>_onValueChange('taskRetryCount', value)}
+          />
+          <CompletionPolicy
+            onChange={(completion)=>_onValueChange('completion', completion)}
+            value={jobTaskRole.completion}
+          />
+        </React.Fragment>
+      )}
     </FormPage>
   );
 };
@@ -82,4 +101,5 @@ export const TabFormContent = (props) => {
 TabFormContent.propTypes = {
   jobTaskRole: PropTypes.instanceOf(JobTaskRole).isRequired,
   onContentChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
 };

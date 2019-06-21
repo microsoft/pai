@@ -209,6 +209,7 @@ const JobSubmission = (props) => {
               <JobInformation
                 jobInformation={jobInformation}
                 onChange={setJobInformation}
+                advanceFlag={advanceFlag}
               />
               <TaskRoles
                 taskRoles={jobTaskRoles}

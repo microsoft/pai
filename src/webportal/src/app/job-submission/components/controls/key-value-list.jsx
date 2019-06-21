@@ -60,7 +60,7 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
     dispatchResizeEvent();
-  });
+  }, []);
 
   const columns = [
     {
