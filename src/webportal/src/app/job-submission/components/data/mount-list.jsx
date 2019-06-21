@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import c from 'classnames';
 import {
   DetailsList,
+  DetailsListLayoutMode,
   SelectionMode,
   IconButton,
   FontClassNames,
@@ -17,6 +18,7 @@ import t from '../../../../app/components/tachyons.scss';
 
 export const MountList = (props) => {
   const {dataList, setDataList} = props;
+
   const onRemove = useCallback((idx) => {
     let updatedDataList = dataList;
     if (idx !== undefined) {
@@ -39,7 +41,7 @@ export const MountList = (props) => {
       key: 'containerPath',
       name: 'Container Path',
       headerClassName: FontClassNames.medium,
-      minWidth: 150,
+      minWidth: 200,
       // eslint-disable-next-line react/display-name
       onRender: (item, idx) => {
         return (
@@ -55,7 +57,7 @@ export const MountList = (props) => {
       key: 'dataSource',
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
-      minWidth: 150,
+      maxWidth: 200,
       // eslint-disable-next-line react/display-name
       onRender: (item, idx) => {
         return (
@@ -63,6 +65,7 @@ export const MountList = (props) => {
             value={item.dataSource}
             disabled={item.sourceType === 'local'}
             onChange={(e, val) => onDataSourceChange(idx, val)}
+            style={{root: {minWidth: 200}}}
           />
         );
       },
@@ -98,6 +101,8 @@ export const MountList = (props) => {
         disableSelectionZone
         selectionMode={SelectionMode.none}
         items={dataList}
+        layoutMode={DetailsListLayoutMode.fixedColumns}
+        compact
       />
     </div>
   );

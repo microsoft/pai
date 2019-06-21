@@ -15,12 +15,14 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
   const [mountPath, setMountPath] = useState();
   const [files, setFiles] = useState();
   const [uploadType, setUploadType] = useState('Files');
+  const [errorMessage, setErrorMessage] = useState();
+
   const uploadFile = React.createRef();
   const uploadFolder = React.createRef();
   const getUploadText = () => {
     if (files === undefined) {
       return `Upload ${uploadType}`;
-    } else if (files !== undefined && files.length ===1) {
+    } else if (files !== undefined && files.length === 1) {
       return files[0].name;
     } else if (files !== undefined && files.length > 1) {
       return `${files.length} Files`;
@@ -58,10 +60,18 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         required
         prefix={STORAGE_PREFIX}
         label='Container Path'
+        styles={{root: {minWidth: 200}}}
+        errorMessage={errorMessage}
         onChange={(_event, newValue) => {
-          setMountPath(`${STORAGE_PREFIX}${newValue}`);
+          if (!newValue) {
+            setErrorMessage('Container path should not be empty');
+          } else if (!newValue.startsWith('/')) {
+            setErrorMessage('container path should start with /');
+          } else {
+            setErrorMessage(null);
+            setMountPath(`${STORAGE_PREFIX}${newValue}`);
+          }
         }}
-        styles={{root: {maxWidth: 200}}}
       />
       <Stack.Item align='end'>
         <DefaultButton
@@ -69,7 +79,14 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
           text={getUploadText()}
           split={true}
           onClick={clickUpload}
-          styles={{root: {minWidth: 150}}}
+          styles={{
+            root: {
+              minWidth: 200,
+            },
+            splitButtonContainer: {
+              marginBottom: errorMessage ? 22.15 : 0,
+            },
+          }}
           menuProps={{
             items: [
               {
@@ -91,7 +108,6 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         />
       </Stack.Item>
       <input
-        id='upload'
         type='file'
         ref={uploadFile}
         onChange={(event) => {
@@ -107,7 +123,6 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         multiple
       />
       <input
-        id='upload'
         type='file'
         ref={uploadFolder}
         onChange={(event) => {
@@ -124,11 +139,24 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         multiple
       />
       <Stack.Item align='end'>
-        <IconButton iconProps={{iconName: 'Accept'}} onClick={submitMount} />
+        <IconButton
+          iconProps={{iconName: 'Accept'}}
+          styles={{
+            root: {
+              marginBottom: errorMessage ? 22.15 : 0,
+            },
+          }}
+          onClick={submitMount}
+        />
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'Cancel'}}
+          styles={{
+            root: {
+              marginBottom: errorMessage ? 22.15 : 0,
+            },
+          }}
           onClick={() => {
             setDataType('none');
           }}

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 
-import {MountDirectories, TeamStorage} from './team-storage';
+import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
 import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';

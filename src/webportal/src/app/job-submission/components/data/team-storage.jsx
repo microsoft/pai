@@ -34,7 +34,6 @@ import {TeamMountList} from './team-mount-list';
 import t from '../../../../app/components/tachyons.scss';
 import config from '../../../config/webportal.config';
 
-
 export const TeamStorage = (props) => {
   const {onChange, jobName} = props;
 
@@ -47,7 +46,10 @@ export const TeamStorage = (props) => {
   };
 
   const normalizePath = (oriPath) => {
-    return oriPath.replace(/%USER/ig, user).replace(/%JOB/ig, jobName).replace('//', '/');
+    return oriPath
+      .replace(/%USER/gi, user)
+      .replace(/%JOB/gi, jobName)
+      .replace('//', '/');
   };
 
   const api = config.restServerUri;
@@ -56,11 +58,11 @@ export const TeamStorage = (props) => {
 
   const [userGroups, setUserGroups] = useState([]);
   const [serverNames, setServerNames] = useState([]);
-  const [configs, setConfigs] = useState([]);
+  const [configs, setConfigs] = useState([]);
   // const [selectedConfigs, setSelectedConfigs] = useState(get(defaultValue, 'selectedConfigs', []));
-  const [selectedConfigs, setSelectedConfigs] = useState([]);
+  const [selectedConfigs, setSelectedConfigs] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => {
     const userInfoUrl = `${api}/api/v2/user/${user}`;
     fetch(userInfoUrl, {
       headers: {
@@ -68,9 +70,12 @@ export const TeamStorage = (props) => {
       },
     }).then((response) => {
       if (response.ok) {
-        response.json().then((responseData) => responseData.grouplist).then((groupList) => {
-          setUserGroups(groupList);
-        });
+        response
+          .json()
+          .then((responseData) => responseData.grouplist)
+          .then((groupList) => {
+            setUserGroups(groupList);
+          });
       } else {
         setUserGroups(['paigroup']);
         throw Error(`HTTP ${response.status}`);
@@ -78,53 +83,59 @@ export const TeamStorage = (props) => {
     });
   }, []);
 
-  useEffect(() => {
+  useEffect(() => {
     if (userGroups.length === 0) {
       return;
     }
 
     const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
-    fetch(storageConfigUrl).then(responseToData).then((storageConfigData) => {
-      const newConfigs = [];
-      for (const confName of Object.keys(storageConfigData)) {
-        try {
-          const config = JSON.parse(atob(storageConfigData[confName]));
-          for (const gpn of userGroups) {
-            if (config.gpn !== gpn) {
-              continue;
-            } else {
-              const selectedConfig = selectedConfigs.find((conf) => conf.name === config.name);
-              console.log(selectedConfig);
-              if (selectedConfig === undefined) {
-                newConfigs.push(config);
+    fetch(storageConfigUrl)
+      .then(responseToData)
+      .then((storageConfigData) => {
+        const newConfigs = [];
+        for (const confName of Object.keys(storageConfigData)) {
+          try {
+            const config = JSON.parse(atob(storageConfigData[confName]));
+            for (const gpn of userGroups) {
+              if (config.gpn !== gpn) {
+                continue;
               } else {
-                newConfigs.push(selectedConfig);
-              }
+                const selectedConfig = selectedConfigs.find(
+                  (conf) => conf.name === config.name,
+                );
+                console.log(selectedConfig);
+                if (selectedConfig === undefined) {
+                  newConfigs.push(config);
+                } else {
+                  newConfigs.push(selectedConfig);
+                }
 
-              if (config.servers !== undefined) {
-                for (const serverName of config.servers) {
-                  if (serverNames.indexOf(serverName) === -1) {
-                    serverNames.push(serverName);
+                if (config.servers !== undefined) {
+                  for (const serverName of config.servers) {
+                    if (serverNames.indexOf(serverName) === -1) {
+                      serverNames.push(serverName);
+                    }
                   }
                 }
-              }
-              // Auto select default mounted configs
-              if (/* defaultValue === null && */config.default === true &&
-                selectedConfigs.find((conf) => conf.name === config.name) === undefined) {
-                selectedConfigs.push(config);
+                // Auto select default mounted configs
+                if (
+                  /* defaultValue === null && */ config.default === true &&
+                  selectedConfigs.find((conf) => conf.name === config.name) ===
+                    undefined
+                ) {
+                  selectedConfigs.push(config);
+                }
               }
             }
+          } catch (e) {
+            // ignored
           }
-        } catch (e) {
-          // ignored
         }
-      }
 
-      setConfigs(newConfigs);
-      setSelectedConfigs(selectedConfigs.concat());
-      setServerNames(serverNames.concat());
-    });
-
+        setConfigs(newConfigs);
+        setSelectedConfigs(selectedConfigs.concat());
+        setServerNames(serverNames.concat());
+      });
   }, [userGroups]);
 
   const [servers, setServers] = useState([]);
@@ -132,29 +143,40 @@ export const TeamStorage = (props) => {
     // Get Server info
     const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
     try {
-       fetch(storageServerUrl).then(responseToData).then((storageServerData) => {
-        for (const serverName of serverNames) {
-          if (serverName in storageServerData) {
-            const serverContent = JSON.parse(atob(storageServerData[serverName]));
-            if (servers.find((item) => item.spn === serverContent.spn) === undefined) {
-              servers.push(serverContent);
+      fetch(storageServerUrl)
+        .then(responseToData)
+        .then((storageServerData) => {
+          for (const serverName of serverNames) {
+            if (serverName in storageServerData) {
+              const serverContent = JSON.parse(
+                atob(storageServerData[serverName]),
+              );
+              if (
+                servers.find((item) => item.spn === serverContent.spn) ===
+                undefined
+              ) {
+                servers.push(serverContent);
+              }
             }
           }
-        }
-        setServers(servers.concat());
-      });
+          setServers(servers.concat());
+        });
     } catch (e) {
       // Do nothing
     }
   }, [serverNames]);
 
-  const onSCChange = useCallback((config, value) => {
-    if (value) {
-      if (selectedConfigs.find((item) => item.name === config.name) === undefined) {
+  const onSCChange = useCallback((config, value) => {
+    if (value) {
+      if (
+        selectedConfigs.find((item) => item.name === config.name) === undefined
+      ) {
         selectedConfigs.push(config);
       }
-    } else {
-      const oriConfigIndex = selectedConfigs.find((item) => item.name === config.name);
+    } else {
+      const oriConfigIndex = selectedConfigs.find(
+        (item) => item.name === config.name,
+      );
       if (oriConfigIndex !== undefined) {
         selectedConfigs.splice(selectedConfigs.indexOf(oriConfigIndex), 1);
       }
@@ -176,41 +198,46 @@ export const TeamStorage = (props) => {
     console.log(config);
     return (
       <DefaultButton
-      key={config.name}
-      text={config.name}
-      toggle={true}
-      checked={selectedConfigs.find((sc) => sc.name === config.name) !== undefined}
-      onClick={(event) => {
-        let selected = (selectedConfigs.find((sc) => sc.name === config.name) !== undefined);
-        onSCChange(config, !selected);
-      }}
+        key={config.name}
+        text={config.name}
+        toggle={true}
+        checked={
+          selectedConfigs.find((sc) => sc.name === config.name) !== undefined
+        }
+        onClick={(event) => {
+          let selected =
+            selectedConfigs.find((sc) => sc.name === config.name) !== undefined;
+          onSCChange(config, !selected);
+        }}
       />
     );
   };
 
-  const getServerPath = useCallback((serverName) => {
-    let returnValue = '';
+  const getServerPath = useCallback(
+    (serverName) => {
+      let returnValue = '';
 
-    const server = servers.find((srv) => srv.spn === serverName);
-    if (server !== undefined) {
-      switch (server.type) {
-        case 'nfs':
-          returnValue = server.address + ':' + server.rootPath;
-          break;
-        case 'samba':
-          returnValue = '//' + server.address + '/' + server.rootPath;
-          break;
-        case 'azurefile':
-          returnValue = server.dataStore + '/' + server.fileShare;
-          break;
-        case 'azureblob':
-          returnValue = server.dataStore + '/' + server.containerName;
-          break;
+      const server = servers.find((srv) => srv.spn === serverName);
+      if (server !== undefined) {
+        switch (server.type) {
+          case 'nfs':
+            returnValue = server.address + ':' + server.rootPath;
+            break;
+          case 'samba':
+            returnValue = '//' + server.address + '/' + server.rootPath;
+            break;
+          case 'azurefile':
+            returnValue = server.dataStore + '/' + server.fileShare;
+            break;
+          case 'azureblob':
+            returnValue = server.dataStore + '/' + server.containerName;
+            break;
+        }
       }
-    }
-    return returnValue;
-  }, [servers]);
-
+      return returnValue;
+    },
+    [servers],
+  );
 
   const showConfigSets = () => {
     if (userGroups.length === 0) {
@@ -218,20 +245,29 @@ export const TeamStorage = (props) => {
     } else {
       return (
         <div>
-          <div className={c(FontClassNames.mediumPlus, t.pb2)} style={{fontWeight: FontWeights.semibold}}>Team Share Storage</div>
+          <div
+            className={c(FontClassNames.mediumPlus, t.pb2)}
+            style={{fontWeight: FontWeights.semibold}}
+          >
+            Team Share Storage
+          </div>
           <Stack horizontal disableShrink gap='s1'>
-          {configs.map((config, index) => showConfigs(config, index))}
+            {configs.map((config, index) => showConfigs(config, index))}
           </Stack>
         </div>
       );
     }
   };
 
-
   return (
     <div>
       {showConfigSets()}
-      <TeamMountList dataList={mountDirectories == null ? [] : mountDirectories.getTeamDataList()} setDataList={null} />
+      <TeamMountList
+        dataList={
+          mountDirectories == null ? [] : mountDirectories.getTeamDataList()
+        }
+        setDataList={null}
+      />
     </div>
   );
 };

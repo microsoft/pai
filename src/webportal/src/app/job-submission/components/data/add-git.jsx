@@ -43,23 +43,23 @@ export const AddGit = (props) => {
     setDataType('none');
   };
   return (
-    <Stack horizontal>
+    <Stack horizontal horizontalAlign='space-between'>
       <TextField
         required={true} // eslint-disable-line react/jsx-boolean-value
         prefix={STORAGE_PREFIX}
         label='Container Path'
-        className={c(t.w40, t.mr3)}
         onChange={(_event, newValue) => {
           setMountPath(`${STORAGE_PREFIX}${newValue}`);
         }}
+        styles={{root: {minWidth: 200}}}
       />
       <TextField
         required={true} // eslint-disable-line react/jsx-boolean-value
         label='Git repo address'
-        className={c(t.w40, t.mr3)}
         onChange={(_event, newValue) => {
           setHttpUrl(newValue);
         }}
+        styles={{root: {minWidth: 230}}}
       />
       <Stack.Item align='end'>
         <IconButton iconProps={{iconName: 'Accept'}} onClick={submitMount} />
