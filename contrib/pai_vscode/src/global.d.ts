@@ -18,7 +18,8 @@ declare module 'node-yaml-parser' {
         readonly raw: string;
         readonly startPosition: number;
         readonly endPosition: number;
-        readonly parent?: YamlNode;
+        readonly parent?: any;
+        readonly mappings: any[];
     }
 
     export interface YamlDocument {
@@ -33,6 +34,7 @@ declare module 'node-yaml-parser' {
 
     export interface Util {
         isKey(node: YamlNode): boolean;
+        isMapping(node: YamlNode): boolean;
     }
 
     export const util: Util;

@@ -6,7 +6,10 @@
 
 import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
+import * as _ from 'lodash';
 import * as vscode from 'vscode';
+
+import { findNodeAtPosition, parse, util, YamlDocument, YamlNode } from 'node-yaml-parser';
 
 import {
     OPENPAI_SCHEMA,
@@ -73,17 +76,23 @@ function requestYamlSchemaUriCallback(resource: string): string | undefined {
             return paiYamlJobConfigSchemaUri;
         }
 
-        try {
-            const docs: any = yaml.safeLoad(textEditor.document.getText());
-            if (docs.protocolVersion && docs.protocolVersion === 2) {
+        const docs: YamlDocument[] = parse(textEditor.document.getText()).documents;
+        for (const [, x] of docs.entries()) {
+            const top: YamlNode | undefined = x.nodes.find(util.isMapping);
+            if (top) {
                 // If the yaml document contains 'protocolVersion: 2', it will report it is a pai job conifg file.
-                return paiYamlJobConfigSchemaUri;
-            }
-        } catch (_) {
-            return undefined;
-        }
-    }
+                const item: any = top.mappings.find(
+                    (mapping: { key: { raw: string; }; }) => mapping.key &&
+                    _.isString(mapping.key.raw) &&
+                    mapping.key.raw.toLowerCase() === 'protocolversion');
 
+                if (item && (item.value.raw === '2' || item.value.raw === 2)) {
+                    return paiYamlJobConfigSchemaUri;
+                }
+            }
+        }
+        return undefined;
+    }
     return undefined;
 }
 
