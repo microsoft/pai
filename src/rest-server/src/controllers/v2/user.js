@@ -160,6 +160,9 @@ const createUser = async (req, res, next) => {
       message: 'User is created successfully',
     });
   } catch (error) {
+    if (error.status === 409) {
+      return next(createError('Conflict', 'ConflictUserError', `User name ${req.body.username} already exists.`));
+    }
     return next(createError.unknown(error));
   }
 };

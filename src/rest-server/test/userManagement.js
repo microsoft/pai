@@ -317,23 +317,30 @@ describe('Add new user: put /api/v2/user', () => {
         'code': 404
       });
 
-    // mock for case5 username=existuser.
+    // mock for case4 username=existuser.
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '657869737475736572',
-        },
+      .post('/api/v1/namespaces/pai-user-v2/secrets', {
+        'metadata': {'name': '657869737475736572'},
         'data': {
-          'email': 'dGVzdEBwYWkuY29t',
-          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'ZXhpc3R1c2Vy',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJd',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIl19',
+          'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         },
-        'type': 'Opaque'
+      })
+      .reply(409, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        "status": "Failure",
+        "message": "secrets \"657869737475736572\" already exists",
+        "reason": "AlreadyExists",
+        "details": {
+          "name": "657869737475736572",
+          "kind": "secrets"
+        },
+        "code": 409
       });
 
 
@@ -469,11 +476,17 @@ describe('Add new user: put /api/v2/user', () => {
       });
   });
 
-  it('Case 5 (Negative): Should fail to add user with exist name.', (done) => {
+  it('Case 4 (Negative): Should fail to add user with exist name.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'existuser', 'password': '123456', 'admin': true, 'modify': false })
+      .send({
+        'username': 'existuser',
+        'password': '123456',
+        'email': 'test@pai.com',
+        'virtualCluster': ['default','vc1','vc2'],
+        'admin': false
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
