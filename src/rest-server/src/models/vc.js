@@ -220,6 +220,8 @@ class VirtualCluster {
   async getVcListAsyc() {
     try {
       const response = await this.getVcListPromise();
+      // eslint-disable-next-line no-console
+      console.log(response);
       const resJson = typeof response === 'object' ?
         response : JSON.parse(response);
       // eslint-disable-next-line no-console
