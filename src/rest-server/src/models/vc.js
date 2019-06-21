@@ -224,10 +224,12 @@ class VirtualCluster {
         response : JSON.parse(response);
       const schedulerInfo = resJson.scheduler.schedulerInfo;
       if (schedulerInfo.type === 'capacityScheduler') {
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        // eslint-disable-next-line no-console
+        console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
         console.log(vcInfo);
-        let ret = await addDedicatedInfoPromise(vcInfo);
+        let ret = await this.addDedicatedInfoPromise(vcInfo);
+        // eslint-disable-next-line no-console
         console.log(ret);
         return ret;
       } else {
