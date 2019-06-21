@@ -47,7 +47,7 @@
     "dotenv": "~4.0.0",
     "ejs-loader": "~0.3.0",
     "envsub": "3.0.9",
-    "eslint": "~4.17.0",
+    "eslint": "~4.18.2",
     "eslint-config-google": "~0.9.1",
     "eslint-plugin-react": "^7.12.4",
     "express": "~4.16.2",
