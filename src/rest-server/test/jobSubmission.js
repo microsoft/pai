@@ -422,22 +422,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     });
   };
 
-  const prepareNockForCaseN08 = (namespace, jobName) => {
-      global.nock(global.launcherWebserviceUri)
-        .get(`/v1/Frameworks/${namespace}~${jobName}`)
-        .reply(
-          404,
-          {}
-        );
-
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, schedulerResponse)
-      .get('/ws/v1/cluster/nodes')
-      .reply(200, nodeResponse);
-  };
-
-  const prepareNockForCaseN09 = prepareNockForCaseN03;
+  const prepareNockForCaseN08 = prepareNockForCaseN03;
 
   //
   // Positive cases
