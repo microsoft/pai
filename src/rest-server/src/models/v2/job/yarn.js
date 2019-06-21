@@ -23,7 +23,7 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModel = require('@pai/models/user');
+const userModelV2 = require('@pai/models/v2/user');
 const {protocolConvert} = require('@pai/utils/converter');
 const HDFS = require('@pai/utils/hdfs');
 const createError = require('@pai/utils/error');
@@ -285,7 +285,7 @@ async function put(frameworkName, config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  const flag = await userModelV2.checkUserGroup(userName, virtualCluster);
+  const flag = await userModelV2.checkUserVC(userName, virtualCluster);
   if (flag === false) {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }

@@ -242,7 +242,6 @@ module.exports = {
   asyncList,
   list,
   get,
-  update,
   updateAsync,
   remove,
   execute,
