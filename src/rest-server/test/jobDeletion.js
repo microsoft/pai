@@ -129,7 +129,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
       });
 
     chai.request(server)
-      .delete('/api/v1//user/test_user/jobs/job')
+      .delete('/api/v2/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
         expect(res).to.have.status(404);
