@@ -33,6 +33,9 @@ export const CSpinButton = (props) => {
 
   const _onChange = useCallback((value, operateFunc, defaultReturnValue) => {
     let newValue = defaultReturnValue;
+    if (newValue < 0) {
+      newValue = 0;
+    }
     if (operateFunc !== undefined) {
       newValue = operateFunc(value);
     }
@@ -40,7 +43,7 @@ export const CSpinButton = (props) => {
       return newValue;
     }
     return onChange(newValue);
-  });
+  }, [onChange]);
 
   const _onIncrement = (value) => _onChange(value, onIncrement, +value + 1);
   const _onDecrement = (value) => _onChange(value, onDecrement, +value - 1);

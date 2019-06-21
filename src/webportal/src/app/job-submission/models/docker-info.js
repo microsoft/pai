@@ -29,10 +29,9 @@ import {removeEmptyProperties} from '../utils/utils';
 const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 export class DockerInfo {
   constructor(props) {
-    const {uri, auth, secretRef} = props;
+    const {uri, auth, secretRef, name} = props;
     this.uri = uri || '';
     this.auth = auth || {};
-    this.updateTime = Date.now();
     this.secretRef = !isEmpty(secretRef) ? secretRef : '';
     this.name = name || '';
   }

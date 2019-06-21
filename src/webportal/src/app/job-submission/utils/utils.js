@@ -3,8 +3,15 @@ import {basename} from 'path';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 
+const HIDE_SECRET = '******';
+
 export const dispatchResizeEvent = () => {
   window.dispatchEvent(new Event('resize'));
+};
+
+export const keyValueArrayReducer = (acc, cur) => {
+  acc = {...acc, ...cur};
+  return acc;
 };
 
 export function removeEmptyProperties(obj) {
@@ -41,6 +48,25 @@ export function getFolderNameFromHDFS(path) {
   return basename(path);
 }
 
+export function pruneComponents(jobInformation, secrets, context) {
+  const {vcNames} = context;
+  const virtualCluster = jobInformation.virtualCluster;
+  if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
+    jobInformation.virtualCluster = '';
+  }
+
+  const removeValueIndex = secrets.map((secret, index) => {
+    if (secret.value === HIDE_SECRET) {
+      return index;
+    }
+    return -1;
+  }).filter((value) => value >= 0);
+
+  for (let i = removeValueIndex.length -1; i >= 0; i--) {
+    secrets.splice(removeValueIndex[i], 1);
+  }
+}
+
 export function getJobComponentsFormConfig(jobConfig) {
   if (isNil(jobConfig)) {
     return;
@@ -69,4 +95,15 @@ export function getJobComponentsFormConfig(jobConfig) {
     ),
   );
   return [updatedJobInformation, updatedTaskRoles, updatedParameters, updatedSecrets];
+}
+
+
+// The help function to create unique name, the name will be namePrefix_index
+export function createUniqueName(usedNames, namePrefix, startindex) {
+  let index = startindex;
+  let name = `${namePrefix}_${index++}`;
+  while (usedNames.find((usedName) => usedName === name)) {
+    name = `${namePrefix}_${index++}`;
+  }
+  return [name, index];
 }

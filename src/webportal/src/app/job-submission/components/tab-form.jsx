@@ -198,7 +198,6 @@ TabForm.propTypes = {
   items: PropTypes.array.isRequired,
   onItemAdd: PropTypes.func.isRequired,
   onItemDelete: PropTypes.func.isRequired,
-  headerTextPrefix: PropTypes.string.isRequired,
   onItemsChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
 };

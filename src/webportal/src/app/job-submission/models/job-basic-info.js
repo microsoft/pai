@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import {isEmpty} from 'lodash';
+import {isEmpty, get} from 'lodash';
 
 export class JobBasicInfo {
   constructor(props) {
@@ -35,7 +35,7 @@ export class JobBasicInfo {
 
   static fromProtocol(protocol) {
     const {name, jobRetryCount} = protocol;
-    const {virtualCluster} = protocol.defaults;
+    const virtualCluster = get(protocol, 'defaults.virtualCluster');
     return new JobBasicInfo({
       name: name,
       jobRetryCount: jobRetryCount,
