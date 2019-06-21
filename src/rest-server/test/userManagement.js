@@ -409,7 +409,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 1 (Positive): Add admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/create')
+      .post('/api/v2/user/create')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
           'username': 'newuser',
