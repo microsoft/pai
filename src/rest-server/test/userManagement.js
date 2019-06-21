@@ -459,7 +459,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/craete')
+      .put('/api/v2/user/create')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
         'username': 'test_user',
@@ -478,7 +478,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 4 (Negative): Should fail to add user with exist name.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/create')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'username': 'existuser',
