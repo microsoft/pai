@@ -17,7 +17,7 @@
 
 
 // test
-describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionType', () => {
+describe('Job execution type API /api/v2/user/:username/jobs/:jobName/executionType', () => {
   after(function() {
     if (!nock.isDone()) {
       // TODO: Split mocks into each cases and enable the following error with afterEach.
@@ -106,7 +106,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
   // PUT /api/v1/jobs/:jobName/executionType
   it('should stop job successfully', (done) => {
     chai.request(server)
-      .put('/api/v1/user/iamadmin/jobs/test1/executionType')
+      .put('/api/v2/user/iamadmin/jobs/test1/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
       .send({
         'value': 'STOP',
@@ -121,7 +121,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
 
   it('admin should stop other user\'s job successfully', (done) => {
     chai.request(server)
-      .put('/api/v1/user/test2/jobs/test2/executionType')
+      .put('/api/v2/user/test2/jobs/test2/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
       .send({
         'value': 'STOP',
@@ -136,7 +136,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
 
   it('should not stop job without authorization', (done) => {
     chai.request(server)
-      .put('/api/v1/user/iamadmin/jobs/test3/executionType')
+      .put('/api/v2/user/iamadmin/jobs/test3/executionType')
       .send({
         'value': 'STOP',
       })
@@ -150,7 +150,7 @@ describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionT
 
   it('#909: should check request payload', (done) => {
     chai.request(server)
-      .put('/api/v1/user/iamadmin/jobs/test1/executionType')
+      .put('/api/v2/user/iamadmin/jobs/test1/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
       .set('Content-Type', 'text/unknown')
       .send('value=STOP')

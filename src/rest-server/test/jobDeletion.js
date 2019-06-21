@@ -17,7 +17,7 @@
 
 
 // test
-describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
+describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
   const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
 
@@ -51,7 +51,7 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
       .reply(202);
 
     chai.request(server)
-      .delete('/api/v1/user/test_user/jobs/job')
+      .delete('/api/v2/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
         expect(res).to.have.status(202);
@@ -82,7 +82,7 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
       .reply(202);
 
     chai.request(server)
-      .delete('/api/v1/user/test_user/jobs/job')
+      .delete('/api/v2/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(202);
@@ -110,7 +110,7 @@ describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
       });
 
     chai.request(server)
-      .delete('/api/v1/user/test_user/jobs/job')
+      .delete('/api/v2/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(403);
