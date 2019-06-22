@@ -350,7 +350,7 @@ describe('Add new user: put /api/v2/user', () => {
       .times(4)
       .reply(200, {
         'kind': 'SecretList',
-        'apiVersion': 'v1',657869737475736572
+        'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/',
           'resourceVersion': '1062682'
