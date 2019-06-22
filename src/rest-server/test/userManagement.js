@@ -563,7 +563,7 @@ describe('update user: put /api/v2/user/update', () => {
     .put('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572', {
       'metadata':{'name':'7570646174655f75736572'},
       'data': {
-         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
+         'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
          'username': 'dXBkYXRlX3VzZXI=',
          'grouplist':'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
          'email': 'dGVzdEBwYWkuY29t',
