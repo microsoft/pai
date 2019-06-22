@@ -323,7 +323,7 @@ describe('Add new user: put /api/v2/user', () => {
         'metadata': {'name': '657869737475736572'},
         'data': {
           'username': 'ZXhpc3R1c2Vy',
-          'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
+          'password': 'NGY3YzdlMDBlNzU3YzUzZjYwOTI1YTE5OWVlOTZjODMxMjlmMzgwYjRjMmQ2NzA5OWM3OThhNDg2ZjQ2ZGY4NjlmZjMxYWVkODZiOTg2NGIyMTI2OWZkYmM2YTkzMjNiZDY5MWZhNGZkN2JjZTAyNWE0M2ZlZGM5N2I2NWU0ZjQ=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
@@ -350,7 +350,7 @@ describe('Add new user: put /api/v2/user', () => {
       .times(4)
       .reply(200, {
         'kind': 'SecretList',
-        'apiVersion': 'v1',
+        'apiVersion': 'v1',657869737475736572
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/',
           'resourceVersion': '1062682'
