@@ -622,7 +622,7 @@ describe('update user: put /api/v2/user/update', () => {
       .send({
         'username': 'update_user',
         'newPassword': 'abcdef',
-        'oldPassword': 'test'
+        'oldPassword': 'test12345'
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
