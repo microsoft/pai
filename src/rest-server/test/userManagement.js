@@ -620,7 +620,6 @@ describe('update user: put /api/v2/user/update', () => {
       .put('/api/v2/user/update/update_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
-        'username': 'update_user',
         'newPassword': 'abcdef',
         'oldPassword': 'test12345'
       })
