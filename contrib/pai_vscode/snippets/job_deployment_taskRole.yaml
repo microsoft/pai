@@ -1,4 +1,4 @@
-name: deployment taskRole
+name: deployment
 label: OpenPAI Job deployment taskRole
 documentation: OpenPAI Job deployment taskRole
 insertText: |2
