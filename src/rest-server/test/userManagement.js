@@ -543,7 +543,7 @@ describe('update user: put /api/v2/user/update', () => {
       'metadata': {
           'name': 'updateuser',
           'namespace': 'pai-user',
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/7570646174655f75736572',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
           'creationTimestamp': '2018-12-07T02:21:42Z'
@@ -560,14 +560,14 @@ describe('update user: put /api/v2/user/update', () => {
 
     // mock for case2 username=update_user.
     nock(apiServerRootUri)
-    .put('/api/v1/namespaces/pai-user/secrets/7570646174655f75736572', {
+    .put('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572', {
       'metadata':{'name':'7570646174655f75736572'},
       'data': {
-         'admin': 'ZmFsc2U=',
          'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
          'username': 'dXBkYXRlX3VzZXI=',
-         'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
-         'githubPAT':'',
+         'grouplist':'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+         'email': 'dGVzdEBwYWkuY29t',
+         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
        }
      })
     .reply(200, {
@@ -576,17 +576,17 @@ describe('update user: put /api/v2/user/update', () => {
       'metadata': {
           'name': '7570646174655f75736572',
           'namespace': 'pai-user',
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/7570646174655f75736572',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
           'creationTimestamp': '2018-12-07T02:21:42Z'
       },
       'data': {
-          'admin': 'ZmFsc2U=',
-          'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-          'username': 'dXBkYXRlX3VzZXI=',
-          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
-          'githubPAT':'',
+        'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
+        'username': 'dXBkYXRlX3VzZXI=',
+        'grouplist':'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'email': 'dGVzdEBwYWkuY29t',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
       },
       'type': 'Opaque'
     });
@@ -633,13 +633,15 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 2 (Positive): Update user set admin=false.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/update/update_user/admin')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })
+      .send({
+        'admin': false
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update user admin permission successfully.');
         done();
       });
   });
