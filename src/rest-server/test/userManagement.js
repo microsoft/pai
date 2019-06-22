@@ -333,21 +333,21 @@ describe('Add new user: put /api/v2/user', () => {
         'kind': 'Status',
         'apiVersion': 'v1',
         'metadata': {},
-        "status": "Failure",
-        "message": "secrets \"657869737475736572\" already exists",
-        "reason": "AlreadyExists",
-        "details": {
-          "name": "657869737475736572",
-          "kind": "secrets"
+        'status': 'Failure',
+        'message': 'secrets \'657869737475736572\' already exists',
+        'reason': 'AlreadyExists',
+        'details': {
+          'name': '657869737475736572',
+          'kind': 'secrets'
         },
-        "code": 409
+        'code': 409
       });
 
 
     // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-group/secrets')
-      .times(2)
+      .times(3)
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
@@ -382,7 +382,7 @@ describe('Add new user: put /api/v2/user', () => {
           },
           {
             'metadata': {
-              'name': 'pai_test',
+              'name': 'pai_test_1',
             },
             'data': {
               'groupname': 'dmMy',
@@ -394,7 +394,7 @@ describe('Add new user: put /api/v2/user', () => {
           },
           {
             'metadata': {
-              'name': 'pai_test',
+              'name': 'pai_test_2',
             },
             'data': {
               'groupname': 'YWRtaW5Hcm91cA==',
