@@ -496,7 +496,7 @@ describe('Add new user: put /api/v2/user', () => {
   });
 });
 
-describe('update user: put /api/v1/user', () => {
+describe('update user: put /api/v2/user/update', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -508,7 +508,7 @@ describe('update user: put /api/v1/user', () => {
 
     // mock for case1 username=update_user.
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7570646174655f75736572')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572')
       .times(2)
       .reply(200,  {
         'kind': 'Secret',
@@ -517,24 +517,24 @@ describe('update user: put /api/v1/user', () => {
             'name': '7570646174655f75736572',
         },
         'data': {
-            'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'dXBkYXRlX3VzZXI=',
-            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
-            'githubPAT':'',
+            'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+            'email': 'dGVzdEBwYWkuY29t',
+            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
         },
         'type': 'Opaque'
     });
 
     nock(apiServerRootUri)
-    .put('/api/v1/namespaces/pai-user/secrets/7570646174655f75736572', {
+    .put('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572', {
       'metadata':{'name':'7570646174655f75736572'},
       'data': {
-         'admin': 'ZmFsc2U=',
-         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-         'username': 'dXBkYXRlX3VzZXI=',
-         'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
-         'githubPAT':'',
+        'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',            'username': 'dXBkYXRlX3VzZXI=',
+        'username': 'dXBkYXRlX3VzZXI=',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'email': 'dGVzdEBwYWkuY29t',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
        }
      })
     .reply(200, {
@@ -549,11 +549,11 @@ describe('update user: put /api/v1/user', () => {
           'creationTimestamp': '2018-12-07T02:21:42Z'
       },
       'data': {
-          'admin': 'ZmFsc2U=',
-          'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-          'username': 'dXBkYXRlX3VzZXI=',
-          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
-          'githubPAT':'',
+        'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',            'username': 'dXBkYXRlX3VzZXI=',
+        'username': 'dXBkYXRlX3VzZXI=',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'email': 'dGVzdEBwYWkuY29t',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
       },
       'type': 'Opaque'
     });
@@ -617,13 +617,17 @@ describe('update user: put /api/v1/user', () => {
 
   it('Case 1 (Positive): Update user password.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/update/update_user/password')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'update_user', 'password': 'abcdef', 'modify': true })
+      .send({
+        'username': 'update_user',
+        'newPassword': 'abcdef',
+        'oldPassword': 'test'
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        global.chai.expect(res.body.message, 'response message').equal('update user password successfully.');
         done();
       });
   });
