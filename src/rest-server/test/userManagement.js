@@ -19,10 +19,6 @@ const deleteUserTemplate = JSON.stringify({
   'username': '{{username}}'
 });
 
-const updateUserVcTemplate = JSON.stringify({
-  'virtualClusters': '{{virtualClusters}}'
-});
-
 const schedulerResponse = {
         'scheduler': {
           'schedulerInfo': {
@@ -833,7 +829,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
   });
 });
 
-describe('update user virtual cluster : put /api/v1/user/:username/virtualClusters', () => {
+describe('update user virtual cluster : put /api/v2/user/update/:username/virtualClusters', () => {
   afterEach(() => {
     if (!nock.isDone()) {
       //this.test.error(new Error('Not all nock interceptors were used!'));
@@ -1055,7 +1051,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
     global.chai.request(global.server)
       .put('/api/v2/user/update/test/virtualCluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': ['default', 'vc1' ]})))
+      .send(JSON.parse(global.mustache.render({ 'virtualCluster': ['default', 'vc1' ]})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
