@@ -78,8 +78,8 @@ const generateTaskRole = (taskRole, config) => {
               command: ['/usr/local/pai/run'],
               resources: {
                 limits: {
-                  cpu: config.taskRoles[taskRole].resourcePerInstance.cpu,
-                  memory: `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
+                  'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
+                  'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
                 },
               },
@@ -98,7 +98,7 @@ const generateTaskRole = (taskRole, config) => {
                   mountPath: '/usr/local/pai/logs',
                 },
               ],
-            }
+            },
           ],
           volumes: [
             {
@@ -158,7 +158,7 @@ const generateFrameworkDescription = (frameworkName, config) => {
 };
 
 const get = async (frameworkName) => {
-  const name = frameworkName.replace(/[-_\~]/g, '');
+  const name = frameworkName.replace(/[-_~]/g, '');
   // send request to framework controller
   let response;
   try {
@@ -186,7 +186,7 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
-  const name = frameworkName.replace(/[-_\~]/g, '');
+  const name = frameworkName.replace(/[-_~]/g, '');
   const frameworkDescription = generateFrameworkDescription(name, config);
 
   // send request to framework controller
