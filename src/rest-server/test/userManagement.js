@@ -593,7 +593,7 @@ describe('update user: put /api/v2/user/update', () => {
 
     // mock for case3 username=non_exist_user.
     nock(apiServerRootUri)
-    .get('/api/v1/namespaces/pai-user/secrets/6e6f6e5f65786973745f75736572')
+    .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f65786973745f75736572')
     .reply(404, {
       'kind': 'Status',
       'apiVersion': 'v1',
@@ -652,9 +652,12 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 3 (Negative): Should fail to modify a non-exist user.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/non_exist_user/password')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })
+      .send({
+        'newPassword': 'abcdef',
+        'oldPassword': 'test12345'
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
@@ -665,9 +668,11 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 4 (Negative): Should trigger validation error if password sets null.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/new_user/password')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'new_user', 'password': null, 'admin': false, 'modify': true })
+      .send({
+        'oldPassword': 'test12345'
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         done();
@@ -676,9 +681,12 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user')
+      .put('/api/v2/user/new_user/password')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send({ 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })
+      .send({
+        'newPassword': 'abcdef',
+        'oldPassword': 'test12345'
+      })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
