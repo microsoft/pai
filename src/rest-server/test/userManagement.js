@@ -1049,7 +1049,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test/virtualCluster')
+      .put('/api/v2/user/update/test/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render({ 'virtualCluster': ['default', 'vc1' ]})))
       .end((err, res) => {
