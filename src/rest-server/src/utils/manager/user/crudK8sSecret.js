@@ -84,6 +84,9 @@ async function read(key, config) {
       },
     });
     let userData = response['data'];
+    /* eslint-disable no-console */
+    console.log(userData);
+    /* eslint-enable no-console */
     let userInstance = User.createUser({
       'username': Buffer.from(userData['data']['username'], 'base64').toString(),
       'password': Buffer.from(userData['data']['password'], 'base64').toString(),
@@ -93,9 +96,6 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
-    /* eslint-disable no-console */
-    console.log(error);
-    /* eslint-enable no-console */
     if (error.response) {
       throw error.response;
     } else {
