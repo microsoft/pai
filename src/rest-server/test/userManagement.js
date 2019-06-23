@@ -850,7 +850,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
     // mock for case1 username=test
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/74657374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/74657374')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -858,23 +858,24 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
             'name': '74657374',
         },
         'data': {
-            'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'cGFpdGVzdA==',
-            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+            'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+            'email': 'dGVzdEBwYWkuY29t',
+            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
         'type': 'Opaque'
     });
 
     nock(apiServerRootUri)
-    .put('/api/v1/namespaces/pai-user/secrets/74657374', {
+    .put('/api/v1/namespaces/pai-user-v2/secrets/74657374', {
       'metadata':{'name':'74657374'},
       'data': {
-         'admin': 'ZmFsc2U=',
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
          'username': 'cGFpdGVzdA==',
-         'virtualCluster':'ZGVmYXVsdCx2YzE=',
-         'githubPAT':''
+         'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+         'email': 'dGVzdEBwYWkuY29t',
+         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
        }
      })
     .reply(200, {
@@ -889,11 +890,11 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
           'creationTimestamp': '2018-12-07T02:21:42Z'
       },
       'data': {
-          'admin': 'ZmFsc2U=',
-          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'username': 'cGFpdGVzdA==',
-          'virtualCluster':'ZGVmYXVsdCx2YzE=',
-          'githubPAT':''
+        'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+        'username': 'cGFpdGVzdA==',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+        'email': 'dGVzdEBwYWkuY29t',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
       },
       'type': 'Opaque'
     });
@@ -1052,13 +1053,13 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test/virtualClusters')
+      .put('/api/v2/user/update/test/virtualCluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'vc1' })))
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': ['default', 'vc1' ]})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update user virtualCluster data successfully.');
         done();
       });
   });
