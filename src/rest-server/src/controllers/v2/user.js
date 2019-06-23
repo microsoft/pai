@@ -185,7 +185,7 @@ const updateUserExtension = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -221,7 +221,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -243,7 +243,7 @@ const updateUserGroupList = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
@@ -269,7 +269,7 @@ const updateUserPassword = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -291,7 +291,7 @@ const updateUserEmail = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -328,7 +328,7 @@ const updateUserAdminPermission = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
