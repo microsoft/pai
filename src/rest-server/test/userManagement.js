@@ -681,7 +681,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/new_user/password')
+      .put('/api/v2/user/update/new_user/admin')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
         'newPassword': 'abcdef',
