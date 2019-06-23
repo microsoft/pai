@@ -780,9 +780,9 @@ describe('delete user : delete /api/v1/user', () => {
 
   it('Case 1 (Positive): delete exist non_admin user', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v1/user')
+      .delete('/api/v2/user/delete/non_admin')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'non_admin' })))
+      .send()
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         done();
