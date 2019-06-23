@@ -1169,7 +1169,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 5 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-    .put('/api/v1/user//update/non_exist/virtualcluster')
+    .put('/api/v2/user/update/non_exist/virtualcluster')
     .set('Authorization', 'Bearer ' + validToken)
     .send({ 'virtualClusters': ['default'] })
     .end((err, res) => {
@@ -1182,9 +1182,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 6 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test6/virtualClusters')
+      .put('/api/v2/user/update/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .send( { 'virtualClusters': 'default' })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
