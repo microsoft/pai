@@ -652,7 +652,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 3 (Negative): Should fail to modify a non-exist user.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/non_exist_user/password')
+      .put('/api/v2/user/update/non_exist_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'newPassword': 'abcdef',
@@ -668,7 +668,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 4 (Negative): Should trigger validation error if password sets null.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/new_user/password')
+      .put('/api/v2/user/update/new_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'oldPassword': 'test12345'
@@ -681,7 +681,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/new_user/password')
+      .put('/api/v2/user/update/new_user/password')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
         'newPassword': 'abcdef',
