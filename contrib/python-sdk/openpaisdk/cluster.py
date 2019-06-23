@@ -101,13 +101,13 @@ class ClusterClient:
             return None
         return self.storage_clients[alias if alias else self.default_storage_alias]
 
-    def add_storage(self, protocol: str=None, storage_lias: str=None, **kwargs):
+    def add_storage(self, protocol: str=None, storage_alias: str=None, **kwargs):
         "initialize the connection information"
         func = 'add_storage_%s' % protocol.lower()
-        return getattr(self, func)(storage_lias, **kwargs)
+        return getattr(self, func)(storage_alias, **kwargs)
 
-    def add_storage_webhdfs(self, storage_lias, web_hdfs_uri: str, **kwargs):
-        self.storage_clients[storage_lias] = Storage(protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
+    def add_storage_webhdfs(self, storage_alias, web_hdfs_uri: str, **kwargs):
+        self.storage_clients[storage_alias] = Storage(protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
         return self
 
     def get_token(self, expiration=3600):

@@ -52,8 +52,10 @@ class Deployment:
 
 class Job:
 
-    def __init__(self):
+    def __init__(self, name: str=None, **kwargs):
         self.protocol = dict() # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+        if name:
+            self.new(name, **kwargs)
 
     def new(self, name: str, **kwargs):
         self.protocol = {
@@ -131,28 +133,42 @@ class Job:
     def submit(self, alias: str):
         self.validate()
         client = ClusterList().load().get_client(alias)
+        # upload
+        for f in self.protocol["extras"].get("__sources__", []):
+            local_path, remote_path = f, '{}/{}'.format(self.protocol["secrets"]["work_directory"], f)
+            print("upload %s -> %s" % (local_path, remote_path))
+            client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
         client.get_token().rest_api_submit(self.get_config())
         return client.get_job_link(self.name)
 
-    def decorate(self, alias: str, only_it: bool=True):
+    def add_sources(self, srcs: list):
+        self.protocol["extras"].setdefault("__sources__", []).extend(srcs)
+        return self
+
+    def decorate(self, alias: str, workspace: str=None, only_it: bool=True):
         clusters = ClusterList().load().clusters
         if only_it:
             clusters = ol.filter(clusters, 'cluster_alias', alias)["matches"]
         version = get_defaults().get("sdk-branch", __sdk_branch__)
-        self.protocol["secrets"]["clusters"] = yaml.dump(clusters)
+        self.protocol["secrets"]["clusters"] = json.dumps(clusters)
         self.protocol["secrets"]["cluster_alias"] = alias
         c_dir = '~/{}'.format(__cache__)
+        c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
         sdk_install_cmds = [
             "pip install --upgrade pip",
             "pip install -U {}".format(get_install_uri(version)),
             "mkdir %s" % c_dir,
-            "echo <% $secrets.clusters %> > {}/{}".format(c_dir, os.path.basename(__cluster_config_file__)),
+            "echo \"write config to {}\"".format(c_file),
+            "echo <% $secrets.clusters %> > {}".format(c_file),
             "opai cluster select <% $secrets.cluster_alias %>",
         ]
+        for f in self.protocol["extras"].get("__sources__", []):
+            assert self.protocol["secrets"].get("work_directory", None), "must specify a workspace to transfer sources"
+            sdk_install_cmds.append("opai storage download <% $secrets.work_directory %>/source/{} {}".format(f, f))
         self.new_deployment("sdk_install", pre_commands=sdk_install_cmds)
         self.protocol["extras"]["submitFrom"] = "python-sdk@" + version
 
-    def one_liner(self, commands: Union[list, str], image: str, workspace: str=None, gpu: int=0, cpu: int=1, memoryMB: int=10240, ports: dict={}, **kwargs):
+    def one_liner(self, commands: Union[list, str], image: str, workspace: str=None, gpu: int=0, cpu: int=1, memoryMB: int=10240, ports: dict={}, sources: list=None, **kwargs):
         self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
         self.add_taskrole("main", {
             "dockerImage": "docker_image",
@@ -161,7 +177,9 @@ class Job:
             },
             "commands": commands if isinstance(commands, list) else [commands]
         })
-        self.protocol["parameters"]["PAI_JOB_WORKSPACE"] = '{}/jobs/{}'.format(workspace, self.name) if workspace else ""
+        self.protocol["secrets"]["work_directory"] = '{}/jobs/{}'.format(workspace, self.name) if workspace else ""
+        if sources:
+            self.protocol["extras"].setdefault("__sources__", []).extend(sources)
         if kwargs.get("virtual_cluster", None):
             self.protocol["defaults"]["virtualCluster"] = kwargs["virtual_cluster"]
         return self

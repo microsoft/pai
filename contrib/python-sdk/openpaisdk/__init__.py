@@ -1,9 +1,9 @@
 import logging
 import os
 
-
-__cluster_config_file__ = os.path.join(os.path.expanduser('~'), '.openpai', 'clusters.yaml')
 __cache__ = '.openpai'
+
+__cluster_config_file__ = os.path.join(os.path.expanduser('~'), __cache__, 'clusters.yaml')
 __local_default_file__ = os.path.join(__cache__, 'defaults.json')
 __jobs_cache__ = os.path.join(__cache__, 'jobs')
 

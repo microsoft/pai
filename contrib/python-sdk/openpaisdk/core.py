@@ -1,7 +1,7 @@
 from openpaisdk.cluster import ClusterList, Cluster, ClusterClient
 from openpaisdk.job import Job
 from openpaisdk.io_utils import get_defaults
-
+import os
 
 
 def in_job_container(varname: str='PAI_CONTAINER_ID'):
