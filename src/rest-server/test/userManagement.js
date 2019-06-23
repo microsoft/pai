@@ -1141,7 +1141,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v2/user/update/test3/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send( { 'virtualClusters': [] })
+      .send( { 'virtualCluster': [] })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -1158,7 +1158,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v1/user/testinvalid/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': 'non_exist_vc' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -1171,7 +1171,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
     .put('/api/v2/user/update/non_exist/virtualcluster')
     .set('Authorization', 'Bearer ' + validToken)
-    .send({ 'virtualClusters': ['default'] })
+    .send({ 'virtualCluster': ['default'] })
     .end((err, res) => {
       global.chai.expect(res, 'status code').to.have.status(404);
       global.chai.expect(res, 'response format').be.json;
@@ -1184,7 +1184,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v2/user/update/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send( { 'virtualClusters': 'default' })
+      .send( { 'virtualCluster': 'default' })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
@@ -1197,7 +1197,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v1/user/test7/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': 'default' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
