@@ -695,7 +695,7 @@ describe('update user: put /api/v2/user/update', () => {
 
 });
 
-describe('delete user : delete /api/v1/user', () => {
+describe('delete user : delete /api/v2/user/delete', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
