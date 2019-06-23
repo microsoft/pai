@@ -93,7 +93,9 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
+    /* eslint-disable no-console */
     console.log(error);
+    /* eslint-enable no-console */
     if (error.response) {
       throw error.response;
     } else {
