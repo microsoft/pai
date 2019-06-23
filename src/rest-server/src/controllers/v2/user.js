@@ -338,6 +338,10 @@ const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
+      const userInfo = await userModel.getUser(username);
+      if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+        return next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
+      }
       await userModel.deleteUser(username);
       return res.status(200).json({
         message: 'user is removed successfully',
