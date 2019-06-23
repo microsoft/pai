@@ -87,6 +87,24 @@ const yarnLauncherConfigSchema = Joi.object().keys({
   }),
 }).required();
 
+// define k8s launcher config schema
+const k8sLauncherConfigSchema = Joi.object().keys({
+  apiServerUri: Joi.string()
+    .uri()
+    .required(),
+  apiVersion: Joi.string()
+    .required(),
+  runtimeImage: Joi.string()
+    .required(),
+  requestHeaders: Joi.object(),
+  frameworksPath: Joi.func()
+    .arity(0)
+    .required(),
+  frameworkPath: Joi.func()
+    .arity(1)
+    .required(),
+}).required();
+
 let launcherConfig;
 const launcherType = process.env.LAUNCHER_TYPE;
 if (launcherType === 'yarn') {
@@ -149,7 +167,27 @@ if (launcherType === 'yarn') {
   launcherConfig = value;
   launcherConfig.type = launcherType;
 } else if (launcherType === 'k8s') {
-  launcherConfig = {};
+  launcherConfig = {
+    apiServerUri: process.env.K8S_APISERVER_URI,
+    apiVersion: 'frameworkcontroller.microsoft.com/v1',
+    runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
+    requestHeaders: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    frameworksPath: (namespace='default') => {
+      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks`;
+    },
+    frameworkPath: (frameworkName, namespace='default') => {
+      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
+    },
+  };
+
+  const {error, value} = Joi.validate(launcherConfig, k8sLauncherConfigSchema);
+  if (error) {
+    throw new Error(`launcher config error\n${error}`);
+  }
+  launcherConfig = value;
   launcherConfig.type = launcherType;
 } else {
   throw new Error(`unknown launcher type ${launcherType}`);

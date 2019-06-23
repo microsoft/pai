@@ -33,6 +33,10 @@ router.route('/')
     controller.update
   );
 
+router.route('/:frameworkName')
+  /** GET /api/v2/jobs/:frameworkName - Get job */
+  .get(controller.get);
+
 router.route('/:frameworkName/config')
   /** GET /api/v2/jobs/:frameworkName/config - Get job config */
   .get(controller.getConfig);
