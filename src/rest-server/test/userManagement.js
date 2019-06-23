@@ -1033,6 +1033,70 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
         },
         'type': 'Opaque'
       });
+
+    // Mock for case1 return all groupinfo
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .times(4)
+      .reply(200, {
+        'kind': 'SecretList',
+        'apiVersion': 'v1',
+        'metadata': {
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+          'resourceVersion': '1062682'
+        },
+        'items': [
+          {
+            'metadata': {
+              'name': 'cantest001',
+            },
+            'data': {
+              'groupname': 'ZGVmYXVsdA==',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test',
+            },
+            'data': {
+              'groupname': 'dmMx',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9'
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test_1',
+            },
+            'data': {
+              'groupname': 'dmMy',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9'
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test_2',
+            },
+            'data': {
+              'groupname': 'YWRtaW5Hcm91cA==',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJncm91cFR5cGUiOiJhZG1pbiJ9'
+            },
+            'type': 'Opaque'
+          },
+        ]
+      });
+
   });
 
   //
@@ -1062,9 +1126,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 2 (Positive): add new user with invalid virtual cluster should add default vc only and throw update vc error', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test2/virtualClusters')
+      .put('/api/v1/user/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
+      .send(JSON.parse(global.mustache.render({ 'virtualClusters': ['non_exist_vc'] })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
