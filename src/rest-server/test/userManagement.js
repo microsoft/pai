@@ -809,9 +809,9 @@ describe('delete user : delete /api/v1/user', () => {
 
   it('Case 3 (Negative): Should fail to delete non-exist user.', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v1/user')
+      .delete('/api/v2/user/delete/nonexist')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'nonexist' })))
+      .send()
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
@@ -822,9 +822,9 @@ describe('delete user : delete /api/v1/user', () => {
 
   it('Case 4 (Negative): Should fail to delete user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v1/user')
+      .delete('/api/v2/user/delete/delete_non_admin_user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
+      .send()
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         done();
