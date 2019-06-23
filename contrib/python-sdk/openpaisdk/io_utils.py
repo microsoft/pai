@@ -76,6 +76,13 @@ def from_file(fname: str, default={}, fmt: str=None, **kwargs):
         return from_yaml_file(fname, default=default, **kwargs)
 
 
+def mkdir_for(pth: str):
+    d = os.path.dirname(pth)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    return d
+
+
 def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
     try:
         return func(**kwargs)

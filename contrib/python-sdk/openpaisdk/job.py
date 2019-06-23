@@ -135,15 +135,11 @@ class Job:
         client = ClusterList().load().get_client(alias)
         # upload
         for f in self.protocol["extras"].get("__sources__", []):
-            local_path, remote_path = f, '{}/{}'.format(self.protocol["secrets"]["work_directory"], f)
+            local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
             print("upload %s -> %s" % (local_path, remote_path))
             client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
         client.get_token().rest_api_submit(self.get_config())
         return client.get_job_link(self.name)
-
-    def add_sources(self, srcs: list):
-        self.protocol["extras"].setdefault("__sources__", []).extend(srcs)
-        return self
 
     def decorate(self, alias: str, workspace: str=None, only_it: bool=True):
         clusters = ClusterList().load().clusters

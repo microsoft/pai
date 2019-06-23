@@ -1,6 +1,7 @@
 """
 [summary]
 """
+from openpaisdk.io_utils import mkdir_for
 
 
 class Storage:
@@ -17,6 +18,7 @@ class Storage:
         return self.client.upload(local_path=local_path, hdfs_path=remote_path, **kwargs)
 
     def download_webhdfs(self, remote_path: str, local_path: str, **kwargs):
+        mkdir_for(local_path)
         return self.client.download(local_path=local_path, hdfs_path=remote_path, **kwargs)
 
     def list_webhdfs(self, remote_path: str, **kwargs):

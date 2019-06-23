@@ -210,7 +210,7 @@ class ActionFactoryForStorage(ActionFactory):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path', 'local_path'])
 
     def do_action_download(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).download(remote_path=args.remote_path, local_path=args.remote_path)
+        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).download(remote_path=args.remote_path, local_path=args.local_path)
 
     def define_arguments_upload(self, parser: argparse.ArgumentParser):
         cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
