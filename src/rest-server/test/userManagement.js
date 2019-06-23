@@ -1037,7 +1037,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-group/secrets')
-      .times(4)
+      .times(8)
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
@@ -1139,13 +1139,13 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 3 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test3/virtualClusters')
+      .put('/api/v2/user/update/test3/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': '' })))
+      .send( { 'virtualClusters': [] })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update user virtualCluster data successfully.');
         done();
       });
   });
@@ -1169,9 +1169,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 5 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-    .put('/api/v1/user/non_exist/virtualClusters')
+    .put('/api/v1/user//update/non_exist/virtualcluster')
     .set('Authorization', 'Bearer ' + validToken)
-    .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+    .send({ 'virtualClusters': ['default'] })
     .end((err, res) => {
       global.chai.expect(res, 'status code').to.have.status(404);
       global.chai.expect(res, 'response format').be.json;
