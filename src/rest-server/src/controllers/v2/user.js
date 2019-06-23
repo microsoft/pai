@@ -184,6 +184,9 @@ const updateUserExtension = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -217,6 +220,9 @@ const updateUserVirtualCluster = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -236,6 +242,9 @@ const updateUserGroupList = async (req, res, next) => {
       message: 'update user grouplist successfully.',
     });
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -259,6 +268,9 @@ const updateUserPassword = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -278,6 +290,9 @@ const updateUserEmail = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -312,6 +327,9 @@ const updateUserAdminPermission = async (req, res, next) => {
       });
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'Not found', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
