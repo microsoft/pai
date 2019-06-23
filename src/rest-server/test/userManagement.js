@@ -717,7 +717,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'username': 'bm9uYWRtaW4K',
+          'username': 'bm9uX2FkbWlu',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
@@ -797,9 +797,9 @@ describe('delete user : delete /api/v2/user/delete', () => {
 
   it('Case 2 (Negative): Should fail to delete admin user', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v1/user')
+      .delete('/api/v2/user/delete/admin')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'admin' })))
+      .send()
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
