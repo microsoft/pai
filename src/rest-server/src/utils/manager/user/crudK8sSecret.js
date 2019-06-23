@@ -93,6 +93,7 @@ async function read(key, config) {
     });
     return userInstance;
   } catch (error) {
+    console.log(error);
     if (error.response) {
       throw error.response;
     } else {
@@ -172,7 +173,6 @@ async function create(key, value, config) {
     let response = await request.post(`${config.namespace}/secrets`, userData);
     return response;
   } catch (error) {
-    console.log(error);
     if (error.response) {
       throw error.response;
     } else {
