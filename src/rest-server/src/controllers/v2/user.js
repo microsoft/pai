@@ -350,6 +350,9 @@ const deleteUser = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };

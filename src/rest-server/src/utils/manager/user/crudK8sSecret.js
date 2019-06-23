@@ -84,18 +84,6 @@ async function read(key, config) {
       },
     });
     let userData = response['data'];
-    /* eslint-disable no-console */
-    console.log(userData);
-    /* eslint-enable no-console */
-    /* eslint-disable no-console */
-    console.log({
-      'username': Buffer.from(userData['data']['username'], 'base64').toString(),
-      'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-      'grouplist': JSON.parse(Buffer.from(userData['data']['grouplist'], 'base64').toString()),
-      'email': Buffer.from(userData['data']['email'], 'base64').toString(),
-      'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
-    });
-    /* eslint-enable no-console */
     let userInstance = User.createUser({
       'username': Buffer.from(userData['data']['username'], 'base64').toString(),
       'password': Buffer.from(userData['data']['password'], 'base64').toString(),
