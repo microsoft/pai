@@ -684,8 +684,7 @@ describe('update user: put /api/v2/user/update', () => {
       .put('/api/v2/user/update/new_user/admin')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
-        'newPassword': 'abcdef',
-        'oldPassword': 'test12345'
+        'admin': false
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
