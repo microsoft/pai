@@ -915,7 +915,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
     // mock for case3 username=test3
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7465737433')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737433')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -923,23 +923,24 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
           'name': '7465737433',
         },
         'data': {
-          'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
           'username': 'dGVzdHVzZXIz',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
         'type': 'Opaque'
       });
 
     nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/7465737433', {
+      .put('/api/v1/namespaces/pai-user-v2/secrets/7465737433', {
         'metadata':{'name':'7465737433'},
         'data': {
-           'admin': 'ZmFsc2U=',
            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
            'username': 'dGVzdHVzZXIz',
-           'virtualCluster':'ZGVmYXVsdA==',
-           'githubPAT':''
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
          }
        })
       .reply(200, {
@@ -954,11 +955,11 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
             'creationTimestamp': '2018-12-07T02:21:42Z'
         },
         'data': {
-            'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'dGVzdHVzZXIz',
-            'virtualCluster':'ZGVmYXVsdA==',
-            'githubPAT':''
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
         },
         'type': 'Opaque'
       });
