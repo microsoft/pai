@@ -4,6 +4,7 @@ import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
+import {validateMountPath} from '../../utils/validation';
 import {InputData} from '../../models/data/input-data';
 
 export const AddHttp = (props) => {
@@ -26,6 +27,7 @@ export const AddHttp = (props) => {
         required
         prefix={STORAGE_PREFIX}
         label='Container Path'
+        errorMessage={containerPathErrorMessage}
         styles={{
           root: {
             minWidth: 200,
@@ -37,10 +39,9 @@ export const AddHttp = (props) => {
           },
         }}
         onChange={(_event, newValue) => {
-          if (!newValue) {
-            setContainerPathErrorMessage('Container path should not be empty');
-          } else if (!newValue.startsWith('/')) {
-            setContainerPathErrorMessage('container path should start with /');
+          const valid = validateMountPath(newValue);
+          if (!valid.isLegal) {
+            setContainerPathErrorMessage(valid.illegalMessage);
           } else {
             setContainerPathErrorMessage(null);
             setMountPath(`${STORAGE_PREFIX}${newValue}`);
@@ -50,6 +51,7 @@ export const AddHttp = (props) => {
       <TextField
         required
         label='Http Address'
+        errorMessage={httpAddressErrorMessage}
         styles={{
           root: {
             minWidth: 230,
@@ -61,19 +63,28 @@ export const AddHttp = (props) => {
           },
         }}
         onChange={(_event, newValue) => {
-          setHttpUrl(newValue);
+          if (!newValue) {
+            setHttpAddressErrorMessage('http address should not be empty');
+          } else {
+            setHttpAddressErrorMessage(null);
+            setHttpUrl(newValue);
+          }
         }}
       />
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'Accept'}}
           onClick={submitMount}
+          disabled={httpAddressErrorMessage || containerPathErrorMessage}
           styles={{
             root: {
               marginBottom:
                 httpAddressErrorMessage || containerPathErrorMessage
                   ? 22.15
                   : 0,
+            },
+            rootDisabled: {
+              backgroundColor: 'transparent',
             },
           }}
         />

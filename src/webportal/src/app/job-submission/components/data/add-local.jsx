@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
+import {validateMountPath} from '../../utils/validation';
 
 export const AddLocal = ({dataList, setDataList, setDataType}) => {
   const [mountPath, setMountPath] = useState();
@@ -63,10 +64,9 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         styles={{root: {minWidth: 200}}}
         errorMessage={errorMessage}
         onChange={(_event, newValue) => {
-          if (!newValue) {
-            setErrorMessage('Container path should not be empty');
-          } else if (!newValue.startsWith('/')) {
-            setErrorMessage('container path should start with /');
+          const valid = validateMountPath(newValue);
+          if (!valid.isLegal) {
+            setErrorMessage(valid.illegalMessage);
           } else {
             setErrorMessage(null);
             setMountPath(`${STORAGE_PREFIX}${newValue}`);
@@ -141,9 +141,13 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'Accept'}}
+          disabled={errorMessage}
           styles={{
             root: {
               marginBottom: errorMessage ? 22.15 : 0,
+            },
+            rootDisabled: {
+              backgroundColor: 'transparent',
             },
           }}
           onClick={submitMount}

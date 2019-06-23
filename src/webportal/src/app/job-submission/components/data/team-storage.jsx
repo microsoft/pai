@@ -103,7 +103,6 @@ export const TeamStorage = (props) => {
                 const selectedConfig = selectedConfigs.find(
                   (conf) => conf.name === config.name,
                 );
-                console.log(selectedConfig);
                 if (selectedConfig === undefined) {
                   newConfigs.push(config);
                 } else {
@@ -195,7 +194,6 @@ export const TeamStorage = (props) => {
   }, [mountDirectories]);
 
   const showConfigs = (config, index) => {
-    console.log(config);
     return (
       <DefaultButton
         key={config.name}

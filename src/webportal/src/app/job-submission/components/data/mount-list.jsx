@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import c from 'classnames';
 import {
   DetailsList,
@@ -14,25 +14,28 @@ import PropTypes from 'prop-types';
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {removePathPrefix} from '../../utils/utils';
-import t from '../../../../app/components/tachyons.scss';
+import {validateMountPath, validateGitUrl} from '../../utils/validation';
+import t from '../../../components/tachyons.scss';
 
-export const MountList = (props) => {
-  const {dataList, setDataList} = props;
+export const MountList = ({dataList, setDataList}) => {
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
+  const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState();
 
   const onRemove = useCallback((idx) => {
-    let updatedDataList = dataList;
-    if (idx !== undefined) {
-      updatedDataList = updatedDataList.splice(idx, 1);
-    }
-    setDataList(updatedDataList);
+    setDataList(([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]));
   });
-  const onMountPathChange = useCallback((idx, val) => {
-    let updatedDataList = cloneDeep(dataList);
-    updatedDataList[idx].mountPath = val;
-    setDataList(updatedDataList);
-  });
+
   const onDataSourceChange = useCallback((idx, val) => {
+    let valid;
     let updatedDataList = cloneDeep(dataList);
+    if (updatedDataList[idx].sourceType === 'git') {
+      valid = validateGitUrl(val);
+    }
+    if (valid && !valid.isLegal) {
+      setDataSourceErrorMessage(valid.illegalMessage);
+    } else {
+      setDataSourceErrorMessage(null);
+    }
     updatedDataList[idx].dataSource = val;
     setDataList(updatedDataList);
   });
@@ -42,13 +45,23 @@ export const MountList = (props) => {
       name: 'Container Path',
       headerClassName: FontClassNames.medium,
       minWidth: 200,
-      // eslint-disable-next-line react/display-name
       onRender: (item, idx) => {
         return (
           <TextField
             prefix={STORAGE_PREFIX}
             value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
-            onChange={(e, val) => onMountPathChange(idx, val)}
+            errorMessage={containerPathErrorMessage}
+            onChange={(_event, newValue) => {
+              const valid = validateMountPath(newValue);
+              if (!valid.isLegal) {
+                setContainerPathErrorMessage(valid.illegalMessage);
+              } else {
+                setContainerPathErrorMessage(null);
+              }
+              let updatedDataList = cloneDeep(dataList);
+              updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
+              setDataList(updatedDataList);
+            }}
           />
         );
       },
@@ -57,15 +70,14 @@ export const MountList = (props) => {
       key: 'dataSource',
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
-      maxWidth: 200,
-      // eslint-disable-next-line react/display-name
+      maxWidth: 230,
       onRender: (item, idx) => {
         return (
           <TextField
             value={item.dataSource}
             disabled={item.sourceType === 'local'}
+            errorMessage={dataSourceErrorMessage}
             onChange={(e, val) => onDataSourceChange(idx, val)}
-            style={{root: {minWidth: 200}}}
           />
         );
       },

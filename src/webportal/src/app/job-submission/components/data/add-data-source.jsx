@@ -8,6 +8,7 @@ import {AddLocal} from './add-local';
 import {AddGit} from './add-git';
 import {AddHDFS} from './add-hdfs';
 import {InputData} from '../../models/data/input-data';
+import {HdfsContext} from '../../models/data/hdfs-context';
 
 import t from '../../../../app/components/tachyons.scss';
 
@@ -79,19 +80,19 @@ export const AddDataSource = (props) => {
             setDataType={setDataType}
           />
         )}
-        {/* {dataType === 'hdfs' && (
-          <Context.Consumer>
-            {value => (
+        {dataType === 'hdfs' && (
+          <HdfsContext.Consumer>
+            {(value) => (
               <AddHDFS
-                mountList={mountList}
-                setMountList={setMountList}
-                setMountType={setMountType}
+                dataList={dataList}
+                setDataList={setDataList}
+                setDataType={setDataType}
                 hdfsClient={value.hdfsClient}
                 hdfsPathPrefix='/'
               />
             )}
-          </Context.Consumer>
-        )} */}
+          </HdfsContext.Consumer>
+        )}
       </div>
     </div>
   );

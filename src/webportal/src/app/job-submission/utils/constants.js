@@ -1,1 +1,2 @@
 export const STORAGE_PREFIX='/test';
+export const CUSTOM_STORAGE_TAG='#GENERATED_BY_CUSTOM_STORAGE';

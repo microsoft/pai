@@ -95,6 +95,7 @@
     "tachyons-sass": "^4.9.5",
     "terser-webpack-plugin": "^1.2.3",
     "util": "~0.10.3",
+    "webhdfs": "^1.2.0",
     "webpack": "~4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
