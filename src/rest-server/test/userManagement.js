@@ -1003,7 +1003,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
     // mock for case6 username=test6
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/test6')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/test6')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -1011,10 +1011,11 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
           'name': 'test6',
         },
         'data': {
-          'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'cGFpdGVzdA==',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
         },
         'type': 'Opaque'
       });
