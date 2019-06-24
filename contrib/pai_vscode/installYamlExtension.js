@@ -11,7 +11,7 @@ function installVscodeYamlExtension() {
     const existingExtensions = glob.sync(extensionPath.replace(version, '*'));
     console.log(`extensionPath: ${extensionPath}`);
     if (existingExtensions.length === 0) {
-        return download(`https://github.com/redhat-developer/vscode-yaml/releases/download/0.4.0/redhat.vscode-yaml-0.4.0.vsix`)
+        download(`https://github.com/redhat-developer/vscode-yaml/releases/download/0.4.0/redhat.vscode-yaml-0.4.0.vsix`)
             .pipe(decompress({
                 filter: (file) => file.path.startsWith('extension/'),
                 map: (file) => {
@@ -21,6 +21,15 @@ function installVscodeYamlExtension() {
             }))
             .pipe(gulp.dest(extensionPath));
     }
+
+    var exec = require('child_process').exec;
+    exec(`ls ${extensionPath}`, function (error, stdout, stderr) {
+        console.log('stdout: ' + stdout);
+        console.log('stderr: ' + stderr);
+        if (error !== null) {
+            console.log('exec error: ' + error);
+        }
+    });
 }
 
 installVscodeYamlExtension();

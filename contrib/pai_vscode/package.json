@@ -407,8 +407,7 @@
             }
         }
     },
-    "extensionDependencies": [
-    ],
+    "extensionDependencies": [],
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
