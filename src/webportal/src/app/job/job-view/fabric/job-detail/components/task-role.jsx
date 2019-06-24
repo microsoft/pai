@@ -17,7 +17,8 @@
 
 import {FontClassNames, ColorClassNames, getTheme} from '@uifabric/styling';
 import c from 'classnames';
-import {Icon, IconButton} from 'office-ui-fabric-react';
+import {capitalize} from 'lodash';
+import {Icon, IconButton, TooltipHost} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
@@ -85,8 +86,12 @@ export default class TaskRole extends React.Component {
       <div className={c(t.flex, t.itemsCenter)}>
         {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
           <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
-            <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}>
-            </div>
+            <TooltipHost
+              calloutProps={{isBeakVisible: false, gapSpace: 8}} // spacing.s1
+              content={capitalize(x)}
+            >
+              <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}></div>
+            </TooltipHost>
             <div className={c(t.ml2)}>{count[x]}</div>
           </div>
         ))}
@@ -123,6 +128,7 @@ export default class TaskRole extends React.Component {
               )}
               {/* status */}
               <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)}>
+                <div>Status:</div>
                 <div className={c(t.ml3)}>
                   {this.renderTaskRoleCount()}
                 </div>
