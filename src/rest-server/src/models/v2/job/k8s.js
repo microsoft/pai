@@ -46,6 +46,7 @@ const generateTaskRole = (taskRole, config) => {
           },
         },
         spec: {
+          privileged: false,
           restartPolicy: 'Never',
           serviceAccountName: 'frameworkbarrier',
           initContainers: [
@@ -89,7 +90,8 @@ const generateTaskRole = (taskRole, config) => {
               },
               securityContext: {
                 capabilities: {
-                  add: ['SYS_ADMIN', 'DAC_READ_SEARCH', 'DAC_OVERRIDE'],
+                  add: ['SYS_ADMIN', 'IPC_LOCK', 'DAC_READ_SEARCH'],
+                  drop: ['MKNOD'],
                 },
               },
               volumeMounts: [
