@@ -1189,7 +1189,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v2/user/update/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send( { 'virtualCluster': 'default' })
+      .send( { 'virtualCluster': ['default'] })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
@@ -1202,7 +1202,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
     global.chai.request(global.server)
       .put('/api/v2/user/update/test7/virtualCluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send( { 'virtualCluster': 'default' } )
+      .send( { 'virtualCluster': ['default'] } )
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
