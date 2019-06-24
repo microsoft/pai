@@ -337,7 +337,7 @@ describe('Add new user: put /api/v2/user', () => {
     // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-group/secrets')
-      .times(2)
+      .times(3)
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
