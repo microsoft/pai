@@ -118,10 +118,6 @@ const config = (env, argv) => ({
         ],
       },
       {
-        test: /\.json$/,
-        loader: 'json-loader',
-      },
-      {
         test: /\.ejs$/,
         loader: 'ejs-loader',
       },
@@ -355,8 +351,10 @@ const config = (env, argv) => ({
     ],
   },
   node: {
-    global: true,
     fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    global: true,
     process: true,
     module: false,
   },

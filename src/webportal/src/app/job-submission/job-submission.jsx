@@ -29,7 +29,12 @@ import 'whatwg-fetch';
 
 import React, {useState, useCallback, useEffect} from 'react';
 import ReactDOM from 'react-dom';
-import {Fabric, Stack, initializeIcons, StackItem} from 'office-ui-fabric-react';
+import {
+  Fabric,
+  Stack,
+  initializeIcons,
+  StackItem,
+} from 'office-ui-fabric-react';
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
 import {initTheme} from '../components/theme';
@@ -46,6 +51,7 @@ import PropTypes from 'prop-types';
 import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
 import {EnvVar} from './components/sidebar/env-var';
+import {DataComponent} from './components/data/data-component';
 // models
 import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
@@ -58,6 +64,7 @@ const formLayout = getFormClassNames().formLayout;
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
+const SIDEBAR_DATA = 'data';
 
 const JobSubmission = (props) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState(props.jobTaskRoles);
@@ -98,34 +105,45 @@ const JobSubmission = (props) => {
     }
   }, [setJobTaskRolesState]);
 
-  const setParameters = useCallback((param) => {
-    if (isEmpty(param)) {
-      setParametersState([{key: '', value: ''}]);
-    } else {
-      setParametersState(param);
-    }
-  }, [setParametersState]);
+  const setParameters = useCallback(
+    (param) => {
+      if (isEmpty(param)) {
+        setParametersState([{key: '', value: ''}]);
+      } else {
+        setParametersState(param);
+      }
+    },
+    [setParametersState],
+  );
 
-  const setSecrets = useCallback((secret) => {
-    if (isEmpty(secret)) {
-      setSecretsState([{key: '', value: ''}]);
-    } else {
-      setSecretsState(secret);
-    }
-  }, [setSecretsState]);
+  const setSecrets = useCallback(
+    (secret) => {
+      if (isEmpty(secret)) {
+        setSecretsState([{key: '', value: ''}]);
+      } else {
+        setSecretsState(secret);
+      }
+    },
+    [setSecretsState],
+  );
 
-  const onSelect = useCallback((x) => {
-    if (x === selected) {
-      setSelected(null);
-    } else {
-      setSelected(x);
-    }
-  }, [selected, setSelected]);
+  const onSelect = useCallback(
+    (x) => {
+      if (x === selected) {
+        setSelected(null);
+      } else {
+        setSelected(x);
+      }
+    },
+    [selected, setSelected],
+  );
 
   useEffect(() => {
-    listVirtualClusters().then((virtualClusters) => {
-      setVcNames(Object.keys(virtualClusters));
-    }).catch(alert);
+    listVirtualClusters()
+      .then((virtualClusters) => {
+        setVcNames(Object.keys(virtualClusters));
+      })
+      .catch(alert);
   }, []);
 
   const context = {
@@ -201,6 +219,11 @@ const JobSubmission = (props) => {
                 selected={selected === SIDEBAR_ENVVAR}
                 onSelect={() => onSelect(SIDEBAR_ENVVAR)}
               />
+              <DataComponent
+                selected={selected === SIDEBAR_DATA}
+                onSelect={() => onSelect(SIDEBAR_DATA)}
+                jobName={jobInformation.name}
+              />
             </Stack>
           </StackItem>
         </Stack>
@@ -215,7 +238,6 @@ JobSubmission.propTypes = {
   jobParameters: PropTypes.array.isRequired,
 };
 
-
 function onRenderJobSubmission(contentWrapper) {
   const params = new URLSearchParams(window.location.search);
   const props = {
@@ -227,18 +249,22 @@ function onRenderJobSubmission(contentWrapper) {
     const jobName = params.get('jobname') || '';
     const user = params.get('user') || '';
     if (user && jobName) {
-      fetchJobConfig(user, jobName).then((jobConfig) => {
-        const [jobInfo, taskRoles, parameters] = getJobComponentsFormConfig(jobConfig);
-        props.jobBasicInfo = jobInfo;
-        props.jobTaskRoles = taskRoles;
-        props.jobParameters = parameters;
-        ReactDOM.render(<JobSubmission {...props}/>, contentWrapper);
-      }).catch((err) => {
-        alert(err);
-      });
+      fetchJobConfig(user, jobName)
+        .then((jobConfig) => {
+          const [jobInfo, taskRoles, parameters] = getJobComponentsFormConfig(
+            jobConfig,
+          );
+          props.jobBasicInfo = jobInfo;
+          props.jobTaskRoles = taskRoles;
+          props.jobParameters = parameters;
+          ReactDOM.render(<JobSubmission {...props} />, contentWrapper);
+        })
+        .catch((err) => {
+          alert(err);
+        });
     }
   } else {
-    ReactDOM.render(<JobSubmission {...props}/>, contentWrapper);
+    ReactDOM.render(<JobSubmission {...props} />, contentWrapper);
   }
 }
 

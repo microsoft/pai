@@ -1,69 +1,108 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 import c from 'classnames';
-import {FontClassNames} from '@uifabric/styling';
 import {
   DetailsList,
-  IColumn,
+  DetailsListLayoutMode,
   SelectionMode,
-} from 'office-ui-fabric-react/lib/DetailsList';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+  IconButton,
+  FontClassNames,
+  TextField,
+} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
+import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import t from '../../../../app/components/tachyons.scss';
+import {removePathPrefix} from '../../utils/utils';
+import {validateMountPath, validateGitUrl} from '../../utils/validation';
+import t from '../../../components/tachyons.scss';
 
-export const MountList = (props) => {
-  const {dataList, setDataList} = props;
+export const MountList = ({dataList, setDataList}) => {
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
+  const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState();
+
+  const onRemove = useCallback((idx) => {
+    setDataList(([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]));
+  });
+
+  const onDataSourceChange = useCallback((idx, val) => {
+    let valid;
+    let updatedDataList = cloneDeep(dataList);
+    if (updatedDataList[idx].sourceType === 'git') {
+      valid = validateGitUrl(val);
+    }
+    if (valid && !valid.isLegal) {
+      setDataSourceErrorMessage(valid.illegalMessage);
+    } else {
+      setDataSourceErrorMessage(null);
+    }
+    updatedDataList[idx].dataSource = val;
+    setDataList(updatedDataList);
+  });
   const columes = [
     {
-      key: 'mountPath',
-      name: 'Mount path inside container',
+      key: 'containerPath',
+      name: 'Container Path',
       headerClassName: FontClassNames.medium,
-      minWidth: 50,
-      maxWidth: 200,
-      // eslint-disable-next-line react/display-name
-      onRender: (item) => {
-        return <div className={FontClassNames.medium}>{item.mountPath}</div>;
+      minWidth: 200,
+      onRender: (item, idx) => {
+        return (
+          <TextField
+            prefix={STORAGE_PREFIX}
+            value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
+            errorMessage={containerPathErrorMessage}
+            onChange={(_event, newValue) => {
+              const valid = validateMountPath(newValue);
+              if (!valid.isLegal) {
+                setContainerPathErrorMessage(valid.illegalMessage);
+              } else {
+                setContainerPathErrorMessage(null);
+              }
+              let updatedDataList = cloneDeep(dataList);
+              updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
+              setDataList(updatedDataList);
+            }}
+          />
+        );
       },
     },
     {
       key: 'dataSource',
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
-      minWidth: 50,
-      maxWidth: 400,
-      // eslint-disable-next-line react/display-name
-      onRender: (item) => {
+      maxWidth: 230,
+      onRender: (item, idx) => {
         return (
-          <div className={FontClassNames.medium}>{`${item.dataSource} ( ${
-            item.sourceType
-          } )`}</div>
+          <TextField
+            value={item.dataSource}
+            disabled={item.sourceType === 'local'}
+            errorMessage={dataSourceErrorMessage}
+            onChange={(e, val) => onDataSourceChange(idx, val)}
+          />
         );
       },
     },
     {
-      key: 'actions',
-      name: 'Actions',
-      headerClassName: FontClassNames.medium,
+      key: 'remove',
+      name: 'Remove',
       minWidth: 50,
-      // eslint-disable-next-line react/display-name
-      onRender: (_item, index) => {
-        return (
-          <div className={c(t.flex)}>
-            <PrimaryButton
-              text='Delete'
-              onClick={() => {
-                const newDataList = cloneDeep(dataList);
-                if (index !== undefined) {
-                  newDataList.splice(index, 1);
-                }
-                setDataList(newDataList);
-              }}
-            />
-          </div>
-        );
-      },
+      style: {padding: 0},
+      onRender: (item, idx) => (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
+          <IconButton
+            key={`remove-button-${idx}`}
+            iconProps={{iconName: 'Delete'}}
+            onClick={() => onRemove(idx)}
+          />
+        </div>
+      ),
     },
   ];
 
@@ -74,6 +113,8 @@ export const MountList = (props) => {
         disableSelectionZone
         selectionMode={SelectionMode.none}
         items={dataList}
+        layoutMode={DetailsListLayoutMode.fixedColumns}
+        compact
       />
     </div>
   );
