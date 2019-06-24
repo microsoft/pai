@@ -400,7 +400,6 @@ describe('Add new user: put /api/v2/user', () => {
 
 });
 
-
   //
   // Positive cases
   //
