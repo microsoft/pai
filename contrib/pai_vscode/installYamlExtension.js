@@ -23,7 +23,7 @@ function mkDirByPathSync(targetDir) {
 
 async function downloadAndUnzipExtension(url, dest, cb) {
     request(url).pipe(unzipper.Parse()).on('entry', function (entry) {
-        if (entry.path.startsWith('extension/') || entry.path.contains('extension.vsixmanifest')) {
+        if (entry.path.startsWith('extension/')) {
             var newPath = path.resolve(dest, entry.path.slice(10));
             mkDirByPathSync(getDirName(newPath));
             entry.pipe(fs.createWriteStream(newPath));
