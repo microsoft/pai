@@ -1128,9 +1128,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 2 (Positive): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/update/test2/virtualcluster')
+      .put('/api/v2/user/update/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render({ 'virtualClusters': ['non_exist_vc'] })))
+      .send({ 'virtualClusters': ['non_exist_vc'] })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -1158,9 +1158,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 4 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/testinvalid/virtualClusters')
+      .put('/api/v2/user/update/testinvalid/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': 'non_exist_vc' })))
+      .send({ 'virtualCluster': 'non_exist_vc' })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
