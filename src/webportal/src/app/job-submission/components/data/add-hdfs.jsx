@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {cloneDeep} from 'lodash';
 import c from 'classnames';
 import {
-  PrimaryButton,
   TextField,
   TagPicker,
   FontClassNames,
@@ -13,11 +12,10 @@ import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateHDFSPath} from '../../utils/validation';
+import {validateMountPath} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
 import t from '../../../../app/components/tachyons.scss';
-import {HdfsContext} from '../../models/data/hdfs-context';
 
 export const AddHDFS = ({
   dataList,
@@ -29,8 +27,8 @@ export const AddHDFS = ({
   const [mountPath, setMountPath] = useState();
   const [isHdfsEnabled, setIsHdfsEnabled] = useState(true);
   const [hdfsPath, setHdfsPath] = useState();
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
-  const [hdfsPathErrorMessage, setHdfsPathErrorMessage] = useState();
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
+  const hdfsPathErrorMessage = useState()[0];
 
   useEffect(() => {
     if (!hdfsClient) {
@@ -171,7 +169,7 @@ export const AddHDFS = ({
             },
           }}
           onClick={() => {
-            window.open('http://10.151.40.234:50070/explorer.html#/');
+            window.open(`${hdfsClient.host}/explorer.html#/`);
           }}
         />
       </Stack.Item>

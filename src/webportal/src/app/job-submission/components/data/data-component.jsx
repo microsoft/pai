@@ -7,11 +7,15 @@ import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';
 import {HdfsContext} from '../../models/data/hdfs-context';
+import {getHostNameFromUrl} from '../../utils/utils';
+import config from '../../../config/webportal.config';
+
+const host = getHostNameFromUrl(config.restServerUri);
 
 export const DataComponent = React.memo((props) => {
   const [dataList, setDataList] = useState([]);
   const [mountDirectories, setMountDirectories] = useState(null);
-  const hdfsClient = new WebHDFSClient('10.151.40.234');
+  const hdfsClient = new WebHDFSClient(host);
 
   return (
     <HdfsContext.Provider

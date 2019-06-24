@@ -28,6 +28,7 @@ import {promisify} from 'util';
 
 export class WebHDFSClient {
   constructor(host, user, timeout, port = '50070', apiPath = `/webhdfs/v1`) {
+    this.host = `http://${host}:${port}`;
     this.endpoint = `http://${host}:${port}${apiPath}`;
     this.client = webhdfs.createClient({host, port, user, apiPath}, {timeout});
     this.client.readdir = promisify(this.client.readdir);
@@ -38,11 +39,9 @@ export class WebHDFSClient {
     return this.client
       .readdir('/')
       .then(() => {
-        console.log('can access');
         return true;
       })
       .catch((error) => {
-        console.log(error);
         return false;
       });
   }
@@ -51,7 +50,6 @@ export class WebHDFSClient {
     this.client
       .readdir(path)
       .then((data) => {
-        console.log(data);
       })
       .catch((error) => {
         if (error.message.includes('does not exist')) {
@@ -95,7 +93,6 @@ export class WebHDFSClient {
           body: fileBinary,
         })
           .then(() => {
-            console.log('upload done');
             resolve(`${dir}/${newFileName}`);
           })
           .catch((err) => {

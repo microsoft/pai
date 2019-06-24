@@ -11,8 +11,8 @@ export const AddGit = (props) => {
   const {dataList, setDataList, setDataType} = props;
   const [mountPath, setMountPath] = useState();
   const [gitUrl, setGitUrl] = useState();
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
-  const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState();
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
+  const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState('Git should not be empty');
 
   const submitMount = () => {
     const newDataList = cloneDeep(dataList);

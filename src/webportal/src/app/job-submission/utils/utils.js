@@ -4,6 +4,7 @@ import {basename} from 'path';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {CUSTOM_STORAGE_TAG} from '../utils/constants';
+import {STORAGE_PREFIX} from './constants';
 
 const HIDE_SECRET = '******';
 
@@ -42,17 +43,15 @@ export function removeEmptyProperties(obj) {
   return newObj;
 }
 
-export async function generateCustomStorageCommands(hdfsClient, dataList) {
+export async function generateCustomStorageCommands(hdfsClient, dataList, userName, jobName) {
   const preCommand = [];
   preCommand.push(CUSTOM_STORAGE_TAG);
   const hdfsConfigFile = '~/.hdfscli.cfg';
-  const hdfsUrl = 'http://10.151.40.234:50070';
-  const jobDir = `/ametest`;
+  const jobDir = `${STORAGE_PREFIX}/${userName}/${jobName}`;
   preCommand.push(
-    `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${hdfsUrl}' >> ${hdfsConfigFile}`,
+    `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${hdfsClient.host}' >> ${hdfsConfigFile}`,
   );
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const dataItem of dataList) {
     preCommand.push(
       `if [ ! -d ${dataItem.mountPath} ]; then mkdir --parents ${
@@ -175,6 +174,11 @@ export function getJobComponentsFormConfig(jobConfig) {
     updatedParameters,
     updatedSecrets,
   ];
+}
+
+export function getHostNameFromUrl(url) {
+  const parser = new URL(url);
+  return parser.hostname;
 }
 
 
