@@ -209,6 +209,9 @@ const updateUserVirtualCluster = async (req, res, next) => {
           return next(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${vcname} not found.`));
         }
       }
+      if (grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+        return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
+      }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
       }

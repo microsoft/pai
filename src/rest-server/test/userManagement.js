@@ -1022,7 +1022,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
     // mock for case7 username=test7
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7465737437')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737437')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -1030,10 +1030,11 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
           'name': '7465737437',
         },
         'data': {
-          'admin': 'dHJ1ZQ==',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'cGFpdGVzdA==',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
         'type': 'Opaque'
       });
@@ -1199,9 +1200,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 7 (Negative): should fail to update admin virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test7/virtualClusters')
+      .put('/api/v2/user/update/test7/virtualCluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualCluster': 'default' })))
+      .send( { 'virtualCluster': 'default' } )
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
