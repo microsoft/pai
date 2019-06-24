@@ -27,7 +27,7 @@ async function downloadAndUnzipExtension(url, dest, cb) {
             var newPath = path.resolve(dest, entry.path.slice(10));
             mkDirByPathSync(getDirName(newPath));
             entry.pipe(fs.createWriteStream(newPath));
-        } else if (entry.path.endsWith('extension.vsixmanifest')) {
+        } else if (entry.path === 'extension.vsixmanifest') {
             var newPath = path.resolve(dest, entry.path.slice(9));
             mkDirByPathSync(getDirName(newPath));
             entry.pipe(fs.createWriteStream(newPath));
