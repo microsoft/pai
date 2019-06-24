@@ -18,8 +18,8 @@ import {validateMountPath, validateGitUrl} from '../../utils/validation';
 import t from '../../../components/tachyons.scss';
 
 export const MountList = ({dataList, setDataList}) => {
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
-  const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState();
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(Array(dataList.length));
+  const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState(Array(dataList.length));
 
   const onRemove = useCallback((idx) => {
     setDataList(([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]));
@@ -31,10 +31,13 @@ export const MountList = ({dataList, setDataList}) => {
     if (updatedDataList[idx].sourceType === 'git') {
       valid = validateGitUrl(val);
     }
+    const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
     if (valid && !valid.isLegal) {
-      setDataSourceErrorMessage(valid.illegalMessage);
+      newDataSourceErrorMessage[idx] = valid.illegalMessage;
+      setDataSourceErrorMessage(newDataSourceErrorMessage);
     } else {
-      setDataSourceErrorMessage(null);
+      newDataSourceErrorMessage[idx] = null;
+      setDataSourceErrorMessage(newDataSourceErrorMessage);
     }
     updatedDataList[idx].dataSource = val;
     setDataList(updatedDataList);
@@ -50,13 +53,16 @@ export const MountList = ({dataList, setDataList}) => {
           <TextField
             prefix={STORAGE_PREFIX}
             value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
-            errorMessage={containerPathErrorMessage}
+            errorMessage={containerPathErrorMessage[idx]}
             onChange={(_event, newValue) => {
               const valid = validateMountPath(newValue);
+              const newErrorMessage = cloneDeep(containerPathErrorMessage);
               if (!valid.isLegal) {
-                setContainerPathErrorMessage(valid.illegalMessage);
+                newErrorMessage[idx] = valid.illegalMessage;
+                setContainerPathErrorMessage(newErrorMessage);
               } else {
-                setContainerPathErrorMessage(null);
+                newErrorMessage[idx] = null;
+                setContainerPathErrorMessage(newErrorMessage);
               }
               let updatedDataList = cloneDeep(dataList);
               updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
@@ -76,7 +82,7 @@ export const MountList = ({dataList, setDataList}) => {
           <TextField
             value={item.dataSource}
             disabled={item.sourceType === 'local'}
-            errorMessage={dataSourceErrorMessage}
+            errorMessage={dataSourceErrorMessage[idx]}
             onChange={(e, val) => onDataSourceChange(idx, val)}
           />
         );

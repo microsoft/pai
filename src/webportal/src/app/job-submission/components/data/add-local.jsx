@@ -16,7 +16,7 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
   const [mountPath, setMountPath] = useState();
   const [files, setFiles] = useState();
   const [uploadType, setUploadType] = useState('Files');
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState('Path should not be empty');
 
   const uploadFile = React.createRef();
   const uploadFolder = React.createRef();

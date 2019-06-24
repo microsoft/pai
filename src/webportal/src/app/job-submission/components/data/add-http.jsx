@@ -11,8 +11,8 @@ export const AddHttp = (props) => {
   const {dataList, setDataList, setDataType} = props;
   const [mountPath, setMountPath] = useState();
   const [httpUrl, setHttpUrl] = useState();
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState();
-  const [httpAddressErrorMessage, setHttpAddressErrorMessage] = useState();
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
+  const [httpAddressErrorMessage, setHttpAddressErrorMessage] = useState('Http address should not be empty');
 
   const submitMount = () => {
     const newMountList = cloneDeep(dataList);
