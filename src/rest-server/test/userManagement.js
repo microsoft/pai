@@ -193,21 +193,6 @@ describe('Add new user: put /api/v2/user', () => {
   before(() => {
 
     // mock for case1 username=newuser
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/6e657775736572')
-      .reply(404, {
-        'kind': 'Status',
-        'apiVersion': 'v1',
-        'metadata': {},
-        'status': 'Failure',
-        'message': 'secrets \'6e657775736572\' not found',
-        'reason': 'NotFound',
-        'details': {
-          'name': '6e657775736572',
-          'kind': 'secrets'
-        },
-        'code': 404
-      });
 
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user-v2/secrets', {
@@ -242,21 +227,6 @@ describe('Add new user: put /api/v2/user', () => {
       });
 
     // mock for case2 add non-admin user
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e')
-      .reply(404, {
-        'kind': 'Status',
-        'apiVersion': 'v1',
-        'metadata': {},
-        'status': 'Failure',
-        'message': 'secrets \'6e6f6e5f61646d696e\' not found',
-        'reason': 'NotFound',
-        'details': {
-          'name': '6e6f6e5f61646d696e',
-          'kind': 'secrets'
-        },
-        'code': 404
-      });
 
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user-v2/secrets', {
