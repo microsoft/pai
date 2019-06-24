@@ -2,11 +2,22 @@ import React from 'react';
 import {TabForm} from './tab-form';
 import {JobTaskRole} from '../models/job-task-role';
 
+import {createUniqueName} from '../utils/utils';
+
 import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 
-const HEADER_PREFIX = 'Task_role_';
+const HEADER_PREFIX = 'Task_role';
 let taskRoleSeq = 1;
+
+function generateUniqueTaskName(taskRoles, curIndex) {
+  const usedNames = taskRoles
+    .map((taskRole) => taskRole.name)
+    .filter((_, index) => index < curIndex);
+  const [newName, updateIndex] = createUniqueName(usedNames, HEADER_PREFIX, taskRoleSeq);
+  taskRoleSeq = updateIndex;
+  return newName;
+}
 
 export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   const _onItemChange = (items) => {
@@ -17,7 +28,10 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   };
 
   const _onItemAdd = (items) => {
-    const taskRoleName = HEADER_PREFIX + String(taskRoleSeq++);
+    const taskRoleName = generateUniqueTaskName(
+      items.map((item) => item.content),
+      items.length,
+    );
     const updatedItems = [
       ...items,
       {
@@ -37,10 +51,10 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
     return 0;
   };
 
-  const items = taskRoles.map((item) => {
+  const items = taskRoles.map((item, index) => {
     let taskRoleName;
     if (isEmpty(item.name)) {
-      taskRoleName = HEADER_PREFIX + String(taskRoleSeq++);
+      taskRoleName = generateUniqueTaskName(taskRoles, index);
       item.name = taskRoleName;
     } else {
       taskRoleName = item.name;
