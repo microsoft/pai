@@ -499,7 +499,6 @@ describe('update user: put /api/v2/user/update', () => {
     // mock for case1 username=update_user.
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572')
-      .times(2)
       .reply(200,  {
         'kind': 'Secret',
         'apiVersion': 'v1',
