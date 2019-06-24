@@ -204,6 +204,11 @@ const updateUserVirtualCluster = async (req, res, next) => {
           grouplist.push(groupname);
         }
       }
+      for (const vcname of virtualCluster) {
+        if (!virtualCluster.includes(vcname)) {
+          return next(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${item} not found.`));
+        }
+      }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
       }

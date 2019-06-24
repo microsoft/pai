@@ -897,7 +897,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
     // mock for case2 username=test2
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7465737432')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737432')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -905,10 +905,11 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
           'name': '7465737432',
         },
         'data': {
-          'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'cGFpdGVzdA==',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
         },
         'type': 'Opaque'
       });
@@ -1125,9 +1126,9 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
       });
   });
 
-  it('Case 2 (Positive): add new user with invalid virtual cluster should add default vc only and throw update vc error', (done) => {
+  it('Case 2 (Positive): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test2/virtualcluster')
+      .put('/api/v1/user/update/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render({ 'virtualClusters': ['non_exist_vc'] })))
       .end((err, res) => {
