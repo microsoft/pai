@@ -209,12 +209,6 @@ describe('Add new user: put /api/v2/user', () => {
         'code': 404
       });
 
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, schedulerResponse)
-      .get('/ws/v1/cluster/nodes')
-      .reply(200, nodeResponse);
-
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e657775736572'},
