@@ -1,13 +1,15 @@
 var fs = require('fs');
+var getDirName = require('path').dirname;
 var os = require('os');
 var path = require('path');
+var request = require('request');
+var unzipper = require('unzipper');
 
 function mkDirByPathSync(targetDir) {
     const sep = path.sep;
     const initDir = path.isAbsolute(targetDir) ? sep : '';
-
     return targetDir.split(sep).reduce((parentDir, childDir) => {
-        const curDir = path.resolve(baseDir, parentDir, childDir);
+        const curDir = path.resolve(parentDir, childDir);
         try {
             fs.mkdirSync(curDir);
         } catch (err) {
@@ -19,14 +21,10 @@ function mkDirByPathSync(targetDir) {
     }, initDir);
 }
 
-async function downloadAndUnzipExtension(url, path, cb) {
-    var unzipper = require('unzipper');
-    var request = require('request');
-    var getDirName = require('path').dirname;
-
+async function downloadAndUnzipExtension(url, dest, cb) {
     request(url).pipe(unzipper.Parse()).on('entry', function (entry) {
         if (entry.path.startsWith('extension/')) {
-            var newPath = path + '/' + entry.path.slice(10);
+            var newPath = path.resolve(dest, entry.path.slice(10));
             mkDirByPathSync(getDirName(newPath));
             entry.pipe(fs.createWriteStream(newPath));
         } else {
