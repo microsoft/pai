@@ -33,6 +33,7 @@ export const PortsList = React.memo(({onChange, ports}) => (
   <BasicSection sectionLabel='Ports' sectionOptional>
     <FormShortSection>
       <KeyValueList
+        name='Port List'
         value={ports}
         onChange={onChange}
         columnWidth={220}

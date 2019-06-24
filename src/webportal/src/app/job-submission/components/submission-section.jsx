@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef, useEffect, useContext, useCallback} from 'react';
+import React, {useState, useRef, useEffect, useContext} from 'react';
 import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label, StackItem, Toggle} from 'office-ui-fabric-react';
 
 import {getImportButtonStyle} from './form-style';
@@ -61,27 +61,30 @@ const _exportFile = (data, filename, type) => {
   }
 };
 
+const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
+
 export const SubmissionSection = (props) => {
   const {jobInformation, jobTaskRoles, parameters, secrets, onChange, advanceFlag, onToggleAdvanceFlag} = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
   const [protocolYaml, setProtocolYaml] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [validationMsg, setValidationMsg] = useState('');
 
   const monaco = useRef(null);
 
-  const {vcNames} = useContext(Context);
+  const {vcNames, errorMessages, setErrorMessage} = useContext(Context);
 
-  const _protocolAndErrorUpdate = useCallback((protocol) => {
+  const _protocolAndErrorUpdate = (protocol) => {
     if (!isEqual(jobProtocol, protocol)) {
       setjobProtocol(protocol);
     }
-    const newErrorMsg = JobProtocol.validateFromObject(protocol);
-    if (newErrorMsg !== errorMsg) {
-      setErrorMsg(newErrorMsg);
+    const newValidationMessage = JobProtocol.validateFromObject(protocol);
+    if (newValidationMessage !== validationMsg) {
+      setValidationMsg(newValidationMessage);
+      setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
     }
-  }, [jobProtocol]);
+  };
 
   useEffect(() => {
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
@@ -152,7 +155,7 @@ export const SubmissionSection = (props) => {
 
   const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
-    setErrorMsg(JobProtocol.validateFromYaml(text));
+    setValidationMsg(JobProtocol.validateFromYaml(text));
   };
 
   const _submitJob = (event) => {
@@ -167,7 +170,7 @@ export const SubmissionSection = (props) => {
       <Stack horizontal>
         <StackItem grow>
           <Stack horizontal gap='s1' horizontalAlign='center'>
-            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMsg)} >Submit</PrimaryButton>
+            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)} >Submit</PrimaryButton>
             <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
           </Stack>
         </StackItem>
@@ -203,7 +206,7 @@ export const SubmissionSection = (props) => {
           onDismiss={_closeEditor}
           title='Protocol YAML Editor'
           header={
-            <Text className={{color: palette.white}}>{String(errorMsg)}</Text>
+            <Text className={{color: palette.white}}>{String(validationMsg)}</Text>
           }
           monacoRef={monaco}
           monacoProps={{

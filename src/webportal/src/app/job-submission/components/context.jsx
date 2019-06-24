@@ -18,4 +18,7 @@
 import React from 'react';
 
 export default React.createContext({
+  vcNames: [],
+  errorMessages: {},
+  setErrorMessage: (id, msg) => {},
 });

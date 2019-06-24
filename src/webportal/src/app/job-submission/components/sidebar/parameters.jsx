@@ -42,6 +42,7 @@ export const Parameters = React.memo(({parameters, onChange, selected, onSelect}
       </Hint>
       <div>
         <KeyValueList
+          name='Parameter List'
           value={parameters}
           onChange={onChange}
         />

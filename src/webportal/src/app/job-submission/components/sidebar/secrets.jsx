@@ -42,6 +42,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => (
       </Hint>
       <div>
         <KeyValueList
+          name='Secret List'
           value={secrets}
           onChange={onChange}
           secret

@@ -23,18 +23,41 @@
  * SOFTWARE.
  */
 
-import {camelCase, cloneDeep} from 'lodash';
+import {camelCase} from 'lodash';
 import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useCallback, useLayoutEffect} from 'react';
+import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
 import {dispatchResizeEvent} from '../../utils/utils';
+import context from '../context';
 
-export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
+export const KeyValueList = ({name, value, onChange, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
   columnWidth = columnWidth || 200;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
   valueName = valueName || 'Value';
   valueField = valueField || camelCase(valueName);
+
+  const [dupList, setDupList] = useState([]);
+  const {setErrorMessage} = useContext(context);
+
+  useMemo(() => {
+    const keyCount = value.reduce((res, x) => {
+      if (res[x[keyField]] === undefined) {
+        res[x[keyField]] = 0;
+      }
+      res[x[keyField]] += 1;
+      return res;
+    }, {});
+    const newDupList = value.filter((x) => keyCount[x[keyField]] > 1).map((x) => x[keyField]);
+
+    const msgId = `KeyValueList ${name}`;
+    if (newDupList.length > 0) {
+      setErrorMessage(msgId, `${name || 'KeyValueList'} has duplicated keys.`);
+    } else {
+      setErrorMessage(msgId, '');
+    }
+    setDupList(newDupList);
+  }, [value]);
 
   const onAdd = useCallback(() => {
     onChange([...value, {[keyField]: '', [valueField]: ''}]);
@@ -69,7 +92,7 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
       minWidth: columnWidth,
       onRender: (item, idx) => (
         <TextField
-          errorMessage={item.dup && 'duplicated key'}
+          errorMessage={dupList.includes(item[keyField]) && 'duplicated key'}
           value={item[keyField]}
           onChange={(e, val) => onKeyChange(idx, val)}
         />
@@ -104,41 +127,33 @@ export const KeyValueList = ({value, onChange, columnWidth, keyName, keyField, v
     },
   ];
 
-  const keyCount = value.reduce((res, x) => {
-    if (res[x[keyField]] === undefined) {
-      res[x[keyField]] = 0;
-    }
-    res[x[keyField]] += 1;
-    return res;
-  }, {});
-  const newVal = cloneDeep(value).map((x) => ({...x, dup: keyCount[x[keyField]] > 1}));
-
   return (
-      <Stack gap='m'>
-        <div>
-          <DetailsList
-            items={newVal}
-            columns={columns}
-            getKey={getKey}
-            checkboxVisibility={CheckboxVisibility.hidden}
-            layoutMode={DetailsListLayoutMode.fixedColumns}
-            compact
-          />
-        </div>
-        <div>
-          <CommandBarButton
-            styles={{root: {padding: spacing.s1}}}
-            iconProps={{iconName: 'Add'}}
-            onClick={onAdd}
-          >
-            Add
-          </CommandBarButton>
-        </div>
-      </Stack>
+    <Stack gap='m'>
+      <div>
+        <DetailsList
+          items={value}
+          columns={columns}
+          getKey={getKey}
+          checkboxVisibility={CheckboxVisibility.hidden}
+          layoutMode={DetailsListLayoutMode.fixedColumns}
+          compact
+        />
+      </div>
+      <div>
+        <CommandBarButton
+          styles={{root: {padding: spacing.s1}}}
+          iconProps={{iconName: 'Add'}}
+          onClick={onAdd}
+        >
+          Add
+        </CommandBarButton>
+      </div>
+    </Stack>
   );
 };
 
 KeyValueList.propTypes = {
+  name: PropTypes.string,
   value: PropTypes.array,
   onChange: PropTypes.func,
   // custom field
