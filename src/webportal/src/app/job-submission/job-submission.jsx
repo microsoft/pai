@@ -164,7 +164,7 @@ const JobSubmission = (props) => {
           gap='l1'
         >
           {/* left column */}
-          <StackItem grow shrink styles={{root: {height: '100%'}}}>
+          <StackItem grow shrink styles={{root: {height: '100%', minWidth: 0}}}>
             <Stack
               gap='l2'
               styles={{root: {height: '100%', overflowY: 'auto'}}}

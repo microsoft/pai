@@ -28,61 +28,7 @@ import {DetailsList, CheckboxVisibility, Stack, DetailsListLayoutMode} from 'off
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
-
-const items = [
-  {
-    key: 'PAI_JOB_NAME',
-    desc: 'jobName in config file',
-  },
-  {
-    key: 'PAI_USER_NAME',
-    desc: 'User who submit the job',
-  },
-  {
-    key: 'PAI_DEFAULT_FS_URI',
-    desc: 'Default file system uri in PAI',
-  },
-  {
-    key: 'PAI_TASK_ROLE_COUNT',
-    desc: `Total task roles' number in config file`,
-  },
-  {
-    key: 'PAI_TASK_ROLE_LIST',
-    desc: 'Comma separated all task role names in config file',
-  },
-  {
-    key: 'PAI_TASK_ROLE_TASK_COUNT_$taskRole',
-    desc: 'Task count of the task role',
-  },
-  {
-    key: 'PAI_HOST_IP_$taskRole_$taskIndex',
-    desc: 'The host IP for taskIndex task in taskRole',
-  },
-  {
-    key: 'PAI_PORT_LIST_$taskRole_$taskIndex_$portType',
-    desc: 'The $portType port list for taskIndex task in taskRole',
-  },
-  {
-    key: 'PAI_RESOURCE_$taskRole',
-    desc: 'Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format',
-  },
-  {
-    key: 'PAI_MIN_FAILED_TASK_COUNT_$taskRole',
-    desc: 'taskRole.minFailedTaskCount of the task role',
-  },
-  {
-    key: 'PAI_MIN_SUCCEEDED_TASK_COUNT_$taskRole',
-    desc: 'taskRole.minSucceededTaskCount of the task role',
-  },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_NAME',
-    desc: 'taskRole.name of current task role',
-  },
-  {
-    key: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-    desc: 'Index of current task in current task role, starting from 0',
-  },
-];
+import {PAI_ENV_VAR} from '../../utils/constants';
 
 const columns = [
   {
@@ -113,7 +59,7 @@ export const EnvVar = React.memo(({selected, onSelect}) => (
       </Hint>
       <div>
         <DetailsList
-          items={items}
+          items={PAI_ENV_VAR}
           columns={columns}
           checkboxVisibility={CheckboxVisibility.hidden}
           layoutMode={DetailsListLayoutMode.fixedColumns}

@@ -44,6 +44,9 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   };
 
   const _onItemDelete = (items, itemIndex) => {
+    if (items.length === 1) {
+      return 0;
+    }
     const updatedItems = items.filter((_, index) => index !== itemIndex);
     _onItemChange(updatedItems);
 

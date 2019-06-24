@@ -43,7 +43,7 @@ const skuUnit = {
 
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
-  const {cpu, memoryMB, gpu, shmMB} = value;
+  const {cpu, memoryMB, gpu} = value;
 
   const _onChange = (keyName, newValue) => {
     const containerSize = new ContainerSize(value);
@@ -67,7 +67,7 @@ export const ContainerSizeSection = (props) => {
     }
 
     const containerSize = new ContainerSize({
-      gpu: skuUnit.gpu * factor,
+      gpu: Number(gpuNumber),
       cpu: skuUnit.cpu * factor,
       memoryMB: skuUnit.memoryMB * factor,
     });
@@ -84,6 +84,8 @@ export const ContainerSizeSection = (props) => {
             label={'GPU count'}
             value={gpu}
             styles={spinButtonStyle}
+            min={0}
+            max={8}
             onChange={
               isContainerSizeEnabled
                 ? (value) => _onChange('gpu', value)
@@ -103,13 +105,6 @@ export const ContainerSizeSection = (props) => {
             value={memoryMB}
             styles={spinButtonStyle}
             onChange={(value) => _onChange('memoryMB', value)}
-          />
-          <CSpinButton
-            label={'Shared memory (MB)'}
-            value={shmMB}
-            disabled={!isContainerSizeEnabled}
-            styles={spinButtonStyle}
-            onChange={(value) => _onChange('shmMB', value)}
           />
         </FormShortSection>
         <Stack horizontalAlign='start'>
