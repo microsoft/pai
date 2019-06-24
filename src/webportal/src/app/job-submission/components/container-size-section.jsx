@@ -35,6 +35,12 @@ import {FormShortSection} from './form-page';
 const {spacing} = getTheme();
 const spinButtonStyle = getSpinButtonStyle();
 
+const skuUnit = {
+  gpu: 1,
+  cpu: 4,
+  memoryMB: 8192,
+};
+
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
   const {cpu, memoryMB, gpu, shmMB} = value;
@@ -54,6 +60,22 @@ export const ContainerSizeSection = (props) => {
     onEnable(checked);
   };
 
+  const _onGPUSkuChange= (gpuNumber) => {
+    let factor = Number(gpuNumber);
+    if (factor <= 0) {
+      factor = 1;
+    }
+
+    const containerSize = new ContainerSize({
+      gpu: skuUnit.gpu * factor,
+      cpu: skuUnit.cpu * factor,
+      memoryMB: skuUnit.memoryMB * factor,
+    });
+    if (onChange !== undefined) {
+      onChange(containerSize);
+    }
+  };
+
   return (
     <BasicSection sectionLabel={'ContainerSize'}>
       <Stack horizontal gap='l1'>
@@ -62,7 +84,11 @@ export const ContainerSizeSection = (props) => {
             label={'GPU count'}
             value={gpu}
             styles={spinButtonStyle}
-            onChange={(value) => _onChange('gpu', value)}
+            onChange={
+              isContainerSizeEnabled
+                ? (value) => _onChange('gpu', value)
+                : _onGPUSkuChange
+            }
           />
           <CSpinButton
             label={'CPU count'}

@@ -25,9 +25,13 @@
 
 import React from 'react';
 import {TextField, getId} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
+
+import PropTypes from 'prop-types';
+import {isEmpty} from 'lodash';
+
+const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const FormTextField = React.memo((props) => {
   const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
@@ -39,7 +43,15 @@ export const FormTextField = React.memo((props) => {
     onBlur(event.target.value);
   };
 
-  const textField = <TextField {...props} id={textFieldId} onBlur={_onBlur} />;
+  const _onGetErrorMessage = (value) => {
+    const match = TEXT_FILED_REGX.exec(value);
+    if (isEmpty(match)) {
+      return 'Input is invalid';
+    }
+    return '';
+  };
+
+  const textField = <TextField {...props} id={textFieldId} onBlur={_onBlur} onGetErrorMessage={_onGetErrorMessage}/>;
 
   return (
     <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>

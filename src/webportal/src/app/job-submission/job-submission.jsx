@@ -42,9 +42,10 @@ import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 import {fetchJobConfig, listVirtualClusters} from './utils/conn';
 import {getJobComponentsFormConfig} from './utils/utils';
-import Context from './components/Context';
+import {TaskRolesManager} from './utils/task-roles-manager';
+import Context from './components/context';
 
-import {isEmpty, get} from 'lodash';
+import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 // sidebar
 import {Parameters} from './components/sidebar/parameters';
@@ -64,75 +65,6 @@ const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
-const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
-
-function generateDockerMap(taskRoles) {
-  const updatedDockerMap = new Map();
-  taskRoles.forEach((taskRole) => {
-    const uri = get(taskRole, 'dockerInfo.uri', '');
-    if (isEmpty(uri)) {
-      return;
-    }
-    if (!updatedDockerMap.has(uri)) {
-      updatedDockerMap.set(uri, taskRole.dockerInfo);
-      return;
-    }
-    const preDockerInfo = updatedDockerMap.get(uri);
-    const curDockerInfo = taskRole.dockerInfo;
-    if (preDockerInfo.updateTime < curDockerInfo.updateTime) {
-      updatedDockerMap.set(uri, curDockerInfo);
-    }
-  });
-  return updatedDockerMap;
-}
-
-let secretSeq = 0;
-function getUpdatedSecretsAndLinkDockerInfo(dockerMap, preSecrets) {
-  const updatedSecrets = Array.from(preSecrets);
-  const dockerInfos = Array.from(dockerMap.values());
-  let isUpdated = false;
-
-  dockerInfos
-    .filter((dockerInfo) => !isEmpty(get(dockerInfo, 'auth.password', '')))
-    .forEach((dockerInfo) => {
-      const password = dockerInfo.auth.password;
-      const matchResults = SECRET_PATTERN.exec(dockerInfo.secretRef);
-      if (!isEmpty(matchResults)) {
-        const matchResult = matchResults[1];
-        const findSecret = updatedSecrets.find(
-          (secret) => secret.key === matchResult,
-        );
-        if (findSecret !== undefined && findSecret.value !== password) {
-          findSecret.value = password;
-          isUpdated = true;
-        }
-
-        // Remove auth from dockerMap if secret not exist
-        if (findSecret === undefined) {
-          dockerInfo.auth = {};
-          dockerInfo.secretRef = '';
-          isUpdated = true;
-        }
-      } else {
-        // Add new secret here
-        const secretKey = `docker_password_${secretSeq++}`;
-        updatedSecrets.push({key: secretKey, value: password});
-        dockerInfo.secretRef = `<% $secrets.${secretKey} %>`;
-        isUpdated = true;
-      }
-    });
-  return [isUpdated, updatedSecrets];
-}
-
-let dockerNameSeq = 0;
-function updateDockerInfo(dockerMap) {
-  dockerMap.forEach((value) => {
-    if (!isEmpty(value.name)) {
-      return;
-    }
-    value.name = `docker_image_${dockerNameSeq}`;
-  });
-}
 
 const JobSubmission = (props) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState(props.jobTaskRoles);
@@ -145,28 +77,33 @@ const JobSubmission = (props) => {
   // Context variables
   const [vcNames, setVcNames] = useState([]);
 
-  const setJobTaskRoles = useCallback(
-    (taskRoles) => {
-      // docker info will be updated in-place
-      const dockerMap = generateDockerMap(taskRoles);
-      const [isUpdated, updatedSecrets] = getUpdatedSecretsAndLinkDockerInfo(
-        dockerMap,
-        secrets,
-      );
-      updateDockerInfo(dockerMap);
+  useEffect(() => {
+    // docker info will be updated in-place
+    const preTaskRoles = JSON.stringify(jobTaskRoles);
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    taskRolesManager.populateTaskRolesDockerInfo();
+    const [
+      updatedSecrets,
+      isUpdated,
+    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
 
-      if (isEmpty(taskRoles)) {
-        setJobTaskRolesState([new JobTaskRole({})]);
-      } else {
-        setJobTaskRolesState(taskRoles);
-      }
+    const curTaskRoles = JSON.stringify(jobTaskRoles);
+    if (preTaskRoles !== curTaskRoles) {
+      setJobTaskRolesState(jobTaskRoles);
+    }
 
-      if (isUpdated) {
-        setSecrets(updatedSecrets);
-      }
-    },
-    [setJobTaskRolesState, secrets],
-  );
+    if (isUpdated) {
+      setSecrets(updatedSecrets);
+    }
+  }, [jobTaskRoles, secrets]);
+
+  const setJobTaskRoles = useCallback((taskRoles) => {
+    if (isEmpty(taskRoles)) {
+      setJobTaskRolesState([new JobTaskRole({})]);
+    } else {
+      setJobTaskRolesState(taskRoles);
+    }
+  }, [setJobTaskRolesState]);
 
   const setParameters = useCallback(
     (param) => {

@@ -41,9 +41,11 @@ export const CommandSection = (props) => {
   return (
     <BasicSection sectionLabel={'Command'}>
       <FormShortSection>
-        <MonacoTextFiled monacoProps={{height: 200}}
-                        value={value}
-                        onChange={_onChange}/>
+        <MonacoTextFiled
+          monacoProps={{height: 200}}
+          value={value}
+          onChange={_onChange}
+        />
       </FormShortSection>
     </BasicSection>
   );

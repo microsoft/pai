@@ -1,23 +1,13 @@
-import React, {useState, useEffect, useMemo, useCallback, useContext} from 'react';
+import React, {useMemo, useCallback, useContext} from 'react';
 import {BasicSection} from './basic-section';
 import {Dropdown} from 'office-ui-fabric-react';
 import {FormShortSection} from './form-page';
-import Context from './Context';
+import Context from './context';
 import PropTypes from 'prop-types';
 
 export const VirtualCluster = React.memo((props) => {
   const {onChange, virtualCluster} = props;
-  const [vcIndex, setVcIndex] = useState(-1);
-
   const {vcNames} = useContext(Context);
-
-  useEffect(() => {
-    let index = options.findIndex((value)=> value.text === virtualCluster);
-    if (index === vcIndex) {
-      return;
-    }
-    setVcIndex(index);
-  }), [virtualCluster];
 
   const options = useMemo(() => vcNames.map((vcName, index) => {
     return {
@@ -32,6 +22,7 @@ export const VirtualCluster = React.memo((props) => {
     }
   }, [onChange]);
 
+  const vcIndex = options.findIndex((value)=> value.text === virtualCluster);
   return (
     <BasicSection sectionLabel={'Virutual cluster'}>
       <FormShortSection>

@@ -79,7 +79,6 @@ export const DockerSection = (props) => {
   const _onChange = useCallback((keyName, propValue) => {
     const updatedDockerInfo = new DockerInfo(value);
     updatedDockerInfo[keyName] = propValue;
-    updatedDockerInfo.updateTime = Date.now();
     if (onValueChange !== undefined) {
       onValueChange(updatedDockerInfo);
     }

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useCallback, useReducer} from 'react';
+import React, {useCallback, useReducer, useEffect} from 'react';
 import {Text} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
@@ -32,6 +32,8 @@ import {FormSpinButton} from './form-spin-button';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 import {JobBasicInfo} from '../models/job-basic-info';
+
+import {isEqual} from 'lodash';
 
 function reducer(state, action) {
   let jobInfo;
@@ -44,6 +46,8 @@ function reducer(state, action) {
       jobInfo = new JobBasicInfo({...state, virtualCluster: action.value});
       action.onChange(jobInfo);
       return jobInfo;
+    case 'initJobInfo':
+      return new JobBasicInfo(action.value);
     default:
       throw new Error('Unrecognized type');
   }
@@ -51,8 +55,15 @@ function reducer(state, action) {
 
 export const JobInformation = React.memo((props) => {
   const {jobInformation, onChange, advanceFlag} = props;
-  const {name, virtualCluster, jobRetryCount} = jobInformation;
-  const [, dispatch] = useReducer(reducer, jobInformation);
+  const [jobInfo, dispatch] = useReducer(reducer, jobInformation);
+  const {name, virtualCluster, jobRetryCount} = jobInfo;
+
+  useEffect(() => {
+    if (isEqual(jobInfo, jobInformation)) {
+      return;
+    }
+    dispatch({type: 'initJobInfo', value: jobInformation});
+  }, [jobInformation]);
 
   const _onChange = useCallback((updatedValue) => {
     if (onChange !== undefined) {
