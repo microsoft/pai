@@ -23,9 +23,13 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 
 
+const convertName = (name) => {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
 const generateTaskRole = (taskRole, config) => {
   const frameworkTaskRole = {
-    name: taskRole,
+    name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
     task: {
       retryPolicy: {
@@ -158,7 +162,7 @@ const generateFrameworkDescription = (frameworkName, config) => {
 };
 
 const get = async (frameworkName) => {
-  const name = frameworkName.replace(/[-_~]/g, '');
+  const name = convertName(frameworkName);
   // send request to framework controller
   let response;
   try {
@@ -186,7 +190,7 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
-  const name = frameworkName.replace(/[-_~]/g, '');
+  const name = convertName(frameworkName);
   const frameworkDescription = generateFrameworkDescription(name, config);
 
   // send request to framework controller
