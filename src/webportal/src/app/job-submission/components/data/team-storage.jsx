@@ -45,13 +45,6 @@ export const TeamStorage = (props) => {
     }
   };
 
-  const normalizePath = (oriPath) => {
-    return oriPath
-      .replace(/%USER/gi, user)
-      .replace(/%JOB/gi, jobName)
-      .replace('//', '/');
-  };
-
   const api = config.restServerUri;
   const user = cookies.get('user');
   const token = cookies.get('token');
@@ -59,7 +52,6 @@ export const TeamStorage = (props) => {
   const [userGroups, setUserGroups] = useState([]);
   const [serverNames, setServerNames] = useState([]);
   const [configs, setConfigs] = useState([]);
-  // const [selectedConfigs, setSelectedConfigs] = useState(get(defaultValue, 'selectedConfigs', []));
   const [selectedConfigs, setSelectedConfigs] = useState([]);
 
   useEffect(() => {
@@ -211,34 +203,8 @@ export const TeamStorage = (props) => {
     );
   };
 
-  const getServerPath = useCallback(
-    (serverName) => {
-      let returnValue = '';
-
-      const server = servers.find((srv) => srv.spn === serverName);
-      if (server !== undefined) {
-        switch (server.type) {
-          case 'nfs':
-            returnValue = server.address + ':' + server.rootPath;
-            break;
-          case 'samba':
-            returnValue = '//' + server.address + '/' + server.rootPath;
-            break;
-          case 'azurefile':
-            returnValue = server.dataStore + '/' + server.fileShare;
-            break;
-          case 'azureblob':
-            returnValue = server.dataStore + '/' + server.containerName;
-            break;
-        }
-      }
-      return returnValue;
-    },
-    [servers],
-  );
-
   const showConfigSets = () => {
-    if (userGroups.length === 0) {
+    if (userGroups.length === 0 || configs.length === 0) {
       return null;
     } else {
       return (
@@ -252,6 +218,12 @@ export const TeamStorage = (props) => {
           <Stack horizontal disableShrink gap='s1'>
             {configs.map((config, index) => showConfigs(config, index))}
           </Stack>
+          <TeamMountList
+            dataList={
+              mountDirectories == null ? [] : mountDirectories.getTeamDataList()
+            }
+            setDataList={null}
+          />
         </div>
       );
     }
@@ -260,18 +232,11 @@ export const TeamStorage = (props) => {
   return (
     <div>
       {showConfigSets()}
-      <TeamMountList
-        dataList={
-          mountDirectories == null ? [] : mountDirectories.getTeamDataList()
-        }
-        setDataList={null}
-      />
     </div>
   );
 };
 
 TeamStorage.propTypes = {
-  // mountDirectories: PropTypes.instanceOf(MountDirectories),
   onChange: PropTypes.func,
   jobName: PropTypes.string,
 };

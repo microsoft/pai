@@ -126,7 +126,7 @@ export default class MountDirectories {
           ` ssh -N -f -L 445:${serverData.dataStore}:445 ${proxyInfo}`);
         }
         break;
-      case 'azureblob':
+      case 'azureblob': {
         const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
         const cfgFile = `/${serverData.spn}.cfg`;
         returnValue = [
@@ -148,6 +148,7 @@ export default class MountDirectories {
         `mkdir --parents ${tmpFolder}`,
         ];
         break;
+      }
       case 'hdfs':
         returnValue = [
         'apt-get install -y git fuse golang',
@@ -255,11 +256,35 @@ export default class MountDirectories {
     return oriPath.replace(/%USER/ig, this.user).replace(/%JOB/ig, this.jobName).replace('//', '/');
   }
 
+  getServerPath(serverName) {
+    let returnValue = '';
+
+    const server = this.servers.find((srv) => srv.spn === serverName);
+    if (server !== undefined) {
+      switch (server.type) {
+        case 'nfs':
+          returnValue = 'nfs://' + server.address + ':' + server.rootPath;
+          break;
+        case 'samba':
+          returnValue = 'smb://' + server.address + '/' + server.rootPath;
+          break;
+        case 'azurefile':
+          returnValue = 'azurefile://' + server.dataStore + '/' + server.fileShare;
+          break;
+        case 'azureblob':
+          returnValue = 'azureblob://' + server.dataStore + '/' + server.containerName;
+          break;
+      }
+    }
+    return returnValue;
+  }
+
+
   getTeamDataList() {
     let newTeamDataList = [];
     for (const config of this.selectedConfigs) {
       for (const mountInfo of config.mountInfos) {
-        newTeamDataList.push(new InputData(mountInfo.mountPoint, this.normalizePath('[' + mountInfo.server + ']/' + mountInfo.path), config.name));
+        newTeamDataList.push(new InputData(mountInfo.mountPoint, this.getServerPath(mountInfo.server) + this.normalizePath('/' + mountInfo.path), config.name));
       }
     }
     return newTeamDataList;
