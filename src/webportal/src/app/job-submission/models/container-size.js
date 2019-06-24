@@ -5,13 +5,21 @@ export class ContainerSize {
     const {cpu, memoryMB, gpu, shmMB} = props;
     this.cpu = cpu || 4;
     this.memoryMB = memoryMB || 8192;
-    this.gpu = gpu || 0;
+    this.gpu = gpu || 1;
     this.shmMB = shmMB;
   }
 
   static isUseDefaultValue(containerSize) {
     const {cpu, memoryMB, gpu, shmMB} = containerSize;
-    return (cpu == 4 && memoryMB == 8192 && gpu == 0 && isNil(shmMB));
+    let gpuCounter = Number(gpu);
+    if (gpuCounter <= 0) {
+      return false;
+    }
+    return (
+      Number(cpu) / gpuCounter == 4 &&
+      Number(memoryMB) / gpuCounter == 8192 &&
+      isNil(shmMB)
+    );
   }
 
   static fromProtocol(containerSizeProtocol) {

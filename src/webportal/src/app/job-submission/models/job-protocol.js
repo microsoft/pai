@@ -23,11 +23,13 @@
  * SOFTWARE.
  */
 
+import {jobProtocolSchema} from '../models/protocol-schema';
+
 import {get, isEmpty} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
-import {jobProtocolSchema} from '../models/protocol-schema';
 import {removeEmptyProperties} from '../utils/utils';
+import {TaskRolesManager} from '../utils/task-roles-manager';
 
 export class JobProtocol {
   constructor(props) {
@@ -61,11 +63,15 @@ export class JobProtocol {
   static validateFromYaml(protocolYaml) {
     try {
       const protocol = yaml.safeLoad(protocolYaml);
-      const result = Joi.validate(protocol, jobProtocolSchema);
-      return String(result.error || '');
+      return JobProtocol.validateFromObject(protocol);
     } catch (err) {
       return String(err.message);
     }
+  }
+
+  static validateFromObject(protocol) {
+    const result = Joi.validate(removeEmptyProperties(protocol), jobProtocolSchema);
+    return String(result.error || '');
   }
 
   getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets) {
@@ -77,10 +83,10 @@ export class JobProtocol {
         }, {})
     );
     let deployments = this._generateDeployments(jobTaskRoles);
-    const delpoyName = get(this, 'defaults.deployment', 'defaultDeployment');
-    deployments = isEmpty(deployments) ? [] : [{name: delpoyName, taskRoles: deployments}];
+    const deployName = get(this, 'defaults.deployment', 'defaultDeployment');
+    deployments = isEmpty(deployments) ? [] : [{name: deployName, taskRoles: deployments}];
 
-    const prerequisites = this._getTaskRolesPrerequisites(jobTaskRoles);
+    const prerequisites = TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles);
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
     const secrets = removeEmptyProperties(jobSecrets.reduce((res, secret) => {
       res[secret.key] = secret.value;
@@ -98,13 +104,6 @@ export class JobProtocol {
       secrets: secrets,
       defaults: defaultsField,
     });
-  }
-
-  _getTaskRolesPrerequisites(jobTaskRoles) {
-    const map = new Map();
-    const prerequisites = jobTaskRoles.map((taskRole) => taskRole.getDockerPrerequisite());
-    prerequisites.forEach((value) => map.set(value.name, value));
-    return Array.from(map.values());
   }
 
   _updateAndConvertTaskRoles(jobTaskRoles) {

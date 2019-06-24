@@ -1,7 +1,23 @@
 import React from 'react';
 import {TabForm} from './tab-form';
 import {JobTaskRole} from '../models/job-task-role';
+
+import {createUniqueName} from '../utils/utils';
+
+import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
+
+const HEADER_PREFIX = 'Task_role';
+let taskRoleSeq = 1;
+
+function generateUniqueTaskName(taskRoles, curIndex) {
+  const usedNames = taskRoles
+    .map((taskRole) => taskRole.name)
+    .filter((_, index) => index < curIndex);
+  const [newName, updateIndex] = createUniqueName(usedNames, HEADER_PREFIX, taskRoleSeq);
+  taskRoleSeq = updateIndex;
+  return newName;
+}
 
 export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   const _onItemChange = (items) => {
@@ -12,11 +28,15 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   };
 
   const _onItemAdd = (items) => {
+    const taskRoleName = generateUniqueTaskName(
+      items.map((item) => item.content),
+      items.length,
+    );
     const updatedItems = [
       ...items,
       {
-        headerText: `Task role ${items.length + 1}`,
-        content: new JobTaskRole({}),
+        headerText: taskRoleName,
+        content: new JobTaskRole({name: taskRoleName}),
       },
     ];
     _onItemChange(updatedItems);
@@ -24,12 +44,7 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   };
 
   const _onItemDelete = (items, itemIndex) => {
-    const updatedItems = items
-      .filter((_, index) => index !== itemIndex)
-      .map((item, index) => {
-        item.headerText = `Task role ${index + 1}`;
-        return item;
-      });
+    const updatedItems = items.filter((_, index) => index !== itemIndex);
     _onItemChange(updatedItems);
 
     // TODO: use other policy to update index
@@ -37,13 +52,19 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
   };
 
   const items = taskRoles.map((item, index) => {
-    return {headerText: `Task role ${index + 1}`, content: item};
+    let taskRoleName;
+    if (isEmpty(item.name)) {
+      taskRoleName = generateUniqueTaskName(taskRoles, index);
+      item.name = taskRoleName;
+    } else {
+      taskRoleName = item.name;
+    }
+    return {headerText: taskRoleName, content: item};
   });
 
   return (
     <TabForm
       items={items}
-      headerTextPrefix='Task Role'
       onItemAdd={_onItemAdd}
       onItemDelete={_onItemDelete}
       onItemsChange={_onItemChange}

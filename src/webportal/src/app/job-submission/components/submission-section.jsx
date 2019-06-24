@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef, useEffect, useContext} from 'react';
+import React, {useState, useRef, useEffect, useContext, useCallback} from 'react';
 import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label, StackItem, Toggle} from 'office-ui-fabric-react';
 
 import {getImportButtonStyle} from './form-style';
@@ -33,11 +33,11 @@ import {JobTaskRole} from '../models/job-task-role';
 import {submitJob} from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
-import {getJobComponentsFormConfig} from '../utils/utils';
-import Context from './Context';
+import {getJobComponentsFormConfig, pruneComponents} from '../utils/utils';
+import Context from './context';
 
 import PropTypes from 'prop-types';
-import {isNil, debounce, isEqual} from 'lodash';
+import {isNil, debounce, isEqual, isEmpty} from 'lodash';
 
 const user = cookies.get('user');
 const {palette} = getTheme();
@@ -73,27 +73,28 @@ export const SubmissionSection = (props) => {
 
   const {vcNames} = useContext(Context);
 
+  const _protocolAndErrorUpdate = useCallback((protocol) => {
+    if (!isEqual(jobProtocol, protocol)) {
+      setjobProtocol(protocol);
+    }
+    const newErrorMsg = JobProtocol.validateFromObject(protocol);
+    if (newErrorMsg !== errorMsg) {
+      setErrorMsg(newErrorMsg);
+    }
+  }, [jobProtocol]);
+
   useEffect(() => {
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
-    if (isEqual(jobProtocol, protocol)) {
-      return;
-    }
-    setjobProtocol(protocol);
-  });
+    _protocolAndErrorUpdate(protocol);
+  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
 
   const _openEditor = (event) => {
     event.preventDefault();
     setEditorOpen(true);
-    setProtocolYaml(jobProtocol.toYaml());
-  };
 
-
-  const _PruneComponent = (jobInformation) => {
-    const virtualCluster = jobInformation.virtualCluster;
-    if (vcNames.find((vcName) => vcName === virtualCluster)) {
-      return;
-    }
-    jobInformation.virtualCluster = '';
+    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
+    _protocolAndErrorUpdate(protocol);
+    setProtocolYaml(protocol.toYaml());
   };
 
   const _udpatedComponent = (protocolYaml) => {
@@ -114,7 +115,7 @@ export const SubmissionSection = (props) => {
       updatedSecrets,
     ] = getJobComponentsFormConfig(updatedJob);
 
-    _PruneComponent(updatedJobInformation);
+    pruneComponents(updatedJobInformation, updatedSecrets, {vcNames});
     onChange(updatedJobInformation, updatedTaskRoles, updatedParameters, updatedSecrets);
   };
 
@@ -166,7 +167,7 @@ export const SubmissionSection = (props) => {
       <Stack horizontal>
         <StackItem grow>
           <Stack horizontal gap='s1' horizontalAlign='center'>
-            <PrimaryButton onClick={_submitJob}>Submit</PrimaryButton>
+            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMsg)} >Submit</PrimaryButton>
             <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
           </Stack>
         </StackItem>
@@ -175,10 +176,20 @@ export const SubmissionSection = (props) => {
           <DefaultButton>
             <Label styles={{root: importButtonStyle.label}}>
               {'Import'}
-              <input type='file' style={importButtonStyle.input} accept='.yml,.yaml' onChange={_importFile}/>
+              <input
+                type='file'
+                style={importButtonStyle.input}
+                accept='.yml,.yaml'
+                onChange={_importFile}
+              />
             </Label>
           </DefaultButton>
-          <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
+          <Stack
+            horizontal
+            padding='0 0 0 s1'
+            verticalAlign='center'
+            gap='s1'
+          >
             <div>Advanced</div>
             <Toggle
               styles={{root: {margin: 0}}}
@@ -187,16 +198,20 @@ export const SubmissionSection = (props) => {
             />
           </Stack>
         </Stack>
-        <MonacoPanel isOpen={isEditorOpen}
-                    onDismiss={_closeEditor}
-                    title='Protocol YAML Editor'
-                    header={<Text className={{color: palette.white}}>{String(errorMsg)}</Text>}
-                    monacoRef={monaco}
-                    monacoProps={{language: 'yaml',
-                                  options: {wordWrap: 'on', readOnly: false},
-                                  value: protocolYaml,
-                                  onChange: debounce(_onYamlTextChange, 100),
-                                  }}
+        <MonacoPanel
+          isOpen={isEditorOpen}
+          onDismiss={_closeEditor}
+          title='Protocol YAML Editor'
+          header={
+            <Text className={{color: palette.white}}>{String(errorMsg)}</Text>
+          }
+          monacoRef={monaco}
+          monacoProps={{
+            language: 'yaml',
+            options: {wordWrap: 'on', readOnly: false},
+            value: protocolYaml,
+            onChange: debounce(_onYamlTextChange, 100),
+          }}
         />
       </Stack>
     </Card>
