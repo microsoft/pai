@@ -23,8 +23,12 @@ function mkDirByPathSync(targetDir) {
 
 async function downloadAndUnzipExtension(url, dest, cb) {
     request(url).pipe(unzipper.Parse()).on('entry', function (entry) {
-        if (entry.path.startsWith('extension/')) {
+        if (entry.path.startsWith('extension/') || entry.path.contains('extension.vsixmanifest')) {
             var newPath = path.resolve(dest, entry.path.slice(10));
+            mkDirByPathSync(getDirName(newPath));
+            entry.pipe(fs.createWriteStream(newPath));
+        } else if (entry.path.endsWith('extension.vsixmanifest')) {
+            var newPath = path.resolve(dest, entry.path.slice(9));
             mkDirByPathSync(getDirName(newPath));
             entry.pipe(fs.createWriteStream(newPath));
         } else {
@@ -40,8 +44,7 @@ function installVscodeYamlExtension() {
     const url = `https://github.com/redhat-developer/vscode-yaml/releases/download/0.4.0/redhat.vscode-yaml-0.4.0.vsix`;
     downloadAndUnzipExtension(url, extensionPath, function() {
         var exec = require('child_process').exec;
-        var parentPath = path.join(os.homedir(), `.vscode/extensions`);
-        exec(`ls ${parentPath}`, function (error, stdout, stderr) {
+        exec(`ls ${extensionPath}`, function (error, stdout, stderr) {
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
             if (error !== null) {
