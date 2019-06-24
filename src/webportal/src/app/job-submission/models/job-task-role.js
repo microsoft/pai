@@ -26,7 +26,7 @@
 import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
-import {ContainerSize} from '../models/container-size';
+import {getDefaultContainerSize, isDefaultContainerSize} from '../models/container-size';
 import {get, isNil, isEmpty} from 'lodash';
 import {removeEmptyProperties} from '../utils/utils';
 
@@ -41,7 +41,7 @@ export class JobTaskRole {
     this.commands = commands || '';
     this.completion = completion || new Completion({});
     this.deployment = deployment|| new Deployment({});
-    this.containerSize = containerSize || new ContainerSize({});
+    this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
   }
 
@@ -49,7 +49,6 @@ export class JobTaskRole {
     const instances = get(taskRoleProtocol, 'instances', 1);
     const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
     const dockerImage = get(taskRoleProtocol, 'dockerImage');
-    const extraContainerOptions = get(taskRoleProtocol, 'extraContainerOptions', {});
     const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {});
     const commands = get(taskRoleProtocol, 'commands', []);
 
@@ -63,13 +62,13 @@ export class JobTaskRole {
       instances: instances,
       completion: Completion.fromProtocol(completion),
       commands: commands.join('\n'),
-      containerSize: ContainerSize.fromProtocol({resourcePerInstance, extraContainerOptions}),
+      containerSize: resourcePerInstance,
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
       ports: ports,
     });
 
-    if (!ContainerSize.isUseDefaultValue(jobTaskRole.containerSize)) {
+    if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
       jobTaskRole.isContainerSizeEnabled = true;
     }
     return jobTaskRole;
@@ -89,8 +88,7 @@ export class JobTaskRole {
       val[x.key] = x.value;
       return val;
     }, {});
-    const resourcePerInstance = removeEmptyProperties({...this.containerSize.getResourcePerInstance(), ports: ports});
-    const extraContainerOptions = this.containerSize.getExtraContainerOptions();
+    const resourcePerInstance = removeEmptyProperties({...this.containerSize, ports: ports});
 
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
@@ -98,7 +96,6 @@ export class JobTaskRole {
       dockerImage: this.dockerInfo.name,
       resourcePerInstance: resourcePerInstance,
       commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
-      extraContainerOptions: extraContainerOptions,
     });
 
     return taskRole;

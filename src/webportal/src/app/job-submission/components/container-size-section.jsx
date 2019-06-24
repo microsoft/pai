@@ -27,7 +27,7 @@ import React from 'react';
 import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
-import {ContainerSize} from '../models/container-size';
+import {getDefaultContainerSize} from '../models/container-size';
 import {CSpinButton} from './customized-components';
 import {getSpinButtonStyle} from './form-style';
 import {FormShortSection} from './form-page';
@@ -35,21 +35,13 @@ import {FormShortSection} from './form-page';
 const {spacing} = getTheme();
 const spinButtonStyle = getSpinButtonStyle();
 
-const skuUnit = {
-  gpu: 1,
-  cpu: 4,
-  memoryMB: 8192,
-};
-
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
   const {cpu, memoryMB, gpu} = value;
 
   const _onChange = (keyName, newValue) => {
-    const containerSize = new ContainerSize(value);
-    containerSize[keyName] = newValue;
     if (onChange !== undefined) {
-      onChange(containerSize);
+      onChange({...value, [keyName]: newValue});
     }
   };
 
@@ -61,18 +53,8 @@ export const ContainerSizeSection = (props) => {
   };
 
   const _onGPUSkuChange= (gpuNumber) => {
-    let factor = Number(gpuNumber);
-    if (factor <= 0) {
-      factor = 1;
-    }
-
-    const containerSize = new ContainerSize({
-      gpu: Number(gpuNumber),
-      cpu: skuUnit.cpu * factor,
-      memoryMB: skuUnit.memoryMB * factor,
-    });
     if (onChange !== undefined) {
-      onChange(containerSize);
+      onChange(getDefaultContainerSize(gpuNumber));
     }
   };
 
@@ -124,7 +106,7 @@ export const ContainerSizeSection = (props) => {
 };
 
 ContainerSizeSection.propTypes = {
-  value: PropTypes.instanceOf(ContainerSize).isRequired,
+  value: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,

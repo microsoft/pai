@@ -34,6 +34,7 @@ import {ContainerSizeSection} from './container-size-section';
 import {CommandSection} from './command-section';
 import {CompletionPolicy} from './task-role/completion-policy';
 import {PortsList} from './task-role/ports-list';
+import {getDefaultContainerSize} from '../models/container-size';
 
 export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
   const _onValueChange = (propertyName, propertyValue) => {
@@ -69,7 +70,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
       <ContainerSizeSection value={jobTaskRole.containerSize}
                             onEnable={(checked) => _onValuesChange({
                               isContainerSizeEnabled: checked,
-                              containerSize: jobTaskRole.containerSize.getResetContainerSize(),
+                              containerSize: getDefaultContainerSize(jobTaskRole.containerSize.gpu),
                             })}
                             onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
                             isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>

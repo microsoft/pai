@@ -26,15 +26,18 @@
 import React, {useCallback} from 'react';
 import {SpinButton} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {debounce} from 'lodash';
+import {debounce, isNil} from 'lodash';
 
 export const CSpinButton = (props) => {
-  const {onChange, onIncrement, onDecrement, onValidate} = props;
+  const {onChange, onIncrement, onDecrement, onValidate, min, max} = props;
 
   const _onChange = useCallback((value, operateFunc, defaultReturnValue) => {
     let newValue = defaultReturnValue;
-    if (newValue < 0) {
-      newValue = 0;
+    if (!isNil(min)) {
+      newValue = Math.max(min, newValue);
+    }
+    if (!isNil(max)) {
+      newValue = Math.min(max, newValue);
     }
     if (operateFunc !== undefined) {
       newValue = operateFunc(value);
@@ -60,7 +63,13 @@ export const CSpinButton = (props) => {
   );
 };
 
+CSpinButton.defaultValue = {
+  min: 0,
+};
+
 CSpinButton.propTypes = {
+  min: PropTypes.number,
+  max: PropTypes.number,
   onChange: PropTypes.func,
   onIncrement: PropTypes.func,
   onDecrement: PropTypes.func,

@@ -1,50 +1,24 @@
 import {isNil} from 'lodash';
 
-export class ContainerSize {
-  constructor(props) {
-    const {cpu, memoryMB, gpu, shmMB} = props;
-    this.cpu = cpu || 4;
-    this.memoryMB = memoryMB || 8192;
-    this.gpu = gpu || 1;
-    this.shmMB = shmMB;
-  }
+const skuUnit = {
+  gpu: 1,
+  cpu: 4,
+  memoryMB: 8192,
+};
 
-  static isUseDefaultValue(containerSize) {
-    const {cpu, memoryMB, gpu, shmMB} = containerSize;
-    let gpuCounter = Number(gpu);
-    if (gpuCounter <= 0) {
-      return false;
-    }
-    return (
-      Number(cpu) / gpuCounter == 4 &&
-      Number(memoryMB) / gpuCounter == 8192 &&
-      isNil(shmMB)
-    );
+export function getDefaultContainerSize(gpu) {
+  if (isNil(gpu)) {
+    gpu = 1;
   }
+  const factor = Math.max(gpu, 1);
+  return {
+    gpu,
+    cpu: factor * skuUnit.cpu,
+    memoryMB: factor * skuUnit.memoryMB,
+  };
+}
 
-  static fromProtocol(containerSizeProtocol) {
-    const {resourcePerInstance, extraContainerOptions} = containerSizeProtocol;
-    return new ContainerSize({...resourcePerInstance, ...extraContainerOptions});
-  }
-
-  getResourcePerInstance() {
-    return {
-      cpu: this.cpu,
-      memoryMB: this.memoryMB,
-      gpu: this.gpu,
-    };
-  }
-
-  getExtraContainerOptions() {
-    if (!this.shmMB) {
-      return;
-    }
-    return {
-      shmMB: this.shmMB,
-    };
-  }
-
-  getResetContainerSize() {
-    return new ContainerSize({gpu: this.gpu, cpu: 4, memoryMB: 8192});
-  }
+export function isDefaultContainerSize(size) {
+  const factor = Math.max(size.gpu, 1);
+  return size.cpu === skuUnit.cpu * factor && size.memoryMB === size.memoryMB * factor;
 }
