@@ -443,9 +443,6 @@
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
-        "gulp": "^4.0.2",
-        "gulp-decompress": "^2.0.2",
-        "gulp-download": "^0.0.1",
         "inversify": "^4.14.0",
         "js-yaml": "^3.13.1",
         "json-inline-doc": "^2.0.1",
@@ -460,6 +457,7 @@
         "semver-compare": "^1.0.0",
         "streamifier": "^0.1.1",
         "unixify": "^1.0.0",
+        "unzipper": "^0.10.1",
         "uuid": "^3.3.2",
         "webhdfs": "^1.2.0"
     }
