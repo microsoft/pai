@@ -17,6 +17,8 @@
 
 export const STORAGE_PREFIX='/test';
 export const CUSTOM_STORAGE_TAG='#GENERATED_BY_CUSTOM_STORAGE';
+export const TEAMWISE_DATA_CMD_START='#[TeamwiseDataCmdStart]';
+export const TEAMWISE_DATA_CMD_END='#[TeamwiseDataCmdEnd]';
 export const PAI_ENV_VAR = [
   {
     key: 'PAI_JOB_NAME',

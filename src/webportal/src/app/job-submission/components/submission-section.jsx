@@ -33,7 +33,12 @@ import {JobTaskRole} from '../models/job-task-role';
 import {submitJob} from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
-import {getJobComponentsFormConfig, pruneComponents} from '../utils/utils';
+import {
+  getJobComponentsFormConfig,
+  pruneComponents,
+  addPreCommandsToProtocolTaskRoles,
+  removePreCommandsFromProtocolTaskRoles,
+} from '../utils/utils';
 import Context from './context';
 
 import PropTypes from 'prop-types';
@@ -64,7 +69,16 @@ const _exportFile = (data, filename, type) => {
 const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
 
 export const SubmissionSection = (props) => {
-  const {jobInformation, jobTaskRoles, parameters, secrets, onChange, advanceFlag, onToggleAdvanceFlag} = props;
+  const {
+    jobInformation,
+    jobTaskRoles,
+    parameters,
+    secrets,
+    onChange,
+    advanceFlag,
+    onToggleAdvanceFlag,
+    jobData,
+  } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
@@ -97,7 +111,17 @@ export const SubmissionSection = (props) => {
 
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
     _protocolAndErrorUpdate(protocol);
-    setProtocolYaml(protocol.toYaml());
+    if (jobData.containData) {
+      jobData
+        .generateDataCommands(user, protocol.name || '')
+        .then((preCommands) => {
+          addPreCommandsToProtocolTaskRoles(protocol, preCommands);
+          setProtocolYaml(protocol.toYaml());
+        })
+        .catch((error) => alert);
+    } else {
+      setProtocolYaml(protocol.toYaml());
+    }
   };
 
   const _udpatedComponent = (protocolYaml) => {
@@ -106,6 +130,7 @@ export const SubmissionSection = (props) => {
       return;
     }
 
+    removePreCommandsFromProtocolTaskRoles(updatedJob);
     setjobProtocol(updatedJob);
     if (onChange === undefined) {
       return;
@@ -229,4 +254,5 @@ SubmissionSection.propTypes = {
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
   onToggleAdvanceFlag: PropTypes.func,
+  jobData: PropTypes.array,
 };
