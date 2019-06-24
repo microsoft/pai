@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {get, isNil} from 'lodash';
 import querystring from 'querystring';
 import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
@@ -53,23 +52,6 @@ export async function getUserInfo() {
 
 export async function listVirtualClusters() {
   return fetchWrapper(`${config.restServerUri}/api/v2/virtual-clusters`);
-}
-
-export async function getTotalGpu() {
-  const res = await fetch(`${config.prometheusUri}/api/v1/query?query=sum(yarn_node_gpu_total)`);
-
-  if (res.ok) {
-    const json = await res.json();
-    const data = get(json, 'data.result[0].value[1]');
-    if (!isNil(data)) {
-      return parseInt(data, 10);
-    } else {
-      throw new Error('Invalid total gpu response');
-    }
-  } else {
-    const json = await res.json();
-    throw new Error(json.error);
-  }
 }
 
 export async function getAvailableGpuPerNode() {
