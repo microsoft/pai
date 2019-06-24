@@ -5,8 +5,6 @@
  */
 
 import * as fs from 'fs';
-// tslint:disable-next-line: no-require-imports
-import fuzzysearch = require('fuzzysearch');
 import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -28,9 +26,8 @@ export class YamlJobConfigCompletionProvider implements vscode.CompletionItemPro
         this.loadSnippets();
     }
 
-    public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): vscode.CompletionItem[] {
-        const word: string = document.getText(document.getWordRangeAtPosition(position));
-        return this.snippets.filter(x => fuzzysearch(word.toLowerCase(), x.name.toLowerCase())).map(x => {
+    public provideCompletionItems(): vscode.CompletionItem[] {
+        return this.snippets.map(x => {
             const item: vscode.CompletionItem = new vscode.CompletionItem(x.label, vscode.CompletionItemKind.Snippet);
             item.insertText = new vscode.SnippetString(x.insertText);
             item.documentation = x.documentation;

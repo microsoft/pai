@@ -5,10 +5,6 @@ declare module 'unixify' {
     export = unixify;
 }
 declare module 'streamifier';
-declare module 'fuzzysearch' {
-    function fuzzysearch(needle: string, haystack: string): boolean;
-    export = fuzzysearch;
-}
 declare module 'node-yaml-parser' {
     export function parse(text: string): { readonly documents: YamlDocument[]; readonly lineLengths: number[] };
 

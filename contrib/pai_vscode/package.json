@@ -443,7 +443,6 @@
     "dependencies": {
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
-        "fuzzysearch": "^1.0.3",
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
         "inversify": "^4.14.0",
