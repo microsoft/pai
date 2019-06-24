@@ -967,7 +967,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
     // mock for case4 username=test_invalid
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/74657374696e76616c6964')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/74657374696e76616c6964')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -975,17 +975,18 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
           'name': '74657374696e76616c6964',
         },
         'data': {
-          'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
           'username': 'dGVzdHVzZXIz',
-          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
         },
         'type': 'Opaque'
       });
 
     // mock for case5 username=non_exist
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/6e6f6e5f6578697374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f6578697374')
       .reply(404, {
         'kind': 'Status',
         'apiVersion': 'v1',
