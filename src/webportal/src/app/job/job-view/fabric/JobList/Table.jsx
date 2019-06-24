@@ -2,13 +2,14 @@ import c from 'classnames';
 import React, {useContext, useMemo, useLayoutEffect} from 'react';
 import {ColumnActionsMode, DefaultButton, FontClassNames, Link, mergeStyles, Selection, ShimmeredDetailsList, Icon, ColorClassNames, FontSizes, FontWeights} from 'office-ui-fabric-react';
 import {isNil} from 'lodash';
-import {DateTime, Duration} from 'luxon';
+import {DateTime} from 'luxon';
 
-import {getModified, getDuration, getStatusText} from './utils';
+import {getModified, getStatusText} from './utils';
 import Context from './Context';
 import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
+import {getJobDurationString} from '../../../../components/util/job';
 
 import t from '../../../../components/tachyons.scss';
 
@@ -114,7 +115,7 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return Duration.fromMillis(getDuration(job)).toFormat(`h:mm:ss`);
+      return getJobDurationString(job);
     },
   });
   const virtualClusterColumn = applySortProps({

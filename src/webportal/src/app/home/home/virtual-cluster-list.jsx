@@ -26,9 +26,9 @@ import {statusColor} from '../../components/theme';
 
 import t from '../../components/tachyons.scss';
 
-const VirtualClusterItem = ({name, info, totalGpu}) => {
-  const availableGpu = Math.floor(totalGpu * info.maxCapacity / 100) - info.resourcesUsed.GPUs;
-  const percentage = availableGpu / totalGpu;
+const VirtualClusterItem = ({name, info}) => {
+  const availableGpu = Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs);
+  const percentage = availableGpu / info.resourcesTotal.GPUs;
   let color;
   if (availableGpu === 0) {
     color = statusColor.failed;
@@ -109,11 +109,10 @@ const VirtualClusterItem = ({name, info, totalGpu}) => {
 VirtualClusterItem.propTypes = {
   name: PropTypes.string.isRequired,
   info: PropTypes.object.isRequired,
-  totalGpu: PropTypes.number.isRequired,
 };
 
-const VirtualCluster = ({style, userInfo, virtualClusters, totalGpu}) => {
-  const vcNames = userInfo.grouplist.filter((name) => !isNil(virtualClusters[name]));
+const VirtualCluster = ({style, userInfo, virtualClusters}) => {
+  const vcNames = userInfo.virtualCluster.split(',').filter((name) => !isNil(virtualClusters[name]));
   const {spacing} = getTheme();
   return (
     <Card style={{paddingRight: spacing.m, ...style}}>
@@ -131,7 +130,6 @@ const VirtualCluster = ({style, userInfo, virtualClusters, totalGpu}) => {
                   <VirtualClusterItem
                     name={name}
                     info={virtualClusters[name]}
-                    totalGpu={totalGpu}
                   />
                 </Stack.Item>
               ))}
@@ -147,7 +145,6 @@ VirtualCluster.propTypes = {
   style: PropTypes.object,
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
-  totalGpu: PropTypes.number.isRequired,
 };
 
 export default VirtualCluster;
