@@ -15,27 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const userModel = require('./user');
-const util = require('util');
-const createError = require('../util/error');
 
-const check = (username, password, callback) => {
-  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));
-  dbGet(username, null, (err, res) => {
-    if (!res) {
-      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
-    }
-    userModel.encrypt(username, password, (err, derivedKey) => {
-      if (err) {
-        return callback(err);
+// module dependencies
+const unirest = require('unirest');
+const config = require('@pai/config/index');
+const logger = require('@pai/config/logger');
+const yarnConfig = require('@pai/config/yarn');
+const launcherConfig = require('@pai/config/launcher');
+
+if (launcherConfig.type === 'yarn') {
+  if (config.env !== 'test') {
+    // framework launcher health check
+    unirest.get(launcherConfig.healthCheckPath())
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+      } else {
+        throw new Error('cannot connect to framework launcher');
       }
-      callback(null,
-        derivedKey === res[0]['password'],
-        res[0]['admin'] === 'true',
-        res[0].hasOwnProperty('githubPAT')&&
-        Boolean(res[0]['githubPAT']));
     });
-  });
-};
-
-module.exports = {check};
+    // hadoop yarn health check
+    unirest.get(yarnConfig.yarnVcInfoPath)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to yarn successfully');
+      } else {
+        throw new Error('cannot connect to yarn');
+      }
+    });
+  }
+  module.exports = require('@pai/models/v2/job/yarn');
+} else if (launcherConfig.type === 'k8s') {
+  module.exports = require('@pai/models/v2/job/k8s');
+} else {
+  throw new Error(`unknown launcher type ${launcherConfig.type}`);
+}

@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const userModel = require('../../models/v2/user');
-const createError = require('../../util/error');
-const authConfig = require('../../config/authn');
-const groupModel = require('../../models/v2/group');
+const userModel = require('@pai/models/v2/user');
+const createError = require('@pai/utils/error');
+const authConfig = require('@pai/config/authn');
+const groupModel = require('@pai/models/v2/group');
 
 const getUser = async (req, res, next) => {
   try {
@@ -160,6 +160,9 @@ const createUser = async (req, res, next) => {
       message: 'User is created successfully',
     });
   } catch (error) {
+    if (error.status === 409) {
+      return next(createError('Conflict', 'ConflictUserError', `User name ${req.body.username} already exists.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -181,6 +184,9 @@ const updateUserExtension = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -198,6 +204,14 @@ const updateUserVirtualCluster = async (req, res, next) => {
           grouplist.push(groupname);
         }
       }
+      for (const vcname of virtualCluster) {
+        if (!groupType[vcname] || groupType[vcname] !== 'vc') {
+          return next(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${vcname} not found.`));
+        }
+      }
+      if (grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+        return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
+      }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
       }
@@ -214,6 +228,9 @@ const updateUserVirtualCluster = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -233,6 +250,9 @@ const updateUserGroupList = async (req, res, next) => {
       message: 'update user grouplist successfully.',
     });
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -256,6 +276,9 @@ const updateUserPassword = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -275,6 +298,9 @@ const updateUserEmail = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -309,6 +335,9 @@ const updateUserAdminPermission = async (req, res, next) => {
       });
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };
@@ -317,6 +346,10 @@ const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
+      const userInfo = await userModel.getUser(username);
+      if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+        return next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
+      }
       await userModel.deleteUser(username);
       return res.status(200).json({
         message: 'user is removed successfully',
@@ -325,6 +358,9 @@ const deleteUser = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
     return next(createError.unknown((error)));
   }
 };

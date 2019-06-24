@@ -17,10 +17,10 @@
 
 // module dependencies
 
-const authnConfig = require('../../config/authn');
+const authnConfig = require('@pai/config/authn');
 const querystring = require('querystring');
 const axios = require('axios');
-const createError = require('../../util/error');
+const createError = require('@pai/utils/error');
 const jwt = require('jsonwebtoken');
 
 const requestAuthCode = async (req, res, next) => {

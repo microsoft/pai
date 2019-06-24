@@ -25,25 +25,24 @@ const _ = require('lodash');
 const mustache = require('mustache');
 const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
-const launcherConfig = require('../config/launcher');
-const userModel = require('./user');
-const vcModel = require('./vc');
-const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const Hdfs = require('../util/hdfs');
-const azureEnv = require('../config/azure');
-const paiConfig = require('../config/paiConfig');
-const env = require('../util/env');
+const userModelV2 = require('@pai/models/v2/user' );
 const axios = require('axios');
-const userModelV2 = require('./v2/user' );
+const vcModel = require('@pai/models/vc');
+const launcherConfig = require('@pai/config/launcher');
+const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const Hdfs = require('@pai/utils/hdfs');
+const azureEnv = require('@pai/config/azure');
+const paiConfig = require('@pai/config/paiConfig');
+const env = require('@pai/utils/env');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
   exitSpecPath = process.env[env.exitSpecPath];
   if (!path.isAbsolute(exitSpecPath)) {
-    exitSpecPath = path.resolve(__dirname, '../..', exitSpecPath);
+    exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
   }
 } else {
   exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
@@ -314,39 +313,6 @@ class Job {
     } catch (error) {
       throw error;
     }
-  }
-
-  putJob(name, namespace, data, next) {
-    const frameworkName = namespace ? `${namespace}~${name}` : name;
-    data.jobName = frameworkName;
-    if (!data.originalData.outputDir) {
-      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
-    }
-
-    for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
-      data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
-      data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
-      data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
-    }
-    userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
-      if (error) return next(error);
-      this._initializeJobContextRootFolders((error, result) => {
-        if (error) return next(error);
-        this._prepareJobContext(frameworkName, data, (error, result) => {
-          if (error) return next(error);
-          unirest.put(launcherConfig.frameworkPath(frameworkName))
-            .headers(launcherConfig.webserviceRequestHeaders(namespace || data.userName))
-            .send(this.generateFrameworkDescription(data))
-            .end((res) => {
-              if (res.status === 202) {
-                next();
-              } else {
-                next(createError(res.status, 'UnknownError', res.raw_body));
-              }
-            });
-        });
-      });
-    });
   }
 
   deleteJob(name, namespace, data, next) {

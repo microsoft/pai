@@ -17,9 +17,9 @@
 
 
 // module dependencies
-const crudUtil = require('../../util/manager/user/crudUtil');
-const user = require('../../util/manager/user/user');
-const authConfig = require('../../config/authn');
+const crudUtil = require('@pai/utils/manager/user/crudUtil');
+const user = require('@pai/utils/manager/user/user');
+const authConfig = require('@pai/config/authn');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);

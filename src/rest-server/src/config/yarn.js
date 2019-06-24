@@ -18,9 +18,6 @@
 
 // module dependencies
 const Joi = require('joi');
-const unirest = require('unirest');
-const config = require('./index');
-const logger = require('./logger');
 
 // get config from environment variables
 let yarnConfig = {
@@ -62,18 +59,5 @@ if (error) {
 }
 yarnConfig = value;
 
-
-// framework launcher health check
-if (config.env !== 'test') {
-  unirest.get(yarnConfig.yarnVcInfoPath)
-  .timeout(2000)
-  .end((res) => {
-    if (res.status === 200) {
-      logger.info('connected to yarn successfully');
-    } else {
-      throw new Error('cannot connect to yarn');
-    }
-  });
-}
 
 module.exports = yarnConfig;

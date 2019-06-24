@@ -20,7 +20,7 @@
 const Joi = require('joi');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
-const authnConfig = require('./authn');
+const authnConfig = require('@pai/config/authn');
 
 let userSecretConfig = {};
 

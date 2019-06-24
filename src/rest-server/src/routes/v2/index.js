@@ -18,10 +18,10 @@
 
 // module dependencies
 const express = require('express');
-const controller = require('../../controllers/v2/index');
-const jobRouter = require('./job');
-const userRouter = require('./user');
-const groupRouter = require('./group');
+const userRouter = require('@pai/routes/v2/user');
+const groupRouter = require('@pai/routes/v2/group');
+const controller = require('@pai/controllers/v2');
+const jobRouter = require('@pai/routes/v2/job');
 
 
 const router = new express.Router();

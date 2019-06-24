@@ -16,13 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const crudUtil = require('../../util/manager/group/crudUtil');
-const authConfig = require('../../config/authn');
-const secretConfig = require('../../config/secret');
-const adapter = require('../../util/manager/group/adapter/externalUtil');
-const config = require('../../config/index');
-const userModel = require('./user');
-const logger = require('../../config/logger');
+const crudUtil = require('@pai/utils/manager/group/crudUtil');
+const authConfig = require('@pai/config/authn');
+const secretConfig = require('@pai/config/secret');
+const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
+const config = require('@pai/config/index');
+const userModel = require('@pai/models/v2/user');
+const logger = require('@pai/config/logger');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);

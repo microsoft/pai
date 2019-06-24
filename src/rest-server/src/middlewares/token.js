@@ -18,8 +18,8 @@
 
 const jwt = require('jsonwebtoken');
 
-const config = require('../config/token');
-const createError = require('../util/error');
+const config = require('@pai/config/token');
+const createError = require('@pai/utils/error');
 
 const createMiddleware = (throwErrorIfUnauthorized) => {
   return function(req, _, next) {

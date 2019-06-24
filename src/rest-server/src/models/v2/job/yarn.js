@@ -23,18 +23,17 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModelV2 = require('./user');
-const {protocolConvert} = require('../../util/converter');
-const HDFS = require('../../util/hdfs');
-const createError = require('../../util/error');
-const protocolSecret = require('../../util/protocolSecret');
-const logger = require('../../config/logger');
-const azureEnv = require('../../config/azure');
-const paiConfig = require('../../config/paiConfig');
-const launcherConfig = require('../../config/launcher');
-const yarnContainerScriptTemplate = require('../../templates/yarnContainerScript');
-const dockerContainerScriptTemplate = require('../../templates/dockerContainerScript');
-
+const userModelV2 = require('@pai/models/v2/user');
+const {protocolConvert} = require('@pai/utils/converter');
+const HDFS = require('@pai/utils/hdfs');
+const createError = require('@pai/utils/error');
+const protocolSecret = require('@pai/utils/protocolSecret');
+const logger = require('@pai/config/logger');
+const azureEnv = require('@pai/config/azure');
+const paiConfig = require('@pai/config/paiConfig');
+const launcherConfig = require('@pai/config/launcher');
+const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
+const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
 
 const generateFrameworkDescription = (frameworkName, userName, config) => {
   const frameworkDescription = {
@@ -286,7 +285,7 @@ async function put(frameworkName, config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  const flag = await userModelV2.checkUserGroup(userName, virtualCluster);
+  const flag = await userModelV2.checkUserVC(userName, virtualCluster);
   if (flag === false) {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }

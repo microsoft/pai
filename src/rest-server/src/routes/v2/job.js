@@ -18,9 +18,9 @@
 
 // module dependencies
 const express = require('express');
-const token = require('../../middlewares/token');
-const controller = require('../../controllers/v2/job');
-const protocol = require('../../middlewares/v2/protocol');
+const token = require('@pai/middlewares/token');
+const controller = require('@pai/controllers/v2/job');
+const protocol = require('@pai/middlewares/v2/protocol');
 
 
 const router = new express.Router();

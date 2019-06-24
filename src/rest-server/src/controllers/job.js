@@ -18,9 +18,9 @@
 // module dependencies
 const yaml = require('js-yaml');
 const url = require('url');
-const Job = require('../models/job');
-const createError = require('../util/error');
-const logger = require('../config/logger');
+const Job = require('@pai/models/v1/job/yarn');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
 
 /**
  * Load job and append to req.
@@ -106,38 +106,6 @@ const list = (req, res, next) => {
  */
 const get = (req, res) => {
   return res.json(req.job);
-};
-
-/**
- * Submit or update job.
- */
-const update = (req, res, next) => {
-  let name = req.job.name;
-  let data = req.body;
-  data.originalData = req.originalBody;
-  data.userName = req.user.username;
-  Job.prototype.putJob(name, req.params.username, data, (err) => {
-    if (err) {
-      return next(createError.unknown(err));
-    }
-    let location = url.format({
-      protocol: req.protocol,
-      host: req.get('Host'),
-      pathname: req.baseUrl + '/' + name,
-    });
-    new Job(name, req.params.username, (job, err) => {
-      if (err) {
-        if (err.code === 'NoJobError') {
-          return res.status(202).location(location).json({
-            message: `update job ${name} successfully`,
-          });
-        } else {
-          return next(createError.unknown(err));
-        }
-      }
-      return res.status(201).location(location).json(job);
-    });
-  });
 };
 
 const newJob = (name, namespace) => {
@@ -274,7 +242,6 @@ module.exports = {
   asyncList,
   list,
   get,
-  update,
   updateAsync,
   remove,
   execute,

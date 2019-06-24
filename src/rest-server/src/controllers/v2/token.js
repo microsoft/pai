@@ -17,10 +17,10 @@
 
 // module dependencies
 const jwt = require('jsonwebtoken');
-const tokenConfig = require('../../config/token');
-const createError = require('../../util/error');
-const userModel = require('../../models/v2/user');
-const authConfig = require('../../config/authn');
+const tokenConfig = require('@pai/config/token');
+const createError = require('@pai/utils/error');
+const userModel = require('@pai/models/v2/user');
+const authConfig = require('@pai/config/authn');
 const querystring = require('querystring');
 
 function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {

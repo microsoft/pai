@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
+describe('JobDetail API /api/v2/user/:username/jobs/:jobName', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -63,7 +63,7 @@ describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
 
   it('[P-01] Should return test_job detail info', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/test_job')
+      .get('/api/v2/user/test/jobs/test_job')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -79,7 +79,7 @@ describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
 
   it('[N-01] Job does not exist should return error', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/test_job2')
+      .get('/api/v2/user/test/jobs/test_job2')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
@@ -89,7 +89,7 @@ describe('JobDetail API /api/v1/user/:username/jobs/:jobName', () => {
 
   it('[N-02] Cannot connect to Launcher', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/test_job3')
+      .get('/api/v2/user/test/jobs/test_job3')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
