@@ -260,22 +260,6 @@ describe('Add new user: put /api/v2/user', () => {
         'type': 'Opaque'
       });
 
-    // mock for case3 username=newuser.
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/6e657775736572')
-      .reply(404, {
-        'kind': 'Status',
-        'apiVersion': 'v1',
-        'metadata': {},
-        'status': 'Failure',
-        'message': 'secrets \'6e657775736572\' not found',
-        'reason': 'NotFound',
-        'details': {
-          'name': '6e657775736572',
-          'kind': 'secrets'
-        },
-        'code': 404
-      });
 
     // mock for case4 username=existuser.
     nock(apiServerRootUri)
