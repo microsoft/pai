@@ -158,6 +158,8 @@ interface IProtocolState {
   loading: boolean;
   showParameters: boolean;
   showEditor: boolean;
+  logDir: string;
+  needTensorBoard: boolean;
 }
 
 export default class ProtocolForm extends React.Component<IProtocolProps, IProtocolState> {
@@ -170,6 +172,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     loading: true,
     showParameters: true,
     showEditor: false,
+    logDir: "",
+    needTensorBoard: false,
   };
 
   public componentDidMount() {
@@ -178,8 +182,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   public render() {
     return this.state.loading ?
-    this.renderLoading() :
-    this.readerContent();
+      this.renderLoading() :
+      this.readerContent();
   }
 
   private renderLoading = () => {
@@ -226,7 +230,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
+                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
                   Import
                 </a>
                 <input
@@ -320,6 +324,15 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             </Stack>
             <Stack className={styles.item}>
               <Toggle
+                label="Need TensorBoard"
+                checked={this.state.needTensorBoard}
+                onChange={this.toggleTensorBoard}
+                inlineLabel={true}
+              />
+              {this.renderTensorBoardDir()}
+            </Stack>
+            <Stack className={styles.item}>
+              <Toggle
                 label="Job Parameters"
                 checked={this.state.showParameters}
                 onChange={this.toggleParameters}
@@ -391,6 +404,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
   }
 
+  private setLogDir = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, logDir?: string) => {
+    if (logDir !== undefined) {
+      this.setState({ logDir, });
+    }
+  }
+
   private onSelectProtocol = (text: string) => {
     try {
       const protocol = yaml.safeLoad(text);
@@ -429,7 +448,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
     if (option && option.key) {
-      this.setState({fileOption: option.key});
+      this.setState({ fileOption: option.key });
     }
   }
 
@@ -438,7 +457,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({key, value}),
+        ([key, value]) => pairs.push({ key, value }),
       );
     }
     return pairs;
@@ -469,9 +488,28 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
   }
 
+  private toggleTensorBoard = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
+    if (checked !== undefined) {
+      this.setState({ needTensorBoard: checked });
+    }
+  }
+
   private toggleParameters = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
     if (checked !== undefined) {
       this.setState({ showParameters: checked });
+    }
+  }
+
+  private renderTensorBoardDir = () => {
+    if (this.state.needTensorBoard) {
+      return (
+        <TextField
+          label="Log Directory"
+          value={this.state.logDir}
+          onChange={this.setLogDir}
+          required={true}
+        />
+      );
     }
   }
 
@@ -532,11 +570,67 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
+  private addTensorBoardConfig = () => {
+    if (this.state.needTensorBoard) {
+      console.log("need tensorboard");
+      if (this.state.logDir !== undefined) {
+        const protocol = yaml.safeLoad(this.state.protocolYAML);
+        const tensorboardName = "tensorboard_" + Math.random().toString(36).slice(-8);
+        const tensorBoardImage = "tensorBoardimage_" + Math.random().toString(36).slice(-8);
+        let length = 0;
+        if (protocol.hasOwnProperty("prerequisites")) {
+          length = protocol.prerequisites.length;
+        }
+        else {
+          protocol["prerequisites"] = [];
+        }
+        protocol.prerequisites[length] = {
+          protocolVersion: 2,
+          name: tensorBoardImage,
+          type: "dockerimage",
+          version: "1.0 - r1.4",
+          contributor: "OpenPAI",
+          uri: "openpai/pai.example.tensorflow",
+        };
+        protocol.taskRoles[tensorboardName] = {
+          instances: 1,
+          completion: {
+            minFailedInstances: 1,
+            minSucceededInstances: null,
+          },
+          taskRetryCount: 0,
+          dockerImage: tensorBoardImage,
+          resourcePerInstance:
+          {
+            cpu: 1,
+            memoryMB: 512,
+            gpu: 0,
+            ports: {
+              tensorboard: 1
+            }
+          },
+          commands: ["tensorboard--logdir = " + this.state.logDir + " --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST"],
+        };
+        this.state.protocolYAML = yaml.safeDump(protocol);
+        console.log("tensorboard config added");
+      }
+      else {
+        alert("Please input the tensorboard log dir!");
+        console.log("empty log dir");
+      }
+    }
+    else {
+      console.log("do not need tensorboard")
+    }
+  }
+
   private submitProtocol = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     if (!this.state.protocolYAML) {
       return;
     }
+    const protocolYAMLlBackup = this.state.protocolYAML;
+    this.addTensorBoardConfig();
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     protocol.extras = { submitFrom: this.props.pluginId };
     try {
@@ -550,11 +644,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       });
       const body = await res.json();
       if (Number(res.status) >= 400) {
+        this.state.protocolYAML = protocolYAMLlBackup;
         alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
     } catch (err) {
+      this.state.protocolYAML = protocolYAMLlBackup;
       alert(err.message);
     }
   }
