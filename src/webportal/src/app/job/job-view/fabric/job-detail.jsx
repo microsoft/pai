@@ -33,7 +33,7 @@ import Summary from './job-detail/components/summary';
 import {SpinnerLoading} from '../../../components/loading';
 import TaskRole from './job-detail/components/task-role';
 import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError, fetchRawJobConfig} from './job-detail/conn';
-import {getHumanizedJobStateString} from './job-detail/util';
+import {getHumanizedJobStateString} from '../../../components/util/job';
 
 initializeIcons();
 
@@ -138,7 +138,7 @@ class JobDetail extends React.Component {
   renderTaskRoles() {
     const {jobConfig, jobInfo} = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
-      const failedTaskRole = getHumanizedJobStateString(jobInfo) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
+      const failedTaskRole = getHumanizedJobStateString(jobInfo.jobStatus) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map((name) => (
         <TaskRole
           key={name}

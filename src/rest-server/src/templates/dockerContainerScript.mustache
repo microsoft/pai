@@ -188,8 +188,8 @@ if service --status-all 2>&1 | grep -q ssh; then
   generate_ssh_connect_info ${destFilePath}
 
   # Enable SSH connect inside
-  # Move ssh config file to /root/.ssh/
-  mv /pai/ssh_config/config /root/.ssh/
+  # Copy ssh config file to /root/.ssh/
+  cp /pai/ssh_config/config /root/.ssh/
   # Start ssh service
   start_ssh_service
 else
