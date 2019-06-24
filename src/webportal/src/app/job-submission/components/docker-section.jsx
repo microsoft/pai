@@ -64,13 +64,13 @@ AuthTextFiled.propTypes = {
   type: PropTypes.string,
 };
 
-export const DockerSection = (props) => {
-  const {onValueChange, value} = props;
+export const DockerSection = ({onValueChange, value}) => {
   const {uri, auth} = value;
 
   const nameInput = useRef(null);
   const password = useRef(null);
   const registryuri = useRef(null);
+  const [errorMsg, setErrorMsg] = useState('Docker should not be empty');
 
   const textFieldId = getId('textField');
 
@@ -107,6 +107,11 @@ export const DockerSection = (props) => {
   }, [_onChange]);
 
   const _onUriChange = useCallback((e) => {
+    if (!e.target.value) {
+      setErrorMsg('Docker should not be empty');
+    } else {
+      setErrorMsg(null);
+    }
     _onChange('uri', e.target.value);
   }, [_onChange]);
 
@@ -157,7 +162,8 @@ export const DockerSection = (props) => {
           <TextField
             id={textFieldId}
             placeholder='Enter docker uri...'
-            onBlur={_onUriChange}
+            errorMessage={errorMsg}
+            onChange={_onUriChange}
             value={uri}
           />
         </FormShortSection>

@@ -97,13 +97,16 @@ const JobSubmission = (props) => {
     }
   }, [jobTaskRoles, secrets]);
 
-  const setJobTaskRoles = useCallback((taskRoles) => {
-    if (isEmpty(taskRoles)) {
-      setJobTaskRolesState([new JobTaskRole({})]);
-    } else {
-      setJobTaskRolesState(taskRoles);
-    }
-  }, [setJobTaskRolesState]);
+  const setJobTaskRoles = useCallback(
+    (taskRoles) => {
+      if (isEmpty(taskRoles)) {
+        setJobTaskRolesState([new JobTaskRole({})]);
+      } else {
+        setJobTaskRolesState(taskRoles);
+      }
+    },
+    [setJobTaskRolesState],
+  );
 
   const setParameters = useCallback(
     (param) => {
@@ -243,7 +246,10 @@ function onRenderJobSubmission(contentWrapper) {
   const props = {
     jobTaskRoles: [new JobTaskRole({})],
     jobParameters: [{key: '', value: ''}],
-    jobBasicInfo: new JobBasicInfo({}),
+    jobBasicInfo: new JobBasicInfo({
+      name: `${cookies.get('user')}_${Date.now()}`,
+      virtualCluster: 'default',
+    }),
   };
   if (params.get('op') === 'resubmit') {
     const jobName = params.get('jobname') || '';

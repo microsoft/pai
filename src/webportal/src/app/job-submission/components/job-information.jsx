@@ -53,8 +53,7 @@ function reducer(state, action) {
   }
 }
 
-export const JobInformation = React.memo((props) => {
-  const {jobInformation, onChange, advanceFlag} = props;
+export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag}) => {
   const [jobInfo, dispatch] = useReducer(reducer, jobInformation);
   const {name, virtualCluster, jobRetryCount} = jobInfo;
 
