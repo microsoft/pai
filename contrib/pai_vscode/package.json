@@ -416,7 +416,7 @@
         "watch": "tsc -watch -p ./",
         "package": "vsce package",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.4",
@@ -445,6 +445,9 @@
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
+        "gulp": "^4.0.2",
+        "gulp-decompress": "^2.0.2",
+        "gulp-download": "^0.0.1",
         "inversify": "^4.14.0",
         "js-yaml": "^3.13.1",
         "json-inline-doc": "^2.0.1",
