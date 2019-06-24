@@ -97,6 +97,9 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   runtimeImage: Joi.string()
     .required(),
   requestHeaders: Joi.object(),
+  healthCheckPath: Joi.func()
+    .arity(0)
+    .required(),
   frameworksPath: Joi.func()
     .arity(0)
     .required(),
@@ -174,6 +177,9 @@ if (launcherType === 'yarn') {
     requestHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
+    },
+    healthCheckPath: () => {
+      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}`;
     },
     frameworksPath: (namespace='default') => {
       return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks`;

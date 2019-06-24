@@ -17,7 +17,8 @@
 
 
 // module dependencies
-const unirest = require('unirest');
+const axios = require('axios');
+const status = require('statuses');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const yarnConfig = require('@pai/config/yarn');
@@ -26,28 +27,37 @@ const launcherConfig = require('@pai/config/launcher');
 if (launcherConfig.type === 'yarn') {
   if (config.env !== 'test') {
     // framework launcher health check
-    unirest.get(launcherConfig.healthCheckPath())
-    .timeout(2000)
-    .end((res) => {
-      if (res.status === 200) {
+    (async () => {
+      const response = await axios.get(launcherConfig.healthCheckPath());
+      if (response.status === status('OK')) {
         logger.info('connected to framework launcher successfully');
       } else {
         throw new Error('cannot connect to framework launcher');
       }
-    });
+    })();
     // hadoop yarn health check
-    unirest.get(yarnConfig.yarnVcInfoPath)
-    .timeout(2000)
-    .end((res) => {
-      if (res.status === 200) {
-        logger.info('connected to yarn successfully');
+    (async () => {
+      const response = await axios(yarnConfig.yarnVcInfoPath);
+      if (response.status === status('OK')) {
+        logger.info('connected to hadoop YARN successfully');
       } else {
-        throw new Error('cannot connect to yarn');
+        throw new Error('cannot connect to hadoop YARN');
       }
-    });
+    })();
   }
   module.exports = require('@pai/models/v2/job/yarn');
 } else if (launcherConfig.type === 'k8s') {
+  if (config.env !== 'test') {
+    // framework controller health check
+    (async () => {
+      const response = await axios(launcherConfig.healthCheckPath());
+      if (response.status === status('OK')) {
+        logger.info('connected to framework controller successfully');
+      } else {
+        throw new Error('cannot connect to framework controller');
+      }
+    })();
+  }
   module.exports = require('@pai/models/v2/job/k8s');
 } else {
   throw new Error(`unknown launcher type ${launcherConfig.type}`);
