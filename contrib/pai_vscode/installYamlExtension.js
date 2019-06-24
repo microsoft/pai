@@ -23,7 +23,8 @@ function installVscodeYamlExtension() {
     }
 
     var exec = require('child_process').exec;
-    exec(`ls ${extensionPath}`, function (error, stdout, stderr) {
+    var parentPath = path.join(os.homedir(), `.vscode/extensions`);
+    exec(`ls ${parentPath}`, function (error, stdout, stderr) {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
         if (error !== null) {
