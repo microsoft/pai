@@ -416,7 +416,7 @@
         "watch": "tsc -watch -p ./",
         "package": "vsce package",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "code --install-extension redhat.vscode-yaml && npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && npm run postinstall && ./.vscode-test/stable/bin/code --install-extension redhat.vscode-yaml && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.4",
