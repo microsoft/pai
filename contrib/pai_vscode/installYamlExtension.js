@@ -21,7 +21,7 @@ function mkDirByPathSync(targetDir) {
     }, initDir);
 }
 
-async function downloadAndUnzipExtension(url, dest, cb) {
+async function downloadAndUnzipExtension(url, dest) {
     request(url).pipe(unzipper.Parse()).on('entry', function (entry) {
         if (entry.path.startsWith('extension/')) {
             var newPath = path.resolve(dest, entry.path.slice(10));
@@ -34,24 +34,14 @@ async function downloadAndUnzipExtension(url, dest, cb) {
         } else {
             entry.autodrain();
         }
-    }).on('finish', cb);
+    });
 }
 
 function installVscodeYamlExtension() {
     const version = '0.4.0';
     const extensionPath = path.join(os.homedir(), `.vscode/extensions/redhat.vscode-yaml-${version}`);
-    console.log(`extensionPath: ${extensionPath}`);
     const url = `https://github.com/redhat-developer/vscode-yaml/releases/download/0.4.0/redhat.vscode-yaml-0.4.0.vsix`;
-    downloadAndUnzipExtension(url, extensionPath, function() {
-        var exec = require('child_process').exec;
-        exec(`ls ${extensionPath}`, function (error, stdout, stderr) {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
-            if (error !== null) {
-                console.log('exec error: ' + error);
-            }
-        });
-    });
+    downloadAndUnzipExtension(url, extensionPath);
 }
 
 installVscodeYamlExtension();
