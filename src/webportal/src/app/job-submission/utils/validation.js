@@ -1,4 +1,3 @@
-import {STORAGE_PREFIX} from './constants';
 
 export function validateMountPath(path) {
   let illegalMessage = '';
