@@ -5,9 +5,8 @@ import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {CUSTOM_STORAGE_TAG} from '../utils/constants';
 
-export const keyValueArrayReducer = (acc, cur) => {
-  acc = {...acc, ...cur};
-  return acc;
+export const dispatchResizeEvent = () => {
+  window.dispatchEvent(new Event('resize'));
 };
 
 export function removeEmptyProperties(obj) {

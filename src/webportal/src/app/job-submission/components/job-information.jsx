@@ -24,13 +24,14 @@
  */
 
 import React, {useCallback, useReducer} from 'react';
-import {FormTextField} from './form-text-field';
-import {FormPage} from './form-page';
 import {Text} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {JobBasicInfo} from '../models/job-basic-info';
+import {FormTextField} from './form-text-field';
+import {FormPage} from './form-page';
+import {FormSpinButton} from './form-spin-button';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
+import {JobBasicInfo} from '../models/job-basic-info';
 
 function reducer(state, action) {
   let jobInfo;
@@ -49,8 +50,8 @@ function reducer(state, action) {
 }
 
 export const JobInformation = React.memo((props) => {
-  const {jobInformation, onChange} = props;
-  const {name, virtualCluster} = jobInformation;
+  const {jobInformation, onChange, advanceFlag} = props;
+  const {name, virtualCluster, jobRetryCount} = jobInformation;
   const [, dispatch] = useReducer(reducer, jobInformation);
 
   const _onChange = useCallback((updatedValue) => {
@@ -84,6 +85,15 @@ export const JobInformation = React.memo((props) => {
           onChange={_onVirtualClusterChange}
           virtualCluster={virtualCluster}
         />
+        {advanceFlag && (
+          <FormSpinButton
+            sectionOptional
+            sectionLabel={'Retry count'}
+            shortStyle
+            value={jobRetryCount}
+            onChange={(value) => _onChange('jobRetryCount', value)}
+          />
+        )}
       </FormPage>
     </Card>
   );
@@ -92,4 +102,5 @@ export const JobInformation = React.memo((props) => {
 JobInformation.propTypes = {
   jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
   onChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
 };

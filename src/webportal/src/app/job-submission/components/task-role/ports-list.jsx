@@ -23,16 +23,29 @@
  * SOFTWARE.
  */
 
-export class Port {
-  constructor(portLabel, portNumber) {
-    this.portLabel = portLabel;
-    this.portNumber = Number(portNumber);
-  }
+import PropTypes from 'prop-types';
+import React from 'react';
+import {BasicSection} from '../basic-section';
+import {FormShortSection} from '../form-page';
+import {KeyValueList} from '../controls/key-value-list';
 
-  convertToProtocolFormat() {
-    let port = {};
-    port[this.portLabel] = this.portNumber;
+export const PortsList = React.memo(({onChange, ports}) => (
+  <BasicSection sectionLabel='Ports' sectionOptional>
+    <FormShortSection>
+      <KeyValueList
+        value={ports}
+        onChange={onChange}
+        columnWidth={220}
+        keyName='Port Label'
+        keyField='key'
+        valueName='Port Field'
+        valueField='value'
+      />
+    </FormShortSection>
+  </BasicSection>
+));
 
-    return port;
-  }
-}
+PortsList.propTypes = {
+  ports: PropTypes.array,
+  onChange: PropTypes.func,
+};

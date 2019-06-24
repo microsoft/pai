@@ -24,9 +24,11 @@
  */
 
 import React from 'react';
+import {isNil} from 'lodash';
 import PropTypes from 'prop-types';
 import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-fabric-react';
 import {getFormClassNames, getTabFromStyle} from './form-style';
+import {TabFormContent} from './tab-form-content';
 import Card from '../../components/card';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
@@ -53,18 +55,6 @@ export class TabForm extends React.Component {
 
   _getItemIndexByKey(key) {
     return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
-  }
-
-  _getContentItems(items) {
-    const {onRenderTabContent} = this.props;
-    return items.map((item, index) => {
-      const {headerText, content} = item;
-      return {
-        headerText: headerText,
-        content: onRenderTabContent(index, content, this._onContentChange.bind(this, index)),
-        itemKey: this._getItemKeyByIndex(index),
-      };
-    });
   }
 
   _renderPivotItems(items) {
@@ -143,11 +133,9 @@ export class TabForm extends React.Component {
 
   render() {
     let {selectedIndex} = this.state;
-    const {items} = this.props;
+    const {items, advanceFlag} = this.props;
 
     const {formTabBar} = getFormClassNames();
-    const contentItems = this._getContentItems(items);
-    const pivotItems = this._renderPivotItems(contentItems);
 
     if ((selectedIndex === undefined && items.length) ||
         (selectedIndex > items.length - 1)) {
@@ -160,15 +148,24 @@ export class TabForm extends React.Component {
       <div>
         <Stack className={formTabBar} horizontal>
           <Stack.Item styles={tabFormStyle.tabWapper}>
-            <Pivot onLinkClick={this._onLinkClick.bind(this)}
-                   styles={{
-                     text: tabFormStyle.tab.text,
-                     root: tabFormStyle.tab.root,
-                     link: [{margin: 0, padding: `0 ${spacing.l1}`}],
-                     linkIsSelected: [{margin: 0, padding: `0 ${spacing.l1}`}],
-                    }}
-                   selectedKey={this._getItemKeyByIndex(selectedIndex)}>
-             {pivotItems}
+            <Pivot
+              onLinkClick={this._onLinkClick.bind(this)}
+              styles={{
+                text: tabFormStyle.tab.text,
+                root: tabFormStyle.tab.root,
+                link: [{margin: 0, padding: `0 ${spacing.l1}`}],
+                linkIsSelected: [{margin: 0, padding: `0 ${spacing.l1}`}],
+              }}
+              selectedKey={this._getItemKeyByIndex(selectedIndex)}
+            >
+            {items.map((item, idx) => (
+              <PivotItem
+                key={this._getItemKeyByIndex(idx)}
+                itemKey={this._getItemKeyByIndex(idx)}
+                headerText={item.headerText}
+                onRenderItemLink={this._onRenderItem.bind(this)}
+              />
+            ))}
             </Pivot>
           </Stack.Item>
           <Stack.Item disableShrink>
@@ -182,7 +179,14 @@ export class TabForm extends React.Component {
         </Stack>
         <Stack>
           <Card style={{padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`}}>
-            {selectedIndex !== undefined ? contentItems[selectedIndex].content: null}
+            {!isNil(selectedIndex) && (
+              <TabFormContent
+                key={selectedIndex}
+                jobTaskRole={items[selectedIndex].content}
+                onContentChange={this._onContentChange.bind(this, selectedIndex)}
+                advanceFlag={advanceFlag}
+              />
+            )}
           </Card>
         </Stack>
       </div>
@@ -195,6 +199,6 @@ TabForm.propTypes = {
   onItemAdd: PropTypes.func.isRequired,
   onItemDelete: PropTypes.func.isRequired,
   headerTextPrefix: PropTypes.string.isRequired,
-  onRenderTabContent: PropTypes.func.isRequired,
   onItemsChange: PropTypes.func,
+  advanceFlag: PropTypes.bool,
 };

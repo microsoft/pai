@@ -28,8 +28,7 @@ import {Completion} from './completion';
 import {Deployment} from './deployment';
 import {ContainerSize} from '../models/container-size';
 import {get, isNil, isEmpty} from 'lodash';
-import {Port} from './port';
-import {keyValueArrayReducer, removeEmptyProperties} from '../utils/utils';
+import {removeEmptyProperties} from '../utils/utils';
 
 export class JobTaskRole {
   constructor(props) {
@@ -57,7 +56,7 @@ export class JobTaskRole {
     const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
     const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage) || {};
     const ports = isNil(resourcePerInstance.ports) ? [] :
-      Object.keys(resourcePerInstance.ports).map((key) => new Port(key, resourcePerInstance.ports[key]));
+      Object.entries(resourcePerInstance.ports).map(([key, value]) => ({key, value}));
 
     const jobTaskRole = new JobTaskRole({
       name: name,
@@ -86,8 +85,10 @@ export class JobTaskRole {
 
   convertToProtocolFormat() {
     const taskRole = {};
-    const ports = this.ports.map((port) => port.convertToProtocolFormat())
-                            .reduce(keyValueArrayReducer, {});
+    const ports = this.ports.reduce((val, x) => {
+      val[x.key] = x.value;
+      return val;
+    }, {});
     const resourcePerInstance = removeEmptyProperties({...this.containerSize.getResourcePerInstance(), ports: ports});
     const extraContainerOptions = this.containerSize.getExtraContainerOptions();
 
