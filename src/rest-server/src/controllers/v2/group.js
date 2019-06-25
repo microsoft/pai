@@ -46,7 +46,7 @@ const getGroupUserList = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
     const groupname = req.params.groupname;
-    const allUserInfoList = userModel.getAllUser();
+    const allUserInfoList = await userModel.getAllUser();
     let userlist = [];
     // eslint-disable-next-line no-console
     console.log(allUserInfoList);

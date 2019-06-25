@@ -271,7 +271,7 @@ const addGroupIntoUserGrouplist = async (req, res, next) => {
     if (!userInfo.grouplist.includes(groupname)) {
       userInfo.grouplist.push(groupname);
     }
-    userModel.updateUser(username, userInfo);
+    await userModel.updateUser(username, userInfo);
     return res.status(201).json({
       message: `User ${username} is added into group ${groupname}`,
     });
@@ -296,7 +296,8 @@ const removeGroupIntoUserGrouplist = async (req, res, next) => {
     }
     if (userInfo.grouplist.includes(groupname)) {
       userInfo.grouplist.splice(userInfo.grouplist.indexOf(groupname), 1);
-    }userModel.updateUser(username, userInfo);
+    }
+    await userModel.updateUser(username, userInfo);
     return res.status(201).json({
       message: `User ${username} is removed from group ${groupname}`,
     });
