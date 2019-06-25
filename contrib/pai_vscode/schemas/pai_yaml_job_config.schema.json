@@ -105,7 +105,6 @@
                     ]
                 }
             ],
-
             "required": ["name", "type", "uri"]
         },
         "parameters": {
@@ -116,7 +115,7 @@
         "secrets": {
             "description": "Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.",
             "type": "object",
-            "additionalItems": true
+            "additionalProperties": true
         },
         "taskRole": {
             "description": "Task roles are different types of task in the protocol. One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.",
@@ -138,7 +137,8 @@
                         "minSucceededInstances": {
                             "description": "Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedInstances is not triggered.",
                             "type": ["integer", "null"]
-                        }
+                        },
+                        "additionalProperties": false
                     }
                 },
                 "taskRetryCount": {
@@ -167,7 +167,8 @@
                             "description": "Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.",
                             "type": "integer"
                         }
-                    }
+                    },
+                    "additionalProperties": false
                 },
                 "resourcePerInstance": {
                     "type": "object",
@@ -194,6 +195,7 @@
                             "minProperties": 1
                         }
                     },
+                    "additionalProperties": false,
                     "required": ["cpu", "memoryMB", "gpu"]
                 },
                 "commands": {
@@ -204,6 +206,7 @@
                     "minItems": 1
                 }
             },
+            "additionalProperties": false,
             "required": ["dockerImage", "resourcePerInstance", "commands"]
         },
         "deployment": {
@@ -239,6 +242,7 @@
                     "minProperties": 1
                 }
             },
+            "additionalProperties": false,
             "required": ["name", "taskRoles"]
         },
         "defaults": {
@@ -252,7 +256,8 @@
                     "description": "Should reference to deployment defined in deployments.",
                     "type": "string"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "extras": {
             "description": "Extra field, object, save any information that plugin may use.",
@@ -261,7 +266,8 @@
                 "submitFrom": {
                     "type": "string"
                 }
-            }
+            },
+            "additionalProperties": false
         }
     },
 
@@ -328,5 +334,6 @@
             "$ref": "#/definitions/extras"
         }
     },
+    "additionalProperties": false,
     "required": ["protocolVersion", "name", "type", "taskRoles"]
 }
