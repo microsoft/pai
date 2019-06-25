@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import {validateMountPath} from '../../utils/validation';
+import {validateMountPath, validateHDFSPath} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
 import t from '../../../../app/components/tachyons.scss';
@@ -28,7 +28,7 @@ export const AddHDFS = ({
   const [isHdfsEnabled, setIsHdfsEnabled] = useState(true);
   const [hdfsPath, setHdfsPath] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
-  const hdfsPathErrorMessage = useState()[0];
+  const [hdfsPathErrorMessage, setHdfsPathErrorMessage] = useState();
 
   useEffect(() => {
     if (!hdfsClient) {
@@ -86,11 +86,18 @@ export const AddHDFS = ({
       return [];
     }
   };
-  const onItemSelected = (selectedItem) => {
+  const onItemSelected = async (selectedItem) => {
       if (!selectedItem) {
         return null;
       }
-      setHdfsPath(selectedItem.key);
+      const hdfsPath = selectedItem.key;
+      setHdfsPath(hdfsPath);
+      const valid = await validateHDFSPath(hdfsClient, hdfsPath);
+      if (!valid.isLegal) {
+        setHdfsPathErrorMessage(valid.illegalMessage);
+      } else {
+        setHdfsPathErrorMessage(null);
+      }
       return {
         name: selectedItem.key,
         key: selectedItem.key,
