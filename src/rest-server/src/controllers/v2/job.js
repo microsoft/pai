@@ -24,6 +24,11 @@ const job = require('@pai/models/v2/job');
 const createError = require('@pai/utils/error');
 
 
+const get = asyncHandler(async (req, res) => {
+  const data = await job.get(req.params.frameworkName);
+  res.json(data);
+});
+
 const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
   const userName = req.user.username;
@@ -63,6 +68,7 @@ const getConfig = asyncHandler(async (req, res) => {
 
 // module exports
 module.exports = {
+  get,
   update,
   getConfig,
 };
