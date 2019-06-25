@@ -15,10 +15,12 @@ class Storage:
                 setattr(self, f, getattr(self, '%s_%s' % (f, protocol.lower())))
 
     def upload_webhdfs(self, local_path: str, remote_path: str, **kwargs):
+        print("upload %s -> %s" % (local_path, remote_path))
         return self.client.upload(local_path=local_path, hdfs_path=remote_path, **kwargs)
 
     def download_webhdfs(self, remote_path: str, local_path: str, **kwargs):
         mkdir_for(local_path)
+        print("download %s -> %s" % (remote_path, local_path))
         return self.client.download(local_path=local_path, hdfs_path=remote_path, overwrite=True, **kwargs)
 
     def list_webhdfs(self, remote_path: str, **kwargs):

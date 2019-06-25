@@ -180,8 +180,8 @@ class ActionFactoryForJob(ActionFactory):
     def check_arguments_notebook(self, args):
         assert args.notebook or args.interactive, "must specify a notebook name unless in interactive mode"
         if not args.job_name:
-            assert args.notebook, "must specify a notebook if no job name defined"
-            args.job_name = os.path.splitext(os.path.basename(args.notebook))[0] + "_" + randstr().hex
+            assert args.notebook or args.interactive, "must specify a notebook if no job name defined"
+            args.job_name = os.path.splitext(os.path.basename(args.notebook))[0] + "_" + randstr().hex if args.notebook else "jupyter_server_{}".format(randstr().hex)
 
     def do_action_notebook(self, args):
         return self.__job__.new(args.job_name).from_notebook(

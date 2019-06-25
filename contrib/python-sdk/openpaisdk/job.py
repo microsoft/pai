@@ -142,11 +142,16 @@ class Job:
         client = ClusterList().load().get_client(cluster_alias)
         # upload
         for f in self.protocol.get("extras", {}).get("__sources__", []):
+            if not f:
+                continue
             local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
-            print("upload %s -> %s" % (local_path, remote_path))
             client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
         client.get_token().rest_api_submit(self.get_config())
         return client.get_job_link(self.name)
+
+    def wait(self, cluster_alias: str, **kwargs):
+        client = ClusterList().load().get_client(cluster_alias)
+        return client.wait([self.name], **kwargs)
 
     def decorate(self, cluster_alias: str, workspace: str=None, virtual_cluster: str=None, only_it: bool=True, wdir: str="~"):
         clusters = ClusterList().load().clusters
@@ -166,6 +171,7 @@ class Job:
             "echo \"write config to {}\"".format(c_file),
             "echo <% $secrets.clusters %> > {}".format(c_file),
             "opai cluster select <% $secrets.cluster_alias %>",
+            "opai set logging-level=5",
         ]
         if wdir:
             sdk_install_cmds.append("cd %s" % wdir)
@@ -194,16 +200,21 @@ class Job:
             return self.validate().get_config()
 
     def from_notebook(self, nb_file: str, image: str, cluster: dict, resources: dict=None, sources: list=None, submit: bool=True, interactive_mode: bool=True, token: str="abcd", **kwargs):
-        html_file = os.path.splitext(nb_file)[0] + ".html"
-        cmds_batch = [
-            'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute %s' % nb_file,
-            'opai storage upload {} <% $secrets.work_directory %>/output/{}'.format(html_file, html_file),
-        ]
-        cmds_interactive = [
-            "jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 --NotebookApp.token={} --allow-root {}".format(token, nb_file),
-        ]
-        return self.one_liner(
-            commands = cmds_interactive if interactive_mode else cmds_batch,
+        if not nb_file:
+            interactive_mode, nb_file = True, ""
+        html_file = os.path.splitext(nb_file)[0] + ".html" if not interactive_mode else ""
+        if interactive_mode:
+            cmds = [
+                "jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 --NotebookApp.token={} --allow-root {}".format(token, nb_file),
+            ]
+        else:
+            cmds = [
+                'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute %s' % nb_file,
+                'opai storage upload {} <% $secrets.work_directory %>/output/{}'.format(html_file, html_file),
+            ]
+
+        job_info = self.one_liner(
+            commands = cmds,
             image=image,
             sources=[nb_file],
             resources = resources,
@@ -211,6 +222,34 @@ class Job:
             submit = submit,
             **kwargs
         )
+        if not submit:
+            return job_info
+        print(job_info)
+        # post processing after Submitting
+        client = ClusterList().load().get_client(cluster["cluster_alias"])
+        print("waiting job to be started")
+        if interactive_mode:
+            # wait and get ip
+            state = client.wait([self.name], exit_states=["SUCCEEDED", "FAILED", "RUNNING"])[0]
+            assert state == "RUNNING", "why not running {}".format(state)
+            while True:
+                try:
+                    status = client.jobs(self.name)
+                    ip = status["taskRoles"]["main"]["taskStatuses"][0]["containerIp"]
+                except:
+                    ip = None
+                    time.sleep(10)
+                if ip:
+                    break
+            return "http://%s:8888/?token=%s" % (ip, token)
+        else:
+            state = client.wait([self.name])[0]
+            if state != "SUCCEEDED":
+                return "job failed"
+            local_path, remote_path = html_file, '{}/output/{}'.format(self.protocol["secrets"]["work_directory"], html_file)
+            client.get_storage().download(remote_path=remote_path, local_path=local_path)
+            return html_file
+
 
     def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True):
         deployment = {
