@@ -32,7 +32,7 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import Timer from './timer';
-import {getTensorBoardStatus,getTensorBoardUrl, getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
+import {getTensorBoardUrl, setTensorBoardDisabled, getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -367,8 +367,8 @@ export default class Summary extends React.Component {
             <div className={c(t.flex)}>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
-                href={getTensorBoardUrl(jobInfo)}
-				        disabled={isNil(getTensorBoardStatus(jobInfo))}
+                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
+                disabled={isNil(setTensorBoardDisabled(jobInfo, rawJobConfig))}
                 target="_blank"
               >
                 Go to TensorBoard Page

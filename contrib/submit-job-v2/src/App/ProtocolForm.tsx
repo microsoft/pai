@@ -572,11 +572,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private addTensorBoardConfig = () => {
     if (this.state.needTensorBoard) {
-      console.log("need tensorboard");
       if (this.state.logDir !== undefined) {
         const protocol = yaml.safeLoad(this.state.protocolYAML);
-        const tensorboardName = "tensorboard_" + Math.random().toString(36).slice(-8);
-        const tensorBoardImage = "tensorBoardimage_" + Math.random().toString(36).slice(-8);
+        const randomStr = Math.random().toString(36).slice(-8)
+        const tensorBoardName = "TensorBoard_" + randomStr;
+        const tensorBoardImage = "tensorBoardImage_" + randomStr;
+        const tensorBoardPort = "tensorBoardPort_" + randomStr;
         let length = 0;
         if (protocol.hasOwnProperty("prerequisites")) {
           length = protocol.prerequisites.length;
@@ -592,7 +593,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           contributor: "OpenPAI",
           uri: "openpai/pai.example.tensorflow",
         };
-        protocol.taskRoles[tensorboardName] = {
+        protocol.taskRoles[tensorBoardName] = {
           instances: 1,
           completion: {
             minFailedInstances: 1,
@@ -605,22 +606,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             cpu: 1,
             memoryMB: 512,
             gpu: 0,
-            ports: {
-              tensorboard: 1
-            }
+            ports: {},
           },
           commands: ["tensorboard--logdir = " + this.state.logDir + " --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST"],
         };
+        protocol.taskRoles[tensorBoardName].resourcePerInstance.ports[tensorBoardPort] = 1;
+        protocol.extras = { tensorBoardStr: randomStr };
         this.state.protocolYAML = yaml.safeDump(protocol);
-        console.log("tensorboard config added");
       }
       else {
-        alert("Please input the tensorboard log dir!");
-        console.log("empty log dir");
+        alert("Please input the tensorboard log directory!");
       }
-    }
-    else {
-      console.log("do not need tensorboard")
     }
   }
 
@@ -629,10 +625,16 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (!this.state.protocolYAML) {
       return;
     }
-    const protocolYAMLlBackup = this.state.protocolYAML;
+    const protocolYAMLBackup = this.state.protocolYAML;
     this.addTensorBoardConfig();
     const protocol = yaml.safeLoad(this.state.protocolYAML);
-    protocol.extras = { submitFrom: this.props.pluginId };
+    if (protocol.hasOwnProperty("extras")) {
+      protocol.extras.submitFrom = this.props.pluginId;
+    }
+    else {
+      protocol.extras = { submitFrom: this.props.pluginId };
+    }
+
     try {
       const res = await fetch(`${this.props.api}/api/v2/jobs`, {
         body: yaml.safeDump(protocol),
@@ -644,13 +646,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       });
       const body = await res.json();
       if (Number(res.status) >= 400) {
-        this.state.protocolYAML = protocolYAMLlBackup;
+        this.state.protocolYAML = protocolYAMLBackup;
         alert(body.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
     } catch (err) {
-      this.state.protocolYAML = protocolYAMLlBackup;
+      this.state.protocolYAML = protocolYAMLBackup;
       alert(err.message);
     }
   }
