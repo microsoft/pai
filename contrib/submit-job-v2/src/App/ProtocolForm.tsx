@@ -406,7 +406,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private setLogDir = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, logDir?: string) => {
     if (logDir !== undefined) {
-      this.setState({ logDir, });
+      this.setState({logDir});
     }
   }
 
@@ -574,25 +574,26 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (this.state.needTensorBoard) {
       if (this.state.logDir !== undefined) {
         const protocol = yaml.safeLoad(this.state.protocolYAML);
-        const randomStr = Math.random().toString(36).slice(-8)
-        const tensorBoardName = "TensorBoard_" + randomStr;
-        const tensorBoardImage = "tensorBoardImage_" + randomStr;
-        const tensorBoardPort = "tensorBoardPort_" + randomStr;
+        const randomStr = Math.random().toString(36).slice(-8);
+        const tensorBoardName = 'TensorBoard_' + randomStr;
+        const tensorBoardImage = 'tensorBoardImage_' + randomStr;
+        const tensorBoardPort = 'tensorBoardPort_' + randomStr;
+        const prerequisites = 'prerequisites';
         let length = 0;
-        if (protocol.hasOwnProperty("prerequisites")) {
+        if (protocol.hasOwnProperty('prerequisites')) {
           length = protocol.prerequisites.length;
-        }
-        else {
-          protocol["prerequisites"] = [];
+        } else {
+          protocol[prerequisites] = [];
         }
         protocol.prerequisites[length] = {
           protocolVersion: 2,
           name: tensorBoardImage,
-          type: "dockerimage",
-          version: "1.0 - r1.4",
-          contributor: "OpenPAI",
-          uri: "openpai/pai.example.tensorflow",
+          type: 'dockerimage',
+          version: '1.0 - r1.4',
+          contributor: 'OpenPAI',
+          uri: 'openpai/pai.example.tensorflow',
         };
+        const portList = ' --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST';
         protocol.taskRoles[tensorBoardName] = {
           instances: 1,
           completion: {
@@ -608,14 +609,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             gpu: 0,
             ports: {},
           },
-          commands: ["tensorboard--logdir = " + this.state.logDir + " --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST"],
+          commands: ['tensorboard--logdir = ' + this.state.logDir + portList],
         };
         protocol.taskRoles[tensorBoardName].resourcePerInstance.ports[tensorBoardPort] = 1;
         protocol.extras = { tensorBoardStr: randomStr };
         this.state.protocolYAML = yaml.safeDump(protocol);
-      }
-      else {
-        alert("Please input the tensorboard log directory!");
+      } else {
+        alert('Please input the tensorboard log directory!');
       }
     }
   }
@@ -630,8 +630,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     if (protocol.hasOwnProperty("extras")) {
       protocol.extras.submitFrom = this.props.pluginId;
-    }
-    else {
+    } else {
       protocol.extras = { submitFrom: this.props.pluginId };
     }
 

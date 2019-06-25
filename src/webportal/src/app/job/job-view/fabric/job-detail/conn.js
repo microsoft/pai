@@ -16,18 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
-import {
-  get,
-  isNil
-} from 'lodash';
+import {get, isNil} from 'lodash';
 import qs from 'querystring';
 
-import {
-  userLogout
-} from '../../../../user/user-logout/user-logout.component';
-import {
-  checkToken
-} from '../../../../user/user-auth/user-auth.component';
+import {userLogout} from '../../../../user/user-logout/user-logout.component';
+import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 
 const params = new URLSearchParams(window.location.search);
@@ -42,9 +35,9 @@ export class NotFoundError extends Error {
 }
 
 export async function fetchJobInfo() {
-  const url = namespace ?
-    `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}` :
-    `${config.restServerUri}/api/v1/jobs/${jobName}`;
+  const url = namespace
+    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
   if (res.ok) {
@@ -55,9 +48,9 @@ export async function fetchJobInfo() {
 }
 
 export async function fetchRawJobConfig() {
-  const url = namespace ?
-    `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config` :
-    `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
+  const url = namespace
+    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -73,9 +66,9 @@ export async function fetchRawJobConfig() {
 }
 
 export async function fetchJobConfig() {
-  const url = namespace ?
-    `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config` :
-    `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
+  const url = namespace
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -91,9 +84,9 @@ export async function fetchJobConfig() {
 }
 
 export async function fetchSshInfo() {
-  const url = namespace ?
-    `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh` :
-    `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
+  const url = namespace
+    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh`
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
   if (res.ok) {
@@ -114,29 +107,28 @@ export function setTensorBoardDisabled(jobInfo, rawJobConfig) {
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
-  if (rawJobConfig.hasOwnProperty("extras") && rawJobConfig.extras.hasOwnProperty("tensorBoardStr")) {
+  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoardStr')) {
     const tensorBoardStr = rawJobConfig.extras.tensorBoardStr;
     const obj = jobInfo.taskRoles;
-    Object.keys(obj).forEach(function (key) {
-      if (key === "TensorBoard_" + tensorBoardStr) {
-        if (obj[key].taskStatuses["0"].taskState == "RUNNING") {
-          port = obj[key].taskStatuses["0"].containerPorts["tensorBoardPort_" + tensorBoardStr];
-          ip = obj[key].taskStatuses["0"].containerIp;
+    Object.keys(obj).forEach(function(key) {
+      if (key === 'TensorBoard_' + tensorBoardStr) {
+        if (obj[key].taskStatuses['0'].taskState == 'RUNNING') {
+          port = obj[key].taskStatuses['0'].containerPorts['tensorBoardPort_' + tensorBoardStr];
+          ip = obj[key].taskStatuses['0'].containerIp;
         }
       }
     });
   }
-  if (isNil(port) || isNil(ip))
+  if (isNil(port) || isNil(ip)) {
     return null;
+  }
   return `http://${ip}:${port}`;
 }
 
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
-  const {
-    state
-  } = jobInfo.jobStatus;
+  const {state} = jobInfo.jobStatus;
   if (state === 'RUNNING') {
     to = Date.now();
   } else {
@@ -171,9 +163,9 @@ export async function cloneJob(rawJobConfig) {
 export async function stopJob() {
   const flag = confirm(`Are you sure to stop ${jobName}?`);
   if (flag) {
-    const url = namespace ?
-      `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType` :
-      `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
+    const url = namespace
+      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
     const res = await fetch(url, {
       method: 'PUT',
@@ -233,22 +225,9 @@ export async function getContainerLog(logUrl) {
 
 export function openJobAttemptsPage(retryCount) {
   const search = namespace ? namespace + '~' + jobName : jobName;
-  const jobSessionTemplate = JSON.stringify({
-    'iCreate': 1,
-    'iStart': 0,
-    'iEnd': retryCount + 1,
-    'iLength': 20,
-    'aaSorting': [
-      [0, 'desc', 1]
-    ],
-    'oSearch': {
-      'bCaseInsensitive': true,
-      'sSearch': search,
-      'bRegex': false,
-      'bSmart': true
-    },
-    'abVisCols': []
-  });
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
   sessionStorage.setItem('apps', jobSessionTemplate);
   window.open(config.yarnWebPortalUri);
 }
