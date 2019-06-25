@@ -97,7 +97,6 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         tooltips: {
           enabled: true,
           mode: 'index',
-          yAlign: 'center',
           callbacks: {
             title: (item, data) => (
               `#GPU: ${item[0].label}`
