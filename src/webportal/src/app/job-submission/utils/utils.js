@@ -125,12 +125,21 @@ export function getHostNameFromUrl(url) {
   return parser.hostname;
 }
 
-export function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
+function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
   Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     const commands = preCommands.concat(taskRole.commands || []);
     taskRole.commands = commands;
   });
+}
+
+export async function populateProtocolWithDataCli(user, protocol, jobData) {
+  if (!jobData.containData) {
+    return;
+  }
+
+  const preCommands = await jobData.generateDataCommands(user, protocol.name || '');
+  addPreCommandsToProtocolTaskRoles(protocol, preCommands);
 }
 
 function removePreCommandSection(commands, beginTag, endTag) {
