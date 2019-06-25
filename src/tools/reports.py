@@ -390,6 +390,7 @@ def refresh_cache(database, yarn_url, launcher_url):
 
 
 # https://github.com/Microsoft/pai/blob/pai-0.9.y/src/rest-server/src/models/job.js#L45
+# https://github.com/microsoft/pai/blob/v0.13.0/src/job-exit-spec/config/job-exit-spec.md
 def convert_job_state(framework_state, exit_code):
     if framework_state in {
             "FRAMEWORK_WAITING",
@@ -406,7 +407,7 @@ def convert_job_state(framework_state, exit_code):
         if exit_code is not None:
             if exit_code == 0:
                 return "SUCCEEDED"
-            elif exit_code == 214:
+            elif exit_code == -7351:
                 return "STOPPED"
             else:
                 return "FAILED"
