@@ -182,8 +182,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   public render() {
     return this.state.loading ?
-      this.renderLoading() :
-      this.readerContent();
+    this.renderLoading() :
+    this.readerContent();
   }
 
   private renderLoading = () => {
@@ -230,7 +230,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
+                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
                   Import
                 </a>
                 <input
@@ -448,7 +448,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
     if (option && option.key) {
-      this.setState({ fileOption: option.key });
+      this.setState({fileOption: option.key});
     }
   }
 
@@ -457,7 +457,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({ key, value }),
+        ([key, value]) => pairs.push({key, value}),
       );
     }
     return pairs;
@@ -505,6 +505,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return (
         <TextField
           label="Log Directory"
+          placeholder="name1:/logpath1,name2:/logpath2"
           value={this.state.logDir}
           onChange={this.setLogDir}
           required={true}
