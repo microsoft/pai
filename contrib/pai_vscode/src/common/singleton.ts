@@ -74,8 +74,10 @@ export async function waitForAllSingletonFinish(): Promise<void> {
         await delay(10);
     }
 }
+
 export async function delay(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(() => resolve(), ms));
+    // tslint:disable-next-line: no-unnecessary-callback-wrapper
+    await new Promise((something) => setTimeout(() => something(), ms));
 }
 
 export async function dispose(): Promise<void> {
