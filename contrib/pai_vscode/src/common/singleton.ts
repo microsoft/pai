@@ -49,6 +49,8 @@ let getSingletonDisabled: boolean = false;
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
     if (!container.isBound(clazz)) {
         container.bind(clazz).toSelf();
+        const str: string = JSON.stringify(container.getAll(clazz));
+        console.log(`Container get all: ${str}`);
         return new clazz();
     }
     if (getSingletonDisabled) {
