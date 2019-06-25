@@ -4,7 +4,8 @@ import {basename} from 'path';
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
 import {
-  CUSTOM_STORAGE_TAG,
+  CUSTOM_STORAGE_START,
+  CUSTOM_STORAGE_END,
   TEAMWISE_DATA_CMD_START,
   TEAMWISE_DATA_CMD_END,
 } from './constants';
@@ -166,8 +167,8 @@ export function removePreCommandsFromProtocolTaskRoles(protocol) {
 
     commands = removePreCommandSection(
       commands,
-      CUSTOM_STORAGE_TAG,
-      CUSTOM_STORAGE_TAG,
+      CUSTOM_STORAGE_START,
+      CUSTOM_STORAGE_END,
     );
     commands = removePreCommandSection(
       commands,
