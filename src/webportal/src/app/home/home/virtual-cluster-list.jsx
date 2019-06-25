@@ -53,7 +53,7 @@ const VirtualClusterItem = ({name, info}) => {
           {/* vc item title */}
           <Stack.Item>
             <div className={c(ColorClassNames.neutralSecondary, FontClassNames.xLarge)}>
-              {name}
+              {info.dedicated ? `${name} (dedicated)` : name}
             </div>
           </Stack.Item>
           {/* vc item status */}
@@ -117,7 +117,13 @@ const VirtualCluster = ({style, userInfo, virtualClusters}) => {
         <Stack.Item styles={{root: [t.relative]}} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
             <Stack gap='l1'>
-              {vcNames.map((name) => (
+              {vcNames.sort(
+                (a, b) => {
+                  const wa = virtualClusters[a].dedicated ? 1 : 0;
+                  const wb = virtualClusters[b].dedicated ? 1 : 0;
+                  return wa - wb;
+                }
+              ).map((name) => (
                 <Stack.Item key={name}>
                   <VirtualClusterItem
                     name={name}

@@ -60,7 +60,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         data[gpuPerNode[key] - 1] += 1;
       }
     }
-    result.push({
+    result.unshift({
       backgroundColor: getVirtualClusterColor(),
       hoverBackgroundColor: getVirtualClusterColor(),
       label: 'shared_vc',
