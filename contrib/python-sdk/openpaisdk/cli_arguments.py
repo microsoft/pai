@@ -148,6 +148,9 @@ class ArgumentFactory:
         self.add_argument('--default', help='set current as default', action='store_true', default=False)
         self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value (key1:key2:...=value for nested objects)')
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
+        self.add_argument('--interactive', action='store_true', help='enter the interactive mode after job starts')
+        self.add_argument('--token', default="abcd", help='authentication token')
+        self.add_argument('--enable-sdk', action="store_true", default=False, help="enable sdk installation")
 
         # task role
         self.add_argument('--task-role-name', '-t', default='main', help='task role name')
@@ -160,6 +163,7 @@ class ArgumentFactory:
 
         # runtime
         self.add_argument('config', nargs='?', help='job config file')
+        self.add_argument('notebook', nargs='?', help='Jupyter notebook file')
         self.add_argument('--working-dir', default='', help="working directory")
 
         # storage

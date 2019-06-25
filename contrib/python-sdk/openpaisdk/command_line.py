@@ -1,31 +1,21 @@
 import argparse
-import json
 import os
 import sys
 from copy import deepcopy
-
-import yaml
-
 from openpaisdk import __logger__, __cluster_config_file__, __local_default_file__
 from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
-from openpaisdk.core import ClusterClient
+from openpaisdk.core import pprint
 from openpaisdk.io_utils import from_file, to_file, get_defaults
-from openpaisdk.job import Job, TaskRole
 from openpaisdk.runtime import runtime_execute
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested
+from uuid import uuid4 as randstr
 
 
-def pprint(s, fmt: str='yaml', **kwargs):
-    """the function to output structured strings as cli feedback"""
-    if fmt == 'json':
-        print(json.dumps(s, indent=4, **kwargs))
-    if fmt == 'yaml':
-        print(yaml.dump(s, default_flow_style=False))
-
-
-def extract_args(args: argparse.Namespace, ignore_list: list=["scene", "action"]):
+def extract_args(args: argparse.Namespace, ignore_list: list=["scene", "action"], get_list: list=[]):
+    if get_list:
+        return {k: getattr(args, k) for k in get_list}
     return {k: v for k, v in vars(args).items() if k not in ignore_list}
 
 
@@ -140,7 +130,7 @@ class ActionFactoryForJob(ActionFactory):
         assert args.config, "please specify a job config file (json or yaml format)"
 
     def do_action_submit(self, args):
-        # TODO key-value pair in --update option would support nested key, e.g. defaults->virtualCluster=<your-virtual-cluster>
+        # key-value pair in --update option would support nested key, e.g. defaults->virtualCluster=<your-virtual-cluster>
         self.__job__.load(fname=args.config)
         if args.update:
             for s in args.update:
@@ -158,17 +148,50 @@ class ActionFactoryForJob(ActionFactory):
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
+            '--enable-sdk',
             '--cmd-sep',
             'commands'
         ])
 
     def do_action_sub(self, args):
-        cmds = " ".join(args.commands).split(args.cmd_sep)
-        args.commands = cmds
-        self.__job__.new(args.job_name).one_liner(**extract_args(args))
-        if args.preview:
-            return self.__job__.validate().get_config()
-        return self.__job__.submit(args.cluster_alias)
+        return self.__job__.new(args.job_name).one_liner(
+            commands = " ".join(args.commands).split(args.cmd_sep),
+            image = args.image,
+            resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
+            cluster=extract_args(args, get_list=["cluster_alias", "virtual_cluster"]),
+            submit = not args.preview, enable_sdk=args.enable_sdk
+        )
+
+    def define_arguments_notebook(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(None, parser, [
+            '--job-name',
+            '--cluster-alias',
+            '--virtual-cluster',
+            '--workspace',
+            '--image',
+            '--cpu', '--gpu', '--memoryMB',
+            '--preview',
+            '--interactive',
+            '--token',
+            '--cmd-sep',
+            'notebook'
+        ])
+
+    def check_arguments_notebook(self, args):
+        assert args.notebook or args.interactive, "must specify a notebook name unless in interactive mode"
+        if not args.job_name:
+            assert args.notebook, "must specify a notebook if no job name defined"
+            args.job_name = os.path.splitext(os.path.basename(args.notebook))[0] + "_" + randstr().hex
+
+    def do_action_notebook(self, args):
+        return self.__job__.new(args.job_name).from_notebook(
+            nb_file = args.notebook,
+            image = args.image,
+            resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
+            cluster=extract_args(args, get_list=["cluster_alias", "virtual_cluster", "workspace"]),
+            submit = not args.preview,
+            interactive_mode=args.interactive, token=args.token,
+        )
 
 
 class ActionFactoryForRuntime(ActionFactory):
@@ -240,6 +263,7 @@ __cli_structure__ = {
             "preview": "preview job config",
             "submit": "submit the job from a config file",
             "sub": "shortcut of submitting a job in one line",
+            "notebook": "run a jupyter notebook remotely",
         }
     },
     "storage": {
@@ -252,13 +276,6 @@ __cli_structure__ = {
             "upload": "upload",
             "download": "download",
             "delete": "delete",
-        }
-    },
-    "runtime": {
-        "help": "runtime support",
-        "factory": ActionFactoryForRuntime,
-        "actions":{
-            "execute": "execute user commands"
         }
     },
 }

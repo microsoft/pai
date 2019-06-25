@@ -118,8 +118,9 @@ class Job:
 
     def get_config(self):
         if self.protocolVersion == "2":
-            if "deployments" in self.protocol and len(self.protocol["deployments"]) == 0:
-                del self.protocol["deployments"]
+            for key in ["deployments", "parameters"]:
+                if key in self.protocol and len(self.protocol[key]) == 0:
+                    del self.protocol[key]
             for t in self.protocol["taskRoles"].values():
                 if "ports" in t["resourcePerInstance"] and len(t["resourcePerInstance"]["ports"]) == 0:
                     del t["resourcePerInstance"]["ports"]
@@ -129,25 +130,33 @@ class Job:
             del dic["protocolVersion"]
             return dic
 
+    def default_resouces(self):
+        return {
+            "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
+        }
+
     # methods only for SDK-enabled jobs
-    def submit(self, alias: str):
+    def submit(self, cluster_alias: str):
+        __logger__.info("submit job %s to cluster %s", self.name, cluster_alias)
         self.validate()
-        client = ClusterList().load().get_client(alias)
+        client = ClusterList().load().get_client(cluster_alias)
         # upload
-        for f in self.protocol["extras"].get("__sources__", []):
+        for f in self.protocol.get("extras", {}).get("__sources__", []):
             local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
             print("upload %s -> %s" % (local_path, remote_path))
             client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
         client.get_token().rest_api_submit(self.get_config())
         return client.get_job_link(self.name)
 
-    def decorate(self, alias: str, workspace: str=None, only_it: bool=True):
+    def decorate(self, cluster_alias: str, workspace: str=None, virtual_cluster: str=None, only_it: bool=True, wdir: str="~"):
         clusters = ClusterList().load().clusters
         if only_it:
-            clusters = ol.filter(clusters, 'cluster_alias', alias)["matches"]
+            clusters = ol.filter(clusters, 'cluster_alias', cluster_alias)["matches"]
         version = get_defaults().get("sdk-branch", __sdk_branch__)
+        if virtual_cluster:
+            self.protocol["defaults"]["virtualCluster"] = virtual_cluster
         self.protocol["secrets"]["clusters"] = json.dumps(clusters)
-        self.protocol["secrets"]["cluster_alias"] = alias
+        self.protocol["secrets"]["cluster_alias"] = cluster_alias
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
         sdk_install_cmds = [
@@ -158,27 +167,50 @@ class Job:
             "echo <% $secrets.clusters %> > {}".format(c_file),
             "opai cluster select <% $secrets.cluster_alias %>",
         ]
+        if wdir:
+            sdk_install_cmds.append("cd %s" % wdir)
+        if workspace:
+            self.protocol["secrets"].setdefault("work_directory", '{}/jobs/{}'.format(workspace, self.name))
         for f in self.protocol["extras"].get("__sources__", []):
             assert self.protocol["secrets"].get("work_directory", None), "must specify a workspace to transfer sources"
             sdk_install_cmds.append("opai storage download <% $secrets.work_directory %>/source/{} {}".format(f, f))
         self.new_deployment("sdk_install", pre_commands=sdk_install_cmds)
         self.protocol["extras"]["submitFrom"] = "python-sdk@" + version
 
-    def one_liner(self, commands: Union[list, str], image: str, workspace: str=None, gpu: int=0, cpu: int=1, memoryMB: int=10240, ports: dict={}, sources: list=None, **kwargs):
+    def one_liner(self, commands: Union[list, str], image: str, cluster: dict, resources: dict=None, sources: list=None, submit: bool=True, enable_sdk: bool=True, **kwargs):
         self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
         self.add_taskrole("main", {
             "dockerImage": "docker_image",
-            "resourcePerInstance": {
-                "gpu": gpu, "cpu": cpu, "memoryMB": memoryMB, "ports": ports
-            },
+            "resourcePerInstance": resources if resources else self.default_resouces(),
             "commands": commands if isinstance(commands, list) else [commands]
         })
-        self.protocol["secrets"]["work_directory"] = '{}/jobs/{}'.format(workspace, self.name) if workspace else ""
         if sources:
             self.protocol["extras"].setdefault("__sources__", []).extend(sources)
-        if kwargs.get("virtual_cluster", None):
-            self.protocol["defaults"]["virtualCluster"] = kwargs["virtual_cluster"]
-        return self
+        if enable_sdk:
+            self.decorate(**cluster)
+        if submit:
+            return self.submit(cluster["cluster_alias"])
+        else:
+            return self.validate().get_config()
+
+    def from_notebook(self, nb_file: str, image: str, cluster: dict, resources: dict=None, sources: list=None, submit: bool=True, interactive_mode: bool=True, token: str="abcd", **kwargs):
+        html_file = os.path.splitext(nb_file)[0] + ".html"
+        cmds_batch = [
+            'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute %s' % nb_file,
+            'opai storage upload {} <% $secrets.work_directory %>/output/{}'.format(html_file, html_file),
+        ]
+        cmds_interactive = [
+            "jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 --NotebookApp.token={} --allow-root {}".format(token, nb_file),
+        ]
+        return self.one_liner(
+            commands = cmds_interactive if interactive_mode else cmds_batch,
+            image=image,
+            sources=[nb_file],
+            resources = resources,
+            cluster = cluster,
+            submit = submit,
+            **kwargs
+        )
 
     def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True):
         deployment = {

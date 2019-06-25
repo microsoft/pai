@@ -19,7 +19,7 @@ class Storage:
 
     def download_webhdfs(self, remote_path: str, local_path: str, **kwargs):
         mkdir_for(local_path)
-        return self.client.download(local_path=local_path, hdfs_path=remote_path, **kwargs)
+        return self.client.download(local_path=local_path, hdfs_path=remote_path, overwrite=True, **kwargs)
 
     def list_webhdfs(self, remote_path: str, **kwargs):
         return self.client.list(hdfs_path=remote_path, **kwargs)

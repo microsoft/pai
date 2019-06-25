@@ -64,7 +64,7 @@ class ClusterList:
 
     def select(self, alias: str=None):
         if not alias and len(self.clusters) == 1:
-            alias = list(self.clusters.values())[0]["cluster_alias"]
+            alias = self.clusters[0]["cluster_alias"]
         assert alias, "must specify a cluster_alias"
         return ol.as_dict(self.clusters, "cluster_alias")[alias]
 
@@ -178,18 +178,18 @@ class ClusterClient:
                 allowed_status=[202, 201]
             )
 
-    def wait(self, jobs: list, t_sleep: float=10, timeout: float=3600):
+    def wait(self, jobs: list, t_sleep: float=10, timeout: float=3600, exit_states: list=None):
         states_successful, states_failed, states_unfinished = ["SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
         states_completed = states_successful + states_failed
         states_valid = states_completed + states_unfinished
-
+        exit_states = states_completed if not exit_states else exit_states
         assert isinstance(jobs, list), "input should be a list of job names"
 
         t = 0
         while True:
             states = [self.rest_api_jobs(j)["jobStatus"].get("state", None) for j in jobs]
             assert all(s in states_valid for s in states), "unknown states founded in %s" % states
-            if all(s in states_completed for s in states) or t >= timeout:
+            if all(s in exit_states for s in states) or t >= timeout:
                 break
             else:
                 time.sleep(t_sleep)
