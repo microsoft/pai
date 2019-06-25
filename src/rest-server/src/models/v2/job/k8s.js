@@ -27,6 +27,93 @@ const convertName = (name) => {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 };
 
+const convertFrameworkSummary = (framework) => {
+  return {
+    name: framework.metadata.name,
+    username: 'unknown',
+    state: framework.status.state,
+    subState: framework.status.state,
+    executionType: framework.spec.executionType,
+    retries: framework.status.retryPolicyStatus.totalRetriedCount,
+    retryDetails: {
+      user: framework.status.retryPolicyStatus.accountableRetriedCount,
+      platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
+      resource: 0,
+    },
+    createdTime: new Date(framework.status.startTime).getTime(),
+    completedTime: new Date(framework.status.completionTime).getTime(),
+    appExitCode: taskStatus.attemptStatus.completionStatus ? taskStatus.attemptStatus.completionStatus.code : null,
+    virtualCluster: 'unknown',
+    totalGpuNumber: 0,  // TODO
+    totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
+      (num, statuses) => num + statuses.taskStatuses.length, 0),
+    totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
+  };
+};
+
+const convertTaskDetail = (taskStatus) => {
+  const completionStatus = taskStatus.attemptStatus.completionStatus;
+  return {
+    taskIndex: taskStatus.index,
+    taskState: taskStatus.state,
+    containerId: taskStatus.attemptStatus.podName,
+    containerIp: taskStatus.attemptStatus.podHostIP,
+    containerPorts: {}, // TODO
+    containerGpus: 0,   // TODO
+    containerLog: '',
+    containerExitCode: completionStatus ? completionStatus.code : null,
+  };
+};
+
+const convertFrameworkDetail = (framework) => {
+  const completionStatus = framework.status.attemptStatus.completionStatus;
+  const detail = {
+    name: framework.metadata.name,
+    jobStatus: {
+      username: 'unknown',
+      state: framework.status.state,
+      subState: framework.status.state,
+      executionType: framework.spec.executionType,
+      retries: framework.status.retryPolicyStatus.totalRetriedCount,
+      retryDetails: {
+        user: framework.status.retryPolicyStatus.accountableRetriedCount,
+        platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
+        resource: 0,
+      },
+      createdTime: new Date(framework.status.startTime).getTime(),
+      completedTime: new Date(framework.status.completionTime).getTime(),
+      appId: framework.status.attemptStatus.instanceUID,
+      appProgress: completionStatus ? 1 : 0,
+      appTrackingUrl: '',
+      appLaunchedTime: new Date(framework.status.startTime).getTime(),
+      appCompletedTime: new Date(framework.status.completionTime).getTime(),
+      appExitCode: completionStatus ? completionStatus.code : null,
+      appExitSpec: {},   // TODO
+      appExitDiagnostics: completionStatus ? completionStatus.diagnostics : null,
+      appExitMessages: {
+        container: null,
+        runtime: null,
+        launcher: null,
+      },
+      appExitTriggerMessage: completionStatus ? completionStatus.diagnostics : null,
+      appExitTriggerTaskRoleName: null,  // TODO
+      appExitTriggerTaskIndex: null,     // TODO
+      appExitType: completionStatus ? completionStatus.type.name : null,
+      virtualCluster: 'unknown',
+    },
+    taskRoles: {}
+  };
+  for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
+    detail.taskRoles[taskRoleStatus.name] = {
+      taskRoleStatus: {
+        name: taskRoleStatus.name,
+      },
+      taskStatuses: taskRoleStatus.taskStatuses.map(convertTaskDetail),
+    };
+  }
+  return detail;
+};
+
 const generateTaskRole = (taskRole, config) => {
   const frameworkTaskRole = {
     name: convertName(taskRole),
@@ -163,6 +250,31 @@ const generateFrameworkDescription = (frameworkName, config) => {
   return frameworkDescription;
 };
 
+
+const list = async () => {
+  // send request to framework controller
+  let response;
+  try {
+    response = await axios({
+      method: 'get',
+      url: launcherConfig.frameworksPath(),
+      headers: launcherConfig.requestHeaders,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+
+  if (response.status === status('OK')) {
+    return response.data.items.map(convertFrameworkSummary);
+  } else {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
 const get = async (frameworkName) => {
   const name = convertName(frameworkName);
   // send request to framework controller
@@ -182,7 +294,7 @@ const get = async (frameworkName) => {
   }
 
   if (response.status === status('OK')) {
-    return response.data;
+    return convertFrameworkDetail(response.data);
   }
   if (response.status === status('Not Found')) {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
@@ -222,6 +334,7 @@ const getConfig = (frameworkName) => {
 
 // module exports
 module.exports = {
+  list,
   get,
   put,
   getConfig,
