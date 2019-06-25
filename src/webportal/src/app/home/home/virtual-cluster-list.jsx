@@ -22,19 +22,14 @@ import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme} from 'off
 import React from 'react';
 
 import Card from './card';
-import {statusColor} from '../../components/theme';
+import {getVirtualClusterColor} from './util';
 
 import t from '../../components/tachyons.scss';
 
 const VirtualClusterItem = ({name, info}) => {
   const availableGpu = Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs);
-  const percentage = availableGpu / info.resourcesTotal.GPUs;
-  let color;
-  if (availableGpu === 0) {
-    color = statusColor.failed;
-  } else {
-    color = statusColor.succeeded;
-  }
+  const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
+  const color = getVirtualClusterColor(info);
 
   const {spacing} = getTheme();
 
@@ -83,20 +78,17 @@ const VirtualClusterItem = ({name, info}) => {
                   marginRight: spacing.m,
                 }}
               >
-              {availableGpu === 0
-                ? <div style={{backgroundColor: color, width: '100%'}}></div>
-                : (
-                  <div className={c(t.w100, t.h100, t.flex)}>
-                    <div
-                      style={{backgroundColor: color, width: `${percentage * 100}%`}}
-                    ></div>
-                    <div
-                      className={c(ColorClassNames.neutralLightBackground)}
-                      style={{width: `${(1 - percentage) * 100}%`}}
-                    ></div>
-                  </div>
-                )
-              }
+              {(
+                <div className={c(t.w100, t.h100, t.flex)}>
+                  <div
+                    style={{backgroundColor: color, width: `${percentage * 100}%`}}
+                  ></div>
+                  <div
+                    className={c(ColorClassNames.neutralLightBackground)}
+                    style={{width: `${(1 - percentage) * 100}%`}}
+                  ></div>
+                </div>
+              )}
               </div>
             </div>
           </Stack.Item>
