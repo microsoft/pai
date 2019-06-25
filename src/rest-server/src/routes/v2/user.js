@@ -66,6 +66,12 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/:username/grouplist')
     .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
+
+  router.route('/:username/group')
+    .put(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.addGroupIntoUserGrouplist);
+
+  router.route('/:username/group')
+    .delete(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupIntoUserGrouplist);
 }
 
 router.use('/:username/jobs', jobRouter);

@@ -18,6 +18,8 @@
 // module dependencies
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
+const userModel = require('@pai/models/v2/user');
+const authConfig = require('@pai/config/authn');
 
 const getGroup = async (req, res, next) => {
   try {
@@ -33,6 +35,28 @@ const getAllGroup = async (req, res, next) => {
   try {
     const groupList = await groupModel.getAllGroup();
     return res.status(200).json(groupList);
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
+const getGroupUserList = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    const groupname = req.params.groupname;
+    const allUserInfoList = userModel.getAllUser();
+    let userlist = [];
+    for (const userInfo of allUserInfoList) {
+      if (userInfo.grouplist.includes(groupname)) {
+        userlist.push({
+          username: userInfo.username,
+          clusterAdmin: userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname),
+        });
+      }
+    }
+    return res.status(200).json(userlist);
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -136,6 +160,7 @@ module.exports = {
   getGroup,
   getAllGroup,
   createGroup,
+  getGroupUserList,
   updateGroupExtension,
   updateGroupDescription,
   updateGroupExternalName,

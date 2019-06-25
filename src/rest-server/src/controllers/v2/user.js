@@ -257,6 +257,57 @@ const updateUserGroupList = async (req, res, next) => {
   }
 };
 
+const addGroupIntoUserGrouplist = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    const username = req.params.username;
+    const groupname = req.body.groupname;
+    let userInfo = await userModel.getUser(username);
+    if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s grouplist cannot be updated.'));
+    }
+    if (!userInfo.grouplist.includes(groupname)) {
+      userInfo.grouplist.push(groupname);
+    }
+    userModel.updateUser(username, userInfo);
+    return res.status(201).json({
+      message: `User ${username} is added into group ${groupname}`,
+    });
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
+    return next(createError.unknown(error));
+  }
+};
+
+const removeGroupIntoUserGrouplist = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+    const username = req.params.username;
+    const groupname = req.body.groupname;
+    let userInfo = await userModel.getUser(username);
+    if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s grouplist cannot be updated.'));
+    }
+    if (userInfo.grouplist.includes(groupname)) {
+      userInfo.grouplist.splice(userInfo.grouplist.indexOf(groupname), 1);
+    }userModel.updateUser(username, userInfo);
+    return res.status(201).json({
+      message: `User ${username} is removed from group ${groupname}`,
+    });
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+    }
+    return next(createError.unknown(error));
+  }
+};
+
 const updateUserPassword = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -396,6 +447,8 @@ module.exports = {
   updateUserGroupList,
   updateUserEmail,
   updateUserAdminPermission,
+  addGroupIntoUserGrouplist,
+  removeGroupIntoUserGrouplist,
   deleteUser,
   updateUserPassword,
   createUser,

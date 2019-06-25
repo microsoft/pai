@@ -49,6 +49,14 @@ const userAdminPermissionUpdateInputSchema = Joi.object().keys({
   admin: Joi.boolean().required(),
 });
 
+// define the input schema for the 'add or remove group from grouplist' api
+const addOrRemoveGroupInputSchema = Joi.object().keys({
+  groupname: Joi.string()
+    .token()
+    .required(),
+});
+
+
 // define the input schema for the 'create user' api
 const userCreateInputSchema = Joi.object().keys({
   username: Joi.string()
@@ -79,4 +87,5 @@ module.exports = {
   userEmailUpdateInputSchema,
   userCreateInputSchema,
   userAdminPermissionUpdateInputSchema,
+  addOrRemoveGroupInputSchema,
 };
