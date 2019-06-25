@@ -49,7 +49,7 @@ let getSingletonDisabled: boolean = false;
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
     if (!container.isBound(clazz)) {
         container.bind(clazz).toSelf();
-        console.log(`bind ${typeof(clazz)}`);
+        return new clazz();
     }
     if (getSingletonDisabled) {
         throw new Error('Getting async initialized Singleton in Singleton constructor is prohibited!');
