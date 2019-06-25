@@ -47,10 +47,12 @@ export abstract class Singleton {
 let getSingletonDisabled: boolean = false;
 
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
+    const str: string = JSON.stringify(container.getAll(clazz));
+    console.log(`Container get all: ${str}`);
+
     if (!container.isBound(clazz)) {
         container.bind(clazz).toSelf();
-        const str: string = JSON.stringify(container.getAll(clazz));
-        console.log(`Container get all: ${str}`);
+        console.log('Is not bound!');
         return new clazz();
     }
     if (getSingletonDisabled) {
