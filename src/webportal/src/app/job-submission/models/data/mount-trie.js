@@ -22,9 +22,6 @@ export class MountPathTrie {
   insertNode(query) {
     let pivot = this.root;
     let queryIndex = 0;
-    if (pivot.label !== query[queryIndex]) {
-      alert(`path does not start with ${this.root.label}!`);
-    }
     queryIndex += 1;
     while (pivot.subpaths && queryIndex < query.length) {
       const prefixValue = query[queryIndex];

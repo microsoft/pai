@@ -1,4 +1,3 @@
-
 export function validateMountPath(path) {
   let illegalMessage = '';
   const pathRegex = /^(\/[A-Za-z0-9\-._]+)+$/;
@@ -21,6 +20,14 @@ export function validateMountPath(path) {
   return {isLegal: true};
 }
 
+export function validateHttpUrl(url) {
+  if (!url) {
+    return {isLegal: false, illegalMessage: 'http url should not be empty'};
+  }
+
+  return {isLegal: true};
+}
+
 export function validateGitUrl(url) {
   const gitRegex = /(git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|#[-\d\w._]+?)/;
   let illegalMessage = '';
@@ -33,8 +40,33 @@ export function validateGitUrl(url) {
   return {isLegal: true, illegalMessage};
 }
 
-export function validateHDFSPath(path) {
-  return validateMountPath(path);
+export async function validateHDFSPath(hdfsClient, path) {
+  const valid = validateMountPath(path);
+  if (!valid.isLegal) {
+    return valid;
+  }
+
+  if (!hdfsClient) {
+    return {
+      isLegal: false,
+      illegalMessage: 'hdfs server could not be accessed',
+    };
+  } else {
+    const isAccess = await hdfsClient.checkAccess();
+    if (!isAccess) {
+      return {
+        isLegal: false,
+        illegalMessage: 'hdfs server could not be accessed',
+      };
+    }
+  }
+
+  try {
+    await hdfsClient.readDir(path);
+    return {isLegal: true};
+  } catch (e) {
+    return {isLegal: false, illegalMessage: e.message};
+  }
 }
 
 export function validateCommand(command) {
