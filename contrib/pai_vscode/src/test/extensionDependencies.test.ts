@@ -15,7 +15,6 @@ suite('PAI Extension Dependencies', () => {
 
         if (!ext) {
             assert.fail('Please install \'YAML Support by Red Hat\' via the Extensions pane.');
-            return;
         }
         const yamlPlugin: any = await ext.activate();
         if (!yamlPlugin || !yamlPlugin.registerContributor) {
