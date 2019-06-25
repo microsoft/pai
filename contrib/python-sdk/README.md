@@ -147,6 +147,7 @@ The command line tool `opai` provides several useful subcommands.
 | `opai job list`            | list all jobs of current user (in a given cluster)           |
 | `opai job submit`          | submit a given job config file to cluster                    |
 | `opai job sub`             | shortcut to generate job config and submit from a given command |
+| `opai job notebook`        | shortcut to run a local notebook remotely                       |
 | `opai storage <operation>` | execute `<operation>`* on selected storage (of a given cluster) |
 
 _Note_
@@ -166,6 +167,10 @@ The `<job-config-file>` can be a `JSON` or `YAML` file, which should be compatib
 
 This command also provide the functions to change some parts of the job configuration, refer to  [command line ref](docs/command-line-references.md) for more details.
 
+```bash
+opai job submit --update defaults:virtualCluster=test <job-config-file>
+```
+
 ### Example: submit a job with given command
 
 In some cases, user just want to execute a simple command in `OpenPAI` cluster. The CLI provides a shortcut command to do this.
@@ -177,6 +182,46 @@ opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> python script.py
 _Note: put your commands in a pair of quotes (like `"git clone ... && python ..."`) and combine them with `&&` if you have multiple commands to run_
 
 ## 2.5. Python binding
+
+### cluster management
+
+- [x] User can describe a cluster with `openpaisdk.core.ClusterList` class to describe multiple clusters
+
+```python
+clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.json"
+```
+
+User `add`, `delete` methods to update clusters, `select` and `get_client` methods to select one from multiple clusters
+
+- [x] the `Cluster` class has methods to query and submit jobs
+
+```python
+client = clusters.get_client(alias)
+client.jobs(name)
+client.rest_api_submit(job_config)
+```
+
+- [x] the `Cluster` class has methods to access storage (through WebHDFS only for this version)
+
+```python
+Cluster(...).storage.upload/download(...)
+```
+
+### Job management
+- [x] User can describe a job with `openpaisdk.core.Job` class, which is compatible with the v2 protocol
+
+```python
+job = Job(name)
+job.submit(cluster_alias) # submit current job to a cluster
+```
+
+- [x] provide some quick template of simple jobs
+
+```python
+job.one_liner(...) # generate job config from a command
+job.from_notebook(...) # turn notebook to job
+```
+
 
 See more descriptions about the `Cluster` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().
 
