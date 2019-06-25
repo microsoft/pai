@@ -33,7 +33,12 @@ import {JobTaskRole} from '../models/job-task-role';
 import {submitJob} from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
-import {getJobComponentsFormConfig, pruneComponents} from '../utils/utils';
+import {
+  getJobComponentsFormConfig,
+  pruneComponents,
+  populateProtocolWithDataCli,
+  removePreCommandsFromProtocolTaskRoles,
+} from '../utils/utils';
 import Context from './context';
 
 import PropTypes from 'prop-types';
@@ -64,7 +69,16 @@ const _exportFile = (data, filename, type) => {
 const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
 
 export const SubmissionSection = (props) => {
-  const {jobInformation, jobTaskRoles, parameters, secrets, onChange, advanceFlag, onToggleAdvanceFlag} = props;
+  const {
+    jobInformation,
+    jobTaskRoles,
+    parameters,
+    secrets,
+    onChange,
+    advanceFlag,
+    onToggleAdvanceFlag,
+    jobData,
+  } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
@@ -97,7 +111,9 @@ export const SubmissionSection = (props) => {
 
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
     _protocolAndErrorUpdate(protocol);
-    setProtocolYaml(protocol.toYaml());
+    populateProtocolWithDataCli(user, protocol, jobData)
+      .then(() => setProtocolYaml(protocol.toYaml()))
+      .catch(alert);
   };
 
   const _udpatedComponent = (protocolYaml) => {
@@ -106,6 +122,7 @@ export const SubmissionSection = (props) => {
       return;
     }
 
+    removePreCommandsFromProtocolTaskRoles(updatedJob);
     setjobProtocol(updatedJob);
     if (onChange === undefined) {
       return;
@@ -132,7 +149,16 @@ export const SubmissionSection = (props) => {
 
   const _exportYaml = (event) => {
     event.preventDefault();
-    _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'text/yaml');
+    const protocol = new JobProtocol(jobProtocol);
+    populateProtocolWithDataCli(user, protocol, jobData)
+      .then(() => {
+        _exportFile(
+          jobProtocol.toYaml(),
+          (jobInformation.name || 'job') + '.yaml',
+          'text/yaml',
+        );
+      })
+      .catch(alert);
   };
 
   const _importFile = (event) => {
@@ -160,9 +186,16 @@ export const SubmissionSection = (props) => {
 
   const _submitJob = (event) => {
     event.preventDefault();
-    submitJob(jobProtocol.toYaml()).then(() => {
-      window.location.href = `/job-detail.html?username=${user}&jobName=${jobProtocol.name}`;
-    }).catch((err) => alert(err));
+    const protocol = new JobProtocol(jobProtocol);
+    populateProtocolWithDataCli(user, protocol, jobData)
+      .then(() => {
+        submitJob(protocol.toYaml()).then(() => {
+          window.location.href = `/job-detail.html?username=${user}&jobName=${
+            jobProtocol.name
+          }`;
+        });
+      })
+      .catch(alert);
   };
 
   return (
@@ -229,4 +262,5 @@ SubmissionSection.propTypes = {
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
   onToggleAdvanceFlag: PropTypes.func,
+  jobData: PropTypes.object,
 };

@@ -1,4 +1,5 @@
 import {InputData} from './input-data';
+import {TEAMWISE_DATA_CMD_START, TEAMWISE_DATA_CMD_END} from '../../utils/constants';
 
 export default class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
@@ -10,7 +11,7 @@ export default class MountDirectories {
 
   getPaiCommand() {
     const returnValue = [
-      '#[TeamwiseDataCmdStart]',
+      TEAMWISE_DATA_CMD_START,
       '#Auto generated code, please do not modify',
       'apt-get update',
       'apt-get install --assume-yes nfs-common cifs-utils sshpass wget',
@@ -92,7 +93,7 @@ export default class MountDirectories {
         }
       }
     }
-    returnValue.push('#[TeamwiseDataCmdEnd]');
+    returnValue.push(TEAMWISE_DATA_CMD_END);
     return returnValue;
   }
 

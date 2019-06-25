@@ -57,6 +57,7 @@ import {DataComponent} from './components/data/data-component';
 // models
 import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
+import {JobData} from './models/data/job-data';
 
 initTheme();
 initializeIcons();
@@ -75,6 +76,7 @@ const JobSubmission = (props) => {
   const [jobInformation, setJobInformation] = useState(props.jobBasicInfo);
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
+  const [jobData, setJobData] = useState(new JobData());
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -211,6 +213,7 @@ const JobSubmission = (props) => {
                     secrets={secrets}
                     advanceFlag={advanceFlag}
                     onToggleAdvanceFlag={onToggleAdvanceFlag}
+                    jobData={jobData}
                     onChange={(
                       updatedJobInfo,
                       updatedTaskRoles,
@@ -248,6 +251,7 @@ const JobSubmission = (props) => {
                     selected={selected === SIDEBAR_DATA}
                     onSelect={() => onSelect(SIDEBAR_DATA)}
                     jobName={jobInformation.name}
+                    onChange={setJobData}
                   />
                 </Stack>
               </StackItem>

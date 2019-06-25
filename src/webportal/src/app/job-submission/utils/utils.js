@@ -3,8 +3,12 @@ import {basename} from 'path';
 
 import {JobBasicInfo} from '../models/job-basic-info';
 import {JobTaskRole} from '../models/job-task-role';
-import {CUSTOM_STORAGE_TAG} from '../utils/constants';
-import {STORAGE_PREFIX} from './constants';
+import {
+  CUSTOM_STORAGE_START,
+  CUSTOM_STORAGE_END,
+  TEAMWISE_DATA_CMD_START,
+  TEAMWISE_DATA_CMD_END,
+} from './constants';
 
 const HIDE_SECRET = '******';
 
@@ -41,65 +45,6 @@ export function removeEmptyProperties(obj) {
     delete newObj[key];
   });
   return newObj;
-}
-
-export async function generateCustomStorageCommands(hdfsClient, dataList, userName, jobName) {
-  const preCommand = [];
-  preCommand.push(CUSTOM_STORAGE_TAG);
-  const hdfsConfigFile = '~/.hdfscli.cfg';
-  const jobDir = `${STORAGE_PREFIX}/${userName}/${jobName}`;
-  preCommand.push(
-    `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${hdfsClient.host}' >> ${hdfsConfigFile}`,
-  );
-
-  for (const dataItem of dataList) {
-    preCommand.push(
-      `if [ ! -d ${dataItem.mountPath} ]; then mkdir --parents ${
-        dataItem.mountPath
-      }; fi &>> storage_plugin.log`,
-    );
-    if (dataItem.sourceType === 'http') {
-      preCommand.push(
-        `wget ${dataItem.dataSource} -P ${
-          dataItem.mountPath
-        } &>> storage_plugin.log`,
-      );
-    } else if (dataItem.sourceType === 'git') {
-      const projectName = getProjectNameFromGit(dataItem.dataSource);
-      preCommand.push(
-        `git clone ${dataItem.dataSource} ${
-          dataItem.mountPath
-        }/${projectName} &>> storage_plugin.log`,
-      );
-    } else if (dataItem.sourceType === 'hdfs') {
-      preCommand.push(
-        `hdfscli download --alias=dev ${dataItem.dataSource} ${
-          dataItem.mountPath
-        }`,
-      );
-    } else if (dataItem.sourceType === 'local') {
-      const mountHdfsDir = `${jobDir}${dataItem.mountPath}`;
-      if (dataItem.uploadFiles) {
-        // eslint-disable-next-line no-await-in-loop
-        await Promise.all(
-          // eslint-disable-next-line no-loop-func
-          dataItem.uploadFiles.map((file) => {
-            return hdfsClient.uploadFile(mountHdfsDir, file);
-          }),
-        );
-        dataItem.uploadFiles.forEach((file) => {
-          preCommand.push(
-            `hdfscli download --alias=dev ${mountHdfsDir}/${file.name} ${
-              dataItem.mountPath
-            }`,
-          );
-        });
-      }
-    }
-  }
-
-  preCommand.push(CUSTOM_STORAGE_TAG);
-  return preCommand;
 }
 
 export function getFileNameFromHttp(url) {
@@ -181,6 +126,58 @@ export function getHostNameFromUrl(url) {
   return parser.hostname;
 }
 
+function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
+  Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
+    const taskRole = protocol.taskRoles[taskRoleKey];
+    const commands = preCommands.concat(taskRole.commands || []);
+    taskRole.commands = commands;
+  });
+}
+
+export async function populateProtocolWithDataCli(user, protocol, jobData) {
+  if (!jobData.containData) {
+    return;
+  }
+
+  const preCommands = await jobData.generateDataCommands(user, protocol.name || '');
+  addPreCommandsToProtocolTaskRoles(protocol, preCommands);
+}
+
+function removePreCommandSection(commands, beginTag, endTag) {
+  const beginTagIndex = commands.indexOf(beginTag);
+  const endTagIndex = commands.indexOf(
+    endTag,
+    beginTagIndex + 1,
+  );
+
+  if (beginTagIndex !== -1 && endTagIndex !== -1) {
+    return commands.filter((_, index) => index < beginTagIndex || index > endTagIndex);
+  }
+
+  return commands;
+}
+
+export function removePreCommandsFromProtocolTaskRoles(protocol) {
+  Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
+    const taskRole = protocol.taskRoles[taskRoleKey];
+    let commands = taskRole.commands || [];
+    if (isEmpty(commands)) {
+      return;
+    }
+
+    commands = removePreCommandSection(
+      commands,
+      CUSTOM_STORAGE_START,
+      CUSTOM_STORAGE_END,
+    );
+    commands = removePreCommandSection(
+      commands,
+      TEAMWISE_DATA_CMD_START,
+      TEAMWISE_DATA_CMD_END,
+    );
+    taskRole.commands = commands;
+  });
+}
 
 // The help function to create unique name, the name will be namePrefix_index
 export function createUniqueName(usedNames, namePrefix, startindex) {
