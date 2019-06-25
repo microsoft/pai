@@ -292,10 +292,11 @@ def get_yarn_apps(yarn_url):
 
     obj = request_with_error_handling(apps_url)
 
-    if obj.get("apps") is None or obj["apps"].get("app") is None:
+    apps = walk_json_field_safe(obj, "apps", "app")
+
+    if apps is None:
         return result
 
-    apps = obj["apps"]["app"]
     for app in apps:
         app_id = walk_json_field_safe(app, "id")
         if app_id is None:
@@ -316,10 +317,11 @@ def get_frameworks(launcher_url):
 
     obj = request_with_error_handling(launcher_url)
 
-    if obj.get("summarizedFrameworkInfos") is None:
+    frameworks = walk_json_field_safe(obj, "summarizedFrameworkInfos")
+
+    if frameworks is None:
         return result
 
-    frameworks = obj["summarizedFrameworkInfos"]
     for framework in frameworks:
         name = walk_json_field_safe(framework, "frameworkName")
         if name is None:
