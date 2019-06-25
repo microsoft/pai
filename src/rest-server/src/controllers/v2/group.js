@@ -48,6 +48,8 @@ const getGroupUserList = async (req, res, next) => {
     const groupname = req.params.groupname;
     const allUserInfoList = userModel.getAllUser();
     let userlist = [];
+    // eslint-disable-next-line no-console
+    console.log(allUserInfoList);
     for (const userInfo of allUserInfoList) {
       if (userInfo.grouplist.includes(groupname)) {
         userlist.push({
