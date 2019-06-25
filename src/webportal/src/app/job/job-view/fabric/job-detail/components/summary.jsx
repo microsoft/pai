@@ -33,9 +33,10 @@ import Card from './card';
 import Context from './context';
 import Timer from './timer';
 import {getTensorBoardUrl, setTensorBoardDisabled, getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
-import {printDateTime, getHumanizedJobStateString, getDurationString, isClonable, isJobV2} from '../util';
+import {printDateTime, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
+import {getJobDurationString, getHumanizedJobStateString} from '../../../../../components/util/job';
 
 const StoppableStatus = [
   'Running',
@@ -217,7 +218,7 @@ export default class Summary extends React.Component {
       return;
     }
 
-    const state = getHumanizedJobStateString(jobInfo);
+    const state = getHumanizedJobStateString(jobInfo.jobStatus);
     if (state === 'Failed') {
       const result = [];
       const spec = jobInfo.jobStatus.appExitSpec;
@@ -317,7 +318,7 @@ export default class Summary extends React.Component {
             <div>
               <div className={c(t.gray, FontClassNames.medium)}>Status</div>
               <div className={c(t.mt3)}>
-                <StatusBadge status={getHumanizedJobStateString(jobInfo)}/>
+                <StatusBadge status={getHumanizedJobStateString(jobInfo.jobStatus)}/>
               </div>
             </div>
             <div className={t.ml4}>
@@ -341,7 +342,7 @@ export default class Summary extends React.Component {
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
               <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                {getDurationString(jobInfo)}
+                {getJobDurationString(jobInfo.jobStatus)}
               </div>
             </div>
             <div className={t.ml4}>
@@ -419,7 +420,7 @@ export default class Summary extends React.Component {
                 className={c(t.ml2)}
                 text='Stop'
                 onClick={onStopJob}
-                disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo))}
+                disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo.jobStatus))}
               />
             </div>
           </div>
