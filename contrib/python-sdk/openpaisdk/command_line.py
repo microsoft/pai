@@ -124,10 +124,11 @@ class ActionFactoryForJob(ActionFactory):
         return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--v2', '--preview', '--update', 'config'])
+        cli_add_arguments(None, parser, ['--cluster-alias', '--preview', '--update', 'config'])
 
     def check_arguments_submit(self, args):
         assert args.config, "please specify a job config file (json or yaml format)"
+        assert os.path.isfile(args.config), "%s cannot be read" % args.config
 
     def do_action_submit(self, args):
         # key-value pair in --update option would support nested key, e.g. defaults->virtualCluster=<your-virtual-cluster>
