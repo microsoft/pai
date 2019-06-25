@@ -47,7 +47,20 @@ export abstract class Singleton {
 let getSingletonDisabled: boolean = false;
 
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
-    const str: string = JSON.stringify(container.getAll(clazz));
+    let cache: any = [];
+    const str: string = JSON.stringify(container.getAll(clazz), (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                // Duplicate reference found, discard key
+                return;
+            }
+            // Store value in our collection
+            cache.push(value);
+        }
+        return value;
+    });
+    cache = null;
+
     console.log(`Container get all: ${str}`);
 
     if (!container.isBound(clazz)) {
