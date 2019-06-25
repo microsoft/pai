@@ -222,14 +222,39 @@ export default class TaskRoleContainerList extends React.Component {
         maxWidth: 60,
         isResizable: true,
         onRender: (item) => {
-          const gpuAttr = item.containerGpus;
-          return !isNil(gpuAttr) && (
-            <div>
-              {parseGpuAttr(gpuAttr).map((x) => (
-                <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
-              ))}
-            </div>
-          );
+          const gpuAttr = !isNil(item.containerGpus) && parseGpuAttr(item.containerGpus);
+          if (!gpuAttr || isNil(gpuAttr)) {
+            return null;
+          } else if (gpuAttr.length === 0) {
+            return <div>0</div>;
+          } else {
+            return (
+              <div>
+                <TooltipHost
+                  calloutProps={{
+                    isBeakVisible: false,
+                  }}
+                  tooltipProps={{
+                    onRenderContent: () => (
+                      <div>
+                        {gpuAttr.map((x) => (
+                          <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
+                        ))}
+                      </div>
+                    ),
+                  }}
+                  directionalHint={DirectionalHint.topLeftEdge}
+                >
+                  <div>
+                    <span>
+                      {gpuAttr.length}
+                      <Icon iconName='Info' styles={{root: [{fontSize: FontSizes.small, verticalAlign: 'bottom'}, t.ml2, ColorClassNames.neutralSecondary]}} />
+                    </span>
+                  </div>
+                </TooltipHost>
+              </div>
+            );
+          }
         },
       },
       {
