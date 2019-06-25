@@ -602,10 +602,10 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
       let res;
       try {
         res = await fetch(uri, {headers: requestHeaders});
-        let data = await res.clone().json();
+        let data = await res.json();
         if (data.isFolder && "tree" in data._links) {
           res = await fetch(data._links.tree.href, {headers: requestHeaders});
-          data = await res.clone().json();
+          data = await res.json();
         }
         if ("treeEntries" in data && Array.isArray(data.treeEntries)) {
           const protocolList: IProtocolItem[] = [];
