@@ -29,7 +29,7 @@ import t from '../../components/tachyons.scss';
 const VirtualClusterItem = ({name, info}) => {
   const availableGpu = Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs);
   const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
-  const color = getVirtualClusterColor(info);
+  const color = getVirtualClusterColor(name, info);
 
   const {spacing} = getTheme();
 

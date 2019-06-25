@@ -20,10 +20,10 @@ import {statusColor} from '../../components/theme';
 
 export const DEFAULT_COLOR = statusColor.succeeded;
 
-export function getVirtualClusterColor(info) {
+export function getVirtualClusterColor(name, info) {
   if (!info || !info.dedicated) {
     return DEFAULT_COLOR;
   } else {
-    return randomColor({seed: name});
+    return randomColor({seed: name, luminosity: 'bright'});
   }
 }

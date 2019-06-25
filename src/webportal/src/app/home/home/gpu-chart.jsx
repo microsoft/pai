@@ -46,7 +46,8 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
           }
         }
         result.push({
-          backgroundColor: getVirtualClusterColor(vc),
+          backgroundColor: getVirtualClusterColor(name, vc),
+          hoverBackgroundColor: getVirtualClusterColor(name, vc),
           label: `${name} (dedicated)`,
           data: data,
         });
@@ -61,11 +62,22 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
     }
     result.push({
       backgroundColor: getVirtualClusterColor(),
+      hoverBackgroundColor: getVirtualClusterColor(),
       label: 'shared_vc',
       data: data,
     });
     return result;
   }, [virtualClusters, gpuPerNode]);
+
+  const stackedData = dataset.reduce((prev, x) => {
+    for (let i = 0; i < maxVal; i++) {
+      if (x.data[i]) {
+        prev[i] += x.data[i];
+      }
+    }
+    return prev;
+  }, Array(maxVal).fill(0));
+  const height = Math.max(...stackedData) + 1;
 
   const chartRef = useRef(null);
 
@@ -84,7 +96,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         },
         tooltips: {
           enabled: true,
-          position: 'nearest',
+          mode: 'index',
           callbacks: {
             title: (item, data) => (
               `#GPU: ${item[0].label}`
@@ -109,7 +121,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
               labelString: '#Node',
             },
             ticks: {
-              max: Math.max(...dataset.map((x) => Math.max(...x.data))) + 1,
+              max: height,
               display: true,
               precision: 0,
             },
