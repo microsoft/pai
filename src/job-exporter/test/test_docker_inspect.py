@@ -45,6 +45,7 @@ class TestDockerInspect(base.TestBase):
                 "0,1,",
                 95539,
                 None,
+                None,
                 )
 
         self.assertEqual(target_inspect_info, inspect_info)
@@ -64,6 +65,7 @@ class TestDockerInspect(base.TestBase):
                 "GPU-dc0671b0-61a4-443e-f456-f8fa6359b788",
                 23774,
                 None,
+                None,
                 )
         self.assertEqual(target_inspect_info, inspect_info)
 
@@ -81,6 +83,7 @@ class TestDockerInspect(base.TestBase):
                 "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
                 "3,2,1,0",
                 30332,
+                None,
                 None,
                 )
         self.assertEqual(target_inspect_info, inspect_info)
@@ -100,6 +103,7 @@ class TestDockerInspect(base.TestBase):
                 "GPU-7c583998-b3ff-a885-8979-2d32d334cde4",
                 3533,
                 "dixu@example.com",
+                "platform",
                 )
         self.assertEqual(target_inspect_info, inspect_info)
 
