@@ -70,7 +70,7 @@ export const DockerSection = ({onValueChange, value}) => {
   const nameInput = useRef(null);
   const password = useRef(null);
   const registryuri = useRef(null);
-  const [errorMsg, setErrorMsg] = useState('Docker should not be empty');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const textFieldId = getId('textField');
 

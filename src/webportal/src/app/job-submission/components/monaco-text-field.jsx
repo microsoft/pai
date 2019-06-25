@@ -37,6 +37,7 @@ export const MonacoTextFiled = (props) => {
             readOnly: false,
             theme: 'vs',
             defaultEOL: 1,
+            minimap: {enabled: false},
           },
           value: value,
           onChange: debounce(onChange, 100),

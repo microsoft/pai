@@ -36,7 +36,7 @@ export class JobTaskRole {
            isContainerSizeEnabled} = props;
     this.name = name || '';
     this.instances = instances || 1;
-    this.dockerInfo = dockerInfo || new DockerInfo({});
+    this.dockerInfo = dockerInfo || new DockerInfo({uri: 'tensorflow/tensorflow'});
     this.ports = ports || [];
     this.commands = commands || '';
     this.completion = completion || new Completion({});
