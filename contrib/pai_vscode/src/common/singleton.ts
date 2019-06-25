@@ -45,12 +45,11 @@ export abstract class Singleton {
 }
 
 let getSingletonDisabled: boolean = false;
+let initializationFinish: boolean = false;
 
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
-    return new clazz().ensureActivated();
     if (!container.isBound(clazz)) {
         container.bind(clazz).toSelf();
-        console.log('Is not bound!');
     }
     if (getSingletonDisabled) {
         throw new Error('Getting async initialized Singleton in Singleton constructor is prohibited!');
@@ -67,6 +66,16 @@ export async function initializeAll(singletonClasses: Constructor<Singleton>[]):
     const allSingletons: Singleton[] = singletonClasses.map(clazz => container.get(clazz));
     getSingletonDisabled = false;
     await Promise.all(allSingletons.map(singleton => singleton.ensureActivated()));
+    initializationFinish = true;
+}
+
+export async function waitForAllSingletonFinish(): Promise<void> {
+    while (!initializationFinish) {
+        await delay(10);
+    }
+}
+export async function delay(ms: number): Promise<void> {
+    await new Promise(resolve => setTimeout(() => resolve(), ms));
 }
 
 export async function dispose(): Promise<void> {
