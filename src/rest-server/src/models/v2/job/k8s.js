@@ -42,9 +42,9 @@ const convertFrameworkSummary = (framework) => {
     },
     createdTime: new Date(framework.status.startTime).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
-    appExitCode: taskStatus.attemptStatus.completionStatus ? taskStatus.attemptStatus.completionStatus.code : null,
+    appExitCode: framework.status.attemptStatus.completionStatus ? framework.status.attemptStatus.completionStatus : null,
     virtualCluster: 'unknown',
-    totalGpuNumber: 0,  // TODO
+    totalGpuNumber: 0, // TODO
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
       (num, statuses) => num + statuses.taskStatuses.length, 0),
     totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
@@ -59,7 +59,7 @@ const convertTaskDetail = (taskStatus) => {
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts: {}, // TODO
-    containerGpus: 0,   // TODO
+    containerGpus: 0, // TODO
     containerLog: '',
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
@@ -88,7 +88,7 @@ const convertFrameworkDetail = (framework) => {
       appLaunchedTime: new Date(framework.status.startTime).getTime(),
       appCompletedTime: new Date(framework.status.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
-      appExitSpec: {},   // TODO
+      appExitSpec: {}, // TODO
       appExitDiagnostics: completionStatus ? completionStatus.diagnostics : null,
       appExitMessages: {
         container: null,
@@ -96,12 +96,12 @@ const convertFrameworkDetail = (framework) => {
         launcher: null,
       },
       appExitTriggerMessage: completionStatus ? completionStatus.diagnostics : null,
-      appExitTriggerTaskRoleName: null,  // TODO
-      appExitTriggerTaskIndex: null,     // TODO
+      appExitTriggerTaskRoleName: null, // TODO
+      appExitTriggerTaskIndex: null, // TODO
       appExitType: completionStatus ? completionStatus.type.name : null,
       virtualCluster: 'unknown',
     },
-    taskRoles: {}
+    taskRoles: {},
   };
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
