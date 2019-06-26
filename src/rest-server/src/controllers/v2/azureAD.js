@@ -24,14 +24,14 @@ const createError = require('@pai/utils/error');
 const jwt = require('jsonwebtoken');
 
 const requestAuthCode = async (req, res, next) => {
-  const tenantId = authnConfig.OIDCConfig.tenantID;
   const clientId = authnConfig.OIDCConfig.clientID;
   const responseType = 'code';
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
   const scope = 'openid offline_access https://graph.microsoft.com/user.read';
   const state = 'openpai';
-  return res.redirect('https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/authorize?'+ querystring.stringify({
+  const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
+  return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
     response_type: responseType,
     redirect_uri: redirectUri,
@@ -44,13 +44,12 @@ const requestAuthCode = async (req, res, next) => {
 const requestTokenWithCode = async (req, res, next) => {
   try {
     const authCode = req.body.code;
-    const scope = 'https://graph.microsoft.com/user.read';
+    const scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     const clientId = authnConfig.OIDCConfig.clientID;
-    const tenantId = authnConfig.OIDCConfig.tenantID;
     const redirectUri = authnConfig.OIDCConfig.redirectUrl;
     const grantType = 'authorization_code';
     const clientSecret = authnConfig.OIDCConfig.clientSecret;
-    const requestUrl = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token';
+    const requestUrl = authnConfig.OIDCConfig.token_endpoint;
     const data = {
       client_id: clientId,
       scope: scope,

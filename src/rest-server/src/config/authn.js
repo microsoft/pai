@@ -35,8 +35,6 @@ if (authnConfig.authnMethod === 'OIDC') {
       authnConfig.OIDCConfig.authorization_endpoint = response.data.authorization_endpoint;
       authnConfig.OIDCConfig.token_endpoint = response.data.token_endpoint;
       authnConfig.OIDCConfig.msgraph_host = response.data.msgraph_host;
-      // eslint-disable-next-line no-console
-      console.log(authnConfig.OIDCConfig);
     } catch (error) {
       logger.error('Failed to init OIDC endpoint and graph resource.');
       // eslint-disable-next-line no-console
