@@ -44,6 +44,8 @@ import Context from './context';
 import PropTypes from 'prop-types';
 import {isNil, debounce, isEqual, isEmpty} from 'lodash';
 
+const JOB_PROTOCOL_SCHEMA_URL = 'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
+
 const user = cookies.get('user');
 const {palette} = getTheme();
 const importButtonStyle = getImportButtonStyle();
@@ -239,7 +241,22 @@ export const SubmissionSection = (props) => {
           onDismiss={_closeEditor}
           title='Protocol YAML Editor'
           header={
-            <Text className={{color: palette.white}}>{String(validationMsg)}</Text>
+            <Stack grow horizontal>
+              <StackItem grow align='center'>
+                <Text className={{color: palette.white}}>
+                  {String(validationMsg)}
+                </Text>
+              </StackItem>
+              <StackItem horizontalAlign='end'>
+                <DefaultButton
+                  onClick={() =>
+                    (document.location = JOB_PROTOCOL_SCHEMA_URL)
+                  }
+                >
+                  Protocol Schema
+                </DefaultButton>
+              </StackItem>
+            </Stack>
           }
           monacoRef={monaco}
           monacoProps={{

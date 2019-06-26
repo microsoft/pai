@@ -57,10 +57,7 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
 
   const items = taskRoles.map((item, index) => {
     let taskRoleName;
-    if (isEmpty(item.name)) {
-      taskRoleName = generateUniqueTaskName(taskRoles, index);
-      item.name = taskRoleName;
-    } else {
+    if (!isEmpty(item.name)) {
       taskRoleName = item.name;
     }
     return {headerText: taskRoleName, content: item};
