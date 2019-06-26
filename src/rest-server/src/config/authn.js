@@ -35,40 +35,7 @@ try {
   authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/group-configuration/group.yaml', 'utf8'));
 } catch (error) {
   logger.error('Failed to load group config from configmap file.');
-  if (process.env.NODE_ENV === 'test') {
-    logger.error('Init groupConfig with default configuration. ');
-    authnConfig.groupConfig = {
-      'groupDataSource': 'basic',
-      'adminGroup': {
-        'groupname': 'adminGroup',
-        'description': 'group for admin',
-        'externalName': '',
-        'extension': {
-          'groupType': 'admin',
-        },
-      },
-      'defaultGroup': {
-        'groupname': 'default',
-        'description': 'group for default vc.',
-        'externalName': '',
-        'extension': {
-          'groupType': 'vc',
-        },
-      },
-      'grouplist': [
-        {
-          'groupname': 'testGroup',
-          'description': 'group for test',
-          'externalName': '',
-          'extension': {
-            'groupType': 'vc',
-          },
-        },
-      ],
-    };
-  } else {
-    throw error;
-  }
+  throw error;
 }
 
 // define the schema for authn
