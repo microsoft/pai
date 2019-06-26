@@ -29,7 +29,6 @@ const userLogoutComponent = require('../user/user-logout/user-logout.component.j
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 const pluginComponent = require('./plugins.component.ejs');
 const authnMethod = require('../config/webportal.config.js').authnMethod;
-const isAdmin = cookies.get('admin');
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
 
@@ -49,5 +48,5 @@ if (authnMethod === 'OIDC') {
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS, isAdmin}));
+  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
 }

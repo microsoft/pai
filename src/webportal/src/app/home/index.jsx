@@ -75,22 +75,22 @@ const Index = () => {
   );
 
   const showLoginModal = useCallback(
-      () => {
-        if (config.authnMethod === 'basic') {
-          setLoginModal(true);
-        } else {
-          location.href = config.restServerUri + '/api/v1/authn/oidc/login?callback=' + encodeURIComponent(location.href);
-        }
-      },
-      [],
+    () => {
+      if (config.authnMethod === 'basic') {
+        setLoginModal(true);
+      } else {
+        location.href = config.restServerUri + '/api/v1/authn/oidc/login?callback=' + encodeURIComponent(location.href);
+      }
+    },
+    [],
   );
 
   const dismissLoginModal = useCallback(
-      () => {
-        setLoginModal(false);
-        setError(null);
-      },
-      [],
+    () => {
+      setLoginModal(false);
+      setError(null);
+    },
+    [],
   );
 
   return (
