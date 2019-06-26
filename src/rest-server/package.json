@@ -59,10 +59,7 @@
     "unirest": "~0.5.1",
     "winston": "~2.4.0",
     "xml2js": "~0.4.19",
-    "passport": "*",
-    "passport-azure-ad": "^3.0.12",
     "querystring": "~0.2.0",
-    "express-session": "~1.15.6"
   },
   "_moduleAliases": {
     "@pai": "src"
