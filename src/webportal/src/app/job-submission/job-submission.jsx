@@ -68,10 +68,15 @@ const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
 
 const JobSubmission = (props) => {
-  const [jobTaskRoles, setJobTaskRolesState] = useState(props.jobTaskRoles);
-  const [parameters, setParametersState] = useState(props.jobParameters);
+  const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({name: 'Task_role_1'})]);
+  const [parameters, setParametersState] = useState([{key: '', value: ''}]);
   const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
-  const [jobInformation, setJobInformation] = useState(props.jobBasicInfo);
+  const [jobInformation, setJobInformation] = useState(
+    new JobBasicInfo({
+      name: `${cookies.get('user')}_${Date.now()}`,
+      virtualCluster: 'default',
+    }),
+  );
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
@@ -103,7 +108,7 @@ const JobSubmission = (props) => {
   const setJobTaskRoles = useCallback(
     (taskRoles) => {
       if (isEmpty(taskRoles)) {
-        setJobTaskRolesState([new JobTaskRole({})]);
+        setJobTaskRolesState([new JobTaskRole({name: 'Task_role_1'})]);
       } else {
         setJobTaskRolesState(taskRoles);
       }
@@ -177,6 +182,28 @@ const JobSubmission = (props) => {
         setVcNames(Object.keys(virtualClusters));
       })
       .catch(alert);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('op') === 'resubmit') {
+      const jobName = params.get('jobname') || '';
+      const user = params.get('user') || '';
+      if (user && jobName) {
+        fetchJobConfig(user, jobName)
+          .then((jobConfig) => {
+            const [
+              jobInfo,
+              taskRoles,
+              parameters,
+            ] = getJobComponentsFormConfig(jobConfig);
+            setJobTaskRoles(taskRoles);
+            setParameters(parameters);
+            setJobInformation(jobInfo);
+          })
+          .catch(alert);
+      }
+    }
   }, []);
 
   const onToggleAdvanceFlag = useCallback(() => {
@@ -269,43 +296,10 @@ JobSubmission.propTypes = {
   jobParameters: PropTypes.array.isRequired,
 };
 
-function onRenderJobSubmission(contentWrapper) {
-  const params = new URLSearchParams(window.location.search);
-  const props = {
-    jobTaskRoles: [new JobTaskRole({})],
-    jobParameters: [{key: '', value: ''}],
-    jobBasicInfo: new JobBasicInfo({
-      name: `${cookies.get('user')}_${Date.now()}`,
-      virtualCluster: 'default',
-    }),
-  };
-  if (params.get('op') === 'resubmit') {
-    const jobName = params.get('jobname') || '';
-    const user = params.get('user') || '';
-    if (user && jobName) {
-      fetchJobConfig(user, jobName)
-        .then((jobConfig) => {
-          const [jobInfo, taskRoles, parameters] = getJobComponentsFormConfig(
-            jobConfig,
-          );
-          props.jobBasicInfo = jobInfo;
-          props.jobTaskRoles = taskRoles;
-          props.jobParameters = parameters;
-          ReactDOM.render(<JobSubmission {...props} />, contentWrapper);
-        })
-        .catch((err) => {
-          alert(err);
-        });
-    }
-  } else {
-    ReactDOM.render(<JobSubmission {...props} />, contentWrapper);
-  }
-}
-
 const contentWrapper = document.getElementById('content-wrapper');
-onRenderJobSubmission(contentWrapper);
 
 document.getElementById('sidebar-menu--job-submission').classList.add('active');
+ReactDOM.render(<JobSubmission />, contentWrapper);
 
 function layout() {
   setTimeout(function() {
