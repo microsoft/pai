@@ -32,11 +32,9 @@ if (authnConfig.authnMethod === 'OIDC') {
   const initOIDCEndpointAndGroupUrl = async () => {
     try {
       const response = await axios.get(authnConfig.OIDCConfig.wellKnownURL);
-      // eslint-disable-next-line no-console
-      console.log(response);
-      authnConfig.OIDCConfig.authorization_endpoint = response.body.authorization_endpoint;
-      authnConfig.OIDCConfig.token_endpoint = response.body.token_endpoint;
-      authnConfig.OIDCConfig.msgraph_host = response.body.msgraph_host;
+      authnConfig.OIDCConfig.authorization_endpoint = response.data.authorization_endpoint;
+      authnConfig.OIDCConfig.token_endpoint = response.data.token_endpoint;
+      authnConfig.OIDCConfig.msgraph_host = response.data.msgraph_host;
       // eslint-disable-next-line no-console
       console.log(authnConfig.OIDCConfig);
     } catch (error) {
