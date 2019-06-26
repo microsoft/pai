@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useCallback, useReducer, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {Text} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
@@ -33,66 +33,47 @@ import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 import {JobBasicInfo} from '../models/job-basic-info';
 
-import {isEqual} from 'lodash';
-
-function reducer(state, action) {
-  let jobInfo;
-  switch (action.type) {
-    case 'name':
-      jobInfo = new JobBasicInfo({...state, name: action.value});
-      action.onChange(jobInfo);
-      return jobInfo;
-    case 'virtualCluster':
-      jobInfo = new JobBasicInfo({...state, virtualCluster: action.value});
-      action.onChange(jobInfo);
-      return jobInfo;
-    case 'initJobInfo':
-      return new JobBasicInfo(action.value);
-    default:
-      throw new Error('Unrecognized type');
-  }
-}
-
 export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag}) => {
-  const [jobInfo, dispatch] = useReducer(reducer, jobInformation);
-  const {name, virtualCluster, jobRetryCount} = jobInfo;
+  const {name, virtualCluster, jobRetryCount} = jobInformation;
 
-  useEffect(() => {
-    if (isEqual(jobInfo, jobInformation)) {
-      return;
-    }
-    dispatch({type: 'initJobInfo', value: jobInformation});
-  }, [jobInformation]);
+  const onChangeProp = useCallback(
+    (type, value) => {
+      const updatedJobInfo = new JobBasicInfo({...jobInformation, [type]: value});
+      onChange(updatedJobInfo);
+    },
+    [onChange, jobInformation],
+  );
 
-  const _onChange = useCallback((updatedValue) => {
-    if (onChange !== undefined) {
-      onChange(updatedValue);
-    }
-  }, [onChange]);
+  const onNameChange = useCallback(
+    (name) => onChangeProp('name', name),
+    [onChangeProp],
+  );
 
-  const _onNameChange = useCallback((name) => {
-    dispatch({type: 'name', value: name, onChange: _onChange});
-  }, [_onChange]);
+  const onVirtualClusterChange = useCallback(
+    (virtualCluster) => onChangeProp('virtualCluster', virtualCluster),
+    [onChangeProp],
+  );
 
-  const _onVirtualClusterChange = useCallback((virtualCluster) => {
-    dispatch({type: 'virtualCluster', value: virtualCluster, onChange: _onChange});
-  }, [_onChange]);
+  const onRetryCountChange = useCallback(
+    (val) => onChangeProp('retryCount', val),
+    [onChangeProp]
+  );
 
   return (
     <Card>
       <FormPage>
-        <Text variant='xxLarge' styles={{root: {fontWeight: 'semibold'}}}>
+        <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
           Job Information
         </Text>
         <FormTextField
           sectionLabel={'Job name'}
           value={name}
           shortStyle
-          onBlur={_onNameChange}
+          onBlur={onNameChange}
           placeholder='Enter job name'
         />
         <VirtualCluster
-          onChange={_onVirtualClusterChange}
+          onChange={onVirtualClusterChange}
           virtualCluster={virtualCluster}
         />
         {advanceFlag && (
@@ -101,7 +82,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
             sectionLabel={'Retry count'}
             shortStyle
             value={jobRetryCount}
-            onChange={(value) => _onChange('jobRetryCount', value)}
+            onChange={onRetryCountChange}
           />
         )}
       </FormPage>
@@ -111,6 +92,6 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
 
 JobInformation.propTypes = {
   jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   advanceFlag: PropTypes.bool,
 };
