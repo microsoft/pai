@@ -49,6 +49,9 @@ if (authnConfig.authnMethod === 'OIDC') {
   };
 
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
+  (async function() {
+    await initOIDCEndpointAndGroupUrl();
+  })();
 }
 
 try {
