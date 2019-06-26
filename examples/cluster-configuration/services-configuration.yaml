@@ -146,6 +146,12 @@ rest-server:
   #
   #AAD:
   #  # If you wanna configure AAD-OIDC for OpenPAI, the following configuration is mandatory.
+  #  # AZURE: https://login.microsoftonline.com/{tenantID}/v2.0/.well-known/openid-configuration
+  #  # China: https://login.partner.microsoftonline.cn/{tenantID}/v2.0/.well-known/openid-configuration
+  #  # Germany: https://login.microsoftonline.de/{tenantID}/v2.0/.well-known/openid-configuration
+  #  wellKnownURL:
+  #
+  #  # If you wanna configure AAD-OIDC for OpenPAI, the following configuration is mandatory.
   #  tenantID: ${tenat_id}
   #
   #  # Required, the client ID of your app in AAD

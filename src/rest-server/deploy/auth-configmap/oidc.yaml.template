@@ -3,6 +3,7 @@
 {% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
 
 OIDC-type: aad
+wellKnownURL: {{cluster_cfg['authentication']['AAD']['wellKnownURL']}}
 tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] }}
 clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
 clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}

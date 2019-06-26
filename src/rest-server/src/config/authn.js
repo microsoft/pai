@@ -20,6 +20,7 @@ const Joi = require('joi');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const logger = require('@pai/config/logger');
+const axios = require('axios');
 
 let authnConfig = {
   authnMethod: process.env.AUTHN_METHOD,
@@ -28,6 +29,25 @@ let authnConfig = {
 };
 
 if (authnConfig.authnMethod === 'OIDC') {
+  const initOIDCEndpointAndGroupUrl = async () => {
+    try {
+      const response = await axios.get(authnConfig.OIDCConfig.wellKnownURL, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      authnConfig.OIDCConfig.authorization_endpoint = response.body.authorization_endpoint;
+      authnConfig.OIDCConfig.token_endpoint = response.body.token_endpoint;
+      authnConfig.OIDCConfig.msgraph_host = response.body.msgraph_host;
+      // eslint-disable-next-line no-console
+      console.log(authnConfig.OIDCConfig);
+    } catch (error) {
+      logger.error('Failed to init OIDC endpoint and graph resource.');
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
 }
 
