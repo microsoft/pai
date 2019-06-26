@@ -43,7 +43,7 @@ def group_set(args):
     secret_dict = dict()
     secret_dict["groupname"] = base64.b64encode(args.name)
     secret_dict["externalName"] = base64.b64encode(args.external_name)
-    secret_dict["extension"] = base64.b64encode({"groupType":"storge"})
+    secret_dict["extension"] = base64.b64encode(str({"groupType":"storge"}))
     secret_dict["description"] = base64.b64encode(args.description)
     patch_secret(secret_name, secret_dict, "pai-group")
 
