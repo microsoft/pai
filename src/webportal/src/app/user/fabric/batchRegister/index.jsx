@@ -206,8 +206,7 @@ export default function BatchRegister() {
         userInfo[columnUsername],
         userInfo[columnEmail],
         userInfo[columnPassword],
-        toBool(userInfo[columnAdmin]),
-        userInfo.vcs).then(() => {
+        toBool(userInfo[columnAdmin]), userInfo.vcs).then(() => {
           return successResult;
         }).catch((err) => {
           return {
