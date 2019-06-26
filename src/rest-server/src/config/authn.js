@@ -32,6 +32,8 @@ if (authnConfig.authnMethod === 'OIDC') {
   const initOIDCEndpointAndGroupUrl = async () => {
     try {
       // eslint-disable-next-line no-console
+      console.log(authnConfig.OIDCConfig);
+      // eslint-disable-next-line no-console
       console.log(authnConfig.OIDCConfig.wellKnownURL);
       const response = await axios.get(authnConfig.OIDCConfig.wellKnownURL);
       // eslint-disable-next-line no-console
@@ -49,6 +51,8 @@ if (authnConfig.authnMethod === 'OIDC') {
   };
 
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
+  // eslint-disable-next-line no-console
+  console.log(authnConfig.OIDCConfig);
   (async function() {
     await initOIDCEndpointAndGroupUrl();
   })();
