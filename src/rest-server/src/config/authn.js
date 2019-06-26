@@ -34,7 +34,7 @@ if (authnConfig.authnMethod === 'OIDC') {
 try {
   let groupConfigPath = '/group-configuration/group.yaml';
   if (process.env.GROUP_CONFIG_PATH) {
-    groupConfigPath = process.env.GROUP_CONFIG_PATH
+    groupConfigPath = process.env.GROUP_CONFIG_PATH;
   }
   authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync(groupConfigPath, 'utf8'));
 } catch (error) {
