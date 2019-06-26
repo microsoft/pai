@@ -171,10 +171,12 @@ const addGroup = () => {
       return false;
     }
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/user/create/${vcName}`,
+      url: `${webportalConfig.restServerUri}/api/v2/group/create`,
       data: JSON.stringify({
+        'groupname': vcName,
         'description': `This group of the same name is created by creating a Virtual Cluster named ${vcName}`,
         'externalName': ``,
+        'extension': `{"groupType": "vc"}`,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
