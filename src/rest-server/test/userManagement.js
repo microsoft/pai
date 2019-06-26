@@ -360,7 +360,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 1 (Positive): Add admin user', (done) => {
     global.chai.request(global.server)
-      .post('/api/v2/user/create')
+      .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
           'username': 'newuser',
@@ -379,7 +379,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 2 (Positive): Add non_admin user', (done) => {
     global.chai.request(global.server)
-      .post('/api/v2/user/create')
+      .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'username': 'non_admin',
@@ -402,7 +402,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .post('/api/v2/user/create')
+      .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
         'username': 'test_user',
@@ -421,7 +421,7 @@ describe('Add new user: put /api/v2/user', () => {
 
   it('Case 4 (Negative): Should fail to add user with exist name.', (done) => {
     global.chai.request(global.server)
-      .post('/api/v2/user/create')
+      .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'username': 'existuser',
@@ -439,7 +439,7 @@ describe('Add new user: put /api/v2/user', () => {
   });
 });
 
-describe('update user: put /api/v2/user/update', () => {
+describe('update user: put /api/v2/user', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -560,7 +560,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 1 (Positive): Update user password.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/update_user/password')
+      .put('/api/v2/user/update_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'newPassword': 'abcdef',
@@ -576,7 +576,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 2 (Positive): Update user set admin=false.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/update_user/admin')
+      .put('/api/v2/user/update_user/admin')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'admin': false
@@ -595,7 +595,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 3 (Negative): Should fail to modify a non-exist user.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/non_exist_user/password')
+      .put('/api/v2/user/non_exist_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'newPassword': 'abcdef',
@@ -611,7 +611,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 4 (Negative): Should trigger validation error if password sets null.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/new_user/password')
+      .put('/api/v2/user/new_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'oldPassword': 'test12345'
@@ -624,7 +624,7 @@ describe('update user: put /api/v2/user/update', () => {
 
   it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/new_user/admin')
+      .put('/api/v2/user/new_user/admin')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
         'admin': false
@@ -638,7 +638,7 @@ describe('update user: put /api/v2/user/update', () => {
 
 });
 
-describe('delete user : delete /api/v2/user/delete', () => {
+describe('delete user : delete /api/v2/user', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -725,7 +725,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
 
   it('Case 1 (Positive): delete exist non_admin user', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v2/user/delete/non_admin')
+      .delete('/api/v2/user/non_admin')
       .set('Authorization', 'Bearer ' + validToken)
       .send()
       .end((err, res) => {
@@ -740,7 +740,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
 
   it('Case 2 (Negative): Should fail to delete admin user', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v2/user/delete/admin')
+      .delete('/api/v2/user/admin')
       .set('Authorization', 'Bearer ' + validToken)
       .send()
       .end((err, res) => {
@@ -753,7 +753,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
 
   it('Case 3 (Negative): Should fail to delete non-exist user.', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v2/user/delete/nonexist')
+      .delete('/api/v2/user/nonexist')
       .set('Authorization', 'Bearer ' + validToken)
       .send()
       .end((err, res) => {
@@ -766,7 +766,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
 
   it('Case 4 (Negative): Should fail to delete user with non-admin token.', (done) => {
     global.chai.request(global.server)
-      .delete('/api/v2/user/delete/delete_non_admin_user')
+      .delete('/api/v2/user/delete_non_admin_user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send()
       .end((err, res) => {
@@ -776,7 +776,7 @@ describe('delete user : delete /api/v2/user/delete', () => {
   });
 });
 
-describe('update user virtual cluster : put /api/v2/user/update/:username/virtualClusters', () => {
+describe('update user virtual cluster : put /api/v2/user/:username/virtualClusters', () => {
   afterEach(() => {
     if (!nock.isDone()) {
       //this.test.error(new Error('Not all nock interceptors were used!'));
@@ -1065,7 +1065,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test/virtualcluster')
+      .put('/api/v2/user/test/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send({ 'virtualCluster': ['default', 'vc1' ]})
       .end((err, res) => {
@@ -1078,7 +1078,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 2 (Positive): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test2/virtualcluster')
+      .put('/api/v2/user/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send({ 'virtualCluster': ['non_exist_vc'] })
       .end((err, res) => {
@@ -1091,7 +1091,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 3 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test3/virtualcluster')
+      .put('/api/v2/user/test3/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send( { 'virtualCluster': [] })
       .end((err, res) => {
@@ -1108,7 +1108,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 4 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/testinvalid/virtualcluster')
+      .put('/api/v2/user/testinvalid/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send({ 'virtualCluster': ['non_exist_vc'] })
       .end((err, res) => {
@@ -1121,7 +1121,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 5 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-    .put('/api/v2/user/update/non_exist/virtualcluster')
+    .put('/api/v2/user/non_exist/virtualcluster')
     .set('Authorization', 'Bearer ' + validToken)
     .send({ 'virtualCluster': ['default'] })
     .end((err, res) => {
@@ -1134,7 +1134,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 6 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test6/virtualcluster')
+      .put('/api/v2/user/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send( { 'virtualCluster': ['default'] })
       .end((err, res) => {
@@ -1147,7 +1147,7 @@ describe('update user virtual cluster : put /api/v2/user/update/:username/virtua
 
   it('Case 7 (Negative): should fail to update admin virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/update/test7/virtualCluster')
+      .put('/api/v2/user/test7/virtualCluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send( { 'virtualCluster': ['default'] } )
       .end((err, res) => {

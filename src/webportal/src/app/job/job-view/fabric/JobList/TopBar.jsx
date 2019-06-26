@@ -80,7 +80,7 @@ function TopBar() {
   const {refreshJobs, selectedJobs, stopJob, username, filter, setFilter} = useContext(Context);
 
   useEffect(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v2/user/get`, {
+    fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }})

@@ -26,42 +26,41 @@ const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 
-router.route('/get/:username/')
-  /** Get /api/v2/user/get/:username */
+router.route('/:username/')
+  /** Get /api/v2/user/:username */
   .get(token.check, userController.getUser);
 
-router.route('/get/')
-  /** Get /api/v2/user/get */
+router.route('/')
+  /** Get /api/v2/user */
   .get(token.check, userController.getAllUser);
 
-router.route('/:username/')
-  .get(token.check, userController.getUser);
-
-router.route('/update/:username/extension')
-  /** Put /api/v2/user/update/:username/extension */
+router.route('/:username/extension')
+  /** Put /api/v2/user/:username/extension */
   .put(token.check, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
 
 if (authnConfig.authnMethod === 'basic') {
-  router.route('/delete/:username')
-  /** Delete /api/v2/user/delete/:username */
+  router.route('/:username')
+  /** Delete /api/v2/user/:username */
     .delete(token.check, userController.deleteUser);
 
-  router.route('/update/:username/virtualcluster')
-  /** Update /api/v2/user/update/:username/virtualcluster */
+  router.route('/:username/virtualcluster')
+  /** Update /api/v2/user/:username/virtualcluster */
     .put(token.check, param.validate(userInputSchema.userVirutalClusterUpdateInputSchema), userController.updateUserVirtualCluster);
 
-  router.route('/update/:username/password')
-  /** Update /api/v2/user/update/:username/password */
+  router.route('/:username/password')
+  /** Update /api/v2/user/:username/password */
     .put(token.check, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
 
-  router.route('/create')
-  /** Create /api/v2/user/create */
+  router.route('/')
+  /** Create /api/v2/user */
     .post(token.check, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
 
-  router.route('/update/:username/email')
+  router.route('/:username/email')
+  /** Update /api/v2/user/:username/email */
     .put(token.check, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
 
   router.route('/update/:username/admin')
+  /** Update /api/v2/user/:username/email */
     .put(token.check, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
 
   router.route('/:username/grouplist')

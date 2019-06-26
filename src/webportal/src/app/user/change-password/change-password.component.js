@@ -44,7 +44,7 @@ $(document).ready(() => {
       alert('Please enter a password different from the old one!');
     } else {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v2/user/update/${username}/password`,
+        url: `${webportalConfig.restServerUri}/api/v2/user/${username}/password`,
         data: {oldPassword, newPassword},
         type: 'PUT',
         headers: {

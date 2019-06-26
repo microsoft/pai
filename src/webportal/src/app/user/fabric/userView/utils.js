@@ -16,5 +16,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 export const getVirtualCluster = (user) => {
-  return user.admin ? 'All virtual clusters' : user.virtualCluster.slice().sort().join(', ');
+  return user.admin ? 'All virtual clusters' : user.virtualCluster.sort().join(', ');
 };

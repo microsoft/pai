@@ -32,7 +32,7 @@ const fetchWrapper = async (...args) => {
 };
 
 export const getAllUsersRequest = async () => {
-  const url = `${config.restServerUri}/api/v2/user/get`;
+  const url = `${config.restServerUri}/api/v2/user`;
   const token = checkToken();
   return await fetchWrapper(url, {
     headers: {
@@ -42,7 +42,7 @@ export const getAllUsersRequest = async () => {
 };
 
 export const removeUserRequest = async (username) => {
-  const url = `${config.restServerUri}/api/v2/user/delete/${username}`;
+  const url = `${config.restServerUri}/api/v2/user/${username}`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'DELETE',
@@ -53,7 +53,7 @@ export const removeUserRequest = async (username) => {
 };
 
 export const updateUserVcRequest = async (username, virtualCluster) => {
-  const url = `${config.restServerUri}/api/v2/user/update/${username}/virtualcluster`;
+  const url = `${config.restServerUri}/api/v2/user/${username}/virtualcluster`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'PUT',
@@ -65,7 +65,7 @@ export const updateUserVcRequest = async (username, virtualCluster) => {
 };
 
 export const createUserRequest = async (username, email, password, admin, virtualCluster) => {
-  const url = `${config.restServerUri}/api/v2/user/create`;
+  const url = `${config.restServerUri}/api/v2/user/`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'POST',
@@ -77,7 +77,7 @@ export const createUserRequest = async (username, email, password, admin, virtua
 };
 
 export const updateUserPasswordRequest = async (username, newPassword) => {
-  const url = `${config.restServerUri}/api/v2/user/update/${username}/password`;
+  const url = `${config.restServerUri}/api/v2/user/${username}/password`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'PUT',
@@ -89,7 +89,7 @@ export const updateUserPasswordRequest = async (username, newPassword) => {
 };
 
 export const updateUserEmailRequest = async (username, email) => {
-  const url = `${config.restServerUri}/api/v2/user/update/${username}/email`;
+  const url = `${config.restServerUri}/api/v2/user/${username}/email`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'PUT',
@@ -101,7 +101,7 @@ export const updateUserEmailRequest = async (username, email) => {
 };
 
 export const updateUserAdminRequest = async (username, admin) => {
-  const url = `${config.restServerUri}/api/v2/user/update/${username}/admin`;
+  const url = `${config.restServerUri}/api/v2/user/${username}/admin`;
   const token = checkToken();
   return await fetchWrapper(url, {
     method: 'PUT',
