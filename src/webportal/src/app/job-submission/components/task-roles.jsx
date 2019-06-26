@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useContext, useMemo} from 'react';
 import {TabForm} from './tab-form';
 import {JobTaskRole} from '../models/job-task-role';
+import Context from './context';
 
 import {createUniqueName} from '../utils/utils';
 
@@ -64,6 +65,24 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
     }
     return {headerText: taskRoleName, content: item};
   });
+
+  const {setErrorMessage} = useContext(Context);
+  useMemo(() => {
+    const nameCount = items.reduce((res, item) => {
+      if (res[item.headerText] === undefined) {
+        res[item.headerText] = 0;
+      }
+      res[item.headerText] += 1;
+      return res;
+    }, {});
+    const dupNames = Object.keys(nameCount)
+      .filter((key) => nameCount[key] > 1);
+    if (dupNames.length > 0) {
+      setErrorMessage('TaskRole', `task role name '${dupNames}' is duplicated`);
+    } else {
+      setErrorMessage('TaskRole', '');
+    }
+  }, [taskRoles]);
 
   return (
     <TabForm
