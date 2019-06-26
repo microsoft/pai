@@ -69,7 +69,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
           sectionLabel={'Job name'}
           value={name}
           shortStyle
-          onBlur={onNameChange}
+          onChange={onNameChange}
           placeholder='Enter job name'
         />
         <VirtualCluster

@@ -23,26 +23,20 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {TextField, getId} from 'office-ui-fabric-react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
+import {TextField} from 'office-ui-fabric-react';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
 
 import PropTypes from 'prop-types';
-import {isEmpty} from 'lodash';
+import {debounce, isEmpty} from 'lodash';
 
 const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const FormTextField = React.memo((props) => {
-  const {sectionLabel, onBlur, sectionOptional, shortStyle} = props;
-  const textFieldId = getId('textField');
-  const _onBlur = (event) => {
-    if (onBlur === undefined) {
-      return;
-    }
-    onBlur(event.target.value);
-  };
-
+  const {sectionLabel, onChange, sectionOptional, shortStyle, value} = props;
+  const [cachedValue, setCachedValue] = useState('');
+  useEffect(() => setCachedValue(value), [value]);
   const _onGetErrorMessage = (value) => {
     const match = TEXT_FILED_REGX.exec(value);
     if (isEmpty(match)) {
@@ -51,7 +45,24 @@ export const FormTextField = React.memo((props) => {
     return '';
   };
 
-  const textField = <TextField {...props} id={textFieldId} onBlur={_onBlur} onGetErrorMessage={_onGetErrorMessage}/>;
+  const debouncedOnChange = useMemo(() => debounce(onChange, 200), [onChange]);
+
+  const onChangeWrapper = useCallback(
+    (_, val) => {
+      setCachedValue(val);
+      debouncedOnChange(val);
+    },
+    [setCachedValue, debouncedOnChange],
+  );
+
+  const textField = (
+    <TextField
+      {...props}
+      value={cachedValue}
+      onChange={onChangeWrapper}
+      onGetErrorMessage={_onGetErrorMessage}
+    />
+  );
 
   return (
     <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
@@ -66,7 +77,8 @@ export const FormTextField = React.memo((props) => {
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
-  onBlur: PropTypes.func,
+  onChange: PropTypes.func,
+  value: PropTypes.string,
   sectionOptional: PropTypes.bool,
   shortStyle: PropTypes.bool,
 };

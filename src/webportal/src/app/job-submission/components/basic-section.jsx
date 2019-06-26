@@ -25,7 +25,6 @@
 
 import React, {useState} from 'react';
 import {
-  getId,
   Label,
   Stack,
   Icon,
@@ -40,7 +39,6 @@ const formPageStyle = getFormPageSytle();
 
 export const BasicSection = (props) => {
   const {sectionLabel, sectionOptional, children} = props;
-  const textFieldId = getId('textField');
   const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 
   const [isSectionOn, setSectionOn] = useState(true);
@@ -59,7 +57,7 @@ export const BasicSection = (props) => {
           />
           <StackItem grow>
             <div>
-              <Label htmlFor={textFieldId} styles={basicSectionStyle.label}>
+              <Label styles={basicSectionStyle.label}>
                 {sectionLabel}
               </Label>
               {sectionOptional && (

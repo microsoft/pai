@@ -28,7 +28,6 @@ import {
   TextField,
   DefaultButton,
   Stack,
-  getId,
   PrimaryButton,
   Label,
   StackItem,
@@ -71,8 +70,6 @@ export const DockerSection = ({onValueChange, value}) => {
   const password = useRef(null);
   const registryuri = useRef(null);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const textFieldId = getId('textField');
 
   const [showAuth, setShowAuth] = useState(false);
 
@@ -160,7 +157,6 @@ export const DockerSection = ({onValueChange, value}) => {
       <Stack horizontal gap='l1'>
         <FormShortSection>
           <TextField
-            id={textFieldId}
             placeholder='Enter docker uri...'
             errorMessage={errorMsg}
             onChange={_onUriChange}

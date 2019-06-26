@@ -58,7 +58,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
       <FormTextField sectionLabel={'Task role name'}
                      shortStyle
                      value={jobTaskRole.name}
-                     onBlur={(value) => _onValueChange('name', value)}
+                     onChange={(value) => _onValueChange('name', value)}
                      placeholder='Enter task role name...'/>
       <CommandSection value={jobTaskRole.commands}
                       onChange={(value)=>_onValueChange('commands', value)}/>
