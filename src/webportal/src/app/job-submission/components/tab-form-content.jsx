@@ -66,6 +66,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
                       shortStyle
                       textFiledProps={{placeholder: 'Enter instance number...'}}
                       value={jobTaskRole.instances}
+                      min={1}
                       onChange={(value) => _onValueChange('instances', value)}/>
       <ContainerSizeSection value={jobTaskRole.containerSize}
                             onEnable={(checked) => _onValuesChange({

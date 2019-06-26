@@ -39,9 +39,9 @@ export const FormSpinButton = (props) => {
 
   const spinButton = (
     <CSpinButton
-      {...props}
       min={0}
       step={1}
+      {...props}
       value={value === undefined ? NaN.toString() : value}
       onChange={_onChange}
     />

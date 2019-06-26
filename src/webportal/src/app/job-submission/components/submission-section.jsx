@@ -87,7 +87,7 @@ export const SubmissionSection = (props) => {
 
   const monaco = useRef(null);
 
-  const {vcNames, setErrorMessage} = useContext(Context);
+  const {vcNames, errorMessages, setErrorMessage} = useContext(Context);
 
   const _protocolAndErrorUpdate = (protocol) => {
     if (!isEqual(jobProtocol, protocol)) {
@@ -203,7 +203,7 @@ export const SubmissionSection = (props) => {
       <Stack horizontal>
         <StackItem grow>
           <Stack horizontal gap='s1' horizontalAlign='center'>
-            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(validationMsg)} >Submit</PrimaryButton>
+            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)} >Submit</PrimaryButton>
             <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
           </Stack>
         </StackItem>

@@ -63,7 +63,7 @@ export const CSpinButton = (props) => {
   );
 };
 
-CSpinButton.defaultValue = {
+CSpinButton.defaultProps = {
   min: 0,
 };
 

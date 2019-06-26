@@ -148,10 +148,16 @@ const JobSubmission = (props) => {
 
   const setErrorMessage = useCallback(
     (id, msg) => {
-      setErrorMessages({
-        ...errorMessages,
-        [id]: msg,
-      });
+      if (isEmpty(msg)) {
+        const updated = {...errorMessages};
+        delete updated[id];
+        setErrorMessages(updated);
+      } else {
+        setErrorMessages({
+          ...errorMessages,
+          [id]: msg,
+        });
+      }
     },
     [errorMessages, setErrorMessages],
   );

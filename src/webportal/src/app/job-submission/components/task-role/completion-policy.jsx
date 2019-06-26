@@ -52,12 +52,14 @@ export const CompletionPolicy = React.memo(({onChange, value}) => {
           <CSpinButton label={'Min Failed Instances'}
                        value={minFailedInstances}
                        styles={spinButtonStyle}
+                       min={1}
                        onChange={(v) => _onChange('minFailedInstances', v)}/>
         </Stack>
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Succeed Instances'}
                        value={minSucceededInstances}
                        styles={spinButtonStyle}
+                       min={1}
                        onChange={(v) => _onChange('minSucceededInstances', v)}/>
         </Stack>
       </FormShortSection>
