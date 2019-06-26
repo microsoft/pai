@@ -87,7 +87,7 @@ export const SubmissionSection = (props) => {
 
   const monaco = useRef(null);
 
-  const {vcNames, errorMessages, setErrorMessage} = useContext(Context);
+  const {vcNames, setErrorMessage} = useContext(Context);
 
   const _protocolAndErrorUpdate = (protocol) => {
     if (!isEqual(jobProtocol, protocol)) {
@@ -105,15 +105,18 @@ export const SubmissionSection = (props) => {
     _protocolAndErrorUpdate(protocol);
   }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
 
-  const _openEditor = (event) => {
+  const _openEditor = async (event) => {
     event.preventDefault();
     setEditorOpen(true);
 
     const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
     _protocolAndErrorUpdate(protocol);
-    populateProtocolWithDataCli(user, protocol, jobData)
-      .then(() => setProtocolYaml(protocol.toYaml()))
-      .catch(alert);
+    try {
+      await populateProtocolWithDataCli(user, protocol, jobData);
+      setProtocolYaml(protocol.toYaml());
+    } catch (err) {
+      alert(err);
+    }
   };
 
   const _udpatedComponent = (protocolYaml) => {
@@ -147,18 +150,15 @@ export const SubmissionSection = (props) => {
     monaco.current.editor.setTheme('vs');
   };
 
-  const _exportYaml = (event) => {
+  const _exportYaml = async (event) => {
     event.preventDefault();
     const protocol = new JobProtocol(jobProtocol);
-    populateProtocolWithDataCli(user, protocol, jobData)
-      .then(() => {
-        _exportFile(
-          jobProtocol.toYaml(),
-          (jobInformation.name || 'job') + '.yaml',
-          'text/yaml',
-        );
-      })
-      .catch(alert);
+    try {
+      await populateProtocolWithDataCli(user, protocol, jobData);
+      _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'text/yaml');
+    } catch (err) {
+      alert(err);
+    }
   };
 
   const _importFile = (event) => {
@@ -184,18 +184,18 @@ export const SubmissionSection = (props) => {
     setValidationMsg(JobProtocol.validateFromYaml(text));
   };
 
-  const _submitJob = (event) => {
+  const _submitJob = async (event) => {
     event.preventDefault();
     const protocol = new JobProtocol(jobProtocol);
-    populateProtocolWithDataCli(user, protocol, jobData)
-      .then(() => {
-        submitJob(protocol.toYaml()).then(() => {
-          window.location.href = `/job-detail.html?username=${user}&jobName=${
-            jobProtocol.name
-          }`;
-        });
-      })
-      .catch(alert);
+    try {
+      await populateProtocolWithDataCli(user, protocol, jobData);
+      await submitJob(protocol.toYaml());
+      window.location.href = `/job-detail.html?username=${user}&jobName=${
+        jobProtocol.name
+      }`;
+    } catch (err) {
+      alert(err);
+    }
   };
 
   return (
@@ -203,7 +203,7 @@ export const SubmissionSection = (props) => {
       <Stack horizontal>
         <StackItem grow>
           <Stack horizontal gap='s1' horizontalAlign='center'>
-            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)} >Submit</PrimaryButton>
+            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(validationMsg)} >Submit</PrimaryButton>
             <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
           </Stack>
         </StackItem>
