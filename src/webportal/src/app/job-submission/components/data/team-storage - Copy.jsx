@@ -77,6 +77,7 @@ export const TeamStorage = (props) => {
   }, []);
 
   useEffect(() => {
+    console.log('set config');
     if (userGroups.length === 0) {
       return;
     }
