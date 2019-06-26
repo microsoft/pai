@@ -137,7 +137,7 @@ function printf_file_tail_with_shift()
   local file_content=$(tail -c "$tail_char_num" "$file_name")
   while IFS= read -r line
   do
-    line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r')
+    line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r' | tr -cd '[:print:]')
     echo "$shift_space$line"
   done < <(printf '%s\n' "$file_content")
 }
