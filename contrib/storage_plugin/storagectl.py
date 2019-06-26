@@ -44,7 +44,7 @@ def group_set(args):
     secret_dict["groupname"] = base64.b64encode(args.name)
     secret_dict["externalName"] = base64.b64encode(args.external_name)
     secret_dict["extension"] = base64.b64encode("{\"groupType\":\"storge\"}")
-    secret_dict["description"] = base64.b64encode(args.description)
+    secret_dict["description"] = base64.b64encode(args.name if args.description is None else args.description)
     patch_secret(secret_name, secret_dict, "pai-group")
 
 def group_list(args):
@@ -173,7 +173,7 @@ def main():
     group_set_parser = group_subparsers.add_parser("set")
     group_set_parser.add_argument("name", help="Group name")
     group_set_parser.add_argument("external_name", help="External group name")
-    group_set_parser.add_argument("-d", "--desc", dest="description", default="", help="Description")
+    group_set_parser.add_argument("-d", "--desc", dest="description", default=None, help="Description")
     group_set_parser.set_defaults(func=group_set)
     # ./storagectl.py group list
     group_list_parser = group_subparsers.add_parser("list")
