@@ -31,13 +31,9 @@ let authnConfig = {
 if (authnConfig.authnMethod === 'OIDC') {
   const initOIDCEndpointAndGroupUrl = async () => {
     try {
-      // eslint-disable-next-line no-console
-      console.log(authnConfig.OIDCConfig);
-      // eslint-disable-next-line no-console
-      console.log(authnConfig.OIDCConfig.wellKnownURL);
       const response = await axios.get(authnConfig.OIDCConfig.wellKnownURL);
       // eslint-disable-next-line no-console
-      console.log(response.body);
+      console.log(response);
       authnConfig.OIDCConfig.authorization_endpoint = response.body.authorization_endpoint;
       authnConfig.OIDCConfig.token_endpoint = response.body.token_endpoint;
       authnConfig.OIDCConfig.msgraph_host = response.body.msgraph_host;
@@ -51,8 +47,6 @@ if (authnConfig.authnMethod === 'OIDC') {
   };
 
   authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync('/auth-configuration/oidc.yaml', 'utf8'));
-  // eslint-disable-next-line no-console
-  console.log(authnConfig.OIDCConfig);
   (async function() {
     await initOIDCEndpointAndGroupUrl();
   })();
