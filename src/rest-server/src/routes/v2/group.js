@@ -52,6 +52,10 @@ router.route('/update/:groupname/externalname')
 /** put /api/v2/group/update/:groupname/external' */
   .put(token.check, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
 
+router.route('/get/:groupname/userlist')
+/** get /api/v2/group/get/:groupname/userlist */
+  .get(token.check, groupController.getGroupUserList);
+
 module.exports = router;
 
 
