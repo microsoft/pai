@@ -3,6 +3,11 @@
 A tool to manage your storage config.
 
 ## Index
+- [ Manage group ](#Group_config)
+    - [ Set group ](#Group_set)
+    - [ List group ](#Group_list) 
+    - [ Delete group ](#Group_delete) 
+
 - [ Manage server ](#Server_config)
     - [ Set server ](#Server_set)
         - [ Set nfs server ](#Server_set_nfs)
@@ -22,6 +27,24 @@ A tool to manage your storage config.
     - [ Set user ](#User_set)
     - [ List user ](#User_list) 
     - [ Delete user ](#User_delete) 
+
+## Manage Group Config <a name="Group_config"></a> 
+Manage PAI storage groups.
+### Set group config <a name="Group_set"></a> 
+```
+python storagectl.py group set GROUP_NAME EXTERNAL_NAME[-d DESCRIPTION]
+```
+- EXTERNAL_NAME is group name in AAD
+
+### List group config <a name="Group_list"></a> 
+```
+python storagectl.py group list
+```
+
+### Delete group config <a name="Group_delete"></a> 
+```
+python storagectl.py group delete GROUP_NAME
+```
 
 
 ## Manage Server <a name="Server_config"></a> 

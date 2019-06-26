@@ -38,15 +38,36 @@ from utils.storage_util import *
 
 logger = logging.getLogger(__name__)
 
+def group_set(args):
+    secret_name = "".join("{:02x}".format(ord(c)) for c in args.name)
+    secret_dict = dict()
+    secret_dict["groupname"] = base64.b64encode(args.name)
+    secret_dict["externalName"] = base64.b64encode(args.external_name)
+    secret_dict["extension"] = base64.b64encode({"groupType":"storge"})
+    secret_dict["description"] = base64.b64encode(args.description)
+    patch_secret(secret_name, secret_dict, "pai-group")
+
+def group_list(args):
+    secrets = get_namespaced_secrets_data("pai-group")
+    for secret in secrets:
+        for key, value in secret.iteritems():
+            secret[key] = base64.b64decode(value)
+    print("\n".join(str(secret) for secret in secrets))
+
+def group_delete(args):
+    secret_name = "".join("{:02x}".format(ord(c)) for c in args.name)
+    delete_secret(secret_name, "pai-group")
+
+
 # Save server config to k8s secret
-def save_secret(secret_name, name, content_dict):
+def save_secret(namespace, secret_name, name, content_dict):
     secret_dict = dict()
     secret_dict[name] = base64.b64encode(json.dumps(content_dict))
-    patch_secret(secret_name, secret_dict, "pai-storage")
+    patch_secret(secret_name, secret_dict, namespace)
 
 
 def show_secret(args):
-    secret_data = get_secret(args.secret_name, "pai-storage")
+    secret_data = get_secret(args.secret_name, args.namespace)
     if secret_data is None:
         logger.info("No secret found.")
     else:
@@ -56,8 +77,7 @@ def show_secret(args):
                 print(base64.b64decode(value))
 
 def delete_secret(args):
-    delete_secret_content(args.secret_name, args.name, "pai-storage")
-
+    delete_secret_content(args.secret_name, args.name, args.namespace)
 
 def server_set(args):
     content_dict = dict()
@@ -90,7 +110,7 @@ def server_set(args):
     else:
         logger.error("Unknow storage type")
         sys.exit(1)
-    save_secret("storage-server", args.name, content_dict)
+    save_secret("pai-storage", "storage-server", args.name, content_dict)
 
 
 def config_set(args):
@@ -115,14 +135,14 @@ def config_set(args):
     except NameError as e:
         logger.error(e)
     else:
-        save_secret("storage-config", args.name, content_dict)
+        save_secret("pai-storage", "storage-config", args.name, content_dict)
 
 
 def user_set(args):
     content_dict = dict()
     content_dict["upn"] = args.name
     content_dict["servers"] = args.servers
-    save_secret("storage-user", args.name, content_dict)
+    save_secret("pai-storage", "storage-user", args.name, content_dict)
 
 
 def setup_logger_config(logger):
@@ -145,6 +165,24 @@ def main():
 
     parser = argparse.ArgumentParser(description="pai storage management tool")
     subparsers = parser.add_subparsers(help='Storage management cli')
+
+    # ./storagectl.py group ...
+    group_parser = subparsers.add_parser("group", description="Manage group", formatter_class=argparse.RawDescriptionHelpFormatter)
+    group_subparsers = group_parser.add_subparsers(help="Manage group")
+    # ./storagectl.py group set GROUP_NAME EXTERNAL_GROUP_NAME [-d DESCRIPTION]
+    group_set_parser = group_subparsers.add_parser("set")
+    group_set_parser.add_argument("name", help="Group name")
+    group_set_parser.add_argument("external_name", help="External group name")
+    group_set_parser.add_argument("-d", "--desc", dest="description", nargs=1, help="Description")
+    group_set_parser.set_defaults(func=group_set)
+    # ./storagectl.py group list
+    group_list_parser = group_subparsers.add_parser("list")
+    group_list_parser.set_defaults(func=group_list)
+    # ./storagectl.py group delete GROUP_NAME
+    group_del_parser = group_subparsers.add_parser("delete")
+    group_del_parser.add_argument("name")
+    group_del_parser.set_defaults(func=group_delete)
+
 
     # ./storagectl.py server set|list|delete 
     server_parser = subparsers.add_parser("server", description="Commands to manage servers.", formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -189,11 +227,11 @@ def main():
     # ./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
     server_list_parser = server_subparsers.add_parser("list")
     server_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
-    server_list_parser.set_defaults(func=show_secret, secret_name="storage-server")
-    # ./storagectl.py user delete SERVER_NAME
+    server_list_parser.set_defaults(func=show_secret, secret_name="storage-server", namespace="pai-storage")
+    # ./storagectl.py server delete SERVER_NAME
     server_del_parser = server_subparsers.add_parser("delete")
     server_del_parser.add_argument("name")
-    server_del_parser.set_defaults(func=delete_secret, secret_name="storage-server")
+    server_del_parser.set_defaults(func=delete_secret, secret_name="storage-server", namespace="pai-storage")
 
     # ./storagectl.py config ...
     config_parser = subparsers.add_parser("config", description="Manage config", formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -210,11 +248,11 @@ def main():
     config_list_parser = config_subparsers.add_parser("list")
     config_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
     config_list_parser.add_argument("-g", "--group", dest="group", nargs="+", help="filter result by groups")
-    config_list_parser.set_defaults(func=show_secret, secret_name="storage-config")
+    config_list_parser.set_defaults(func=show_secret, secret_name="storage-config", namespace="pai-storage")
     # ./storagectl.py config delete CONFIG_NAME
     config_del_parser = config_subparsers.add_parser("delete")
     config_del_parser.add_argument("name")
-    config_del_parser.set_defaults(func=delete_secret, secret_name="storage-config")
+    config_del_parser.set_defaults(func=delete_secret, secret_name="storage-config", namespace="pai-storage")
 
     # ./storagectl.py user ...
     user_parser = subparsers.add_parser("user", description="Manage user", formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -227,11 +265,11 @@ def main():
     # ./storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
     user_list_parser = user_subparsers.add_parser("list")
     user_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
-    user_list_parser.set_defaults(func=show_secret, secret_name="storage-user")
+    user_list_parser.set_defaults(func=show_secret, secret_name="storage-user", namespace="pai-storage")
     # ./storagectl.py user delete USER_NAME
     user_del_parser = user_subparsers.add_parser("delete")
     user_del_parser.add_argument("name")
-    user_del_parser.set_defaults(func=delete_secret, secret_name="storage-user")
+    user_del_parser.set_defaults(func=delete_secret, secret_name="storage-user", namespace="pai-storage")
 
     args = parser.parse_args()
     args.func(args)

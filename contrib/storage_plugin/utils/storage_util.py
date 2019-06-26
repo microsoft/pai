@@ -152,6 +152,21 @@ def patch_secret(name, data_dict, namespace):
             sys.exit(1)
 
 
+def get_namespaced_secrets_data(namespace):
+    confirm_namespace(namespace)
+
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+
+    try:
+        api_response = api_instance.list_namespaced_secret(namespace)
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_namespaced_secret: {0}".format(str(e)))
+        sys.exit(1)
+
+    return [item.data for item in api_response.items]
+
+
 def get_secret(name, namespace):
     confirm_namespace(namespace)
 
@@ -191,4 +206,19 @@ def delete_secret_content(name, key, namespace):
             logger.info("Couldn't find secret named {0}.".format(name))
         else:
             logger.error("Exception when try to delete {0} from {1}: reason: {2}".format(key, name, str(e)))
+            sys.exit(1)
+
+
+def delete_secret(name, namespace):
+    confirm_namespace(namespace)
+    
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+    try:
+        api_response = api_instance.delete_namespaced_secret(name, namespace)
+    except ApiException as e:
+        if e.status == 404:
+            logger.info("Couldn't find secret named {0}.".format(name))
+        else:
+            logger.error("Exception when try to delete {0} from namespace {1}: reason: {2}".format(name, namespace, str(e)))
             sys.exit(1)

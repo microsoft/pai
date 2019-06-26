@@ -6,6 +6,7 @@ A tool to manage external storage in PAI.
 - [ What is team wise storage](#Team_storage)
 - [ Team wise storage usages ](#Usages)
     - [ Setup server ](#Usages_setup_server)	
+    - [ Create group in PAI ](#Usages_group)
     - [ Create storage server in PAI ](#Usages_server)
     - [ Create storage config in PAI ](#Usages_config)
     - [ Create storage user in PAI(optional) ](#Usages_user)
@@ -28,6 +29,7 @@ Team wise storage solution offers:
 - Configurable mount structure settings
 - Mixed usage for different NAS
 - Configuration for Team/Group scope
+Team wise storage now can only be used on PAI with AAD.
 
 ## Team wise storage usages <a name="Usages"></a>
 
@@ -53,6 +55,13 @@ Create Azurefile share through azure web portal.
 - Azureblob
 Create Azureblob share through azure web portal.
 
+### Create storage group in PAI <a name="Usages_server"></a>  
+In PAI dev-box, swith to folder pai/contrib/storage-plugin
+Create storage group using command:
+```
+python storagectl.py group set GROUP_NAME EXTERNAL_GROUP_NAME [-d DESCRIPTION]
+```
+The EXTERNAL_GROUP_NAME should be an existing group in AAD. 
 
 ### Create storage server in PAI <a name="Usages_server"></a>  
 In PAI dev-box, swith to folder pai/contrib/storage-plugin
