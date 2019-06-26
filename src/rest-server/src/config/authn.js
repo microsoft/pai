@@ -32,7 +32,11 @@ if (authnConfig.authnMethod === 'OIDC') {
 }
 
 try {
-  authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync('/group-configuration/group.yaml', 'utf8'));
+  let groupConfigPath = '/group-configuration/group.yaml';
+  if (process.env.GROUP_CONFIG_PATH) {
+    groupConfigPath = process.env.GROUP_CONFIG_PATH
+  }
+  authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync(groupConfigPath, 'utf8'));
 } catch (error) {
   logger.error('Failed to load group config from configmap file.');
   throw error;

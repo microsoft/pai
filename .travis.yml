@@ -88,8 +88,6 @@ matrix:
       node_js: lts/carbon
       env: NODE_ENV=test
       before_install:
-        - mkdir /group-configuration
-        - cp src/rest-server/test/data/group.yaml /group-configuration
         - cd src/rest-server
       install:
         - yarn install
@@ -101,8 +99,6 @@ matrix:
       node_js: lts/dubnium
       env: NODE_ENV=test
       before_install:
-        - mkdir /group-configuration
-        - cp src/rest-server/test/data/group.yaml /group-configuration
         - cd src/rest-server
       install:
         - yarn install --ignore-engines
