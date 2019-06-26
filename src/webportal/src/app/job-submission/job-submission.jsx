@@ -35,18 +35,19 @@ import {
   initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
+import {isEmpty} from 'lodash';
+
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
-import {initTheme} from '../components/theme';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
+import Context from './components/context';
 import {fetchJobConfig, listVirtualClusters} from './utils/conn';
 import {getJobComponentsFormConfig} from './utils/utils';
 import {TaskRolesManager} from './utils/task-roles-manager';
-import Context from './components/context';
+import {initTheme} from '../components/theme';
+import {SpinnerLoading} from '../components/loading';
 
-import {isEmpty} from 'lodash';
-import PropTypes from 'prop-types';
 // sidebar
 import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
@@ -67,7 +68,7 @@ const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
 
-const JobSubmission = (props) => {
+const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([new JobTaskRole({name: 'Task_role_1'})]);
   const [parameters, setParametersState] = useState([{key: '', value: ''}]);
   const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
@@ -80,6 +81,7 @@ const JobSubmission = (props) => {
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
+  const [loading, setLoading] = useState(false);
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -187,6 +189,7 @@ const JobSubmission = (props) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
+      setLoading(true);
       const jobName = params.get('jobname') || '';
       const user = params.get('user') || '';
       if (user && jobName) {
@@ -200,6 +203,7 @@ const JobSubmission = (props) => {
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
+            setLoading(false);
           })
           .catch(alert);
       }
@@ -210,90 +214,93 @@ const JobSubmission = (props) => {
     setAdvanceFlag(!advanceFlag);
   }, [advanceFlag, setAdvanceFlag]);
 
+  const selectParam = useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect]);
+  const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect]);
+  const selectEnv= useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
+  const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
+
+  if (loading) {
+    return <SpinnerLoading />;
+  }
+
   return (
     <Context.Provider value={contextValue}>
       <Fabric style={{height: '100%'}}>
+        <Stack
+          className={formLayout}
+          styles={{root: {height: '100%'}}}
+          horizontal
+          gap='l1'
+        >
+          {/* left column */}
+          <StackItem grow shrink styles={{root: {minWidth: 0}}}>
             <Stack
-              className={formLayout}
-              styles={{root: {height: '100%'}}}
-              horizontal
-              gap='l1'
+              gap='l2'
+              styles={{root: {height: '100%', overflowY: 'auto'}}}
             >
-              {/* left column */}
-              <StackItem grow shrink styles={{root: {minWidth: 0}}}>
-                <Stack
-                  gap='l2'
-                  styles={{root: {height: '100%', overflowY: 'auto'}}}
-                >
-                  <JobInformation
-                    jobInformation={jobInformation}
-                    onChange={setJobInformation}
-                    advanceFlag={advanceFlag}
-                  />
-                  <TaskRoles
-                    taskRoles={jobTaskRoles}
-                    onChange={setJobTaskRoles}
-                    advanceFlag={advanceFlag}
-                  />
-                  <SubmissionSection
-                    jobInformation={jobInformation}
-                    jobTaskRoles={jobTaskRoles}
-                    parameters={parameters}
-                    secrets={secrets}
-                    advanceFlag={advanceFlag}
-                    onToggleAdvanceFlag={onToggleAdvanceFlag}
-                    jobData={jobData}
-                    onChange={(
-                      updatedJobInfo,
-                      updatedTaskRoles,
-                      updatedParameters,
-                      updatedSecrets,
-                    ) => {
-                      setJobInformation(updatedJobInfo);
-                      setJobTaskRoles(updatedTaskRoles);
-                      setParameters(updatedParameters);
-                      setSecrets(updatedSecrets);
-                    }}
-                  />
-                </Stack>
-              </StackItem>
-              {/* right column */}
-              <StackItem disableShrink styles={{root: {width: 600}}}>
-                <Stack gap='l2' styles={{root: {height: '100%'}}}>
-                  <Parameters
-                    parameters={parameters}
-                    onChange={setParameters}
-                    selected={selected === SIDEBAR_PARAM}
-                    onSelect={useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect])}
-                  />
-                  <Secrets
-                    secrets={secrets}
-                    onChange={setSecrets}
-                    selected={selected === SIDEBAR_SECRET}
-                    onSelect={useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect])}
-                  />
-                  <EnvVar
-                    selected={selected === SIDEBAR_ENVVAR}
-                    onSelect={useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect])}
-                  />
-                  <DataComponent
-                    selected={selected === SIDEBAR_DATA}
-                    onSelect={useCallback(() => onSelect(SIDEBAR_DATA), [onSelect])}
-                    jobName={jobInformation.name}
-                    onChange={setJobData}
-                  />
-                </Stack>
-              </StackItem>
+              <JobInformation
+                jobInformation={jobInformation}
+                onChange={setJobInformation}
+                advanceFlag={advanceFlag}
+              />
+              <TaskRoles
+                taskRoles={jobTaskRoles}
+                onChange={setJobTaskRoles}
+                advanceFlag={advanceFlag}
+              />
+              <SubmissionSection
+                jobInformation={jobInformation}
+                jobTaskRoles={jobTaskRoles}
+                parameters={parameters}
+                secrets={secrets}
+                advanceFlag={advanceFlag}
+                onToggleAdvanceFlag={onToggleAdvanceFlag}
+                jobData={jobData}
+                onChange={(
+                  updatedJobInfo,
+                  updatedTaskRoles,
+                  updatedParameters,
+                  updatedSecrets,
+                ) => {
+                  setJobInformation(updatedJobInfo);
+                  setJobTaskRoles(updatedTaskRoles);
+                  setParameters(updatedParameters);
+                  setSecrets(updatedSecrets);
+                }}
+              />
             </Stack>
+          </StackItem>
+          {/* right column */}
+          <StackItem disableShrink styles={{root: {width: 600}}}>
+            <Stack gap='l2' styles={{root: {height: '100%'}}}>
+              <Parameters
+                parameters={parameters}
+                onChange={setParameters}
+                selected={selected === SIDEBAR_PARAM}
+                onSelect={selectParam}
+              />
+              <Secrets
+                secrets={secrets}
+                onChange={setSecrets}
+                selected={selected === SIDEBAR_SECRET}
+                onSelect={selectSecret}
+              />
+              <EnvVar
+                selected={selected === SIDEBAR_ENVVAR}
+                onSelect={selectEnv}
+              />
+              <DataComponent
+                selected={selected === SIDEBAR_DATA}
+                onSelect={selectData}
+                jobName={jobInformation.name}
+                onChange={setJobData}
+              />
+            </Stack>
+          </StackItem>
+        </Stack>
       </Fabric>
     </Context.Provider>
   );
-};
-
-JobSubmission.propTypes = {
-  jobBasicInfo: PropTypes.instanceOf(JobBasicInfo).isRequired,
-  jobTaskRoles: PropTypes.array.isRequired,
-  jobParameters: PropTypes.array.isRequired,
 };
 
 const contentWrapper = document.getElementById('content-wrapper');
