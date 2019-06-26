@@ -24,36 +24,36 @@ const groupInputSchema = require('@pai/config/v2/group');
 
 const router = new express.Router();
 
-router.route('/get/:groupname/')
-/** Get /api/v2/group/get/:groupname */
+router.route('/:groupname/')
+/** Get /api/v2/group/:groupname */
   .get(token.check, groupController.getGroup);
 
-router.route('/get/')
-/** Get /api/v2/group/get */
+router.route('/')
+/** Get /api/v2/group */
   .get(token.check, groupController.getAllGroup);
 
-router.route('/update/:groupname/extension')
-/** Put /api/v2/group/update/:groupname/extension */
+router.route('/:groupname/extension')
+/** Put /api/v2/group/:groupname/extension */
   .put(token.check, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
 
-router.route('/update/:groupname/description')
-/** Put /api/v2/group/update/:groupname/description */
+router.route('/:groupname/description')
+/** Put /api/v2/group/:groupname/description */
   .put(token.check, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
 
-router.route('/delete/:groupname')
-/** Post /api/v2/group/delete/:groupname */
+router.route('/:groupname')
+/** Post /api/v2/group/:groupname */
   .delete(token.check, groupController.deleteGroup);
 
-router.route('/create')
-/** Create /api/v2/user/create */
+router.route('/')
+/** Create /api/v2/group */
   .post(token.check, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
 
-router.route('/update/:groupname/externalname')
-/** put /api/v2/group/update/:groupname/external' */
+router.route('/:groupname/externalname')
+/** put /api/v2/group/:groupname/external' */
   .put(token.check, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
 
-router.route('/get/:groupname/userlist')
-/** get /api/v2/group/get/:groupname/userlist */
+router.route('/:groupname/userlist')
+/** get /api/v2/group/:groupname/userlist */
   .get(token.check, groupController.getGroupUserList);
 
 module.exports = router;

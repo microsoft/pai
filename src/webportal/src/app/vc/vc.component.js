@@ -130,7 +130,7 @@ const virtualClustersAdd = () => {
 const groupAdd = (groupmane) => {
   userAuth.checkToken((token) => {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/group/create`,
+      url: `${webportalConfig.restServerUri}/api/v2/group/`,
       data: JSON.stringify({
         'groupname': groupmane,
         'description': ``,
@@ -191,7 +191,7 @@ const deleteVcItem = (name) => {
 const deleteGroupItem = (groupname) => {
   userAuth.checkToken((token) => {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/group/delete/${groupname}`,
+      url: `${webportalConfig.restServerUri}/api/v2/group/${groupname}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
