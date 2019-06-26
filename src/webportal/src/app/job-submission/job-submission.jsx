@@ -27,15 +27,13 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import ReactDOM from 'react-dom';
 import {
   Fabric,
   Stack,
   initializeIcons,
   StackItem,
-  MessageBar,
-  MessageBarType,
 } from 'office-ui-fabric-react';
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
@@ -148,19 +146,30 @@ const JobSubmission = (props) => {
 
   const setErrorMessage = useCallback(
     (id, msg) => {
-      if (isEmpty(msg)) {
-        const updated = {...errorMessages};
-        delete updated[id];
-        setErrorMessages(updated);
-      } else {
-        setErrorMessages({
-          ...errorMessages,
-          [id]: msg,
-        });
-      }
+      setErrorMessages((prev) => {
+        if (isEmpty(msg)) {
+          if (prev !== undefined && prev[id] !== undefined) {
+            const updated = {...prev};
+            delete updated[id];
+            return updated;
+          }
+        } else {
+          return {
+            ...prev,
+            [id]: msg,
+          };
+        }
+        return prev;
+      });
     },
-    [errorMessages, setErrorMessages],
+    [setErrorMessages],
   );
+
+  const contextValue = useMemo(() => ({
+    vcNames,
+    errorMessages,
+    setErrorMessage,
+  }), [vcNames, errorMessages, setErrorMessage]);
 
   useEffect(() => {
     listVirtualClusters()
@@ -175,21 +184,8 @@ const JobSubmission = (props) => {
   }, [advanceFlag, setAdvanceFlag]);
 
   return (
-    <Context.Provider value={{vcNames, errorMessages, setErrorMessage}}>
+    <Context.Provider value={contextValue}>
       <Fabric style={{height: '100%'}}>
-        <Stack style={{height: '100%'}}>
-          {!isEmpty(errorMessages) && (
-            Object.entries(errorMessages).filter(([id, msg]) => !isEmpty(msg)).map(([id, msg]) => (
-              <MessageBar
-                key={id}
-                messageBarType={MessageBarType.error}
-                truncated={true}
-              >
-                {msg}
-              </MessageBar>
-            ))
-          )}
-          <StackItem grow styles={{root: {minHeight: 0}}}>
             <Stack
               className={formLayout}
               styles={{root: {height: '100%'}}}
@@ -241,29 +237,27 @@ const JobSubmission = (props) => {
                     parameters={parameters}
                     onChange={setParameters}
                     selected={selected === SIDEBAR_PARAM}
-                    onSelect={() => onSelect(SIDEBAR_PARAM)}
+                    onSelect={useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect])}
                   />
                   <Secrets
                     secrets={secrets}
                     onChange={setSecrets}
                     selected={selected === SIDEBAR_SECRET}
-                    onSelect={() => onSelect(SIDEBAR_SECRET)}
+                    onSelect={useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect])}
                   />
                   <EnvVar
                     selected={selected === SIDEBAR_ENVVAR}
-                    onSelect={() => onSelect(SIDEBAR_ENVVAR)}
+                    onSelect={useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect])}
                   />
                   <DataComponent
                     selected={selected === SIDEBAR_DATA}
-                    onSelect={() => onSelect(SIDEBAR_DATA)}
+                    onSelect={useCallback(() => onSelect(SIDEBAR_DATA), [onSelect])}
                     jobName={jobInformation.name}
                     onChange={setJobData}
                   />
                 </Stack>
               </StackItem>
             </Stack>
-          </StackItem>
-        </Stack>
       </Fabric>
     </Context.Provider>
   );

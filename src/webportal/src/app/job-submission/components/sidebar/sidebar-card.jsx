@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {Text, Stack, ActionButton, FontSizes, FontWeights} from 'office-ui-fabric-react';
+import {Text, Stack, ActionButton, FontSizes, FontWeights, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import Card from '../../../components/card';
 
@@ -46,29 +46,34 @@ const style = {
   },
 };
 
-export const SidebarCard = ({title, selected, onSelect, children}) => (
-  <Card style={{minHeight: selected ? 0 : null}}>
-    <Stack gap='m' styles={{root: {height: '100%'}}}>
-      <Stack horizontal horizontalAlign='space-between'>
-        <Text styles={style.headerText}>{title}</Text>
-        <ActionButton
-          iconProps={{iconName: selected ? 'ChevronUp' : 'ChevronDown'}}
-          styles={style.actionButton}
-          onClick={onSelect}
-        />
+export const SidebarCard = ({title, selected, onSelect, children, error}) => {
+  const {palette} = getTheme();
+
+  return (
+    <Card style={{minHeight: selected ? 0 : null, border: error && !selected ? `1px solid ${palette.red}` : null}}>
+      <Stack gap='m' styles={{root: {height: '100%'}}}>
+        <Stack horizontal horizontalAlign='space-between'>
+          <Text styles={style.headerText}>{title}</Text>
+          <ActionButton
+            iconProps={{iconName: selected ? 'ChevronUp' : 'ChevronDown'}}
+            styles={style.actionButton}
+            onClick={onSelect}
+          />
+        </Stack>
+        {selected && (
+          <div style={{overflowY: 'auto'}}>
+            {children}
+          </div>
+        )}
       </Stack>
-      {selected && (
-        <div style={{overflowY: 'auto'}}>
-          {children}
-        </div>
-      )}
-    </Stack>
-  </Card>
-);
+    </Card>
+  );
+};
 
 SidebarCard.propTypes = {
   title: PropTypes.string,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
   children: PropTypes.node,
+  error: PropTypes.bool,
 };

@@ -23,33 +23,38 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
 import {KeyValueList} from '../controls/key-value-list';
 
-export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => (
-  <SidebarCard
-    title='Parameters'
-    selected={selected}
-    onSelect={onSelect}
-  >
-    <Stack gap='m'>
-      <Hint>
-        You could reference these parameters in command by <code>{'<% $parameters.paramKey %>'}</code>
-      </Hint>
-      <div>
-        <KeyValueList
-          name='Parameter List'
-          value={parameters}
-          onChange={onChange}
-        />
-      </div>
-    </Stack>
-  </SidebarCard>
-));
+export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => {
+  const [error, setError] = useState(false);
+  return (
+    <SidebarCard
+      title='Parameters'
+      selected={selected}
+      onSelect={onSelect}
+      error={error}
+    >
+      <Stack gap='m'>
+        <Hint>
+          You could reference these parameters in command by <code>{'<% $parameters.paramKey %>'}</code>
+        </Hint>
+        <div>
+          <KeyValueList
+            name='Parameter List'
+            value={parameters}
+            onChange={onChange}
+            onDuplicate={setError}
+          />
+        </div>
+      </Stack>
+    </SidebarCard>
+  );
+});
 
 Parameters.propTypes = {
   parameters: PropTypes.array.isRequired,

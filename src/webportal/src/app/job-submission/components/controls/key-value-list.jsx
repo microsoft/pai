@@ -30,7 +30,7 @@ import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from
 import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
-export const KeyValueList = ({name, value, onChange, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
+export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
   columnWidth = columnWidth || 200;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
@@ -53,8 +53,14 @@ export const KeyValueList = ({name, value, onChange, columnWidth, keyName, keyFi
     const msgId = `KeyValueList ${name}`;
     if (newDupList.length > 0) {
       setErrorMessage(msgId, `${name || 'KeyValueList'} has duplicated keys.`);
+      if (onDuplicate) {
+        onDuplicate(true);
+      }
     } else {
       setErrorMessage(msgId, '');
+      if (onDuplicate) {
+        onDuplicate(false);
+      }
     }
     setDupList(newDupList);
   }, [value]);
@@ -154,8 +160,9 @@ export const KeyValueList = ({name, value, onChange, columnWidth, keyName, keyFi
 
 KeyValueList.propTypes = {
   name: PropTypes.string,
-  value: PropTypes.array,
-  onChange: PropTypes.func,
+  value: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onDuplicate: PropTypes.func,
   // custom field
   secret: PropTypes.bool,
   columnWidth: PropTypes.number,
