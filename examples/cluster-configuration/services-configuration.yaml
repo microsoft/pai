@@ -146,6 +146,7 @@ rest-server:
   #
   #AAD:
   #  # If you wanna configure AAD-OIDC for OpenPAI, the following configuration is mandatory.
+  #  # National Clouds endpoint list https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-national-cloud
   #  # AZURE: https://login.microsoftonline.com/{tenantID}/v2.0/.well-known/openid-configuration
   #  # China: https://login.partner.microsoftonline.cn/{tenantID}/v2.0/.well-known/openid-configuration
   #  # Germany: https://login.microsoftonline.de/{tenantID}/v2.0/.well-known/openid-configuration
