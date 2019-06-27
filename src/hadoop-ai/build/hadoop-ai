@@ -73,13 +73,7 @@ RUN wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.
 ## The build environment of hadoop has been prepared above.
 ## Copy your build script here. Default script will build our hadoop-ai.
 
-COPY docker-executor.patch /
-
-COPY hadoop-ai-fix.patch /
-
-COPY YARN-8896-2.9.0.patch /
-
-COPY hadoop-2.9.0-fix.patch /
+COPY *.patch /
 
 COPY build.sh /
 
