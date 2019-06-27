@@ -13,17 +13,19 @@ export class TeamStorageClient {
       },
     }).then((response) => {
       if (response.ok) {
-        response.json().then((responseData) => responseData.grouplist);
+        return response.json().then((responseData) => {
+          return responseData.grouplist;
+        });
       } else {
         throw Error(`fetch ${this.userInfoUrl}: HTTP ${response.status}`);
       }
     });
   }
 
-  async fetchStorageConfigData(path) {
+  async fetchStorageConfigData() {
     return fetch(this.storageConfigUrl).then((response) => {
       if (response.ok) {
-        response.json().then((responseData) => responseData.data);
+        return response.json().then((responseData) => responseData.data);
       } else {
         throw Error(`fetch ${this.storageConfigUrl}: HTTP ${response.status}`);
       }
@@ -33,7 +35,7 @@ export class TeamStorageClient {
   async fetchStorageServer() {
     return fetch(this.storageServerUrl).then((response) => {
       if (response.ok) {
-        response.json().then((responseData) => responseData.data);
+        return response.json().then((responseData) => responseData.data);
       } else {
         throw Error(`fetch ${this.storageServerUrl}: HTTP ${response.status}`);
       }

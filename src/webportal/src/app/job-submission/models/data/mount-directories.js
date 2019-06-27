@@ -1,7 +1,7 @@
 import {InputData} from './input-data';
 import {TEAMWISE_DATA_CMD_START, TEAMWISE_DATA_CMD_END} from '../../utils/constants';
 
-export default class MountDirectories {
+export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
     this.user = user;
     this.jobName = jobName;
