@@ -250,7 +250,7 @@ export const SubmissionSection = (props) => {
               <StackItem horizontalAlign='end'>
                 <DefaultButton
                   onClick={() =>
-                    (document.location = JOB_PROTOCOL_SCHEMA_URL)
+                    (window.open(JOB_PROTOCOL_SCHEMA_URL))
                   }
                 >
                   Protocol Schema

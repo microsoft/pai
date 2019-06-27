@@ -108,13 +108,15 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
       key: valueName,
       name: valueName,
       minWidth: columnWidth,
-      onRender: (item, idx) => (
-        <TextField
-          value={item[valueField]}
-          type={secret && 'password'}
-          onChange={(e, val) => onValueChange(idx, val)}
-        />
-      ),
+      onRender: (item, idx) => {
+        return (
+          <TextField
+            value={item[valueField]}
+            type={secret && 'password'}
+            onChange={(e, val) => onValueChange(idx, val)}
+          />
+        );
+      },
     },
     {
       key: 'remove',
@@ -122,7 +124,14 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
       minWidth: 50,
       style: {padding: 0},
       onRender: (item, idx) => (
-        <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'center', height: '100%'}}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
           <IconButton
             key={`remove-button-${idx}`}
             iconProps={{iconName: 'Delete'}}
