@@ -230,6 +230,10 @@ In some cases, user wants to do a sequence of commands in the job. The recommend
 opai job sub [...] "git clone <repo-uri> && cd <repo-dir> && python run.py arg1 arg2 ..."
 ```
 
+### How to add `pip install` packages
+
+Of course, you could write a sequence of commands like `pip install ... && python ...` . There is another way which use `--pip-installs <package>` and `--pip-path <path/to/pip>` options in the commands. it will add new commands in the `preCommands` in the `deployment`.
+
 ### How to preview the generated job config but not submit it
 
 In some cases, user may want to preview the job config (in `v2` format) but not submit it directly. To fulfill this, just add `--preview` option. The commands support this feature includes `job submit`, `job sub` and `job notebook`.
