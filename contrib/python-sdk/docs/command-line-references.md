@@ -1,6 +1,6 @@
 # 1. Get started
 
-This section will give guidance about installation, cluster management and setting up the variables frequently used. Refer to [examples/0-install-sdk-specify-openpai-cluster.ipynb](examples/0-install-sdk-specify-openpai-cluster.ipynb) for more details.
+This section will give guidance about installation, cluster management and setting up the variables frequently used. Refer to README for more details.
 
 ## 1.1. Installation
 

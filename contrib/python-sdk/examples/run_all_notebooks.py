@@ -11,7 +11,7 @@ except:
 test_notebooks = [
     '0-install-sdk-specify-openpai-cluster.ipynb',
     '1-submit-and-query-via-command-line.ipynb',
-    '2-submit-job-from-local-notebook.ipynb',
+    # '2-submit-job-from-local-notebook.ipynb',
 ]
 
 merged_file = "integrated_tests.ipynb"
@@ -24,4 +24,4 @@ for f in test_notebooks:
     os.system("jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace %s" % f)
 
 os.system('nbmerge %s -o %s' % (' '.join(test_notebooks), merged_file))
-os.system('jupyter nbconvert --to html --execute %s' % merged_file)
+os.system('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute %s' % merged_file)
