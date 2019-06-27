@@ -1,7 +1,7 @@
 The `Python` SDK and CLI for `OpenPAI`
 ----
 
-This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool for the [OpenPAI](www.github.com/microsoft/pai). This project provides some facilities to make `OpenPAI` more easily accessible and usable for users. With it,
+This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool for the [OpenPAI](http://github.com/microsoft/pai). This project provides some facilities to make `OpenPAI` more easily accessible and usable for users. With it,
 
 - User can easily access `OpenPAI` resources in scripts (`Python` or `Shell`) and `Jupyter` notebooks
 - User can easily submit and list jobs by simple commands, or snippets of code
@@ -27,7 +27,6 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to request (GPU) resources for the job](#How-to-request-GPU-resources-for-the-job)
     - [How to reference a local file when submitting a job](#How-to-reference-a-local-file-when-submitting-a-job)
     - [How to submit a job given a sequence of commands](#How-to-submit-a-job-given-a-sequence-of-commands)
-    - [How to add `pip install` packages](#How-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)

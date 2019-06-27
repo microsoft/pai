@@ -4,7 +4,7 @@
 
 - **User can easily access `OpenPAI` resources in scripts (`Python` or `Shell`) and `Jupyter` notebooks**
 
-The SDK provides classes to describe the clusters (`openpaisdk.core.Cluster`) and jobs (`openpaisdk.job.Job`). The Cluster class wraps necessary [REST APIs]() for convenient operations. The Job class is an implementation of the [protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration.
+The SDK provides classes to describe the clusters (`openpaisdk.core.Cluster`) and jobs (`openpaisdk.job.Job`). The Cluster class wraps necessary REST apis for convenient operations. The Job class is an implementation of the [protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration.
 
 Besides the wrapping of APIs, the SDK also provides functions to facilitate user to utilize `OpenPAI`. Such functions includes *cluster management*, *storage accessing*, *execution environment detection (local or in a job container)*.
 
@@ -25,7 +25,7 @@ opai job sub --image your/docker/image --gpu 1 some/commands
 opai storage upload/download/list ...
 ```
 
-_Refer to [docs/command-line-references.md](docs/command-line-references.md) or execute `opai -h` for more details about the command line interface_
+_Refer to [command-line-references.md](command-line-references.md) or execute `opai -h` for more details about the command line interface_
 
 - **User can easily accomplish complicated operations with `OpenPAI`**
 
