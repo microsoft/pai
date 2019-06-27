@@ -29,7 +29,11 @@ const requestAuthCode = async (req, res, next) => {
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
   const scope = 'openid offline_access https://graph.microsoft.com/user.read';
-  const state = 'openpai';
+  const state = decodeURIComponent(req.query.redirectlyurl);
+  // eslint-disable-next-line no-console
+  console.log('!!!!!!!!!!!!!!!!!!!!');
+  // eslint-disable-next-line no-console
+  console.log(state);
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
@@ -59,6 +63,8 @@ const requestTokenWithCode = async (req, res, next) => {
       client_secret: clientSecret,
     };
     const response = await axios.post(requestUrl, querystring.stringify(data));
+    // eslint-disable-next-line no-console
+    console.log(response.data);
     req.IDToken = jwt.decode(response.data.id_token);
     req.accessToken = jwt.decode(response.data.access_token);
     req.refreshToken = jwt.decode(response.data.access_token);

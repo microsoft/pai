@@ -36,6 +36,8 @@ spec:
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}webportal:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         env:
+        - name: PYLON_ADDRESS
+          value: {{ cluster_cfg['pylon']['uri'] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: PROMETHEUS_URI
