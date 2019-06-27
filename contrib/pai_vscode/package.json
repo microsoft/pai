@@ -298,7 +298,7 @@
                 },
                 {
                     "command": "paiext.cluster.job.submit",
-                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                    "when": "resourceFilename =~ /\\.(jsonc?|yaml|yml)$/ && resourceScheme == file"
                 },
                 {
                     "command": "paiext.cluster.job.simulate",
