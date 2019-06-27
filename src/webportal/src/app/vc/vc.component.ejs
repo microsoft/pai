@@ -4,7 +4,7 @@
 <section class='content'>
   <div>
     <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#sharedvc" role="tab" data-toggle="tab">Shared vc</a></li>
+      <li role="presentation" class="active"><a href="#sharedvc" role="tab" data-toggle="tab">Shared VC</a></li>
       <li role="presentation"><a href="#dedicatedvc" role="tab" data-toggle="tab">Dedicated VC</a></li>
     </ul>
   </div>
@@ -87,6 +87,7 @@
                 <thead>
                   <tr>
                     <th>Name</th>
+                    <th>NodeList</th>
                     <th>Utilization</th>
                     <th>Memory</th>
                     <th>CPUs</th>
@@ -103,6 +104,14 @@
                       <tr>
                         <td>
                           <%= vcName %>
+                        </td>
+                        <% if (data[vcName]['nodeList'].length > 2) { %>
+                        <td class="nodelist" style="word-wrap:break-word;" width="16%" onclick="nodeListShow('<%= data[vcName]['nodeList'] %>', this)">
+                            <%= data[vcName]['nodeList'] %>
+                        <% } else { %>
+                        <td width="16%">
+                          <%= data[vcName]['nodeList'] %>
+                        <% } %>
                         </td>
                         <td>
                           <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
