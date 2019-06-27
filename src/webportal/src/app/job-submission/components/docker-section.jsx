@@ -165,7 +165,7 @@ export const DockerSection = ({onValueChange, value}) => {
     } else {
       setErrorMsg(null);
     }
-    debounce(() => _onChange('uri', e.target.value));
+    debounce(_onChange)('uri', e.target.value);
   }, [_onChange]);
 
   const _onDockerImageChange = useCallback((_, item) => {
@@ -186,7 +186,9 @@ export const DockerSection = ({onValueChange, value}) => {
     const optionKey = getDockerImageOptionKey(uri);
     if (optionKey === 'customize-image' && !isUseCustomizedDocker) {
       setUseCustomizeDocker(true);
-    } else if (isUseCustomizedDocker) {
+      return;
+    }
+    if (optionKey !== 'customize-image' && isUseCustomizedDocker) {
       setUseCustomizeDocker(false);
     }
   }, [uri]);
