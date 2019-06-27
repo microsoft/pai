@@ -112,7 +112,11 @@ const Home = () => {
             </ResponsiveItem>
             <ResponsiveGap />
             <ResponsiveItem>
-              <GpuChart gpuPerNode={gpuPerNode} style={{height: '100%'}} />
+              <GpuChart
+                style={{height: '100%'}}
+                gpuPerNode={gpuPerNode}
+                virtualClusters={virtualClusters}
+              />
             </ResponsiveItem>
           </ResponsiveFlexBox>
         </Stack.Item>
