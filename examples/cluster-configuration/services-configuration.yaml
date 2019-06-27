@@ -105,6 +105,7 @@ rest-server:
 #  # 384.111
 #  # 390.25
 #  # 410.73
+#  # 418.56
 #  version: "384.111"
 
 # uncomment following if you want node-exporter listen to different port
@@ -133,5 +134,5 @@ rest-server:
 
 # uncomment following section if you want to customize the threshold of cleaner
 # cleaner:
-#  threshold: 90 
+#  threshold: 90
 #  interval: 60
