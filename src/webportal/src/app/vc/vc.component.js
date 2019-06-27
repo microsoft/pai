@@ -16,6 +16,7 @@ const userAuth = require('../user/user-auth/user-auth.component');
 //
 let commonTable = null;
 let dedicateTable = null;
+let nodeListShowLength = 2;
 let isAdmin = cookies.get('admin');
 //
 
@@ -47,6 +48,17 @@ const loadData = (specifiedVc) => {
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+          {
+            type: 'date',
+            targets: 1,
+            render: (data, type, full, meta) => {
+              if (full[1].split(',').length > nodeListShowLength) {
+                return getPartialRemarksHtml(full[1]);
+              } else {
+                return full[1];
+              }
+            },
+          },
         ],
       }).api();
       resizeContentWrapper();
@@ -58,14 +70,12 @@ const loadData = (specifiedVc) => {
 };
 
 //
-
 const formatNumber = (x, precision) => {
   const n = Math.pow(10, precision);
   return (Math.round(x * n) / n).toFixed(precision);
 };
 
 //
-
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
@@ -76,6 +86,28 @@ const resizeContentWrapper = () => {
   if (dedicateTable != null) {
     dedicateTable.columns.adjust().draw();
   }
+};
+
+//
+const nodeListShow = (nodelist, obj) => {
+  const attributes = Array.prototype.slice.call($(obj))[0].attributes;
+  if (attributes.isdetail === true) {
+    attributes.isdetail = false;
+    $(obj).html(getPartialRemarksHtml(nodelist));
+  } else {
+    attributes.isdetail = true;
+    $(obj).html(getTotalRemarksHtml(nodelist));
+  }
+};
+
+//
+const getPartialRemarksHtml = (nodelist) => {
+  return nodelist.split(',').splice(0, nodeListShowLength) + '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>';
+};
+
+//
+const getTotalRemarksHtml = (nodelist) => {
+  return nodelist.split(',').join(', ');
 };
 
 //
@@ -250,7 +282,7 @@ const editVcItemPut = (name, capacity) => {
   });
 };
 
-
+//
 const changeVcState = (name, state) => {
   if (isAdmin !== 'true') return false;
   if (name === 'default') return false;
@@ -317,7 +349,7 @@ window.changeVcState = changeVcState;
 window.convertState = convertState;
 window.groupAdd = groupAdd;
 window.deleteGroupItem = deleteGroupItem;
-
+window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
