@@ -1,7 +1,7 @@
 import os
 import errno
 import shutil
-import fnmatch
+from webbrowser import open_new_tab
 from contextlib import contextmanager
 import json
 from openpaisdk import __logger__, __local_default_file__
@@ -19,6 +19,14 @@ def get_defaults():
     return from_file(__local_default_file__, default={})
 
 
+def browser_open(url: str):
+    __logger__.info("open in browser: %s", url)
+    try:
+        open_new_tab(url)
+    except Exception as e:
+        __logger__.warn("failed to open %s due to %s", url, e)
+
+
 def return_default_if_error(func):
     def f(*args, default="==FATAL==", **kwargs):
         try:
@@ -33,17 +41,17 @@ def return_default_if_error(func):
 
 @return_default_if_error
 def from_json_file(fname: str, **kwargs):
-	import json
-	with open(fname) as fp:
-		return json.load(fp, **kwargs)
+    import json
+    with open(fname) as fp:
+        return json.load(fp, **kwargs)
 
 
 @return_default_if_error
 def from_yaml_file(fname: str, **kwargs):
-	import yaml
-	with open(fname) as fp:
-		kwargs.setdefault('Loader', yaml.FullLoader)
-		return yaml.load(fp, **kwargs)
+    import yaml
+    with open(fname) as fp:
+        kwargs.setdefault('Loader', yaml.FullLoader)
+        return yaml.load(fp, **kwargs)
 
 def get_url_filename_from_server(url):
     try:

@@ -3,11 +3,10 @@ import os
 import sys
 from copy import deepcopy
 from openpaisdk import __logger__, __cluster_config_file__, __local_default_file__
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not
+from openpaisdk.cli_arguments import cli_add_arguments
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
 from openpaisdk.io_utils import from_file, to_file, get_defaults
-from openpaisdk.runtime import runtime_execute
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested
 from uuid import uuid4 as randstr
@@ -30,6 +29,7 @@ class ActionFactoryForDefault(ActionFactory):
             return defaults
         for kv in args.contents:
             key, value = kv.split('=')
+            assert key is not None and value is not None, "must specify a key=value pair"
             defaults[key] = value
         to_file(defaults, __local_default_file__)
         return defaults
@@ -53,44 +53,44 @@ class ActionFactoryForDefault(ActionFactory):
 class ActionFactoryForCluster(ActionFactory):
 
     def define_arguments_list(self, parser):
-        cli_add_arguments(None, parser, [])
+        cli_add_arguments(parser, [])
 
     def do_action_list(self, args):
         return ol.as_dict(self.__clusters__.tell(), "cluster_alias")
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(self, parser, [
-            '--cluster-alias', '--pai-uri', '--user', '--password',
-        ])
+        cli_add_arguments(parser, ['--cluster-alias', '--pai-uri', '--user', '--password'])
+
     def check_arguments_add(self, args):
         if not args.pai_uri.startswith("http://") or not args.pai_uri.startswith("https://"):
             __logger__.warn("pai-uri not starts with http:// or https://")
+        assert args.user and args.cluster_alias, "must specify an cluster-alias and user name"
 
     def do_action_add(self, args):
         return self.__clusters__.add(extract_args(args))
 
     def define_arguments_delete(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['cluster_alias'])
+        cli_add_arguments(parser, ['cluster_alias'])
 
     def do_action_delete(self, args):
-        self.__clusters__.delete(args.cluster_alias)
-        result = "cluster %s deleted" % args.cluster_alias
-        return result
+        if self.__clusters__.delete(args.cluster_alias):
+            __logger__.info("cluster %s deleted" % args.cluster_alias)
+        return None
 
     def define_arguments_select(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['cluster_alias'])
+        cli_add_arguments(parser, ['cluster_alias'])
 
     def check_arguments_select(self, args):
-        not_not(args, ['cluster_alias'])
+        assert args.cluster_alias, "must specify a valid cluster-alias"
 
     def do_action_select(self, args):
         return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
 
     def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--default', '--storage-alias', '--web-hdfs-uri', '--user'])
+        cli_add_arguments(parser, ['--cluster-alias', '--default', '--storage-alias', '--web-hdfs-uri', '--user'])
 
     def check_arguments_attach_hdfs(self, args):
-        not_not(args, ['--cluster-alias', '--storage-alias', '--web-hdfs-uri'])
+        assert args.cluster_alias and args.storage_alias, "must specify valid cluster-alias and storage-alias"
         if not args.web_hdfs_uri.startswith("http://") or not args.web_hdfs_uri.startswith("https://"):
             __logger__.warn("web-hdfs-uri not starts with http:// or https://")
 
@@ -108,7 +108,7 @@ class ActionFactoryForJob(ActionFactory):
 
     # basic commands
     def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias'])
+        cli_add_arguments(parser, ['--cluster-alias'])
         parser.add_argument('job_name', metavar='job name', nargs='?')
         parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
 
@@ -124,7 +124,7 @@ class ActionFactoryForJob(ActionFactory):
         return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--preview', '--update', 'config'])
+        cli_add_arguments(parser, ['--cluster-alias', '--preview', '--update', 'config'])
 
     def check_arguments_submit(self, args):
         assert args.config, "please specify a job config file (json or yaml format)"
@@ -142,12 +142,11 @@ class ActionFactoryForJob(ActionFactory):
         return self.__job__.submit(args.cluster_alias)
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, [
+        cli_add_arguments(parser, [
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
-            '--workspace',
-            '--sources',
+            '--workspace', '--sources', '--pip-path', '--pip-installs',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
@@ -157,6 +156,10 @@ class ActionFactoryForJob(ActionFactory):
         ])
 
     def check_arguments_sub(self, args):
+        if args.sources is None:
+            args.sources = []
+        if args.pip_installs is None:
+            args.pip_installs = []
         if args.sources:
             assert args.workspace, "must specify --workspace if --sources used"
             for s in args.sources:
@@ -166,7 +169,10 @@ class ActionFactoryForJob(ActionFactory):
                 args.enable_sdk = True
 
     def do_action_sub(self, args):
-        return self.__job__.new(args.job_name).one_liner(
+        self.__job__.new(args.job_name)
+        if args.enable_sdk:
+            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "pip_path", "pip_installs"]))
+        return self.__job__.one_liner(
             commands = " ".join(args.commands).split(args.cmd_sep),
             image = args.image,
             resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
@@ -176,11 +182,11 @@ class ActionFactoryForJob(ActionFactory):
         )
 
     def define_arguments_notebook(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, [
+        cli_add_arguments(parser, [
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
-            '--workspace',
+            '--workspace', '--sources', '--pip-path', '--pip-installs',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
@@ -191,13 +197,24 @@ class ActionFactoryForJob(ActionFactory):
         ])
 
     def check_arguments_notebook(self, args):
+        if args.sources is None:
+            args.sources = []
+        if args.pip_installs is None:
+            args.pip_installs = []
         assert args.notebook or args.interactive, "must specify a notebook name unless in interactive mode"
         if not args.job_name:
             assert args.notebook or args.interactive, "must specify a notebook if no job name defined"
             args.job_name = os.path.splitext(os.path.basename(args.notebook))[0] + "_" + randstr().hex if args.notebook else "jupyter_server_{}".format(randstr().hex)
+        if args.interactive and not args.token:
+            __logger__.warn("no authentication token is set")
+        args.pip_installs = args.pip_installs + ["jupyter"] if args.pip_installs else ["jupyter"]
+        args.sources = args.sources + [args.notebook] if args.sources else [args.notebook]
 
     def do_action_notebook(self, args):
-        return self.__job__.new(args.job_name).from_notebook(
+        self.__job__.new(args.job_name)
+        if getattr(args, "enable_sdk", True):
+            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "pip_path", "pip_installs"]))
+        return self.__job__.from_notebook(
             nb_file = args.notebook,
             image = args.image,
             resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
@@ -207,49 +224,40 @@ class ActionFactoryForJob(ActionFactory):
         )
 
 
-class ActionFactoryForRuntime(ActionFactory):
-
-    def define_arguments_execute(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--working-dir', 'config'])
-
-    def do_action_execute(self, args):
-        return runtime_execute(args.config, args.working_dir)
-
-
 class ActionFactoryForStorage(ActionFactory):
 
     def define_arguments_list_storage(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias'])
+        cli_add_arguments(parser, ['--cluster-alias'])
 
     def do_action_list_storage(self, args):
         return ol.as_dict(self.__clusters__.select(args.cluster_alias)['storages'], 'storage_alias')
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
+        cli_add_arguments(parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
 
     def do_action_list(self, args):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).list(args.remote_path)
 
     def define_arguments_status(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
+        cli_add_arguments(parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
 
     def do_action_status(self, args):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).status(args.remote_path)
 
     def define_arguments_delete(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--recursive', 'remote_path'])
+        cli_add_arguments(parser, ['--cluster-alias', '--storage-alias', '--recursive', 'remote_path'])
 
     def do_action_delete(self, args):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).delete(args.remote_path, recursive=args.recursive)
 
     def define_arguments_download(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', 'remote_path', 'local_path'])
+        cli_add_arguments(parser, ['--cluster-alias', '--storage-alias', 'remote_path', 'local_path'])
 
     def do_action_download(self, args):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).download(remote_path=args.remote_path, local_path=args.local_path)
 
     def define_arguments_upload(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(None, parser, ['--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
+        cli_add_arguments(parser, ['--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
 
     def do_action_upload(self, args):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=getattr(args, "overwrite", False))

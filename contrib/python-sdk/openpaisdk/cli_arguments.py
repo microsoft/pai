@@ -151,13 +151,14 @@ class ArgumentFactory:
         self.add_argument('--interactive', action='store_true', help='enter the interactive mode after job starts')
         self.add_argument('--token', default="abcd", help='authentication token')
         self.add_argument('--enable-sdk', action="store_true", default=False, help="enable sdk installation")
-
+        self.add_argument("--pip-path", default="pip", help="command or path of pip, default is {pip}, may be {pip3} {python3 -m pip}")
+        self.add_argument("--pip-installs", help="packages to be added by {pip install}")
         # task role
         self.add_argument('--task-role-name', '-t', default='main', help='task role name')
         self.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
-        self.add_argument('--cpu', type=int, default=defaults.get('cpu', 1), help='cpu number per instance')
+        self.add_argument('--cpu', type=int, default=defaults.get('cpu', 4), help='cpu number per instance')
         self.add_argument('--gpu', type=int, default=defaults.get('gpu', 0), help='gpu number per instance')
-        self.add_argument('--memoryMB', type=int, default=defaults.get('memMB', 1024), help='memory #MB per instance')
+        self.add_argument('--memoryMB', type=int, default=defaults.get('memMB', 8192), help='memory #MB per instance')
         self.add_argument('--cmd-sep', default="&&", help="command separator, default is (&&)")
         self.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
 
@@ -184,16 +185,9 @@ class ArgumentFactory:
 __arguments_factory__ = ArgumentFactory()
 
 
-def cli_add_arguments(target: Namespace, parser: argparse.ArgumentParser, args: list):
+def cli_add_arguments(parser: argparse.ArgumentParser, args: list):
     for a in args:
         args, kwargs = __arguments_factory__.get(a)
         # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
         parser.add_argument(*args, **kwargs)
 
-
-def not_not(args: typing.Union[argparse.Namespace, Namespace], keys: list):
-    "all fields (named in keys) of args can not be None or empty string ((not args.keys) == False)"
-    for key in keys:
-        k = key[2:] if key.startswith("--") else key
-        k = k.replace('-', '_')
-        assert getattr(args, k, None), "arguments %s not defined" % key

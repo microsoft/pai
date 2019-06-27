@@ -1,13 +1,13 @@
 import json
-import yaml
 import os
+import time
 from typing import Union
 from copy import deepcopy
 
 from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __sdk_branch__, __cache__
 from openpaisdk import get_install_uri
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments, not_not, get_args
-from openpaisdk.io_utils import from_file, to_file, get_defaults
+from openpaisdk.cli_arguments import get_args
+from openpaisdk.io_utils import from_file, to_file, get_defaults, browser_open
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.cluster import ClusterList
 
@@ -94,10 +94,12 @@ class Job:
         assert self.name is not None, "job name is null %s" % self.protocol
         if self.protocolVersion == "2":
             assert self.protocol["type"] == "job", "type must be job (%s)" % self.protocol["type"]
-            for t in self.protocol["taskRoles"].values():
+            for t in self.protocol.get("taskRoles", {}).values():
                 TaskRole.validate(t)
             for d in self.protocol.get("deployments", []):
                 Deployment.validate(d, list(self.protocol["taskRoles"].keys()))
+            for u in self.protocol.get("prerequisites", []):
+                ProtocolUnit.validate(u)
         return self
 
     @property
@@ -147,59 +149,56 @@ class Job:
             local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
             client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
         client.get_token().rest_api_submit(self.get_config())
-        return client.get_job_link(self.name)
+        job_link = client.get_job_link(self.name)
+        browser_open(job_link)
+        return job_link
 
     def wait(self, cluster_alias: str, **kwargs):
         client = ClusterList().load().get_client(cluster_alias)
         return client.wait([self.name], **kwargs)
 
-    def decorate(self, cluster_alias: str, workspace: str=None, virtual_cluster: str=None, only_it: bool=True, wdir: str="~"):
-        clusters = ClusterList().load().clusters
-        if only_it:
-            clusters = ol.filter(clusters, 'cluster_alias', cluster_alias)["matches"]
+    def deployment_for_sdk(self, cluster_alias_lst: str, workspace: str=None, sources: list=[], pip_path: str="pip", pip_installs: list=[], name: str="sdk_install", taskRoles: list=["main"]):
+        assert isinstance(sources, list) and isinstance(pip_installs, list), "sources and pip_installs must be list"
+        # embed clusters and other info to secrets
+        clusters = [c for c in ClusterList().load().clusters if c["cluster_alias"] in cluster_alias_lst]
         version = get_defaults().get("sdk-branch", __sdk_branch__)
-        if virtual_cluster:
-            self.protocol["defaults"]["virtualCluster"] = virtual_cluster
         self.protocol["secrets"]["clusters"] = json.dumps(clusters)
-        self.protocol["secrets"]["cluster_alias"] = cluster_alias
+        self.protocol["secrets"]["cluster_alias"] = cluster_alias_lst[0]
+        if sources:
+            assert workspace, "must specify a workspace to transfer sources"
+            self.protocol["extras"]["__sources__"] = sources
+        if workspace:
+            self.protocol["secrets"].setdefault("work_directory", '{}/jobs/{}'.format(workspace, self.name))
+        # installing sdk and other packages
+        cmds = []
+        pip_installs += [get_install_uri(version)]
+        cmds += ["{} install {}".format(pip_path, p) for p in pip_installs]
+        # restore clusters
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
-        sdk_install_cmds = [
-            "pip install --upgrade pip",
-            "pip install -U {}".format(get_install_uri(version)),
+        cmds.extend([
             "mkdir %s" % c_dir,
             "echo \"write config to {}\"".format(c_file),
             "echo <% $secrets.clusters %> > {}".format(c_file),
             "opai cluster select <% $secrets.cluster_alias %>",
-            "opai set logging-level=5",
-        ]
-        if wdir:
-            sdk_install_cmds.append("cd %s" % wdir)
-        if workspace:
-            self.protocol["secrets"].setdefault("work_directory", '{}/jobs/{}'.format(workspace, self.name))
-        for f in self.protocol["extras"].get("__sources__", []):
-            assert self.protocol["secrets"].get("work_directory", None), "must specify a workspace to transfer sources"
-            sdk_install_cmds.append("opai storage download <% $secrets.work_directory %>/source/{} {}".format(f, f))
-        self.new_deployment("sdk_install", pre_commands=sdk_install_cmds)
-        self.protocol["extras"]["submitFrom"] = "python-sdk@" + version
+        ])
+        # download files
+        cmds += ["opai storage download <% $secrets.work_directory %>/source/{} {}".format(f, f) for f in sources]
+        self.new_deployment(name, pre_commands=cmds, taskRoles=taskRoles)
 
-    def one_liner(self, commands: Union[list, str], image: str, cluster: dict, resources: dict=None, sources: list=None, submit: bool=True, enable_sdk: bool=True, **kwargs):
+    def one_liner(self, commands: Union[list, str], image: str, cluster: dict, resources: dict=None, submit: bool=True, **kwargs):
         self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
         self.add_taskrole("main", {
             "dockerImage": "docker_image",
             "resourcePerInstance": resources if resources else self.default_resouces(),
             "commands": commands if isinstance(commands, list) else [commands]
         })
-        if sources:
-            self.protocol["extras"].setdefault("__sources__", []).extend(sources)
-        if enable_sdk:
-            self.decorate(**cluster)
         if submit:
             return self.submit(cluster["cluster_alias"])
         else:
             return self.validate().get_config()
 
-    def from_notebook(self, nb_file: str, image: str, cluster: dict, resources: dict=None, sources: list=None, submit: bool=True, interactive_mode: bool=True, token: str="abcd", **kwargs):
+    def from_notebook(self, nb_file: str, image: str, cluster: dict, resources: dict=None, submit: bool=True, interactive_mode: bool=True, token: str="abcd", **kwargs):
         if not nb_file:
             interactive_mode, nb_file = True, ""
         html_file = os.path.splitext(nb_file)[0] + ".html" if not interactive_mode else ""
@@ -216,7 +215,6 @@ class Job:
         job_info = self.one_liner(
             commands = cmds,
             image=image,
-            sources=[nb_file],
             resources = resources,
             cluster = cluster,
             submit = submit,
@@ -224,7 +222,6 @@ class Job:
         )
         if not submit:
             return job_info
-        print(job_info)
         # post processing after Submitting
         client = ClusterList().load().get_client(cluster["cluster_alias"])
         print("waiting job to be started")
@@ -241,22 +238,25 @@ class Job:
                     time.sleep(10)
                 if ip:
                     break
-            return "http://%s:8888/?token=%s" % (ip, token)
+            browser_open("http://%s:8888/?token=%s" % (ip, token))
         else:
             state = client.wait([self.name])[0]
             if state != "SUCCEEDED":
-                return "job failed"
-            local_path, remote_path = html_file, '{}/output/{}'.format(self.protocol["secrets"]["work_directory"], html_file)
+                __logger__.warn("job %s failed", self.name)
+                return
+            local_path = Job.job_cache_file(self.name, os.path.join('output', html_file))
+            remote_path = '{}/output/{}'.format(self.protocol["secrets"]["work_directory"], html_file)
             client.get_storage().download(remote_path=remote_path, local_path=local_path)
-            return html_file
+            browser_open(local_path)
 
-
-    def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True):
+    def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True, taskRoles: list=None):
         deployment = {
             "name": name,
             "taskRoles": {}
         }
-        for t in self.protocol["taskRoles"]:
+        if not taskRoles:
+            taskRoles = list(self.protocol["taskRoles"].keys())
+        for t in taskRoles:
             dic = {}
             if pre_commands:
                 dic["preCommands"] = pre_commands

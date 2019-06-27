@@ -1,11 +1,10 @@
 import json
 import os
 import time
-from typing import Union
 from copy import deepcopy
 
 from openpaisdk import __cluster_config_file__, __logger__
-from openpaisdk.cli_arguments import Namespace, cli_add_arguments, get_args
+from openpaisdk.cli_arguments import get_args
 from openpaisdk.io_utils import from_file, to_file
 from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList as ol
@@ -65,6 +64,7 @@ class ClusterList:
     def select(self, alias: str=None):
         if not alias and len(self.clusters) == 1:
             alias = self.clusters[0]["cluster_alias"]
+            __logger__.warn("cluster-alias is not set, the only defined cluster %s will be used", alias)
         assert alias, "must specify a cluster_alias"
         return ol.as_dict(self.clusters, "cluster_alias")[alias]
 
@@ -195,4 +195,5 @@ class ClusterClient:
                 time.sleep(t_sleep)
                 t = t + t_sleep
                 print('.', end='', flush=True)
+        print('.', flush=True)
         return states

@@ -17,9 +17,9 @@ def get_install_uri(ver: str=__sdk_branch__):
 
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s')
-__logger__ = logging.getLogger()
+__logger__ = logging.getLogger(name="openpai")
 
 if os.path.isfile(os.path.join(__cache__, 'debug_enable')):
-    __logger__.setLevel(level=5)
+    __logger__.setLevel(level=logging.DEBUG)
 else:
-    __logger__.setLevel(level=35)
+    __logger__.setLevel(level=logging.INFO)

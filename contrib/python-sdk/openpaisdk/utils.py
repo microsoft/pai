@@ -48,9 +48,12 @@ class OrganizedList:
     @staticmethod
     def delete(lst: list, key: str, target, getter=dict.get) -> list:
         indexes = OrganizedList.filter(lst, key, target, getter)["indexes"]
+        if not indexes:
+            __logger__.warn("element with %s = %s cannot be deleted due to non-existence", key, target)
+            return False
         for index in sorted(indexes, reverse=True):
             del lst[index]
-        return lst
+        return True
 
 
 class Nested:
