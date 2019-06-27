@@ -29,7 +29,7 @@ const router = new express.Router();
 if (authnConfig.authnMethod !== 'OIDC') {
   router.route('/')
   /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get)
+    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get);
 }
 
 // module exports
