@@ -27,6 +27,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to request (GPU) resources for the job](#How-to-request-GPU-resources-for-the-job)
     - [How to reference a local file when submitting a job](#How-to-reference-a-local-file-when-submitting-a-job)
     - [How to submit a job given a sequence of commands](#How-to-submit-a-job-given-a-sequence-of-commands)
+    - [How to add `pip install` packages](#How-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
@@ -329,16 +330,13 @@ job.one_liner(...) # generate job config from a command
 job.from_notebook(...) # turn notebook to job
 ```
 
-
-See more descriptions about the `Cluster` and `Job` classes and their methods in [the doc]() and tutorials in [examples]().
-
 # Make contributions
 
-User may open issues and feature requests on [Github]().
+User may open issues and feature requests on [Github](https://github.com/microsoft/pai).
 
 ## Release plan
 
-User could find the roadmap and release plan in [docs/Roadmap.md](docs/Roadmap.md). If there are functions requests not included, please open an issue.
+If there are functions requests not included, please open an issue for feature request.
 
 ## Debug the SDK
 
