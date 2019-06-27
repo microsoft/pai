@@ -48,6 +48,7 @@ const requestAuthCode = async (req, res, next) => {
 const requestTokenWithCode = async (req, res, next) => {
   try {
     const authCode = req.body.code;
+    // eslint-disable-next-line no-console
     console.log(req.body);
     const scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     const clientId = authnConfig.OIDCConfig.clientID;
