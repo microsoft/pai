@@ -21,6 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2019-06
 ### Added
-- Generate YAML job config file for Protocal V2
+- Generate YAML job config file for Protocol V2
   - Submit YAML job file
   - Snippets and autocomplete for YAML job config
