@@ -25,7 +25,6 @@
 
 import {camelCase} from 'lodash';
 import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme} from 'office-ui-fabric-react';
-import {PasswordField} from './password-field';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
 import {dispatchResizeEvent} from '../../utils/utils';
@@ -110,14 +109,6 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
       name: valueName,
       minWidth: columnWidth,
       onRender: (item, idx) => {
-        if (secret) {
-          return (
-            <PasswordField
-              value={item[valueField]}
-              onChange={(val) => onValueChange(idx, val)}
-            />
-          );
-        }
         return (
           <TextField
             value={item[valueField]}

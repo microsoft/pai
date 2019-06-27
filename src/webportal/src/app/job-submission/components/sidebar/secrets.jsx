@@ -49,7 +49,6 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
             value={secrets}
             onChange={onChange}
             onDuplicate={setError}
-            secret
           />
         </div>
       </Stack>

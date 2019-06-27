@@ -37,11 +37,10 @@ import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/docker-info';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
-import {PasswordField} from './controls/password-field';
 
 import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
-import {isEmpty, debounce} from 'lodash';
+import {isEmpty} from 'lodash';
 
 const dockerSectionStyle = getDockerSectionStyle();
 
@@ -53,7 +52,12 @@ const AuthTextFiled = (props) => {
         <Label>{label}</Label>
       </StackItem>
       <StackItem grow>
-        <TextField value={value} componentRef={componentRef} type={type} />
+        <TextField
+          value={value}
+          componentRef={componentRef}
+          type={type}
+          autoComplete='new-password'
+        />
       </StackItem>
     </Stack>
   );
@@ -165,7 +169,7 @@ export const DockerSection = ({onValueChange, value}) => {
     } else {
       setErrorMsg(null);
     }
-    debounce(_onChange)('uri', e.target.value);
+    _onChange('uri', e.target.value);
   }, [_onChange]);
 
   const _onDockerImageChange = useCallback((_, item) => {
@@ -208,9 +212,10 @@ export const DockerSection = ({onValueChange, value}) => {
               label='username'
               componentRef={nameInput}
             />
-            <PasswordField
+            <AuthTextFiled
               value={auth.password}
               label='password'
+              type='password'
               componentRef={password}
             />
             <AuthTextFiled
