@@ -26,6 +26,21 @@ const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 
+router.route('/info')
+  .get(
+    async function(req, res, next) {
+      const authnMode = authnConfig.authnMethod;
+      const loginURI = authnConfig.authnMethod === 'OIDC' ? '/api/v1/authn/oidc/login' : '/api/v1/authn/basic/login';
+      const loginURIMethod = authnConfig.authnMethod === 'OIDC' ? 'get' : 'post';
+      return res.status(200).json({
+        authn_type: authnMode,
+        loginURI: loginURI,
+        loginURIMethod: loginURIMethod,
+      });
+    }
+  );
+
+
 if (authnConfig.authnMethod === 'OIDC') {
   router.route('/oidc/login')
   /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */

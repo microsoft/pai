@@ -29,7 +29,10 @@ const requestAuthCode = async (req, res, next) => {
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
   const scope = 'openid offline_access https://graph.microsoft.com/user.read';
-  const state = decodeURIComponent(req.query.redirect_uri);
+  let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
+  if (req.query.redirect_uri) {
+    state = decodeURIComponent(req.query.redirect_uri);
+  }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
