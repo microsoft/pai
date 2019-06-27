@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useState, useRef, useCallback, useEffect} from 'react';
 import {
   TextField,
   DefaultButton,
@@ -31,14 +31,17 @@ import {
   PrimaryButton,
   Label,
   StackItem,
+  Dropdown,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/docker-info';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
+import {PasswordField} from './controls/password-field';
+
 import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
-import {isEmpty} from 'lodash';
+import {isEmpty, debounce} from 'lodash';
 
 const dockerSectionStyle = getDockerSectionStyle();
 
@@ -63,6 +66,58 @@ AuthTextFiled.propTypes = {
   type: PropTypes.string,
 };
 
+const options = [
+  {key: 'all', text: 'all-in-one', image: 'ufoym/deepo:all'},
+  {
+    key: 'tensorflow-gpu-python3.6',
+    text: 'tensorflow+python3.6 with gpu',
+    image: 'ufoym/deepo:tensorflow-py36-cu100',
+  },
+  {
+    key: 'tensorflow-cpu',
+    text: 'tensorflow+python3.6 with cpu',
+    image: 'ufoym/deepo:tensorflow-py36-cpu',
+  },
+  {
+    key: 'tensorflow-cpu-python2.7',
+    text: 'tensorflow+python2.7 with cpu',
+    image: 'ufoym/deepo:tensorflow-py27-cpu',
+  },
+  {
+    key: 'pytorch-gpu',
+    text: 'pytorch+python3.6 with gpu',
+    image: 'ufoym/deepo:pytorch-py36-cu100',
+  },
+  {
+    key: 'pytorch-cpu',
+    text: 'pytorch+python3.6 with cpu',
+    image: 'ufoym/deepo:pytorch-py36-cpu',
+  },
+  {
+    key: 'customize-image',
+    text: 'Customized docker image',
+  },
+];
+
+function getDockerImageOptionKey(uri) {
+  switch (uri) {
+    case 'ufoym/deepo:all':
+      return 'all';
+    case 'ufoym/deepo:tensorflow-py36-cu100':
+      return 'tensorflow-gpu-python3.6';
+    case 'ufoym/deepo:tensorflow-py36-cpu':
+      return 'tensorflow-cpu';
+    case 'ufoym/deepo:tensorflow-py27-cpu':
+      return 'tensorflow-cpu-python2.7';
+    case 'ufoym/deepo:pytorch-py36-cu100':
+      return 'pytorch-gpu';
+    case 'ufoym/deepo:pytorch-py36-cpu':
+      return 'pytorch-cpu';
+    default:
+      return 'customize-image';
+  }
+}
+
 export const DockerSection = ({onValueChange, value}) => {
   const {uri, auth} = value;
 
@@ -72,6 +127,7 @@ export const DockerSection = ({onValueChange, value}) => {
   const [errorMsg, setErrorMsg] = useState('');
 
   const [showAuth, setShowAuth] = useState(false);
+  const [isUseCustomizedDocker, setUseCustomizeDocker] = useState(false);
 
   const _onChange = useCallback((keyName, propValue) => {
     const updatedDockerInfo = new DockerInfo(value);
@@ -109,8 +165,31 @@ export const DockerSection = ({onValueChange, value}) => {
     } else {
       setErrorMsg(null);
     }
-    _onChange('uri', e.target.value);
+    debounce(() => _onChange('uri', e.target.value));
   }, [_onChange]);
+
+  const _onDockerImageChange = useCallback((_, item) => {
+    if (item.key == 'customize-image') {
+      setUseCustomizeDocker(true);
+      _onChange('uri', '');
+      return;
+    }
+    const uri = item.image;
+    setUseCustomizeDocker(false);
+    _onChange('uri', uri);
+  }, [_onChange]);
+
+  useEffect(() => {
+    if (isEmpty(uri)) {
+      return;
+    }
+    const optionKey = getDockerImageOptionKey(uri);
+    if (optionKey === 'customize-image' && !isUseCustomizedDocker) {
+      setUseCustomizeDocker(true);
+    } else if (isUseCustomizedDocker) {
+      setUseCustomizeDocker(false);
+    }
+  }, [uri]);
 
   const _authSection = () => {
     return (
@@ -127,11 +206,10 @@ export const DockerSection = ({onValueChange, value}) => {
               label='username'
               componentRef={nameInput}
             />
-            <AuthTextFiled
+            <PasswordField
               value={auth.password}
               label='password'
               componentRef={password}
-              type='password'
             />
             <AuthTextFiled
               value={auth.registryuri}
@@ -154,17 +232,27 @@ export const DockerSection = ({onValueChange, value}) => {
 
   return (
     <BasicSection sectionLabel={'Docker'}>
-      <Stack horizontal gap='l1'>
-        <FormShortSection>
-          <TextField
-            placeholder='Enter docker uri...'
-            errorMessage={errorMsg}
-            onChange={_onUriChange}
-            value={uri}
-          />
-        </FormShortSection>
-        <DefaultButton onClick={_onAuthClick}>Auth</DefaultButton>
-      </Stack>
+      <FormShortSection>
+        <Dropdown
+          placeholder='Select a docker image'
+          options={options}
+          onChange={_onDockerImageChange}
+          selectedKey={isEmpty(uri) ? null : getDockerImageOptionKey(uri)}
+        />
+      </FormShortSection>
+      {isUseCustomizedDocker && (
+        <Stack horizontal gap='l1'>
+          <FormShortSection>
+            <TextField
+              placeholder='Enter docker uri...'
+              errorMessage={errorMsg}
+              onChange={_onUriChange}
+              value={uri}
+            />
+          </FormShortSection>
+          <DefaultButton onClick={_onAuthClick}>Auth</DefaultButton>
+        </Stack>
+      )}
       {showAuth && _authSection()}
     </BasicSection>
   );
