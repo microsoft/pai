@@ -129,6 +129,7 @@ export const MountTreeView = (treeProps) => {
   });
 
   useEffect(() => {
+    console.log(dataList);
     const treeObject = convertToTree(dataList);
     setTreeData(treeObject);
   }, [dataList]);

@@ -71,7 +71,6 @@ export const TeamStorage = ({
           selectedConfigNames.includes(config.name)
         }
         onClick={() => {
-          console.log(selectedConfigNames);
           let newSelectedConfigNames = [];
           if (selectedConfigNames.length == 0) {
             newSelectedConfigNames = [config.name];
@@ -88,7 +87,6 @@ export const TeamStorage = ({
             newSelectedConfigNames = cloneDeep(selectedConfigNames);
             newSelectedConfigNames.push(config.name);
           }
-          console.log(newSelectedConfigNames);
           setSelectedConfigNames(newSelectedConfigNames);
         }}
       />
