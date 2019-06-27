@@ -138,8 +138,9 @@ class ClusterClient:
         job_list = self.rest_api_jobs(job_name)
         return [j['name'] for j in job_list] if name_only else job_list
 
-    def rest_api_jobs(self, job_name: str=None, info: str=None):
-        pth = '{}/rest-server/api/v1/user/{}/jobs'.format(self.pai_uri, self.user)
+    def rest_api_jobs(self, job_name: str=None, info: str=None, user: str=None):
+        user = self.user if user is None else user
+        pth = '{}/rest-server/api/v1/user/{}/jobs'.format(self.pai_uri, user)
         if job_name:
             pth = pth + '/' + job_name
             if info:

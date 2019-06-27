@@ -3,7 +3,7 @@ import os
 import sys
 from copy import deepcopy
 from openpaisdk import __logger__, __cluster_config_file__, __local_default_file__
-from openpaisdk.cli_arguments import cli_add_arguments
+from openpaisdk.cli_arguments import cli_add_arguments, append_options_to_list
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
 from openpaisdk.io_utils import from_file, to_file, get_defaults
@@ -108,7 +108,7 @@ class ActionFactoryForJob(ActionFactory):
 
     # basic commands
     def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, ['--cluster-alias'])
+        cli_add_arguments(parser, ['--cluster-alias', '--user'])
         parser.add_argument('job_name', metavar='job name', nargs='?')
         parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
 
@@ -118,7 +118,7 @@ class ActionFactoryForJob(ActionFactory):
 
     def do_action_list(self, args):
         client = self.__clusters__.get_client(args.cluster_alias)
-        jobs = client.rest_api_jobs(args.job_name, args.query)
+        jobs = client.rest_api_jobs(args.job_name, args.query, user=args.user)
         if not args.job_name:
             return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
         return jobs
@@ -146,7 +146,7 @@ class ActionFactoryForJob(ActionFactory):
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
-            '--workspace', '--sources', '--pip-path', '--pip-installs',
+            '--workspace', '--sources', '--python', '--pip-installs',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
@@ -156,22 +156,20 @@ class ActionFactoryForJob(ActionFactory):
         ])
 
     def check_arguments_sub(self, args):
-        if args.sources is None:
-            args.sources = []
-        if args.pip_installs is None:
-            args.pip_installs = []
+        append_options_to_list(args, ["sources", "pip_installs"])
+        if args.sources or args.pip_installs:
+            if not args.enable_sdk:
+                __logger__.warn("upload local file requires --enable-sdk, assert automatically")
+                args.enable_sdk = True
         if args.sources:
             assert args.workspace, "must specify --workspace if --sources used"
             for s in args.sources:
                 assert os.path.isfile(s), "file %s not found" % s
-            if not args.enable_sdk:
-                __logger__.warn("upload local file requires --enable-sdk, assert automatically")
-                args.enable_sdk = True
 
     def do_action_sub(self, args):
         self.__job__.new(args.job_name)
         if args.enable_sdk:
-            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "pip_path", "pip_installs"]))
+            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "python", "pip_installs"]))
         return self.__job__.one_liner(
             commands = " ".join(args.commands).split(args.cmd_sep),
             image = args.image,
@@ -186,7 +184,7 @@ class ActionFactoryForJob(ActionFactory):
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
-            '--workspace', '--sources', '--pip-path', '--pip-installs',
+            '--workspace', '--sources', '--python', '--pip-installs',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
@@ -197,23 +195,20 @@ class ActionFactoryForJob(ActionFactory):
         ])
 
     def check_arguments_notebook(self, args):
-        if args.sources is None:
-            args.sources = []
-        if args.pip_installs is None:
-            args.pip_installs = []
+        append_options_to_list(args, ["sources", "pip_installs"])
         assert args.notebook or args.interactive, "must specify a notebook name unless in interactive mode"
         if not args.job_name:
             assert args.notebook or args.interactive, "must specify a notebook if no job name defined"
             args.job_name = os.path.splitext(os.path.basename(args.notebook))[0] + "_" + randstr().hex if args.notebook else "jupyter_server_{}".format(randstr().hex)
         if args.interactive and not args.token:
             __logger__.warn("no authentication token is set")
-        args.pip_installs = args.pip_installs + ["jupyter"] if args.pip_installs else ["jupyter"]
-        args.sources = args.sources + [args.notebook] if args.sources else [args.notebook]
+        args.pip_installs = args.pip_installs + ["jupyter"]
+        args.sources = args.sources + [args.notebook]
 
     def do_action_notebook(self, args):
         self.__job__.new(args.job_name)
         if getattr(args, "enable_sdk", True):
-            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "pip_path", "pip_installs"]))
+            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(args, get_list=["workspace", "sources", "python", "pip_installs"]))
         return self.__job__.from_notebook(
             nb_file = args.notebook,
             image = args.image,

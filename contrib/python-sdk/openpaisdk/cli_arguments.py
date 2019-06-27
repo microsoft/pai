@@ -137,11 +137,6 @@ class ArgumentFactory:
 
         # requirements
         self.add_argument('--image', '-i', default=defaults.get('image', None), help='docker image')
-        self.add_argument('--pip-flags', '-p', action='append', help='pip install -U <all-is-flags>')
-        self.add_argument('pip_flags', nargs='*', help='pip install -U <all-is-flags>')
-        self.add_argument("--rename", "-r", help="rename downloaded file")
-        self.add_argument('weblink', help="download http (or https) web link")
-        self.add_argument('folder', help="target folder")
 
         # common
         self.add_argument('--details', help='if asserted, show details of the job (or cluster)', action='store_true', default=False)
@@ -151,8 +146,8 @@ class ArgumentFactory:
         self.add_argument('--interactive', action='store_true', help='enter the interactive mode after job starts')
         self.add_argument('--token', default="abcd", help='authentication token')
         self.add_argument('--enable-sdk', action="store_true", default=False, help="enable sdk installation")
-        self.add_argument("--pip-path", default="pip", help="command or path of pip, default is {pip}, may be {pip3} {python3 -m pip}")
-        self.add_argument("--pip-installs", help="packages to be added by {pip install}")
+        self.add_argument("--python", default="python", help="command or path of python, default is {python}, may be {python3}")
+        self.add_argument("--pip-installs", action="append", help="packages to be added by {pip install}")
         # task role
         self.add_argument('--task-role-name', '-t', default='main', help='task role name')
         self.add_argument('--task-number', '-n', type=int, default=1, help='number of tasks per role')
@@ -191,3 +186,10 @@ def cli_add_arguments(parser: argparse.ArgumentParser, args: list):
         # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
         parser.add_argument(*args, **kwargs)
 
+
+def append_options_to_list(args: argparse.Namespace, keys: list):
+    for k in keys:
+        if not hasattr(args, k):
+            __logger__.warn("option %s not found, please check it", k)
+        if getattr(args, k, None) is None:
+            setattr(args, k, [])

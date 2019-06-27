@@ -157,8 +157,8 @@ class Job:
         client = ClusterList().load().get_client(cluster_alias)
         return client.wait([self.name], **kwargs)
 
-    def deployment_for_sdk(self, cluster_alias_lst: str, workspace: str=None, sources: list=[], pip_path: str="pip", pip_installs: list=[], name: str="sdk_install", taskRoles: list=["main"]):
-        assert isinstance(sources, list) and isinstance(pip_installs, list), "sources and pip_installs must be list"
+    def deployment_for_sdk(self, cluster_alias_lst: str, workspace: str=None, sources: list=[], python: str="python", pip_installs: list=[], name: str="sdk_install", taskRoles: list=["main"]):
+        assert isinstance(sources, list) and isinstance(pip_installs, list), "sources and pip_installs must be list %s, %s" % (sources, pip_installs)
         # embed clusters and other info to secrets
         clusters = [c for c in ClusterList().load().clusters if c["cluster_alias"] in cluster_alias_lst]
         version = get_defaults().get("sdk-branch", __sdk_branch__)
@@ -172,7 +172,7 @@ class Job:
         # installing sdk and other packages
         cmds = []
         pip_installs += [get_install_uri(version)]
-        cmds += ["{} install {}".format(pip_path, p) for p in pip_installs]
+        cmds += ["{} -m pip install {}".format(python, p) for p in pip_installs]
         # restore clusters
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
@@ -208,7 +208,7 @@ class Job:
             ]
         else:
             cmds = [
-                'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute %s' % nb_file,
+                'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True --to html --execute %s' % nb_file,
                 'opai storage upload {} <% $secrets.work_directory %>/output/{}'.format(html_file, html_file),
             ]
 
