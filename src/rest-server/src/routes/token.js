@@ -19,7 +19,6 @@
 // module dependencies
 const express = require('express');
 const tokenConfig = require('@pai/config/token');
-const tokenController = require('@pai/controllers/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
 const tokenV2Controller = require('@pai/controllers/v2/token');
