@@ -49,6 +49,7 @@ class TestContainerCollector(base.TestBase):
                 "0,1,",
                 12345,
                 "dixu@example.com",
+                "platform",
                 )
 
         gpu_ids, labels = ContainerCollector.parse_from_labels(inspect_result, None)
@@ -60,7 +61,8 @@ class TestContainerCollector(base.TestBase):
                 "role_name": "tuner",
                 "task_index": "0",
                 "pod_name": "this_is_pod_name_val",
-                "user_email": "dixu@example.com"
+                "user_email": "dixu@example.com",
+                "vc_name": "platform",
                 }
 
         self.assertEqual(target_labels, labels)

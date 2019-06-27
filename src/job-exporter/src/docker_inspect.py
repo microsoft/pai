@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class InspectResult(object):
     """ Represents a task meta data, parsed from docker inspect result """
     def __init__(self, username, job_name, role_name, task_index, pod_name,
-            gpu_ids, pid, email):
+            gpu_ids, pid, email, vc_name):
         self.username = username
         self.job_name = job_name
         self.role_name = role_name
@@ -37,11 +37,13 @@ class InspectResult(object):
         self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
         self.pid = pid
         self.email = email # None on no value
+        self.vc_name = vc_name # None on no value
 
     def __repr__(self):
-        return "username %s, job_name %s, role_name %s, task_index %s, pod_name %s, gpu_ids %s, pid %s, email %s" % \
+        return "username %s, job_name %s, role_name %s, task_index %s, pod_name %s, gpu_ids %s, pid %s, email %s, vc %s" % \
                 (self.username, self.job_name, self.role_name, self.task_index,
-                        self.pod_name, self.gpu_ids, self.pid, self.email)
+                        self.pod_name, self.gpu_ids, self.pid, self.email,
+                        self.vc_name)
 
     def __eq__(self, o):
         return self.username == o.username and \
@@ -51,12 +53,13 @@ class InspectResult(object):
                 self.pod_name == o.pod_name and \
                 self.gpu_ids == o.gpu_ids and \
                 self.pid == o.pid and \
-                self.email == o.email
+                self.email == o.email and \
+                self.vc_name == o.vc_name
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
         "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME", "POD_NAME",
-        "DLWS_USER_EMAIL"}
+        "DLWS_USER_EMAIL", "DLWS_VC_NAME", "DLWS_ROLE_NAME", "DLWS_ROLE_IDX"}
 
 
 def parse_docker_inspect(inspect_output):
@@ -88,12 +91,13 @@ def parse_docker_inspect(inspect_output):
     return InspectResult(
             m.get("PAI_USER_NAME") or m.get("DLWS_USER_NAME"),
             m.get("PAI_JOB_NAME") or m.get("DLWS_JOB_ID"),
-            m.get("PAI_CURRENT_TASK_ROLE_NAME"),
-            m.get("PAI_TASK_INDEX"),
+            m.get("PAI_CURRENT_TASK_ROLE_NAME") or m.get("DLWS_ROLE_NAME"),
+            m.get("PAI_TASK_INDEX") or m.get("DLWS_ROLE_IDX"),
             m.get("POD_NAME") or m.get("PAI_JOB_NAME"),
             m.get("GPU_ID"),
             pid,
             m.get("DLWS_USER_EMAIL"),
+            m.get("DLWS_VC_NAME"),
             )
 
 def inspect(container_id, histogram, timeout):
