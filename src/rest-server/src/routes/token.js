@@ -22,6 +22,7 @@ const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
 const tokenV2Controller = require('@pai/controllers/v2/token');
+const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 
