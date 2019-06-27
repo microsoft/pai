@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
 //
@@ -15,28 +16,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const authnRouter = require('@pai/routes/authn');
-const controller = require('@pai/controllers/index');
-const jobRouter = require('@pai/routes/job');
-const tokenRouter = require('@pai/routes/token');
-const vcRouter = require('@pai/routes/vc');
-const userRouter = require('@pai/routes/user');
-const kubernetesProxy = require('@pai/controllers/kubernetes-proxy');
+const tokenConfig = require('@pai/config/token');
+const tokenController = require('@pai/controllers/token');
+const param = require('@pai/middlewares/parameter');
+const userController = require('@pai/controllers/v2/user');
+const tokenV2Controller = require('@pai/controllers/v2/token');
 
 const router = new express.Router();
 
-router.route('/')
-    .all(controller.index);
-
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', vcRouter);
-router.use('/kubernetes', kubernetesProxy);
-router.use('/authn', authnRouter);
-router.use('/token', tokenRouter);
-router.user('/user', userRouter);
+if (authnConfig.authnMethod !== 'OIDC') {
+  router.route('/')
+  /** POST /api/v1/token - Return a token if username and password is correct */
+    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get)
+}
 
 // module exports
 module.exports = router;
