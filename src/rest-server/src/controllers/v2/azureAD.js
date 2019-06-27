@@ -29,7 +29,7 @@ const requestAuthCode = async (req, res, next) => {
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
   const scope = 'openid offline_access https://graph.microsoft.com/user.read';
-  const state = decodeURIComponent(req.query.returnbackurl);
+  const state = decodeURIComponent(req.query.redirecturi);
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
@@ -62,7 +62,7 @@ const requestTokenWithCode = async (req, res, next) => {
     req.IDToken = jwt.decode(response.data.id_token);
     req.accessToken = jwt.decode(response.data.access_token);
     req.refreshToken = jwt.decode(response.data.access_token);
-    req.returnBackURL = req.body.state;
+    req.returnBackURI = req.body.state;
     next();
   } catch (error) {
     return next(createError.unknown(error));

@@ -79,7 +79,7 @@ const Index = () => {
       if (config.authnMethod === 'basic') {
         setLoginModal(true);
       } else {
-        location.href = config.restServerUri + '/api/v1/authn/oidc/login?returnbackurl=' + encodeURIComponent(config.pylonAddress+'/index.html')+ '&callback=' + encodeURIComponent(location.href);
+        location.href = config.restServerUri + '/api/v1/authn/oidc/login?redirecturi=' + encodeURIComponent(config.pylonAddress+'/index.html')+ '&callback=' + encodeURIComponent(location.href);
       }
     },
     [],
