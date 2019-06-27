@@ -72,8 +72,6 @@ const getAAD = async (req, res, next) => {
       admin = true;
     }
     const token = await jwtSignPromise(userInfo, admin);
-    // eslint-disable-next-line no-console
-    console.log(req.returnBackURL);
     return res.redirect(req.returnBackURL + '?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
