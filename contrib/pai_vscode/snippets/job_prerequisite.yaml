@@ -1,0 +1,9 @@
+name: prerequisite
+label: OpenPAI Job prerequisite
+documentation: OpenPAI Job prerequisite
+insertText: |2
+  - protocolVersion: 2
+    name: ${1:<name>}
+    type: ${2:<name>}
+    version: ${3:latest}
+    uri: ${4:uri}

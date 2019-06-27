@@ -45,6 +45,7 @@ export abstract class Singleton {
 }
 
 let getSingletonDisabled: boolean = false;
+let initializationFinish: boolean = false;
 
 export function getSingleton<T extends Singleton>(clazz: Constructor<T>): Promise<T> | T {
     if (!container.isBound(clazz)) {
@@ -65,6 +66,18 @@ export async function initializeAll(singletonClasses: Constructor<Singleton>[]):
     const allSingletons: Singleton[] = singletonClasses.map(clazz => container.get(clazz));
     getSingletonDisabled = false;
     await Promise.all(allSingletons.map(singleton => singleton.ensureActivated()));
+    initializationFinish = true;
+}
+
+export async function waitForAllSingletonFinish(): Promise<void> {
+    while (!initializationFinish) {
+        await delay(10);
+    }
+}
+
+export async function delay(ms: number): Promise<void> {
+    // tslint:disable-next-line: no-unnecessary-callback-wrapper
+    await new Promise((something) => setTimeout(() => something(), ms));
 }
 
 export async function dispose(): Promise<void> {
