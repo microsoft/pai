@@ -146,6 +146,8 @@ class ActionFactoryForJob(ActionFactory):
             '--job-name',
             '--cluster-alias',
             '--virtual-cluster',
+            '--workspace',
+            '--sources',
             '--image',
             '--cpu', '--gpu', '--memoryMB',
             '--preview',
@@ -154,12 +156,22 @@ class ActionFactoryForJob(ActionFactory):
             'commands'
         ])
 
+    def check_arguments_sub(self, args):
+        if args.sources:
+            assert args.workspace, "must specify --workspace if --sources used"
+            for s in args.sources:
+                assert os.path.isfile(s), "file %s not found" % s
+            if not args.enable_sdk:
+                __logger__.warn("upload local file requires --enable-sdk, assert automatically")
+                args.enable_sdk = True
+
     def do_action_sub(self, args):
         return self.__job__.new(args.job_name).one_liner(
             commands = " ".join(args.commands).split(args.cmd_sep),
             image = args.image,
             resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
-            cluster=extract_args(args, get_list=["cluster_alias", "virtual_cluster"]),
+            cluster=extract_args(args, get_list=["cluster_alias", "virtual_cluster", "workspace"]),
+            sources=args.sources,
             submit = not args.preview, enable_sdk=args.enable_sdk
         )
 

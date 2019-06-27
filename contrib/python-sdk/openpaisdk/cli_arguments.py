@@ -126,7 +126,7 @@ class ArgumentFactory:
         self.add_argument('--password', help="password")
 
         # storage
-        self.add_argument('--storage-alias', help='storage alias')
+        self.add_argument('--storage-alias', '-s', help='storage alias')
         self.add_argument('--web-hdfs-uri', help="uri of web hdfs, in format of http://x.x.x.x:port")
 
         # job spec
