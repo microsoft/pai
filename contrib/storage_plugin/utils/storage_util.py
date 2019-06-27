@@ -209,7 +209,7 @@ def delete_secret_content(name, key, namespace):
             sys.exit(1)
 
 
-def delete_secret(name, namespace):
+def delete_secret_name(name, namespace):
     confirm_namespace(namespace)
     
     config.load_kube_config()

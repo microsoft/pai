@@ -56,7 +56,7 @@ def group_list(args):
 
 def group_delete(args):
     secret_name = "".join("{:02x}".format(ord(c)) for c in args.name)
-    delete_secret(secret_name, "pai-group")
+    delete_secret_name(secret_name, "pai-group")
 
 
 # Save server config to k8s secret
