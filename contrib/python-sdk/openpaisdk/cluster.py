@@ -74,6 +74,7 @@ class ClusterList:
         assert alias, "must specify a cluster_alias"
         dic = ol.as_dict(self.clusters, "cluster_alias")
         if alias not in dic:
+            os.system("cat %s" % __cluster_config_file__)
             __logger__.error("cannot find %s from %s (%s)", alias, list(dic.keys()), __cluster_config_file__)
         return dic[alias]
 

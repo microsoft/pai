@@ -76,7 +76,8 @@ class Job:
     def load(self, fname: str=None, job_name: str=None):
         if not fname:
             fname = Job.job_cache_file(job_name)
-        self.protocol = from_file(fname, default={})
+        if os.path.isfile(fname):
+            self.protocol = from_file(fname, default="==FATAL==")
         self.protocol.setdefault('protocolVersion', '1') # v1 protocol (json) has no protocolVersion
         return self
 

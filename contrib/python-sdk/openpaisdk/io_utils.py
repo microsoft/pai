@@ -16,7 +16,9 @@ __json_exts__ = ['.json', '.jsn']
 
 
 def get_defaults():
-    return from_file(__local_default_file__, default={})
+    if os.path.isfile(__local_default_file__):
+        return from_file(__local_default_file__, default="==FATAL==")
+    return {}
 
 
 def browser_open(url: str):
@@ -33,8 +35,8 @@ def return_default_if_error(func):
             return func(*args, **kwargs)
         except Exception as identifier:
             if default == "==FATAL==":
-                __logger__.error('Error: %s', e, exc_info=True)
-            __logger__.debug('error occurs, return default (%s)', default)
+                __logger__.error('Error: %s', identifier, exc_info=True)
+            __logger__.warn('error occurs, return default (%s)', default)
             return default
     return f
 
