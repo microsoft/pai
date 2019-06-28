@@ -27,3 +27,5 @@ __pycache__
 *.pyproj.user
 *.pyproj
 *.vs
+.editorconfig
+.prettier.config.js
