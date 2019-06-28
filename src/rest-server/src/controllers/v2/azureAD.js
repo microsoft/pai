@@ -28,7 +28,7 @@ const requestAuthCode = async (req, res, next) => {
   const responseType = 'code';
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
-  const scope = 'openid offline_access https://graph.microsoft.com/user.read';
+  const scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
     state = decodeURIComponent(req.query.redirect_uri);
@@ -74,9 +74,10 @@ const requestTokenWithCode = async (req, res, next) => {
 
 const parseTokenData = async (req, res, next) => {
   try {
+    const email = req.accessToken.upn ? req.accessToken.upn : (req.accessToken.email ? req.accessToken.email: req.accessToken.unique_name);
     const userBasicInfo = {
-      email: req.accessToken.email,
-      username: req.accessToken.email.substring(0, req.accessToken.email.lastIndexOf('@')),
+      email: email,
+      username: email.substring(0, email.lastIndexOf('@')),
       oid: req.accessToken.oid,
     };
     req.username = userBasicInfo.username;
