@@ -11,16 +11,14 @@ import {
   getFolderNameFromHDFS,
 } from '../../utils/utils';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import t from '../../../../app/components/tachyons.scss';
 
 function convertToTree(dataList) {
-  const mountTrie = new MountPathTrie(STORAGE_PREFIX);
+  const mountTrie = new MountPathTrie('/');
   dataList.forEach((mountItem) => {
     let mountPrefixArray = mountItem.mountPath.split('/');
     mountPrefixArray = mountPrefixArray.map((path) => `/${path}`);
-    mountPrefixArray = mountPrefixArray.slice(1);
     let label;
     if (mountItem.sourceType === 'git') {
       label = [
@@ -121,10 +119,9 @@ const TreeNode = ({label, isVisible, subpaths}) => {
   );
 };
 
-export const MountTreeView = (treeProps) => {
-  const {dataList} = treeProps;
+export const MountTreeView = ({dataList}) => {
   const [treeData, setTreeData] = useState(() => {
-    const trie = new MountPathTrie(STORAGE_PREFIX);
+    const trie = new MountPathTrie('/');
     return trie.rootNode;
   });
 

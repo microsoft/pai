@@ -30,7 +30,7 @@ export const AddHttp = (props) => {
         errorMessage={containerPathErrorMessage}
         styles={{
           root: {
-            minWidth: 200,
+            width: 200,
             marginBottom: httpAddressErrorMessage
               ? containerPathErrorMessage
                 ? 0
@@ -39,7 +39,7 @@ export const AddHttp = (props) => {
           },
         }}
         onChange={(_event, newValue) => {
-          const valid = validateMountPath(newValue);
+          const valid = validateMountPath(`/${newValue}`);
           if (!valid.isLegal) {
             setContainerPathErrorMessage(valid.illegalMessage);
           } else {
@@ -54,7 +54,7 @@ export const AddHttp = (props) => {
         errorMessage={httpAddressErrorMessage}
         styles={{
           root: {
-            minWidth: 230,
+            width: 230,
             marginBottom: containerPathErrorMessage
               ? httpAddressErrorMessage
                 ? 0

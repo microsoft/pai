@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateHDFSPath} from '../../utils/validation';
+import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
 import t from '../../../../app/components/tachyons.scss';
@@ -92,7 +92,7 @@ export const AddHDFS = ({
       }
       const hdfsPath = selectedItem.key;
       setHdfsPath(hdfsPath);
-      const valid = await validateHDFSPath(hdfsClient, hdfsPath);
+      const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
       if (!valid.isLegal) {
         setHdfsPathErrorMessage(valid.illegalMessage);
       } else {
@@ -116,7 +116,7 @@ export const AddHDFS = ({
           errorMessage={containerPathErrorMessage}
           styles={{
             root: {
-              minWidth: 200,
+              width: 200,
               marginBottom: hdfsPathErrorMessage
                 ? containerPathErrorMessage
                   ? 0
@@ -125,7 +125,7 @@ export const AddHDFS = ({
             },
           }}
           onChange={(_event, newValue) => {
-            const valid = validateMountPath(newValue);
+            const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
               setContainerPathErrorMessage(valid.illegalMessage);
             } else {
@@ -152,7 +152,7 @@ export const AddHDFS = ({
           itemLimit={1}
           styles={{
             root: {
-              minWidth: 230,
+              width: 200,
               marginBottom: containerPathErrorMessage
                 ? hdfsPathErrorMessage
                   ? 0

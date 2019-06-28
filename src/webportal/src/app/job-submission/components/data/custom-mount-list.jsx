@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useEffect, useContext} from 'react';
+import React, {useCallback, useState, useEffect, useContext, useLayoutEffect} from 'react';
 import c from 'classnames';
 import {
   DetailsList,
@@ -14,14 +14,61 @@ import PropTypes from 'prop-types';
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {removePathPrefix} from '../../utils/utils';
-import {validateMountPath, validateHttpUrl, validateGitUrl, validateHDFSPath} from '../../utils/validation';
+import {
+  validateMountPath,
+  validateHttpUrl,
+  validateGitUrl,
+  validateHDFSPathSync,
+} from '../../utils/validation';
 import Context from '../context';
-import {HdfsContext} from '../../models/data/hdfs-context';
+import {dispatchResizeEvent} from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 
 const DATA_ERROR_MESSAGE_ID = 'Data Section';
 
-export const MountList = ({dataList, setDataList}) => {
+const checkErrorMessage = async (
+  dataList,
+  containerPathErrorMessage,
+  setContainerPathErrorMessage,
+  dataSourceErrorMessage,
+  setDataSourceErrorMessage,
+) => {
+  const newErrorMessage = cloneDeep(containerPathErrorMessage);
+  const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
+  dataList.forEach(async (dataItem, index) => {
+    const validPath = validateMountPath(
+      dataItem.mountPath.replace(STORAGE_PREFIX, '/'),
+    );
+    let validSource;
+    if (!validPath.isLegal) {
+      newErrorMessage[index] = validPath.illegalMessage;
+    } else {
+      newErrorMessage[index] = null;
+    }
+    if (dataItem.sourceType === 'git') {
+      validSource = validateGitUrl(dataItem.dataSource);
+    } else if (dataItem.sourceType === 'http') {
+      validSource = validateHttpUrl(dataItem.dataSource);
+    } else if (dataItem.sourceType === 'hdfs') {
+      validSource = validateHDFSPathSync(dataItem.dataSource);
+    }
+    if (validSource && !validSource.isLegal) {
+      newDataSourceErrorMessage[index] = validSource.illegalMessage;
+    } else {
+      newDataSourceErrorMessage[index] = null;
+    }
+  });
+  setContainerPathErrorMessage(newErrorMessage);
+  setDataSourceErrorMessage(newDataSourceErrorMessage);
+};
+
+export const MountList = ({dataList, setDataList, setDataError}) => {
+  // workaround for fabric's bug
+  // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
+  useLayoutEffect(() => {
+    dispatchResizeEvent();
+  });
+
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     Array(dataList.length),
   );
@@ -29,7 +76,16 @@ export const MountList = ({dataList, setDataList}) => {
     Array(dataList.length),
   );
   const {setErrorMessage} = useContext(Context);
-  const {hdfsClient} = useContext(HdfsContext);
+
+  useEffect(() => {
+    checkErrorMessage(
+      dataList,
+      containerPathErrorMessage,
+      setContainerPathErrorMessage,
+      dataSourceErrorMessage,
+      setDataSourceErrorMessage,
+    );
+  }, [dataList]);
 
   useEffect(() => {
     if (
@@ -37,13 +93,28 @@ export const MountList = ({dataList, setDataList}) => {
       dataSourceErrorMessage.every((element) => element === null)
     ) {
       setErrorMessage(DATA_ERROR_MESSAGE_ID, null);
+      setDataError({
+        customContainerPathError: false,
+        customDataSourceError: false,
+      });
     } else {
       const newErrorMessage = containerPathErrorMessage.every(
         (element) => element === null,
       )
         ? dataSourceErrorMessage.find((element) => element !== null)
         : containerPathErrorMessage.find((element) => element !== null);
-      setErrorMessage(DATA_ERROR_MESSAGE_ID, `DataSectionError: ${newErrorMessage}`);
+      setErrorMessage(
+        DATA_ERROR_MESSAGE_ID,
+        `DataSectionError: ${newErrorMessage}`,
+      );
+      setDataError({
+        customContainerPathError: !containerPathErrorMessage.every(
+          (element) => element === null,
+        ),
+        customDataSourceError: !dataSourceErrorMessage.every(
+          (element) => element === null,
+        ),
+      });
     }
   }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
@@ -51,24 +122,8 @@ export const MountList = ({dataList, setDataList}) => {
     setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]);
   });
 
-  const onDataSourceChange = useCallback(async (idx, val) => {
-    let valid;
+  const onDataSourceChange = useCallback((idx, val) => {
     let updatedDataList = cloneDeep(dataList);
-    if (updatedDataList[idx].sourceType === 'git') {
-      valid = validateGitUrl(val);
-    } else if (updatedDataList[idx].sourceType === 'http') {
-      valid = validateHttpUrl(val);
-    } else if (updatedDataList[idx].sourceType === 'hdfs') {
-      valid = await validateHDFSPath(hdfsClient, val);
-    }
-    const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
-    if (valid && !valid.isLegal) {
-      newDataSourceErrorMessage[idx] = valid.illegalMessage;
-      setDataSourceErrorMessage(newDataSourceErrorMessage);
-    } else {
-      newDataSourceErrorMessage[idx] = null;
-      setDataSourceErrorMessage(newDataSourceErrorMessage);
-    }
     updatedDataList[idx].dataSource = val;
     setDataList(updatedDataList);
   });
@@ -85,15 +140,6 @@ export const MountList = ({dataList, setDataList}) => {
             value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
             errorMessage={containerPathErrorMessage[idx]}
             onChange={(_event, newValue) => {
-              const valid = validateMountPath(newValue);
-              const newErrorMessage = cloneDeep(containerPathErrorMessage);
-              if (!valid.isLegal) {
-                newErrorMessage[idx] = valid.illegalMessage;
-                setContainerPathErrorMessage(newErrorMessage);
-              } else {
-                newErrorMessage[idx] = null;
-                setContainerPathErrorMessage(newErrorMessage);
-              }
               let updatedDataList = cloneDeep(dataList);
               updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
               setDataList(updatedDataList);
@@ -106,7 +152,7 @@ export const MountList = ({dataList, setDataList}) => {
       key: 'dataSource',
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
-      maxWidth: 230,
+      minWidth: 230,
       onRender: (item, idx) => {
         return (
           <TextField
@@ -127,7 +173,7 @@ export const MountList = ({dataList, setDataList}) => {
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'baseline',
             justifyContent: 'center',
             height: '100%',
           }}
@@ -159,5 +205,5 @@ export const MountList = ({dataList, setDataList}) => {
 MountList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
-  setDataType: PropTypes.func,
+  setDataError: PropTypes.func,
 };
