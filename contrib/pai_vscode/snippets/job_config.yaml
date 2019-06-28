@@ -1,0 +1,11 @@
+name: openPaiJobConfig
+label: OpenPAI Job Config
+documentation: OpenPAI Job Config
+insertText: |2
+  protocolVersion: 2
+  name: ${1:<name>}
+  type: job
+  prerequisites:
+    <prerequisite>
+  taskRoles:
+    <taskRole>
