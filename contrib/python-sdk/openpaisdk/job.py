@@ -204,8 +204,9 @@ class Job:
             interactive_mode, nb_file = True, ""
         html_file = os.path.splitext(nb_file)[0] + ".html" if not interactive_mode else ""
         if interactive_mode:
+            resources.setdefault("ports", {})["jupyter"] = 1
             cmds = [
-                "jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 --NotebookApp.token={} --allow-root {}".format(token, nb_file),
+                "jupyter notebook --no-browser --ip 0.0.0.0 --port $PAI_CONTAINER_HOST_jupyter_PORT_LIST  --NotebookApp.token={} --allow-root --NotebookApp.file_to_run={}".format(token, nb_file),
             ]
         else:
             cmds = [
@@ -232,14 +233,11 @@ class Job:
             assert state == "RUNNING", "why not running {}".format(state)
             while True:
                 try:
-                    status = client.jobs(self.name)
-                    ip = status["taskRoles"]["main"]["taskStatuses"][0]["containerIp"]
-                except:
-                    ip = None
-                    time.sleep(10)
-                if ip:
+                    status = client.jobs(self.name)["taskRoles"]["main"]["taskStatuses"][0]
+                    browser_open("http://%s:%s/notebooks/%s" % (status["containerIp"], status["containerPorts"]["jupyter"], nb_file))
                     break
-            browser_open("http://%s:8888/?token=%s" % (ip, token))
+                except:
+                    time.sleep(10)
         else:
             state = client.wait([self.name])[0]
             if state != "SUCCEEDED":

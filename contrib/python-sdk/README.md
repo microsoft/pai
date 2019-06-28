@@ -13,6 +13,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
 
 - [Get started](#Get-started)
   - [Installation](#Installation)
+    - [Dependencies](#Dependencies)
   - [Define your clusters](#Define-your-clusters)
 - [How-to guide for the CLI tool](#How-to-guide-for-the-CLI-tool)
   - [Cluster and storage management](#Cluster-and-storage-management)
@@ -32,6 +33,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
+    - [How to launch a remote jupyter server and connect it](#How-to-launch-a-remote-jupyter-server-and-connect-it)
   - [Other FAQ of CLI](#Other-FAQ-of-CLI)
     - [How to select a cluster to use until I change it](#How-to-select-a-cluster-to-use-until-I-change-it)
     - [How to simplify the command](#How-to-simplify-the-command)
@@ -65,9 +67,12 @@ opai -h
 python -c "from openpaisdk import __version__; print(__version__)"
 ```
 
-And you may also change it to another branch (only take effect in the job container) by `opai set sdk-branch=<your/branch>`
+And you may also change it to another branch (only take effect in the job container) by `opai set sdk-branch=<your/branch>`.
 
-_The package require python3, and we tested it on `py3.5+` environment_
+### Dependencies
+
+- The package requires python3 (mainly because of `type hinting`), and we only tested it on `py3.5+` environment. _Only commands `job sub` and `job notebook` require installing this project inside container, others don't make any constraints of `python` version in the docker container._
+- [`Pylon`](https://github.com/microsoft/pai/tree/master/docs/pylon) is required to parse the REST api path like `/reset-server/`.
 
 ## Define your clusters
 
@@ -263,6 +268,10 @@ This command requires options as the `opai job sub` does. This command would
 - _In job container_ - upload `<html-result>` to `<workspace>/jobs/<job-name>/output`
 - _Local_ -  wait and query the job state until its status to be `SUCCEEDED`
 - _Local_ - download `<html-result>` to local and open it with web browser
+
+### How to launch a remote jupyter server and connect it
+
+Sometimes user may want to launch a remote jupyter server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overriden by `--token <token>`) to login the notebook.
 
 ## Other FAQ of CLI
 
