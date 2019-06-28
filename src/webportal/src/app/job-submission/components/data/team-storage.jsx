@@ -24,9 +24,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Stack, DefaultPalette} from 'office-ui-fabric-react';
-import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
-import {FontClassNames, FontWeights} from '@uifabric/styling';
+import {Stack, Checkbox, FontClassNames, FontWeights} from 'office-ui-fabric-react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {cloneDeep} from 'lodash';
@@ -40,7 +38,6 @@ export const TeamStorage = ({
   defaultTeamConfigs,
   mountDirs,
   onMountDirChange,
-  jobName,
 }) => {
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
     return defaultTeamConfigs.map((element) => {
@@ -62,28 +59,22 @@ export const TeamStorage = ({
 
   const showConfigs = (config) => {
     return (
-      <DefaultButton
-        key={config.name}
-        text={config.name}
-        toggle={true}
-        checked={
+      <Checkbox
+        label={config.name}
+        defaultChecked={
           selectedConfigNames.length > 0 &&
           selectedConfigNames.includes(config.name)
         }
-        onClick={() => {
+        onChange={(ev, isChecked) => {
           let newSelectedConfigNames = [];
-          if (selectedConfigNames.length == 0) {
-            newSelectedConfigNames = [config.name];
-          } else if (
-            selectedConfigNames.length > 0 &&
-            selectedConfigNames.includes(config.name)
+          if (!isChecked && selectedConfigNames.includes(config.name)
           ) {
             const idx = selectedConfigNames.indexOf(config.name);
             newSelectedConfigNames = [
               ...selectedConfigNames.slice(0, idx),
               ...selectedConfigNames.slice(idx + 1),
             ];
-          } else {
+          } else if (isChecked && !selectedConfigNames.includes(config.name)) {
             newSelectedConfigNames = cloneDeep(selectedConfigNames);
             newSelectedConfigNames.push(config.name);
           }
@@ -125,5 +116,4 @@ TeamStorage.propTypes = {
   defaultTeamConfigs: PropTypes.array,
   mountDirs: PropTypes.instanceOf(MountDirectories),
   onMountDirChange: PropTypes.func,
-  jobName: PropTypes.string,
 };

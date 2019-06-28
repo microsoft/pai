@@ -45,19 +45,20 @@ async function fetchWrapper(...args) {
 }
 
 export async function submitJob(jobProtocol) {
-  return await fetchWrapper(`${config.restServerUri}/api/v2/jobs`,
-    {
-      body: jobProtocol,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'text/yaml',
-      },
-      method: 'POST',
-    });
+  return await fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
+    body: jobProtocol,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'text/yaml',
+    },
+    method: 'POST',
+  });
 }
 
 export async function fetchJobConfig(userName, jobName) {
-  const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`;
+  const url = `${
+    config.restServerUri
+  }/api/v2/jobs/${userName}~${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -74,4 +75,44 @@ export async function fetchJobConfig(userName, jobName) {
 
 export async function listVirtualClusters() {
   return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
+}
+
+export async function fetchUserGroup(api, user, token) {
+  const userInfoUrl = `${api}/api/v2/user/${user}`;
+
+  return fetch(userInfoUrl, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  }).then((response) => {
+    if (response.ok) {
+      return response.json().then((responseData) => {
+        return responseData.grouplist;
+      });
+    } else {
+      throw Error(`fetch ${userInfoUrl}: HTTP ${response.status}`);
+    }
+  });
+}
+
+export async function fetchStorageConfigData(api) {
+  const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
+  return fetch(storageConfigUrl).then((response) => {
+    if (response.ok) {
+      return response.json().then((responseData) => responseData.data);
+    } else {
+      throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`);
+    }
+  });
+}
+
+export async function fetchStorageServer(api) {
+  const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
+  return fetch(storageServerUrl).then((response) => {
+    if (response.ok) {
+      return response.json().then((responseData) => responseData.data);
+    } else {
+      throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`);
+    }
+  });
 }

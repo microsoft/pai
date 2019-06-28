@@ -7,9 +7,13 @@ import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';
 import {HdfsContext} from '../../models/data/hdfs-context';
-import {TeamStorageClient} from '../../utils/team-storage-client';
 import {getHostNameFromUrl} from '../../utils/utils';
 import {MountDirectories} from '../../models/data/mount-directories';
+import {
+  fetchUserGroup,
+  fetchStorageConfigData,
+  fetchStorageServer,
+} from '../../utils/conn';
 import config from '../../../config/webportal.config';
 
 const host = getHostNameFromUrl(config.restServerUri);
@@ -43,10 +47,6 @@ function reducer(state, action) {
 
 export const DataComponent = React.memo((props) => {
   const hdfsClient = new WebHDFSClient(host);
-  const api = config.restServerUri;
-  const user = cookies.get('user');
-  const token = cookies.get('token');
-
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
@@ -56,12 +56,14 @@ export const DataComponent = React.memo((props) => {
   );
 
   useEffect(() => {
-    const teamStorageClient = new TeamStorageClient(api, user, token);
-    const userGroupPromise = teamStorageClient.fetchUserGroup();
-    const configPromise = teamStorageClient.fetchStorageConfigData();
-    const serverPromise = teamStorageClient.fetchStorageServer();
-    Promise.all([userGroupPromise, configPromise, serverPromise]).then(
-      ([userGroups, storageConfigData, storageServerData]) => {
+    const api = config.restServerUri;
+    const user = cookies.get('user');
+    const token = cookies.get('token');
+    const userGroupPromise = fetchUserGroup(api, user, token);
+    const configPromise = fetchStorageConfigData(api);
+    const serverPromise = fetchStorageServer(api);
+    Promise.all([userGroupPromise, configPromise, serverPromise])
+      .then(([userGroups, storageConfigData, storageServerData]) => {
         const newConfigs = [];
         const serverNames = [];
         const defaultConfigs = [];
@@ -104,12 +106,11 @@ export const DataComponent = React.memo((props) => {
         setTeamConfigs(newConfigs);
         setDefaultTeamConfigs(defaultConfigs);
         onMountDirChange(mountDirectories);
-      },
-    ).catch((e) => {
-      console.log(e);
-      setDefaultTeamConfigs(null);
-      setTeamConfigs(null);
-    });
+      })
+      .catch((e) => {
+        setDefaultTeamConfigs(null);
+        setTeamConfigs(null);
+      });
   }, []);
 
   const _onDataListChange = useCallback(
@@ -139,7 +140,6 @@ export const DataComponent = React.memo((props) => {
             defaultTeamConfigs={defaultTeamConfigs}
             mountDirs={jobData.mountDirs}
             onMountDirChange={onMountDirChange}
-            jobName={props.jobName}
           />
         )}
         <CustomStorage

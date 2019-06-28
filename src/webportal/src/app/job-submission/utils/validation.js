@@ -40,16 +40,24 @@ export function validateGitUrl(url) {
   return {isLegal: true, illegalMessage};
 }
 
-export async function validateHDFSPath(hdfsClient, path) {
+export function validateHDFSPathSync(path) {
+  const valid = validateMountPath(path);
+  if (!valid.isLegal) {
+    return valid;
+  }
+  return {isLegal: true};
+}
+
+export async function validateHDFSPathAsync(path, hdfsClient) {
   const valid = validateMountPath(path);
   if (!valid.isLegal) {
     return valid;
   }
 
+  // pass valid if hdfsClient is not provided
   if (!hdfsClient) {
     return {
-      isLegal: false,
-      illegalMessage: 'hdfs server could not be accessed',
+      isLegal: true,
     };
   } else {
     const isAccess = await hdfsClient.checkAccess();

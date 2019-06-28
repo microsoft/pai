@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateHDFSPath} from '../../utils/validation';
+import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
 import t from '../../../../app/components/tachyons.scss';
@@ -92,7 +92,7 @@ export const AddHDFS = ({
       }
       const hdfsPath = selectedItem.key;
       setHdfsPath(hdfsPath);
-      const valid = await validateHDFSPath(hdfsClient, hdfsPath);
+      const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
       if (!valid.isLegal) {
         setHdfsPathErrorMessage(valid.illegalMessage);
       } else {
