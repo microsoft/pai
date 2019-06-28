@@ -101,8 +101,8 @@ export const TeamStorage = ({
             {teamConfigs.map((config) => showConfigs(config))}
           </Stack>
           <TeamMountList
-            dataList={mountDirs == null ? [] : mountDirs.getTeamDataList()}
-            setDataList={null}
+            mountDirs={mountDirs}
+            setMountDirs={onMountDirChange}
           />
         </div>
       );

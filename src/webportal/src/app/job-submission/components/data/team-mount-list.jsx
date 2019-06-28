@@ -2,25 +2,64 @@ import React from 'react';
 import c from 'classnames';
 import {FontClassNames} from '@uifabric/styling';
 import {
+  TextField,
   DetailsList,
   SelectionMode,
-} from 'office-ui-fabric-react/lib/DetailsList';
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {cloneDeep} from 'lodash';
 
-import {InputData} from '../../models/data/input-data';
-import t from '../../../../app/components/tachyons.scss';
+import {STORAGE_PREFIX} from '../../utils/constants';
+import {removePathPrefix} from '../../utils/utils';
+import {validateMountPath} from '../../utils/validation';
+import t from '../../../components/tachyons.scss';
+import {MountDirectories} from '../../models/data/mount-directories';
 
-export const TeamMountList = ({dataList, setDataList}) => {
+const checkErrorMessage = async (
+  dataList,
+  containerPathErrorMessage,
+  setContainerPathErrorMessage,
+) => {
+  const newErrorMessage = cloneDeep(containerPathErrorMessage);
+  dataList.forEach(async (dataItem, index) => {
+    const validPath = validateMountPath(
+      dataItem.mountPath.replace(STORAGE_PREFIX, ''),
+    );
+    let validSource;
+    if (!validPath.isLegal) {
+      newErrorMessage[index] = validPath.illegalMessage;
+    } else {
+      newErrorMessage[index] = null;
+    }
+  });
+  setContainerPathErrorMessage(newErrorMessage);
+  setDataSourceErrorMessage(newDataSourceErrorMessage);
+};
+
+export const TeamMountList = ({mountDirs, setMountDirs}) => {
+  const dataList = mountDirs ? [] : mountDirs.getTeamDataList();
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
+    Array(dataList.length),
+  );
+
   const columes = [
     {
-      key: 'mountPath',
-      name: 'Mount path inside container',
+      key: 'containerPath',
+      name: 'Container Path',
       headerClassName: FontClassNames.medium,
-      minWidth: 50,
-      maxWidth: 200,
-      // eslint-disable-next-line react/display-name
-      onRender: (item) => {
-        return <div className={FontClassNames.medium}>{item.mountPath}</div>;
+      minWidth: 200,
+      onRender: (item, idx) => {
+        return (
+          <TextField
+            value={removePathPrefix(item.mountPath)}
+            errorMessage={containerPathErrorMessage[idx]}
+            onChange={(_event, newValue) => {
+              let updatedDataList = cloneDeep(dataList);
+              updatedDataList[idx].mountPath = newValue;
+              setDataList(updatedDataList);
+            }}
+          />
+        );
       },
     },
     {
@@ -53,7 +92,6 @@ export const TeamMountList = ({dataList, setDataList}) => {
 };
 
 TeamMountList.propTypes = {
-  dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
-  setDataList: PropTypes.func,
-  setDataType: PropTypes.func,
+  mountDirs: PropTypes.arrayOf(PropTypes.instanceOf(MountDirectories)),
+  setMountDirs: PropTypes.func,
 };
