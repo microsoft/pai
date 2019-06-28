@@ -222,7 +222,7 @@ export default class TaskRoleContainerList extends React.Component {
         maxWidth: 60,
         isResizable: true,
         onRender: (item) => {
-          const gpuAttr = !isNil(item.containerGpus) && parseGpuAttr(item.containerGpus);
+          const gpuAttr = isNil(item.containerGpus) ? null : parseGpuAttr(item.containerGpus);
           if (isNil(gpuAttr)) {
             return null;
           } else if (gpuAttr.length === 0) {
