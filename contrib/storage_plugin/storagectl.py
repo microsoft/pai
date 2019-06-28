@@ -129,7 +129,7 @@ def config_set(args):
                 elif info_data[2].startswith("/"):
                     raise NameError("PATH should be relative path and not starts with \'/\'")
                 else:
-                    info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2]}
+                    info = {"mountPoint" : info_data[0], "server" : info_data[1], "path" : info_data[2], "tags" : info_data[3:]}
                     mount_infos.append(info)
             content_dict["mountInfos"] = mount_infos
     except NameError as e:
@@ -158,6 +158,16 @@ def setup_logger_config(logger):
         consoleHandler.setFormatter(formatter)
         logger.addHandler(consoleHandler)
 
+
+def min_length(nmin):
+    class MinLength(argparse.Action):
+        def __call__(self, parser, args, values, option_string=None):
+            if not nmin<=len(values):
+                msg='argument "{f}" requires at least {nmin} arguments'.format(
+                    f=self.dest,nmin=nmin)
+                raise argparse.ArgumentTypeError(msg)
+            setattr(args, self.dest, values)
+    return MinLength
 
 def main():
     scriptFolder=os.path.dirname(os.path.realpath(__file__))
@@ -236,12 +246,12 @@ def main():
     # ./storagectl.py config ...
     config_parser = subparsers.add_parser("config", description="Manage config", formatter_class=argparse.RawDescriptionHelpFormatter)
     config_subparsers = config_parser.add_subparsers(help="Manage config")
-    # ./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+    # ./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH [TAG1 TAG2...]]... [-d]
     config_set_parser = config_subparsers.add_parser("set")
     config_set_parser.add_argument("name", help="Config name")
     config_set_parser.add_argument("gpn", help="Config group name")
     config_set_parser.add_argument("-s", "--server", dest="servers", nargs="+", help="-s SERVER_NAME_1 SERVER_NAME_2 ...")
-    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
+    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs="+", action=min_length(3), help="-m MOUNT_POINT SERVER PATH [TAG1, TAG2...]")
     config_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
     config_set_parser.set_defaults(func=config_set)
     # ./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...] [-g GROUP_NAME_1, GROUP_NAME_2 ...]

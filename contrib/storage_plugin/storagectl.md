@@ -92,13 +92,14 @@ python storagectl.py user delete SERVER_NAME
 Manage configs for group in PAI. Config defines a set of mount infos. Every config belongs to a group. That is to say, one group may have 0 to n configs.
 ### Set config <a name="Config_set"></a> 
 ```
-python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH [TAG1, TAG2...]]... [-d]
 ```
 - GROUP_NAME means All members of GROUP_NAME can use this config.
 - -s defines config useable servers.
 - -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
     - In PATH, %USER indicates current PAI user
     - In PATH, %JOB indicates current job name
+    - TAGs defines the usages of the mount point. A mount point may have multiple tags. Tags will be exported as environment variables.
 - If -d is set, means mount config storage by default.
 
 For example, suppose we have set config using:

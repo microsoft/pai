@@ -97,7 +97,7 @@ In PAI dev-box, swith to folder pai/contrib/storage-plugin
 
 Create config using command:
 ```
-python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH [TAG1, TAG2...]]... [-d]
 ```
 
 ### Create storage user in PAI (optional) <a name="Usages_user"></a>
@@ -210,7 +210,8 @@ Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be 
 	    {
 	        "mountpoint": "local/mount/point",
 	        "server": "servername",
-	        "path": "server/sub/path"
+	        "path": "server/sub/path",
+	        "tags": []
 	    },
 	]
 }
