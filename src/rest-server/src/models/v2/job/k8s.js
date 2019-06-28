@@ -227,7 +227,7 @@ const generateTaskRole = (taskRole, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, userName, config, rawConfig) => {
+const generateFrameworkDescription = (frameworkName, userName, virtualCluster, config, rawConfig) => {
   const frameworkDescription = {
     apiVersion: launcherConfig.apiVersion,
     kind: 'Framework',
