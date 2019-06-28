@@ -87,6 +87,7 @@ rest-server:
 #  # 384.111
 #  # 390.25
 #  # 410.73
+#  # 418.56
 #  version: "384.111"
 
 # uncomment following if you want node-exporter listen to different port
