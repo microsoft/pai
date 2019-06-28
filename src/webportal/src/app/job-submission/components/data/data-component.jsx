@@ -50,6 +50,7 @@ export const DataComponent = React.memo((props) => {
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
+  const [dataError, setDataError] = useState({customContainerPathError: false, customDataSourceError: false});
   const [jobData, dispatch] = useReducer(
     reducer,
     new JobData(hdfsClient, [], null),
@@ -133,6 +134,7 @@ export const DataComponent = React.memo((props) => {
         title='Data'
         selected={props.selected}
         onSelect={props.onSelect}
+        error={dataError.customContainerPathError || dataError.customDataSourceError}
       >
         {teamConfigs && (
           <TeamStorage
@@ -145,6 +147,7 @@ export const DataComponent = React.memo((props) => {
         <CustomStorage
           dataList={jobData.customDataList}
           setDataList={_onDataListChange}
+          setDataError={setDataError}
         />
         <MountTreeView
           dataList={

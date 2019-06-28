@@ -28,7 +28,6 @@ const DATA_ERROR_MESSAGE_ID = 'Data Section';
 
 const checkErrorMessage = async (
   dataList,
-  hdfsClient,
   containerPathErrorMessage,
   setContainerPathErrorMessage,
   dataSourceErrorMessage,
@@ -37,7 +36,9 @@ const checkErrorMessage = async (
   const newErrorMessage = cloneDeep(containerPathErrorMessage);
   const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
   dataList.forEach(async (dataItem, index) => {
-    const validPath = validateMountPath(dataItem.mountPath.replace(STORAGE_PREFIX, ''));
+    const validPath = validateMountPath(
+      dataItem.mountPath.replace(STORAGE_PREFIX, ''),
+    );
     let validSource;
     if (!validPath.isLegal) {
       newErrorMessage[index] = validPath.illegalMessage;
@@ -61,7 +62,7 @@ const checkErrorMessage = async (
   setDataSourceErrorMessage(newDataSourceErrorMessage);
 };
 
-export const MountList = ({dataList, setDataList}) => {
+export const MountList = ({dataList, setDataList, setDataError}) => {
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     Array(dataList.length),
   );
@@ -69,12 +70,10 @@ export const MountList = ({dataList, setDataList}) => {
     Array(dataList.length),
   );
   const {setErrorMessage} = useContext(Context);
-  const {hdfsClient} = useContext(HdfsContext);
 
   useEffect(() => {
     checkErrorMessage(
       dataList,
-      hdfsClient,
       containerPathErrorMessage,
       setContainerPathErrorMessage,
       dataSourceErrorMessage,
@@ -88,6 +87,10 @@ export const MountList = ({dataList, setDataList}) => {
       dataSourceErrorMessage.every((element) => element === null)
     ) {
       setErrorMessage(DATA_ERROR_MESSAGE_ID, null);
+      setDataError({
+        customContainerPathError: false,
+        customDataSourceError: false,
+      });
     } else {
       const newErrorMessage = containerPathErrorMessage.every(
         (element) => element === null,
@@ -98,6 +101,14 @@ export const MountList = ({dataList, setDataList}) => {
         DATA_ERROR_MESSAGE_ID,
         `DataSectionError: ${newErrorMessage}`,
       );
+      setDataError({
+        customContainerPathError: !containerPathErrorMessage.every(
+          (element) => element === null,
+        ),
+        customDataSourceError: !dataSourceErrorMessage.every(
+          (element) => element === null,
+        ),
+      });
     }
   }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
@@ -188,4 +199,5 @@ export const MountList = ({dataList, setDataList}) => {
 MountList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
+  setDataError: PropTypes.func,
 };

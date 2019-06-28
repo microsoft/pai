@@ -8,7 +8,7 @@ import {MountList} from './custom-mount-list';
 import {InputData} from '../../models/data/input-data';
 import t from '../../../../app/components/tachyons.scss';
 
-export const CustomStorage = ({dataList, setDataList}) => {
+export const CustomStorage = ({dataList, setDataList, setDataError}) => {
   return (
     <div>
       <div
@@ -19,7 +19,7 @@ export const CustomStorage = ({dataList, setDataList}) => {
       </div>
       <div>
         <AddDataSource dataList={dataList} setDataList={setDataList} />
-        <MountList dataList={dataList} setDataList={setDataList} />
+        <MountList dataList={dataList} setDataList={setDataList} setDataError={setDataError} />
       </div>
     </div>
   );
@@ -28,4 +28,5 @@ export const CustomStorage = ({dataList, setDataList}) => {
 CustomStorage.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
+  setDataError: PropTypes.func,
 };
