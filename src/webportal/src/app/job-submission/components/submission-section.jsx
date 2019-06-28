@@ -98,6 +98,10 @@ export const SubmissionSection = (props) => {
     const newValidationMessage = JobProtocol.validateFromObject(protocol);
     if (newValidationMessage !== validationMsg) {
       setValidationMsg(newValidationMessage);
+    }
+
+    const storedErrorMessage = errorMessages[VALIDATION_ERROR_MESSAGE_ID] || '';
+    if (storedErrorMessage !== newValidationMessage) {
       setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
     }
   };
