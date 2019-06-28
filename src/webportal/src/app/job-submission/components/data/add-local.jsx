@@ -61,7 +61,7 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         required
         prefix={STORAGE_PREFIX}
         label='Container Path'
-        styles={{root: {minWidth: 200}}}
+        styles={{root: {width: 200}}}
         errorMessage={errorMessage}
         onChange={(_event, newValue) => {
           const valid = validateMountPath(`/${newValue}`);
@@ -81,7 +81,7 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
           onClick={clickUpload}
           styles={{
             root: {
-              minWidth: 200,
+              width: 200,
             },
             splitButtonContainer: {
               marginBottom: errorMessage ? 22.15 : 0,

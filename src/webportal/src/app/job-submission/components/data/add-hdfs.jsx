@@ -116,7 +116,7 @@ export const AddHDFS = ({
           errorMessage={containerPathErrorMessage}
           styles={{
             root: {
-              minWidth: 200,
+              width: 200,
               marginBottom: hdfsPathErrorMessage
                 ? containerPathErrorMessage
                   ? 0
@@ -152,7 +152,7 @@ export const AddHDFS = ({
           itemLimit={1}
           styles={{
             root: {
-              minWidth: 230,
+              width: 200,
               marginBottom: containerPathErrorMessage
                 ? hdfsPathErrorMessage
                   ? 0

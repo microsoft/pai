@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useEffect, useContext} from 'react';
+import React, {useCallback, useState, useEffect, useContext, useLayoutEffect} from 'react';
 import c from 'classnames';
 import {
   DetailsList,
@@ -21,6 +21,7 @@ import {
   validateHDFSPathSync,
 } from '../../utils/validation';
 import Context from '../context';
+import {dispatchResizeEvent} from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 
 const DATA_ERROR_MESSAGE_ID = 'Data Section';
@@ -62,6 +63,12 @@ const checkErrorMessage = async (
 };
 
 export const MountList = ({dataList, setDataList, setDataError}) => {
+  // workaround for fabric's bug
+  // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
+  useLayoutEffect(() => {
+    dispatchResizeEvent();
+  });
+
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     Array(dataList.length),
   );
@@ -145,7 +152,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
       key: 'dataSource',
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
-      maxWidth: 230,
+      minWidth: 230,
       onRender: (item, idx) => {
         return (
           <TextField
@@ -166,7 +173,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'baseline',
             justifyContent: 'center',
             height: '100%',
           }}

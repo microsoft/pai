@@ -17,7 +17,7 @@ export const TeamMountList = ({dataList}) => {
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
     dispatchResizeEvent();
-  }, []);
+  });
 
   const columes = [
     {
@@ -38,7 +38,7 @@ export const TeamMountList = ({dataList}) => {
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
       isMultiline: true,
-      minWidth: 300,
+      minWidth: 250,
       // eslint-disable-next-line react/display-name
       onRender: (item) => {
         return (

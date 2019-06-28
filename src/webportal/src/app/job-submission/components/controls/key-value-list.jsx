@@ -87,7 +87,7 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
     dispatchResizeEvent();
-  }, []);
+  });
 
   const {spacing} = getTheme();
 

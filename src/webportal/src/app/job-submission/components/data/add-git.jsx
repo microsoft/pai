@@ -30,7 +30,7 @@ export const AddGit = (props) => {
         errorMessage={containerPathErrorMessage}
         styles={{
           root: {
-            minWidth: 200,
+            width: 200,
             marginBottom: gitAddressErrorMessage
               ? containerPathErrorMessage
                 ? 0
@@ -54,7 +54,7 @@ export const AddGit = (props) => {
         errorMessage={gitAddressErrorMessage}
         styles={{
           root: {
-            minWidth: 230,
+            width: 230,
             marginBottom: containerPathErrorMessage
               ? gitAddressErrorMessage
                 ? 0
