@@ -1,22 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-//
-
 require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -33,7 +14,9 @@ const webportalConfig = require('../config/webportal.config.js');
 const userAuth = require('../user/user-auth/user-auth.component');
 
 //
-let table = null;
+let commonTable = null;
+let dedicateTable = null;
+let nodeListShowLength = 2;
 let isAdmin = cookies.get('admin');
 //
 
@@ -53,11 +36,29 @@ const loadData = (specifiedVc) => {
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
-      table = $('#vc-table').dataTable({
+      commonTable = $('#common-table').dataTable({
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+        ],
+      }).api();
+      dedicateTable = $('#dedicated-table').dataTable({
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+        columnDefs: [
+          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+          {
+            type: 'date',
+            targets: 1,
+            render: (data, type, full, meta) => {
+              if (full[1].split(',').length > nodeListShowLength) {
+                return getPartialRemarksHtml(full[1]);
+              } else {
+                return full[1];
+              }
+            },
+          },
         ],
       }).api();
       resizeContentWrapper();
@@ -69,20 +70,44 @@ const loadData = (specifiedVc) => {
 };
 
 //
-
 const formatNumber = (x, precision) => {
   const n = Math.pow(10, precision);
   return (Math.round(x * n) / n).toFixed(precision);
 };
 
 //
-
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 335 : 265))) + 'px');
-    table.columns.adjust().draw();
+  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
+  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 386)) + 'px');
+  if (commonTable != null) {
+    commonTable.columns.adjust().draw();
   }
+  if (dedicateTable != null) {
+    dedicateTable.columns.adjust().draw();
+  }
+};
+
+//
+const nodeListShow = (nodelist, obj) => {
+  const attributes = Array.prototype.slice.call($(obj))[0].attributes;
+  if (attributes.isdetail === true) {
+    attributes.isdetail = false;
+    $(obj).html(getPartialRemarksHtml(nodelist));
+  } else {
+    attributes.isdetail = true;
+    $(obj).html(getTotalRemarksHtml(nodelist));
+  }
+};
+
+//
+const getPartialRemarksHtml = (nodelist) => {
+  return nodelist.split(',').splice(0, nodeListShowLength) + '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>';
+};
+
+//
+const getTotalRemarksHtml = (nodelist) => {
+  return nodelist.split(',').join(', ');
 };
 
 //
@@ -199,7 +224,7 @@ const editVcItemPut = (name, capacity) => {
   });
 };
 
-
+//
 const changeVcState = (name, state) => {
   if (isAdmin !== 'true') return false;
   if (name === 'default') return false;
@@ -243,6 +268,9 @@ const convertState = (name, state) => {
   } else if (state === 'STOPPED') {
     vcState = 'Stopped';
     vcStateChage = `onclick='changeVcState("${name}", "${state}")'`;
+  } else if (state === 'DRAINING') {
+    vcState = 'Stopping';
+    vcStateChage = '';
   } else {
     vcState = 'Unknown';
     vcStateChage = '';
@@ -260,12 +288,16 @@ window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
 window.changeVcState = changeVcState;
 window.convertState = convertState;
+window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
   window.onresize = function(envent) {
     resizeContentWrapper();
   };
+  $(document).on('click', '.nav li', () => {
+    resizeContentWrapper();
+   });
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 

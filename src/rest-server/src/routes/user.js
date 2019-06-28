@@ -17,11 +17,11 @@
 
 // module dependencies
 const express = require('express');
-const token = require('../middlewares/token');
-const userConfig = require('../config/user');
-const userController = require('../controllers/user');
-const param = require('../middlewares/parameter');
-const jobRouter = require('./job');
+const token = require('@pai/middlewares/token');
+const userConfig = require('@pai/config/user');
+const userController = require('@pai/controllers/user');
+const param = require('@pai/middlewares/parameter');
+const jobRouter = require('@pai/routes/job');
 
 const router = new express.Router();
 
@@ -41,9 +41,6 @@ router.route('/:username/')
 
 router.route('/:username/virtualClusters')
     .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
-
-router.route('/:username/githubPAT')
-    .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
 
 router.use('/:username/jobs', jobRouter);
 

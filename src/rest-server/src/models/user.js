@@ -17,14 +17,14 @@
 
 
 // module dependencies
-const crypto = require('crypto');
-const config = require('../config/index');
-const dbUtility = require('../util/dbUtil');
-const secretConfig = require('../config/secret');
-const createError = require('../util/error');
-const logger = require('../config/logger');
-const VirtualCluster = require('./vc');
 const util = require('util');
+const crypto = require('crypto');
+const config = require('@pai/config/index');
+const dbUtility = require('@pai/utils/dbUtil');
+const secretConfig = require('@pai/config/secret');
+const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
+const VirtualCluster = require('@pai/models/vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -210,42 +210,6 @@ const checkUserVc = (username, virtualCluster, next) => {
   }
 };
 
-const updateUserGithubPAT = (username, githubPAT, next) => {
-  const dbGet = util.callbackify(db.get.bind(db));
-  dbGet(username, null, (err, res) => {
-    if (err) {
-      if (err.status === 404) {
-        return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
-      } else {
-        return next(err);
-      }
-    }
-    const dbSet = util.callbackify(db.set.bind(db));
-    res[0]['githubPAT'] = githubPAT;
-    dbSet(username, res[0], {'update': true}, (err, res) => {
-      if (err) {
-        return next(err);
-      }
-      next(null, true);
-    });
-  });
-};
-
-const getUserGithubPAT = (username, next) => {
-  if (typeof username === 'undefined') {
-    next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
-  } else {
-    const get = util.callbackify(db.get.bind(db));
-    get(username, null, (err, res) => {
-      if (err) {
-        return next(err);
-      }
-      let githubPAT = res[0]['githubPAT'];
-      next(null, githubPAT);
-    });
-  }
-};
-
 const getUserList = (next) => {
   const get = util.callbackify(db.get.bind(db));
   get('', null, (err, res) => {
@@ -295,7 +259,7 @@ if (config.env !== 'test') {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);
         } else {
-          logger.warn('users:', userInfoList);
+          // logger.warn('users:', userInfoList);
           if (userInfoList.length === 0) {
             setDefaultAdmin();
           }
@@ -306,4 +270,4 @@ if (config.env !== 'test') {
 }
 
 // module exports
-module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT};
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList};

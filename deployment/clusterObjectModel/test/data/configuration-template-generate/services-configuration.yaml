@@ -38,7 +38,7 @@ cluster:
     # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
     #username: your_registry_username
     #password: your_registry_password
-  
+
     tag: latest
 
     # The name of the secret in kubernetes will be created in your cluster
@@ -69,7 +69,7 @@ rest-server:
   default-pai-admin-username: your_default_pai_admin_username
   default-pai-admin-password: your_default_pai_admin_password
 
-  
+
 webportal:
   # port for webportal
   server-port: 9286
@@ -86,6 +86,7 @@ drivers:
   # 384.111
   # 390.25
   # 410.73
+  # 418.56
   version: "384.111"
 
 prometheus:

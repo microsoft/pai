@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const userModel = require('../models/user');
-const createError = require('../util/error');
+const userModel = require('@pai/models/user');
+const createError = require('@pai/utils/error');
 
 /**
  * Create / update a user.
@@ -117,26 +117,5 @@ const getUserInfo = (req, res, next) => {
   }
 };
 
-/**
- * Update user Github PAT.
- */
-const updateUserGithubPAT =(req, res, next) => {
-  const username = req.params.username;
-  const githubPAT = req.body.githubPAT;
-  if (req.user.admin || req.user.username == username) {
-    userModel.updateUserGithubPAT(username, githubPAT, (err) => {
-      if (err) {
-        return next(createError.unknown(err));
-      } else {
-        return res.status(201).json({
-          message: 'update user github PAT successfully',
-        });
-      }
-    });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-  }
-};
-
 // module exports
-module.exports = {update, remove, updateUserVc, getUserInfo, getUserList, updateUserGithubPAT};
+module.exports = {update, remove, updateUserVc, getUserInfo, getUserList};

@@ -29,7 +29,7 @@ import styled from 'styled-components';
 import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getTotalGpu, getUserInfo, listVirtualClusters, getAvailableGpuPerNode} from './home/conn';
+import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode} from './home/conn';
 import RecentJobList from './home/recent-job-list';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
@@ -44,7 +44,6 @@ const Home = () => {
   const [jobs, setJobs] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
-  const [totalGpu, setTotalGpu] = useState(null);
   const [gpuPerNode, setGpuPerNode] = useState(null);
 
   useEffect(() => {
@@ -53,7 +52,6 @@ const Home = () => {
         listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
-        getTotalGpu().then(setTotalGpu),
         getAvailableGpuPerNode().then(setGpuPerNode),
       ]).then(() => setLoading(false)).catch(alert);
     } else {
@@ -109,13 +107,16 @@ const Home = () => {
               <VirtualClusterList
                 style={{height: '100%'}}
                 userInfo={userInfo}
-                totalGpu={totalGpu}
                 virtualClusters={virtualClusters}
               />
             </ResponsiveItem>
             <ResponsiveGap />
             <ResponsiveItem>
-              <GpuChart gpuPerNode={gpuPerNode} style={{height: '100%'}} />
+              <GpuChart
+                style={{height: '100%'}}
+                gpuPerNode={gpuPerNode}
+                virtualClusters={virtualClusters}
+              />
             </ResponsiveItem>
           </ResponsiveFlexBox>
         </Stack.Item>

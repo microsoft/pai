@@ -1,0 +1,9 @@
+name: deployment
+label: OpenPAI Job deployment taskRole
+documentation: OpenPAI Job deployment taskRole
+insertText: |2
+  ${1:<name>}:
+    preCommands:
+      - ${2:<script>}
+    postCommands:
+      - ${3:<script>}

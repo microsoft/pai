@@ -51,6 +51,7 @@ Besides the default cofiguration to make OpenPAI start, admin could customize ea
 #  # 384.111
 #  # 390.25
 #  # 410.73
+#  # 418.56
 #  version: "384.111"
 ```  
 

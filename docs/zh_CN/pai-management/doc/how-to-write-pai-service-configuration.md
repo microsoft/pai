@@ -38,7 +38,7 @@ User could customize Pylon startup configuration at OpenPAI's [folder / file](..
 
 ## Configure FrameworkLauncher <a name="frameworklauncher"></a>
 
-用户可以自定义 FrameworkLauncher [folder / file](../../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL_zh_CN.md#Configuration)
+用户可以自定义 FrameworkLauncher [folder / file](../../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Configuration)
 
 User could customize FrameworkLauncher startup configuration at OpenPAI's [folder / file](../../../../src/yarn-frameworklauncher/deploy/yarn-frameworklauncher.yaml.template)
 

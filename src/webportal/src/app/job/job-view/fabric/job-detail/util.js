@@ -16,56 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {isNil} from 'lodash';
-import {DateTime, Interval} from 'luxon';
-
-export function getHumanizedJobStateString(jobInfo) {
-  const status = jobInfo.jobStatus;
-  let hjss = '';
-  if (status.state === 'JOB_NOT_FOUND') {
-    hjss = 'N/A';
-  } else if (status.state === 'WAITING') {
-    if (status.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Waiting';
-    }
-  } else if (status.state === 'RUNNING') {
-    if (status.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Running';
-    }
-  } else if (status.state === 'SUCCEEDED') {
-    hjss = 'Succeeded';
-  } else if (status.state === 'FAILED') {
-    hjss = 'Failed';
-  } else if (status.state === 'STOPPED') {
-    hjss = 'Stopped';
-  } else {
-    hjss = 'Unknown';
-  }
-  return hjss;
-}
-
-export function getDurationString(jobInfo) {
-  const start = jobInfo.jobStatus.createdTime && DateTime.fromMillis(jobInfo.jobStatus.createdTime);
-  const end = jobInfo.jobStatus.completedTime && DateTime.fromMillis(jobInfo.jobStatus.completedTime);
-  if (start) {
-    const dur = Interval.fromDateTimes(start, end || DateTime.utc()).toDuration(['days', 'hours', 'minutes', 'seconds']);
-    if (dur.days > 0) {
-      return dur.toFormat(`d'd' h'h' m'm' s's'`);
-    } else if (dur.hours > 0) {
-      return dur.toFormat(`h'h' m'm' s's'`);
-    } else if (dur.minutes > 0) {
-      return dur.toFormat(`m'm' s's'`);
-    } else {
-      return dur.toFormat(`s's'`);
-    }
-  } else {
-    return 'N/A';
-  }
-}
-
+import {DateTime} from 'luxon';
 
 export function printDateTime(dt) {
   if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {

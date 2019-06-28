@@ -2,7 +2,7 @@
     "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
     "icon": "assets/pai_logo.png",
@@ -53,6 +53,11 @@
             {
                 "command": "paiext.cluster.job.create-config",
                 "title": "%paiext.cluster.job.create-config%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.create-yaml-config",
+                "title": "%paiext.cluster.job.create-yaml-config%",
                 "category": "PAI"
             },
             {
@@ -258,8 +263,12 @@
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
+                    "command": "paiext.cluster.job.create-yaml-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
                     "command": "paiext.cluster.job.submit",
-                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                    "when": "resourceFilename =~ /\\.(jsonc?|yaml|yml)$/ && resourceScheme == file"
                 },
                 {
                     "command": "paiext.cluster.job.simulate",
@@ -284,8 +293,12 @@
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
+                    "command": "paiext.cluster.job.create-yaml-config",
+                    "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
+                },
+                {
                     "command": "paiext.cluster.job.submit",
-                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                    "when": "resourceFilename =~ /\\.(jsonc?|yaml|yml)$/ && resourceScheme == file"
                 },
                 {
                     "command": "paiext.cluster.job.simulate",
@@ -394,18 +407,22 @@
             }
         }
     },
+    "extensionDependencies": [
+        "redhat.vscode-yaml"
+    ],
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "package": "vsce package",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.4",
         "@types/globalize": "^0.0.34",
         "@types/globby": "^8.0.0",
+        "@types/js-yaml": "^3.12.1",
         "@types/lodash": "^4.14.117",
         "@types/mocha": "^5.2.5",
         "@types/nock": "^9.3.0",
@@ -417,9 +434,9 @@
         "@types/uuid": "^3.4.4",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
-        "tslint-language-service": "^0.9.9",
         "tslint-microsoft-contrib": "^5.2.1",
-        "typescript": "^3.1.1",
+        "typescript": "^3.5.1",
+        "typescript-tslint-plugin": "^0.4.0",
         "vsce": "^1.53.0",
         "vscode": "^1.1.21"
     },
@@ -429,10 +446,12 @@
         "globalize": "^1.4.0",
         "globby": "^8.0.1",
         "inversify": "^4.14.0",
+        "js-yaml": "^3.13.1",
         "json-inline-doc": "^2.0.1",
         "json-schema-ref-parser": "^6.0.2",
         "jsonc-parser": "^2.0.2",
         "lodash": "^4.17.11",
+        "node-yaml-parser": "^0.0.9",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",
@@ -440,6 +459,7 @@
         "semver-compare": "^1.0.0",
         "streamifier": "^0.1.1",
         "unixify": "^1.0.0",
+        "unzipper": "^0.10.1",
         "uuid": "^3.3.2",
         "webhdfs": "^1.2.0"
     }
