@@ -30,7 +30,7 @@ const convertName = (name) => {
 const convertFrameworkSummary = (framework) => {
   return {
     name: framework.metadata.name,
-    username: 'unknown',
+    username: framework.metadata.annotations.userName,
     state: framework.status.state,
     subState: framework.status.state,
     executionType: framework.spec.executionType,
@@ -43,7 +43,7 @@ const convertFrameworkSummary = (framework) => {
     createdTime: new Date(framework.status.startTime).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: framework.status.attemptStatus.completionStatus ? framework.status.attemptStatus.completionStatus : null,
-    virtualCluster: 'unknown',
+    virtualCluster: framework.metadata.annotations.virtualCluster,
     totalGpuNumber: 0, // TODO
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
       (num, statuses) => num + statuses.taskStatuses.length, 0),
@@ -70,7 +70,7 @@ const convertFrameworkDetail = (framework) => {
   const detail = {
     name: framework.metadata.name,
     jobStatus: {
-      username: 'unknown',
+      username: framework.metadata.annotations.userName,
       state: framework.status.state,
       subState: framework.status.state,
       executionType: framework.spec.executionType,
@@ -99,7 +99,7 @@ const convertFrameworkDetail = (framework) => {
       appExitTriggerTaskRoleName: null, // TODO
       appExitTriggerTaskIndex: null, // TODO
       appExitType: completionStatus ? completionStatus.type.name : null,
-      virtualCluster: 'unknown',
+      virtualCluster: framework.metadata.annotations.virtualCluster,
     },
     taskRoles: {},
   };
@@ -227,12 +227,17 @@ const generateTaskRole = (taskRole, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, config) => {
+const generateFrameworkDescription = (frameworkName, userName, config, rawConfig) => {
   const frameworkDescription = {
     apiVersion: launcherConfig.apiVersion,
     kind: 'Framework',
     metadata: {
       name: frameworkName,
+      annotations: {
+        userName,
+        virtualCluster,
+        config: rawConfig,
+      },
     },
     spec: {
       executionType: 'Start',
@@ -304,8 +309,12 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
+  const [userName] = frameworkName.split('~');
+  const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
+    config.defaults.virtualCluster : 'default';
+
   const name = convertName(frameworkName);
-  const frameworkDescription = generateFrameworkDescription(name, config);
+  const frameworkDescription = generateFrameworkDescription(name, userName, virtualCluster, config, rawConfig);
 
   // send request to framework controller
   let response;
@@ -328,8 +337,9 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 };
 
-const getConfig = (frameworkName) => {
-  return null;
+const getConfig = async (frameworkName) => {
+  const framework = await get(frameworkName);
+  return framework.annotations.config;
 };
 
 // module exports
