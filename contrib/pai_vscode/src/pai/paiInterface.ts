@@ -54,7 +54,7 @@ export interface IPAIJobInfo {
  */
 export interface IPAIYamlJobConfig {
     /** Protocol version, current version is 2. */
-    protocolVersion: string;
+    protocolVersion: string | number;
     name: string;
     /** Component type, should be "job" here. */
     type: string;
@@ -66,7 +66,7 @@ export interface IPAIYamlJobConfig {
     /** Each item is the protocol for data, script, dockerimage, or output type. */
     prerequisites?: {
         /** If omitted, follow the protocolVersion in root. */
-        protocolVersion?: string;
+        protocolVersion?: string | number;
         name: string;
         /** Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job". */
         type: string;

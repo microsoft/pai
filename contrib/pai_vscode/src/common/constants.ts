@@ -4,6 +4,8 @@
  * @author Microsoft
  */
 
+import * as path from 'path';
+
 /* tslint:disable:typedef */
 export const COMMAND_ADD_CLUSTER = 'paiext.cluster.add';
 export const COMMAND_EDIT_CLUSTER = 'paiext.cluster.edit';
@@ -99,3 +101,9 @@ export const ICON_LOADING = {
 export const OCTICON_CLOUDUPLOAD = '$(cloud-upload)';
 
 export const SCHEMA_JOB_CONFIG = 'pai_job_config.schema.json';
+export const SCHEMA_YAML_JOB_CONFIG = 'pai_yaml_job_config.schema.json';
+export const SCHEMA_YAML_JOB_CONFIG_PATH = path.join(__dirname, `../../schemas/${SCHEMA_YAML_JOB_CONFIG}`);
+
+export const YAML_EXTENSION_ID = 'redhat.vscode-yaml';
+export const OPENPAI_SCHEMA = 'openpai';
+export const OPENPAI_YAML_SCHEMA_PREFIX = OPENPAI_SCHEMA + '://schema/';

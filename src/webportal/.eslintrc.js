@@ -18,6 +18,7 @@ module.exports = {
     "max-len": [0, 80],
     "require-jsdoc": 0,
     "valid-jsdoc": 0,
+    "react/display-name": 0,
   },
   "settings": {
     "react": {
@@ -32,6 +33,7 @@ module.exports = {
         "src/app/components/**/*.js",
         "src/app/home/**/*.js",
         "src/app/user/fabric/**/*.js",
+        "src/app/job-submission/**/*.js",
       ],
       "parser": "babel-eslint"
     }

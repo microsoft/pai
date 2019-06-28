@@ -1,0 +1,339 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Job Config",
+    "description": "OpenPAI Job Protocol",
+    "type": "object",
+
+    "definitions": {
+        "basicSchema": {
+            "type": "object",
+            "properties": {
+                "protocolVersion": {
+                    "description": "Protocol version, current version is 2.",
+                    "enum": ["2", 2]
+                },
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                },
+                "version": {
+                    "description": "Component version, default is latest.",
+                    "type": ["string", "number"]
+                },
+                "contributor": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "required": ["name"]
+        },
+        "prerequisite": {
+            "description": "The protocol for data, script, dockerimage, or output type.",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/basicSchema"
+                },
+                {
+                    "oneOf": [
+                        {
+                            "$comment": "Script or output prerequisite.",
+                            "properties": {
+                                "type": {
+                                    "description": "Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be 'job'.",
+                                    "type": "string",
+                                    "enum": ["script", "output"]
+                                },
+                                "uri": {
+                                    "description": "Only when the type is data can the uri be a list.",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["type", "uri"]
+                        },
+                        {
+                            "$comment": "Data prerequisite.",
+                            "properties": {
+                                "type": {
+                                    "description": "Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be 'job'.",
+                                    "type": "string",
+                                    "enum": ["data"]
+                                },
+                                "uri": {
+                                    "description": "Only when the type is data can the uri be a list.",
+                                    "type": ["array"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": ["type", "uri"]
+                        },
+                        {
+                            "$comment": "Docker image prerequisite.",
+                            "properties": {
+                                "type": {
+                                    "description": "Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be 'job'.",
+                                    "type": "string",
+                                    "enum": ["dockerimage"]
+                                },
+                                "auth": {
+                                    "description": "Only available when the type is dockerimage.",
+                                    "type": "object",
+                                    "properties": {
+                                        "username": {
+                                            "type": "string"
+                                        },
+                                        "password": {
+                                            "description": "If a password is needed, it should be referenced as a secret.",
+                                            "type": "string"
+                                        },
+                                        "registryuri": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "uri": {
+                                    "description": "Only when the type is data can the uri be a list.",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["type", "uri"]
+                        }
+                    ]
+                }
+            ],
+            "required": ["name", "type", "uri"]
+        },
+        "parameters": {
+            "description": "If specified, the whole parameters object can be referenced as `$parameters`. Scope of reference `$parameters`: the reference is shared among all task roles.",
+            "type": "object",
+            "additionalProperties": true
+        },
+        "secrets": {
+            "description": "Can be referenced by `<% $secrets.secret1 %>`, `<% $secrets.secret2 %>`.",
+            "type": "object",
+            "additionalProperties": true
+        },
+        "taskRole": {
+            "description": "Task roles are different types of task in the protocol. One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.",
+            "type": "object",
+            "properties": {
+                "instances": {
+                    "description": "Default is 1, instances of a taskRole, no less than 1.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "completion": {
+                    "description": "Completion poclicy for the job, https://github.com/Microsoft/pai/blob/master/subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy.",
+                    "type": "object",
+                    "properties": {
+                        "minFailedInstances": {
+                            "description": "Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure.",
+                            "type": ["integer", "null"]
+                        },
+                        "minSucceededInstances": {
+                            "description": "Number of succeeded tasks to succeed the entire job, null or no less than 1, if set to null means the job will only succeed until all tasks are completed and minFailedInstances is not triggered.",
+                            "type": ["integer", "null"]
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "taskRetryCount": {
+                    "type": "integer"
+                },
+                "dockerImage": {
+                    "description": "Should reference to a dockerimage defined in prerequisites.",
+                    "type": "string"
+                },
+                "data": {
+                    "description": "Select data defined in prerequisites, target can be referenced as `$data` in this task role.",
+                    "type": "string"
+                },
+                "output": {
+                    "description": "Select output defined in prerequisites, target can be referenced as `$output` in this task role.",
+                    "type": "string"
+                },
+                "script": {
+                    "description": "Select script defined in prerequisites, target can be referenced as `$script` in this task role.",
+                    "type": "string"
+                },
+                "extraContainerOptions": {
+                    "type": "object",
+                    "properties": {
+                        "shmMB": {
+                            "description": "Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.",
+                            "type": "integer"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "resourcePerInstance": {
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "description": "CPU number, unit is CPU vcore.",
+                            "type": "integer"
+                        },
+                        "memoryMB": {
+                            "description": "Memory number, unit is MB.",
+                            "type": "integer"
+                        },
+                        "gpu": {
+                            "description": "GPU number, unit is GPU card.",
+                            "type": "integer"
+                        },
+                        "ports": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                                    "type": "integer"
+                                }
+                            },
+                            "minProperties": 1
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": ["cpu", "memoryMB", "gpu"]
+                },
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1
+                }
+            },
+            "additionalProperties": false,
+            "required": ["dockerImage", "resourcePerInstance", "commands"]
+        },
+        "deployment": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Should be in taskRoles.",
+                    "type": "string"
+                },
+                "taskRoles": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[A-Za-z0-9._~]+$": {
+                            "type": "object",
+                            "properties": {
+                                "preCommands": {
+                                    "description": "Execute before the taskRole's command.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "postCommands": {
+                                    "description": "Execute after the taskRole's command",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "minProperties": 1
+                }
+            },
+            "additionalProperties": false,
+            "required": ["name", "taskRoles"]
+        },
+        "defaults": {
+            "description": "Default cluster specific settings.",
+            "type": "object",
+            "properties": {
+                "virtualCluster": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "description": "Should reference to deployment defined in deployments.",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "extras": {
+            "description": "Extra field, object, save any information that plugin may use.",
+            "type": "object",
+            "properties": {
+                "submitFrom": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+
+    "properties": {
+        "protocolVersion": {
+            "description": "Protocol version, current version is 2.",
+            "enum": ["2", 2]
+        },
+        "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "type": {
+            "description": "Component type, should be 'job' here.",
+            "type": "string",
+            "enum": ["job"]
+        },
+        "version": {
+            "description": "Component version, default is latest.",
+            "type": ["string", "number"]
+        },
+        "contributor": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "prerequisites": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/prerequisite"
+            }
+        },
+        "parameters": {
+            "$ref": "#/definitions/parameters"
+        },
+        "secrets": {
+            "$ref": "#/definitions/secrets"
+        },
+        "jobRetryCount": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "taskRoles": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                    "$ref": "#/definitions/taskRole"
+                }
+            },
+            "minProperties": 1
+        },
+        "deployments": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/deployment"
+            },
+            "minItems": 1
+        },
+        "defaults": {
+            "$ref": "#/definitions/defaults"
+        },
+        "extras": {
+            "$ref": "#/definitions/extras"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["protocolVersion", "name", "type", "taskRoles"]
+}
