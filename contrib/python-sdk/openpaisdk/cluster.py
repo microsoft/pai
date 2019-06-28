@@ -72,7 +72,10 @@ class ClusterList:
             alias = self.clusters[0]["cluster_alias"]
             __logger__.warn("cluster-alias is not set, the only defined cluster %s will be used", alias)
         assert alias, "must specify a cluster_alias"
-        return ol.as_dict(self.clusters, "cluster_alias")[alias]
+        dic = ol.as_dict(self.clusters, "cluster_alias")
+        if alias not in dic:
+            __logger__.error("cannot find %s from %s (%s)", alias, list(dic.keys()), __cluster_config_file__)
+        return dic[alias]
 
     def attach_storage(self, alias: str, storage: dict, as_default: bool=False):
         cluster = self.select(alias)
