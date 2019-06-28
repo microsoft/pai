@@ -71,30 +71,36 @@ AuthTextFiled.propTypes = {
 };
 
 const options = [
-  {key: 'all', text: 'all-in-one', image: 'ufoym/deepo:all'},
+  {
+    key: 'all',
+    text: 'all-in-one (image: ufoym/deepo:all)',
+    image: 'ufoym/deepo:all',
+  },
   {
     key: 'tensorflow-gpu-python3.6',
-    text: 'tensorflow+python3.6 with gpu',
+    text: 'tensorflow+python3.6 with gpu (image: ufoym/deepo:tensorflow-py36-cu100)',
     image: 'ufoym/deepo:tensorflow-py36-cu100',
   },
   {
     key: 'tensorflow-cpu',
-    text: 'tensorflow+python3.6 with cpu',
+    text:
+      'tensorflow+python3.6 with cpu (image: ufoym/deepo:tensorflow-py36-cpu)',
     image: 'ufoym/deepo:tensorflow-py36-cpu',
   },
   {
     key: 'tensorflow-cpu-python2.7',
-    text: 'tensorflow+python2.7 with cpu',
+    text:
+      'tensorflow+python2.7 with cpu (image: ufoym/deepo:tensorflow-py27-cpu)',
     image: 'ufoym/deepo:tensorflow-py27-cpu',
   },
   {
     key: 'pytorch-gpu',
-    text: 'pytorch+python3.6 with gpu',
+    text: 'pytorch+python3.6 with gpu (image: ufoym/deepo:pytorch-py36-cu100)',
     image: 'ufoym/deepo:pytorch-py36-cu100',
   },
   {
     key: 'pytorch-cpu',
-    text: 'pytorch+python3.6 with cpu',
+    text: 'pytorch+python3.6 with cpu (image: ufoym/deepo:pytorch-py36-cpu)',
     image: 'ufoym/deepo:pytorch-py36-cpu',
   },
   {
