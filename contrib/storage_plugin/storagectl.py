@@ -159,14 +159,17 @@ def setup_logger_config(logger):
         logger.addHandler(consoleHandler)
 
 
-def min_length(nmin):
+def append_min_length(nmin):
     class MinLength(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
             if not nmin<=len(values):
-                msg='argument "{f}" requires at least {nmin} arguments'.format(
-                    f=self.dest,nmin=nmin)
+                msg = 'argument "{f}" requires at least {nmin} arguments'.format(
+                    f = self.dest,nmin=nmin)
                 raise argparse.ArgumentTypeError(msg)
-            setattr(args, self.dest, values)
+            oriValue = getattr(args, self.dest, [])
+            newValue = [] if oriValue is None else oriValue
+            newValue.append(values)
+            setattr(args, self.dest, newValue)
     return MinLength
 
 def main():
@@ -251,7 +254,7 @@ def main():
     config_set_parser.add_argument("name", help="Config name")
     config_set_parser.add_argument("gpn", help="Config group name")
     config_set_parser.add_argument("-s", "--server", dest="servers", nargs="+", help="-s SERVER_NAME_1 SERVER_NAME_2 ...")
-    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs="+", action=min_length(3), help="-m MOUNT_POINT SERVER PATH [TAG1, TAG2...]")
+    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs="+", action=append_min_length(3), help="-m MOUNT_POINT SERVER PATH [TAG1, TAG2...]")
     config_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
     config_set_parser.set_defaults(func=config_set)
     # ./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...] [-g GROUP_NAME_1, GROUP_NAME_2 ...]
