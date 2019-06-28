@@ -36,7 +36,7 @@ def return_default_if_error(func):
         except Exception as identifier:
             if default == "==FATAL==":
                 __logger__.error('Error: %s', identifier, exc_info=True)
-            __logger__.warn('error occurs, return default (%s)', default)
+            __logger__.warn('error occurs when reading %s (%s), return default (%s)', args, identifier, default)
             return default
     return f
 
