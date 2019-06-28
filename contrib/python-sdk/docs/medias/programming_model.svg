@@ -1,0 +1,360 @@
+<svg id="mermaid-1558493488491" width="100%" xmlns="http://www.w3.org/2000/svg" height="100%" style="max-width:950px;" viewBox="-150 -10 950 666"><style>
+
+
+#mermaid-1558493488491 .label {
+  font-family: 'trebuchet ms', verdana, arial;
+  color: #333; }
+
+#mermaid-1558493488491 .node rect,
+#mermaid-1558493488491 .node circle,
+#mermaid-1558493488491 .node ellipse,
+#mermaid-1558493488491 .node polygon {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1px; }
+
+#mermaid-1558493488491 .node.clickable {
+  cursor: pointer; }
+
+#mermaid-1558493488491 .arrowheadPath {
+  fill: #333333; }
+
+#mermaid-1558493488491 .edgePath .path {
+  stroke: #333333;
+  stroke-width: 1.5px; }
+
+#mermaid-1558493488491 .edgeLabel {
+  background-color: #e8e8e8; }
+
+#mermaid-1558493488491 .cluster rect {
+  fill: #ffffde !important;
+  stroke: #aaaa33 !important;
+  stroke-width: 1px !important; }
+
+#mermaid-1558493488491 .cluster text {
+  fill: #333; }
+
+#mermaid-1558493488491 div.mermaidTooltip {
+  position: absolute;
+  text-align: center;
+  max-width: 200px;
+  padding: 2px;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 12px;
+  background: #ffffde;
+  border: 1px solid #aaaa33;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 100; }
+
+#mermaid-1558493488491 .actor {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1558493488491 text.actor {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1558493488491 .actor-line {
+  stroke: grey; }
+
+#mermaid-1558493488491 .messageLine0 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1558493488491 .messageLine1 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1558493488491 #arrowhead {
+  fill: #333; }
+
+#mermaid-1558493488491 #crosshead path {
+  fill: #333 !important;
+  stroke: #333 !important; }
+
+#mermaid-1558493488491 .messageText {
+  fill: #333;
+  stroke: none; }
+
+#mermaid-1558493488491 .labelBox {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1558493488491 .labelText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1558493488491 .loopText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1558493488491 .loopLine {
+  stroke-width: 2;
+  stroke-dasharray: '2 2';
+  stroke: #CCCCFF; }
+
+#mermaid-1558493488491 .note {
+  stroke: #aaaa33;
+  fill: #fff5ad; }
+
+#mermaid-1558493488491 .noteText {
+  fill: black;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 14px; }
+
+#mermaid-1558493488491 .activation0 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1558493488491 .activation1 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1558493488491 .activation2 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+
+#mermaid-1558493488491 .section {
+  stroke: none;
+  opacity: 0.2; }
+
+#mermaid-1558493488491 .section0 {
+  fill: rgba(102, 102, 255, 0.49); }
+
+#mermaid-1558493488491 .section2 {
+  fill: #fff400; }
+
+#mermaid-1558493488491 .section1,
+#mermaid-1558493488491 .section3 {
+  fill: white;
+  opacity: 0.2; }
+
+#mermaid-1558493488491 .sectionTitle0 {
+  fill: #333; }
+
+#mermaid-1558493488491 .sectionTitle1 {
+  fill: #333; }
+
+#mermaid-1558493488491 .sectionTitle2 {
+  fill: #333; }
+
+#mermaid-1558493488491 .sectionTitle3 {
+  fill: #333; }
+
+#mermaid-1558493488491 .sectionTitle {
+  text-anchor: start;
+  font-size: 11px;
+  text-height: 14px; }
+
+
+#mermaid-1558493488491 .grid .tick {
+  stroke: lightgrey;
+  opacity: 0.3;
+  shape-rendering: crispEdges; }
+
+#mermaid-1558493488491 .grid path {
+  stroke-width: 0; }
+
+
+#mermaid-1558493488491 .today {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px; }
+
+
+
+#mermaid-1558493488491 .task {
+  stroke-width: 2; }
+
+#mermaid-1558493488491 .taskText {
+  text-anchor: middle;
+  font-size: 11px; }
+
+#mermaid-1558493488491 .taskTextOutsideRight {
+  fill: black;
+  text-anchor: start;
+  font-size: 11px; }
+
+#mermaid-1558493488491 .taskTextOutsideLeft {
+  fill: black;
+  text-anchor: end;
+  font-size: 11px; }
+
+
+#mermaid-1558493488491 .taskText0,
+#mermaid-1558493488491 .taskText1,
+#mermaid-1558493488491 .taskText2,
+#mermaid-1558493488491 .taskText3 {
+  fill: white; }
+
+#mermaid-1558493488491 .task0,
+#mermaid-1558493488491 .task1,
+#mermaid-1558493488491 .task2,
+#mermaid-1558493488491 .task3 {
+  fill: #8a90dd;
+  stroke: #534fbc; }
+
+#mermaid-1558493488491 .taskTextOutside0,
+#mermaid-1558493488491 .taskTextOutside2 {
+  fill: black; }
+
+#mermaid-1558493488491 .taskTextOutside1,
+#mermaid-1558493488491 .taskTextOutside3 {
+  fill: black; }
+
+
+#mermaid-1558493488491 .active0,
+#mermaid-1558493488491 .active1,
+#mermaid-1558493488491 .active2,
+#mermaid-1558493488491 .active3 {
+  fill: #bfc7ff;
+  stroke: #534fbc; }
+
+#mermaid-1558493488491 .activeText0,
+#mermaid-1558493488491 .activeText1,
+#mermaid-1558493488491 .activeText2,
+#mermaid-1558493488491 .activeText3 {
+  fill: black !important; }
+
+
+#mermaid-1558493488491 .done0,
+#mermaid-1558493488491 .done1,
+#mermaid-1558493488491 .done2,
+#mermaid-1558493488491 .done3 {
+  stroke: grey;
+  fill: lightgrey;
+  stroke-width: 2; }
+
+#mermaid-1558493488491 .doneText0,
+#mermaid-1558493488491 .doneText1,
+#mermaid-1558493488491 .doneText2,
+#mermaid-1558493488491 .doneText3 {
+  fill: black !important; }
+
+
+#mermaid-1558493488491 .crit0,
+#mermaid-1558493488491 .crit1,
+#mermaid-1558493488491 .crit2,
+#mermaid-1558493488491 .crit3 {
+  stroke: #ff8888;
+  fill: red;
+  stroke-width: 2; }
+
+#mermaid-1558493488491 .activeCrit0,
+#mermaid-1558493488491 .activeCrit1,
+#mermaid-1558493488491 .activeCrit2,
+#mermaid-1558493488491 .activeCrit3 {
+  stroke: #ff8888;
+  fill: #bfc7ff;
+  stroke-width: 2; }
+
+#mermaid-1558493488491 .doneCrit0,
+#mermaid-1558493488491 .doneCrit1,
+#mermaid-1558493488491 .doneCrit2,
+#mermaid-1558493488491 .doneCrit3 {
+  stroke: #ff8888;
+  fill: lightgrey;
+  stroke-width: 2;
+  cursor: pointer;
+  shape-rendering: crispEdges; }
+
+#mermaid-1558493488491 .doneCritText0,
+#mermaid-1558493488491 .doneCritText1,
+#mermaid-1558493488491 .doneCritText2,
+#mermaid-1558493488491 .doneCritText3 {
+  fill: black !important; }
+
+#mermaid-1558493488491 .activeCritText0,
+#mermaid-1558493488491 .activeCritText1,
+#mermaid-1558493488491 .activeCritText2,
+#mermaid-1558493488491 .activeCritText3 {
+  fill: black !important; }
+
+#mermaid-1558493488491 .titleText {
+  text-anchor: middle;
+  font-size: 18px;
+  fill: black; }
+
+#mermaid-1558493488491 g.classGroup text {
+  fill: #9370DB;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 10px; }
+
+#mermaid-1558493488491 g.classGroup rect {
+  fill: #ECECFF;
+  stroke: #9370DB; }
+
+#mermaid-1558493488491 g.classGroup line {
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 .classLabel .box {
+  stroke: none;
+  stroke-width: 0;
+  fill: #ECECFF;
+  opacity: 0.5; }
+
+#mermaid-1558493488491 .classLabel .label {
+  fill: #9370DB;
+  font-size: 10px; }
+
+#mermaid-1558493488491 .relation {
+  stroke: #9370DB;
+  stroke-width: 1;
+  fill: none; }
+
+#mermaid-1558493488491 #compositionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #compositionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #aggregationStart {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #aggregationEnd {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #dependencyStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #dependencyEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #extensionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 #extensionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1558493488491 .commit-id,
+#mermaid-1558493488491 .commit-msg,
+#mermaid-1558493488491 .branch-label {
+  fill: lightgrey;
+  color: lightgrey; }
+</style><style>#mermaid-1558493488491 {
+    color: rgba(0, 0, 0, 0.65);
+    font: ;
+  }</style><g></g><g><line id="actor0" x1="75" y1="5" x2="75" y2="655" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="0" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="75" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="75" dy="0">Front End or Plugins</tspan></text></g><g><line id="actor1" x1="275" y1="5" x2="275" y2="655" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="200" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="275" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="275" dy="0">OpenPAI Core</tspan></text></g><g><line id="actor2" x1="475" y1="5" x2="475" y2="655" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="400" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="475" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="475" dy="0">Runtime (in container)</tspan></text></g><g><line id="actor3" x1="675" y1="5" x2="675" y2="655" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="600" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="675" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="675" dy="0">Storage</tspan></text></g><defs><marker id="arrowhead" refX="5" refY="2" markerWidth="6" markerHeight="4" orient="auto"><path d="M 0,0 V 4 L6,2 Z"></path></marker></defs><defs><marker id="crosshead" markerWidth="15" markerHeight="8" orient="auto" refX="16" refY="4"><path fill="black" stroke="#000000" stroke-width="1px" d="M 9,2 V 6 L16,4 Z" style="stroke-dasharray: 0, 0;"></path><path fill="none" stroke="#000000" stroke-width="1px" d="M 0,1 L 6,7 M 6,1 L 0,7" style="stroke-dasharray: 0, 0;"></path></marker></defs><g><rect x="-100" y="75" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="-104" y="99" fill="black" class="noteText"><tspan x="-84" fill="black">User</tspan></text></g><g><text x="75" y="139" class="messageText" style="text-anchor: middle;">prepare data &amp; codes *</text><path d="M 75,146 C 135,136 135,176 75,166" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><text x="175" y="204" class="messageText" style="text-anchor: middle;">submit a job *</text><line x1="75" y1="211" x2="275" y2="211" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="375" y="239" class="messageText" style="text-anchor: middle;">pass info through Protocol</text><line x1="275" y1="246" x2="475" y2="246" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><rect x="470" y="248" fill="#EDF2AE" stroke="#666" width="10" height="252" rx="0" ry="0" class="activation0"></rect></g><g><rect x="500" y="256" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="496" y="280" fill="black" class="noteText"><tspan x="516" fill="black">parse protocol *</tspan></text></g><g><rect x="450" y="302" fill="#EDF2AE" stroke="#666" width="250" height="36" rx="0" ry="0" class="note"></rect><text x="446" y="326" fill="black" class="noteText"><tspan x="466" fill="black">access data (if any) *</tspan></text></g><g><rect x="500" y="348" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="496" y="372" fill="black" class="noteText"><tspan x="516" fill="black">execute cmds *</tspan></text></g><g><rect x="500" y="394" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="496" y="418" fill="black" class="noteText"><tspan x="516" fill="black">callbacks *</tspan></text></g><g><text x="577.5" y="458" class="messageText" style="text-anchor: middle;">save annotated files *</text><line x1="480" y1="465" x2="675" y2="465" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="372.5" y="493" class="messageText" style="text-anchor: middle;">exit container</text><line x1="470" y1="500" x2="275" y2="500" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="175" y="528" class="messageText" style="text-anchor: middle;">query job info *</text><line x1="75" y1="535" x2="275" y2="535" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="375" y="563" class="messageText" style="text-anchor: middle;">fetch job outputs *</text><line x1="75" y1="570" x2="675" y2="570" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><rect x="0" y="590" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="75" y="622.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="75" dy="0">Front End or Plugins</tspan></text></g><g><rect x="200" y="590" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="275" y="622.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="275" dy="0">OpenPAI Core</tspan></text></g><g><rect x="400" y="590" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="475" y="622.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="475" dy="0">Runtime (in container)</tspan></text></g><g><rect x="600" y="590" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="675" y="622.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle; font-size: 14px; font-family: Open-Sans, sans-serif;"><tspan x="675" dy="0">Storage</tspan></text></g></svg>
