@@ -244,7 +244,7 @@ export const DockerSection = ({onValueChange, value}) => {
           placeholder='Select a docker image'
           options={options}
           onChange={_onDockerImageChange}
-          selectedKey={isEmpty(uri) ? null : getDockerImageOptionKey(uri)}
+          selectedKey={getDockerImageOptionKey(uri)}
         />
       </FormShortSection>
       {isUseCustomizedDocker && (

@@ -105,7 +105,7 @@ const JobSubmission = () => {
     if (isUpdated) {
       setSecrets(updatedSecrets);
     }
-  }, [jobTaskRoles, secrets]);
+  }, [jobTaskRoles]);
 
   const setJobTaskRoles = useCallback(
     (taskRoles) => {
@@ -117,6 +117,15 @@ const JobSubmission = () => {
     },
     [setJobTaskRolesState],
   );
+
+  useEffect(() => {
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(secrets);
+    if (isUpdated) {
+      taskRolesManager.populateTaskRolesDockerInfo();
+      setJobTaskRoles(jobTaskRoles);
+    }
+  }, [secrets]);
 
   const setParameters = useCallback(
     (param) => {
