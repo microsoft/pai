@@ -48,7 +48,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
-可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
+Submit V1 job: You can create a job configuration and submit to OpenPAI as below steps.
 
 1. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
@@ -58,6 +58,18 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       
       This animation shows above steps.
       ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
+      
+
+Submit V2 job: You can create a job v2 configuration and submit to OpenPAI as below steps.
+
+1. Double click *Create Job v2 Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
+2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/microsoft/pai/blob/master/docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file).
+3. Right click on the created job v2 configuration file, then click on *Submit Job to PAI Cluster*. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+  
+      If there are multiple OpenPAI clusters, you need to choose one.
+      
+      This animation shows above steps.
+      ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
       
 
 ## 本机模拟
@@ -148,11 +160,11 @@ There are two parts in the side bar.
 
 ## 问题和建议
 
-提交到 [GitHub](https://github.com/Microsoft/pai/issues)
+Submit at [GitHub](https://github.com/Microsoft/pai/issues)
 
 ## 贡献
 
-https://github.com/microsoft/pai/blob/master/README_zh_CN.md#参与贡献
+https://github.com/Microsoft/pai#how-to-contribute
 
 ## 许可证
 
