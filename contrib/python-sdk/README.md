@@ -67,6 +67,8 @@ python -c "from openpaisdk import __version__; print(__version__)"
 
 And you may also change it to another branch (only take effect in the job container) by `opai set sdk-branch=<your/branch>`
 
+_The package require python3, and we tested it on `py3.5+` environment_
+
 ## Define your clusters
 
 Please store the list of your clusters in `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the list.
