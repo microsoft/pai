@@ -27,6 +27,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Generate YAML job config file for Protocal V2 
+- Generate YAML job config file for Protocol V2 
   - Submit YAML job file
   - Snippets and autocomplete for YAML job config
