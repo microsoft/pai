@@ -18,16 +18,18 @@
 import c from 'classnames';
 import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useRef} from 'react';
 
 import MonacoEditor from './monaco-editor';
 
 import t from './tachyons.scss';
 
 const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
+  const panelRef = useRef(null);
   return (
     <div>
       <Panel
+        componentRef={panelRef}
         onDismiss={onDismiss}
         isLightDismiss={true}
         isOpen={isOpen}
@@ -74,7 +76,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
                 rootPressed: [ColorClassNames.blackBackground],
                 label: [ColorClassNames.white],
               }}
-              onClick={onDismiss}
+              onClick={() => panelRef.current && panelRef.current.dismiss()}
             />
           </div>
         </div>

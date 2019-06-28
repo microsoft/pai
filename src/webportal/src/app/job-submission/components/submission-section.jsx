@@ -121,7 +121,7 @@ export const SubmissionSection = (props) => {
     }
   };
 
-  const _udpatedComponent = (protocolYaml) => {
+  const _updatedComponent = (protocolYaml) => {
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
     if (isNil(updatedJob)) {
       return;
@@ -146,7 +146,7 @@ export const SubmissionSection = (props) => {
 
   const _closeEditor = () => {
     setEditorOpen(false);
-    _udpatedComponent(protocolYaml);
+    _updatedComponent(protocolYaml);
 
     // Change to the default theme
     monaco.current.editor.setTheme('vs');
@@ -173,7 +173,7 @@ export const SubmissionSection = (props) => {
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
       try {
-        _udpatedComponent(text);
+        _updatedComponent(text);
       } catch (err) {
         alert(err.message);
       }

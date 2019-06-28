@@ -170,10 +170,12 @@ const JobSubmission = () => {
             return updated;
           }
         } else {
-          return {
-            ...prev,
-            [id]: msg,
-          };
+          if (prev !== undefined && prev[id] !== msg) {
+            return {
+              ...prev,
+              [id]: msg,
+            };
+          }
         }
         return prev;
       });
