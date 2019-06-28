@@ -32,7 +32,7 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import Timer from './timer';
-import {getTensorBoardUrl, setTensorBoardDisabled, getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
+import {getTensorBoardUrl, getJobMetricsUrl, cloneJob, openJobAttemptsPage} from '../conn';
 import {printDateTime, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -368,15 +368,6 @@ export default class Summary extends React.Component {
             <div className={c(t.flex)}>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
-                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
-                disabled={isNil(setTensorBoardDisabled(jobInfo, rawJobConfig))}
-                target="_blank"
-              >
-                Go to TensorBoard Page
-              </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
                 disabled={isNil(rawJobConfig)}
                 onClick={this.showJobConfig}
@@ -408,6 +399,15 @@ export default class Summary extends React.Component {
                 target="_blank"
               >
                 Go to Job Metrics Page
+              </Link>
+              <div className={c(t.bl, t.mh3)}></div>
+              <Link
+                styles={{root: [FontClassNames.mediumPlus]}}
+                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
+                disabled={isNil(getTensorBoardUrl(jobInfo, rawJobConfig))}
+                target="_blank"
+              >
+                Go to TensorBoard
               </Link>
             </div>
             <div>

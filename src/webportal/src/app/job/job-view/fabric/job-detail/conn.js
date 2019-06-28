@@ -100,10 +100,6 @@ export async function fetchSshInfo() {
   }
 }
 
-export function setTensorBoardDisabled(jobInfo, rawJobConfig) {
-  return getTensorBoardUrl(jobInfo, rawJobConfig);
-}
-
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
