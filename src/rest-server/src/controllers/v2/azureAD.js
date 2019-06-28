@@ -28,7 +28,7 @@ const requestAuthCode = async (req, res, next) => {
   const responseType = 'code';
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
-  const scope = 'openid offline_access https://graph.microsoft.com/user.read';
+  const scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
     state = decodeURIComponent(req.query.redirect_uri);
@@ -46,8 +46,6 @@ const requestAuthCode = async (req, res, next) => {
 
 const requestTokenWithCode = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log(req.body);
     const authCode = req.body.code;
     const scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     const clientId = authnConfig.OIDCConfig.clientID;
@@ -55,15 +53,6 @@ const requestTokenWithCode = async (req, res, next) => {
     const grantType = 'authorization_code';
     const clientSecret = authnConfig.OIDCConfig.clientSecret;
     const requestUrl = authnConfig.OIDCConfig.token_endpoint;
-    // eslint-disable-next-line no-console
-    console.log({
-      client_id: clientId,
-      scope: scope,
-      code: authCode,
-      redirect_uri: redirectUri,
-      grant_type: grantType,
-      client_secret: clientSecret,
-    });
     const data = {
       client_id: clientId,
       scope: scope,
@@ -73,25 +62,22 @@ const requestTokenWithCode = async (req, res, next) => {
       client_secret: clientSecret,
     };
     const response = await axios.post(requestUrl, querystring.stringify(data));
-    // eslint-disable-next-line no-console
-    console.log(response.data);
     req.IDToken = jwt.decode(response.data.id_token);
     req.accessToken = jwt.decode(response.data.access_token);
     req.refreshToken = jwt.decode(response.data.access_token);
     req.returnBackURI = req.body.state;
     next();
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     return next(createError.unknown(error));
   }
 };
 
 const parseTokenData = async (req, res, next) => {
   try {
+    const email = req.accessToken.upn ? req.accessToken.upn : (req.accessToken.email ? req.accessToken.email: req.accessToken.unique_name);
     const userBasicInfo = {
-      email: req.accessToken.email,
-      username: req.accessToken.email.substring(0, req.accessToken.email.lastIndexOf('@')),
+      email: email,
+      username: email.substring(0, email.lastIndexOf('@')),
       oid: req.accessToken.oid,
     };
     req.username = userBasicInfo.username;
