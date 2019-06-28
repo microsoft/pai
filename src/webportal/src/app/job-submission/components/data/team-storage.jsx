@@ -24,12 +24,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-  Stack,
-  Checkbox,
-  FontClassNames,
-  FontWeights,
-} from 'office-ui-fabric-react';
+import {Stack, Checkbox, FontClassNames, FontWeights} from 'office-ui-fabric-react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {cloneDeep} from 'lodash';
@@ -73,7 +68,8 @@ export const TeamStorage = ({
         }
         onChange={(ev, isChecked) => {
           let newSelectedConfigNames = [];
-          if (!isChecked && selectedConfigNames.includes(config.name)) {
+          if (!isChecked && selectedConfigNames.includes(config.name)
+          ) {
             const idx = selectedConfigNames.indexOf(config.name);
             newSelectedConfigNames = [
               ...selectedConfigNames.slice(0, idx),
@@ -93,13 +89,6 @@ export const TeamStorage = ({
     if (teamConfigs.length === 0) {
       return null;
     } else {
-      const configs = [
-        {name: 'abagfdasfsdaf'},
-        {name: 'sdfsadfljsladjfklasdjf'},
-        {name: 'sdlfkjasldjfklsadjflk'},
-        {name: 'sdfsdfsadf'},
-        {name: 'sdfsdfsadf'},
-      ];
       return (
         <div>
           <div
@@ -109,7 +98,7 @@ export const TeamStorage = ({
             Team Share Storage
           </div>
           <Stack horizontal disableShrink gap='s1' wrap='true'>
-            {configs.map((config) => showConfigs(config))}
+            {teamConfigs.map((config) => showConfigs(config))}
           </Stack>
           <TeamMountList
             dataList={mountDirs == null ? [] : mountDirs.getTeamDataList()}
