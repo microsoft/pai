@@ -17,6 +17,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
 - [How-to guide for the CLI tool](#How-to-guide-for-the-CLI-tool)
   - [Cluster and storage management](#Cluster-and-storage-management)
     - [How to list existing clusters](#How-to-list-existing-clusters)
+    - [How to open and edit the cluster configuration file](#How-to-open-and-edit-the-cluster-configuration-file)
     - [How to add / delete a cluster](#How-to-add--delete-a-cluster)
     - [How to access storages of a cluster](#How-to-access-storages-of-a-cluster)
   - [Job operations](#Job-operations)
@@ -27,6 +28,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to request (GPU) resources for the job](#How-to-request-GPU-resources-for-the-job)
     - [How to reference a local file when submitting a job](#How-to-reference-a-local-file-when-submitting-a-job)
     - [How to submit a job given a sequence of commands](#How-to-submit-a-job-given-a-sequence-of-commands)
+    - [How to add `pip install` packages](#How-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
@@ -67,26 +69,19 @@ And you may also change it to another branch (only take effect in the job contai
 
 ## Define your clusters
 
-Please store the list of your clusters in `~/.openpai/clusters.json`. Every cluster would have an alias for calling, and you may save more than one cluster in the list.
+Please store the list of your clusters in `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the list.
 
-```json
-[
-    {
-        "cluster_alias": "cluster-for-test",
-        "pai_uri": "http://x.x.x.x",
-        "user": "myuser",
-        "password": "mypassword",
-        "storages": [
-            {
-                "protocol": "webHDFS",
-                "storage_alias": "hdfs",
-                "user": "myuser",
-                "web_hdfs_uri": "http://x.x.x.x:port"
-            }
-        ],
-        "default_storage_alias": "hdfs"
-    }
-]
+```yaml
+- cluster_alias: cluster-for-test
+  pai_uri: http://x.x.x.x
+  user: myuser
+  password: mypassword
+  default_storage_alias: hdfs
+  storages:
+  - protocol: webHDFS
+    storage_alias: hdfs
+    web_hdfs_uri: http://x.x.x.x:port
+
 ```
 
 Now below command shows all your clusters would be displayed.
@@ -102,6 +97,7 @@ This section will brief you how to leverage the CLI tool (prefixed by `opai`) to
 | Command                    | Description                                                  |
 | -------------------------- | ------------------------------------------------------------ |
 | `opai cluster list`        | list clusters defined in `~/.openpai/clusters.yaml`          |
+| `opai cluster edit`        | open `~/.openpai/clusters.yaml` for your editing             |
 | `opai cluster add`         | add a cluster                                                |
 | `opai cluster attach-hdfs` | attach a `hdfs` storage through `WebHDFS`                    |
 | `opai job list`            | list all jobs of current user (in a given cluster)           |
@@ -135,7 +131,7 @@ opai cluster list
 
 ### How to open and edit the cluster configuration file
 
-We add a convenient shortcut command to open the cluster configuration file with your editor directly by 
+We add a convenient shortcut command to open the cluster configuration file with your editor directly by
 
 ```bash
 opai cluster edit [--editor <path/to/editor>]
