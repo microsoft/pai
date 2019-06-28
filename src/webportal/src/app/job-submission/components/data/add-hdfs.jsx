@@ -125,7 +125,7 @@ export const AddHDFS = ({
             },
           }}
           onChange={(_event, newValue) => {
-            const valid = validateMountPath(newValue);
+            const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
               setContainerPathErrorMessage(valid.illegalMessage);
             } else {

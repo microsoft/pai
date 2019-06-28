@@ -36,7 +36,7 @@ const checkErrorMessage = async (
   const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
   dataList.forEach(async (dataItem, index) => {
     const validPath = validateMountPath(
-      dataItem.mountPath.replace(STORAGE_PREFIX, ''),
+      dataItem.mountPath.replace(STORAGE_PREFIX, '/'),
     );
     let validSource;
     if (!validPath.isLegal) {

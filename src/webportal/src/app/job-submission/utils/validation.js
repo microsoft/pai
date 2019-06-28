@@ -6,7 +6,7 @@ export function validateMountPath(path) {
 
     return {isLegal: false, illegalMessage};
   }
-  if (!pathRegex.test(`/${path}`)) {
+  if (!pathRegex.test(path)) {
     illegalMessage = 'path is not illegal';
 
     return {isLegal: false, illegalMessage};
@@ -70,8 +70,4 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
   } catch (e) {
     return {isLegal: false, illegalMessage: e.message};
   }
-}
-
-export function validateCommand(command) {
-  return validateMountPath(command);
 }

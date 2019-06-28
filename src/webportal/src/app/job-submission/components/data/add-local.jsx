@@ -64,7 +64,7 @@ export const AddLocal = ({dataList, setDataList, setDataType}) => {
         styles={{root: {minWidth: 200}}}
         errorMessage={errorMessage}
         onChange={(_event, newValue) => {
-          const valid = validateMountPath(newValue);
+          const valid = validateMountPath(`/${newValue}`);
           if (!valid.isLegal) {
             setErrorMessage(valid.illegalMessage);
           } else {
