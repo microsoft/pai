@@ -37,6 +37,9 @@ class Cluster:
 
 
 class ClusterList:
+    """Data structure corresponding to the contents of ~/.openpai/clusters.json
+    We use an OrganizedList to handle the operations to this class
+    """
 
     def __init__(self):
         self.clusters = []
@@ -50,6 +53,7 @@ class ClusterList:
         to_file(self.clusters, __cluster_config_file__)
 
     def tell(self):
+        """return the content of clusters, but hide the password"""
         lst = deepcopy(self.clusters)
         for dic in lst:
             dic["password"] = "******"
@@ -59,9 +63,11 @@ class ClusterList:
         return ol.notified_add(self.clusters, "cluster_alias", Cluster.validate(Cluster.new(cluster)))
 
     def delete(self, alias: str):
-        ol.delete(self.clusters, "cluster_alias", alias)
+        return ol.delete(self.clusters, "cluster_alias", alias)
 
     def select(self, alias: str=None):
+        """return the cluster configuration (dict) with its alias equal to specified one
+        if only one cluster in the list and alias is not set, the only cluster would be returned"""
         if not alias and len(self.clusters) == 1:
             alias = self.clusters[0]["cluster_alias"]
             __logger__.warn("cluster-alias is not set, the only defined cluster %s will be used", alias)
@@ -80,6 +86,7 @@ class ClusterList:
 
 
 class ClusterClient:
+    """A wrapper of cluster to access the REST APIs"""
 
     def __init__(self, pai_uri: str=None, user: str=None, password: str=None, storages: list=[], default_storage_alias: str=None, **kwargs):
         __logger__.debug('creating cluster from info %s', get_args())

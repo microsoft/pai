@@ -125,6 +125,8 @@ class ArgumentFactory:
         self.add_argument('--user', help='username')
         self.add_argument('--password', help="password")
 
+        self.add_argument('--editor', default="code", help="path to your editor used to open files")
+
         # storage
         self.add_argument('--storage-alias', '-s', help='storage alias')
         self.add_argument('--web-hdfs-uri', help="uri of web hdfs, in format of http://x.x.x.x:port")

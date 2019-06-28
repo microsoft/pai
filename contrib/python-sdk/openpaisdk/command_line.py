@@ -8,7 +8,7 @@ from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
 from openpaisdk.io_utils import from_file, to_file, get_defaults
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import Nested
+from openpaisdk.utils import Nested, run_command
 from uuid import uuid4 as randstr
 
 
@@ -51,6 +51,15 @@ class ActionFactoryForDefault(ActionFactory):
 
 
 class ActionFactoryForCluster(ActionFactory):
+
+    def define_arguments_edit(self, parser):
+        cli_add_arguments(parser, ["--editor"])
+
+    def check_arguments_edit(self, args):
+        assert args.editor, "cannot edit the file without an editor"
+
+    def do_action_edit(self, args):
+        run_command([args.editor, __cluster_config_file__])
 
     def define_arguments_list(self, parser):
         cli_add_arguments(parser, [])
@@ -264,6 +273,7 @@ __cli_structure__ = {
         "factory": ActionFactoryForCluster,
         "actions": {
             "list": "list clusters in config file %s" % __cluster_config_file__,
+            "edit": "edit the config file in your editor %s" % __cluster_config_file__,
             "add": "add a cluster to config file %s" % __cluster_config_file__,
             "delete": "delete a cluster from config file %s" % __cluster_config_file__,
             "select": "select a cluster as default",

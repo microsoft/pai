@@ -133,6 +133,16 @@ To list all existing clusters in `~/.openpai/clusters.json`, execute below comma
 opai cluster list
 ```
 
+### How to open and edit the cluster configuration file
+
+We add a convenient shortcut command to open the cluster configuration file with your editor directly by 
+
+```bash
+opai cluster edit [--editor <path/to/editor>]
+```
+
+The default editor is VS Code (`code`), users may change to other editor (e.g. `--editor notepad`).
+
 ### How to add / delete a cluster
 
 User can use `add` and `delete` command to add (or delete) a clusters from the clusters file.
