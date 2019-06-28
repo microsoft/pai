@@ -55,6 +55,15 @@ const requestTokenWithCode = async (req, res, next) => {
     const grantType = 'authorization_code';
     const clientSecret = authnConfig.OIDCConfig.clientSecret;
     const requestUrl = authnConfig.OIDCConfig.token_endpoint;
+    // eslint-disable-next-line no-console
+    console.log({
+      client_id: clientId,
+      scope: scope,
+      code: authCode,
+      redirect_uri: redirectUri,
+      grant_type: grantType,
+      client_secret: clientSecret,
+    });
     const data = {
       client_id: clientId,
       scope: scope,
@@ -64,6 +73,8 @@ const requestTokenWithCode = async (req, res, next) => {
       client_secret: clientSecret,
     };
     const response = await axios.post(requestUrl, querystring.stringify(data));
+    // eslint-disable-next-line no-console
+    console.log(response.data);
     req.IDToken = jwt.decode(response.data.id_token);
     req.accessToken = jwt.decode(response.data.access_token);
     req.refreshToken = jwt.decode(response.data.access_token);
