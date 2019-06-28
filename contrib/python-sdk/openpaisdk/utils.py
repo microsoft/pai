@@ -97,6 +97,23 @@ def getobj(name: str):
     return getattr(mod, func_name)
 
 
+def pretty_print_POST(req):
+    """
+    At this point it is completely built and ready
+    to be fired; it is "prepared".
+
+    However pay attention at the formatting used in
+    this function because it is programmed to be pretty
+    printed and may differ from the actual request.
+    """
+    __logger__.debug('{}\n{}\n{}\n\n{}'.format(
+        '-----------START-----------',
+        req.method + ' ' + req.url,
+        '\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
+        req.body,
+    ))
+
+
 def get_response(
     path: str,
     headers: dict = {'Content-Type': 'application/json'},
@@ -118,11 +135,16 @@ def get_response(
         [Response]: request response
     """
     num, successful = 0, False
+    # deal with body format
+    dic = dict(headers=headers)
+    if headers.get('Content-Type', 'application/json'):
+        dic["json"] = body
+    else:
+        dic["data"] = body
     while num < max_try:
         num += 1
-        response = request(
-            method, path, headers=headers, json=body
-        )
+        response = request(method, path, **dic)
+        pretty_print_POST(response.request)
         if response.status_code in allowed_status:
             successful = True
             break
