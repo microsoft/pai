@@ -162,6 +162,10 @@ const JobSubmission = () => {
 
   const setErrorMessage = useCallback(
     (id, msg) => {
+      const preMsg = errorMessages[id] || '';
+      if (preMsg === msg) {
+        return;
+      }
       setErrorMessages((prev) => {
         if (isEmpty(msg)) {
           if (prev !== undefined && prev[id] !== undefined) {
@@ -178,7 +182,7 @@ const JobSubmission = () => {
         return prev;
       });
     },
-    [setErrorMessages],
+    [setErrorMessages, errorMessages],
   );
 
   const contextValue = useMemo(() => ({
