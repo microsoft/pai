@@ -1,17 +1,12 @@
 export function validateMountPath(path) {
   let illegalMessage = '';
   const pathRegex = /^(\/[A-Za-z0-9\-._]+)+$/;
-  if (path.charAt(0) !== '/') {
-    illegalMessage = 'path should start with "/"';
-
-    return {isLegal: false, illegalMessage};
-  }
   if (path.charAt(path.length - 1) === '/') {
     illegalMessage = 'path should not end with "/"';
 
     return {isLegal: false, illegalMessage};
   }
-  if (!pathRegex.test(path)) {
+  if (!pathRegex.test(`/${path}`)) {
     illegalMessage = 'path is not illegal';
 
     return {isLegal: false, illegalMessage};

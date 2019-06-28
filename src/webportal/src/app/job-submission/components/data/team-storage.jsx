@@ -60,6 +60,7 @@ export const TeamStorage = ({
   const showConfigs = (config) => {
     return (
       <Checkbox
+        key={config.name}
         label={config.name}
         defaultChecked={
           selectedConfigNames.length > 0 &&

@@ -21,7 +21,6 @@ import {
   validateHDFSPathSync,
 } from '../../utils/validation';
 import Context from '../context';
-import {HdfsContext} from '../../models/data/hdfs-context';
 import t from '../../../components/tachyons.scss';
 
 const DATA_ERROR_MESSAGE_ID = 'Data Section';
