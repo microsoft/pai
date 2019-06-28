@@ -81,6 +81,8 @@ const requestTokenWithCode = async (req, res, next) => {
     req.returnBackURI = req.body.state;
     next();
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
     return next(createError.unknown(error));
   }
 };
