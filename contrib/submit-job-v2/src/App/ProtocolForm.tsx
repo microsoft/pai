@@ -612,8 +612,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     protocol.taskRoles[tensorBoardName].resourcePerInstance.ports[tensorBoardPort] = 1;
     protocol.extras = { tensorBoardStr: randomStr };
     this.setState({
-      protocol: protocol,
-      protocolYAML: yaml.safeDump(protocol)
+      protocol,
+      protocolYAML: yaml.safeDump(protocol),
     });
   }
 
@@ -622,13 +622,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (!this.state.protocolYAML) {
       return;
     }
-    debugger;
     const protocolBackup = this.state.protocol;
     if (this.state.enableTensorBoard) {
       if (this.state.logPath !== "") {
         await this.addTensorBoardConfig();
-      }
-      else {
+      } else {
         alert("Please input the tensorboard log path!");
         return;
       }
