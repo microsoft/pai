@@ -30,7 +30,7 @@ const convertName = (name) => {
 const convertFrameworkSummary = (framework) => {
   return {
     name: framework.metadata.name,
-    username: framework.metadata.annotations.userName,
+    username: framework.metadata.labels.userName,
     state: framework.status.state,
     subState: framework.status.state,
     executionType: framework.spec.executionType,
@@ -43,7 +43,7 @@ const convertFrameworkSummary = (framework) => {
     createdTime: new Date(framework.status.startTime).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: framework.status.attemptStatus.completionStatus ? framework.status.attemptStatus.completionStatus : null,
-    virtualCluster: framework.metadata.annotations.virtualCluster,
+    virtualCluster: framework.metadata.labels.virtualCluster,
     totalGpuNumber: 0, // TODO
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
       (num, statuses) => num + statuses.taskStatuses.length, 0),
@@ -70,7 +70,7 @@ const convertFrameworkDetail = (framework) => {
   const detail = {
     name: framework.metadata.name,
     jobStatus: {
-      username: framework.metadata.annotations.userName,
+      username: framework.metadata.labels.userName,
       state: framework.status.state,
       subState: framework.status.state,
       executionType: framework.spec.executionType,
@@ -99,7 +99,7 @@ const convertFrameworkDetail = (framework) => {
       appExitTriggerTaskRoleName: null, // TODO
       appExitTriggerTaskIndex: null, // TODO
       appExitType: completionStatus ? completionStatus.type.name : null,
-      virtualCluster: framework.metadata.annotations.virtualCluster,
+      virtualCluster: framework.metadata.labels.virtualCluster,
     },
     taskRoles: {},
   };
@@ -344,7 +344,7 @@ const put = async (frameworkName, config, rawConfig) => {
 
 const getConfig = async (frameworkName) => {
   const framework = await get(frameworkName);
-  return framework.annotations.config;
+  return framework.metadata.annotations.config;
 };
 
 // module exports
