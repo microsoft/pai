@@ -114,7 +114,7 @@ const convertFrameworkDetail = (framework) => {
   return detail;
 };
 
-const generateTaskRole = (taskRole, config) => {
+const generateTaskRole = (taskRole, userName, virtualCluster, config) => {
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -126,6 +126,8 @@ const generateTaskRole = (taskRole, config) => {
       pod: {
         metadata: {
           labels: {
+            userName,
+            virtualCluster,
             type: 'kube-launcher-task',
           },
           annotations: {
@@ -250,7 +252,8 @@ const generateFrameworkDescription = (frameworkName, userName, virtualCluster, c
   };
   // fill in task roles
   for (let taskRole of Object.keys(config.taskRoles)) {
-    frameworkDescription.spec.taskRoles.push(generateTaskRole(taskRole, config));
+    frameworkDescription.spec.taskRoles.push(
+      generateTaskRole(taskRole, userName, virtualCluster, config));
   }
   return frameworkDescription;
 };
