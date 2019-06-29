@@ -235,9 +235,11 @@ const generateFrameworkDescription = (frameworkName, userName, virtualCluster, c
     kind: 'Framework',
     metadata: {
       name: frameworkName,
-      annotations: {
+      labels: {
         userName,
         virtualCluster,
+      },
+      annotations: {
         config: rawConfig,
       },
     },
