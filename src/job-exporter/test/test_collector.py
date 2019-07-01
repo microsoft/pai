@@ -238,8 +238,10 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_mem_utils, mem_utils)
 
         target_ecc_errors = collector.gen_gpu_ecc_counter()
-        target_ecc_errors.add_metric(["0", "single"], 0)
-        target_ecc_errors.add_metric(["0", "double"], 0)
+        target_ecc_errors.add_metric(["0", "volatile_single"], 0)
+        target_ecc_errors.add_metric(["0", "volatile_double"], 0)
+        target_ecc_errors.add_metric(["0", "aggregated_single"], 0)
+        target_ecc_errors.add_metric(["0", "aggregated_double"], 0)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
         target_mem_leak = collector.gen_gpu_memory_leak_counter()
@@ -259,7 +261,7 @@ class TestGpuCollector(base.TestBase):
 
         # test minor 1
         gpu_info = nvidia.construct_gpu_info([
-            nvidia.NvidiaGpuStatus(30, 31, [55, 123], nvidia.EccError(single=2, double=3), "1", "GPU-uuid1", 24.0)])
+            nvidia.NvidiaGpuStatus(30, 31, [55, 123], nvidia.EccError(volatile_single=2, volatile_double=3, aggregated_single=4, aggregated_double=5), "1", "GPU-uuid1", 24.0)])
 
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
@@ -275,8 +277,10 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_mem_utils, mem_utils)
 
         target_ecc_errors = collector.gen_gpu_ecc_counter()
-        target_ecc_errors.add_metric(["1", "single"], 2)
-        target_ecc_errors.add_metric(["1", "double"], 3)
+        target_ecc_errors.add_metric(["1", "volatile_single"], 2)
+        target_ecc_errors.add_metric(["1", "volatile_double"], 3)
+        target_ecc_errors.add_metric(["1", "aggregated_single"], 4)
+        target_ecc_errors.add_metric(["1", "aggregated_double"], 5)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
         target_mem_leak = collector.gen_gpu_memory_leak_counter()
@@ -312,8 +316,10 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_mem_utils, mem_utils)
 
         target_ecc_errors = collector.gen_gpu_ecc_counter()
-        target_ecc_errors.add_metric(["2", "single"], 0)
-        target_ecc_errors.add_metric(["2", "double"], 0)
+        target_ecc_errors.add_metric(["2", "volatile_single"], 0)
+        target_ecc_errors.add_metric(["2", "volatile_double"], 0)
+        target_ecc_errors.add_metric(["2", "aggregated_single"], 0)
+        target_ecc_errors.add_metric(["2", "aggregated_double"], 0)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
         target_mem_leak = collector.gen_gpu_memory_leak_counter()

@@ -369,8 +369,10 @@ class GpuCollector(Collector):
             mem_utils.add_metric([minor], info.gpu_mem_util)
             if info.temperature is not None:
                 gpu_temp.add_metric([minor], info.temperature)
-            ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
-            ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
+            ecc_errors.add_metric([minor, "volatile_single"], info.ecc_errors.volatile_single)
+            ecc_errors.add_metric([minor, "volatile_double"], info.ecc_errors.volatile_double)
+            ecc_errors.add_metric([minor, "aggregated_single"], info.ecc_errors.aggregated_single)
+            ecc_errors.add_metric([minor, "aggregated_double"], info.ecc_errors.aggregated_double)
             if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
                 # we found memory leak less than 20M can be mitigated automatically
                 mem_leak.add_metric([minor], 1)
