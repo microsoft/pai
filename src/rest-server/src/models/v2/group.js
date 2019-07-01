@@ -309,6 +309,8 @@ const initGrouplistInCfg = async () => {
     await createGroupIfNonExistent(defaultVCGroup.groupname, defaultVCGroup);
     logger.info('Create default group successfully.');
     logger.info('Create non-admin group configured in configuration.');
+    // eslint-disable-next-line no-console
+    console.log(authConfig.groupConfig.grouplist);
     for (const groupItem of authConfig.groupConfig.grouplist) {
       await createGroupIfNonExistent(groupItem.groupname, groupItem);
     }

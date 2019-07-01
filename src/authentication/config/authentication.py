@@ -19,7 +19,16 @@ class Authentication:
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = dict(default_service_configuration, **service_configuration)
+        self.service_configuration = default_service_configuration
+        if "OIDC" in service_configuration:
+            self.service_configuration["OIDC"] = service_configuration["OIDC"]
+        if "OIDC-type" in service_configuration:
+            self.service_configuration["OIDC-type"] = service_configuration["OIDC-type"]
+        if "AAD" in service_configuration:
+            self.service_configuration["AAD"] = service_configuration["AAD"]
+        if "group-manager" in service_configuration:
+            self.service_configuration["group-manager"] = service_configuration["group-manager"]
+
 
     def validation_pre(self):
         if self.service_configuration["OIDC"] is False:
