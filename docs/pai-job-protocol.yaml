@@ -162,8 +162,8 @@ taskRoles:
       memoryMB: 16384
       gpu: 4
       ports:
-        ssh: 0
-        http: 0
+        ssh: 1
+        http: 1
     commands:
       - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
@@ -195,8 +195,8 @@ taskRoles:
       memoryMB: 8192
       gpu: 0
       ports:
-        ssh: 0
-        http: 0
+        ssh: 1
+        http: 1
     commands:
       - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
