@@ -1,5 +1,6 @@
 import React, {useCallback, useReducer, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
+import {Stack} from 'office-ui-fabric-react';
 
 import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
@@ -15,9 +16,10 @@ import {
   fetchStorageServer,
 } from '../../utils/conn';
 import config from '../../../config/webportal.config';
+import {JobData} from '../../models/data/job-data';
+import {Hint} from '../sidebar/hint';
 
 const host = getHostNameFromUrl(config.restServerUri);
-import {JobData} from '../../models/data/job-data';
 
 function reducer(state, action) {
   let jobData;
@@ -50,7 +52,10 @@ export const DataComponent = React.memo((props) => {
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
-  const [dataError, setDataError] = useState({customContainerPathError: false, customDataSourceError: false});
+  const [dataError, setDataError] = useState({
+    customContainerPathError: false,
+    customDataSourceError: false,
+  });
   const [jobData, dispatch] = useReducer(
     reducer,
     new JobData(hdfsClient, [], null),
@@ -134,30 +139,39 @@ export const DataComponent = React.memo((props) => {
         title='Data'
         selected={props.selected}
         onSelect={props.onSelect}
-        error={dataError.customContainerPathError || dataError.customDataSourceError}
+        error={
+          dataError.customContainerPathError || dataError.customDataSourceError
+        }
       >
-        {teamConfigs && (
-          <TeamStorage
-            teamConfigs={teamConfigs}
-            defaultTeamConfigs={defaultTeamConfigs}
-            mountDirs={jobData.mountDirs}
-            onMountDirChange={onMountDirChange}
+        <Stack gap='m'>
+          <Hint>
+            The data configured here will be mounted or copied into job
+            container. You could use them with <code>{'Container Path'}</code>{' '}
+            value below.
+          </Hint>
+          {teamConfigs && (
+            <TeamStorage
+              teamConfigs={teamConfigs}
+              defaultTeamConfigs={defaultTeamConfigs}
+              mountDirs={jobData.mountDirs}
+              onMountDirChange={onMountDirChange}
+            />
+          )}
+          <CustomStorage
+            dataList={jobData.customDataList}
+            setDataList={_onDataListChange}
+            setDataError={setDataError}
           />
-        )}
-        <CustomStorage
-          dataList={jobData.customDataList}
-          setDataList={_onDataListChange}
-          setDataError={setDataError}
-        />
-        <MountTreeView
-          dataList={
-            jobData.mountDirs == null
-              ? jobData.customDataList
-              : jobData.mountDirs
-                  .getTeamDataList()
-                  .concat(jobData.customDataList)
-          }
-        />
+          <MountTreeView
+            dataList={
+              jobData.mountDirs == null
+                ? jobData.customDataList
+                : jobData.mountDirs
+                    .getTeamDataList()
+                    .concat(jobData.customDataList)
+            }
+          />
+        </Stack>
       </SidebarCard>
     </HdfsContext.Provider>
   );
