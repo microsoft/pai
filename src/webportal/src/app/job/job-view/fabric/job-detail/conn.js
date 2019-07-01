@@ -108,8 +108,8 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
     const tensorBoardStr = `TensorBoard_${randomStr}`;
     const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
     const obj = jobInfo.taskRoles;
-    if(obj.hasOwnProperty(tensorBoardStr)) {
-      if(obj[tensorBoardStr].taskStatuses[0].taskState == "RUNNING"){
+    if (obj.hasOwnProperty(tensorBoardStr)) {
+      if (obj[tensorBoardStr].taskStatuses[0].taskState == 'RUNNING') {
         port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
         ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
       }
