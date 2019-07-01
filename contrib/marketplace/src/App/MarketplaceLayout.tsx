@@ -593,14 +593,15 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
           }
           return protocolList;
         } else {
-          alert(`Cannot get ${uri}`);
+          alert(`Cannot get data\nPlease provide a valid marketplace uri`);
         }
       } catch (err) {
-        alert(err.message);
+        alert(`Cannot get ${uri}\nWrong uri or access token`);
       }
     } else if (uriType === "DevOps") {
+      let res;
       try {
-        let res = await fetch(uri, {headers: requestHeaders});
+        res = await fetch(uri, {headers: requestHeaders});
         let data = await res.json();
         if (data.isFolder && "tree" in data._links) {
           res = await fetch(data._links.tree.href, {headers: requestHeaders});
@@ -618,10 +619,18 @@ export default class MarketplaceLayout extends React.Component<IMarketplaceLayou
           }
           return protocolList;
         } else {
-          alert(`Cannot get ${uri}`);
+          alert(`Cannot get data\nPlease provide a valid marketplace uri`);
         }
       } catch (err) {
-        alert(err.message);
+        if (res) {
+          if (res.status === 203) {
+            alert("Please provide a valid personal access token from Azure DevOps");
+          } else {
+            alert("Please provide a valid marketplace uri");
+          }
+        } else {
+          alert(`Cannot get ${uri}\nWrong uri or access token`);
+        }
       }
     } else {
       alert(`Cannot recognize uri ${uri}`);

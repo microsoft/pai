@@ -17,7 +17,7 @@
 
 
 // module dependencies
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const dotenv = require('dotenv');
 
 

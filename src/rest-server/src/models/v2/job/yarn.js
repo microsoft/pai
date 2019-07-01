@@ -265,11 +265,21 @@ async function get(frameworkName) {
   const [userName] = frameworkName.split('~');
 
   // send request to framework launcher
-  const response = await axios({
-    method: 'get',
-    url: launcherConfig.frameworkPath(frameworkName),
-    headers: launcherConfig.webserviceRequestHeaders(userName),
-  });
+  let response;
+  try {
+    response = await axios({
+      method: 'get',
+      url: launcherConfig.frameworkPath(frameworkName),
+      headers: launcherConfig.webserviceRequestHeaders(userName),
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+
   if (response.status === status('OK')) {
     return response.data;
   }

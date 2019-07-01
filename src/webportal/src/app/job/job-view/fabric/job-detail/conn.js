@@ -22,6 +22,7 @@ import qs from 'querystring';
 import {userLogout} from '../../../../user/user-logout/user-logout.component';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
+import {isJobV2} from './util';
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
@@ -123,7 +124,11 @@ export async function cloneJob(rawJobConfig) {
   // plugin
   const pluginId = get(rawJobConfig, 'extras.submitFrom');
   if (isNil(pluginId)) {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
+    if (isJobV2(rawJobConfig)) {
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+    } else {
+      window.location.href = `/submit_v1.html?${qs.stringify(query)}`;
+    }
     return;
   }
   const plugins = window.PAI_PLUGINS;

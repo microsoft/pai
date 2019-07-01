@@ -18,16 +18,18 @@
 import c from 'classnames';
 import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useRef} from 'react';
 
 import MonacoEditor from './monaco-editor';
 
 import t from './tachyons.scss';
 
-const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas}) => {
+const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
+  const panelRef = useRef(null);
   return (
     <div>
       <Panel
+        componentRef={panelRef}
         onDismiss={onDismiss}
         isLightDismiss={true}
         isOpen={isOpen}
@@ -37,7 +39,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           main: [ColorClassNames.neutralPrimaryBackground],
           headerText: [ColorClassNames.white],
           overlay: [ColorClassNames.blackTranslucent40Background],
-          content: [t.flex, t.flexAuto],
+          content: [t.flex, t.flexAuto, t.flexColumn],
           scrollableContent: [t.flex, t.flexAuto, {overflowY: 'visible'}],
           closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
         }}
@@ -48,6 +50,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
         <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
           <MonacoEditor
             style={{flex: '1 1 100%', minHeight: 0}}
+            monacoRef={monacoRef}
             monacoProps={{
               theme: 'vs-dark',
               language: 'text',
@@ -73,7 +76,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
                 rootPressed: [ColorClassNames.blackBackground],
                 label: [ColorClassNames.white],
               }}
-              onClick={onDismiss}
+              onClick={() => panelRef.current && panelRef.current.dismiss()}
             />
           </div>
         </div>
@@ -93,6 +96,7 @@ MonacoPanel.propTypes = {
   monacoProps: PropTypes.object,
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
+  monacoRef: PropTypes.object,
 };
 
 export default MonacoPanel;

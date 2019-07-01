@@ -10,7 +10,7 @@ import { back as nockBack } from 'nock';
 import { join } from 'path';
 import { FileType, Uri } from 'vscode';
 
-import { getSingleton } from '../common/singleton';
+import { getSingleton, waitForAllSingletonFinish } from '../common/singleton';
 import { ClusterManager } from '../pai/clusterManager';
 import { HDFSFileSystemProvider } from '../pai/hdfs';
 
@@ -26,6 +26,7 @@ suite('HDFS Client', function (this: ISuiteCallbackContext): void {
     this.timeout(0);
 
     suiteSetup(async () => {
+        await waitForAllSingletonFinish();
         (await getSingleton(ClusterManager)).allConfigurations.push(<any>{
             name: 'Sample Cluster',
             username: 'openmindstudio',

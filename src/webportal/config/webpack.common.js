@@ -60,7 +60,8 @@ const config = (env, argv) => ({
     'batchRegister': './src/app/user/fabric/batch-register.jsx',
     'changePassword': './src/app/user/change-password/change-password.component.js',
     'dashboard': './src/app/dashboard/dashboard.component.js',
-    'submit': './src/app/job/job-submit/job-submit.component.js',
+    'submit': './src/app/job-submission/job-submission.jsx',
+    'submit_v1': './src/app/job/job-submit-v1/job-submit.component.js',
     'jobList': './src/app/job/job-view/fabric/job-list.jsx',
     'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
     'virtualClusters': './src/app/vc/vc.component.js',
@@ -115,10 +116,6 @@ const config = (env, argv) => ({
             },
           },
         ],
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader',
       },
       {
         test: /\.ejs$/,
@@ -301,6 +298,10 @@ const config = (env, argv) => ({
       chunks: ['layout', 'submit'],
     }),
     generateHtml({
+      filename: 'submit_v1.html',
+      chunks: ['layout', 'submit_v1'],
+    }),
+    generateHtml({
       filename: 'job-list.html',
       chunks: ['layout', 'jobList'],
     }),
@@ -350,8 +351,10 @@ const config = (env, argv) => ({
     ],
   },
   node: {
-    global: true,
     fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    global: true,
     process: true,
     module: false,
   },
