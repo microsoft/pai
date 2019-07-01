@@ -24,7 +24,16 @@
  */
 
 import React, {useState, useRef, useEffect, useContext} from 'react';
-import {Stack, DefaultButton, PrimaryButton, Text, getTheme, Label, StackItem, Toggle} from 'office-ui-fabric-react';
+import {
+  Stack,
+  DefaultButton,
+  PrimaryButton,
+  Text,
+  getTheme,
+  Label,
+  StackItem,
+  Toggle,
+} from 'office-ui-fabric-react';
 
 import {getImportButtonStyle} from './form-style';
 import {JobProtocol} from '../models/job-protocol';
@@ -44,17 +53,20 @@ import Context from './context';
 import PropTypes from 'prop-types';
 import {isNil, debounce, isEqual, isEmpty} from 'lodash';
 
-const JOB_PROTOCOL_SCHEMA_URL = 'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
+const JOB_PROTOCOL_SCHEMA_URL =
+  'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
 
 const user = cookies.get('user');
-const {palette} = getTheme();
+const {palette, spacing} = getTheme();
 const importButtonStyle = getImportButtonStyle();
 
 const _exportFile = (data, filename, type) => {
   let file = new Blob([data], {type: type});
-  if (window.navigator.msSaveOrOpenBlob) { // IE10+
+  if (window.navigator.msSaveOrOpenBlob) {
+    // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
-  } else { // Others
+  } else {
+    // Others
     let a = document.createElement('a');
     let url = URL.createObjectURL(file);
     a.href = url;
@@ -103,7 +115,12 @@ export const SubmissionSection = (props) => {
   };
 
   useEffect(() => {
-    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
+    const protocol = jobProtocol.getUpdatedProtocol(
+      jobInformation,
+      jobTaskRoles,
+      parameters,
+      secrets,
+    );
     _protocolAndErrorUpdate(protocol);
   }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
 
@@ -111,7 +128,12 @@ export const SubmissionSection = (props) => {
     event.preventDefault();
     setEditorOpen(true);
 
-    const protocol = jobProtocol.getUpdatedProtocol(jobInformation, jobTaskRoles, parameters, secrets);
+    const protocol = jobProtocol.getUpdatedProtocol(
+      jobInformation,
+      jobTaskRoles,
+      parameters,
+      secrets,
+    );
     _protocolAndErrorUpdate(protocol);
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
@@ -141,7 +163,12 @@ export const SubmissionSection = (props) => {
     ] = getJobComponentsFormConfig(updatedJob);
 
     pruneComponents(updatedJobInformation, updatedSecrets, {vcNames});
-    onChange(updatedJobInformation, updatedTaskRoles, updatedParameters, updatedSecrets);
+    onChange(
+      updatedJobInformation,
+      updatedTaskRoles,
+      updatedParameters,
+      updatedSecrets,
+    );
   };
 
   const _closeEditor = () => {
@@ -157,7 +184,11 @@ export const SubmissionSection = (props) => {
     const protocol = new JobProtocol(jobProtocol);
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
-      _exportFile(jobProtocol.toYaml(), (jobInformation.name || 'job') + '.yaml', 'text/yaml');
+      _exportFile(
+        jobProtocol.toYaml(),
+        (jobInformation.name || 'job') + '.yaml',
+        'text/yaml',
+      );
     } catch (err) {
       alert(err);
     }
@@ -202,71 +233,65 @@ export const SubmissionSection = (props) => {
 
   return (
     <Card>
-      <Stack horizontal>
-        <StackItem grow>
-          <Stack horizontal gap='s1' horizontalAlign='center'>
-            <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)} >Submit</PrimaryButton>
-            <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-          </Stack>
-        </StackItem>
-        <Stack gap='s1' horizontal>
-          <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
-          <DefaultButton>
-            <Label styles={{root: importButtonStyle.label}}>
-              {'Import'}
-              <input
-                type='file'
-                style={importButtonStyle.input}
-                accept='.yml,.yaml'
-                onChange={_importFile}
-              />
-            </Label>
-          </DefaultButton>
-          <Stack
-            horizontal
-            padding='0 0 0 s1'
-            verticalAlign='center'
-            gap='s1'
-          >
-            <div>Advanced</div>
-            <Toggle
-              styles={{root: {margin: 0}}}
-              checked={advanceFlag}
-              onChange={onToggleAdvanceFlag}
+      <Stack horizontal gap='s1' horizontalAlign='center'>
+        <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
+          Submit
+        </PrimaryButton>
+        <DefaultButton
+          onClick={_openEditor}
+          styles={{root: {marginRight: spacing.l2}}}
+        >
+          Edit YAML
+        </DefaultButton>
+        <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+        <DefaultButton>
+          <Label styles={{root: importButtonStyle.label}}>
+            {'Import'}
+            <input
+              type='file'
+              style={importButtonStyle.input}
+              accept='.yml,.yaml'
+              onChange={_importFile}
             />
-          </Stack>
+          </Label>
+        </DefaultButton>
+        <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
+          <div>Advanced</div>
+          <Toggle
+            styles={{root: {margin: 0}}}
+            checked={advanceFlag}
+            onChange={onToggleAdvanceFlag}
+          />
         </Stack>
-        <MonacoPanel
-          isOpen={isEditorOpen}
-          onDismiss={_closeEditor}
-          title='Protocol YAML Editor'
-          header={
-            <Stack grow horizontal>
-              <StackItem grow align='center'>
-                <Text className={{color: palette.white}}>
-                  {String(validationMsg)}
-                </Text>
-              </StackItem>
-              <StackItem horizontalAlign='end'>
-                <DefaultButton
-                  onClick={() =>
-                    (window.open(JOB_PROTOCOL_SCHEMA_URL))
-                  }
-                >
-                  Protocol Schema
-                </DefaultButton>
-              </StackItem>
-            </Stack>
-          }
-          monacoRef={monaco}
-          monacoProps={{
-            language: 'yaml',
-            options: {wordWrap: 'on', readOnly: false},
-            value: protocolYaml,
-            onChange: debounce(_onYamlTextChange, 100),
-          }}
-        />
       </Stack>
+      <MonacoPanel
+        isOpen={isEditorOpen}
+        onDismiss={_closeEditor}
+        title='Protocol YAML Editor'
+        header={
+          <Stack grow horizontal>
+            <StackItem grow align='center'>
+              <Text className={{color: palette.white}}>
+                {String(validationMsg)}
+              </Text>
+            </StackItem>
+            <StackItem horizontalAlign='end'>
+              <DefaultButton
+                onClick={() => window.open(JOB_PROTOCOL_SCHEMA_URL)}
+              >
+                Protocol Schema
+              </DefaultButton>
+            </StackItem>
+          </Stack>
+        }
+        monacoRef={monaco}
+        monacoProps={{
+          language: 'yaml',
+          options: {wordWrap: 'on', readOnly: false},
+          value: protocolYaml,
+          onChange: debounce(_onYamlTextChange, 100),
+        }}
+      />
     </Card>
   );
 };
