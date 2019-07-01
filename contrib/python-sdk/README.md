@@ -37,6 +37,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
   - [Other FAQ of CLI](#Other-FAQ-of-CLI)
     - [How to select a cluster to use until I change it](#How-to-select-a-cluster-to-use-until-I-change-it)
     - [How to simplify the command](#How-to-simplify-the-command)
+    - [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK)
 - [Python binding](#Python-binding)
   - [Cluster management](#Cluster-management)
   - [Job management](#Job-management)
@@ -55,19 +56,15 @@ We provide installing method leveraging `pip install`
 
 ```bash
 python -m pip install --upgrade pip
-pip install -U -e "git+https://github.com/Microsoft/pai@sdk-release-v0.4.00#egg=openpaisdk&subdirectory=contrib/python-sdk"
+pip install -U -e "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
-The `sdk-release-v0.4.00` is the branch name which containing the source code of SDK. User may change it to another branch to install another version of the package.
-
-After installing, please verify by CLI or python binding as below.
+Refer to [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK) for more details about installing. After installing, please verify by CLI or python binding as below.
 
 ```bash
 opai -h
 python -c "from openpaisdk import __version__; print(__version__)"
 ```
-
-And you may also change it to another branch (only take effect in the job container) by `opai set sdk-branch=<your/branch>`.
 
 ### Dependencies
 
@@ -302,7 +299,17 @@ Some commonly used default variables includes
 - `workspace=<workspace>`
 - `sdk-branch=<sdk-branch-tag>` which branch to use when install the sdk in job container
 
+### How to install a different version of SDK
 
+User could easily switch to another version of SDK both in local environment and in job container. In local environment, user just change `<your/branch>` to another branch (e.g. `pai-0.14.y` for `OpenPAI` end-June release or `sdk-release-v0.4.00` for the canary version).
+
+```bash
+pip install -U -e "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisdk&subdirectory=contrib/python-sdk"
+```
+
+To debug a local update, just use `pip install -U -e your/path/to/setup.py`.
+
+For jobs submitted by the SDK or command line tool, the version specified by `opai set sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
 
 # Python binding
 

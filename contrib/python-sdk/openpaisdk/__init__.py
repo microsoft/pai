@@ -9,10 +9,11 @@ __jobs_cache__ = os.path.join(__cache__, 'jobs')
 
 __version__ = '0.4.00'
 
-__sdk_branch__ = 'sdk-release-v0.4.00'
+__sdk_branch__ = 'master'
 
 
-def get_install_uri(ver: str=__sdk_branch__):
+def get_install_uri(ver: str=None):
+    ver = __sdk_branch__ if not ver else ver
     return '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(ver)
 
 
