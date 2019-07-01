@@ -29,7 +29,6 @@ class Authentication:
         if "group-manager" in service_configuration:
             self.service_configuration["group-manager"] = service_configuration["group-manager"]
 
-
     def validation_pre(self):
         if self.service_configuration["OIDC"] is False:
             return True, None
