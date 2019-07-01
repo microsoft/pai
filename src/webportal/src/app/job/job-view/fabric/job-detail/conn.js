@@ -104,16 +104,16 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
   if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoardStr')) {
-    const tensorBoardStr = rawJobConfig.extras.tensorBoardStr;
+    const randomStr = rawJobConfig.extras.tensorBoardStr;
+    const tensorBoardStr = `TensorBoard_${randomStr}`;
+    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
     const obj = jobInfo.taskRoles;
-    Object.keys(obj).forEach(function(key) {
-      if (key === 'TensorBoard_' + tensorBoardStr) {
-        if (obj[key].taskStatuses['0'].taskState == 'RUNNING') {
-          port = obj[key].taskStatuses['0'].containerPorts['tensorBoardPort_' + tensorBoardStr];
-          ip = obj[key].taskStatuses['0'].containerIp;
-        }
+    if(obj.hasOwnProperty(tensorBoardStr)) {
+      if(obj[tensorBoardStr].taskStatuses[0].taskState == "RUNNING"){
+        port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
+        ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
       }
-    });
+    }
   }
   if (isNil(port) || isNil(ip)) {
     return null;

@@ -591,7 +591,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       contributor: "OpenPAI",
       uri: "openpai/pai.example.tensorflow",
     };
-    const portList = " --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST";
+    const portList = ` --port=$PAI_CONTAINER_HOST_${tensorBoardPort}_PORT_LIST`;
     protocol.taskRoles[tensorBoardName] = {
       instances: 1,
       completion: {
