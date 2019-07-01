@@ -135,19 +135,6 @@ rest-server:
 #  threshold: 94
 #  interval: 60
 
-#authentication:
-#  OIDC: false
-#
-#  #Required
-#  identityMetadata: https://login.microsoftonline.com/${tenant_name}.onmicrosoft.com/.well-known/openid-configuration
-#  # or equivalently: https://login.microsoftonline.com/<tenant_guid>/.well-known/openid-configuration
-#  #
-#  # or you can use the common endpoint
-#  # 'https://login.microsoftonline.com/common/.well-known/openid-configuration'
-#  # To use the common endpoint, you have to either set `validateIssuer` to false, or provide the `issuer` value.
-#
-#  # Required, the client ID of your app in AAD
-#  clientID: ${your_client_id}
 
 # uncomment following section, if you want to customize the authentication solution.
 #authentication:
@@ -188,3 +175,34 @@ rest-server:
   #  # set the value to null.
   #  # Note that in order to get access_token, the responseType must be 'code', 'code id_token' or 'id_token code'.
   #  resourceURL: 'https://graph.windows.net'
+  #
+  #group-manager:
+  #  # basic: If you set group-data-source as the value basic, admin should manually modify user's grouplist.
+  #  # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
+  #  group-data-source: basic
+  #
+  #  # If you set winbind as your data source, you should configure this configuraiton.
+  #  # winbind-server-address: xxxxxxx
+  #
+  #  # Admin group name and its user list
+  #  admin-group:
+  #    groupname: admingroup
+  #    description: "admin's group"
+  #    externalName: ""
+  #
+  #  # Group for default vc.
+  #  # For yarn default queue hack.
+  #  default-group:
+  #    groupname: default
+  #    description: "group for default vc"
+  #    externalName: ""
+  #
+  #  # If the following groups are not in the data store, it will be created by default.
+  #  grouplist:
+  #    - groupname: for-example
+  #      # internal name
+  #      description: for-example
+  #      # description of the group
+  #      externalName: ""
+  #      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
+  #      # the result of winbind. If the group-data-source is basic, this field is useless.
