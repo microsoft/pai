@@ -100,7 +100,6 @@ class TransferClient:
         meta_dict['name'] = user_info_item['metadata']['name']
         grouplist = []
         virtual_cluster = []
-
         print base64.b64decode(user_info_item['data']['admin'])
         if base64.b64decode(user_info_item['data']['admin']) == True:
             grouplist.append(self.admin_group)
