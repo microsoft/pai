@@ -145,6 +145,38 @@ const virtualClustersAdd = () => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         $('#virtualClustersList').modal('hide');
         alert(data.message);
+        groupAdd(vcName);
+      },
+      error: (xhr, textStatus, error) => {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
+      },
+    });
+  });
+};
+
+//
+const groupAdd = (groupmane) => {
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v2/group/`,
+      data: JSON.stringify({
+        'groupname': groupmane,
+        'description': ``,
+        'externalName': ``,
+        'extension': `{"groupType": "vc"}`,
+      }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'POST',
+      dataType: 'json',
+      success: (data) => {
+        alert(data.message);
       },
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
@@ -173,6 +205,32 @@ const deleteVcItem = (name) => {
       dataType: 'json',
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
+        alert(data.message);
+        deleteGroupItem(name);
+      },
+      error: (xhr, textStatus, error) => {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.code === 'UnauthorizedUserError') {
+          userLogout();
+        }
+      },
+    });
+  });
+};
+
+//
+const deleteGroupItem = (groupname) => {
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v2/group/${groupname}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'DELETE',
+      dataType: 'json',
+      success: (data) => {
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -283,11 +341,14 @@ const convertState = (name, state) => {
   return `<a ${vcStateChage} class="state-vc state-${vcState.toLowerCase()} ${vcStateOrdinary}" ${vcStateTips}>${vcState}</a>`;
 };
 
+
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
 window.changeVcState = changeVcState;
 window.convertState = convertState;
+window.groupAdd = groupAdd;
+window.deleteGroupItem = deleteGroupItem;
 window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {

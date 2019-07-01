@@ -36,3 +36,13 @@ export const checkPassword = (value) => {
     return error;
   }
 };
+
+const emailSchema = Joi.string().email().empty('');
+export const checkEmail = (value) => {
+  const {error} = Joi.validate(value, emailSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Email');
+  } else {
+    return error;
+  }
+};

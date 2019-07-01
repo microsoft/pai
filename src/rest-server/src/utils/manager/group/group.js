@@ -15,42 +15,29 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
-const jwt = require('jsonwebtoken');
-const tokenConfig = require('@pai/config/token');
-const tokenModel = require('@pai/models/token');
-const createError = require('@pai/utils/error');
+const Joi = require('joi');
 
-/**
- * Get the token.
- */
-const get = (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const expiration = req.body.expiration;
-  tokenModel.check(username, password, (err, state, admin, hasGitHubPAT) => {
-    if (err) {
-      return next(createError.unknown(err));
-    }
-    if (!state) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    jwt.sign({
-      username: username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      if (signError) {
-        return next(createError.unknown(signError));
-      }
-      return res.status(200).json({
-        user: username,
-        token: token,
-        admin: admin,
-        hasGitHubPAT: hasGitHubPAT,
-      });
-    });
-  });
-};
+const groupSchema = Joi.object().keys({
+  groupname: Joi.string()
+    .token()
+    .required(),
+  description: Joi.string()
+    .empty('')
+    .default(''),
+  externalName: Joi.string()
+    .empty('')
+    .default(''),
+  extension: Joi.object()
+    .pattern(/\w+/, Joi.required())
+    .required(),
+}).required();
 
-// module exports
-module.exports = {get};
+function createGroup(value) {
+  const res = groupSchema.validate(value);
+  if (res['error']) {
+    throw new Error('Group schema error\n${error}');
+  }
+  return res['value'];
+}
+
+module.exports = {createGroup};

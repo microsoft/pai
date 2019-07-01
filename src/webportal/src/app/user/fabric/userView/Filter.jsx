@@ -15,13 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {toBool} from './utils';
-
 const LOCAL_STORAGE_KEY = 'pai-user-filter';
 
 class Filter {
   /**
-   * @param {Set<string>?} admins
+   * @param {Set<bool>?} admins
    * @param {Set<string>?} virtualClusters
    */
   constructor(
@@ -65,9 +63,10 @@ class Filter {
 
     const filters = [];
     if (keyword !== '') {
-      filters.push(({username, virtualCluster}) => (
+      filters.push(({username, email, virtualCluster}) => (
         username.indexOf(keyword) > -1 ||
-        virtualCluster.indexOf(keyword) > -1
+        email.indexOf(keyword) > -1 ||
+        virtualCluster.some((item) => item.indexOf(keyword) > -1)
       ));
     }
     if (admins.size > 0) {
@@ -75,20 +74,10 @@ class Filter {
     }
     if (virtualClusters.size > 0) {
       filters.push(({virtualCluster, admin}) => {
-        if (toBool(admin)) {
+        if (admin) {
           return true;
         }
-        if (virtualCluster) {
-          const vcs = virtualCluster.split(',');
-          for (let vc of virtualClusters) {
-            if (vcs.indexOf(vc) == -1) {
-              return false;
-            }
-          }
-        } else {
-          return false;
-        }
-        return true;
+        return Array.from(virtualClusters).every((item) => virtualCluster.indexOf(item) > -1);
       });
     }
     if (filters.length === 0) return users;

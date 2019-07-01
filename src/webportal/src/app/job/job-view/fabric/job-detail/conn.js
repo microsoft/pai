@@ -37,7 +37,7 @@ export class NotFoundError extends Error {
 
 export async function fetchJobInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -50,7 +50,7 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -86,7 +86,7 @@ export async function fetchJobConfig() {
 
 export async function fetchSshInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
@@ -144,7 +144,7 @@ export async function stopJob() {
   const flag = confirm(`Are you sure to stop ${jobName}?`);
   if (flag) {
     const url = namespace
-      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
     const res = await fetch(url, {

@@ -146,6 +146,42 @@ class VirtualCluster {
     });
   }
 
+  addDedicatedInfoPromise(vcInfo) {
+    return new Promise((res, rej) => {
+      unirest.get(yarnConfig.yarnNodeInfoPath)
+        .headers(yarnConfig.webserviceRequestHeaders)
+        .end((response) => {
+          if (response.error) {
+            rej(response.error);
+          } else {
+            const resJson = typeof response.body === 'object' ?
+              response.body : JSON.parse(response.body);
+            const nodeInfo = resJson.nodes.node;
+            let labeledResource = this.getResourceByLabel(nodeInfo);
+            let labeledNodes = this.getNodesByLabel(nodeInfo);
+            for (let vcName of Object.keys(vcInfo)) {
+              let resourcesTotal = {
+                vCores: 0,
+                memory: 0,
+                GPUs: 0,
+              };
+              let vcLabel = vcInfo[vcName].defaultLabel;
+              delete vcInfo[vcName].defaultLabel;
+              if (labeledResource.hasOwnProperty(vcLabel)) {
+                let p = vcInfo[vcName].capacity;
+                resourcesTotal.vCores = labeledResource[vcLabel].vCores * p / 100;
+                resourcesTotal.memory = labeledResource[vcLabel].memory * p / 100;
+                resourcesTotal.GPUs = labeledResource[vcLabel].GPUs * p / 100;
+              }
+              vcInfo[vcName].resourcesTotal = resourcesTotal;
+              vcInfo[vcName].nodeList = labeledNodes[vcLabel] || [];
+            }
+            res(vcInfo);
+          }
+        });
+    });
+  }
+
   getVcList(next) {
     unirest.get(yarnConfig.yarnVcInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -166,6 +202,39 @@ class VirtualCluster {
           next(null, error);
         }
       });
+  }
+
+  getVcListPromise() {
+    return new Promise((res, rej) => {
+      unirest.get(yarnConfig.yarnVcInfoPath)
+        .headers(yarnConfig.webserviceRequestHeaders)
+        .end((response) => {
+          if (response.error) {
+            rej(response.error);
+          } else {
+            res(response.body);
+          }
+        });
+    });
+  }
+
+  async getVcListAsyc() {
+    try {
+      const response = await this.getVcListPromise();
+      const resJson = typeof response === 'object' ?
+        response : JSON.parse(response);
+      const schedulerInfo = resJson.scheduler.schedulerInfo;
+      if (schedulerInfo.type === 'capacityScheduler') {
+        let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+        let ret = await this.addDedicatedInfoPromise(vcInfo);
+        return ret;
+      } else {
+        throw createError('Internal Server Error', 'BadConfigurationError',
+          `Scheduler type ${schedulerInfo.type} is not supported.`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   generateUpdateInfo(updateData) {

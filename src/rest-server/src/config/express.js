@@ -31,7 +31,6 @@ const routers = {
   v2: require('@pai/routes/v2/index'),
 };
 
-
 const app = express();
 
 app.set('json spaces', config.env === 'development' ? 4 : 0);

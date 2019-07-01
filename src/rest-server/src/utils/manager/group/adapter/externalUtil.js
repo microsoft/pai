@@ -16,41 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Joi = require('joi');
+const winbindAdapter = require('./winbindAdapter');
 
-// define the input schema for the 'update user' api
-const userPutInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
-    .required(),
-  admin: Joi.boolean(),
-  modify: Joi.boolean()
-    .required(),
-  password: Joi.when('modify', {
-    is: true,
-    then: Joi.string().min(6).allow(''),
-    otherwise: Joi.string().min(6).required(),
-  }),
-}).required();
-
-// define the input schema for the 'remove user' api
-const userDeleteInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
-    .required(),
-}).required();
-
-// define the input schema for the 'update user virtual cluster' api
-const userVcUpdateInputSchema = Joi.object().keys({
-  virtualClusters: Joi.string()
-    .allow('')
-    .regex(/^[A-Za-z0-9_,]+$/)
-    .optional(),
-}).required();
-
-// module exports
-module.exports = {
-  userPutInputSchema: userPutInputSchema,
-  userDeleteInputSchema: userDeleteInputSchema,
-  userVcUpdateInputSchema: userVcUpdateInputSchema,
+const getStorageObject = (type) => {
+  if (type === 'winbind') {
+    return winbindAdapter;
+  }
 };
+
+module.exports = {getStorageObject};
