@@ -30,31 +30,35 @@ import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
 import {KeyValueList} from '../controls/key-value-list';
 
-export const Parameters = React.memo(({parameters, onChange, selected, onSelect}) => {
-  const [error, setError] = useState(false);
-  return (
-    <SidebarCard
-      title='Parameters'
-      selected={selected}
-      onSelect={onSelect}
-      error={error}
-    >
-      <Stack gap='m'>
-        <Hint>
-          You could reference these parameters in command by <code>{'<% $parameters.paramKey %>'}</code>
-        </Hint>
-        <div>
-          <KeyValueList
-            name='Parameter List'
-            value={parameters}
-            onChange={onChange}
-            onDuplicate={setError}
-          />
-        </div>
-      </Stack>
-    </SidebarCard>
-  );
-});
+export const Parameters = React.memo(
+  ({parameters, onChange, selected, onSelect}) => {
+    const [error, setError] = useState(false);
+    return (
+      <SidebarCard
+        title='Parameters'
+        selected={selected}
+        onSelect={onSelect}
+        error={error}
+      >
+        <Stack gap='m'>
+          <Hint>
+            You could reference these parameters in command by{' '}
+            <code>{'<% $parameters.paramKey %>'}</code>. For sensitive data, please refer to <code>{'Secrets'}</code>{' '}
+            section. For default reserved parameters, please refer to <code>{'PAI Environment Variables'}</code>{' '} section.
+          </Hint>
+          <div>
+            <KeyValueList
+              name='Parameter List'
+              value={parameters}
+              onChange={onChange}
+              onDuplicate={setError}
+            />
+          </div>
+        </Stack>
+      </SidebarCard>
+    );
+  },
+);
 
 Parameters.propTypes = {
   parameters: PropTypes.array.isRequired,
