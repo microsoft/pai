@@ -43,7 +43,7 @@ import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
 import {fetchJobConfig, listVirtualClusters} from './utils/conn';
-import {getJobComponentsFormConfig} from './utils/utils';
+import {getJobComponentsFromConfig} from './utils/utils';
 import {TaskRolesManager} from './utils/task-roles-manager';
 import {initTheme} from '../components/theme';
 import {SpinnerLoading} from '../components/loading';
@@ -206,11 +206,9 @@ const JobSubmission = () => {
       if (user && jobName) {
         fetchJobConfig(user, jobName)
           .then((jobConfig) => {
-            const [
-              jobInfo,
-              taskRoles,
-              parameters,
-            ] = getJobComponentsFormConfig(jobConfig);
+            const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
+              jobConfig,
+            );
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
