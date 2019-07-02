@@ -59,7 +59,7 @@ export const DataComponent = React.memo((props) => {
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
- const [dataError, setDataError] = useState({
+  const [dataError, setDataError] = useState({
     customContainerPathError: false,
     customDataSourceError: false,
   });
