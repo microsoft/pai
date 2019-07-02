@@ -40,7 +40,7 @@ async function fetchWrapper(...args) {
 }
 
 export async function listJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
+  return fetchWrapper(`${config.restServerUri}/api/v2/jobs?${querystring.stringify({username})}`);
 }
 
 export async function getUserInfo() {
