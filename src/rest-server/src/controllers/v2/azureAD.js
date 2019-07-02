@@ -30,13 +30,9 @@ const requestAuthCode = async (req, res, next) => {
   const responseMode = 'form_post';
   const scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
-  // eslint-disable-next-line no-console
-  console.log(req.query.redirect_uri);
   if (req.query.redirect_uri) {
     state = decodeURIComponent(req.query.redirect_uri);
   }
-  // eslint-disable-next-line no-console
-  console.log(state);
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
