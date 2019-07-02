@@ -25,7 +25,6 @@ export const MonacoTextFiled = (props) => {
           border: 'solid 1px',
           borderColor: palette.neutralTertiary,
           paddingTop: spacing.s1,
-          overflow: 'auto',
         }}
         completionItems={completionItems}
         monacoRef={monacoRef}
@@ -33,9 +32,9 @@ export const MonacoTextFiled = (props) => {
           theme: 'vs',
           language: 'plaintext',
           options: {
+            automaticLayout: true,
             wordWrap: 'on',
             readOnly: false,
-            theme: 'vs',
             defaultEOL: 1,
             minimap: {enabled: false},
           },
