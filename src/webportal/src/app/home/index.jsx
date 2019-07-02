@@ -22,6 +22,7 @@ import 'whatwg-fetch';
 import {FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
 import {initializeIcons} from 'office-ui-fabric-react';
+import querystring from 'querystring';
 import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
 
@@ -36,15 +37,15 @@ import url from 'url';
 
 const loginTarget = '/home.html';
 
-if ( config.authnMethod === 'OIDC') {
-    const query = url.parse(window.location.href, true).query;
-    const expiration = 7;
-    if (query['token']) {
-        cookies.set('user', query.user, {expires: expiration});
-        cookies.set('token', query.token, {expires: expiration});
-        cookies.set('admin', query.admin, {expires: expiration});
-        cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
-    }
+if (config.authnMethod === 'OIDC') {
+  const query = url.parse(window.location.href, true).query;
+  const expiration = 7;
+  if (query['token']) {
+    cookies.set('user', query.user, {expires: expiration});
+    cookies.set('token', query.token, {expires: expiration});
+    cookies.set('admin', query.admin, {expires: expiration});
+    cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
+  }
 }
 
 if (checkToken(false)) {
@@ -79,7 +80,10 @@ const Index = () => {
       if (config.authnMethod === 'basic') {
         setLoginModal(true);
       } else {
-        location.href = config.restServerUri + '/api/v1/authn/oidc/login?redirect_uri=' + encodeURIComponent(config.pylonAddress+'/index.html')+ '&callback=' + encodeURIComponent(location.href);
+        location.href = config.restServerUri + `/api/v1/authn/oidc/login?${querystring.stringify({
+          redirect_uri: new URL('/index.html', window.location.href).href,
+          callback: window.location.href,
+        })}`;
       }
     },
     [],
