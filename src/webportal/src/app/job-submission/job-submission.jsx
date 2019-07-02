@@ -253,7 +253,7 @@ const JobSubmission = () => {
             gap='l1'
           >
             {/* left column */}
-            <StackItem grow styles={{root: {minWidth: 800, minHeight: 0}}}>
+            <StackItem grow styles={{root: {minWidth: 600, minHeight: 0, flexBasis: 0}}}>
               <Stack
                 gap='l1'
                 styles={{root: {height: '100%', overflowY: 'auto'}}}
