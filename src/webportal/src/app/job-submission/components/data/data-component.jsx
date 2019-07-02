@@ -46,14 +46,20 @@ function reducer(state, action) {
 }
 
 export const DataComponent = React.memo((props) => {
-  // add pylonAddress to .env for local debug
-  const hdfsHost = config.hasOwnProperty('pylonAddress') ? getHostNameFromUrl(config.pylonAddress) : window.location.hostname;
+  const envsubRegex = /^\${.*}$/;
+  let hdfsHost;
+  if (!config.pylonAddress || envsubRegex.test(config.pylonAddress)) {
+    hdfsHost = window.location.hostname;
+  } else {
+    // add pylonAddress to .env for local debug
+    hdfsHost = getHostNameFromUrl(config.pylonAddress);
+  }
   // TODO: add a judgement whether pylon is ready
   const hdfsClient = new WebHDFSClient(hdfsHost);
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
-  const [dataError, setDataError] = useState({
+ const [dataError, setDataError] = useState({
     customContainerPathError: false,
     customDataSourceError: false,
   });
