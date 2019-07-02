@@ -190,9 +190,6 @@ export const DockerSection = ({onValueChange, value}) => {
   }, [_onChange]);
 
   useEffect(() => {
-    if (isEmpty(uri)) {
-      return;
-    }
     const optionKey = getDockerImageOptionKey(uri);
     if (optionKey === 'customize-image' && !isUseCustomizedDocker) {
       setUseCustomizeDocker(true);
