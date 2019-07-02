@@ -2,9 +2,10 @@ import * as webhdfs from 'webhdfs';
 import {promisify} from 'util';
 
 export class WebHDFSClient {
-  constructor(host, user, timeout, port = '80', path = `/webhdfs/api/v1`) {
+  constructor(host, user, timeout, port = '50070', path = `/webhdfs/v1`) {
     this.host = `http://${host}:${port}`;
     this.endpoint = `http://${host}:${port}${path}`;
+    console.log(this.endpoint)
     this.client = webhdfs.createClient({host, port, user, path}, {timeout});
     this.client.readdir = promisify(this.client.readdir);
     this.client.mkdir = promisify(this.client.mkdir);

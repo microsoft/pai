@@ -55,7 +55,7 @@ export const DataComponent = React.memo((props) => {
     hdfsHost = getHostNameFromUrl(config.pylonAddress);
   }
   // TODO: add a judgement whether pylon is ready
-  const hdfsClient = new WebHDFSClient(hdfsHost);
+  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, 80, '/webhdfs/api/v1');
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
