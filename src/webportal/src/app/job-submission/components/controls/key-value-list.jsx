@@ -24,7 +24,7 @@
  */
 
 import {camelCase} from 'lodash';
-import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme} from 'office-ui-fabric-react';
+import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
 import {dispatchResizeEvent} from '../../utils/utils';
@@ -151,6 +151,7 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
           getKey={getKey}
           checkboxVisibility={CheckboxVisibility.hidden}
           layoutMode={DetailsListLayoutMode.fixedColumns}
+          selectionMode={SelectionMode.none}
           compact
         />
       </div>

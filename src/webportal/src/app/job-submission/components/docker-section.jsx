@@ -241,7 +241,7 @@ export const DockerSection = ({onValueChange, value}) => {
   };
 
   return (
-    <BasicSection sectionLabel={'Docker'}>
+    <BasicSection sectionLabel='Docker Image'>
       <FormShortSection>
         <Dropdown
           placeholder='Select a docker image'
