@@ -88,6 +88,12 @@ defaults: # Optional, default cluster specific settings
 
 extras: # Optional, extra field, object, save any information that plugin may use
   submitFrom: String, optional
+  hivedscheduler: # Optional
+    jobPriorityClass: String, required  # Referenced from deployments
+    taskRoles:
+      <name>: String, required
+        gpuType/reservationId: String, required  # Only one allowed
+        affinityGroupName: String, optional
 
 
 ---
