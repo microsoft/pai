@@ -86,7 +86,7 @@ export function pruneComponents(jobInformation, secrets, context) {
   }
 }
 
-export function getJobComponentsFormConfig(jobConfig) {
+export function getJobComponentsFromConfig(jobConfig) {
   if (isNil(jobConfig)) {
     return;
   }
