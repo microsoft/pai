@@ -26,6 +26,8 @@ const protocol = require('@pai/middlewares/v2/protocol');
 const router = new express.Router();
 
 router.route('/')
+  /** GET /api/v2/jobs - List job */
+  .get(controller.list)
   /** POST /api/v2/jobs - Update job */
   .post(
     token.check,
@@ -40,6 +42,10 @@ router.route('/:frameworkName')
 router.route('/:frameworkName/config')
   /** GET /api/v2/jobs/:frameworkName/config - Get job config */
   .get(controller.getConfig);
+
+router.route('/:frameworkName/ssh')
+  /** GET /api/v2/jobs/:frameworkName/ssh - Get job ssh info */
+  .get(controller.getSshInfo);
 
 // module exports
 module.exports = router;

@@ -24,13 +24,13 @@ const createError = require('@pai/utils/error');
 
 
 const convertName = (name) => {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return name.toLowerCase().replace(/^unknown/g, '').replace(/[^a-z0-9]/g, '');
 };
 
 const convertFrameworkSummary = (framework) => {
   return {
     name: framework.metadata.name,
-    username: framework.metadata.labels.userName,
+    username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: framework.status.state,
     subState: framework.status.state,
     executionType: framework.spec.executionType,
@@ -43,7 +43,7 @@ const convertFrameworkSummary = (framework) => {
     createdTime: new Date(framework.status.startTime).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: framework.status.attemptStatus.completionStatus ? framework.status.attemptStatus.completionStatus : null,
-    virtualCluster: framework.metadata.labels.virtualCluster,
+    virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     totalGpuNumber: 0, // TODO
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
       (num, statuses) => num + statuses.taskStatuses.length, 0),
@@ -70,7 +70,7 @@ const convertFrameworkDetail = (framework) => {
   const detail = {
     name: framework.metadata.name,
     jobStatus: {
-      username: framework.metadata.labels.userName,
+      username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: framework.status.state,
       subState: framework.status.state,
       executionType: framework.spec.executionType,
@@ -99,7 +99,7 @@ const convertFrameworkDetail = (framework) => {
       appExitTriggerTaskRoleName: null, // TODO
       appExitTriggerTaskIndex: null, // TODO
       appExitType: completionStatus ? completionStatus.type.name : null,
-      virtualCluster: framework.metadata.labels.virtualCluster,
+      virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     },
     taskRoles: {},
   };
@@ -343,9 +343,41 @@ const put = async (frameworkName, config, rawConfig) => {
 };
 
 const getConfig = async (frameworkName) => {
-  const framework = await get(frameworkName);
-  return framework.metadata.annotations.config;
+  const name = convertName(frameworkName);
+  // send request to framework controller
+  let response;
+  try {
+    response = await axios({
+      method: 'get',
+      url: launcherConfig.frameworkPath(name),
+      headers: launcherConfig.requestHeaders,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+
+  if (response.status === status('OK')) {
+    if (response.data.metadata.annotations && response.data.metadata.annotations.config) {
+      return response.data.metadata.annotations.config;
+    } else {
+      throw createError('Not Found', 'NoJobConfigError', `Config of job ${frameworkName} is not found.`);
+    }
+  }
+  if (response.status === status('Not Found')) {
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  } else {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
 };
+
+const getSshInfo = async (frameworkName) => {
+  throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
+};
+
 
 // module exports
 module.exports = {
@@ -353,4 +385,5 @@ module.exports = {
   get,
   put,
   getConfig,
+  getSshInfo,
 };

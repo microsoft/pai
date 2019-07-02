@@ -24,6 +24,11 @@ const job = require('@pai/models/v2/job');
 const createError = require('@pai/utils/error');
 
 
+const list = asyncHandler(async (req, res) => {
+  const data = await job.list();
+  res.json(data);
+});
+
 const get = asyncHandler(async (req, res) => {
   const data = await job.get(req.params.frameworkName);
   res.json(data);
@@ -66,9 +71,16 @@ const getConfig = asyncHandler(async (req, res) => {
   }
 });
 
+const getSshInfo = asyncHandler(async (req, res) => {
+  const data = await job.getSshInfo(req.params.frameworkName);
+  res.json(data);
+});
+
 // module exports
 module.exports = {
+  list,
   get,
   update,
   getConfig,
+  getSshInfo,
 };
