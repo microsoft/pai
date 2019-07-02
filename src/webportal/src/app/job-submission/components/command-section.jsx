@@ -46,7 +46,7 @@ export const CommandSection = (props) => {
           monacoProps={{height: 200}}
           value={value}
           onChange={_onChange}
-          completionItems={[...PAI_ENV_VAR.map((x) => `$${x.key}`)]}
+          completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
         />
       </FormShortSection>
     </BasicSection>

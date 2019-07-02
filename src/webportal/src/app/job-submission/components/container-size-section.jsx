@@ -59,7 +59,7 @@ export const ContainerSizeSection = (props) => {
   };
 
   return (
-    <BasicSection sectionLabel={'ContainerSize'}>
+    <BasicSection sectionLabel={'Container Size'}>
       <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
           <CSpinButton

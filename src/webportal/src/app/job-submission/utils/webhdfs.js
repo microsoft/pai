@@ -1,36 +1,11 @@
 import * as webhdfs from 'webhdfs';
 import {promisify} from 'util';
 
-// interface HDFSStatResult {
-//   pathSuffix: string
-//   permission: string
-//   accessTime: number
-//   modificationTime: number
-//   length: number
-//   type: 'DIRECTORY' | 'FILE'
-// }
-
-// interface HDFSClient {
-//   mkdir(path: string, mode?: string): Promise<void>
-//   readdir(path: string): Promise<HDFSStatResult[]>
-//   stat(path: string): Promise<HDFSStatResult>
-//   unlink(path: string, recursive: boolean): Promise<void>
-//   rename(from: string, to: string): Promise<void>
-//   createReadStream(path: string): fs.ReadStream
-//   createWriteStream(path: string): fs.WriteStream
-//   writeFile(path: string, data: string, callback: Function): fs.WriteStream
-//   _getOperationEndpoint(
-//     operation: string,
-//     path: string,
-//     options: object,
-//   ): string
-// }
-
 export class WebHDFSClient {
-  constructor(host, user, timeout, port = '50070', apiPath = `/webhdfs/v1`) {
+  constructor(host, user, timeout, port = '80', path = `/webhdfs/api/v1`) {
     this.host = `http://${host}:${port}`;
-    this.endpoint = `http://${host}:${port}${apiPath}`;
-    this.client = webhdfs.createClient({host, port, user, apiPath}, {timeout});
+    this.endpoint = `http://${host}:${port}${path}`;
+    this.client = webhdfs.createClient({host, port, user, path}, {timeout});
     this.client.readdir = promisify(this.client.readdir);
     this.client.mkdir = promisify(this.client.mkdir);
   }

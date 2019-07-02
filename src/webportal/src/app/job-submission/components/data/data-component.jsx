@@ -19,8 +19,6 @@ import config from '../../../config/webportal.config';
 import {JobData} from '../../models/data/job-data';
 import {Hint} from '../sidebar/hint';
 
-const host = getHostNameFromUrl(config.restServerUri);
-
 function reducer(state, action) {
   let jobData;
   switch (action.type) {
@@ -48,7 +46,10 @@ function reducer(state, action) {
 }
 
 export const DataComponent = React.memo((props) => {
-  const hdfsClient = new WebHDFSClient(host);
+  // add pylonAddress to .env for local debug
+  const hdfsHost = config.hasOwnProperty('pylonAddress') ? getHostNameFromUrl(config.pylonAddress) : window.location.hostname;
+  // TODO: add a judgement whether pylon is ready
+  const hdfsClient = new WebHDFSClient(hdfsHost);
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
