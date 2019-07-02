@@ -43,7 +43,7 @@ import {submitJob} from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
-  getJobComponentsFormConfig,
+  getJobComponentsFromConfig,
   pruneComponents,
   populateProtocolWithDataCli,
   removePreCommandsFromProtocolTaskRoles,
@@ -51,7 +51,7 @@ import {
 import Context from './context';
 
 import PropTypes from 'prop-types';
-import {isNil, debounce, isEqual, isEmpty} from 'lodash';
+import {isNil, debounce, isEqual, isEmpty, cloneDeep} from 'lodash';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
@@ -160,7 +160,7 @@ export const SubmissionSection = (props) => {
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
-    ] = getJobComponentsFormConfig(updatedJob);
+    ] = getJobComponentsFromConfig(updatedJob);
 
     pruneComponents(updatedJobInformation, updatedSecrets, {vcNames});
     onChange(
@@ -181,12 +181,12 @@ export const SubmissionSection = (props) => {
 
   const _exportYaml = async (event) => {
     event.preventDefault();
-    const protocol = new JobProtocol(jobProtocol);
+    const protocol = cloneDeep(jobProtocol);
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
       _exportFile(
-        jobProtocol.toYaml(),
-        (jobInformation.name || 'job') + '.yaml',
+        protocol.toYaml(),
+        (protocol.name || 'job') + '.yaml',
         'text/yaml',
       );
     } catch (err) {
@@ -219,12 +219,12 @@ export const SubmissionSection = (props) => {
 
   const _submitJob = async (event) => {
     event.preventDefault();
-    const protocol = new JobProtocol(jobProtocol);
+    const protocol = cloneDeep(jobProtocol);
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
       await submitJob(protocol.toYaml());
       window.location.href = `/job-detail.html?username=${user}&jobName=${
-        jobProtocol.name
+        protocol.name
       }`;
     } catch (err) {
       alert(err);
