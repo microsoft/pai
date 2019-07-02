@@ -31,7 +31,7 @@ import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
 export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
-  columnWidth = columnWidth || 200;
+  columnWidth = columnWidth || 180;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
   valueName = valueName || 'Value';

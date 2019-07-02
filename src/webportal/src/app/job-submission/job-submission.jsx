@@ -242,15 +242,18 @@ const JobSubmission = () => {
   return (
     <Context.Provider value={contextValue}>
       <Fabric style={{height: '100%'}}>
-        <Stack styles={{root: {height: '100%', overflowY: 'auto'}}}>
+        <Stack
+          className={formLayout}
+          styles={{root: {height: '100%'}}}
+          gap='l1'
+        >
           <Stack
-            className={formLayout}
-            styles={{root: {maxHeight: 930, height: '100%'}}}
+            styles={{root: {minHeight: 0}}}
             horizontal
             gap='l1'
           >
             {/* left column */}
-            <StackItem grow disableShrink styles={{root: {minWidth: 600}}}>
+            <StackItem grow styles={{root: {minWidth: 600, minHeight: 0, flexBasis: 0}}}>
               <Stack
                 gap='l1'
                 styles={{root: {height: '100%', overflowY: 'auto'}}}
@@ -268,8 +271,8 @@ const JobSubmission = () => {
               </Stack>
             </StackItem>
             {/* right column */}
-            <StackItem disableShrink styles={{root: {width: 600}}}>
-              <Stack gap='l1' styles={{root: {height: '100%'}}}>
+            <StackItem shrink styles={{root: {overflowX: 'auto'}}}>
+              <Stack gap='l1' styles={{root: {height: '100%', width: 550}}}>
                 <Parameters
                   parameters={parameters}
                   onChange={setParameters}
