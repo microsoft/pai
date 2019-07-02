@@ -24,7 +24,7 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text, Stack} from 'office-ui-fabric-react';
+import {Text, Stack, IconButton, TooltipHost} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -32,8 +32,6 @@ import {FormSpinButton} from './form-spin-button';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 import {JobBasicInfo} from '../models/job-basic-info';
-import {CalloutButton} from './controls/callout-button';
-import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag}) => {
   const {name, virtualCluster, jobRetryCount} = jobInformation;
@@ -64,13 +62,25 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   return (
     <Card>
       <FormPage>
-        <Stack horizontal gap='s1' verticalAlign='baseline'>
+        <Stack horizontal verticalAlign='baseline'>
           <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
             Job Information
           </Text>
-          <CalloutButton>
-            {PROTOCOL_TOOLTIPS.jobInformation}
-          </CalloutButton>
+          <TooltipHost
+            calloutProps={{
+              isBeakVisible: false,
+              gapSpace: 8, // spacing.s1
+            }}
+            content='Click to open job help page'
+          >
+            <IconButton
+              iconProps={{iconName: 'HintText'}}
+              styles={{root: {height: '100%'}}}
+              href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
+              target='_blank'
+              text='asdasdads'
+            />
+          </TooltipHost>
         </Stack>
         <FormTextField
           sectionLabel={'Job name'}

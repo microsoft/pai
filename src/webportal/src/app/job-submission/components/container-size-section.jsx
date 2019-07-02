@@ -63,7 +63,6 @@ export const ContainerSizeSection = (props) => {
         <FormShortSection gap='m'>
           <CSpinButton
             label='GPU count'
-            tooltip={PROTOCOL_TOOLTIPS.taskRoleGPU}
             value={gpu}
             min={0}
             max={8}
@@ -74,15 +73,13 @@ export const ContainerSizeSection = (props) => {
             }
           />
           <CSpinButton
-            label={'CPU count'}
-            tooltip={PROTOCOL_TOOLTIPS.taskRoleCPU}
+            label={'CPU vcore count'}
             disabled={!isContainerSizeEnabled}
             value={cpu}
             onChange={(value) => _onChange('cpu', value)}
           />
           <CSpinButton
             label={'Memory (MB)'}
-            tooltip={PROTOCOL_TOOLTIPS.taskRoleMemory}
             disabled={!isContainerSizeEnabled}
             value={memoryMB}
             onChange={(value) => _onChange('memoryMB', value)}

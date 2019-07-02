@@ -84,11 +84,6 @@ export const PROTOCOL_TOOLTIPS = {
       <p>CPU number and memory number will be auto scaled with GPU number by default</p>
     </div>
   ),
-  taskRoleCPU: 'CPU number, unit is CPU vcore',
-  taskRoleMemory: 'Memory number, unit is MB',
-  taskRoleGPU: 'GPU number, unit is GPU card',
-  taskRoleDocker: `Container's docker image`,
-  jobInformation: 'Job Information',
   taskRole: (
     <div>
       <p>Task roles are different types of task in the protocol.</p>
@@ -96,3 +91,10 @@ export const PROTOCOL_TOOLTIPS = {
     </div>
   ),
 };
+export const DEFAULT_COMMAND = (
+`# You could define your own Parameters, Secrets or Data mount point on the right sidebar.
+
+# Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.
+# Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.
+# Data section is used to generate pre-command that download/mount your data to specific path in container.
+`);

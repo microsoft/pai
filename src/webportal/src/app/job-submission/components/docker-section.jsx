@@ -41,7 +41,6 @@ import {FormShortSection} from './form-page';
 import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
 import {isEmpty} from 'lodash';
-import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 const dockerSectionStyle = getDockerSectionStyle();
 
@@ -242,7 +241,7 @@ export const DockerSection = ({onValueChange, value}) => {
   };
 
   return (
-    <BasicSection sectionLabel='Docker Image' sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleDocker}>
+    <BasicSection sectionLabel='Docker Image'>
       <FormShortSection>
         <Dropdown
           placeholder='Select a docker image'

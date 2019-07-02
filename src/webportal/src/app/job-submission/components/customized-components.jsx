@@ -27,7 +27,7 @@ import React, {useCallback} from 'react';
 import {SpinButton, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {debounce, isNil} from 'lodash';
-import {CalloutButton} from './controls/callout-button';
+import {TooltipIcon} from './controls/tooltip-icon';
 
 export const CSpinButton = (props) => {
   const {onChange, onIncrement, onDecrement, onValidate, min, max, label, tooltip} = props;
@@ -59,9 +59,9 @@ export const CSpinButton = (props) => {
         <div style={{width: 160}}>{label}</div>
       )}
       {tooltip && (
-        <CalloutButton>
+        <TooltipIcon>
           {tooltip}
-        </CalloutButton>
+        </TooltipIcon>
       )}
       <SpinButton
         {...props}

@@ -30,7 +30,7 @@ import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-f
 import {getFormClassNames, getTabFromStyle} from './form-style';
 import {TabFormContent} from './tab-form-content';
 import Card from '../../components/card';
-import {CalloutButton} from './controls/callout-button';
+import {TooltipIcon} from './controls/tooltip-icon';
 import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
@@ -180,9 +180,9 @@ export class TabForm extends React.Component {
           </Stack.Item>
           <Stack.Item disableShrink align='stretch'>
             <Stack verticalAlign='center' styles={{root: {height: '100%'}}}>
-              <CalloutButton>
+              <TooltipIcon>
                 {PROTOCOL_TOOLTIPS.taskRole}
-              </CalloutButton>
+              </TooltipIcon>
             </Stack>
           </Stack.Item>
         </Stack>

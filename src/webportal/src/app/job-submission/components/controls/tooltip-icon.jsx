@@ -23,45 +23,32 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import React from 'react';
+import {
+  DirectionalHint,
+  TooltipHost,
+  Icon,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Hint} from './hint';
-import {SidebarCard} from './sidebar-card';
-import {KeyValueList} from '../controls/key-value-list';
 
-export const Parameters = React.memo(
-  ({parameters, onChange, selected, onSelect}) => {
-    const [error, setError] = useState(false);
-    return (
-      <SidebarCard
-        title='Parameters'
-        selected={selected}
-        onSelect={onSelect}
-        error={error}
-      >
-        <Stack gap='m'>
-          <Hint>
-            You could reference these parameters in command by{' '}
-            <code>{'<% $parameters.paramKey %>'}</code>.
-          </Hint>
-          <div>
-            <KeyValueList
-              name='Parameter List'
-              value={parameters}
-              onChange={onChange}
-              onDuplicate={setError}
-            />
-          </div>
-        </Stack>
-      </SidebarCard>
-    );
-  },
-);
+export const TooltipIcon = ({children}) => {
+  return (
+    <TooltipHost
+      calloutProps={{
+        isBeakVisible: false,
+        directionalHint: DirectionalHint.topAutoEdge,
+        gapSpace: 8, // spacing.s1
+      }}
+      content={children}
+    >
+      <Icon
+        styles={{root: {height: '100%'}}}
+        iconName='Info'
+      />
+    </TooltipHost>
+  );
+};
 
-Parameters.propTypes = {
-  parameters: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  selected: PropTypes.bool,
-  onSelect: PropTypes.func,
+TooltipIcon.propTypes = {
+  children: PropTypes.node,
 };

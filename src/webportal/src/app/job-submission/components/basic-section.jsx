@@ -34,7 +34,7 @@ import {
 import PropTypes from 'prop-types';
 import {FormSection} from './form-page';
 import {getFormPageSytle, getFormBasicSectionStyle} from './form-style';
-import {CalloutButton} from './controls/callout-button';
+import {TooltipIcon} from './controls/tooltip-icon';
 
 const formPageStyle = getFormPageSytle();
 
@@ -63,9 +63,9 @@ export const BasicSection = (props) => {
                   {sectionLabel}
                 </Label>
                 {sectionTooltip && (
-                  <CalloutButton>
+                  <TooltipIcon>
                     {sectionTooltip}
-                  </CalloutButton>
+                  </TooltipIcon>
                 )}
               </Stack>
               {sectionOptional && (
