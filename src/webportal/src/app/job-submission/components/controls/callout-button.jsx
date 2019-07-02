@@ -23,37 +23,56 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {BasicSection} from './basic-section';
+import React, {useState, useRef, useCallback} from 'react';
+import {
+  Callout,
+  IconButton,
+  DirectionalHint,
+  getTheme,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {MonacoTextFiled} from './monaco-text-field';
-import {FormShortSection} from './form-page';
-import {PAI_ENV_VAR} from '../utils/constants';
 
-export const CommandSection = (props) => {
-  const {onChange, value} = props;
+export const CalloutButton = (props) => {
+  const {children} = props;
 
-  const _onChange = (newValue) => {
-    if (onChange !== undefined) {
-      onChange(newValue);
-    }
-  };
+  const [isCalloutVisible, setCalloutVisible] = useState(false);
+  const targetRef = useRef();
+
+  const onToggle = useCallback(() => {
+    setCalloutVisible(!isCalloutVisible);
+  }, [isCalloutVisible, setCalloutVisible]);
+
+  const onDismiss = useCallback(() => {
+    setCalloutVisible(false);
+  }, [setCalloutVisible]);
+
+  const {spacing} = getTheme();
+
 
   return (
-    <BasicSection sectionLabel='Command'>
-      <FormShortSection>
-        <MonacoTextFiled
-          monacoProps={{height: 200}}
-          value={value}
-          onChange={_onChange}
-          completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
-        />
-      </FormShortSection>
-    </BasicSection>
+    <div ref={targetRef}>
+      <IconButton
+        styles={{root: {height: '100%'}}}
+        iconProps={{iconName: 'Info'}}
+        onClick={onToggle}
+      />
+      {isCalloutVisible && (
+        <Callout
+          onDismiss={onDismiss}
+          target={targetRef.current}
+          isBeakVisible={false}
+          directionalHint={DirectionalHint.topAutoEdge}
+          gapSpace={8} // spacing.s1
+        >
+          <div style={{padding: spacing.s1}}>
+            {children}
+          </div>
+        </Callout>
+      )}
+    </div>
   );
 };
 
-CommandSection.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func,
+CalloutButton.propTypes = {
+  children: PropTypes.node,
 };

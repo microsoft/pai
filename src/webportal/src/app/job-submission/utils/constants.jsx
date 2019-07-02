@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import React from 'react';
+
 export const STORAGE_PREFIX='/pai_data/';
 export const CUSTOM_STORAGE_START='#CUSTOM_STORAGE_START';
 export const CUSTOM_STORAGE_END='#CUSTOM_STORAGE_END';
@@ -74,3 +76,23 @@ export const PAI_ENV_VAR = [
     desc: 'Index of current task in current task role, starting from 0',
   },
 ];
+export const PROTOCOL_TOOLTIPS = {
+  taskRoleName: 'Name of the taskRole, string in ^[A-Za-z0-9\\-._~]+$ format.',
+  taskRoleContainerSize: (
+    <div>
+      <p>Resource required per container instance</p>
+      <p>CPU number and memory number will be auto scaled with GPU number by default</p>
+    </div>
+  ),
+  taskRoleCPU: 'CPU number, unit is CPU vcore',
+  taskRoleMemory: 'Memory number, unit is MB',
+  taskRoleGPU: 'GPU number, unit is GPU card',
+  taskRoleDocker: `Container's docker image`,
+  jobInformation: 'Job Information',
+  taskRole: (
+    <div>
+      <p>Task roles are different types of task in the protocol.</p>
+      <p>One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.</p>
+    </div>
+  ),
+};

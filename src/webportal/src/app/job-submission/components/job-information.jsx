@@ -24,7 +24,7 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text} from 'office-ui-fabric-react';
+import {Text, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -32,6 +32,8 @@ import {FormSpinButton} from './form-spin-button';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 import {JobBasicInfo} from '../models/job-basic-info';
+import {CalloutButton} from './controls/callout-button';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag}) => {
   const {name, virtualCluster, jobRetryCount} = jobInformation;
@@ -62,9 +64,14 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   return (
     <Card>
       <FormPage>
-        <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
-          Job Information
-        </Text>
+        <Stack horizontal gap='s1' verticalAlign='baseline'>
+          <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
+            Job Information
+          </Text>
+          <CalloutButton>
+            {PROTOCOL_TOOLTIPS.jobInformation}
+          </CalloutButton>
+        </Stack>
         <FormTextField
           sectionLabel={'Job name'}
           value={name}

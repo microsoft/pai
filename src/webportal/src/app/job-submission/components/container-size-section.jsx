@@ -29,11 +29,10 @@ import PropTypes from 'prop-types';
 import {BasicSection} from './basic-section';
 import {getDefaultContainerSize} from '../models/container-size';
 import {CSpinButton} from './customized-components';
-import {getSpinButtonStyle} from './form-style';
 import {FormShortSection} from './form-page';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 const {spacing} = getTheme();
-const spinButtonStyle = getSpinButtonStyle();
 
 export const ContainerSizeSection = (props) => {
   const {value, onChange, isContainerSizeEnabled, onEnable} = props;
@@ -59,13 +58,13 @@ export const ContainerSizeSection = (props) => {
   };
 
   return (
-    <BasicSection sectionLabel={'Container Size'}>
+    <BasicSection sectionLabel='Container Size' sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleContainerSize}>
       <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
           <CSpinButton
-            label={'GPU count'}
+            label='GPU count'
+            tooltip={PROTOCOL_TOOLTIPS.taskRoleGPU}
             value={gpu}
-            styles={spinButtonStyle}
             min={0}
             max={8}
             onChange={
@@ -76,16 +75,16 @@ export const ContainerSizeSection = (props) => {
           />
           <CSpinButton
             label={'CPU count'}
+            tooltip={PROTOCOL_TOOLTIPS.taskRoleCPU}
             disabled={!isContainerSizeEnabled}
             value={cpu}
-            styles={spinButtonStyle}
             onChange={(value) => _onChange('cpu', value)}
           />
           <CSpinButton
             label={'Memory (MB)'}
+            tooltip={PROTOCOL_TOOLTIPS.taskRoleMemory}
             disabled={!isContainerSizeEnabled}
             value={memoryMB}
-            styles={spinButtonStyle}
             onChange={(value) => _onChange('memoryMB', value)}
           />
         </FormShortSection>

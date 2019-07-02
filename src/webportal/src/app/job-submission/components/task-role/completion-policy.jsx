@@ -28,11 +28,8 @@ import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {BasicSection} from '../basic-section';
 import {CSpinButton} from '../customized-components';
-import {getSpinButtonStyle} from '../form-style';
 import {FormShortSection} from '../form-page';
 import {Completion} from '../../models/completion';
-
-const spinButtonStyle = getSpinButtonStyle();
 
 export const CompletionPolicy = React.memo(({onChange, value}) => {
   const {minFailedInstances, minSucceededInstances} = value;
@@ -51,14 +48,12 @@ export const CompletionPolicy = React.memo(({onChange, value}) => {
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Failed Instances'}
                        value={minFailedInstances}
-                       styles={spinButtonStyle}
                        min={1}
                        onChange={(v) => _onChange('minFailedInstances', v)}/>
         </Stack>
         <Stack horizontal gap='s1'>
           <CSpinButton label={'Min Succeed Instances'}
                        value={minSucceededInstances}
-                       styles={spinButtonStyle}
                        min={1}
                        onChange={(v) => _onChange('minSucceededInstances', v)}/>
         </Stack>
