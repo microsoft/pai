@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+cp ../package.json.noversion ../package.json
 npm --no-git-tag-version version $(cat ../../../version/PAI.VERSION)
 
 popd > /dev/null

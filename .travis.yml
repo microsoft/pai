@@ -89,6 +89,7 @@ matrix:
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
+        - cp package.json.noversion package.json
       install:
         - yarn install
       script:
@@ -100,6 +101,7 @@ matrix:
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
+        - cp package.json.noversion package.json
       install:
         - yarn install --ignore-engines
       script:
@@ -110,6 +112,7 @@ matrix:
       node_js: lts/carbon
       before_install:
         - cd src/webportal
+        - cp package.json.noversion package.json
       install:
         - yarn install
         - npm run build
@@ -120,6 +123,7 @@ matrix:
       node_js: lts/dubnium
       before_install:
         - cd src/webportal
+        - cp package.json.noversion package.json
       install:
         - yarn install --ignore-engines
         - npm run build

@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 mkdir -p "../dependency"
 cp -arf "../../../docs" "../../../examples" "../dependency"
-
+cp ../package.json.noversion ../package.json
 npm --no-git-tag-version version $(cat ../../../version/PAI.VERSION)
 
 popd > /dev/null
