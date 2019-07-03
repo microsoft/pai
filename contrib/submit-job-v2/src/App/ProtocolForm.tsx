@@ -230,7 +230,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
+                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
                   Import
                 </a>
                 <input
@@ -406,7 +406,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private setLogPath = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, logPath?: string) => {
     if (logPath !== undefined) {
-      this.setState({logPath});
+      this.setState({ logPath });
     }
   }
 
@@ -448,7 +448,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
     if (option && option.key) {
-      this.setState({fileOption: option.key});
+      this.setState({ fileOption: option.key });
     }
   }
 
@@ -457,7 +457,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({key, value}),
+        ([key, value]) => pairs.push({ key, value }),
       );
     }
     return pairs;
@@ -569,6 +569,39 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocolYAML: text,
       showEditor: false,
     });
+  }
+
+  private generatePreCommand = async () => {
+    const preCommand = [];
+    preCommand.push('#TENSORBOARD_LOG_STORAGE_START');
+    preCommand.push('#Auto generated code, please do not modify');
+
+    const hdfsHost = `${this.props.api.split(':')[1]}:9000`;
+    const mountPath = `/log/tensorboard/${this.state.jobName}/`
+
+    preCommand.push([
+      "apt-get install -y git fuse golang",
+      "git clone --recursive https://github.com/Microsoft/hdfs-mount.git",
+      "cd hdfs-mount",
+      "make",
+      "cp hdfs-mount /bin",
+      "cd ..",
+      "rm -rf hdfs-mount",
+    ].join('&&'));
+    preCommand.push(`if [ ! -d ${mountPath} ]; then mkdir --parents ${
+      mountPath
+      }; fi`
+    );
+    preCommand.push(`hdfs-mount ${hdfsHost} ${mountPath} &`);
+    preCommand.push(`sleep 5`);
+    preCommand.push(`export PAI_TENSORBOARD_LOG_PATH=${mountPath}`)
+    preCommand.push('#TENSORBOARD_LOG_STORAGE_END');
+    return preCommand;
+  }
+
+  private injectCommand = async () => {
+    const preCommand = await this.generatePreCommand();
+    // TODO
   }
 
   private addTensorBoardConfig = async () => {
