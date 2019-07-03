@@ -8,7 +8,7 @@ import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';
 import {HdfsContext} from '../../models/data/hdfs-context';
-import {getHostNameFromUrl} from '../../utils/utils';
+import {getHostNameFromUrl, getPortFromUrl} from '../../utils/utils';
 import {MountDirectories} from '../../models/data/mount-directories';
 import {
   fetchUserGroup,
@@ -46,10 +46,20 @@ function reducer(state, action) {
 }
 
 export const DataComponent = React.memo((props) => {
-  // add pylonAddress to .env for local debug
-  const hdfsHost = config.hasOwnProperty('pylonAddress') ? getHostNameFromUrl(config.pylonAddress) : window.location.hostname;
-  // TODO: add a judgement whether pylon is ready
-  const hdfsClient = new WebHDFSClient(hdfsHost);
+  const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
+  let hdfsHost;
+  let port;
+  let apiPath;
+  if (!config.webHDFSUri || envsubRegex.test(config.webHDFSUri)) {
+    hdfsHost = window.location.hostname;
+    port = 80;
+    apiPath = '/webhdfs/api/v1';
+  } else {
+    // add WEBHDFS_URI to .env for local debug
+    hdfsHost = getHostNameFromUrl(config.webHDFSUri);
+    port = getPortFromUrl(config.webHDFSUri);
+  }
+  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port, apiPath);
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
