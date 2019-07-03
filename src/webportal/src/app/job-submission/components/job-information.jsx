@@ -24,7 +24,7 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text, Stack, FontWeights} from 'office-ui-fabric-react';
+import {Text, Stack, FontWeights, Link} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -66,12 +66,11 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
           <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
             Job submission
           </Text>
-          <a
+          <Link
             target='_blank'
-            rel='noopener noreferrer'
             href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
             style={{fontWeight: FontWeights.semibold}}
-          >{'Learn more >'}</a>
+          >{'Learn more >'}</Link>
         </Stack>
         <FormTextField
           sectionLabel={'Job name'}
