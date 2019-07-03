@@ -49,7 +49,7 @@ const columns = [
 
 export const EnvVar = React.memo(({selected, onSelect}) => (
   <SidebarCard
-    title='PAI Environment Variables'
+    title='PAI environment variables'
     selected={selected}
     onSelect={onSelect}
   >

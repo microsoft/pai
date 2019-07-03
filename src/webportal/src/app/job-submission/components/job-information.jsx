@@ -62,9 +62,9 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   return (
     <Card>
       <FormPage>
-        <Stack horizontal gap='s1' verticalAlign='baseline'>
+        <Stack horizontal gap='m' verticalAlign='baseline'>
           <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
-            Job Submission
+            Job submission
           </Text>
           <TooltipHost
             calloutProps={{
@@ -78,7 +78,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
               rel='noopener noreferrer'
               href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
               style={{fontWeight: FontWeights.semibold}}
-            >{'Learn More >'}</a>
+            >{'Learn more >'}</a>
           </TooltipHost>
         </Stack>
         <FormTextField

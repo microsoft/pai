@@ -55,7 +55,7 @@ export const AddDataSource = (props) => {
     <div>
       <PrimaryButton
         iconProps={{iconName: 'Add'}}
-        text='Add Data Source'
+        text='Add data source'
         menuProps={{items: menuItems}}
       />
       <div className={c(t.mb1)}>

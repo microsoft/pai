@@ -133,7 +133,7 @@ export const MountTreeView = ({dataList}) => {
   return (
     <div className={c(t.mb3)}>
       <div className={c(t.flex, t.itemsCenter)}>
-        <div className={c(FontClassNames.mediumPlus)} style={{fontWeight: FontWeights.semibold}}>Preview Container Paths</div>
+        <div className={c(FontClassNames.mediumPlus)} style={{fontWeight: FontWeights.semibold}}>Preview container paths</div>
       </div>
       <TreeNode label={treeData.label} isVisible subpaths={treeData.subpaths} />
     </div>

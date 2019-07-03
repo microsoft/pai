@@ -15,7 +15,7 @@ export const CustomStorage = ({dataList, setDataList, setDataError}) => {
         className={c(FontClassNames.mediumPlus)}
         style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
       >
-        Customized Storage
+        Customized storage
       </div>
       <div>
         <AddDataSource dataList={dataList} setDataList={setDataList} />

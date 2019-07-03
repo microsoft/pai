@@ -58,7 +58,7 @@ export const ContainerSizeSection = (props) => {
   };
 
   return (
-    <BasicSection sectionLabel='Container Size' sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleContainerSize}>
+    <BasicSection sectionLabel='Container size' sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleContainerSize}>
       <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
           <CSpinButton
