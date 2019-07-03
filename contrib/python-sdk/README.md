@@ -33,11 +33,12 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
-    - [How to launch a remote jupyter server and connect it](#How-to-launch-a-remote-jupyter-server-and-connect-it)
+    - [How to launch a remote `Jupyter` server and connect it](#How-to-launch-a-remote-Jupyter-server-and-connect-it)
   - [Other FAQ of CLI](#Other-FAQ-of-CLI)
     - [How to select a cluster to use until I change it](#How-to-select-a-cluster-to-use-until-I-change-it)
     - [How to simplify the command](#How-to-simplify-the-command)
     - [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK)
+    - [How to specify the `python` environment I want to use in the job container](#How-to-specify-the-python-environment-I-want-to-use-in-the-job-container)
 - [Python binding](#Python-binding)
   - [Cluster management](#Cluster-management)
   - [Job management](#Job-management)
@@ -310,6 +311,10 @@ pip install -U -e "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpa
 To debug a local update, just use `pip install -U -e your/path/to/setup.py`.
 
 For jobs submitted by the SDK or command line tool, the version specified by `opai set sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
+
+### How to specify the `python` environment I want to use in the job container
+
+In some cases, there are more than one `python` environments in a docker image. For example, there are both `python` and `python3` environments in `openpai/pai.example.keras.tensorflow`. User could add `--python <path/to/python>` (e.g. `--python python3`) in the command `job notebook` or `job sub` to use the specific `python` environment. Refer to [notebook example](examples/1-submit-and-query-via-command-line.ipynb) for more details.
 
 # Python binding
 
