@@ -27,11 +27,36 @@ const convertName = (name) => {
   return name.toLowerCase().replace(/^unknown/g, '').replace(/[^a-z0-9]/g, '');
 };
 
+const convertState = (state, exitCode) => {
+  switch (state) {
+    case 'AttemptCreationPending':
+    case 'AttemptCreationRequested':
+    case 'AttemptPreparing':
+      return 'WAITING';
+    case 'AttemptRunning':
+      return 'RUNNING';
+    case 'AttemptDeletionPending':
+    case 'AttemptDeletionRequested':
+    case 'AttemptDeleting':
+    case 'AttemptCompleted':
+      return 'WAITING';
+    case 'Completed':
+      if (exitCode === 0) {
+        return 'SUCCEEDED';
+      } else {
+        return 'FAILED';
+      }
+    default:
+      return 'UNKNOWN';
+  }
+};
+
 const convertFrameworkSummary = (framework) => {
+  const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: framework.metadata.name,
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-    state: framework.status.state,
+    state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
     subState: framework.status.state,
     executionType: framework.spec.executionType,
     retries: framework.status.retryPolicyStatus.totalRetriedCount,
@@ -42,7 +67,7 @@ const convertFrameworkSummary = (framework) => {
     },
     createdTime: new Date(framework.status.startTime).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
-    appExitCode: framework.status.attemptStatus.completionStatus ? framework.status.attemptStatus.completionStatus : null,
+    appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     totalGpuNumber: 0, // TODO
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
@@ -55,7 +80,7 @@ const convertTaskDetail = (taskStatus) => {
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
-    taskState: taskStatus.state,
+    taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts: {}, // TODO
@@ -71,7 +96,7 @@ const convertFrameworkDetail = (framework) => {
     name: framework.metadata.name,
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-      state: framework.status.state,
+      state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
       subState: framework.status.state,
       executionType: framework.spec.executionType,
       retries: framework.status.retryPolicyStatus.totalRetriedCount,
