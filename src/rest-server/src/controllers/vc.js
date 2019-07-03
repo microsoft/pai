@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const VirtualCluster = require('@pai/models/vc');
+const VirtualCluster = require('@pai/models/v1/virtual-cluster');
 const createError = require('@pai/utils/error');
 
 /**

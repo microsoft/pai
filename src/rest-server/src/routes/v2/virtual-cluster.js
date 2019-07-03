@@ -15,21 +15,31 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const controller = require('@pai/controllers/v2');
-const jobRouter = require('@pai/routes/v2/job');
-const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
+const token = require('@pai/middlewares/token');
+const controller = require('@pai/controllers/v2/virtual-cluster');
 
 
 const router = new express.Router();
 
 router.route('/')
-  .all(controller.index);
+  /** GET /api/v2/virtual-clusters - Return cluster virtual cluster info */
+  .get(controller.list);
 
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', virtualClusterRouter);
+router.route('/:virtualClusterName')
+  /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
+  .get(controller.get)
+  /** PUT /api/v2/virtual-clusters/:virtualClusterName - Create a virtual cluster */
+  .put(token.check, controller.update)
+  /** DELETE /api/v2/virtual-clusters/:virtualClusterName - Remove a virtual cluster */
+  .delete(token.check, controller.remove);
+
+router.route('/:virtualClusterName/status')
+  /** PUT /api/v2/virtual-clusters/:virtualClusterName - Change virtual cluster status (running or stopped) */
+  .put(token.check, controller.updateStatus);
+
+router.param('virtualClusterName', controller.validate);
 
 // module exports
 module.exports = router;
