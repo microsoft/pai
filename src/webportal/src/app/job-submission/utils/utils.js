@@ -126,6 +126,11 @@ export function getHostNameFromUrl(url) {
   return parser.hostname;
 }
 
+export function getPortFromUrl(url) {
+  const parser = new URL(url);
+  return parser.port;
+}
+
 function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
   Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
     const taskRole = protocol.taskRoles[taskRoleKey];
