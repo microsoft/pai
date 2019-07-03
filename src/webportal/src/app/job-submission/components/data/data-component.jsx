@@ -49,14 +49,17 @@ export const DataComponent = React.memo((props) => {
   const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
   let hdfsHost;
   let port;
-  if (!config.webHDFS || envsubRegex.test(config.webHDFS)) {
+  let apiPath;
+  if (!config.webHDFSUri || envsubRegex.test(config.webHDFSUri)) {
     hdfsHost = window.location.hostname;
+    port = 80;
+    apiPath = '/webhdfs/api/v1';
   } else {
-    // add webHDFS to .env for local debug
-    hdfsHost = getHostNameFromUrl(config.webHDFS);
-    port = getPortFromUrl(config.webHDFS);
+    // add WEBHDFS_URI to .env for local debug
+    hdfsHost = getHostNameFromUrl(config.webHDFSUri);
+    port = getPortFromUrl(config.webHDFSUri);
   }
-  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port);
+  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port, apiPath);
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
