@@ -29,6 +29,7 @@ import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
 import {KeyValueList} from '../controls/key-value-list';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const Parameters = React.memo(
   ({parameters, onChange, selected, onSelect}) => {
@@ -36,6 +37,7 @@ export const Parameters = React.memo(
     return (
       <SidebarCard
         title='Parameters'
+        tooltip={PROTOCOL_TOOLTIPS.parameters}
         selected={selected}
         onSelect={onSelect}
         error={error}

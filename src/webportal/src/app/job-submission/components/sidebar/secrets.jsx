@@ -29,12 +29,14 @@ import PropTypes from 'prop-types';
 import {SidebarCard} from './sidebar-card';
 import {Hint} from './hint';
 import {KeyValueList} from '../controls/key-value-list';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
   const [error, setError] = useState(false);
   return (
     <SidebarCard
       title='Secrets'
+      tooltip={PROTOCOL_TOOLTIPS.secrets}
       selected={selected}
       onSelect={onSelect}
       error={error}

@@ -90,11 +90,8 @@ export const PROTOCOL_TOOLTIPS = {
       <p>One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.</p>
     </div>
   ),
+  parameters: 'Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.',
+  secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
+  data: 'Data section is used to generate pre-command that download/mount your data to specific path in container.',
 };
-export const DEFAULT_COMMAND = (
-`# You could define your own Parameters, Secrets or Data mount point on the right sidebar.
-
-# Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.
-# Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.
-# Data section is used to generate pre-command that download/mount your data to specific path in container.
-`);
+export const DEFAULT_COMMAND = `# You could define your own Parameters, Secrets or Data mount point on the right sidebar.`;

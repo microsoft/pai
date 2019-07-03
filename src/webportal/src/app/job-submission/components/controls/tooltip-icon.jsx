@@ -42,7 +42,7 @@ export const TooltipIcon = ({children}) => {
       content={children}
     >
       <Icon
-        styles={{root: {height: '100%'}}}
+        styles={{root: {verticalAlign: 'middle'}}}
         iconName='Info'
       />
     </TooltipHost>

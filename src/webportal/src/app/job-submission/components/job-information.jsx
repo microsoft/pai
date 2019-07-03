@@ -24,7 +24,7 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text, Stack, IconButton, TooltipHost} from 'office-ui-fabric-react';
+import {Text, Stack, TooltipHost, FontWeights} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -62,9 +62,9 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   return (
     <Card>
       <FormPage>
-        <Stack horizontal verticalAlign='baseline'>
+        <Stack horizontal gap='s1' verticalAlign='baseline'>
           <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
-            Job Information
+            Job Submission
           </Text>
           <TooltipHost
             calloutProps={{
@@ -73,13 +73,12 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
             }}
             content='Click to open job help page'
           >
-            <IconButton
-              iconProps={{iconName: 'HintText'}}
-              styles={{root: {height: '100%'}}}
-              href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
+            <a
               target='_blank'
-              text='asdasdads'
-            />
+              rel='noopener noreferrer'
+              href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
+              style={{fontWeight: FontWeights.semibold}}
+            >{'Learn More >'}</a>
           </TooltipHost>
         </Stack>
         <FormTextField

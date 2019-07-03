@@ -18,6 +18,7 @@ import {
 import config from '../../../config/webportal.config';
 import {JobData} from '../../models/data/job-data';
 import {Hint} from '../sidebar/hint';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 function reducer(state, action) {
   let jobData;
@@ -148,6 +149,7 @@ export const DataComponent = React.memo((props) => {
     <HdfsContext.Provider value={{user: '', api: '', token: '', hdfsClient}}>
       <SidebarCard
         title='Data'
+        tooltip={PROTOCOL_TOOLTIPS.data}
         selected={props.selected}
         onSelect={props.onSelect}
         error={
