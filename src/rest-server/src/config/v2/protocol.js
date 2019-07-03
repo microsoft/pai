@@ -47,6 +47,37 @@ const baseSchema = {
   },
 };
 
+// hived schema
+const hivedSchema = {
+  type: 'object',
+  properties: {
+    jobPriorityClass: {
+      enum: ['prod', 'test'],
+    },
+    taskRoles: {
+      patternProperties: {
+        '^[A-Za-z0-9._~]+$': {
+          type: 'object',
+          properties: {
+            gpuType: {
+              type: 'string',
+            },
+            reservationId: {
+              type: 'string',
+            },
+            affinityGroupName: {
+              type: 'string',
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      minProperties: 1,
+      additionalProperties: false,
+    },
+  },
+};
+
 // job protocol schema
 const protocolSchema = {
   $id: 'protocol.json',
@@ -323,6 +354,10 @@ const protocolSchema = {
     },
     extras: {
       type: 'object',
+      properties: {
+        hivedscheduler: hivedSchema,
+      },
+      additionalProperties: true,
     },
   },
   required: [
