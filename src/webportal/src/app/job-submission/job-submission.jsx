@@ -241,10 +241,10 @@ const JobSubmission = () => {
 
   return (
     <Context.Provider value={contextValue}>
-      <Fabric style={{height: '100%'}}>
+      <Fabric style={{height: '100%', overflowX: 'auto'}}>
         <Stack
           className={formLayout}
-          styles={{root: {height: '100%'}}}
+          styles={{root: {height: '100%', minWidth: 1000}}}
           gap='l1'
         >
           <Stack
