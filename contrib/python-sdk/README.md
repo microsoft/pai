@@ -266,9 +266,9 @@ This command requires options as the `opai job sub` does. This command would
 - _Local_ -  wait and query the job state until its status to be `SUCCEEDED`
 - _Local_ - download `<html-result>` to local and open it with web browser
 
-### How to launch a remote jupyter server and connect it
+### How to launch a remote `Jupyter` server and connect it
 
-Sometimes user may want to launch a remote jupyter server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overriden by `--token <token>`) to login the notebook.
+Sometimes user may want to launch a remote `Jupyter` server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overridden by `--token <token>`) to login the notebook.
 
 ## Other FAQ of CLI
 
@@ -301,7 +301,7 @@ Some commonly used default variables includes
 
 ### How to install a different version of SDK
 
-User could easily switch to another version of SDK both in local environment and in job container. In local environment, user just change `<your/branch>` to another branch (e.g. `pai-0.14.y` for `OpenPAI` end-June release or `sdk-release-v0.4.00` for the canary version).
+User could easily switch to another version of SDK both in local environment and in job container. In local environment, user just change `<your/branch>` to another branch (e.g. `pai-0.14.y` for `OpenPAI` end-June release or a feature developing branch for the canary version).
 
 ```bash
 pip install -U -e "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisdk&subdirectory=contrib/python-sdk"
@@ -331,7 +331,7 @@ client.jobs(name)
 client.rest_api_submit(job_config)
 ```
 
-- [x] the `Cluster` class has methods to access storage (through WebHDFS only for this version)
+- [x] the `Cluster` class has methods to access storage (through `WebHDFS` only for this version)
 
 ```python
 Cluster(...).storage.upload/download(...)
