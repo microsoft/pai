@@ -1387,6 +1387,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .reply(200);
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/')
+      .times(2)
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
