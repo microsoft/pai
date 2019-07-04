@@ -27,6 +27,7 @@ import React from 'react';
 import {Text, Stack, ActionButton, FontSizes, FontWeights, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import Card from '../../../components/card';
+import {TooltipIcon} from '../controls/tooltip-icon';
 
 const style = {
   headerText: {
@@ -46,14 +47,21 @@ const style = {
   },
 };
 
-export const SidebarCard = ({title, selected, onSelect, children, error}) => {
+export const SidebarCard = ({title, selected, onSelect, children, error, tooltip}) => {
   const {palette} = getTheme();
 
   return (
     <Card style={{minHeight: selected ? 0 : null, border: error && !selected ? `1px solid ${palette.red}` : null}}>
       <Stack gap='m' styles={{root: {height: '100%'}}}>
         <Stack horizontal horizontalAlign='space-between'>
-          <Text styles={style.headerText}>{title}</Text>
+          <Stack horizontal gap='s1'>
+            <Text styles={style.headerText}>{title}</Text>
+            {tooltip && (
+              <TooltipIcon>
+                {tooltip}
+              </TooltipIcon>
+            )}
+          </Stack>
           <ActionButton
             iconProps={{iconName: selected ? 'ChevronUp' : 'ChevronDown'}}
             styles={style.actionButton}
@@ -72,6 +80,7 @@ export const SidebarCard = ({title, selected, onSelect, children, error}) => {
 
 SidebarCard.propTypes = {
   title: PropTypes.string,
+  tooltip: PropTypes.node,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
   children: PropTypes.node,

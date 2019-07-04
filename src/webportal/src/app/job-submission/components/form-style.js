@@ -113,14 +113,6 @@ export const getFormBasicSectionStyle = (optional) => {
   });
 };
 
-export const getSpinButtonStyle = () => {
-  return ({
-    labelWrapper: {
-      width: '120px',
-    },
-  });
-};
-
 export const getFormShortSectionStyle = () => {
   return ({
     root: {

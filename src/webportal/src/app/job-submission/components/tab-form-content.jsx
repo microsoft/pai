@@ -35,6 +35,7 @@ import {CommandSection} from './command-section';
 import {CompletionPolicy} from './task-role/completion-policy';
 import {PortsList} from './task-role/ports-list';
 import {getDefaultContainerSize} from '../models/container-size';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
   const _onValueChange = (propertyName, propertyValue) => {
@@ -55,11 +56,14 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
 
   return (
     <FormPage>
-      <FormTextField sectionLabel={'Task role name'}
-                     shortStyle
-                     value={jobTaskRole.name}
-                     onChange={(value) => _onValueChange('name', value)}
-                     placeholder='Enter task role name...'/>
+      <FormTextField
+        sectionLabel={'Task role name'}
+        sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
+        shortStyle
+        value={jobTaskRole.name}
+        onChange={(value) => _onValueChange('name', value)}
+        placeholder='Enter task role name...'
+      />
       <CommandSection value={jobTaskRole.commands}
                       onChange={(value)=>_onValueChange('commands', value)}/>
       <FormSpinButton sectionLabel={'Instances'}

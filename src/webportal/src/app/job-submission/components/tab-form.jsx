@@ -30,6 +30,8 @@ import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-f
 import {getFormClassNames, getTabFromStyle} from './form-style';
 import {TabFormContent} from './tab-form-content';
 import Card from '../../components/card';
+import {TooltipIcon} from './controls/tooltip-icon';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -175,6 +177,13 @@ export class TabForm extends React.Component {
               text='Add new task role'
               onClick={this._onItemAdd.bind(this)}
             />
+          </Stack.Item>
+          <Stack.Item disableShrink align='stretch'>
+            <Stack verticalAlign='center' styles={{root: {height: '100%'}}}>
+              <TooltipIcon>
+                {PROTOCOL_TOOLTIPS.taskRole}
+              </TooltipIcon>
+            </Stack>
           </Stack.Item>
         </Stack>
         <Stack>

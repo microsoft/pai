@@ -29,6 +29,7 @@ import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
 import {KeyValueList} from '../controls/key-value-list';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const Parameters = React.memo(
   ({parameters, onChange, selected, onSelect}) => {
@@ -36,6 +37,7 @@ export const Parameters = React.memo(
     return (
       <SidebarCard
         title='Parameters'
+        tooltip={PROTOCOL_TOOLTIPS.parameters}
         selected={selected}
         onSelect={onSelect}
         error={error}
@@ -43,8 +45,7 @@ export const Parameters = React.memo(
         <Stack gap='m'>
           <Hint>
             You could reference these parameters in command by{' '}
-            <code>{'<% $parameters.paramKey %>'}</code>. For sensitive data, please refer to <code>{'Secrets'}</code>{' '}
-            section. For default reserved parameters, please refer to <code>{'PAI Environment Variables'}</code>{' '} section.
+            <code>{'<% $parameters.paramKey %>'}</code>.
           </Hint>
           <div>
             <KeyValueList

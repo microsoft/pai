@@ -130,7 +130,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
   const columes = [
     {
       key: 'containerPath',
-      name: 'Container Path',
+      name: 'Container path',
       headerClassName: FontClassNames.medium,
       minWidth: 180,
       onRender: (item, idx) => {
@@ -150,7 +150,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
     },
     {
       key: 'dataSource',
-      name: 'Data Source',
+      name: 'Data source',
       headerClassName: FontClassNames.medium,
       minWidth: 200,
       onRender: (item, idx) => {

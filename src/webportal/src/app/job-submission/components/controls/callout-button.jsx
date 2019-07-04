@@ -23,44 +23,56 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import React, {useState, useRef, useCallback} from 'react';
+import {
+  Callout,
+  IconButton,
+  DirectionalHint,
+  getTheme,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {SidebarCard} from './sidebar-card';
-import {Hint} from './hint';
-import {KeyValueList} from '../controls/key-value-list';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
-export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
-  const [error, setError] = useState(false);
+export const CalloutButton = (props) => {
+  const {children} = props;
+
+  const [isCalloutVisible, setCalloutVisible] = useState(false);
+  const targetRef = useRef();
+
+  const onToggle = useCallback(() => {
+    setCalloutVisible(!isCalloutVisible);
+  }, [isCalloutVisible, setCalloutVisible]);
+
+  const onDismiss = useCallback(() => {
+    setCalloutVisible(false);
+  }, [setCalloutVisible]);
+
+  const {spacing} = getTheme();
+
+
   return (
-    <SidebarCard
-      title='Secrets'
-      tooltip={PROTOCOL_TOOLTIPS.secrets}
-      selected={selected}
-      onSelect={onSelect}
-      error={error}
-    >
-      <Stack gap='m'>
-        <Hint>
-        Secret is a special type of parameter which will be masked after submission. You could reference these secrets in command by <code>{'<% $secrets.secretKey %>'}</code>
-        </Hint>
-        <div>
-          <KeyValueList
-            name='Secret List'
-            value={secrets}
-            onChange={onChange}
-            onDuplicate={setError}
-          />
-        </div>
-      </Stack>
-    </SidebarCard>
+    <div ref={targetRef}>
+      <IconButton
+        styles={{root: {height: '100%'}}}
+        iconProps={{iconName: 'Info'}}
+        onClick={onToggle}
+      />
+      {isCalloutVisible && (
+        <Callout
+          onDismiss={onDismiss}
+          target={targetRef.current}
+          isBeakVisible={false}
+          directionalHint={DirectionalHint.topAutoEdge}
+          gapSpace={8} // spacing.s1
+        >
+          <div style={{padding: spacing.s1}}>
+            {children}
+          </div>
+        </Callout>
+      )}
+    </div>
   );
-});
+};
 
-Secrets.propTypes = {
-  secrets: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  selected: PropTypes.bool,
-  onSelect: PropTypes.func,
+CalloutButton.propTypes = {
+  children: PropTypes.node,
 };

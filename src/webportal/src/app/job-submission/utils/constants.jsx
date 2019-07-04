@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import React from 'react';
+
 export const STORAGE_PREFIX='/pai_data/';
 export const CUSTOM_STORAGE_START='#CUSTOM_STORAGE_START';
 export const CUSTOM_STORAGE_END='#CUSTOM_STORAGE_END';
@@ -74,3 +76,22 @@ export const PAI_ENV_VAR = [
     desc: 'Index of current task in current task role, starting from 0',
   },
 ];
+export const PROTOCOL_TOOLTIPS = {
+  taskRoleName: 'Name of the taskRole, string in ^[A-Za-z0-9\\-._~]+$ format.',
+  taskRoleContainerSize: (
+    <div>
+      <p>Resource required per container instance</p>
+      <p>CPU number and memory number will be auto scaled with GPU number by default</p>
+    </div>
+  ),
+  taskRole: (
+    <div>
+      <p>Task roles are different types of task in the protocol.</p>
+      <p>One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.</p>
+    </div>
+  ),
+  parameters: 'Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.',
+  secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
+  data: 'Data section is used to generate pre-command that download/mount your data to specific path in container.',
+};
+export const DEFAULT_COMMAND = `# You could define your own Parameters, Secrets or Data mount point on the right sidebar.`;

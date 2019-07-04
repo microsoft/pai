@@ -34,7 +34,7 @@ import {debounce, isEmpty} from 'lodash';
 const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const FormTextField = React.memo((props) => {
-  const {sectionLabel, onChange, sectionOptional, shortStyle, value} = props;
+  const {sectionLabel, onChange, sectionOptional, sectionTooltip, shortStyle, value} = props;
   const [cachedValue, setCachedValue] = useState('');
   useEffect(() => setCachedValue(value), [value]);
   const _onGetErrorMessage = (value) => {
@@ -65,7 +65,7 @@ export const FormTextField = React.memo((props) => {
   );
 
   return (
-    <BasicSection sectionLabel={sectionLabel} optional={sectionOptional}>
+    <BasicSection sectionLabel={sectionLabel} sectionTooltip={sectionTooltip} optional={sectionOptional}>
       {shortStyle ? (
         <FormShortSection>{textField}</FormShortSection>
       ) : (
@@ -77,6 +77,7 @@ export const FormTextField = React.memo((props) => {
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
+  sectionTooltip: PropTypes.node,
   onChange: PropTypes.func,
   value: PropTypes.string,
   sectionOptional: PropTypes.bool,

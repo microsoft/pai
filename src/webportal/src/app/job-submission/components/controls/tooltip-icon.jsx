@@ -24,54 +24,31 @@
  */
 
 import React from 'react';
-import {DetailsList, CheckboxVisibility, Stack, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
+import {
+  DirectionalHint,
+  TooltipHost,
+  Icon,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Hint} from './hint';
-import {SidebarCard} from './sidebar-card';
-import {PAI_ENV_VAR} from '../../utils/constants';
 
-const columns = [
-  {
-    key: 'key',
-    name: 'Key',
-    fieldName: 'key',
-    isMultiline: true,
-    minWidth: 200,
-  },
-  {
-    key: 'desc',
-    name: 'Description',
-    isMultiline: true,
-    fieldName: 'desc',
-    minWidth: 200,
-  },
-];
+export const TooltipIcon = ({children}) => {
+  return (
+    <TooltipHost
+      calloutProps={{
+        isBeakVisible: false,
+        directionalHint: DirectionalHint.topAutoEdge,
+        gapSpace: 8, // spacing.s1
+      }}
+      content={children}
+    >
+      <Icon
+        styles={{root: {verticalAlign: 'middle'}}}
+        iconName='Info'
+      />
+    </TooltipHost>
+  );
+};
 
-export const EnvVar = React.memo(({selected, onSelect}) => (
-  <SidebarCard
-    title='PAI environment variables'
-    selected={selected}
-    onSelect={onSelect}
-  >
-    <Stack gap='m'>
-      <Hint>
-        You could reference these PAI Environment Variables in command by <code>{'$envKey'}</code>
-      </Hint>
-      <div>
-        <DetailsList
-          items={PAI_ENV_VAR}
-          columns={columns}
-          checkboxVisibility={CheckboxVisibility.hidden}
-          layoutMode={DetailsListLayoutMode.fixedColumns}
-          selectionMode={SelectionMode.none}
-          compact
-        />
-      </div>
-    </Stack>
-  </SidebarCard>
-));
-
-EnvVar.propTypes = {
-  selected: PropTypes.bool,
-  onSelect: PropTypes.func,
+TooltipIcon.propTypes = {
+  children: PropTypes.node,
 };
