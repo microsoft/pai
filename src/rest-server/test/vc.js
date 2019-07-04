@@ -1051,33 +1051,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
-      });
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
-      .reply(200);
     
     chai.request(server)
       .put('/api/v1/virtual-clusters/b')
@@ -1095,33 +1068,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
-      });
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
-      .reply(200);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1138,33 +1084,6 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   it('[Positive] should update vc a with max capacity', (done) => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
-      .reply(200);
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
-      });
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
       .reply(200);
 
     chai.request(server)
@@ -1467,7 +1386,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/')
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
