@@ -1391,7 +1391,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
         'kind': 'SecretList',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/',
           'resourceVersion': '1062682'
         },
         'items': [
@@ -1400,10 +1400,11 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
               'name': 'paitest',
             },
             'data': {
-              'admin': 'dHJ1ZQ==',
               'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
               'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+              'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJd',
+              'email': '',
+              'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJdfQ=='
             },
             'type': 'Opaque'
           },
