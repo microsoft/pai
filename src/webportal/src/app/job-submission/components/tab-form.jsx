@@ -180,9 +180,7 @@ export class TabForm extends React.Component {
           </Stack.Item>
           <Stack.Item disableShrink align='stretch'>
             <Stack verticalAlign='center' styles={{root: {height: '100%'}}}>
-              <TooltipIcon>
-                {PROTOCOL_TOOLTIPS.taskRole}
-              </TooltipIcon>
+              <TooltipIcon content={PROTOCOL_TOOLTIPS.taskRole} />
             </Stack>
           </Stack.Item>
         </Stack>
