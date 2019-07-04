@@ -108,7 +108,7 @@ const JobSubmission = () => {
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -232,7 +232,6 @@ const JobSubmission = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
-      setLoading(true);
       const jobName = params.get('jobname') || '';
       const user = params.get('user') || '';
       if (user && jobName) {
@@ -250,6 +249,8 @@ const JobSubmission = () => {
           })
           .catch(alert);
       }
+    } else {
+      setLoading(false);
     }
   }, []);
 
