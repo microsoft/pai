@@ -69,7 +69,6 @@ const get = (req, res, next) => {
   });
 };
 
-
 /**
  * Add a vc.
  */
@@ -91,7 +90,6 @@ const update = (req, res, next) => {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
   }
 };
-
 
 /**
  *  Add a vc and add a group, async solution
@@ -135,7 +133,6 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
   }
 };
 
-
 /**
  * Update vc status, changing a vc from running to stopped a vc will only prevent new job in this vc.
  */
@@ -170,7 +167,6 @@ const updateStatus = (req, res, next) => {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
   }
 };
-
 
 /**
  * Remove a vc.
