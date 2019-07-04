@@ -63,9 +63,7 @@ export const BasicSection = (props) => {
                   {sectionLabel}
                 </Label>
                 {sectionTooltip && (
-                  <TooltipIcon>
-                    {sectionTooltip}
-                  </TooltipIcon>
+                  <TooltipIcon content={sectionTooltip} />
                 )}
               </Stack>
               {sectionOptional && (
@@ -88,7 +86,7 @@ BasicSection.defaultProps = {
 
 BasicSection.propTypes = {
   sectionLabel: PropTypes.string,
-  sectionTooltip: PropTypes.node,
+  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   children: PropTypes.node,
   sectionOptional: PropTypes.bool,
 };
