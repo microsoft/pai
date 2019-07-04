@@ -23,7 +23,10 @@
  * SOFTWARE.
  */
 
+import PropTypes from 'prop-types';
+import {isNil, debounce, isEqual, isEmpty, cloneDeep} from 'lodash';
 import React, {useState, useRef, useEffect, useContext} from 'react';
+import MediaQuery from 'react-responsive';
 import {
   Stack,
   DefaultButton,
@@ -49,9 +52,8 @@ import {
   removePreCommandsFromProtocolTaskRoles,
 } from '../utils/utils';
 import Context from './context';
-
-import PropTypes from 'prop-types';
-import {isNil, debounce, isEqual, isEmpty, cloneDeep} from 'lodash';
+import {BasicSection} from './basic-section';
+import {FormShortSection} from './form-page';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
@@ -231,39 +233,92 @@ export const SubmissionSection = (props) => {
     }
   };
 
+  const widthBreakpoint = 1550;
+
   return (
     <Card>
-      <Stack horizontal gap='s1' horizontalAlign='center'>
-        <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
-          Submit
-        </PrimaryButton>
-        <DefaultButton
-          onClick={_openEditor}
-          styles={{root: {marginRight: spacing.l2}}}
-        >
-          Edit YAML
-        </DefaultButton>
-        <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
-        <DefaultButton>
-          <Label styles={{root: importButtonStyle.label}}>
-            {'Import'}
-            <input
-              type='file'
-              style={importButtonStyle.input}
-              accept='.yml,.yaml'
-              onChange={_importFile}
-            />
-          </Label>
-        </DefaultButton>
-        <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
-          <div>Advanced</div>
-          <Toggle
-            styles={{root: {margin: 0}}}
-            checked={advanceFlag}
-            onChange={onToggleAdvanceFlag}
-          />
+      {/* large - align with task role card (simulate the top section taskrole-sidebar layout) */}
+      <MediaQuery minWidth={widthBreakpoint}>
+        <Stack horizontal gap='l1'>
+          <StackItem grow styles={{root: {minWidth: 600, flexBasis: 0}}}>
+            <BasicSection>
+              <Stack horizontal gap='l1'>
+                <FormShortSection>
+                  <Stack horizontal horizontalAlign='space-between'>
+                    <Stack horizontal gap='s1'>
+                      <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
+                        Submit
+                      </PrimaryButton>
+                      <DefaultButton
+                        onClick={_openEditor}
+                      >
+                        Edit YAML
+                      </DefaultButton>
+                    </Stack>
+                    <Stack horizontal gap='s1'>
+                      <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+                      <DefaultButton>
+                        <Label styles={{root: importButtonStyle.label}}>
+                          {'Import'}
+                          <input
+                            type='file'
+                            style={importButtonStyle.input}
+                            accept='.yml,.yaml'
+                            onChange={_importFile}
+                          />
+                        </Label>
+                      </DefaultButton>
+                    </Stack>
+                  </Stack>
+                </FormShortSection>
+                <Stack horizontal verticalAlign='center' gap='s1'>
+                  <div>Advanced</div>
+                  <Toggle
+                    styles={{root: {margin: 0}}}
+                    checked={advanceFlag}
+                    onChange={onToggleAdvanceFlag}
+                  />
+                </Stack>
+              </Stack>
+            </BasicSection>
+          </StackItem>
+          <div style={{width: 550}}></div>
         </Stack>
-      </Stack>
+      </MediaQuery>
+      {/* small screen - center */}
+      <MediaQuery maxWidth={widthBreakpoint-1}>
+        <Stack horizontal gap='s1' horizontalAlign='center'>
+          <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
+            Submit
+          </PrimaryButton>
+          <DefaultButton
+            onClick={_openEditor}
+            styles={{root: {marginRight: spacing.l2}}}
+          >
+            Edit YAML
+          </DefaultButton>
+          <DefaultButton onClick={_exportYaml}>Export</DefaultButton>
+          <DefaultButton>
+            <Label styles={{root: importButtonStyle.label}}>
+              {'Import'}
+              <input
+                type='file'
+                style={importButtonStyle.input}
+                accept='.yml,.yaml'
+                onChange={_importFile}
+              />
+            </Label>
+          </DefaultButton>
+          <Stack horizontal padding='0 0 0 s1' verticalAlign='center' gap='s1'>
+            <div>Advanced</div>
+            <Toggle
+              styles={{root: {margin: 0}}}
+              checked={advanceFlag}
+              onChange={onToggleAdvanceFlag}
+            />
+          </Stack>
+        </Stack>
+      </MediaQuery>
       <MonacoPanel
         isOpen={isEditorOpen}
         onDismiss={_closeEditor}

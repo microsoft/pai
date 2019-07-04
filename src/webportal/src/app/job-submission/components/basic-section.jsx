@@ -82,8 +82,12 @@ export const BasicSection = (props) => {
   );
 };
 
+BasicSection.defaultProps = {
+  sectionLabel: '',
+};
+
 BasicSection.propTypes = {
-  sectionLabel: PropTypes.string.isRequired,
+  sectionLabel: PropTypes.string,
   sectionTooltip: PropTypes.node,
   children: PropTypes.node,
   sectionOptional: PropTypes.bool,
