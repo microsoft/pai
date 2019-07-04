@@ -20,7 +20,7 @@
 const Ajv = require('ajv');
 const ajvMerge = require('ajv-merge-patch/keywords/merge');
 
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({allErrors: true, useDefaults: true});
 ajvMerge(ajv);
 
 // base schema
@@ -60,13 +60,16 @@ const hivedSchema = {
           type: 'object',
           properties: {
             gpuType: {
-              type: 'string',
+              type: ['string', 'null'],
+              default: null,
             },
             reservationId: {
-              type: 'string',
+              type: ['string', 'null'],
+              default: null,
             },
             affinityGroupName: {
-              type: 'string',
+              type: ['string', 'null'],
+              default: null,
             },
           },
           additionalProperties: false,
@@ -355,7 +358,7 @@ const protocolSchema = {
     extras: {
       type: 'object',
       properties: {
-        hivedscheduler: hivedSchema,
+        hivedScheduler: hivedSchema,
       },
       additionalProperties: true,
     },
