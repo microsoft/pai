@@ -62,7 +62,7 @@ export class JobTaskRole {
       name: name,
       instances: instances,
       completion: Completion.fromProtocol(completion),
-      commands: commands.join('\n'),
+      commands: isNil(commands) ? '' : commands.join('\n'),
       containerSize: resourcePerInstance,
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),

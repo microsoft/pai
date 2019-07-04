@@ -53,7 +53,6 @@ export class JobProtocol {
   static fromYaml(protocolYaml) {
     try {
       const jobProtocol = yaml.safeLoad(protocolYaml);
-      // Need to validate the protocol here.
       return new JobProtocol(jobProtocol);
     } catch (e) {
       alert(e.message);

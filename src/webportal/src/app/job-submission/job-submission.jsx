@@ -215,7 +215,10 @@ const JobSubmission = () => {
           .then((jobConfig) => {
             const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
               jobConfig,
+              {vcNames}
             );
+            const timestamp = Date.now().toString();
+            jobInfo.name = jobInfo.name + '_' + timestamp.substring(timestamp.length - 4);
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
