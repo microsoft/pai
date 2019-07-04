@@ -200,7 +200,7 @@ const removeVCAndRemoveGroupAsync = async (req, res, next) => {
       return next(createError('Forbidden', 'ForbiddenUserError', `The name '${req.params.vcName}' is occupied by admin group.`));
     }
     const vcName = req.params.vcName;
-    await util.promisify(VirtualCluster.prototype.removeVc)(vcName);
+    await util.promisify(VirtualCluster.prototype.removeVc).apply(VirtualCluster.prototype, [vcName]);
     await groupModel.deleteGroup(vcName);
     return res.status(201).json({
       message: `Remove vc: ${vcName} successfully`,
