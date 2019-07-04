@@ -230,7 +230,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
+                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
                   Import
                 </a>
                 <input
@@ -406,7 +406,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private setLogPath = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, logPath?: string) => {
     if (logPath !== undefined) {
-      this.setState({ logPath });
+      this.setState({logPath});
     }
   }
 
@@ -448,7 +448,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
     if (option && option.key) {
-      this.setState({ fileOption: option.key });
+      this.setState({fileOption: option.key});
     }
   }
 
@@ -457,7 +457,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({ key, value }),
+        ([key, value]) => pairs.push({key, value}),
       );
     }
     return pairs;
@@ -573,11 +573,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private generatePreCommand = async () => {
     const preCommand = [];
-    preCommand.push('#TENSORBOARD_LOG_STORAGE_START');
-    preCommand.push('#Auto generated code, please do not modify');
-
-    const hdfsHost = `${this.props.api.split(':')[1]}:9000`;
-    const mountPath = `/log/tensorboard/${this.state.jobName}/`
+    const hdfsHost = `${this.props.api.split("//")[1].split(":")[0]}:9000`;
+    const mountPath = '/tmp_TENSORBOARD_LOG';
+    const hdfsPath = `${mountPath}/log/tensorboard/${this.state.jobName}`;
 
     preCommand.push([
       "apt-get install -y git fuse golang",
@@ -587,21 +585,36 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       "cp hdfs-mount /bin",
       "cd ..",
       "rm -rf hdfs-mount",
-    ].join('&&'));
-    preCommand.push(`if [ ! -d ${mountPath} ]; then mkdir --parents ${
+    ].join("&&"));
+    preCommand.push(
+      `if [ ! -d ${mountPath} ]; then mkdir --parents ${
       mountPath
-      }; fi`
+      }; fi`,
     );
-    preCommand.push(`hdfs-mount ${hdfsHost} ${mountPath} &`);
+    preCommand.push(`(hdfs-mount ${hdfsHost} ${mountPath} &)`);
     preCommand.push(`sleep 5`);
-    preCommand.push(`export PAI_TENSORBOARD_LOG_PATH=${mountPath}`)
-    preCommand.push('#TENSORBOARD_LOG_STORAGE_END');
+    preCommand.push(
+      `if [ ! -d ${hdfsPath} ]; then mkdir --parents ${
+      hdfsPath
+      }; fi`,
+    );
+    preCommand.push(`export PAI_TENSORBOARD_LOG_PATH=${hdfsPath}`);
     return preCommand;
   }
 
   private injectCommand = async () => {
     const preCommand = await this.generatePreCommand();
-    // TODO
+    const protocol = yaml.safeLoad(this.state.protocolYAML);
+    if (protocol.hasOwnProperty("taskRoles")) {
+      const obj = protocol.taskRoles;
+      Object.keys(obj).forEach(function (key) {
+        obj[key].commands = preCommand.concat(obj[key].commands);
+      });
+    }
+    this.setState({
+      protocol,
+      protocolYAML: yaml.safeDump(protocol),
+    });
   }
 
   private addTensorBoardConfig = async () => {
@@ -640,7 +653,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         gpu: 0,
         ports: {},
       },
-      commands: [`tensorboard --logdir = ${this.state.logPath} ${portList}`],
+      commands: [`tensorboard --logdir=$PAI_TENSORBOARD_LOG_PATH ${portList}`],
     };
     protocol.taskRoles[tensorBoardName].resourcePerInstance.ports[tensorBoardPort] = 1;
     protocol.extras = { tensorBoardStr: randomStr };
@@ -659,11 +672,13 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (this.state.enableTensorBoard) {
       if (this.state.logPath !== "") {
         await this.addTensorBoardConfig();
+        await this.injectCommand();
       } else {
         alert("Please input the tensorboard log path!");
         return;
       }
     }
+
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     if (protocol.hasOwnProperty("extras")) {
       protocol.extras.submitFrom = this.props.pluginId;
