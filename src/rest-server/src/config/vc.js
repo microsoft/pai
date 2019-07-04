@@ -30,6 +30,22 @@ const vcPutInputSchema = Joi.object().keys({
     .optional(),
 }).required();
 
+// define the input schema for the 'create vc' api
+const vcCreateInputSchema = Joi.object().keys({
+  vcCapacity: Joi.number()
+    .min(0)
+    .max(100)
+    .required(),
+  vcMaxCapacity: Joi.number()
+    .min(Joi.ref('vcCapacity'))
+    .max(100)
+    .optional(),
+  description: Joi.string()
+    .empty(''),
+  externalName: Joi.string()
+    .empty(''),
+}).required();
+
 // define the input schema for the 'put vc status' api
 const vcStatusPutInputSchema = Joi.object().keys({
   vcStatus: Joi.string()
@@ -39,6 +55,7 @@ const vcStatusPutInputSchema = Joi.object().keys({
 
 // module exports
 module.exports = {
+  vcCreateInputSchema: vcCreateInputSchema,
   vcPutInputSchema: vcPutInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
 };
