@@ -505,7 +505,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return (
         <TextField
           label="Log Path"
-          placeholder="name1:/logpath1,name2:/logpath2"
+          placeholder="name1:$PAI_TENSORBOARD_LOG_PATH/logpath1,name2:$PAI_TENSORBOARD_LOG_PATH/logpath2"
           value={this.state.logPath}
           onChange={this.setLogPath}
           required={true}
@@ -574,7 +574,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private generatePreCommand = async () => {
     const preCommand = [];
     const hdfsHost = `${this.props.api.split("//")[1].split(":")[0]}:9000`;
-    const mountPath = '/tmp_TENSORBOARD_LOG';
+    const mountPath = "/tmp_TENSORBOARD_LOG";
     const hdfsPath = `${mountPath}/log/tensorboard/${this.state.jobName}`;
 
     preCommand.push([
@@ -607,7 +607,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     if (protocol.hasOwnProperty("taskRoles")) {
       const obj = protocol.taskRoles;
-      Object.keys(obj).forEach(function (key) {
+      Object.keys(obj).forEach((key) => {
         obj[key].commands = preCommand.concat(obj[key].commands);
       });
     }
@@ -653,7 +653,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         gpu: 0,
         ports: {},
       },
-      commands: [`tensorboard --logdir=$PAI_TENSORBOARD_LOG_PATH ${portList}`],
+      commands: [`tensorboard --logdir=${this.state.logPath} ${portList}`],
     };
     protocol.taskRoles[tensorBoardName].resourcePerInstance.ports[tensorBoardPort] = 1;
     protocol.extras = { tensorBoardStr: randomStr };
