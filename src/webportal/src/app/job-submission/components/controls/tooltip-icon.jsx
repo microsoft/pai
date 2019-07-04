@@ -31,7 +31,7 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-export const TooltipIcon = ({children}) => {
+export const TooltipIcon = ({content}) => {
   return (
     <TooltipHost
       calloutProps={{
@@ -39,7 +39,7 @@ export const TooltipIcon = ({children}) => {
         directionalHint: DirectionalHint.topAutoEdge,
         gapSpace: 8, // spacing.s1
       }}
-      content={children}
+      content={content}
     >
       <Icon
         styles={{root: {verticalAlign: 'middle'}}}
@@ -50,5 +50,5 @@ export const TooltipIcon = ({children}) => {
 };
 
 TooltipIcon.propTypes = {
-  children: PropTypes.node,
+  content: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 };

@@ -59,9 +59,7 @@ export const CSpinButton = (props) => {
         <div style={{width: 160}}>{label}</div>
       )}
       {tooltip && (
-        <TooltipIcon>
-          {tooltip}
-        </TooltipIcon>
+        <TooltipIcon content={tooltip} />
       )}
       <SpinButton
         {...props}
@@ -80,7 +78,7 @@ CSpinButton.defaultProps = {
 
 CSpinButton.propTypes = {
   label: PropTypes.string,
-  tooltip: PropTypes.node,
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   min: PropTypes.number,
   max: PropTypes.number,
   onChange: PropTypes.func,

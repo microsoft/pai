@@ -77,7 +77,7 @@ export const FormTextField = React.memo((props) => {
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
-  sectionTooltip: PropTypes.node,
+  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   onChange: PropTypes.func,
   value: PropTypes.string,
   sectionOptional: PropTypes.bool,

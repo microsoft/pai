@@ -57,9 +57,7 @@ export const SidebarCard = ({title, selected, onSelect, children, error, tooltip
           <Stack horizontal gap='s1'>
             <Text styles={style.headerText}>{title}</Text>
             {tooltip && (
-              <TooltipIcon>
-                {tooltip}
-              </TooltipIcon>
+              <TooltipIcon content={tooltip} />
             )}
           </Stack>
           <ActionButton
@@ -80,7 +78,7 @@ export const SidebarCard = ({title, selected, onSelect, children, error, tooltip
 
 SidebarCard.propTypes = {
   title: PropTypes.string,
-  tooltip: PropTypes.node,
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
   children: PropTypes.node,
