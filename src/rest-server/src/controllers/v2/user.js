@@ -200,7 +200,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
       let groupType = await groupModel.getAllGroupTypeObject();
       let userInfo = await userModel.getUser(username);
       for (const groupname of userInfo['grouplist']) {
-        if (groupType[groupname] && !(groupname in grouplist) && groupType[groupname] != 'vc') {
+        if (groupType[groupname] && !(grouplist.includes(groupname)) && groupType[groupname] !== 'vc') {
           grouplist.push(groupname);
         }
       }
