@@ -66,11 +66,7 @@ const convertPriority = (priorityClass) => {
     prod: 1000,
     test: 100,
   };
-  if (priorityClass in priorityMap) {
-    return priorityMap[priorityClass];
-  } else {
-    return null;
-  }
+  return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
 
 const hivedValidate = (protocolObj) => {
