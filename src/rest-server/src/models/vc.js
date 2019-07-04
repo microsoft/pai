@@ -22,14 +22,6 @@ const xml2js = require('xml2js');
 const yarnConfig = require('@pai/config/yarn');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
-const dbUtility = require('@pai/utils/dbUtil');
-const secretConfig = require('@pai/config/secret');
-
-
-const db = dbUtility.getStorageObject('UserSecret', {
-  'paiUserNameSpace': secretConfig.paiUserNameSpace,
-  'requestConfig': secretConfig.requestConfig(),
-});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
