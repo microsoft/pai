@@ -35,7 +35,7 @@ class TestNvidia(base.TestBase):
             nvidia_smi_result = f.read()
         nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
 
-        zero = nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError(),
+        zero = nvidia.NvidiaGpuStatus(100, 25, [1357, 2384, 3093], nvidia.EccError(volatile_single=1, volatile_double=2, aggregated_single=3, aggregated_double=4),
                 "0", "GPU-e511a7b2-f9d5-ba47-9b98-853732ca6c1b", 60.0)
         one = nvidia.NvidiaGpuStatus(98, 50, [3093], nvidia.EccError(),
                 "1", "GPU-28daffaf-8abe-aaf8-c298-4bd13aecb5e6", 59.0)

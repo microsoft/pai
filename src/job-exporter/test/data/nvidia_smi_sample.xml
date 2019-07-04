@@ -106,7 +106,7 @@
                     <texture_memory>N/A</texture_memory>
                     <texture_shm>N/A</texture_shm>
                     <cbu>N/A</cbu>
-                    <total>N/A</total>
+                    <total>1</total>
                 </single_bit>
                 <double_bit>
                     <device_memory>N/A</device_memory>
@@ -116,7 +116,7 @@
                     <texture_memory>N/A</texture_memory>
                     <texture_shm>N/A</texture_shm>
                     <cbu>N/A</cbu>
-                    <total>N/A</total>
+                    <total>2</total>
                 </double_bit>
             </volatile>
             <aggregate>
@@ -128,7 +128,7 @@
                     <texture_memory>N/A</texture_memory>
                     <texture_shm>N/A</texture_shm>
                     <cbu>N/A</cbu>
-                    <total>N/A</total>
+                    <total>3</total>
                 </single_bit>
                 <double_bit>
                     <device_memory>N/A</device_memory>
@@ -138,7 +138,7 @@
                     <texture_memory>N/A</texture_memory>
                     <texture_shm>N/A</texture_shm>
                     <cbu>N/A</cbu>
-                    <total>N/A</total>
+                    <total>4</total>
                 </double_bit>
             </aggregate>
         </ecc_errors>

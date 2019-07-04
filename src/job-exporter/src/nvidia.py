@@ -52,16 +52,23 @@ def convert_to_byte(data):
 class EccError(object):
     """ EccError represents volatile count from one GPU card,
     see https://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf for more info """
-    def __init__(self, single=0, double=0):
-        self.single = single
-        self.double = double
+    def __init__(self, volatile_single=0, volatile_double=0,
+            aggregated_single=0, aggregated_double=0):
+        self.volatile_single = volatile_single
+        self.volatile_double = volatile_double
+        self.aggregated_single = aggregated_single
+        self.aggregated_double = aggregated_double
 
     def __repr__(self):
-        return "s: %d, d: %d" % (self.single, self.double)
+        return "v_s: %d, v_d: %d, a_s: %d, a_d: %d" % (\
+                self.volatile_single, self.volatile_double,
+                self.aggregated_single, self.aggregated_double)
 
     def __eq__(self, o):
-        return self.single == o.single and \
-                self.double == o.double
+        return self.volatile_single == o.volatile_single and \
+                self.volatile_double == o.volatile_double and \
+                self.aggregated_single == o.aggregated_single and \
+                self.aggregated_double == o.aggregated_double
 
 
 class NvidiaGpuStatus(object):
@@ -128,25 +135,15 @@ def parse_smi_xml_result(smi):
                 pids.append(int(
                     process.getElementsByTagName("pid")[0].childNodes[0].data))
 
-        ecc_single = ecc_double = 0
+        volatile_single = volatile_double = aggregated_single = aggregated_double = 0
 
         """Here we try to get the ecc error count.
-        If there is no single_bit tag, it means that this GPU do not support 
+        If there is no single_bit tag, it means that this GPU do not support
         """
         try:
             ecc_errors = gpu.getElementsByTagName("ecc_errors")
-            if len(ecc_errors) > 0:
-                volatile = ecc_errors[0].getElementsByTagName("volatile")
-                if len(volatile) > 0:
-                    volatile = volatile[0]
-                    single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
-                    double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
-                    single = single.childNodes[0].data
-                    double = double.childNodes[0].data
-                    if single != "N/A":
-                        ecc_single = int(single)
-                    if double != "N/A":
-                        ecc_double = int(double)
+            volatile_single, volatile_double = get_ecc_error(ecc_errors, "volatile")
+            aggregated_single, aggregated_double = get_ecc_error(ecc_errors, "aggregate")
         except IndexError:
             pass
 
@@ -165,7 +162,7 @@ def parse_smi_xml_result(smi):
                 float(gpu_util),
                 float(gpu_mem_util),
                 pids,
-                EccError(single=ecc_single, double=ecc_double),
+                EccError(volatile_single=volatile_single, volatile_double=volatile_double, aggregated_single=aggregated_single, aggregated_double=aggregated_double),
                 str(minor),
                 uuid,
                 temperature)
@@ -173,6 +170,21 @@ def parse_smi_xml_result(smi):
         result[str(minor)] = result[uuid] = status
 
     return result
+
+def get_ecc_error(ecc_errors, error_type):
+    ecc_single, ecc_double = 0, 0
+    volatile = ecc_errors[0].getElementsByTagName(error_type)
+    if len(volatile) > 0:
+        volatile = volatile[0]
+        single = volatile.getElementsByTagName("single_bit")[0].getElementsByTagName("total")[0]
+        double = volatile.getElementsByTagName("double_bit")[0].getElementsByTagName("total")[0]
+        single = single.childNodes[0].data
+        double = double.childNodes[0].data
+        if single != "N/A":
+            ecc_single = int(single)
+        if double != "N/A":
+            ecc_double = int(double)
+    return ecc_single, ecc_double
 
 def nvidia_smi(histogram, timeout):
     try:
