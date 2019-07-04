@@ -462,16 +462,28 @@ const vc = new VirtualCluster();
 module.exports = {
   list: () => util.promisify(vc.getVcList.bind(vc))()
     .then((vcList) => vcList)
-    .catch((err) => {throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   get: (vcName) => util.promisify(vc.getVc.bind(vc))(vcName)
     .then((vcInfo) => vcInfo)
-    .catch((err) => {console.log(err); throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
-    .catch((err) => {throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   stop: (vcName) => util.promisify(vc.stopVc.bind(vc))(vcName)
-    .catch((err) => {throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   activate: (vcName) => util.promisify(vc.activeVc.bind(vc))(vcName)
-    .catch((err) => {throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   remove: (vcName) => util.promisify(vc.removeVc.bind(vc))(vcName)
-    .catch((err) => {throw createError.unknown(err)}),
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
 };
