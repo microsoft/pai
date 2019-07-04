@@ -67,7 +67,7 @@ export function addPathPrefix(path, prefix) {
   return prefix.concat(path);
 }
 
-export function pruneComponents(jobInformation, secrets, context) {
+function pruneComponents(jobInformation, secrets, context) {
   const {vcNames} = context;
   const virtualCluster = jobInformation.virtualCluster;
   if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
@@ -86,11 +86,12 @@ export function pruneComponents(jobInformation, secrets, context) {
   }
 }
 
-export function getJobComponentsFromConfig(jobConfig) {
+export function getJobComponentsFromConfig(jobConfig, context) {
   if (isNil(jobConfig)) {
     return;
   }
 
+  removePreCommandsFromProtocolTaskRoles(jobConfig);
   const parameters = jobConfig.parameters || [];
   const taskRoles = jobConfig.taskRoles || [];
   const deployments = jobConfig.deployments || [];
@@ -113,6 +114,8 @@ export function getJobComponentsFromConfig(jobConfig) {
       secrets,
     ),
   );
+
+  pruneComponents(updatedJobInformation, updatedSecrets, context);
   return [
     updatedJobInformation,
     updatedTaskRoles,
@@ -162,7 +165,7 @@ function removePreCommandSection(commands, beginTag, endTag) {
   return commands;
 }
 
-export function removePreCommandsFromProtocolTaskRoles(protocol) {
+function removePreCommandsFromProtocolTaskRoles(protocol) {
   Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     let commands = taskRole.commands || [];

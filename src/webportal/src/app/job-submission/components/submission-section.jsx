@@ -46,10 +46,8 @@ import {submitJob} from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
-  getJobComponentsFromConfig,
-  pruneComponents,
   populateProtocolWithDataCli,
-  removePreCommandsFromProtocolTaskRoles,
+  getJobComponentsFromConfig,
 } from '../utils/utils';
 import Context from './context';
 import {BasicSection} from './basic-section';
@@ -151,7 +149,6 @@ export const SubmissionSection = (props) => {
       return;
     }
 
-    removePreCommandsFromProtocolTaskRoles(updatedJob);
     setjobProtocol(updatedJob);
     if (onChange === undefined) {
       return;
@@ -162,9 +159,8 @@ export const SubmissionSection = (props) => {
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
-    ] = getJobComponentsFromConfig(updatedJob);
+    ] = getJobComponentsFromConfig(updatedJob, {vcNames});
 
-    pruneComponents(updatedJobInformation, updatedSecrets, {vcNames});
     onChange(
       updatedJobInformation,
       updatedTaskRoles,

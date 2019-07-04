@@ -68,6 +68,31 @@ const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
 
+
+function getChecksum(str) {
+  let res = 0;
+  for (const c of str) {
+    res^= c.charCodeAt(0) & 0xff;
+  }
+  return res.toString(16);
+}
+
+function generateJobName(jobName) {
+  let name = jobName;
+  if (
+    /_\w{8}$/.test(name) &&
+    getChecksum(name.slice(0, -2)) === name.slice(-2)
+  ) {
+    name = name.slice(0, -9);
+  }
+
+  let suffix = Date.now().toString(16);
+  suffix = suffix.substring(suffix.length - 6);
+  name = `${name}_${suffix}`;
+  name = name + getChecksum(name);
+  return name;
+}
+
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({name: 'Task_role_1'}),
@@ -215,7 +240,9 @@ const JobSubmission = () => {
           .then((jobConfig) => {
             const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
               jobConfig,
+              {vcNames}
             );
+            jobInfo.name = generateJobName(jobInfo.name);
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);

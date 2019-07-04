@@ -15,11 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-export const STORAGE_PREFIX='/pai_data/';
-export const CUSTOM_STORAGE_START='#CUSTOM_STORAGE_START';
-export const CUSTOM_STORAGE_END='#CUSTOM_STORAGE_END';
-export const TEAMWISE_DATA_CMD_START='#TEAMWISE_STORAGE_START';
-export const TEAMWISE_DATA_CMD_END='#TEAMWISE_STORAGE_END';
+export const STORAGE_PREFIX = '/pai_data/';
+
+// Wrap comments with `` just a workaround, we may need to change rest-server or
+// runtime to support comments in commands filed
+export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';
+export const CUSTOM_STORAGE_END = '`#CUSTOM_STORAGE_END`';
+export const TEAMWISE_DATA_CMD_START = '`#TEAMWISE_STORAGE_START`';
+export const TEAMWISE_DATA_CMD_END = '`#TEAMWISE_STORAGE_END`';
+export const AUTO_GENERATE_NOTIFY =
+  '`#Auto generated code, please do not modify`';
 export const PAI_ENV_VAR = [
   {
     key: 'PAI_JOB_NAME',
@@ -55,7 +60,8 @@ export const PAI_ENV_VAR = [
   },
   {
     key: 'PAI_RESOURCE_$taskRole',
-    desc: 'Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format',
+    desc:
+      'Resource requirement for the task role in "gpuNumber,cpuNumber,memMB,shmMB" format',
   },
   {
     key: 'PAI_MIN_FAILED_TASK_COUNT_$taskRole',
@@ -87,6 +93,8 @@ export const PROTOCOL_TOOLTIPS = {
   ],
   parameters: 'Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.',
   secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
-  data: 'Data section is used to generate pre-command that download/mount your data to specific path in container.',
+  data:
+    'Data section is used to generate pre-command that download/mount your data to specific path in container.',
 };
-export const DEFAULT_COMMAND = `# You could define your own Parameters, Secrets or Data mount point on the right sidebar.`;
+export const DEFAULT_COMMAND =
+  '`# You could define your own Parameters, Secrets or Data mount point on the right sidebar. Do not add comments in the command.`';
