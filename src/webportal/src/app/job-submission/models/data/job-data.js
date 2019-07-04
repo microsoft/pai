@@ -1,4 +1,9 @@
-import {CUSTOM_STORAGE_START, CUSTOM_STORAGE_END, STORAGE_PREFIX} from '../../utils/constants';
+import {
+  CUSTOM_STORAGE_START,
+  CUSTOM_STORAGE_END,
+  STORAGE_PREFIX,
+  AUTO_GENERATE_NOTIFY,
+} from '../../utils/constants';
 import {getProjectNameFromGit} from '../../utils/utils';
 import {isEmpty} from 'lodash';
 
@@ -13,7 +18,7 @@ export class JobData {
   async _generateCustomStorageCommands(userName, jobName) {
     const preCommand = [];
     preCommand.push(CUSTOM_STORAGE_START);
-    preCommand.push('#Auto generated code, please do not modify');
+    preCommand.push(AUTO_GENERATE_NOTIFY);
     const hdfsConfigFile = '~/.hdfscli.cfg';
     const jobDir = `${STORAGE_PREFIX}/${userName}/${jobName}`;
     preCommand.push(

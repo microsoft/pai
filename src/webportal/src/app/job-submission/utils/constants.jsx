@@ -21,10 +21,11 @@ export const STORAGE_PREFIX='/pai_data/';
 
 // Wrap comments with `` just a workaround, we may need to change rest-server or
 // runtime to support comments in commands filed
-export const CUSTOM_STORAGE_START='#CUSTOM_STORAGE_START';
-export const CUSTOM_STORAGE_END='#CUSTOM_STORAGE_END';
-export const TEAMWISE_DATA_CMD_START='#TEAMWISE_STORAGE_START';
-export const TEAMWISE_DATA_CMD_END='#TEAMWISE_STORAGE_END';
+export const CUSTOM_STORAGE_START='`#CUSTOM_STORAGE_START`';
+export const CUSTOM_STORAGE_END='`#CUSTOM_STORAGE_END`';
+export const TEAMWISE_DATA_CMD_START='`#TEAMWISE_STORAGE_START`';
+export const TEAMWISE_DATA_CMD_END='`#TEAMWISE_STORAGE_END`';
+export const AUTO_GENERATE_NOTIFY='`#Auto generated code, please do not modify`';
 export const PAI_ENV_VAR = [
   {
     key: 'PAI_JOB_NAME',
