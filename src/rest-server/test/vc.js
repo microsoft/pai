@@ -1386,13 +1386,12 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/')
-      .times(2)
+      .get('/api/v1/namespaces/pai-user-v2/secrets')
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets',
           'resourceVersion': '1062682'
         },
         'items': [
