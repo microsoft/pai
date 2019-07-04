@@ -113,7 +113,7 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
     const vcName = req.params.vcName;
     const vcCapacity = parseInt(req.body.vcCapacity);
     const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
-    await util.promisify(VirtualCluster.prototype.updateVc)(vcName, vcCapacity, vcMaxCapacity);
+    await util.promisify(VirtualCluster.prototype.updateVc).apply(VirtualCluster.prototype, [vcName, vcCapacity, vcMaxCapacity]);
     const groupname = req.params.vcName;
     const extension = {'groupType': 'vc'};
     const externalName = req.body.externalName;

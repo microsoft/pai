@@ -1409,6 +1409,19 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
           },
         ]
       });
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-group/secrets/61')
+      .reply(200, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Success',
+        'details': {
+          'name': '61',
+          'kind': 'secrets',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
+        }
+      });
 
     chai.request(server)
       .delete('/api/v1/virtual-clusters/a')
