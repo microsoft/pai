@@ -102,7 +102,11 @@ class TransferClient:
         virtual_cluster = []
         if base64.b64decode(user_info_item['data']['admin']).decode('utf-8')== 'true':
             grouplist.append(self.admin_group)
+        if 'virtualCluster' not in user_info_item['data']:
+            user_info_item['data']['virtualCluster'] = ''
         for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
+            if vc_name == '':
+              continue
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
             virtual_cluster.append(vc_name)
