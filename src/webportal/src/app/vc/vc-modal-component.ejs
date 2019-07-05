@@ -16,6 +16,11 @@
              <div class="form-group">
                <input name="capacity" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
              </div>
+<% if (window.ENV.authnMethod === 'OIDC') { %>
+              <div class="form-group">
+                 <input name="securitygroup" class="add-vc-fild form-control" placeholder="Bind With A Security Group">
+               </div>
+ <% } %>
              <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListAdd">
                Add Shared VC
              </button>
