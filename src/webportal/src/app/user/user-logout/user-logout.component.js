@@ -18,13 +18,17 @@
 const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 
-const userLogout = () => {
+const userLogout = (origin = window.location.href) => {
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
   cookies.remove('my-jobs');
   if (webportalConfig.authnMethod === 'basic') {
-    window.location.replace(`/index.html?${querystring.stringify({from: window.location.href})}`);
+    if (!origin) {
+      window.location.replace('/index.html');
+    } else {
+      window.location.replace(`/index.html?${querystring.stringify({from: origin})}`);
+    }
   } else {
     location.href = webportalConfig.restServerUri+'/api/v1/authn/oidc/logout';
   }
