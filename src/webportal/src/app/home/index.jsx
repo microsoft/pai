@@ -21,6 +21,7 @@ import 'whatwg-fetch';
 
 import {FontClassNames} from '@uifabric/styling';
 import c from 'classnames';
+import {isEmpty} from 'lodash';
 import {initializeIcons} from 'office-ui-fabric-react';
 import querystring from 'querystring';
 import React, {useState, useCallback} from 'react';
@@ -35,7 +36,13 @@ import config from '../config/webportal.config';
 import t from 'tachyons-sass/tachyons.scss';
 import url from 'url';
 
-const loginTarget = '/home.html';
+let loginTarget = '/home.html';
+
+const url = new URL(window.location.href);
+const from = url.searchParams.get('from');
+if (!isEmpty(from)) {
+  loginTarget = from;
+}
 
 if (config.authnMethod === 'OIDC') {
   const query = url.parse(window.location.href, true).query;
