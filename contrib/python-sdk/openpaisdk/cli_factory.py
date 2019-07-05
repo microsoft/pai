@@ -39,6 +39,7 @@ class ActionFactory(Action):
         self.do_action = getattr(self, "do_action_" + suffix, None)
         self.__job__ = Job()
         self.__clusters__ = ClusterList()
+        self.disable_saving = dict()
 
     def restore(self, args):
         if getattr(args, 'job_name', None):
@@ -47,8 +48,10 @@ class ActionFactory(Action):
         return self
 
     def store(self, args):
-        self.__job__.save()
-        self.__clusters__.save()
+        if not self.disable_saving.get("job", False):
+            self.__job__.save()
+        if not self.disable_saving.get("clusters", False):
+            self.__clusters__.save()
         return self
 
 

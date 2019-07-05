@@ -60,6 +60,7 @@ class ActionFactoryForCluster(ActionFactory):
 
     def do_action_edit(self, args):
         run_command([args.editor, __cluster_config_file__])
+        self.disable_saving["clusters"] = True
 
     def define_arguments_list(self, parser):
         cli_add_arguments(parser, [])
