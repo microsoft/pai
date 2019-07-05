@@ -96,6 +96,7 @@ class TransferClient:
         return post_data_dict
 
     def secret_data_prepare_v2(self, user_info_item):
+        print(user_info_item)
         meta_dict = dict()
         meta_dict['name'] = user_info_item['metadata']['name']
         grouplist = []
