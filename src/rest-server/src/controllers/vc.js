@@ -103,7 +103,7 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
       return next(createError('Forbidden', 'ForbiddenUserError', `The name '${req.params.vcName}' is occupied by admin group.`));
     }
     try {
-      await groupModel.get(req.params.vcName);
+      await groupModel.getGroup(req.params.vcName);
       return next(createError('Conflict', 'ConflictVcError', `Name ${req.body.username} already exists.`));
     } catch (error) {
       if (error.status !== 404) {
