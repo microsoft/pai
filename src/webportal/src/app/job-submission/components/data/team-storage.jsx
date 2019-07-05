@@ -41,7 +41,7 @@ export const TeamStorage = ({
   onMountDirChange,
 }) => {
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
-    return defaultTeamConfigs.map((element) => {
+    return mountDirs.selectedConfigs.map((element) => {
       return element.name;
     });
   });

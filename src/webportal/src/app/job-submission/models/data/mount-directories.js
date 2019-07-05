@@ -10,8 +10,8 @@ export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
     this.user = user;
     this.jobName = jobName;
-    this.selectedConfigs = selectedConfigs;
-    this.servers = servers;
+    this.selectedConfigs = selectedConfigs || [];
+    this.servers = servers || [];
   }
 
   getPaiCommand() {
