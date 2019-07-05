@@ -57,6 +57,7 @@ import {DataComponent} from './components/data/data-component';
 import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
 import {JobData} from './models/data/job-data';
+import {JobProtocol} from './models/job-protocol';
 
 initTheme();
 initializeIcons();
@@ -109,6 +110,7 @@ const JobSubmission = () => {
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
   const [loading, setLoading] = useState(true);
+  const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -242,6 +244,7 @@ const JobSubmission = () => {
               {vcNames}
             );
             jobInfo.name = generateJobName(jobInfo.name);
+            setInitJobProtocol(new JobProtocol(jobConfig));
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
@@ -334,6 +337,7 @@ const JobSubmission = () => {
             advanceFlag={advanceFlag}
             onToggleAdvanceFlag={onToggleAdvanceFlag}
             jobData={jobData}
+            initJobProtocol={initJobProtocol}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
