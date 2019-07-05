@@ -46,7 +46,7 @@ const taskRoleSchema = Joi.object().keys({
     gpu: Joi.number().required(),
     ports: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, Joi.number()),
   }),
-  commands: [Joi.string(), Joi.array().items(Joi.string()).min(1)],
+  commands: Joi.array().items(Joi.string()).min(1).required(),
 });
 
 const prerequisitesSchema = Joi.object().keys({

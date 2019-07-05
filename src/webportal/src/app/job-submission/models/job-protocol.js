@@ -104,7 +104,9 @@ export class JobProtocol {
     const deployName = get(this, 'defaults.deployment', 'defaultDeployment');
     deployments = isEmpty(deployments) ? [] : [{name: deployName, taskRoles: deployments}];
 
-    const prerequisites = TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles);
+    const prerequisites = this.prerequisites
+      .filter((prerequisite) => prerequisite.type !== 'dockerimage')
+      .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles));
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
     const secrets = removeEmptyProperties(jobSecrets.reduce((res, secret) => {
       res[secret.key] = secret.value;

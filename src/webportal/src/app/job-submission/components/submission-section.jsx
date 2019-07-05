@@ -92,10 +92,11 @@ export const SubmissionSection = (props) => {
     advanceFlag,
     onToggleAdvanceFlag,
     jobData,
+    initJobProtocol,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
-  const [jobProtocol, setjobProtocol] = useState(new JobProtocol({}));
+  const [jobProtocol, setjobProtocol] = useState(new JobProtocol(initJobProtocol));
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
 
@@ -110,8 +111,8 @@ export const SubmissionSection = (props) => {
     const newValidationMessage = JobProtocol.validateFromObject(protocol);
     if (newValidationMessage !== validationMsg) {
       setValidationMsg(newValidationMessage);
+      setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
     }
-    setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, validationMsg);
   };
 
   useEffect(() => {
@@ -356,4 +357,5 @@ SubmissionSection.propTypes = {
   advanceFlag: PropTypes.bool,
   onToggleAdvanceFlag: PropTypes.func,
   jobData: PropTypes.object,
+  initJobProtocol: PropTypes.object,
 };
