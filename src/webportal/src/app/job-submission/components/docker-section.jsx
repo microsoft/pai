@@ -44,6 +44,8 @@ import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
 import {isEmpty} from 'lodash';
 
+const DEFAULT_DOCKER_URI = 'ufoym/deepo:all';
+
 const {spacing} = getTheme();
 const dockerSectionStyle = getDockerSectionStyle();
 
@@ -76,7 +78,7 @@ AuthTextFiled.propTypes = {
 const options = [
   {
     key: 'all',
-    text: 'all-in-one (image: ufoym/deepo:all)',
+    text: 'all-in-one+python3.6+gpu (image: ufoym/deepo:all-py36-cu100)',
     image: 'ufoym/deepo:all',
   },
   {
@@ -197,6 +199,9 @@ export const DockerSection = ({onValueChange, value}) => {
 
   const _onCutomizedImageEnable = useCallback((_, checked) => {
     setCutomizedImageEnabled(checked);
+    if (!checked) {
+      _onChange('uri', DEFAULT_DOCKER_URI);
+    }
   }, []);
 
   const _authSection = () => {
