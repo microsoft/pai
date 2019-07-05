@@ -258,7 +258,7 @@ function exit_handler()
   # After all necessary steps, do a best effort kill here
   pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
   if [[ -n "$pid" && "$pid" -gt 0 ]]; then
-    kill -15 $pid &&\
+    kill -15 -- -$pid &&\
       printf "[DEBUG] Docker container $docker_name killed successfully." ||\
       printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
   fi
