@@ -124,8 +124,6 @@ function getDockerImageOptionKey(uri) {
       return 'pytorch-gpu';
     case 'ufoym/deepo:pytorch-py36-cpu':
       return 'pytorch-cpu';
-    case '':
-      return 'all';
     default:
       return 'customize-image';
   }
@@ -137,7 +135,6 @@ export const DockerSection = ({onValueChange, value}) => {
   const nameInput = useRef(null);
   const password = useRef(null);
   const registryuri = useRef(null);
-  const [errorMsg, setErrorMsg] = useState('');
 
   const [showAuth, setShowAuth] = useState(false);
   const [isCutomizedImageEnabled, setCutomizedImageEnabled] = useState(false);
@@ -173,11 +170,6 @@ export const DockerSection = ({onValueChange, value}) => {
   }, [_onChange]);
 
   const _onUriChange = useCallback((e) => {
-    if (!e.target.value) {
-      setErrorMsg('Docker should not be empty');
-    } else {
-      setErrorMsg(null);
-    }
     _onChange('uri', e.target.value);
   }, [_onChange]);
 
@@ -195,7 +187,7 @@ export const DockerSection = ({onValueChange, value}) => {
     if (optionKey !== 'customize-image' && isCutomizedImageEnabled) {
       setCutomizedImageEnabled(false);
     }
-  }, [uri]);
+  }, []);
 
   const _onCutomizedImageEnable = useCallback((_, checked) => {
     setCutomizedImageEnabled(checked);
@@ -273,7 +265,7 @@ export const DockerSection = ({onValueChange, value}) => {
           <FormShortSection>
             <TextField
               placeholder='Enter docker uri...'
-              errorMessage={errorMsg}
+              errorMessage={isEmpty(uri) ? 'Docker should not be empty' : null}
               onChange={_onUriChange}
               value={uri}
             />
