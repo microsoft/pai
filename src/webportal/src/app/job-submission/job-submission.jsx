@@ -35,7 +35,7 @@ import {
   initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
-import {isEmpty} from 'lodash';
+import {isEmpty, get} from 'lodash';
 
 import {JobInformation} from './components/job-information';
 import {getFormClassNames} from './components/form-style';
@@ -244,6 +244,9 @@ const JobSubmission = () => {
               {vcNames}
             );
             jobInfo.name = generateJobName(jobInfo.name);
+            if (get(jobConfig, 'extras.submitFrom')) {
+              delete jobConfig.extras.submitFrom;
+            }
             setInitJobProtocol(new JobProtocol(jobConfig));
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
