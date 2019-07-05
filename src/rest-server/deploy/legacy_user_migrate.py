@@ -107,7 +107,6 @@ class TransferClient:
         for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
             if vc_name == '':
               continue
-            print(vc_name)
             self.vc_set.add(vc_name)
             grouplist.append(vc_name)
             virtual_cluster.append(vc_name)
@@ -306,7 +305,6 @@ def main():
           secret_post_data = transferCli.secret_data_prepare_v2(user)
           transferCli.create_secret_user_v2(secret_post_data)
       vc_set = transferCli.vc_set
-      print(vc_set)
       for vc in vc_set:
           secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
           transferCli.create_secret_group_v2(secret_post_data)
