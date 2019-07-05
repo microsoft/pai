@@ -199,9 +199,9 @@ rest-server:
   #
   #  # If the following groups are not in the data store, it will be created by default.
   #  grouplist:
-  #    - groupname: for-example
+  #    - groupname: forexample
   #      # internal name
-  #      description: for-example
+  #      description: forexample
   #      # description of the group
   #      externalName: ""
   #      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
