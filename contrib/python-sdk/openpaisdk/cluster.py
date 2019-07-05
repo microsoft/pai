@@ -24,6 +24,20 @@ class Cluster:
         return dic
 
     @staticmethod
+    def make_string(pth: str, target: str, iters = (list, dict)):
+        flag = True
+        assert isinstance(target, iters), "not supported type %s (%s)" % (pth, type(target))
+        for i in (target.keys() if isinstance(target, dict) else range(len(target))):
+            pth_next = "%s[%s]" % (pth, i)
+            if isinstance(target[i], iters):
+               flag = flag and Cluster.make_string(pth_next, target[i])
+            elif not (target[i] is None or isinstance(target[i], str)):
+                __logger__.warn('only string is allowed in the cluster configuration, %s is %s, replace it by str()', pth_next, type(target[i]))
+                target[i] = str(target[i])
+                flag = False
+        return flag
+
+    @staticmethod
     def attach_storage(c_dic: dict, storage: dict):
         if "user" in storage and not storage["user"]:
             storage["user"] = c_dic["user"]
@@ -31,9 +45,11 @@ class Cluster:
 
     @staticmethod
     def validate(cluster: dict):
+        assert isinstance(cluster, dict), "cluster configuration should be a dict"
+        assert isinstance(["storages"], list), "storages should be a list"
+        Cluster.make_string(cluster["cluster_alias"], cluster)
         assert cluster["pai_uri"].startswith("http://") or cluster["pai_uri"].startswith("https://"), "pai_uri should be a uri starting with http(s)://"
         assert cluster["user"], "cluster should have a cluster"
-        assert isinstance(cluster["storages"], list), "storages should be list"
         return cluster
 
 
@@ -45,9 +61,15 @@ class ClusterList:
     def __init__(self):
         self.clusters = []
 
+    @staticmethod
+    def validate(clusters: list):
+        assert isinstance(clusters, list), "contents in %s should be a list" % __cluster_config_file__
+        [Cluster.validate(c) for c in clusters]
+        return clusters
+
     def load(self, fname: str=__cluster_config_file__):
         self.clusters = from_file(fname, default=[])
-        assert isinstance(self.clusters, list), "contents in %s should be a list" % __cluster_config_file__
+        ClusterList.validate(self.clusters)
         return self
 
     def save(self):
