@@ -38,6 +38,7 @@ export const MonacoTextFiled = (props) => {
     completionItems,
     monacoProps: rawMonacoProps,
     monacoRef,
+    style,
   } = props;
   const {palette, spacing} = getTheme();
 
@@ -91,6 +92,7 @@ export const MonacoTextFiled = (props) => {
           border: 'solid 1px',
           borderColor: palette.neutralTertiary,
           paddingTop: spacing.s1,
+          ...style,
         }}
         completionItems={completionItems}
         monacoRef={monacoRef}
@@ -122,4 +124,5 @@ MonacoTextFiled.propTypes = {
   completionItems: PropTypes.array,
   monacoProps: PropTypes.object,
   monacoRef: PropTypes.object,
+  style: PropTypes.object,
 };
