@@ -245,7 +245,7 @@ const config = (env, argv) => ({
       contextRegExp: /js-yaml/,
     }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'yaml'],
+      languages: ['json', 'yaml', 'shell'],
       features: ['suggest', 'hover'],
     }),
     new CopyWebpackPlugin([
