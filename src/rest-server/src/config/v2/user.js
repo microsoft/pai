@@ -52,7 +52,7 @@ const userAdminPermissionUpdateInputSchema = Joi.object().keys({
 // define the input schema for the 'add or remove group from grouplist' api
 const addOrRemoveGroupInputSchema = Joi.object().keys({
   groupname: Joi.string()
-    .token()
+    .regex(/^[\w.-]+$/, 'groupname')
     .required(),
 });
 
