@@ -25,7 +25,7 @@
 
 import {jobProtocolSchema} from '../models/protocol-schema';
 
-import {get, isEmpty} from 'lodash';
+import {get, isEmpty, cloneDeep} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
 import {removeEmptyProperties} from '../utils/utils';
@@ -68,8 +68,27 @@ export class JobProtocol {
     }
   }
 
+  static safePruneProtocol(protocol) {
+    const prunedProtocol= removeEmptyProperties(protocol);
+    const taskRoles = cloneDeep(prunedProtocol.taskRoles);
+    Object.keys(taskRoles).forEach((taskRoleName) => {
+      const taskRoleContent = taskRoles[taskRoleName];
+      if (isEmpty(taskRoleContent.commands)) {
+        return;
+      }
+      taskRoleContent.commands = taskRoleContent.commands.filter(
+        (line) => !isEmpty(line),
+      );
+    });
+    prunedProtocol.taskRoles = taskRoles;
+    return prunedProtocol;
+  }
+
   static validateFromObject(protocol) {
-    const result = Joi.validate(removeEmptyProperties(protocol), jobProtocolSchema);
+    const result = Joi.validate(
+      JobProtocol.safePruneProtocol(protocol),
+      jobProtocolSchema,
+    );
     return String(result.error || '');
   }
 
@@ -122,7 +141,7 @@ export class JobProtocol {
 
   toYaml() {
     try {
-      return yaml.safeDump(removeEmptyProperties(this));
+      return yaml.safeDump(JobProtocol.safePruneProtocol(this));
     } catch (e) {
       alert(e.message);
     }

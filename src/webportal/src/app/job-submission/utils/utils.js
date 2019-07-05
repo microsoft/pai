@@ -67,22 +67,11 @@ export function addPathPrefix(path, prefix) {
   return prefix.concat(path);
 }
 
-function pruneComponents(jobInformation, secrets, context) {
+function populateComponents(jobInformation, context) {
   const {vcNames} = context;
   const virtualCluster = jobInformation.virtualCluster;
   if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
     jobInformation.virtualCluster = '';
-  }
-
-  const removeValueIndex = secrets.map((secret, index) => {
-    if (secret.value === HIDE_SECRET) {
-      return index;
-    }
-    return -1;
-  }).filter((value) => value >= 0);
-
-  for (let i = removeValueIndex.length -1; i >= 0; i--) {
-    secrets.splice(removeValueIndex[i], 1);
   }
 }
 
@@ -102,9 +91,12 @@ export function getJobComponentsFromConfig(jobConfig, context) {
   const updatedParameters = Object.keys(parameters).map((key) => {
     return {key: key, value: parameters[key]};
   });
-  const updatedSecrets = Object.keys(secrets).map((key) => {
-    return {key: key, value: secrets[key]};
-  });
+  const updatedSecrets =
+    secrets === HIDE_SECRET
+      ? []
+      : Object.keys(secrets).map((key) => {
+          return {key: key, value: secrets[key]};
+        });
   const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
     JobTaskRole.fromProtocol(
       name,
@@ -115,7 +107,7 @@ export function getJobComponentsFromConfig(jobConfig, context) {
     ),
   );
 
-  pruneComponents(updatedJobInformation, updatedSecrets, context);
+  populateComponents(updatedJobInformation, context);
   return [
     updatedJobInformation,
     updatedTaskRoles,
