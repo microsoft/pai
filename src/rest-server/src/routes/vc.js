@@ -31,11 +31,9 @@ router.route('/:vcName')
     /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
     .get(vcController.get)
     /** PUT /api/v1/virtual-clusters/vcName - Update a vc */
-    .put(token.check, param.validate(vcConfig.vcPutInputSchema), vcController.update)
+    .put(token.check, param.validate(vcConfig.vcCreateInputSchema), vcController.addVCAndAddGroupAsync)
     /** DELETE /api/v1/virtual-clusters/vcName - Remove a vc */
-    .delete(token.check, vcController.removeVCAndRemoveGroupAsync)
-    /** POST /api/v1/virtual-clusters/vcName - create a vc */
-    .post(token.check, param.validate(vcConfig.vcCreateInputSchema), vcController.addVCAndAddGroupAsync);
+    .delete(token.check, vcController.removeVCAndRemoveGroupAsync);
 
 
 router.route('/:vcName/status')

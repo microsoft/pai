@@ -99,21 +99,31 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
     if (!req.user.admin) {
       return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
     }
-    if (req.params.vcName === authConfig.groupConfig.adminGroup.groupname) {
-      return next(createError('Forbidden', 'ForbiddenUserError', `The name '${req.params.vcName}' is occupied by admin group.`));
+    if (req.params.vcName === authConfig.groupConfig.defaultGroup.groupname) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
     }
+    let operationType = 'update';
     try {
-      await groupModel.getGroup(req.params.vcName);
-      return next(createError('Conflict', 'ConflictVcError', `Name ${req.body.username} already exists.`));
+      const groupInfo = await groupModel.getGroup(req.params.vcName);
+      if (!groupInfo.extension.groupType || groupInfo.extension.groupType !== 'vc') {
+        return next(createError('Conflict', 'ConflictVcError', `Name ${req.body.username} already exists.`));
+      }
     } catch (error) {
       if (error.status !== 404) {
         return next(createError.unknown((error)));
+      } else {
+        operationType = 'create';
       }
     }
     const vcName = req.params.vcName;
     const vcCapacity = parseInt(req.body.vcCapacity);
     const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
     await util.promisify(VirtualCluster.prototype.updateVc).apply(VirtualCluster.prototype, [vcName, vcCapacity, vcMaxCapacity]);
+    if (operationType === 'update') {
+      return res.status(201).json({
+        message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
+      });
+    }
     const groupname = req.params.vcName;
     const extension = {'groupType': 'vc'};
     const externalName = req.body.externalName;
@@ -126,7 +136,7 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
     };
     await groupModel.createGroup(groupname, groupValue);
     return res.status(201).json({
-      message: 'VC is created successfully',
+      message: `create vc: ${vcName} to capacity: ${vcCapacity} successfully`,
     });
   } catch (error) {
     return next(createError.unknown((error)));
@@ -198,6 +208,9 @@ const removeVCAndRemoveGroupAsync = async (req, res, next) => {
     }
     if (req.params.vcName === authConfig.groupConfig.adminGroup.groupname) {
       return next(createError('Forbidden', 'ForbiddenUserError', `The name '${req.params.vcName}' is occupied by admin group.`));
+    }
+    if (req.params.vcName === authConfig.groupConfig.defaultGroup.groupname) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
     }
     const vcName = req.params.vcName;
     await util.promisify(VirtualCluster.prototype.removeVc).apply(VirtualCluster.prototype, [vcName]);

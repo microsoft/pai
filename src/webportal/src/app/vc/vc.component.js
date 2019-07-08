@@ -146,7 +146,7 @@ const virtualClustersAdd = () => {
         Authorization: `Bearer ${token}`,
       },
       contentType: 'application/json; charset=utf-8',
-      type: 'POST',
+      type: 'PUT',
       dataType: 'json',
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
