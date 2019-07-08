@@ -32,7 +32,7 @@ ENV NODE_ENV=production \
 
 COPY . .
 
-RUN npm --no-git-tag-version --allow-same-version version \
+RUN yarn --no-git-tag-version --new-version version \
     "$(cat version/PAI.VERSION)"
 RUN yarn install
 
