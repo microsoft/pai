@@ -72,7 +72,7 @@ const get = (req, res, next) => {
 /**
  *  Add a vc and add a group, async solution
  */
-const addVCAndAddGroupAsync = async (req, res, next) => {
+const update = async (req, res, next) => {
   try {
     if (!req.user.admin) {
       return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
@@ -207,7 +207,7 @@ const removeVCAndRemoveGroupAsync = async (req, res, next) => {
 module.exports = {
   get,
   list,
-  addVCAndAddGroupAsync,
+  update,
   remove,
   removeVCAndRemoveGroupAsync,
   updateStatus,
