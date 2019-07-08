@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import re
+
 class Authentication:
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
@@ -41,6 +43,14 @@ class Authentication:
                 return False, "clientID is missing. If you wanna configure AAD-OIDC, you should configure service-configuration.yaml->authentication->AAD->clientID"
             if "clientSecret" not in self.service_configuration["AAD"]:
                 return False, "ClientSecret is missing. If you wanna configure AAD-OIDC, you should configure service-configuration.yaml->authentication->AAD->ClientSecret"
+        pattern = re.compile("^([A-Za-z0-9_])+$")
+        if pattern.match(self.service_configuration['group-manager']['admin-group']['groupname']) is not True:
+            return False, "group name should only contain alpha-numeric and underscore characters"
+        if pattern.match(self.service_configuration['group-manager']['default-group']['groupname']) is not True:
+            return False, "group name should only contain alpha-numeric and underscore characters"
+        for groupConfig in self.service_configuration['group-manager']['grouplist']:
+            if pattern.match(groupConfig['groupname']) is not True:
+                return False, "group name should only contain alpha-numeric and underscore characters"
         return True, None
 
     def run(self):
