@@ -1366,6 +1366,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(404, 'Error response in YARN');
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('a').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1382,6 +1398,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not update a dedicated vc', (done) => {
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('dedicated_vc').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('dedicated_vc').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('dedicated_vc').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
     chai.request(server)
       .put('/api/v1/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
