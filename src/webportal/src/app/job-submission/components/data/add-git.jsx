@@ -11,8 +11,12 @@ export const AddGit = (props) => {
   const {dataList, setDataList, setDataType} = props;
   const [mountPath, setMountPath] = useState();
   const [gitUrl, setGitUrl] = useState();
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
-  const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState('Git should not be empty');
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
+    'Path should not be empty',
+  );
+  const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState(
+    'Git should not be empty',
+  );
 
   const submitMount = () => {
     const newDataList = cloneDeep(dataList);
@@ -22,46 +26,30 @@ export const AddGit = (props) => {
   };
 
   return (
-    <Stack horizontal horizontalAlign='space-between'>
-      <TextField
-        required={true}
-        prefix={STORAGE_PREFIX}
-        label='Container Path'
-        errorMessage={containerPathErrorMessage}
-        styles={{
-          root: {
-            width: 200,
-            marginBottom: gitAddressErrorMessage
-              ? containerPathErrorMessage
-                ? 0
-                : 22.15
-              : 0,
-          },
-        }}
-        onChange={(_event, newValue) => {
-          const valid = validateMountPath(`/${newValue}`);
-          if (!valid.isLegal) {
-            setContainerPathErrorMessage(valid.illegalMessage);
-          } else {
-            setContainerPathErrorMessage(null);
-            setMountPath(`${STORAGE_PREFIX}${newValue}`);
-          }
-        }}
-      />
+    <Stack horizontal horizontalAlign='space-between' gap='m'>
+      <Stack.Item align='baseline'>
+        <TextField
+          required={true}
+          prefix={STORAGE_PREFIX}
+          label='Container path'
+          errorMessage={containerPathErrorMessage}
+          styles={{root: {width: 200}}}
+          onChange={(_event, newValue) => {
+            const valid = validateMountPath(`/${newValue}`);
+            if (!valid.isLegal) {
+              setContainerPathErrorMessage(valid.illegalMessage);
+            } else {
+              setContainerPathErrorMessage(null);
+              setMountPath(`${STORAGE_PREFIX}${newValue}`);
+            }
+          }}
+        />
+      </Stack.Item>
+      <Stack.Item align='baseline' />
       <TextField
         required={true} // eslint-disable-line react/jsx-boolean-value
         label='Git repo address'
         errorMessage={gitAddressErrorMessage}
-        styles={{
-          root: {
-            width: 230,
-            marginBottom: containerPathErrorMessage
-              ? gitAddressErrorMessage
-                ? 0
-                : 22.15
-              : 0,
-          },
-        }}
         onChange={(_event, newValue) => {
           const valid = validateGitUrl(newValue);
           if (!valid.isLegal) {
@@ -78,7 +66,8 @@ export const AddGit = (props) => {
           disabled={containerPathErrorMessage || gitAddressErrorMessage}
           styles={{
             root: {
-              marginBottom: (containerPathErrorMessage || gitAddressErrorMessage) ? 22.15 : 0,
+              marginBottom:
+                containerPathErrorMessage || gitAddressErrorMessage ? 22.15 : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -92,7 +81,8 @@ export const AddGit = (props) => {
           iconProps={{iconName: 'Cancel'}}
           styles={{
             root: {
-              marginBottom: (containerPathErrorMessage || gitAddressErrorMessage) ? 22.15 : 0,
+              marginBottom:
+                containerPathErrorMessage || gitAddressErrorMessage ? 22.15 : 0,
             },
           }}
           onClick={() => {
