@@ -240,6 +240,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                       componentRef={passwordRef}
                       type='password'
                       placeholder={isCreate ? 'Enter password' : '******'}
+                      autoComplete='new-password'
                     />
                   </td>
                 </tr>
@@ -252,6 +253,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                       componentRef={emailRef}
                       defaultValue={email}
                       placeholder='Enter email'
+                      autoComplete='new-password'
                     />
                   </td>
                 </tr>
