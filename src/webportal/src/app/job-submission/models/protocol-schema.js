@@ -98,6 +98,6 @@ export const jobProtocolSchema = Joi.object().keys({
   }),
   extras: Joi.object().keys({
     submitFrom: Joi.string(),
-  }),
+  }).unknown(),
 });
 

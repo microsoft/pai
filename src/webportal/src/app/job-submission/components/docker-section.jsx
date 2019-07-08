@@ -32,6 +32,8 @@ import {
   Label,
   StackItem,
   Dropdown,
+  Toggle,
+  getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {DockerInfo} from '../models/docker-info';
@@ -42,6 +44,9 @@ import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
 import {isEmpty} from 'lodash';
 
+const DEFAULT_DOCKER_URI = 'ufoym/deepo:all';
+
+const {spacing} = getTheme();
 const dockerSectionStyle = getDockerSectionStyle();
 
 const AuthTextFiled = (props) => {
@@ -73,8 +78,8 @@ AuthTextFiled.propTypes = {
 const options = [
   {
     key: 'all',
-    text: 'all-in-one (image: ufoym/deepo:all)',
-    image: 'ufoym/deepo:all',
+    text: 'all-in-one+python3.6+gpu (image: ufoym/deepo:all-py36-cu100)',
+    image: 'ufoym/deepo:all-py36-cu100',
   },
   {
     key: 'tensorflow-gpu-python3.6',
@@ -103,10 +108,6 @@ const options = [
     text: 'pytorch+python3.6 with cpu (image: ufoym/deepo:pytorch-py36-cpu)',
     image: 'ufoym/deepo:pytorch-py36-cpu',
   },
-  {
-    key: 'customize-image',
-    text: 'Customized docker image',
-  },
 ];
 
 function getDockerImageOptionKey(uri) {
@@ -134,10 +135,9 @@ export const DockerSection = ({onValueChange, value}) => {
   const nameInput = useRef(null);
   const password = useRef(null);
   const registryuri = useRef(null);
-  const [errorMsg, setErrorMsg] = useState('');
 
   const [showAuth, setShowAuth] = useState(false);
-  const [isUseCustomizedDocker, setUseCustomizeDocker] = useState(false);
+  const [isCutomizedImageEnabled, setCutomizedImageEnabled] = useState(false);
 
   const _onChange = useCallback((keyName, propValue) => {
     const updatedDockerInfo = new DockerInfo(value);
@@ -170,35 +170,31 @@ export const DockerSection = ({onValueChange, value}) => {
   }, [_onChange]);
 
   const _onUriChange = useCallback((e) => {
-    if (!e.target.value) {
-      setErrorMsg('Docker should not be empty');
-    } else {
-      setErrorMsg(null);
-    }
     _onChange('uri', e.target.value);
   }, [_onChange]);
 
   const _onDockerImageChange = useCallback((_, item) => {
-    if (item.key == 'customize-image') {
-      setUseCustomizeDocker(true);
-      _onChange('uri', '');
-      return;
-    }
     const uri = item.image;
-    setUseCustomizeDocker(false);
     _onChange('uri', uri);
   }, [_onChange]);
 
   useEffect(() => {
     const optionKey = getDockerImageOptionKey(uri);
-    if (optionKey === 'customize-image' && !isUseCustomizedDocker) {
-      setUseCustomizeDocker(true);
+    if (optionKey === 'customize-image' && !isCutomizedImageEnabled) {
+      setCutomizedImageEnabled(true);
       return;
     }
-    if (optionKey !== 'customize-image' && isUseCustomizedDocker) {
-      setUseCustomizeDocker(false);
+    if (optionKey !== 'customize-image' && isCutomizedImageEnabled) {
+      setCutomizedImageEnabled(false);
     }
-  }, [uri]);
+  }, []);
+
+  const _onCutomizedImageEnable = useCallback((_, checked) => {
+    setCutomizedImageEnabled(checked);
+    if (!checked) {
+      _onChange('uri', DEFAULT_DOCKER_URI);
+    }
+  }, []);
 
   const _authSection = () => {
     return (
@@ -242,20 +238,34 @@ export const DockerSection = ({onValueChange, value}) => {
 
   return (
     <BasicSection sectionLabel='Docker image'>
-      <FormShortSection>
-        <Dropdown
-          placeholder='Select a docker image'
-          options={options}
-          onChange={_onDockerImageChange}
-          selectedKey={getDockerImageOptionKey(uri)}
-        />
-      </FormShortSection>
-      {isUseCustomizedDocker && (
+      <Stack horizontal gap='l1'>
+        <FormShortSection>
+          <Dropdown
+            placeholder='Select a docker image'
+            options={options}
+            onChange={_onDockerImageChange}
+            selectedKey={getDockerImageOptionKey(uri)}
+            disabled={isCutomizedImageEnabled}
+          />
+        </FormShortSection>
+        <Stack horizontalAlign='start'>
+          <Toggle
+            checked={isCutomizedImageEnabled}
+            label='Custom'
+            inlineLabel={true}
+            styles={{
+              label: {order: -1, marginLeft: 0, marginRight: spacing.s1},
+            }}
+            onChange={_onCutomizedImageEnable}
+          />
+        </Stack>
+      </Stack>
+      {isCutomizedImageEnabled && (
         <Stack horizontal gap='l1'>
           <FormShortSection>
             <TextField
               placeholder='Enter docker uri...'
-              errorMessage={errorMsg}
+              errorMessage={isEmpty(uri) ? 'Docker should not be empty' : null}
               onChange={_onUriChange}
               value={uri}
             />
