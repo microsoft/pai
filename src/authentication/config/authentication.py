@@ -32,7 +32,8 @@ class Authentication:
             self.service_configuration["group-manager"] = service_configuration["group-manager"]
 
     def validation_pre(self):
-        pattern = re.compile("^([A-Za-z0-9_])+$")
+        pattern = re.compile("^[A-Za-z0-9_]+$")
+        print(pattern.match(self.service_configuration['group-manager']['admin-group']['groupname']))
         if pattern.match(self.service_configuration['group-manager']['admin-group']['groupname']) is not True:
             return False, "group name should only contain alpha-numeric and underscore characters"
         if pattern.match(self.service_configuration['group-manager']['default-group']['groupname']) is not True:
