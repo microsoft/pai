@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {cloneDeep} from 'lodash';
-import c from 'classnames';
 import {
   TextField,
   TagPicker,
   FontClassNames,
   Stack,
   IconButton,
+  Label,
+  getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
@@ -15,7 +16,7 @@ import {InputData} from '../../models/data/input-data';
 import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
-import t from '../../../../app/components/tachyons.scss';
+const {palette} = getTheme();
 
 export const AddHDFS = ({
   dataList,
@@ -27,15 +28,21 @@ export const AddHDFS = ({
   const [mountPath, setMountPath] = useState();
   const [isHdfsEnabled, setIsHdfsEnabled] = useState(true);
   const [hdfsPath, setHdfsPath] = useState();
-  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState('Path should not be empty');
+  const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
+    'Path should not be empty',
+  );
   const [hdfsPathErrorMessage, setHdfsPathErrorMessage] = useState();
 
   useEffect(() => {
     if (!hdfsClient) {
       setIsHdfsEnabled(false);
+      setHdfsPathErrorMessage('Pai HDFS is not available');
     } else {
       hdfsClient.checkAccess().then((isAccessiable) => {
         setIsHdfsEnabled(isAccessiable);
+        if (!isAccessiable) {
+          setHdfsPathErrorMessage('Pai HDFS is not available');
+        }
       });
     }
   }, []);
@@ -87,43 +94,33 @@ export const AddHDFS = ({
     }
   };
   const onItemSelected = async (selectedItem) => {
-      if (!selectedItem) {
-        return null;
-      }
-      const hdfsPath = selectedItem.key;
-      setHdfsPath(hdfsPath);
-      const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
-      if (!valid.isLegal) {
-        setHdfsPathErrorMessage(valid.illegalMessage);
-      } else {
-        setHdfsPathErrorMessage(null);
-      }
-      return {
-        name: selectedItem.key,
-        key: selectedItem.key,
+    if (!selectedItem) {
+      return null;
+    }
+    const hdfsPath = selectedItem.key;
+    setHdfsPath(hdfsPath);
+    const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
+    if (!valid.isLegal) {
+      setHdfsPathErrorMessage(valid.illegalMessage);
+    } else {
+      setHdfsPathErrorMessage(null);
+    }
+    return {
+      name: selectedItem.key,
+      key: selectedItem.key,
     };
   };
 
   return (
-    <Stack horizontal horizontalAlign='space-between'>
-      <div>
-        <Stack horizontal>
-          <div className={c(FontClassNames.smallPlus)}>Container Path</div>
-          <div className={c(t.red, t.pl1, t.mb2)}>*</div>
-        </Stack>
+    <Stack horizontal horizontalAlign='space-between' gap='s'>
+      <Stack.Item align='baseline'>
+        <Label reqired className={FontClassNames.medium}>
+          Container path
+        </Label>
         <TextField
           prefix={STORAGE_PREFIX}
           errorMessage={containerPathErrorMessage}
-          styles={{
-            root: {
-              width: 200,
-              marginBottom: hdfsPathErrorMessage
-                ? containerPathErrorMessage
-                  ? 0
-                  : 22.15
-                : 0,
-            },
-          }}
+          styles={{root: {width: 200}}}
           onChange={(_event, newValue) => {
             const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
@@ -134,34 +131,32 @@ export const AddHDFS = ({
             }
           }}
         />
-      </div>
-      <div>
-        <Stack horizontal>
-          <div className={c(FontClassNames.smallPlus)}>
-            The path in PAI HDFS
-          </div>
-          <div className={c(t.red, t.pl1, t.mb2)}>*</div>
-        </Stack>
+      </Stack.Item>
+      <Stack.Item align='baseline'>
+        <Label required className={FontClassNames.medium}>
+          Path in pai HDFS
+        </Label>
         <TagPicker
           onResolveSuggestions={onFilterChanged}
           onItemSelected={onItemSelected}
           pickerSuggestionsProps={{
-            suggestionsHeaderText: 'path in hdfs should start with /',
-            noResultsFoundText: 'path not found',
+            suggestionsHeaderText: 'Path in hdfs should start with /',
+            noResultsFoundText: 'Path not found',
           }}
           itemLimit={1}
-          styles={{
-            root: {
-              width: 200,
-              marginBottom: containerPathErrorMessage
-                ? hdfsPathErrorMessage
-                  ? 0
-                  : 22.15
-                : 0,
-            },
-          }}
         />
-      </div>
+        {hdfsPathErrorMessage && (
+          <span
+            className={FontClassNames.small}
+            style={{
+              color: palette.redDark,
+              paddingTop: 5,
+            }}
+          >
+            {hdfsPathErrorMessage}
+          </span>
+        )}
+      </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'View'}}
