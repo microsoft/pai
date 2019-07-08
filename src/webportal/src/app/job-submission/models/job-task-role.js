@@ -33,7 +33,7 @@ import {removeEmptyProperties} from '../utils/utils';
 export class JobTaskRole {
   constructor(props) {
     const {name, instances, dockerInfo, ports, commands, completion, deployment, containerSize,
-           isContainerSizeEnabled} = props;
+           isContainerSizeEnabled, taskRetryCount} = props;
     this.name = name || '';
     this.instances = instances || 1;
     this.dockerInfo = dockerInfo || new DockerInfo({uri: 'ufoym/deepo:all'});
@@ -43,11 +43,12 @@ export class JobTaskRole {
     this.deployment = deployment|| new Deployment({});
     this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
+    this.taskRetryCount = taskRetryCount || 0;
   }
 
   static fromProtocol(name, taskRoleProtocol, deployments, prerequisites, secrets) {
     const instances = get(taskRoleProtocol, 'instances', 1);
-    const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
+    const completion = get(taskRoleProtocol, 'completion', {});
     const dockerImage = get(taskRoleProtocol, 'dockerImage');
     const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {});
     const commands = get(taskRoleProtocol, 'commands', []);
@@ -56,6 +57,7 @@ export class JobTaskRole {
     const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage) || {};
     const ports = isNil(resourcePerInstance.ports) ? [] :
       Object.entries(resourcePerInstance.ports).map(([key, value]) => ({key, value}));
+    const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
 
     const jobTaskRole = new JobTaskRole({
       name: name,
@@ -66,6 +68,7 @@ export class JobTaskRole {
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
       ports: ports,
+      taskRetryCount: taskRetryCount,
     });
 
     if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
@@ -96,6 +99,7 @@ export class JobTaskRole {
       dockerImage: this.dockerInfo.name,
       resourcePerInstance: resourcePerInstance,
       commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
+      taskRetryCount: this.taskRetryCount,
     });
 
     return taskRole;

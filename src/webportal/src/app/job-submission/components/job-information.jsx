@@ -56,7 +56,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   );
 
   const onRetryCountChange = useCallback(
-    (val) => onChangeProp('retryCount', val),
+    (val) => onChangeProp('jobRetryCount', val),
     [onChangeProp]
   );
 
