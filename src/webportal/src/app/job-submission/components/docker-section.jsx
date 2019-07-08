@@ -79,7 +79,7 @@ const options = [
   {
     key: 'all',
     text: 'all-in-one+python3.6+gpu (image: ufoym/deepo:all-py36-cu100)',
-    image: 'ufoym/deepo:all',
+    image: 'ufoym/deepo:all-py36-cu100',
   },
   {
     key: 'tensorflow-gpu-python3.6',
