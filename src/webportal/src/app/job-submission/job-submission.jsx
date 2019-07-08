@@ -276,18 +276,20 @@ const JobSubmission = () => {
         <Stack
           className={formLayout}
           styles={{root: {height: '100%', minWidth: 1000}}}
+          verticalAlign='space-between'
           gap='l1'
         >
+          {/* top - form */}
           <Stack
             styles={{root: {minHeight: 0}}}
             horizontal
             gap='l1'
           >
             {/* left column */}
-            <StackItem grow styles={{root: {minWidth: 600, minHeight: 0, flexBasis: 0}}}>
+            <StackItem grow styles={{root: {minWidth: 600, flexBasis: 0}}}>
               <Stack
                 gap='l1'
-                styles={{root: {height: '100%', overflowY: 'auto'}}}
+                styles={{root: {height: '100%'}}}
               >
                 <JobInformation
                   jobInformation={jobInformation}
@@ -329,6 +331,7 @@ const JobSubmission = () => {
               </Stack>
             </StackItem>
           </Stack>
+          {/* bottom - buttons */}
           <SubmissionSection
             jobInformation={jobInformation}
             jobTaskRoles={jobTaskRoles}

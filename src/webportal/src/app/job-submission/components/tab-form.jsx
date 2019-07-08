@@ -147,7 +147,7 @@ export class TabForm extends React.Component {
     const {spacing} = getTheme();
 
     return (
-      <div>
+      <Stack styles={{root: {minHeight: 0}}}>
         <Stack className={formTabBar} horizontal>
           <Stack.Item styles={tabFormStyle.tabWapper}>
             <Pivot
@@ -184,7 +184,7 @@ export class TabForm extends React.Component {
             </Stack>
           </Stack.Item>
         </Stack>
-        <Stack>
+        <Stack styles={{root: {minHeight: 0, overflowY: 'auto'}}}>
           <Card style={{padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`}}>
             {!isNil(selectedIndex) && (
               <TabFormContent
@@ -196,7 +196,7 @@ export class TabForm extends React.Component {
             )}
           </Card>
         </Stack>
-      </div>
+      </Stack>
     );
   }
 }

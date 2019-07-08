@@ -107,7 +107,7 @@ const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, 
           }
 
           // completion provider
-          for (const lang of ['json', 'yaml', 'plaintext']) {
+          for (const lang of ['json', 'yaml', 'plaintext', 'shell']) {
             monaco.current.languages.registerCompletionItemProvider(lang, {
               provideCompletionItems() {
                 return completionList.current;

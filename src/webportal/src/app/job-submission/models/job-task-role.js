@@ -29,7 +29,6 @@ import {Deployment} from './deployment';
 import {getDefaultContainerSize, isDefaultContainerSize} from '../models/container-size';
 import {get, isNil, isEmpty} from 'lodash';
 import {removeEmptyProperties} from '../utils/utils';
-import {DEFAULT_COMMAND} from '../utils/constants';
 
 export class JobTaskRole {
   constructor(props) {
@@ -39,7 +38,7 @@ export class JobTaskRole {
     this.instances = instances || 1;
     this.dockerInfo = dockerInfo || new DockerInfo({uri: 'tensorflow/tensorflow'});
     this.ports = ports || [];
-    this.commands = commands || DEFAULT_COMMAND;
+    this.commands = commands || '';
     this.completion = completion || new Completion({});
     this.deployment = deployment|| new Deployment({});
     this.containerSize = containerSize || getDefaultContainerSize();
