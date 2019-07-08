@@ -20,7 +20,7 @@ export class JobData {
     preCommand.push(CUSTOM_STORAGE_START);
     preCommand.push(AUTO_GENERATE_NOTIFY);
     const hdfsConfigFile = '~/.hdfscli.cfg';
-    const jobDir = `${STORAGE_PREFIX}/${userName}/${jobName}`;
+    const jobDir = `${STORAGE_PREFIX}${userName}/${jobName}`;
     preCommand.push(
       `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${
         this.hdfsClient.host
