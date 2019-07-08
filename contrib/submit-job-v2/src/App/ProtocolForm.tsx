@@ -17,9 +17,9 @@
 
 import React, { Suspense, lazy } from "react";
 import {
-  ChoiceGroup, DefaultButton, DefaultPalette, Fabric, IChoiceGroupOption, IRenderFunction,
+  ChoiceGroup, ComboBox, IComboBox, DefaultButton, DefaultPalette, Fabric, IChoiceGroupOption, IRenderFunction,
   Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
-  initializeIcons, mergeStyleSets,
+  initializeIcons, mergeStyleSets, IComboBoxOption,
 } from "office-ui-fabric-react";
 import Cookies from "js-cookie";
 import classNames from "classnames/bind";
@@ -29,6 +29,12 @@ import yaml from "js-yaml";
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
 
+const RemoteStorageTypeOptions: IComboBoxOption[] = [
+  //  { key: 'teamwise', text: 'Team Wise' },
+  { key: 'hdfs', text: 'HDFS' },
+  { key: 'nfs', text: 'NFS' },
+  { key: 'samba', text: 'SAMBA' },
+]
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
   form: {
@@ -159,6 +165,7 @@ interface IProtocolState {
   showParameters: boolean;
   showEditor: boolean;
   logPath: string;
+  remoteStorage: any;
   enableTensorBoard: boolean;
 }
 
@@ -173,6 +180,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     showParameters: true,
     showEditor: false,
     logPath: "",
+    remoteStorage: Object.create(null),
     enableTensorBoard: false,
   };
 
@@ -230,7 +238,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
+                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
                   Import
                 </a>
                 <input
@@ -329,7 +337,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 onChange={this.toggleTensorBoard}
                 inlineLabel={true}
               />
-              {this.renderTensorBoardPath()}
+              {this.renderTensorBoardStorage()}
+              {this.renderTensorBoardLogPath()}
             </Stack>
             <Stack className={styles.item}>
               <Toggle
@@ -406,7 +415,47 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private setLogPath = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, logPath?: string) => {
     if (logPath !== undefined) {
-      this.setState({logPath});
+      this.setState({ logPath });
+    }
+  }
+
+  private setRemoteHost = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, storageHost?: string) => {
+    if (storageHost !== undefined) {
+      const remoteStorage = this.state.remoteStorage;
+      remoteStorage.storageHost = storageHost;
+      this.setState({ remoteStorage });
+    }
+  }
+
+  private setRemotePath = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, storagePath?: string) => {
+    if (storagePath !== undefined) {
+      const remoteStorage = this.state.remoteStorage;
+      remoteStorage.storagePath = storagePath;
+      this.setState({ remoteStorage });
+    }
+  }
+
+  private setRemoteUsername = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, storageUsername?: string) => {
+    if (storageUsername !== undefined) {
+      const remoteStorage = this.state.remoteStorage;
+      remoteStorage.storageUsername = storageUsername;
+      this.setState({ remoteStorage });
+    }
+  }
+
+  private setRemotePassword = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, storagePassword?: string) => {
+    if (storagePassword !== undefined) {
+      const remoteStorage = this.state.remoteStorage;
+      remoteStorage.storagePassword = storagePassword;
+      this.setState({ remoteStorage });
+    }
+  }
+
+  private setRemoteStorageType = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
+    if (option != undefined) {
+      const remoteStorage = this.state.remoteStorage;
+      remoteStorage.storageType = option.key.toString();
+      this.setState({ remoteStorage });
     }
   }
 
@@ -448,7 +497,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
     if (option && option.key) {
-      this.setState({fileOption: option.key});
+      this.setState({ fileOption: option.key });
     }
   }
 
@@ -457,7 +506,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({key, value}),
+        ([key, value]) => pairs.push({ key, value }),
       );
     }
     return pairs;
@@ -500,7 +549,90 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
   }
 
-  private renderTensorBoardPath = () => {
+  private renderTensorBoardStorage = () => {
+    if (this.state.enableTensorBoard) {
+      return (
+        <div>
+          <ComboBox
+            label="Storage Type"
+            onChange={this.setRemoteStorageType}
+            autoComplete="on"
+            options={RemoteStorageTypeOptions}
+          />
+          {this.renderTensorBoardStorageParameters()}
+        </div>
+      );
+    }
+  }
+
+  private renderTensorBoardStorageParameters = () => {
+    switch (this.state.remoteStorage.storageType) {
+      case 'teamwise':
+        break;
+      case 'hdfs':
+        return (
+          <div>
+            <TextField
+              label="Host IP: Port"
+              placeholder={`${this.props.api.split("//")[1].split(":")[0]}:9000`}
+              value={this.state.remoteStorage.storageHost}
+              onChange={this.setRemoteHost}
+            />
+          </div>
+        );
+        break;
+      case 'nfs':
+        return (
+          <div>
+            <TextField
+              label="Host IP"
+              value={this.state.remoteStorage.storageHost}
+              onChange={this.setRemoteHost}
+              required={true}
+            />
+            <TextField
+              label="Remote Path"
+              value={this.state.remoteStorage.storagePath}
+              onChange={this.setRemotePath}
+              required={true}
+            />
+          </div>
+        );
+        break;
+      case 'samba':
+        return (
+          <div>
+            <TextField
+              label="Host IP"
+              value={this.state.remoteStorage.storageHost}
+              onChange={this.setRemoteHost}
+              required={true}
+            />
+            <TextField
+              label="Remote Path"
+              value={this.state.remoteStorage.storagePath}
+              onChange={this.setRemotePath}
+              required={true}
+            />
+            <TextField
+              label="Username"
+              value={this.state.remoteStorage.storageUsername}
+              onChange={this.setRemoteUsername}
+              required={true}
+            />
+            <TextField
+              label="Password"
+              value={this.state.remoteStorage.storagePassword}
+              onChange={this.setRemotePassword}
+              required={true}
+            />
+          </div>
+        );
+        break;
+    }
+  }
+
+  private renderTensorBoardLogPath = () => {
     if (this.state.enableTensorBoard) {
       return (
         <TextField
@@ -572,38 +704,76 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private generatePreCommand = async () => {
-    const preCommand = [];
-    const hdfsHost = `${this.props.api.split("//")[1].split(":")[0]}:9000`;
-    const mountPath = "/tmp_TENSORBOARD_LOG";
-    const hdfsPath = `${mountPath}/log/tensorboard/${this.state.jobName}`;
-
-    preCommand.push([
-      "apt-get install -y git fuse golang",
-      "git clone --recursive https://github.com/Microsoft/hdfs-mount.git",
-      "cd hdfs-mount",
-      "make",
-      "cp hdfs-mount /bin",
-      "cd ..",
-      "rm -rf hdfs-mount",
-    ].join("&&"));
+    let preCommand = [];
+    const mountPath = "/TMP_TENSORBOARD_LOG";
+    const remotePath = `${mountPath}/${this.state.jobName}_TensorBoard`;
     preCommand.push(
       `if [ ! -d ${mountPath} ]; then mkdir --parents ${
       mountPath
       }; fi`,
     );
-    preCommand.push(`(hdfs-mount ${hdfsHost} ${mountPath} &)`);
-    preCommand.push(`sleep 5`);
+    switch (this.state.remoteStorage.storageType) {
+      case "hdfs":
+        preCommand.push([
+          "apt-get install -y git fuse golang",
+          "git clone --recursive https://github.com/Microsoft/hdfs-mount.git",
+          "cd hdfs-mount",
+          "make",
+          "cp hdfs-mount /bin",
+          "cd ..",
+          "rm -rf hdfs-mount",
+        ].join("&&"));
+        if (this.state.remoteStorage.storageHost === undefined) {
+          preCommand = [];
+          break;
+        }
+        preCommand.push(`(hdfs-mount ${this.state.remoteStorage.storageHost} ${mountPath} &)`);
+        preCommand.push(`sleep 5`);
+        break;
+      case "nfs":
+        if (this.state.remoteStorage.storageHost === undefined
+          || this.state.remoteStorage.storagePath === undefined) {
+          preCommand = [];
+          break;
+        }
+        preCommand.push(`mount -t nfs4 ${this.state.remoteStorage.storageHost}:
+          ${this.state.remoteStorage.storagePath} ${mountPath}`);
+        break;
+      case "samba":
+        debugger;
+        if (this.state.remoteStorage.storageHost === undefined
+          || this.state.remoteStorage.storagePath === undefined
+          || this.state.remoteStorage.storageUsername === undefined
+          || this.state.remoteStorage.storagePassword === undefined) {
+          preCommand = [];
+          break;
+        }
+        preCommand.push(`mount -t cifs //${this.state.remoteStorage.storageHost}/${
+          this.state.remoteStorage.storagePath} ${mountPath} -o vers=3.0,username=${
+          this.state.remoteStorage.Username},password=${this.state.remoteStorage.Password}`);
+        break;
+      default:
+        preCommand = [];
+        break;
+    }
+    debugger;
+    if (preCommand.length === 0) {
+      alert("Please complete the storage config!");
+      return [];
+    }
     preCommand.push(
-      `if [ ! -d ${hdfsPath} ]; then mkdir --parents ${
-      hdfsPath
+      `if [ ! -d ${remotePath} ]; then mkdir --parents ${
+      remotePath
       }; fi`,
     );
-    preCommand.push(`export PAI_TENSORBOARD_LOG_PATH=${hdfsPath}`);
+    preCommand.push(`export PAI_TENSORBOARD_LOG_PATH=${remotePath}`);
     return preCommand;
   }
 
   private injectCommand = async () => {
     const preCommand = await this.generatePreCommand();
+    if (preCommand.length === 0)
+      return false;
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     if (protocol.hasOwnProperty("taskRoles")) {
       const obj = protocol.taskRoles;
@@ -670,15 +840,18 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
     const protocolBackup = this.state.protocol;
     if (this.state.enableTensorBoard) {
-      if (this.state.logPath !== "") {
-        await this.addTensorBoardConfig();
-        await this.injectCommand();
-      } else {
+      if (this.state.logPath === "") {
         alert("Please input the tensorboard log path!");
         return;
+      } else {
+        await this.addTensorBoardConfig();
+        const ret = await this.injectCommand();
+        if (ret === false)
+          return;
       }
     }
 
+    debugger;
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     if (protocol.hasOwnProperty("extras")) {
       protocol.extras.submitFrom = this.props.pluginId;
