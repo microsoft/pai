@@ -23,14 +23,14 @@
  * SOFTWARE.
  */
 
-import {camelCase} from 'lodash';
+import {camelCase, isEmpty} from 'lodash';
 import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
 import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
-export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
+export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
   columnWidth = columnWidth || 180;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
@@ -51,17 +51,17 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
     const newDupList = value.filter((x) => keyCount[x[keyField]] > 1).map((x) => x[keyField]);
 
     const msgId = `KeyValueList ${name}`;
+    let errorMessage = '';
     if (newDupList.length > 0) {
-      setErrorMessage(msgId, `${name || 'KeyValueList'} has duplicated keys.`);
-      if (onDuplicate) {
-        onDuplicate(true);
-      }
-    } else {
-      setErrorMessage(msgId, '');
-      if (onDuplicate) {
-        onDuplicate(false);
-      }
+      errorMessage = `${name || 'KeyValueList'} has duplicated keys.`;
     }
+    if (value.some((x) => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
+      errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
+    }
+    if (onError) {
+      onError(errorMessage);
+    }
+    setErrorMessage(msgId, errorMessage);
     setDupList(newDupList);
   }, [value]);
 
@@ -96,13 +96,22 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
       key: keyName,
       name: keyName,
       minWidth: columnWidth,
-      onRender: (item, idx) => (
-        <TextField
-          errorMessage={dupList.includes(item[keyField]) && 'duplicated key'}
-          value={item[keyField]}
-          onChange={(e, val) => onKeyChange(idx, val)}
-        />
-      ),
+      onRender: (item, idx) => {
+        let errorMessage = null;
+        if (dupList.includes(item[keyField])) {
+          errorMessage = 'duplicated key';
+        }
+        if (isEmpty(item[keyField]) && !isEmpty(item[valueField])) {
+          errorMessage = 'empty key';
+        }
+        return (
+          <TextField
+            errorMessage={errorMessage}
+            value={item[keyField]}
+            onChange={(e, val) => onKeyChange(idx, val)}
+          />
+        );
+      },
     },
     {
       key: valueName,
@@ -172,7 +181,7 @@ KeyValueList.propTypes = {
   name: PropTypes.string,
   value: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
-  onDuplicate: PropTypes.func,
+  onError: PropTypes.func,
   // custom field
   secret: PropTypes.bool,
   columnWidth: PropTypes.number,

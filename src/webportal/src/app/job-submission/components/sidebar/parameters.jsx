@@ -24,6 +24,7 @@
  */
 
 import React, {useState} from 'react';
+import {isEmpty} from 'lodash';
 import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
@@ -33,14 +34,14 @@ import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const Parameters = React.memo(
   ({parameters, onChange, selected, onSelect}) => {
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
     return (
       <SidebarCard
         title='Parameters'
         tooltip={PROTOCOL_TOOLTIPS.parameters}
         selected={selected}
         onSelect={onSelect}
-        error={error}
+        error={!isEmpty(error)}
       >
         <Stack gap='m'>
           <Hint>
@@ -52,7 +53,7 @@ export const Parameters = React.memo(
               name='Parameter List'
               value={parameters}
               onChange={onChange}
-              onDuplicate={setError}
+              onError={setError}
             />
           </div>
         </Stack>
