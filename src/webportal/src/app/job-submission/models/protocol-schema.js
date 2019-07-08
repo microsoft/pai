@@ -25,7 +25,7 @@
 
 import Joi from 'joi-browser';
 
-const taskRoleSchema = Joi.object().keys({
+export const taskRoleSchema = Joi.object().keys({
   instances: Joi.number().default(1).min(1),
   completion: Joi.object().keys({
     minFailedInstances: Joi.number().min(1).allow(null).default(1),
@@ -49,7 +49,9 @@ const taskRoleSchema = Joi.object().keys({
   commands: Joi.array().items(Joi.string()).min(1).required(),
 });
 
-const prerequisitesSchema = Joi.object().keys({
+export const taskRolesSchema = Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, taskRoleSchema.required());
+
+export const prerequisitesSchema = Joi.object().keys({
   protocolVersion: [Joi.string(), Joi.number()],
   name: Joi.string().required().regex(/^[a-zA-Z0-9_-]+$/),
   type: Joi.string().valid(['data', 'script', 'dockerimage', 'output']).required(),
@@ -90,7 +92,7 @@ export const jobProtocolSchema = Joi.object().keys({
   secrets: Joi.object(),
 
   jobRetryCount: Joi.number().default(0),
-  taskRoles: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, taskRoleSchema.required()),
+  taskRoles: taskRolesSchema,
   deployments: Joi.array().items(deploymentSchema).min(1),
   defaults: Joi.object().keys({
     virtualCluster: Joi.string(),

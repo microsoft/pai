@@ -24,6 +24,7 @@
  */
 
 import React from 'react';
+import Joi from 'joi-browser';
 import {isNil} from 'lodash';
 import PropTypes from 'prop-types';
 import {Pivot, PivotItem, Icon, ActionButton, Stack, getTheme} from 'office-ui-fabric-react';
@@ -32,6 +33,7 @@ import {TabFormContent} from './tab-form-content';
 import Card from '../../components/card';
 import {TooltipIcon} from './controls/tooltip-icon';
 import {PROTOCOL_TOOLTIPS} from '../utils/constants';
+import {taskRolesSchema, prerequisitesSchema} from '../models/protocol-schema';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -59,28 +61,49 @@ export class TabForm extends React.Component {
     return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
   }
 
-  _renderPivotItems(items) {
-    const pivotItems = items.map((items) =>
-                         <PivotItem key={items.itemKey}
-                                    itemKey={items.itemKey}
-                                    headerText={items.headerText}
-                                    onRenderItemLink={this._onRenderItem.bind(this)}/>);
-
-    return pivotItems;
-  }
-
-  _onRenderItem(itemPros, defaultRender) {
-    if (itemPros === undefined || defaultRender === undefined) {
+  _onRenderItem(itemProps, defaultRender) {
+    if (itemProps === undefined || defaultRender === undefined) {
       return null;
     }
 
+    const {spacing, palette} = getTheme();
+    const {items} = this.props;
+    const {selectedIndex} = this.state;
+    // validation
+    const idx = this._getItemIndexByKey(itemProps.itemKey);
+    const item = items[idx];
+    const taskRolesObject = item.content.convertToProtocolFormat();
+    const {error: taskRoleError} = Joi.validate(taskRolesObject, taskRolesSchema);
+    const dockerObject = item.content.getDockerPrerequisite();
+    const {error: dockerError} = Joi.validate(dockerObject, prerequisitesSchema);
+    const error = taskRoleError || dockerError;
+
     return (
-    <span>
-      { defaultRender(itemPros) }
-      <Icon iconName="Cancel"
-            styles={ tabFormStyle.tabIcon }
-            onClick={this._onItemDelete.bind(this, itemPros.itemKey)} />
-    </span>);
+      <span style={{position: 'relative'}}>
+        {idx !== (selectedIndex || 0) && error && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: spacing.s2,
+            right: spacing.s2,
+          }}>
+            <div style={{height: 40, width: '100%', border: `1px solid ${palette.red}`}}></div>
+          </div>
+        )}
+        <div style={{padding: `0 ${spacing.l1}`}}>
+          {defaultRender(itemProps)}
+          <Icon
+            iconName="Cancel"
+            styles={tabFormStyle.tabIcon}
+            onClick={this._onItemDelete.bind(this, itemProps.itemKey)}
+          />
+        </div>
+      </span>
+    );
   }
 
   _onItemsChange(updatedItems) {
@@ -155,8 +178,8 @@ export class TabForm extends React.Component {
               styles={{
                 text: tabFormStyle.tab.text,
                 root: tabFormStyle.tab.root,
-                link: [{margin: 0, padding: `0 ${spacing.l1}`}],
-                linkIsSelected: [{margin: 0, padding: `0 ${spacing.l1}`}],
+                link: [{margin: 0, padding: 0}],
+                linkIsSelected: [{margin: 0, padding: 0}],
               }}
               selectedKey={this._getItemKeyByIndex(selectedIndex)}
             >
