@@ -29,10 +29,7 @@ import PropTypes from 'prop-types';
 import {MonacoTextFiled} from './monaco-text-field';
 import {FormShortSection} from './form-page';
 import {PAI_ENV_VAR, COMMAND_PLACEHOLDER} from '../utils/constants';
-import {getTheme, DelayedRender, AnimationClassNames, FontSizes} from 'office-ui-fabric-react';
 import {isEmpty} from 'lodash';
-
-const {palette, semanticColors} = getTheme();
 
 export const CommandSection = (props) => {
   const {onChange, value} = props;
@@ -43,9 +40,6 @@ export const CommandSection = (props) => {
     }
   };
 
-  const borderColor = isEmpty(value)
-    ? semanticColors.errorText
-    : palette.neutralTertiary;
 
   return (
     <BasicSection sectionLabel='Command'>
@@ -56,29 +50,8 @@ export const CommandSection = (props) => {
           placeholder={COMMAND_PLACEHOLDER}
           onChange={_onChange}
           completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
-          style={{borderColor: borderColor}}
+          errorMessage={isEmpty(value) ? 'Commands can not be empty': null}
         />
-        {isEmpty(value) && (
-          <div role='alert'>
-            <DelayedRender delay={200}>
-              <p
-                className={AnimationClassNames.slideDownIn20}
-                style={{
-                  fontSize: FontSizes.small,
-                  color: semanticColors.errorText,
-                  margin: 0,
-                  paddingTop: 5,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <span data-automation-id='error-message'>
-                  {'Commands can not be empty'}
-                </span>
-              </p>
-            </DelayedRender>
-          </div>
-        )}
       </FormShortSection>
     </BasicSection>
   );

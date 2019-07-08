@@ -24,10 +24,16 @@
  */
 
 import React, {useCallback, useMemo} from 'react';
-import {Label, getTheme} from 'office-ui-fabric-react';
+import {isEmpty, isNil, debounce} from 'lodash';
+import {
+  Label,
+  getTheme,
+  DelayedRender,
+  AnimationClassNames,
+  FontSizes,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import MonacoEditor from '../../components/monaco-editor';
-import {isEmpty, isNil, debounce} from 'lodash';
 
 export const MonacoTextFiled = (props) => {
   const {
@@ -38,9 +44,12 @@ export const MonacoTextFiled = (props) => {
     completionItems,
     monacoProps: rawMonacoProps,
     monacoRef,
-    style,
+    errorMessage,
   } = props;
-  const {palette, spacing} = getTheme();
+  const {palette, spacing, semanticColors} = getTheme();
+  const borderColor = isEmpty(errorMessage)
+    ? palette.neutralTertiary
+    : semanticColors.errorText;
 
   const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange]);
   const onChangeWrapper = useCallback(
@@ -90,9 +99,8 @@ export const MonacoTextFiled = (props) => {
           flex: '1 1 100%',
           minHeight: 0,
           border: 'solid 1px',
-          borderColor: palette.neutralTertiary,
+          borderColor: borderColor,
           paddingTop: spacing.s1,
-          ...style,
         }}
         completionItems={completionItems}
         monacoRef={monacoRef}
@@ -112,6 +120,27 @@ export const MonacoTextFiled = (props) => {
           ...monacoProps,
         }}
       />
+      {!isEmpty(errorMessage) && (
+        <div role='alert'>
+          <DelayedRender>
+            <p
+              className={AnimationClassNames.slideDownIn20}
+              style={{
+                fontSize: FontSizes.small,
+                color: semanticColors.errorText,
+                margin: 0,
+                paddingTop: spacing.s2,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <span data-automation-id='error-message'>
+                {errorMessage}
+              </span>
+            </p>
+          </DelayedRender>
+        </div>
+      )}
     </div>
   );
 };
@@ -124,5 +153,5 @@ MonacoTextFiled.propTypes = {
   completionItems: PropTypes.array,
   monacoProps: PropTypes.object,
   monacoRef: PropTypes.object,
-  style: PropTypes.object,
+  errorMessage: PropTypes.string,
 };
