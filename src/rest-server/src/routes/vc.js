@@ -33,7 +33,7 @@ router.route('/:vcName')
     /** PUT /api/v1/virtual-clusters/vcName - Update a vc */
     .put(token.check, param.validate(vcConfig.vcCreateInputSchema), vcController.update)
     /** DELETE /api/v1/virtual-clusters/vcName - Remove a vc */
-    .delete(token.check, vcController.removeVCAndRemoveGroupAsync);
+    .delete(token.check, vcController.remove);
 
 
 router.route('/:vcName/status')

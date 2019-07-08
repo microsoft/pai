@@ -157,29 +157,9 @@ const updateStatus = (req, res, next) => {
 };
 
 /**
- * Remove a vc.
- */
-const remove = (req, res, next) => {
-  const vcName = req.params.vcName;
-  if (req.user.admin) {
-    VirtualCluster.prototype.removeVc(vcName, (err) => {
-      if (err) {
-        return next(createError.unknown(err));
-      } else {
-        return res.status(201).json({
-          message: `remove vc: ${vcName} successfully`,
-        });
-      }
-    });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
-  }
-};
-
-/**
  *  Remove a vc and remove a group, async solution.
  */
-const removeVCAndRemoveGroupAsync = async (req, res, next) => {
+const remove = async (req, res, next) => {
   try {
     if (!req.user.admin) {
       return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
@@ -207,7 +187,6 @@ module.exports = {
   list,
   update,
   remove,
-  removeVCAndRemoveGroupAsync,
   updateStatus,
   validate,
 };
