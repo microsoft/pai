@@ -51,7 +51,7 @@ export const taskRoleSchema = Joi.object().keys({
 
 export const taskRolesSchema = Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, taskRoleSchema.required());
 
-const prerequisitesSchema = Joi.object().keys({
+export const prerequisitesSchema = Joi.object().keys({
   protocolVersion: [Joi.string(), Joi.number()],
   name: Joi.string().required().regex(/^[a-zA-Z0-9_-]+$/),
   type: Joi.string().valid(['data', 'script', 'dockerimage', 'output']).required(),

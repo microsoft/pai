@@ -33,7 +33,7 @@ import {TabFormContent} from './tab-form-content';
 import Card from '../../components/card';
 import {TooltipIcon} from './controls/tooltip-icon';
 import {PROTOCOL_TOOLTIPS} from '../utils/constants';
-import {taskRolesSchema} from '../models/protocol-schema';
+import {taskRolesSchema, prerequisitesSchema} from '../models/protocol-schema';
 
 const TAB_ITEM_KEY_PREFIX = 'tabItem-';
 const tabFormStyle = getTabFromStyle();
@@ -69,10 +69,15 @@ export class TabForm extends React.Component {
     const {spacing, palette} = getTheme();
     const {items} = this.props;
     const {selectedIndex} = this.state;
+    // validation
     const idx = this._getItemIndexByKey(itemProps.itemKey);
     const item = items[idx];
     const taskRolesObject = item.content.convertToProtocolFormat();
-    const {error} = Joi.validate(taskRolesObject, taskRolesSchema);
+    const {error: taskRoleError} = Joi.validate(taskRolesObject, taskRolesSchema);
+    const dockerObject = item.content.getDockerPrerequisite();
+    const {error: dockerError} = Joi.validate(dockerObject, prerequisitesSchema);
+    const error = taskRoleError || dockerError;
+
     return (
       <span style={{position: 'relative'}}>
         {idx !== (selectedIndex || 0) && error && (
