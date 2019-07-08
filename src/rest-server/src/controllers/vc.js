@@ -117,8 +117,6 @@ const update = async (req, res, next) => {
       message: `create vc: ${vcName} to capacity: ${vcCapacity} successfully`,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     return next(createError.unknown((error)));
   }
 };
