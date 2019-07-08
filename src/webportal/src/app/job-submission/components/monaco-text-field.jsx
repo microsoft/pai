@@ -24,7 +24,6 @@
  */
 
 import React, {useCallback, useMemo} from 'react';
-import {isEmpty, isNil, debounce} from 'lodash';
 import {
   Label,
   getTheme,
@@ -34,6 +33,7 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import MonacoEditor from '../../components/monaco-editor';
+import {isEmpty, isNil, debounce} from 'lodash';
 
 export const MonacoTextFiled = (props) => {
   const {
