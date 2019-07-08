@@ -177,8 +177,6 @@ const remove = async (req, res, next) => {
       message: `Remove vc: ${vcName} successfully`,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
     return next(createError.unknown((error)));
   }
 };
