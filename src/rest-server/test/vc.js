@@ -1122,6 +1122,37 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
         },
         'type': 'Opaque'
       });
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user-v2/secrets/70616974657374', {
+        'metadata': {'name': '70616974657374'},
+        'data': {
+          'username': 'cGFpdGVzdA==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
+          'email': '',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0='
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '70616974657374',
+          'namespace': 'pai-user-v2',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/70616974657374',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+          'username': 'cGFpdGVzdA==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
+          'email': '',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0='
+        },
+        'type': 'Opaque'
+      });
     
     chai.request(server)
       .put('/api/v1/virtual-clusters/b')
