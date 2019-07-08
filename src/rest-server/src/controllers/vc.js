@@ -207,7 +207,6 @@ const removeVCAndRemoveGroupAsync = async (req, res, next) => {
 module.exports = {
   get,
   list,
-  update,
   addVCAndAddGroupAsync,
   remove,
   removeVCAndRemoveGroupAsync,
