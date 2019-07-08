@@ -29,6 +29,7 @@ import PropTypes from 'prop-types';
 import {MonacoTextFiled} from './monaco-text-field';
 import {FormShortSection} from './form-page';
 import {PAI_ENV_VAR, COMMAND_PLACEHOLDER} from '../utils/constants';
+import {isEmpty} from 'lodash';
 
 export const CommandSection = (props) => {
   const {onChange, value} = props;
@@ -39,6 +40,7 @@ export const CommandSection = (props) => {
     }
   };
 
+
   return (
     <BasicSection sectionLabel='Command'>
       <FormShortSection>
@@ -48,6 +50,7 @@ export const CommandSection = (props) => {
           placeholder={COMMAND_PLACEHOLDER}
           onChange={_onChange}
           completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
+          errorMessage={isEmpty(value) ? 'Commands can not be empty': null}
         />
       </FormShortSection>
     </BasicSection>
