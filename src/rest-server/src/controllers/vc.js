@@ -70,28 +70,6 @@ const get = (req, res, next) => {
 };
 
 /**
- * Add a vc.
- */
-const update = (req, res, next) => {
-  const vcName = req.params.vcName;
-  const vcCapacity = parseInt(req.body.vcCapacity);
-  const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
-  if (req.user.admin) {
-    VirtualCluster.prototype.updateVc(vcName, vcCapacity, vcMaxCapacity, (err) => {
-      if (err) {
-        return next(createError.unknown(err));
-      } else {
-        return res.status(201).json({
-          message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
-        });
-      }
-    });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
-  }
-};
-
-/**
  *  Add a vc and add a group, async solution
  */
 const addVCAndAddGroupAsync = async (req, res, next) => {
@@ -139,6 +117,8 @@ const addVCAndAddGroupAsync = async (req, res, next) => {
       message: `create vc: ${vcName} to capacity: ${vcCapacity} successfully`,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
     return next(createError.unknown((error)));
   }
 };
