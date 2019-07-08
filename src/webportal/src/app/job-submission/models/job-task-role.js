@@ -48,7 +48,7 @@ export class JobTaskRole {
 
   static fromProtocol(name, taskRoleProtocol, deployments, prerequisites, secrets) {
     const instances = get(taskRoleProtocol, 'instances', 1);
-    const completion = get(taskRoleProtocol, 'taskRoleProtocol', {});
+    const completion = get(taskRoleProtocol, 'completion', {});
     const dockerImage = get(taskRoleProtocol, 'dockerImage');
     const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {});
     const commands = get(taskRoleProtocol, 'commands', []);
