@@ -1317,6 +1317,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .reply(200, yarnErrorResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse);
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('a').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
