@@ -56,7 +56,6 @@ const addOrRemoveGroupInputSchema = Joi.object().keys({
     .required(),
 });
 
-
 // define the input schema for the 'create user' api
 const userCreateInputSchema = Joi.object().keys({
   username: Joi.string()
