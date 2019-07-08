@@ -134,6 +134,12 @@ export async function cloneJob(rawJobConfig) {
   const plugins = window.PAI_PLUGINS;
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
+    // redirect v2 job to default submission page
+    if (isJobV2(rawJobConfig)) {
+      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+      return;
+    }
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     return;
   }
