@@ -1171,7 +1171,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get(`/api/v1/namespaces/pai-user-v2/secrets/${Buffer.from('a').toString('hex')}`)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
