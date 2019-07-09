@@ -15,21 +15,4 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-// module dependencies
-const express = require('express');
-const controller = require('@pai/controllers/v2');
-const jobRouter = require('@pai/routes/v2/job');
-const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
-
-
-const router = new express.Router();
-
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', virtualClusterRouter);
-
-// module exports
-module.exports = router;
+module.exports = require('@pai/models/v1/virtual-cluster/yarn');
