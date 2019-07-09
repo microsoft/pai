@@ -98,6 +98,7 @@
     "util": "~0.10.3",
     "webhdfs": "^1.2.0",
     "webpack": "~4.29.6",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
     "whatwg-fetch": "^3.0.0",
@@ -109,6 +110,8 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --progress --profile --mode production",
+    "preanalyze": "webpack --mode production --profile --json > bundle.profile.json",
+    "analyze": "webpack-bundle-analyzer bundle.profile.json dist",
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
