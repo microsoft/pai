@@ -128,7 +128,7 @@ _*: if specified, a directory `<workspace>/jobs/<job-name>` and subfolders (e.g.
 
 ### How to list existing clusters
 
-To list all existing clusters in `~/.openpai/clusters.json`, execute below command
+To list all existing clusters in `~/.openpai/clusters.yaml`, execute below command
 
 ```bash
 opai cluster list
@@ -278,20 +278,20 @@ Sometimes user may want to launch a remote `Jupyter` server and do some work on 
 As shown in above examples, `--cluster-alias, -a` is required by lots of commands, but it may not be changed frequently. So it is annoying to type it every time. The CLI tool provides a command to select a cluster to use by
 
 ```
-opai cluster select <cluster-alias>
+opai cluster select [-g] <cluster-alias>
 ```
 
-Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly.
+Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly. The mechanism and priority sequence is the same to below section.
 
 ### How to simplify the command
 
 The mechanism behind `opai cluster select` command help us to simplify the command further. For example, we could set `--workspace, -w` with a default value by
 
 ```bash
-opai set workspace=<workspace>
+opai set [-g] workspace=<workspace>
 ```
 
-This will add a key-value pair in `.openpai/defaults.json` in your current working directory. In every command requires a `--workspace, -w` option but no value defined, the default value would be used.
+The SDK will first load (`~/.openpai/defaults.yaml`), and then update them with the contents in `.openpai/defaults.yaml` in your current working directory. In every command requires a `--workspace, -w` option but no value defined, the default value would be used.
 
 Some commonly used default variables includes
 
@@ -305,10 +305,10 @@ Some commonly used default variables includes
 User could easily switch to another version of SDK both in local environment and in job container. In local environment, user just change `<your/branch>` to another branch (e.g. `pai-0.14.y` for `OpenPAI` end-June release or a feature developing branch for the canary version).
 
 ```bash
-pip install -U -e "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisdk&subdirectory=contrib/python-sdk"
+pip install -U "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
-To debug a local update, just use `pip install -U -e your/path/to/setup.py`.
+To debug a local update, just use `pip install -U your/path/to/setup.py`.
 
 For jobs submitted by the SDK or command line tool, the version specified by `opai set sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
 
@@ -323,7 +323,7 @@ In some cases, there are more than one `python` environments in a docker image. 
 - [x] User can describe a cluster with `openpaisdk.core.ClusterList` class to describe multiple clusters
 
 ```python
-clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.json"
+clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.yaml"
 ```
 
 User `add`, `delete` methods to update clusters, `select` and `get_client` methods to select one from multiple clusters
