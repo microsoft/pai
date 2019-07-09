@@ -77,7 +77,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
     }
     return prev;
   }, Array(maxVal).fill(0));
-  const height = Math.max(...stackedData) + 1;
+  const height = Math.max(...stackedData);
 
   const chartRef = useRef(null);
 
