@@ -264,6 +264,11 @@ const generateTaskRole = (taskRole, labels, config) => {
               },
             },
           ],
+          imagePullSecrets: [
+            {
+              name: launcherConfig.runtimeImagePullSecrets,
+            },
+          ],
           hostNetwork: true,
         },
       },
