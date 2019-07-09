@@ -178,7 +178,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           },
           annotations: {
             'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
-            'hivedscheduler.microsoft.com/pod-scheduling-spec:': yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec),
+            'hivedscheduler.microsoft.com/pod-scheduling-spec': yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec),
           },
         },
         spec: {
@@ -221,7 +221,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
-                  'hivedscheduler.microsoft.com/pod-scheduling-spec': 1,
+                  'hivedscheduler.microsoft.com/pod-scheduling-enable': 1,
                 },
               },
               env: [
