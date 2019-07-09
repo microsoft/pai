@@ -341,6 +341,11 @@ def remove_dedicate_vc(args):
         else:
             yarn_operator.remove_cluster_label(vc_name)
 
+def setup_user(args):
+    username = args.username
+    password = args.password
+    RestserverOperator.setup_user(username, password)
+
 
 def setup_parser():
     top_parser = argparse.ArgumentParser()
@@ -360,6 +365,15 @@ def setup_parser():
                                help="specify restserver ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-port", default=9091,
                                help="specify prometheus port, by default it's 9091")
+
+    # setup restserver user
+    user_parser = sub_parser.add_parser("user", help="query prometheus alerts")
+    user_subparsers = user_parser.add_subparsers(dest="action")
+
+    parser_set = user_subparsers.add_parser("set", parents=[parent_parser], help="print current gpu alerts")
+    parser_set.add_argument("-u", "--username", required=True)
+    parser_set.add_argument("-p", "--password", required=True)
+    parser_set.set_defaults(func=setup_user)
 
     # prometheus operator parser
     prometheus_parser = sub_parser.add_parser("badgpus", help="query prometheus alerts")

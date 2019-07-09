@@ -34,16 +34,16 @@ class RestserverOperator(BaseOperator):
         self.token = ""
         self.load_token()
 
-    def setup_user(self, username, password):
-        if not os.path.exists(os.path.dirname(self.secret_file)):
-            os.mkdir(os.path.dirname(self.secret_file))
-        with open(self.secret_file, "w") as f:
+    @classmethod
+    def setup_user(cls, username, password):
+        if not os.path.exists(os.path.dirname(cls.secret_file)):
+            os.mkdir(os.path.dirname(cls.secret_file))
+        with open(cls.secret_file, "w") as f:
             data = {
                 "username": username,
                 "password": password
             }
             json.dump(data, f)
-        self.load_token()
 
     def load_token(self):
         if not os.path.exists(self.secret_file):
