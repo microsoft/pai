@@ -345,6 +345,7 @@ def setup_user(args):
     username = args.username
     password = args.password
     RestserverOperator.setup_user(username, password)
+    logger.info("Setup user done")
 
 
 def setup_parser():

@@ -64,7 +64,7 @@ class RestserverOperator(BaseOperator):
 
     def add_vc(self, name, capacity=0, maxcapacity=0):
         if self.token == "":
-            logger.error("Anonymous user can't add vc, please setup user info firstly")
+            logger.error("Anonymous user can't add vc, please setup user firstly")
             sys.exit(1)
         api_path = "/api/v1/virtual-clusters/{}".format(name)
         headers = {
@@ -79,7 +79,7 @@ class RestserverOperator(BaseOperator):
 
     def delete_vc(self, name):
         if self.token == "":
-            logger.error("Anonymous user can't delete vc, please setup user info firstly")
+            logger.error("Anonymous user can't delete vc, please setup user firstly")
             sys.exit(1)
         api_path = "/api/v1/virtual-clusters/{}".format(name)
         headers = {
@@ -88,15 +88,21 @@ class RestserverOperator(BaseOperator):
         response = self.request(api_path, method="delete", headers=headers)
         return response
 
-if __name__ == '__main__':
-    import json
-    rest_server = RestserverOperator("10.151.40.133")
-    rest_server.setup_user("zimiao", "123456")
+    def delete_group(self, name):
+        if self.token == "":
+            logger.error("Anonymous user can't delete group, please setup user firstly")
+            sys.exit(1)
+        api_path = "/api/v2/group/{}".format(name)
+        headers = {
+            "Authorization": "Bearer " + self.token
+        }
+        response = self.request(api_path, method="delete", headers=headers)
+        return response
 
-    rest_server.add_vc("c2")
-    response = rest_server.get_vc()
-    print(json.dumps(response, indent=2))
-    rest_server.delete_vc("c2")
+
+if __name__ == '__main__':
+    pass
+
 
 
 
