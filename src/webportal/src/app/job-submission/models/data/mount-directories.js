@@ -1,5 +1,6 @@
 import {InputData} from './input-data';
 import {TEAMWISE_DATA_CMD_START, TEAMWISE_DATA_CMD_END} from '../../utils/constants';
+import {isEmpty} from 'lodash';
 
 export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
@@ -10,6 +11,10 @@ export class MountDirectories {
   }
 
   getPaiCommand() {
+    if (isEmpty(this.selectedConfigs)) {
+      return [];
+    }
+
     const returnValue = [
       TEAMWISE_DATA_CMD_START,
       '#Auto generated code, please do not modify',
