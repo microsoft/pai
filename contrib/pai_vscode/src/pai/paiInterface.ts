@@ -14,6 +14,7 @@ export interface IPAICluster {
     hdfs_uri?: string;
     k8s_dashboard_uri?: string;
     web_portal_uri?: string;
+    protocol_version?: string;
 }
 
 export interface IPAITaskRole {
@@ -66,7 +67,7 @@ export interface IPAIYamlJobConfig {
     /** Each item is the protocol for data, script, dockerimage, or output type. */
     prerequisites?: {
         /** If omitted, follow the protocolVersion in root. */
-        protocolVersion?: string | number;
+        protocolVersion?: string;
         name: string;
         /** Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job". */
         type: string;

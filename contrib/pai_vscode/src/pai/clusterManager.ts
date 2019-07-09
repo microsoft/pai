@@ -58,7 +58,8 @@ export class ClusterManager extends Singleton {
         hdfs_uri: 'hdfs://127.0.0.1:9000',
         webhdfs_uri: '127.0.0.1:50070',
         grafana_uri: '127.0.0.1:3000',
-        k8s_dashboard_uri: '127.0.0.1:9090'
+        k8s_dashboard_uri: '127.0.0.1:9090',
+        protocol_version: '2'
     };
 
     private onDidChangeEmitter: vscode.EventEmitter<IClusterModification> = new vscode.EventEmitter<IClusterModification>();
@@ -157,6 +158,33 @@ export class ClusterManager extends Singleton {
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.k8s_dashboard_uri = `${host}:9090`;
         }
+
+        // Config the protocol version.
+        try {
+            await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: __('cluster.add.checkprotocolversion'),
+                cancellable: true
+            },
+            (_progress, cancellationToken) => new Promise((resolve, reject) => {
+                const req: request.RequestPromise = request
+                    .get(`http://${cluster.rest_server_uri}/api/v2/jobs/protocolversion/config`, { timeout: 5 * 1000 });
+                cancellationToken.onCancellationRequested(() => {
+                    req.abort();
+                    reject();
+                });
+                req.then(resolve).catch(reject);
+            }));
+        } catch (exception) {
+            const error: any = JSON.parse(exception.error);
+            if (error.code === 'NoApiError') {
+                cluster.protocol_version = '1';
+            } else {
+                cluster.protocol_version = '2';
+            }
+        }
+
         return this.edit(this.allConfigurations.length, cluster);
     }
 
