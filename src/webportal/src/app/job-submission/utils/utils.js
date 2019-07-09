@@ -71,7 +71,7 @@ function populateComponents(jobInformation, context) {
   const {vcNames} = context;
   const virtualCluster = jobInformation.virtualCluster;
   if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
-    jobInformation.virtualCluster = '';
+    jobInformation.virtualCluster = 'default';
   }
 }
 
