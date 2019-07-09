@@ -91,6 +91,7 @@ export class ClusterManager extends Singleton {
         this.configuration = this.context.globalState.get<IConfiguration>(ClusterManager.CONF_KEY) || ClusterManager.default;
         try {
             await this.validateConfiguration();
+            await this.ensureProtocolVersion();
         } catch (ex) {
             await this.askConfigurationFix(__('cluster.activate.error', [ex]));
         }
@@ -103,6 +104,33 @@ export class ClusterManager extends Singleton {
         const validateResult: string | undefined = await Util.validateJSON(this.configuration!, 'pai_configuration.schema.json');
         if (validateResult) {
             throw validateResult;
+        }
+    }
+
+    public async ensureProtocolVersion(): Promise<void> {
+        let updated: Boolean = true;
+        const list: Promise<any>[] = [];
+        this.configuration!.pais.forEach((config: IPAICluster, i, pais) => {
+            if (!config.protocol_version) {
+                updated = true;
+                list.push(request
+                    .get(`http://${config.rest_server_uri}/api/v2/jobs/protocolversion/config`, { timeout: 5 * 1000 })
+                    .then(() => {
+                        pais[i].protocol_version = '2';
+                    })
+                    .catch((err) => {
+                        const error: any = JSON.parse(err.error);
+                        if (error.code === 'NoApiError') {
+                            pais[i].protocol_version = '1';
+                        } else {
+                            pais[i].protocol_version = '2';
+                        }
+                    }));
+            }
+        });
+
+        if (updated) {
+            await Promise.all(list).then(async () => await this.save());
         }
     }
 
