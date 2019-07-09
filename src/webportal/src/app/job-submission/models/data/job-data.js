@@ -20,7 +20,7 @@ export class JobData {
     preCommand.push(CUSTOM_STORAGE_START);
     preCommand.push(AUTO_GENERATE_NOTIFY);
     const hdfsConfigFile = '~/.hdfscli.cfg';
-    const jobDir = `${STORAGE_PREFIX}/${userName}/${jobName}`;
+    const jobDir = `${STORAGE_PREFIX}${userName}/${jobName}`;
     preCommand.push(
       `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${
         this.hdfsClient.host
@@ -34,6 +34,7 @@ export class JobData {
         }; fi &>> storage_plugin.log`,
       );
       if (dataItem.sourceType === 'http') {
+        preCommand.push('apt-get install -y --no-install-recommends wget');
         preCommand.push(
           `wget ${dataItem.dataSource} -P ${
             dataItem.mountPath
@@ -41,6 +42,7 @@ export class JobData {
         );
       } else if (dataItem.sourceType === 'git') {
         const projectName = getProjectNameFromGit(dataItem.dataSource);
+        preCommand.push('apt-get install -y --no-install-recommends git');
         preCommand.push(
           `git clone ${dataItem.dataSource} ${
             dataItem.mountPath
