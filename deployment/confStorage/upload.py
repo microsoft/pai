@@ -70,6 +70,7 @@ class upload_configuration:
         if cluster_id != cluster_id_in_config:
             self.logger.warning("Cluster ID's update is detected from your service-configuration!")
             self.logger.warning("The old one will be overwrote!")
+            self.logger.warning("The new one is [ {0} ]!".format(cluster_id_in_config))
             conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, cluster_id_in_config)
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
