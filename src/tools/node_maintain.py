@@ -27,7 +27,7 @@ import sys
 from utility import log
 log.setup_logging()
 
-from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator, Resource
+from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator, Resource, RestserverOperator
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +220,7 @@ def normalize_percentage(queues_info):
 
 def add_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
+    restserver_operator = RestserverOperator(args.restserver_ip)
     vc_name = args.vc_name
     nodes = args.nodes
 
@@ -235,6 +236,7 @@ def add_dedicate_vc(args):
     if vc_name in queues_info:
         logger.warning("Virtual cluster already exists: {}. Adding node to it".format(vc_name))
     else:
+        restserver_operator.add_vc(vc_name)
         yarn_operator.add_dedicated_queue(vc_name)
 
     nodes_info = yarn_operator.get_nodes_info()
@@ -282,6 +284,7 @@ def add_dedicate_vc(args):
 
 def remove_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
+    restserver_operator = RestserverOperator(args.restserver_ip)
     vc_name = args.vc_name
     nodes = args.nodes
     remove_queue_flag = nodes is None
@@ -330,6 +333,7 @@ def remove_dedicate_vc(args):
             logger.warning("Virtual cluster not found: {}.".format(vc_name))
         else:
             yarn_operator.remove_dedicated_queue(vc_name)
+            restserver_operator.delete_vc(vc_name)
 
         logger.info("Removing cluster label...")
         if vc_name not in yarn_operator.get_cluster_labels():
@@ -352,6 +356,8 @@ def setup_parser():
                                help="specify kubernetes api-server ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-ip",
                                help="specify prometheus ip separately, by default it's master node ip")
+    parent_parser.add_argument("--restserver-ip",
+                               help="specify restserver ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-port", default=9091,
                                help="specify prometheus port, by default it's 9091")
 
@@ -411,6 +417,7 @@ def main():
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
+    args.restserver_ip = args.restserver_ip or args.master_ip
     try:
         args.func(args)
     except Exception as e:
