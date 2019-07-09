@@ -18,6 +18,7 @@
 
 // module dependencies
 const axios = require('axios');
+const yaml = require('js-yaml');
 const status = require('statuses');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
@@ -177,6 +178,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           },
           annotations: {
             'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'hivedscheduler.microsoft.com/pod-scheduling-spec:': yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec),
           },
         },
         spec: {
@@ -219,9 +221,19 @@ const generateTaskRole = (taskRole, labels, config) => {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
-                  'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  'hivedscheduler.microsoft.com/pod-scheduling-spec': 1,
                 },
               },
+              env: [
+                {
+                  name: 'NVIDIA_VISIBLE_DEVICES',
+                  valueFrom: {
+                    fieldRef: {
+                      fieldPath: 'metadata.annotations[\'hivedscheduler.microsoft.com/pod-gpu-isolation\']',
+                    },
+                  },
+                },
+              ],
               securityContext: {
                 capabilities: {
                   add: ['SYS_ADMIN', 'IPC_LOCK', 'DAC_READ_SEARCH'],
