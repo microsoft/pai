@@ -123,7 +123,7 @@ export default function UserView() {
 
   const [ordering, setOrdering] = useState(new Ordering());
 
-  const importCSV = () => {
+  const createBulkUsers = () => {
     window.location.href = '/batch-register.html';
   };
 
@@ -198,7 +198,7 @@ export default function UserView() {
     getSelectedUsers,
     setAllSelected,
     addUser,
-    importCSV,
+    createBulkUsers,
     removeUsers,
     editUser,
     showBatchPasswordEditor,
