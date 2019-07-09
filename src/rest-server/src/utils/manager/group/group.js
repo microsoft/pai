@@ -19,7 +19,7 @@ const Joi = require('joi');
 
 const groupSchema = Joi.object().keys({
   groupname: Joi.string()
-    .token()
+    .regex(/^[A-Za-z0-9_]+$/, 'groupname')
     .required(),
   description: Joi.string()
     .empty('')

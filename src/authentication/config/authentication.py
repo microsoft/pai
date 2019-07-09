@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import re
+
 class Authentication:
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
@@ -30,6 +32,14 @@ class Authentication:
             self.service_configuration["group-manager"] = service_configuration["group-manager"]
 
     def validation_pre(self):
+        pattern = re.compile("^[A-Za-z0-9_]+$")
+        if bool(pattern.match(self.service_configuration['group-manager']['admin-group']['groupname'])) is False:
+            return False, "group name should only contain alpha-numeric and underscore characters"
+        if bool(pattern.match(self.service_configuration['group-manager']['default-group']['groupname'])) is False:
+            return False, "group name should only contain alpha-numeric and underscore characters"
+        for groupConfig in self.service_configuration['group-manager']['grouplist']:
+            if bool(pattern.match(groupConfig['groupname'])) is False:
+                return False, "group name should only contain alpha-numeric and underscore characters"
         if self.service_configuration["OIDC"] is False:
             return True, None
         if "OIDC-type" not in self.service_configuration:

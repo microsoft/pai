@@ -36,7 +36,7 @@ const groupExternalNameUpdateInputSchema = Joi.object().keys({
 // define the input schema for the 'create group' api
 const groupCreateInputSchema = Joi.object().keys({
   groupname: Joi.string()
-    .token()
+    .regex(/^[A-Za-z0-9_]+$/, 'groupname')
     .required(),
   description: Joi.string()
     .empty(''),
