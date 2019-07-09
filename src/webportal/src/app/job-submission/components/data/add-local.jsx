@@ -99,6 +99,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
       <Stack.Item align='baseline'>
         <Label className={FontClassNames.medium}>Upload to pai</Label>
         <DefaultButton
+          disabled={hdfsErrorMessage}
           iconProps={{iconName: 'Upload'}}
           text={getUploadText()}
           errorMessage={errorMessage}

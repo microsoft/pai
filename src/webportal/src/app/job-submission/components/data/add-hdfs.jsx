@@ -137,6 +137,7 @@ export const AddHDFS = ({
           Path in pai HDFS
         </Label>
         <TagPicker
+          disabled={hdfsPathErrorMessage === 'Pai HDFS is not available'}
           onResolveSuggestions={onFilterChanged}
           onItemSelected={onItemSelected}
           pickerSuggestionsProps={{
