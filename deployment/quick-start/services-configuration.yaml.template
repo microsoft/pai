@@ -65,6 +65,8 @@ cluster:
 
 
 rest-server:
+#  # launcher type. k8s or yarn
+#  launcher-type: k8s
   # database admin username
   default-pai-admin-username: admin
   # database admin password

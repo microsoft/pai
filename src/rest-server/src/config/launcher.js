@@ -96,6 +96,8 @@ const k8sLauncherConfigSchema = Joi.object().keys({
     .required(),
   runtimeImage: Joi.string()
     .required(),
+  runtimeImagePullSecrets: Joi.string()
+    .required(),
   requestHeaders: Joi.object(),
   healthCheckPath: Joi.func()
     .arity(0)
@@ -174,6 +176,7 @@ if (launcherType === 'yarn') {
     apiServerUri: process.env.K8S_APISERVER_URI,
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
+    runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
     requestHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
