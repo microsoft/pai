@@ -187,14 +187,14 @@ export const DockerSection = ({onValueChange, value}) => {
     if (optionKey !== 'customize-image' && isCutomizedImageEnabled) {
       setCutomizedImageEnabled(false);
     }
-  }, []);
+  }, [uri]);
 
   const _onCutomizedImageEnable = useCallback((_, checked) => {
     setCutomizedImageEnabled(checked);
     if (!checked) {
       _onChange('uri', DEFAULT_DOCKER_URI);
     }
-  }, []);
+  }, [_onChange]);
 
   const _authSection = () => {
     return (
