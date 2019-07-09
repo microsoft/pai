@@ -57,7 +57,7 @@ We provide installing method leveraging `pip install`
 
 ```bash
 python -m pip install --upgrade pip
-pip install -U -e "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdirectory=contrib/python-sdk"
+pip install -U "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
 Refer to [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK) for more details about installing. After installing, please verify by CLI or python binding as below.
