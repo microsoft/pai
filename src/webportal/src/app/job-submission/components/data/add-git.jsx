@@ -3,7 +3,7 @@ import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
+import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {validateMountPath, validateGitUrl} from '../../utils/validation';
 
@@ -67,7 +67,7 @@ export const AddGit = (props) => {
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? 22.15 : 0,
+                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -82,7 +82,7 @@ export const AddGit = (props) => {
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? 22.15 : 0,
+                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
             },
           }}
           onClick={() => {

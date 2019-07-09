@@ -17,6 +17,7 @@
 
 export const STORAGE_PREFIX = '/pai_data/';
 
+export const ERROR_MARGIN = 22.15;
 // Wrap comments with `` just a workaround, we may need to change rest-server or
 // runtime to support comments in commands filed
 export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';

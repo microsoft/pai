@@ -11,12 +11,12 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
+import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
-const {palette} = getTheme();
+const {semanticColors} = getTheme();
 
 export const AddHDFS = ({
   dataList,
@@ -150,7 +150,7 @@ export const AddHDFS = ({
           <span
             className={FontClassNames.small}
             style={{
-              color: palette.redDark,
+              color: semanticColors.errorText,
               paddingTop: 5,
             }}
           >
@@ -165,7 +165,7 @@ export const AddHDFS = ({
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? 22.15 : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -183,7 +183,7 @@ export const AddHDFS = ({
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? 22.15 : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -198,7 +198,7 @@ export const AddHDFS = ({
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? 22.15 : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
             },
           }}
           onClick={() => {

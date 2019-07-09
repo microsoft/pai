@@ -3,7 +3,7 @@ import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
+import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
 import {validateMountPath} from '../../utils/validation';
 import {InputData} from '../../models/data/input-data';
 
@@ -69,7 +69,7 @@ export const AddHttp = (props) => {
             root: {
               marginBottom:
                 httpAddressErrorMessage || containerPathErrorMessage
-                  ? 22.15
+                  ? ERROR_MARGIN
                   : 0,
             },
             rootDisabled: {
@@ -88,7 +88,7 @@ export const AddHttp = (props) => {
             root: {
               marginBottom:
                 httpAddressErrorMessage || containerPathErrorMessage
-                  ? 22.15
+                  ? ERROR_MARGIN
                   : 0,
             },
           }}

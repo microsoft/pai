@@ -11,12 +11,12 @@ import {
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
+import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {validateMountPath} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
 
-const {palette} = getTheme();
+const {semanticColors} = getTheme();
 
 export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
   const [mountPath, setMountPath] = useState();
@@ -128,7 +128,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           <span
             className={FontClassNames.small}
             style={{
-              color: palette.redDark,
+              color: semanticColors.errorText,
               paddingTop: 5,
             }}
           >
@@ -173,7 +173,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           disabled={errorMessage || hdfsErrorMessage}
           styles={{
             root: {
-              marginBottom: errorMessage || hdfsErrorMessage ? 22.15 : 0,
+              marginBottom: errorMessage || hdfsErrorMessage ? ERROR_MARGIN : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -187,7 +187,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           iconProps={{iconName: 'Cancel'}}
           styles={{
             root: {
-              marginBottom: errorMessage || hdfsErrorMessage ? 22.15 : 0,
+              marginBottom: errorMessage || hdfsErrorMessage ? ERROR_MARGIN : 0,
             },
           }}
           onClick={() => {
