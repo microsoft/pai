@@ -53,8 +53,6 @@ export const DataComponent = React.memo((props) => {
   let apiPath;
   if (!config.webHDFSUri || envsubRegex.test(config.webHDFSUri)) {
     hdfsHost = window.location.hostname;
-    port = 80;
-    apiPath = '/webhdfs/api/v1';
   } else {
     // add WEBHDFS_URI to .env for local debug
     hdfsHost = getHostNameFromUrl(config.webHDFSUri);
