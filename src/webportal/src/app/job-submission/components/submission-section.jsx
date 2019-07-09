@@ -112,9 +112,7 @@ export const SubmissionSection = (props) => {
     if (newValidationMessage !== validationMsg) {
       setValidationMsg(newValidationMessage);
     }
-    if (newValidationMessage !== errorMessages) {
-      setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
-    }
+    setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
   };
 
   useEffect(() => {
