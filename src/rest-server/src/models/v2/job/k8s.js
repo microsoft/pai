@@ -201,7 +201,7 @@ const generateTaskRole = (taskRole, userName, virtualCluster, config) => {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
-                  'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  'hivedscheduler.microsoft.com/pod-scheduling-spec': 1,
                 },
               },
               env: [
