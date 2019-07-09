@@ -62,8 +62,8 @@ class upload_configuration:
                 self.logger.warning("cluster_id [ pai ] is the default ID in configuration.")
                 self.logger.warning("Because no cluster-id found in your configuration, it [pai] will be used.")
             conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, cluster_id_in_config)
-            time.sleep(10)
             self.logger.warning("Waiting 10s to update cluster-id.")
+            time.sleep(10)
 
         user_input = raw_input("Please input the cluster-id which you wanna operate: ")
         if user_input != cluster_id:
@@ -75,8 +75,8 @@ class upload_configuration:
             self.logger.warning("The old one will be overwrote!")
             self.logger.warning("The new one is [ {0} ]!".format(cluster_id_in_config))
             conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, cluster_id_in_config)
-            time.sleep(10)
             self.logger.warning("Waiting 10s to update cluster-id.")
+            time.sleep(10)
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
         return True
