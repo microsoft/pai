@@ -61,6 +61,14 @@ def read_file_from_path(file_path):
     return file_data
 
 
+def load_yaml_config(config_path):
+
+    with open(config_path, "r") as f:
+        cluster_data = yaml.load(f)
+
+    return cluster_data
+
+
 def write_generated_file(generated_file, file_path):
 
     with open(file_path, "w+") as fout:
