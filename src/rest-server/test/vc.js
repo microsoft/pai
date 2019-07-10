@@ -925,6 +925,30 @@ const clusterNodeResponse = {
     }
 };
 
+const getK8sSecretsListResponse = {
+  'kind': 'SecretList',
+  'apiVersion': 'v1',
+  'metadata': {
+    'selfLink': '/api/v1/namespaces/pai-user-v2/secrets',
+    'resourceVersion': '1062682'
+  },
+  'items': [
+    {
+      'metadata': {
+        'name': 'paitest',
+      },
+      'data': {
+        'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+        'username': 'cGFpdGVzdA==',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJd',
+        'email': '',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJdfQ=='
+      },
+      'type': 'Opaque'
+    },
+  ]
+};
+
 
 // test
 describe('VC API  Get /api/v1/virtual-clusters', () => {
@@ -1052,32 +1076,83 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
-      .reply(200, {
-        'kind': 'SecretList',
+      .get('/api/v1/namespaces/pai-user-v2/secrets')
+      .reply(200, getK8sSecretsListResponse);
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('b').toString('hex')}`)
+      .reply(404, {
+        'kind': 'Status',
         'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
+        'metadata': {},
+        'status': 'Failure',
+        'message': `secrets '${Buffer.from('b').toString('hex')}' not found`,
+        'reason': 'NotFound',
+        'details': {
+          'name': 'nonexist',
+          'kind': 'secrets'
         },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
+        'code': 404
       });
     nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
-      .reply(200);
+      .post('/api/v1/namespaces/pai-group/secrets', {
+        'metadata': {'name': `${Buffer.from('b').toString('hex')}`},
+        'data': {
+          'groupname': `${Buffer.from('b').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('b').toString('hex')}`,
+          'namespace': 'pai-group',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e657775736572',
+          'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1116114',
+          'creationTimestamp': '2018-12-07T02:29:47Z'
+        },
+        'data': {
+          'groupname': `${Buffer.from('b').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user-v2/secrets/70616974657374', {
+        'metadata': {'name': '70616974657374'},
+        'data': {
+          'username': 'cGFpdGVzdA==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
+          'email': '',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0='
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '70616974657374',
+          'namespace': 'pai-user-v2',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/70616974657374',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+          'username': 'cGFpdGVzdA==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
+          'email': '',
+          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0='
+        },
+        'type': 'Opaque'
+      });
     
     chai.request(server)
       .put('/api/v1/virtual-clusters/b')
@@ -1096,32 +1171,21 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
       .reply(200, {
-        'kind': 'SecretList',
+        'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
+          'name': `${Buffer.from('a').toString('hex')}`,
         },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
       });
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
-      .reply(200);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1140,32 +1204,21 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
       .reply(200, {
-        'kind': 'SecretList',
+        'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
+          'name': `${Buffer.from('a').toString('hex')}`,
         },
-        'items': [
-          {
-            'metadata': {
-              'name': 'paitest',
-            },
-            'data': {
-              'admin': 'dHJ1ZQ==',
-              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
-            },
-            'type': 'Opaque'
-          },
-        ]
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
       });
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user/secrets/70616974657374')
-      .reply(200);
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1228,6 +1281,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
 
 
   it('[Negative] should not update vc b with exceed quota', (done) => {
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('b').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('b').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('b').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
     chai.request(server)
       .put('/api/v1/virtual-clusters/b')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1248,6 +1317,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .reply(200, yarnErrorResponse)
       .get('/ws/v1/cluster/nodes')
       .reply(200, clusterNodeResponse);
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('a').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1281,6 +1366,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(404, 'Error response in YARN');
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('a').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('a').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('a').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
 
     chai.request(server)
       .put('/api/v1/virtual-clusters/a')
@@ -1297,6 +1398,22 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
   });
 
   it('[Negative] should not update a dedicated vc', (done) => {
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('dedicated_vc').toString('hex')}`)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': `${Buffer.from('dedicated_vc').toString('hex')}`,
+        },
+        'data': {
+          'groupname': `${Buffer.from('dedicated_vc').toString('base64')}`,
+          'description': `${Buffer.from('').toString('base64')}`,
+          'externalName': `${Buffer.from('').toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`
+        },
+        'type': 'Opaque'
+      });
     chai.request(server)
       .put('/api/v1/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1467,12 +1584,12 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/')
+      .get('/api/v1/namespaces/pai-user-v2/secrets')
       .reply(200, {
         'kind': 'SecretList',
         'apiVersion': 'v1',
         'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
+          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets',
           'resourceVersion': '1062682'
         },
         'items': [
@@ -1481,14 +1598,28 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
               'name': 'paitest',
             },
             'data': {
-              'admin': 'dHJ1ZQ==',
               'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
               'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+              'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJd',
+              'email': '',
+              'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCJdfQ=='
             },
             'type': 'Opaque'
           },
         ]
+      });
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-group/secrets/61')
+      .reply(200, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Success',
+        'details': {
+          'name': '61',
+          'kind': 'secrets',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
+        }
       });
 
     chai.request(server)

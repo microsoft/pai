@@ -18,8 +18,8 @@
 // module dependencies
 const Joi = require('joi');
 
-// define the input schema for the 'update vc' api
-const vcPutInputSchema = Joi.object().keys({
+// define the input schema for the 'create vc' api
+const vcCreateInputSchema = Joi.object().keys({
   vcCapacity: Joi.number()
     .min(0)
     .max(100)
@@ -28,6 +28,10 @@ const vcPutInputSchema = Joi.object().keys({
     .min(Joi.ref('vcCapacity'))
     .max(100)
     .optional(),
+  description: Joi.string()
+    .empty(''),
+  externalName: Joi.string()
+    .empty(''),
 }).required();
 
 // define the input schema for the 'put vc status' api
@@ -39,6 +43,6 @@ const vcStatusPutInputSchema = Joi.object().keys({
 
 // module exports
 module.exports = {
-  vcPutInputSchema: vcPutInputSchema,
+  vcCreateInputSchema: vcCreateInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
 };
