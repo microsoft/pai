@@ -45,8 +45,8 @@ function prepare_job_ssh()
 {
 # Job ssh files are mounted to /etc/ssh-secret, can get keys using /etc/ssh-secret/ssh-pub and /etc/ssh-secret/ssh-pri  
 # Please refer to https://kubernetes.io/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys
-  localPublicKeyPath=/etc/ssh-secret/ssh-pub
-  localPrivateKeyPath=/etc/ssh-secret/ssh-pri
+  localPublicKeyPath=/etc/ssh-secret/ssh-publickey
+  localPrivateKeyPath=/etc/ssh-secret/ssh-privatekey
 
   if [ -f $localPublicKeyPath ] && [ -f $localPrivateKeyPath ] ; then
     cat $localPublicKeyPath >> /root/.ssh/authorized_keys

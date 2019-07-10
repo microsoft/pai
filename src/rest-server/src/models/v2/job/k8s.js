@@ -255,6 +255,11 @@ const generateTaskRole = (taskRole, labels, config) => {
                   name: 'host-log',
                   mountPath: '/usr/local/pai/logs',
                 },
+                {
+                  name: 'job-ssh-secret-volume',
+                  readOnly: true,
+                  mountPath: '/etc/ssh-secret',
+                },
               ],
             },
           ],
@@ -267,6 +272,12 @@ const generateTaskRole = (taskRole, labels, config) => {
               name: 'host-log',
               hostPath: {
                 path: `/var/log/pai/${labels.userName}/${labels.jobName}/${taskRole}`,
+              },
+            },
+            {
+              name: 'job-ssh-secret-volume',
+              secret: {
+                secretName: 'job-ssh-secret',
               },
             },
           ],
