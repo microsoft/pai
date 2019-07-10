@@ -4,6 +4,7 @@ import {promisify} from 'util';
 export class WebHDFSClient {
   constructor(host, user, timeout, port = '50070', path = `/webhdfs/v1`) {
     this.host = `http://${host}:${port}`;
+    this.pylonEndpoint = `http://${host}:80/webhdfs/api/v1`;
     this.endpoint = `http://${host}:${port}${path}`;
     this.client = webhdfs.createClient({host, port, user, path}, {timeout});
     this.client.readdir = promisify(this.client.readdir);
@@ -50,7 +51,7 @@ export class WebHDFSClient {
 
     const res = await fetch(
       `${
-        this.endpoint
+        this.pylonEndpoint
       }${dir}/${newFileName}?op=create&overwrite=true&permission=0755`,
       {
         method: 'put',
