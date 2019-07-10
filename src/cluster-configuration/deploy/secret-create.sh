@@ -17,24 +17,5 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-#chmod u+x configmap-create.sh
-/bin/bash configmap-create.sh || exit $?
-
-# Create secret for job ssh keys
-/bin/bash secret-create.sh || exit $?
-
-kubectl apply --overwrite=true -f secret.yaml || exit $?
-
-# Label all the machines
-{% for host in cluster_cfg['layout']['machine-list'] %}
-    {% if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-master=true || exit $?
-    {% endif %}
-    {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-worker=true || exit $?
-    {% endif %}
-{% endfor %}
-
-popd > /dev/null
+# Can generate ssh key pair here
+kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=ssh-configuration/id_rsa --from-file=ssh-publickey=ssh-configuration/id_rsa.pub
