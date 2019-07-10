@@ -79,7 +79,6 @@ export async function listUserVirtualClusters(user) {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
-    method: 'GET',
   });
   return get(userInfo, 'virtualCluster', []);
 }
