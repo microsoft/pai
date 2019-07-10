@@ -56,8 +56,8 @@ class upload_configuration:
         cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
         if cluster_id is None:
-            self.logger.warning("No cluster_id found in your cluster.")
-            self.logger.warning("cluster_id [ {0} ] in configuration will be updated into your cluster.".format(cluster_id_in_config))
+            self.logger.warning("No cluster-id found in your cluster.")
+            self.logger.warning("cluster-id [ {0} ] in configuration will be updated into your cluster.".format(cluster_id_in_config))
             if cluster_id_in_config == 'pai':
                 self.logger.warning("cluster_id [ pai ] is the default ID in configuration.")
                 self.logger.warning("Because no cluster-id found in your configuration, it [pai] will be used.")
