@@ -25,12 +25,13 @@ import json
 import sys
 from StringIO import StringIO
 import xmltodict
+import os
 
 from node_maintain import add_dedicate_vc, get_dedicate_vc, remove_dedicate_vc
 
 
 class NodeMaintainTestCase(unittest.TestCase):
-    ArgsMock = namedtuple("ArgsMock", ["resource_manager_ip", "vc_name", "nodes"])
+    ArgsMock = namedtuple("ArgsMock", ["resource_manager_ip", "vc_name", "nodes", "restserver_ip"])
 
     @classmethod
     def setUpClass(cls):
@@ -40,7 +41,10 @@ class NodeMaintainTestCase(unittest.TestCase):
             cls.cluster_nodes_response = f.read()
 
     def setUp(self):
-        pass
+        if not os.path.exists(".restserver"):
+            os.mkdir(".restserver")
+        with open(".restserver/user_info", "w") as f:
+            json.dump({"username": "test", "password": "test"}, f)
 
     @requests_mock.Mocker()
     def test_get_dedicate_vc(self, requests_get_mock):
@@ -60,7 +64,7 @@ class NodeMaintainTestCase(unittest.TestCase):
 
     @patch("node_maintain.YarnOperator.execute")
     def test_add_dedicate_vc(self, execute_mock):
-        args = self.ArgsMock(resource_manager_ip="127.0.0.1", vc_name="test_vc_2", nodes={"10.151.40.132"})
+        args = self.ArgsMock(resource_manager_ip="127.0.0.1", restserver_ip="127.0.0.1", vc_name="test_vc_2", nodes={"10.151.40.132"})
 
         execute_mock.side_effect = [
             "Node Labels: <label_ex:exclusivity=true>,<label_non:exclusivity=false>,<test_vc:exclusivity=true",
@@ -68,10 +72,12 @@ class NodeMaintainTestCase(unittest.TestCase):
             None,
         ]
         with requests_mock.mock() as requests_get_mock:
+            requests_get_mock.post("http://127.0.0.1:9186/api/v1/token", text=json.dumps({"token": "test"}))
             requests_get_mock.get("http://127.0.0.1:8088/ws/v1/cluster/scheduler", text=self.capacity_scheduler_response)
             nodes_info = json.loads(self.cluster_nodes_response)
             nodes_info["nodes"]["node"][0].pop("nodeLabels")
             requests_get_mock.get("http://127.0.0.1:8088/ws/v1/cluster/nodes", text=json.dumps(nodes_info))
+            requests_get_mock.put("http://127.0.0.1:9186/api/v1/virtual-clusters/test_vc_2", text="{}")
             requests_get_mock.put("http://127.0.0.1:8088/ws/v1/cluster/scheduler-conf")
 
             add_dedicate_vc(args)
@@ -94,10 +100,10 @@ class NodeMaintainTestCase(unittest.TestCase):
                 u"yarn.scheduler.capacity.root.accessible-node-labels.test_vc_2.capacity": u"100"
             }
             self.assertDictEqual(global_update, global_update_expect)
-            queue_name = add_queue["sched-conf"]["add-queue"]["queue-name"]
+            queue_name = add_queue["sched-conf"]["update-queue"]["queue-name"]
             queue_name_expect = u"root.test_vc_2"
             self.assertEqual(queue_name, queue_name_expect)
-            queue_update = {or_dict["key"]: or_dict["value"] for or_dict in add_queue["sched-conf"]["add-queue"]["params"]["entry"]}
+            queue_update = {or_dict["key"]: or_dict["value"] for or_dict in add_queue["sched-conf"]["update-queue"]["params"]["entry"]}
             queue_update_expect = {
                 u"capacity": u"0",
                 u"accessible-node-labels": u"test_vc_2",
@@ -129,7 +135,7 @@ class NodeMaintainTestCase(unittest.TestCase):
 
     @patch("node_maintain.YarnOperator.execute")
     def test_remove_dedicate_vc(self, execute_mock):
-        args = self.ArgsMock(resource_manager_ip="127.0.0.1", vc_name="test_vc", nodes=None)
+        args = self.ArgsMock(resource_manager_ip="127.0.0.1", restserver_ip="127.0.0.1", vc_name="test_vc", nodes=None)
 
         execute_mock.side_effect = [
             None,
@@ -137,10 +143,12 @@ class NodeMaintainTestCase(unittest.TestCase):
             None
         ]
         with requests_mock.mock() as requests_get_mock:
+            requests_get_mock.post("http://127.0.0.1:9186/api/v1/token", text=json.dumps({"token": "test"}))
             requests_get_mock.get("http://127.0.0.1:8088/ws/v1/cluster/scheduler",
                                   text=self.capacity_scheduler_response)
             requests_get_mock.get("http://127.0.0.1:8088/ws/v1/cluster/nodes", text=self.cluster_nodes_response)
             requests_get_mock.put("http://127.0.0.1:8088/ws/v1/cluster/scheduler-conf")
+            requests_get_mock.delete("http://127.0.0.1:9186/api/v1/virtual-clusters/test_vc", text="{}")
 
             remove_dedicate_vc(args)
 
@@ -166,6 +174,15 @@ class NodeMaintainTestCase(unittest.TestCase):
                 u"yarn.scheduler.capacity.root.label_ex.capacity": u"0.0"
             }
             self.assertDictEqual(update_capacity, update_capacity_expect)
+
+            remove_queue = {or_dict["key"]: or_dict["value"] for or_dict in
+                            remove_queue["sched-conf"]["global-updates"]["entry"]}
+            remove_queue_expect = {
+                u"yarn.scheduler.capacity.root.accessible-node-labels.test_vc.capacity": u"0",
+                u"yarn.scheduler.capacity.root.test_vc.accessible-node-labels.test_vc.capacity": u"0",
+                u"yarn.scheduler.capacity.root.test_vc.default-node-label-expression": None,
+            }
+            self.assertDictEqual(remove_queue, remove_queue_expect)
 
 
 if __name__ == "__main__":
