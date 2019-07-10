@@ -42,7 +42,13 @@ spec:
           name: job-exit-spec-rest-server
         env:
         - name: LAUNCHER_TYPE
-          value: yarn
+          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+        - name: LAUNCHER_RUNTIME_IMAGE
+          value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
+          value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+{%- endif %}          
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
