@@ -159,13 +159,13 @@ sleep 6s
 
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 # Step 4. Start all PAI services
 # start pai services
 ./paictl.py service start << EOF
-openpai-test
+pai
 EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
@@ -249,13 +249,13 @@ sleep 6s
 
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 # Step 4. Start all PAI services
 # start pai services
 ./paictl.py service start << EOF
-openpai-test
+pai
 EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
@@ -524,12 +524,12 @@ cd /pai
 
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 ./paictl.py service delete << EOF
 Y
-openpai-test
+pai
 EOF
 
 # clean k8s
@@ -558,12 +558,12 @@ cd /pai
 
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 ./paictl.py service delete << EOF
 Y
-openpai-test
+pai
 EOF
 
 # clean k8s
