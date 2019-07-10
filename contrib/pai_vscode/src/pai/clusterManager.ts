@@ -204,6 +204,7 @@ export class ClusterManager extends Singleton {
                 });
                 req.then(resolve).catch(reject);
             }));
+            cluster.protocol_version = '2';
         } catch (exception) {
             const error: any = JSON.parse(exception.error);
             if (error.code === 'NoApiError') {

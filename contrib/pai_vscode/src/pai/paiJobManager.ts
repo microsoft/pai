@@ -270,22 +270,22 @@ export class PAIJobManager extends Singleton {
             type: 'job',
             prerequisites: [
                 {
-                    name: '<image_name>',
+                    name: 'image',
                     type: 'dockerimage',
-                    uri: 'aiplatform/pai.build.base'
+                    uri: '<dockerimage uri>'
                 }
             ],
             taskRoles: {
                 train: {
                     instances: 1,
-                    dockerImage: '<image_name>',
+                    dockerImage: 'image',
                     resourcePerInstance: {
                       cpu: 1,
                       memoryMB: 16384,
                       gpu: 1
                     },
                     commands: [
-                        'python <start up script>'
+                        script ? `python ${jobName}/${unixify(script)}` : 'python <start up script>'
                     ]
                 }
             }
