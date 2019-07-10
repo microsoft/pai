@@ -384,9 +384,9 @@ export class PAIJobManager extends Singleton {
         try {
             await this.prepareJobConfigPath(input);
             if (input.jobConfigPath!.toLowerCase().endsWith('yaml') || input.jobConfigPath!.toLowerCase().endsWith('yml')) {
-                await this.submitJobWithYamlConfig(input, statusBarItem);
+                await this.submitJobV2(input, statusBarItem);
             } else {
-                await this.submitJobWithJsonConfig(input, statusBarItem);
+                await this.submitJobV1(input, statusBarItem);
             }
         } catch (e) {
             Util.err('job.submission.error', [e.message || e]);
@@ -399,7 +399,7 @@ export class PAIJobManager extends Singleton {
         await registerYamlSchemaSupport();
     }
 
-    private async submitJobWithYamlConfig(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
+    private async submitJobV2(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
         const config: IPAIYamlJobConfig = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
 
         let cluster: IPAICluster;
@@ -439,7 +439,7 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    private async submitJobWithJsonConfig(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
+    private async submitJobV1(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
         const param: IJobParam | undefined = await this.prepareJobParam(input);
         if (!param) {
             // Error message has been shown.
@@ -527,6 +527,7 @@ export class PAIJobManager extends Singleton {
         statusBarItem.show();
 
         try {
+            await this.prepareJobConfigPath(input);
             const param: IJobParam | undefined = await this.prepareJobParam(input);
             if (!param) {
                 // Error message has been shown.
