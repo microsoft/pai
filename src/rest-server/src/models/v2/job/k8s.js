@@ -42,7 +42,8 @@ const encodeName = (name) => {
 const decodeName = (name) => {
   if (name.startsWith('hex')) {
     // remove "hex" prefix and hex decode
-    return Buffer.from(name.replace(/^hex/g, ''), 'hex').toString('ascii');
+    const frameworkName = Buffer.from(name.replace(/^hex/g, ''), 'hex').toString('ascii');
+    return frameworkName.split(/~(.+)/)[1];
   } else {
     // framework name has not been encoded
     return name;
@@ -80,7 +81,7 @@ const convertFrameworkSummary = (framework) => {
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
     subState: framework.status.state,
-    executionType: framework.spec.executionType,
+    executionType: framework.spec.executionType.toUpperCase(),
     retries: framework.status.retryPolicyStatus.totalRetriedCount,
     retryDetails: {
       user: framework.status.retryPolicyStatus.accountableRetriedCount,
@@ -120,7 +121,7 @@ const convertFrameworkDetail = (framework) => {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
       subState: framework.status.state,
-      executionType: framework.spec.executionType,
+      executionType: framework.spec.executionType.toUpperCase(),
       retries: framework.status.retryPolicyStatus.totalRetriedCount,
       retryDetails: {
         user: framework.status.retryPolicyStatus.accountableRetriedCount,
@@ -183,6 +184,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
+          schedulerName: launcherConfig.scheduler,
           restartPolicy: 'Never',
           serviceAccountName: 'frameworkbarrier',
           initContainers: [
@@ -229,9 +231,13 @@ const generateTaskRole = (taskRole, labels, config) => {
                   name: 'NVIDIA_VISIBLE_DEVICES',
                   valueFrom: {
                     fieldRef: {
-                      fieldPath: 'metadata.annotations[\'hivedscheduler.microsoft.com/pod-gpu-isolation\']',
+                      fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
                     },
                   },
+                },
+                {
+                  name: 'PAI_CURRENT_CONTAINER_PORT',
+                  value: `${Math.floor((Math.random() * 10000) + 10000)}`,
                 },
               ],
               securityContext: {
@@ -260,7 +266,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             {
               name: 'host-log',
               hostPath: {
-                path: `/var/log/pai/job/${taskRole}`,
+                path: `/var/log/pai/${labels.userName}/${labels.jobName}/${taskRole}`,
               },
             },
           ],
@@ -291,9 +297,10 @@ const generateTaskRole = (taskRole, labels, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, userName, virtualCluster, config, rawConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
+  const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
-    // frameworkName,
+    jobName,
     userName,
     virtualCluster,
   };
@@ -343,7 +350,9 @@ const list = async () => {
   }
 
   if (response.status === status('OK')) {
-    return response.data.items.map(convertFrameworkSummary);
+    const frameworkList = response.data.items.map(convertFrameworkSummary);
+    frameworkList.sort((a, b) => b.createdTime - a.createdTime);
+    return frameworkList;
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
@@ -377,11 +386,10 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
-  const [userName] = frameworkName.split('~');
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
 
-  const frameworkDescription = generateFrameworkDescription(frameworkName, userName, virtualCluster, config, rawConfig);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 
   // send request to framework controller
   let response;
@@ -423,7 +431,7 @@ const getConfig = async (frameworkName) => {
 
   if (response.status === status('OK')) {
     if (response.data.metadata.annotations && response.data.metadata.annotations.config) {
-      return response.data.metadata.annotations.config;
+      return yaml.safeLoad(response.data.metadata.annotations.config);
     } else {
       throw createError('Not Found', 'NoJobConfigError', `Config of job ${frameworkName} is not found.`);
     }
