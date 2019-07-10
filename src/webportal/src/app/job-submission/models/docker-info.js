@@ -25,15 +25,16 @@
 
 import {get, isNil, isEmpty} from 'lodash';
 import {removeEmptyProperties} from '../utils/utils';
+import {SECRET_PATTERN, DOCKER_OPTIONS} from '../utils/constants';
 
-const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 export class DockerInfo {
   constructor(props) {
-    const {uri, auth, secretRef, name} = props;
+    const {uri, auth, secretRef, name, isUseCustomizedDocker} = props;
     this.uri = uri || '';
     this.auth = auth || {};
     this.secretRef = !isEmpty(secretRef) ? secretRef : '';
     this.name = name || '';
+    this.isUseCustomizedDocker = isUseCustomizedDocker || false;
   }
 
   static fromProtocol(dockerInfoProtocol, secrets) {
@@ -49,7 +50,17 @@ export class DockerInfo {
         secretRef = '';
       }
     }
-    return new DockerInfo({...dockerInfoProtocol, auth: auth, secretRef: secretRef});
+    const isUseCustomizedDocker = DockerInfo.isUseCustomizedDocker(dockerInfoProtocol.uri);
+    return new DockerInfo({
+      ...dockerInfoProtocol,
+      auth: auth,
+      secretRef: secretRef,
+      isUseCustomizedDocker: isUseCustomizedDocker,
+    });
+  }
+
+  static isUseCustomizedDocker(uri) {
+    return isNil(DOCKER_OPTIONS.find((dockerOption) => dockerOption.image === uri));
   }
 
   convertToProtocolFormat() {

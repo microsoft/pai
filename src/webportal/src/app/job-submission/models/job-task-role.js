@@ -29,6 +29,7 @@ import {Deployment} from './deployment';
 import {getDefaultContainerSize, isDefaultContainerSize} from '../models/container-size';
 import {get, isNil, isEmpty} from 'lodash';
 import {removeEmptyProperties} from '../utils/utils';
+import {DEFAULT_DOCKER_URI} from '../utils/constants';
 
 export class JobTaskRole {
   constructor(props) {
@@ -36,7 +37,7 @@ export class JobTaskRole {
            isContainerSizeEnabled, taskRetryCount} = props;
     this.name = name || '';
     this.instances = instances || 1;
-    this.dockerInfo = dockerInfo || new DockerInfo({uri: 'ufoym/deepo:all'});
+    this.dockerInfo = dockerInfo || new DockerInfo({uri: DEFAULT_DOCKER_URI});
     this.ports = ports || [];
     this.commands = commands || '';
     this.completion = completion || new Completion({});

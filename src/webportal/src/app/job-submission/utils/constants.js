@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 export const STORAGE_PREFIX = '/pai_data/';
+export const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 
 export const ERROR_MARGIN = 22.15;
 // Wrap comments with `` just a workaround, we may need to change rest-server or
@@ -97,6 +98,44 @@ export const PROTOCOL_TOOLTIPS = {
   data:
     'Data section is used to generate pre-command that download/mount your data to specific path in container.',
 };
+
 export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.
 
 All lines will be concatenated by "&&". So do not use characters like "#", "\\" in your command`;
+
+export const DOCKER_OPTIONS = [
+  {
+    key: 'all',
+    text: 'all-in-one+python3.6+gpu (image: ufoym/deepo:all-py36-cu100)',
+    image: 'ufoym/deepo:all-py36-cu100',
+  },
+  {
+    key: 'tensorflow-gpu-python3.6',
+    text: 'tensorflow+python3.6 with gpu (image: ufoym/deepo:tensorflow-py36-cu100)',
+    image: 'ufoym/deepo:tensorflow-py36-cu100',
+  },
+  {
+    key: 'tensorflow-cpu',
+    text:
+      'tensorflow+python3.6 with cpu (image: ufoym/deepo:tensorflow-py36-cpu)',
+    image: 'ufoym/deepo:tensorflow-py36-cpu',
+  },
+  {
+    key: 'tensorflow-cpu-python2.7',
+    text:
+      'tensorflow+python2.7 with cpu (image: ufoym/deepo:tensorflow-py27-cpu)',
+    image: 'ufoym/deepo:tensorflow-py27-cpu',
+  },
+  {
+    key: 'pytorch-gpu',
+    text: 'pytorch+python3.6 with gpu (image: ufoym/deepo:pytorch-py36-cu100)',
+    image: 'ufoym/deepo:pytorch-py36-cu100',
+  },
+  {
+    key: 'pytorch-cpu',
+    text: 'pytorch+python3.6 with cpu (image: ufoym/deepo:pytorch-py36-cpu)',
+    image: 'ufoym/deepo:pytorch-py36-cpu',
+  },
+];
+
+export const DEFAULT_DOCKER_URI = 'ufoym/deepo:all-py36-cu100';
