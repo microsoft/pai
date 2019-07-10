@@ -239,6 +239,10 @@ const generateTaskRole = (taskRole, labels, config) => {
                   name: 'PAI_CURRENT_CONTAINER_PORT',
                   value: `${Math.floor((Math.random() * 10000) + 10000)}`,
                 },
+                {
+                  name: 'PAI_CONTAINER_SSH_PORT',
+                  value: `${Math.floor((Math.random() * 10000) + 10000)}`,
+                },
               ],
               securityContext: {
                 capabilities: {
