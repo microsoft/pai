@@ -399,46 +399,6 @@ export class PAIJobManager extends Singleton {
         await registerYamlSchemaSupport();
     }
 
-    private async submitJobV2(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
-        const config: IPAIJobConfigV2 = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
-
-        let cluster: IPAICluster;
-
-        if (input.clusterIndex) {
-            const clusterManager: ClusterManager = await getSingleton(ClusterManager);
-            cluster = clusterManager.allConfigurations[input.clusterIndex];
-        } else {
-            cluster = await this.pickCluster();
-        }
-
-        statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
-        try {
-            await request.post(
-                PAIRestUri.jobsV2(cluster),
-                {
-                    headers: {
-                        Authorization: `Bearer ${await this.getToken(cluster)}`,
-                        'Content-Type': 'text/yaml'
-                    },
-                    body: yaml.safeDump(config),
-                    timeout: PAIJobManager.TIMEOUT
-                });
-            void (await getSingleton(RecentJobManager)).enqueueRecentJobs(cluster, config.name);
-            const open: string = __('job.submission.success.open');
-            void vscode.window.showInformationMessage(
-                __('job.submission.success'),
-                open
-            ).then(async res => {
-                const url: string = await PAIWebPortalUri.jobDetail(cluster!, cluster!.username, config.name);
-                if (res === open) {
-                    await Util.openExternally(url);
-                }
-            });
-        } catch (e) {
-            throw new Error(e.status ? `${e.status}: ${e.response.body.message}` : e);
-        }
-    }
-
     private async submitJobV1(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
         const param: IJobParam | undefined = await this.prepareJobParam(input);
         if (!param) {
@@ -511,6 +471,82 @@ export class PAIJobManager extends Singleton {
                 open
             ).then(async res => {
                 const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username, param.config.jobName);
+                if (res === open) {
+                    await Util.openExternally(url);
+                }
+            });
+        } catch (e) {
+            throw new Error(e.status ? `${e.status}: ${e.response.body.message}` : e);
+        }
+    }
+
+    private async submitJobV2(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
+        const config: IPAIJobConfigV2 = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
+        let cluster: IPAICluster;
+
+        if (input.clusterIndex) {
+            const clusterManager: ClusterManager = await getSingleton(ClusterManager);
+            cluster = clusterManager.allConfigurations[input.clusterIndex];
+        } else {
+            cluster = await this.pickCluster();
+        }
+
+        // add job name suffix
+        const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
+        const generateJobName: boolean | undefined = settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED);
+
+        if (generateJobName) {
+            config.name = `${config.name}_${uuid().substring(0, 8)}`;
+        } else {
+            try {
+                await request.get(PAIRestUri.jobDetail(cluster, cluster.username, config.name), {
+                    headers: { Authorization: `Bearer ${await this.getToken(cluster)}` },
+                    timeout: PAIJobManager.TIMEOUT,
+                    json: true
+                });
+                // job exists
+                const ENABLE_GENERATE_SUFFIX: string = __('job.submission.name-exist.enable');
+                const CANCEL: string = __('common.cancel');
+                const res: string | undefined = await vscode.window.showErrorMessage(
+                    __('job.submission.name-exist'),
+                    ENABLE_GENERATE_SUFFIX,
+                    CANCEL
+                );
+                if (res === ENABLE_GENERATE_SUFFIX) {
+                    await vscode.workspace.getConfiguration(SETTING_SECTION_JOB).update(SETTING_JOB_GENERATEJOBNAME_ENABLED, true);
+                    config.name = `${config.name}_${uuid().substring(0, 8)}`;
+                } else {
+                    // cancel
+                    return;
+                }
+            } catch (e) {
+                if (e.response.body.code === 'NoJobError') {
+                    // pass
+                } else {
+                    throw new Error(e.status ? `${e.status}: ${e.response.body.message}` : e);
+                }
+            }
+        }
+
+        statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
+        try {
+            await request.post(
+                PAIRestUri.jobsV2(cluster),
+                {
+                    headers: {
+                        Authorization: `Bearer ${await this.getToken(cluster)}`,
+                        'Content-Type': 'text/yaml'
+                    },
+                    body: yaml.safeDump(config),
+                    timeout: PAIJobManager.TIMEOUT
+                });
+            void (await getSingleton(RecentJobManager)).enqueueRecentJobs(cluster, config.name);
+            const open: string = __('job.submission.success.open');
+            void vscode.window.showInformationMessage(
+                __('job.submission.success'),
+                open
+            ).then(async res => {
+                const url: string = await PAIWebPortalUri.jobDetail(cluster!, cluster!.username, config.name);
                 if (res === open) {
                     await Util.openExternally(url);
                 }
