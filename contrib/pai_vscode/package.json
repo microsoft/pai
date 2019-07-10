@@ -56,8 +56,13 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.cluster.job.create-yaml-config",
-                "title": "%paiext.cluster.job.create-yaml-config%",
+                "command": "paiext.cluster.job.create-config-v1",
+                "title": "%paiext.cluster.job.create-config-v1%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.cluster.job.create-config-v2",
+                "title": "%paiext.cluster.job.create-config-v2%",
                 "category": "PAI"
             },
             {
@@ -259,11 +264,11 @@
             ],
             "explorer/context": [
                 {
-                    "command": "paiext.cluster.job.create-config",
+                    "command": "paiext.cluster.job.create-config-v1",
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
-                    "command": "paiext.cluster.job.create-yaml-config",
+                    "command": "paiext.cluster.job.create-config-v2",
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
@@ -289,11 +294,11 @@
             ],
             "editor/context": [
                 {
-                    "command": "paiext.cluster.job.create-config",
+                    "command": "paiext.cluster.job.create-config-v1",
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
-                    "command": "paiext.cluster.job.create-yaml-config",
+                    "command": "paiext.cluster.job.create-config-v2",
                     "when": "resourceLangId =~ /(python)|(cntk)/ && resourceScheme == file"
                 },
                 {
