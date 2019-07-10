@@ -38,7 +38,7 @@ import { Util } from '../common/util';
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
-import { IPAICluster, IPAIJobConfig, IPAITaskRole, IPAIYamlJobConfig } from './paiInterface';
+import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './paiInterface';
 
 import opn = require('opn'); // tslint:disable-line
 import unixify = require('unixify'); // tslint:disable-line
@@ -53,7 +53,7 @@ interface ITokenItem {
 }
 
 interface IJobParam {
-    config: IPAIJobConfig;
+    config: IPAIJobConfigV1;
     cluster?: IPAICluster;
     workspace: string;
     upload?: {
@@ -75,7 +75,7 @@ interface IJobInput {
 export class PAIJobManager extends Singleton {
     private static readonly TIMEOUT: number = 60 * 1000;
     private static readonly SIMULATION_DOCKERFILE_FOLDER: string = '.pai_simulator';
-    private static readonly propertiesToBeReplaced: (keyof IPAIJobConfig)[] = [
+    private static readonly propertiesToBeReplaced: (keyof IPAIJobConfigV1)[] = [
         'codeDir',
         'outputDir',
         'dataDir',
@@ -159,7 +159,7 @@ export class PAIJobManager extends Singleton {
 
     public static async generateJobConfigV1(script?: string): Promise<void> {
         let defaultSaveDir: string;
-        let config: IPAIJobConfig | undefined;
+        let config: IPAIJobConfigV1 | undefined;
         if (!script) {
             const folders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
             let parent: string = os.homedir();
@@ -264,7 +264,7 @@ export class PAIJobManager extends Singleton {
         const jobName: string = script ? path.basename(script, path.extname(script)) : 'new_job';
         const defaultSaveDir: string = path.join(parent, `${jobName}.pai.yaml`);
 
-        const config: IPAIYamlJobConfig = {
+        const config: IPAIJobConfigV2 = {
             protocolVersion: 2,
             name: jobName,
             type: 'job',
@@ -355,7 +355,7 @@ export class PAIJobManager extends Singleton {
         return vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
     }
 
-    private static replaceVariables({ cluster, config }: IJobParam): IPAIJobConfig {
+    private static replaceVariables({ cluster, config }: IJobParam): IPAIJobConfigV1 {
         // Replace environment variable
         function replaceVariable(x: string): string {
             return x.replace('$PAI_JOB_NAME', config.jobName)
@@ -400,7 +400,7 @@ export class PAIJobManager extends Singleton {
     }
 
     private async submitJobV2(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
-        const config: IPAIYamlJobConfig = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
+        const config: IPAIJobConfigV2 = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
 
         let cluster: IPAICluster;
 
@@ -711,7 +711,11 @@ export class PAIJobManager extends Singleton {
     private async prepareJobParam({ jobConfigPath, clusterIndex }: IJobInput): Promise<IJobParam | undefined> {
         const result: Partial<IJobParam> = {};
         // 1. job config
-        const config: IPAIJobConfig = JSONC.parse(await fs.readFile(jobConfigPath!, 'utf8'));
+        if (jobConfigPath!.toLowerCase().endsWith('yaml') || jobConfigPath!.toLowerCase().endsWith('yml')) {
+            Util.err('job.prepare.config.yaml-not-support');
+            return undefined;
+        }
+        const config: IPAIJobConfigV1 = JSONC.parse(await fs.readFile(jobConfigPath!, 'utf8'));
         if (isNil(config)) {
             Util.err('job.prepare.config.invalid');
         }

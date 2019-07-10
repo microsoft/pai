@@ -26,7 +26,7 @@ export interface IPAITaskRole {
     command: string;
 }
 
-export interface IPAIJobConfig {
+export interface IPAIJobConfigV1 {
     jobName: string;
     image: string;
     dataDir?: string;
@@ -53,7 +53,7 @@ export interface IPAIJobInfo {
 /**
  * OpenPAI Job Protocol.
  */
-export interface IPAIYamlJobConfig {
+export interface IPAIJobConfigV2 {
     /** Protocol version, current version is 2. */
     protocolVersion: string | number;
     name: string;
