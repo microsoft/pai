@@ -37,4 +37,4 @@ pathofusllocalbin="/usr/local/bin"
     mkdir -p /usr/local/bin
 }
 
-mv ./kubectl /usr/local/bin/kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
