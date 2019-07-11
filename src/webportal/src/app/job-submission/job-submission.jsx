@@ -42,7 +42,7 @@ import {getFormClassNames} from './components/form-style';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
-import {fetchJobConfig, listVirtualClusters} from './utils/conn';
+import {fetchJobConfig, listUserVirtualClusters} from './utils/conn';
 import {getJobComponentsFromConfig} from './utils/utils';
 import {TaskRolesManager} from './utils/task-roles-manager';
 import {initTheme} from '../components/theme';
@@ -69,6 +69,7 @@ const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
 
+const loginUser = cookies.get('user');
 
 function getChecksum(str) {
   let res = 0;
@@ -102,7 +103,7 @@ const JobSubmission = () => {
   const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
   const [jobInformation, setJobInformation] = useState(
     new JobBasicInfo({
-      name: `${cookies.get('user')}_${Date.now()}`,
+      name: `${loginUser}_${Date.now()}`,
       virtualCluster: 'default',
     }),
   );
@@ -224,9 +225,9 @@ const JobSubmission = () => {
   );
 
   useEffect(() => {
-    listVirtualClusters()
+    listUserVirtualClusters(loginUser)
       .then((virtualClusters) => {
-        setVcNames(Object.keys(virtualClusters));
+        setVcNames(virtualClusters);
       })
       .catch(alert);
   }, []);
