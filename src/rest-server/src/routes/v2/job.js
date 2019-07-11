@@ -39,7 +39,7 @@ router.route('/:frameworkName')
   /** GET /api/v2/jobs/:frameworkName - Get job */
   .get(controller.get);
 
-router.route('/:jobName/executionType')
+router.route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
   .put(token.check, controller.execute);
 

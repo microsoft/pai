@@ -60,7 +60,7 @@ const execute = asyncHandler(async (req, res) => {
   const userName = req.user.username;
   const admin = req.user.admin;
   const data = await job.get(req.params.frameworkName);
-  if ((data.metadata.labels && data.metadata.labels.userName === userName) || admin) {
+  if ((data.jobStatus.username === userName) || admin) {
     await job.execute(req.params.frameworkName, req.body.value);
     res.status(status('Accepted')).json({
       status: status('Accepted'),
