@@ -43,7 +43,7 @@ function prepare_ssh()
 
 function prepare_job_ssh()
 {
-# Job ssh files are mounted to /etc/ssh-secret, can get keys using /etc/ssh-secret/ssh-pub and /etc/ssh-secret/ssh-pri  
+# Job ssh files are mounted to /usr/local/pai/ssh-secret.  
 # Please refer to https://kubernetes.io/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys
   localPublicKeyPath=/etc/ssh-secret/ssh-publickey
   localPrivateKeyPath=/etc/ssh-secret/ssh-privatekey
@@ -73,6 +73,12 @@ function start_ssh()
     "[INFO]" "start ssh service"
   service ssh restart
 }
+
+# Try to install openssh if sshd is not found 
+if [ ! -f /usr/sbin/sshd ] ; then
+  apt-get update
+  apt-get install -y openssh-client openssh-server
+fi
 
 
 if [ -f /usr/sbin/sshd ] ; then

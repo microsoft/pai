@@ -258,7 +258,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 {
                   name: 'job-ssh-secret-volume',
                   readOnly: true,
-                  mountPath: '/etc/ssh-secret',
+                  mountPath: '/usr/local/pai/ssh-secret',
                 },
               ],
             },
