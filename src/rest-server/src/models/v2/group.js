@@ -413,7 +413,7 @@ const updateUserGroupAndVirtualCluster = async () => {
   }
 };
 
-const groupTypeVCCheck = async() => {
+const groupTypeVCCheck = async () => {
   try {
     const groupInfoList = await getAllGroup();
     const vcList = await vcModel.prototype.getVcListAsyc();
@@ -421,7 +421,7 @@ const groupTypeVCCheck = async() => {
       if (groupItem.extension.groupType && groupItem.extension.groupType === 'vc') {
         if (!vcList || !(groupItem.groupname in vcList)) {
           deleteGroup(groupItem.groupname);
-          logger.info(`Delete vc type group [${groupItem.groupname}]. Can't find it in yarn's vc list.`)
+          logger.info(`Delete vc type group [${groupItem.groupname}]. Can't find it in yarn's vc list.`);
         }
       }
     }
