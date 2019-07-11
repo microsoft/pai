@@ -269,6 +269,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                       disabled={isAdmin ? true : false}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
+                      style={{maxWidth: '248px'}}
                     />
                   </td>
                 </tr>

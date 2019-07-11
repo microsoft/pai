@@ -112,6 +112,7 @@ export default function BatchVirtualClustersEditor({isOpen = false, hide}) {
                       options={vcsOptions}
                       placeholder='Select an option'
                       onChange={handleVCsChanged}
+                      style={{maxWidth: '248px'}}
                     />
                   </td>
                 </tr>
