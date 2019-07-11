@@ -90,9 +90,15 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 
 Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
 
-### Make Use of Team Storage (TBD)
+### Make Use of Team-wise Storage
 
-In the Data section, you can configure your team storage settings as follows.
+OpenPAI admin can define Team-wise Storage through [Team-wise Storage Plugin](../../contrib/storage_plugin/README.MD). It can support multiple NAS file systems like NFS, Samba, HDFS, Azurefile and Azureblob.
+
+Once your OpenPAI admin has set up Team-wise storage for your group, you can find your Team-wise storage settings in Data section. Check team-wise configs to mount NAS as local path in job container.
+
+<img src="imgs/teamwise_data.png" width="50%" height="50%" alt="teamwise_data" />
+
+Note: Using Team-wise storage will inject code to commands with comments. Please do not modify the auto-generated codes.
 
 ### Additional Data Sources
 
