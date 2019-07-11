@@ -56,6 +56,25 @@ const update = asyncHandler(async (req, res) => {
   });
 });
 
+const execute = asyncHandler(async (req, res) => {
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  const data = await job.get(req.params.frameworkName);
+  if ((data.metadata.labels && data.metadata.labels.userName === userName) || admin) {
+    await job.execute(req.params.frameworkName, req.body.value);
+    res.status(status('Accepted')).json({
+      status: status('Accepted'),
+      message: `Execute job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to execute job ${req.params.frameworkName}.`
+    );
+  }
+});
+
 const getConfig = asyncHandler(async (req, res) => {
   try {
     const data = await job.getConfig(req.params.frameworkName);
@@ -81,6 +100,7 @@ module.exports = {
   list,
   get,
   update,
+  execute,
   getConfig,
   getSshInfo,
 };
