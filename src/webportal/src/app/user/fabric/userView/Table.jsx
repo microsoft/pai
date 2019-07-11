@@ -17,7 +17,7 @@
 
 import React, {useContext, useMemo} from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles} from 'office-ui-fabric-react';
+import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles, TooltipHost} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -28,7 +28,7 @@ import Context from './Context';
 import Ordering from './Ordering';
 
 export default function Table() {
-  const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser} = useContext(Context);
+  const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser, getSelectedUsers} = useContext(Context);
   /**
    * @type {import('office-ui-fabric-react').Selection}
    */
@@ -136,19 +136,26 @@ export default function Table() {
         event.stopPropagation();
         editUser(user);
       }
+
+      const disabled = getSelectedUsers().length > 1;
+      const disabledTip = disabled ? 'Multi-user simultaneous editing is not supported' : '';
+
       return (
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
-          <DefaultButton
-            onClick={onClick}
-            styles={{
-              root: {backgroundColor: '#e5e5e5'},
-              rootFocused: {backgroundColor: '#e5e5e5'},
-              rootDisabled: {backgroundColor: '#eeeeee'},
-              rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-            }}
-          >
-            Edit
-          </DefaultButton>
+          <TooltipHost content={disabledTip}>
+            <DefaultButton
+              disabled={disabled}
+              onClick={onClick}
+              styles={{
+                root: {backgroundColor: '#e5e5e5'},
+                rootFocused: {backgroundColor: '#e5e5e5'},
+                rootDisabled: {backgroundColor: '#eeeeee'},
+                rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+              }}
+            >
+              Edit
+            </DefaultButton>
+          </TooltipHost>
         </div>
       );
     },
