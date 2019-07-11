@@ -62,7 +62,7 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allVCs, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, importCSV, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
+  const {allVCs, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, createBulkUsers, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
 
   const transparentStyles = {root: {background: 'transparent'}};
 
@@ -82,14 +82,14 @@ function TopBar() {
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  const btnImportCSV = {
-    key: 'importCSV',
-    name: 'Import CSV',
+  const btnCreateBulkUsers = {
+    key: 'createBulkUsers',
+    name: 'Create Bulk Users',
     buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'Stack',
     },
-    onClick: importCSV,
+    onClick: createBulkUsers,
   };
 
   /**
@@ -367,7 +367,7 @@ function TopBar() {
     }
   } else {
     topBarItems.push(btnAddUser);
-    topBarItems.push(btnImportCSV);
+    topBarItems.push(btnCreateBulkUsers);
   }
   topBarItems.push(btnRefresh);
   const topBarFarItems = [btnFilters];
