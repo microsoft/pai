@@ -36,22 +36,25 @@ Follow to submit a very simple job like hello-world during learning a program la
    ![hello_world1](imgs/submit_hello_world_1.png)
 
 3. Fill in the name of your virtual cluster, and give a name of your job and your task role. Then copy the following commands into the command box.
-```
-apt update
-apt install -y git
-git clone https://github.com/tensorflow/models
-cd models/research/slim
-python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data && python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
-```
-Note: Please **Do Not** use # for comments or use \ for line continuation. These symbols may break the syntax and will be supported in the future.
+   ```
+   apt update
+   apt install -y git
+   git clone https://github.com/tensorflow/models
+   cd models/research/slim
+   python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data
+   python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
+   ```
+   
+   Note: Please **Do Not** use # for comments or use \ for line continuation. These symbols may break the syntax and will be supported in the future.
 
-![hello_world2](imgs/submit_hello_world_2.png)
+   ![hello_world2](imgs/submit_hello_world_2.png)
 
 4. Specify the resource you need. You can only set the GPU number in default. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
 5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "ufoym/deepo:tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the official Docker Hub. If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
 
-![hello_world3](imgs/submit_hello_world_3.png)
+   <img src="imgs/submit_hello_world_3.png" width="60%" height="60%" alt="hello_world3" />
+
 
 6. Click **Submit** to kick off your first OpenPAI job!
 
@@ -99,7 +102,7 @@ In the Data section, you can configure your team storage settings as follows.
 
 Besides Team Storage, OpenPAI also supports local files, http/https files, git repository, and PAI HDFS as additional data sources. Click the button **Add data source** to choose one kind of data source and fill in the path information in the text box. For example, the following setting will copy the HDFS folder "/foo/bar" to "/pai_data/mydata". You can access the folder with "/pai_data/mydata/bar" in your commands.
 
-![transfer_data1](imgs/transfer_data_1.png)
+<img src="imgs/transfer_data_1.png" width="50%" height="50%" alt="transfer_data1" />
 
 Note: We use "wget" to fetch data from the http/https source, and "git clone" for git repository. Please make sure these commands are available in your docker image, otherwise the data transfer may fail.
 
