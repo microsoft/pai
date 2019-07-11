@@ -71,7 +71,7 @@ export class DockerInfo {
     return removeEmptyProperties({
       type: 'dockerimage',
       auth: prunedAuth,
-      uri: this.uri,
+      uri: this.uri.trim(),
       name: this.name,
     });
   }
