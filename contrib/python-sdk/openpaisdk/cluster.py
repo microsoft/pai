@@ -1,7 +1,6 @@
-import json
 import os
+import re
 import time
-import yaml
 from copy import deepcopy
 
 from openpaisdk import __cluster_config_file__, __logger__
@@ -112,6 +111,11 @@ class ClusterList:
         return ClusterClient(**self.select(alias))
 
 
+states_successful, states_failed, states_unfinished = ["SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
+states_completed = states_successful + states_failed
+states_valid = states_completed + states_unfinished
+
+
 class ClusterClient:
     """A wrapper of cluster to access the REST APIs"""
 
@@ -214,9 +218,6 @@ class ClusterClient:
             )
 
     def wait(self, jobs: list, t_sleep: float=10, timeout: float=3600, exit_states: list=None):
-        states_successful, states_failed, states_unfinished = ["SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
-        states_completed = states_successful + states_failed
-        states_valid = states_completed + states_unfinished
         exit_states = states_completed if not exit_states else exit_states
         assert isinstance(jobs, list), "input should be a list of job names"
 
@@ -232,3 +233,21 @@ class ClusterClient:
                 print('.', end='', flush=True)
         print('.', flush=True)
         return states
+
+    def logs(self, job_name: str, task_role: str='main', index: int=0, log_type: str='stdout'):
+        assert log_type in ["stdout", "stderr"], "now only support stdout and stderr, not %s" % log_type
+        try:
+            self.wait([job_name], exit_states=states_completed+states_unfinished)
+            info = self.jobs(job_name)
+            container = info['taskRoles'][task_role]['taskStatuses'][index]
+            container_id = container['containerId']
+            if info['jobStatus']['state'] in states_completed:
+                path_fmt = "http://{ip}:8188/ws/v1/applicationhistory/containers/{container_id}/logs/{stream}?redirected_from_node=true"
+                ip = re.search('://([\d.]+)/yarn', container['containerLog']).group(1)
+            else:
+                ip = container['containerIp']
+                path_fmt = "http://{ip}:8042/ws/v1/node/containers/{container_id}/logs/{stream}"
+            path = path_fmt.format(ip=ip, container_id=container_id, stream=log_type)
+            return get_response(path, method="GET").content
+        except:
+            return None

@@ -2,11 +2,11 @@ import argparse
 import os
 import sys
 from copy import deepcopy
-from openpaisdk import __logger__, __cluster_config_file__, __local_default_file__
+from openpaisdk import __logger__, __cluster_config_file__
 from openpaisdk.cli_arguments import cli_add_arguments, append_options_to_list
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
-from openpaisdk.io_utils import from_file, to_file, get_defaults
+from openpaisdk.io_utils import get_defaults, update_default
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested, run_command
 from uuid import uuid4 as randstr
@@ -21,33 +21,24 @@ def extract_args(args: argparse.Namespace, ignore_list: list=["scene", "action"]
 class ActionFactoryForDefault(ActionFactory):
 
     def define_arguments_set(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(parser, ['--is-global'])
         parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
     def do_action_set(self, args):
-        defaults = get_defaults()
         if not args.contents:
-            return defaults
+            return get_defaults(global_only=args.is_global)
         for kv in args.contents:
             key, value = kv.split('=')
             assert key is not None and value is not None, "must specify a key=value pair"
-            defaults[key] = value
-        to_file(defaults, __local_default_file__)
-        return defaults
+            update_default(key, value, is_global=args.is_global)
 
     def define_arguments_unset(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(parser, ['--is-global'])
         parser.add_argument('variables', nargs='+', help='(variable=value) pair to be set as default')
 
     def do_action_unset(self, args):
-        result = []
-        defaults = get_defaults()
         for key in args.variables:
-            if key not in defaults:
-                result.append("cannot unset default variable %s because it doesn't exist" % key)
-                continue
-            value = defaults.pop(key, None)
-            result.append("default variable {} (previously {}) deleted".format(key, value))
-        to_file(defaults, __local_default_file__)
-        return result
+            update_default(key, is_global=args.is_global, to_delete=True)
 
 
 class ActionFactoryForCluster(ActionFactory):
@@ -88,13 +79,13 @@ class ActionFactoryForCluster(ActionFactory):
         return None
 
     def define_arguments_select(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, ['cluster_alias'])
+        cli_add_arguments(parser, ['--is-global', 'cluster_alias'])
 
     def check_arguments_select(self, args):
         assert args.cluster_alias, "must specify a valid cluster-alias"
 
     def do_action_select(self, args):
-        return Engine().process(['set', 'cluster-alias=%s' % args.cluster_alias])
+        update_default('cluster-alias', args.cluster_alias, is_global=args.is_global)
 
     def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['--cluster-alias', '--default', '--storage-alias', '--web-hdfs-uri', '--user'])
@@ -286,10 +277,8 @@ __cli_structure__ = {
         "factory": ActionFactoryForJob,
         "actions": {
             "list": "list existing jobs",
-            "new": "create a job config cache for submitting",
-            "preview": "preview job config",
             "submit": "submit the job from a config file",
-            "sub": "shortcut of submitting a job in one line",
+            "sub": "generate a config file from commands, and then `submit` it",
             "notebook": "run a jupyter notebook remotely",
         }
     },
