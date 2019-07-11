@@ -411,7 +411,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           default: "$TB_ROOT",
         },
       };
-      debugger;
       if (protocol !== null) {
         if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
           if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
@@ -741,7 +740,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
 
   private renderTensorBoardLogPath = () => {
     if (this.state.enableTensorBoard) {
-      const logPathList: Array<string> = [];
+      const logPathList: string[] = [];
       const logDirectories = this.state.tensorBoardConfig.logDirectories as IParameterObj;
       Object.keys(logDirectories).forEach((key) => {
         logPathList.push(`${key}:${logDirectories[key]}`);
@@ -849,7 +848,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private addTensorBoardTaskRole = async () => {
-    let protocol = this.state.protocol;
+    const protocol = this.state.protocol;
     const tensorBoardConfig = this.state.tensorBoardConfig;
     const tensorBoardName = `TensorBoard_${tensorBoardConfig.randomStr}`;
     const tensorBoardImage = `tensorBoardImage_${tensorBoardConfig.randomStr}`;
@@ -866,11 +865,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
         version: "1.0 - r1.4",
         contributor: "OpenPAI",
         uri: "openpai/pai.example.tensorflow",
-      }]
+      }],
     });
 
     const portList = ` --port=$PAI_CONTAINER_HOST_${tensorBoardPort}_PORT_LIST`;
-    const logPathList: Array<string> = [];
+    const logPathList: string[] = [];
     const logDirectories = tensorBoardConfig.logDirectories as IParameterObj;
     Object.keys(logDirectories).forEach((key) => {
       logPathList.push(`${key}:${logDirectories[key]}`);
@@ -913,7 +912,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const tensorBoardImage = `tensorBoardImage_${randomStr}`;
     if (Object.prototype.hasOwnProperty.call(protocol, "taskRoles")) {
       delete protocol.taskRoles[tensorBoardName];
-      debugger;
       Object.keys(protocol.taskRoles).forEach((key) => {
         const startIndex = protocol.taskRoles[key].commands.indexOf("`#TENSORBOARD_STORAGE_START`");
         const endIndex = protocol.taskRoles[key].commands.indexOf("`#TENSORBOARD_STORAGE_END`");
@@ -956,18 +954,18 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           if (storage.hostIP === "" || storage.port === "" || storage.remotePath === "") {
             alert("Please complete the external storage config!")
             return;
-          }
+          };
           break;
         case "NFS":
           if (storage.hostIP === "" || storage.remotePath === "") {
             alert("Please complete the external storage config!")
             return;
-          }
+          };
           break;
         default:
           alert("Unsupport external storage type!")
           return;
-      }
+      };
       await this.addTensorBoardConfig();
     }
     const protocol = yaml.safeLoad(this.state.protocolYAML);
