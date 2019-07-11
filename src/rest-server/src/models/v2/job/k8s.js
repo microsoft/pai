@@ -435,7 +435,7 @@ const execute = async (frameworkName, executionType) => {
       },
       data: {
         spec: {
-          executionType,
+          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
         },
       },
     });
