@@ -20,22 +20,75 @@
 SSHD_BIN=/usr/sbin/sshd
 CONFIG_DIR=/usr/local/pai/sshd
 
+function prepare_ssh()
+{
+  mkdir /root/.ssh
+  touch /root/.ssh/authorized_keys
+  chmod 600 /root/.ssh/authorized_keys
+
+  mkdir -p /var/run/sshd
+
+# Set sshd config
+  sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+  sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
+  echo "PermitUserEnvironment yes" >> /etc/ssh/sshd_config
+
+  sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+  echo "sshd:ALL" >> /etc/hosts.allow
+
+# Set user environment
+  env > /root/.ssh/environment
+}
+
+function prepare_job_ssh()
+{
+# Job ssh files are mounted to /usr/local/pai/ssh-secret.  
+# Please refer to https://kubernetes.io/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys
+  localPublicKeyPath=/etc/ssh-secret/ssh-publickey
+  localPrivateKeyPath=/etc/ssh-secret/ssh-privatekey
+
+  if [ -f $localPublicKeyPath ] && [ -f $localPrivateKeyPath ] ; then
+    cat $localPublicKeyPath >> /root/.ssh/authorized_keys
+
+    cp $localPrivateKeyPath /root/.ssh/job_ssh_key
+    chmod 400 /root/.ssh/job_ssh_key
+  else
+    echo "no job ssh keys found" >&2
+  fi
+}
+
+function prepare_user_ssh()
+{
+  if [ -z "$PAI_SSH_PUB_KEY" ] ; then
+    echo "no user ssh key provided" >&2
+  else
+    echo "$PAI_SSH_PUB_KEY" >> /root/.ssh/authorized_keys
+  fi
+}
+
+function start_ssh()
+{
+  printf "%s %s\n" \  
+    "[INFO]" "start ssh service"
+  service ssh restart
+}
+
+# Try to install openssh if sshd is not found 
+if [ ! -f /usr/sbin/sshd ] ; then
+  apt-get update
+  apt-get install -y openssh-client openssh-server
+fi
+
+
 if [ -f /usr/sbin/sshd ] ; then
-    if [ -z "$PAI_SSH_PUB_KEY" -o -z "$PAI_CONTAINER_SSH_PORT" ] ; then
-        echo "no private key or port provided" >&2
+    if [ -z "$PAI_CONTAINER_SSH_PORT" ] ; then
+        echo "no ssh port provided" >&2
     else
-        mkdir -p $CONFIG_DIR
-
-        mkdir /root/.ssh
-        mkdir -p /var/run/sshd
-
-        echo "$PAI_SSH_PUB_KEY" > /root/.ssh/authorized_keys
-        chmod 600 /root/.ssh/authorized_keys
-
-        env > /root/.ssh/environment
-        echo "PermitUserEnvironment yes" >> ${CONFIG_DIR}/config
-        echo "Port ${PAI_CONTAINER_SSH_PORT}" >> ${CONFIG_DIR}/config
-        exec $SSHD_BIN -f ${CONFIG_DIR}/config
+        prepare_ssh
+        prepare_job_ssh
+        prepare_user_ssh
+        start_ssh
     fi
 else
     echo "no sshd binary found" >&2
