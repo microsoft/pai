@@ -267,7 +267,7 @@ class YarnOperator(BaseOperator):
     def add_dedicated_queue(self, label_name):
 
         raw_dict = {
-            "add-queue": {
+            "update-queue": {
                 "queue-name": "root.{}".format(label_name),
                 "params": [
                     {
@@ -341,11 +341,21 @@ class YarnOperator(BaseOperator):
             time.sleep(5)
 
         raw_dict = {
-            "remove-queue": "root.{}".format(label_name),
+            # "remove-queue": "root.{}".format(label_name),
             "global-updates": [
                 {
-                    "key": "yarn.scheduler.capacity.root.accessible-node-labels.{vc_name}.capacity".format(vc_name=label_name),
+                    "key": "yarn.scheduler.capacity.root.accessible-node-labels.{}.capacity".format(label_name),
                     "value": 0
+                },
+                {
+                    "key": "yarn.scheduler.capacity.root.{vc_name}.accessible-node-labels.{vc_name}.capacity".format(
+                        vc_name=label_name),
+                    "value": 0
+                },
+                {
+                    "key": "yarn.scheduler.capacity.root.{vc_name}.default-node-label-expression".format(
+                        vc_name=label_name),
+                    "value": None
                 }
             ]
         }

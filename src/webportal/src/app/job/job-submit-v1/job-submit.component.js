@@ -88,7 +88,7 @@ const submitJob = (jobConfig) => {
     const user = cookies.get('user');
     loading.showLoading();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/user/${user}/jobs/${jobConfig.jobName}`,
+      url: `${webportalConfig.restServerUri}/api/v2/user/${user}/jobs/${jobConfig.jobName}`,
       data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -199,7 +199,7 @@ $(document).ready(() => {
       if (type != null && username != null && jobname != null) {
         const url = username==''
           ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
-          : `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+          : `${webportalConfig.restServerUri}/api/v2/user/${username}/jobs/${jobname}/config`;
         $.ajax({
           url: url,
           type: 'GET',

@@ -25,7 +25,7 @@ import {StatusBadge} from '../../../components/status-badge';
 import TableTextField from './TableTextField';
 import Context from './Context';
 import {toBool, isFinished} from './utils';
-import {checkUsername, checkPassword} from '../utils';
+import {checkUsername, checkPassword, checkEmail} from '../utils';
 
 export default function Table() {
   const {userInfos, virtualClusters, removeRow, allUsers} = useContext(Context);
@@ -95,6 +95,37 @@ export default function Table() {
     },
   };
 
+  /**
+   * @type {import('office-ui-fabric-react').IColumn}
+   */
+  const emailColumn = {
+    key: 'email',
+    minWidth: 150,
+    maxWidth: 300,
+    name: 'Email',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender: (userInfo) => {
+      const {email} = userInfo;
+      const getErrorMessage = (value) => {
+        return checkEmail(value);
+      };
+      return (
+        <TableTextField
+          readOnly={isFinished(userInfo)}
+          defaultValue={email}
+          onChange={(_event, newValue) => {
+            userInfo.email = newValue;
+          }}
+          onGetErrorMessage={getErrorMessage}
+        />
+      );
+    },
+  };
+
+  emailColumn.onRender.displayName = 'onRenderEmailColumn';
+
   const dropdownTitleStyle = [t.bgWhite, {border: '1px solid #a6a6a6'}];
 
   /**
@@ -156,22 +187,6 @@ export default function Table() {
       const options = virtualClusters.map((vc) => {
         return {key: vc, text: vc};
       });
-      const parseVirtualClusterString = (virtualClusterString) => {
-        if (virtualClusterString) {
-          return virtualClusterString.split(',').map((vc) => vc.trim()).sort();
-        } else {
-          return [];
-        }
-      };
-      let vcs = [];
-      const parsedVCs = parseVirtualClusterString(userInfo['virtual cluster']);
-      parsedVCs.forEach((vc) => {
-        if (vc) {
-          if (virtualClusters.indexOf(vc) != -1) {
-            vcs.push(vc);
-          }
-        }
-      });
       const finished = isFinished(userInfo);
       return (
         <Dropdown
@@ -179,23 +194,21 @@ export default function Table() {
           styles={{title: dropdownTitleStyle}}
           multiSelect
           options={options}
-          defaultSelectedKeys={vcs}
+          defaultSelectedKeys={userInfo.vcs}
           onChange={(_event, option, _index) => {
             if (option.selected) {
-              vcs.push(option.text);
+              userInfo.vcs.push(option.text);
             } else {
-              vcs.splice(vcs.indexOf(option.text), 1);
+              userInfo.vcs.splice(userInfo.vcs.indexOf(option.text), 1);
             }
-            userInfo['virtual cluster'] = vcs.join(',');
           }}
           onRenderTitle={(_options) => {
-            const displayVCs = parseVirtualClusterString(userInfo['virtual cluster']);
-            if (displayVCs.length == 0) {
+            if (userInfo.vcs.length == 0) {
               return null;
             } else {
-              let innerText = displayVCs[0];
-              if (displayVCs.length > 1) {
-                innerText = innerText + ` (+${displayVCs.length - 1})`;
+              let innerText = userInfo.vcs[0];
+              if (userInfo.vcs.length > 1) {
+                innerText = innerText + ` (+${userInfo.vcs.length - 1})`;
               }
               return <span className={t.black}>{innerText}</span>;
             }
@@ -204,6 +217,8 @@ export default function Table() {
       );
     },
   };
+
+  virtualClusterColumn.onRender.displayName = 'onRenderVirtualClusterColumn';
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -273,6 +288,7 @@ export default function Table() {
     usernameColumn,
     statusColumn,
     passwordColumn,
+    emailColumn,
     adminColumn,
     virtualClusterColumn,
     actionColumn,

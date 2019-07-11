@@ -43,7 +43,7 @@ export async function listJobs() {
 }
 
 export async function getUserInfo() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/user/${username}`, {
+  return fetchWrapper(`${config.restServerUri}/api/v2/user/${username}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

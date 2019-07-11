@@ -30,10 +30,22 @@ import {login} from './index/conn';
 import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
 import {checkToken} from '../user/user-auth/user-auth.component';
-
+import config from '../config/webportal.config';
 import t from 'tachyons-sass/tachyons.scss';
+import url from 'url';
 
 const loginTarget = '/home.html';
+
+if ( config.authnMethod === 'OIDC') {
+    const query = url.parse(window.location.href, true).query;
+    const expiration = 7;
+    if (query['token']) {
+        cookies.set('user', query.user, {expires: expiration});
+        cookies.set('token', query.token, {expires: expiration});
+        cookies.set('admin', query.admin, {expires: expiration});
+        cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
+    }
+}
 
 if (checkToken(false)) {
   window.location.replace(loginTarget);
@@ -46,24 +58,30 @@ const Index = () => {
   const [error, setError] = useState(null);
   const [lock, setLock] = useState(false);
   const onLogin = useCallback(
-    (username, password) => {
-      setLock(true);
-      void login(
-        username,
-        password
-      ).then(() => {
-        window.location.replace(loginTarget);
-      }).catch((e) => {
-        setError(e.message);
-      }).finally(() => {
-        setLock(false);
-      });
-    },
-    [],
+      (username, password) => {
+        setLock(true);
+        void login(
+            username,
+            password
+        ).then(() => {
+          window.location.replace(loginTarget);
+        }).catch((e) => {
+          setError(e.message);
+        }).finally(() => {
+          setLock(false);
+        });
+      },
+      [],
   );
 
   const showLoginModal = useCallback(
-    () => setLoginModal(true),
+    () => {
+      if (config.authnMethod === 'basic') {
+        setLoginModal(true);
+      } else {
+        location.href = config.restServerUri + '/api/v1/authn/oidc/login?redirect_uri=' + encodeURIComponent(config.pylonAddress+'/index.html')+ '&callback=' + encodeURIComponent(location.href);
+      }
+    },
     [],
   );
 
@@ -76,32 +94,32 @@ const Index = () => {
   );
 
   return (
-    <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn, FontClassNames.medium)}>
-      {/* top */}
-      <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
-        <div className={c(FontClassNames.large, t.white)}>
-          Platform for AI
+      <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn, FontClassNames.medium)}>
+        {/* top */}
+        <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
+          <div className={c(FontClassNames.large, t.white)}>
+            Platform for AI
+          </div>
+          <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)} onClick={showLoginModal}>
+            Sign in
+          </div>
         </div>
-        <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)} onClick={showLoginModal}>
-          Sign in
+        {/* content */}
+        <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
+          {/* jumbotron */}
+          <Jumbotron showLoginModal={showLoginModal} />
+          {/* bottom */}
+          <Bottom />
         </div>
+        {/* login modal */}
+        <LoginModal
+            isOpen={loginModal}
+            lock={lock}
+            error={error}
+            onDismiss={dismissLoginModal}
+            onLogin={onLogin}
+        />
       </div>
-      {/* content */}
-      <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
-        {/* jumbotron */}
-        <Jumbotron showLoginModal={showLoginModal} />
-        {/* bottom */}
-        <Bottom />
-      </div>
-      {/* login modal */}
-      <LoginModal
-        isOpen={loginModal}
-        lock={lock}
-        error={error}
-        onDismiss={dismissLoginModal}
-        onLogin={onLogin}
-      />
-    </div>
   );
 };
 

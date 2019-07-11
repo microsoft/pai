@@ -104,7 +104,7 @@ VirtualClusterItem.propTypes = {
 };
 
 const VirtualCluster = ({style, userInfo, virtualClusters}) => {
-  const vcNames = userInfo.virtualCluster.split(',').filter((name) => !isNil(virtualClusters[name]));
+  const vcNames = userInfo.virtualCluster.filter((name) => !isNil(virtualClusters[name]));
   const {spacing} = getTheme();
   return (
     <Card style={{paddingRight: spacing.m, ...style}}>

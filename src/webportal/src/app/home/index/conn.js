@@ -18,7 +18,7 @@
 import config from '../../config/webportal.config';
 
 export async function login(username, password, expires = 7) {
-  const res = await fetch(`${config.restServerUri}/api/v1/token`, {
+  const res = await fetch(`${config.restServerUri}/api/v1/authn/basic/login`, {
     method: 'POST',
     body: JSON.stringify({
       username,

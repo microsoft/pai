@@ -28,7 +28,7 @@ getTokenTemplate = JSON.stringify({
 const validToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
 
-describe('user token test: post /api/v1/token', () => {
+describe('user token test: post /api/v1/authn/basic/login', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -41,7 +41,8 @@ describe('user token test: post /api/v1/token', () => {
 
     // mock for case 1 username=tokentest
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/746f6b656e74657374')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
+      .twice()
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -49,16 +50,17 @@ describe('user token test: post /api/v1/token', () => {
             'name': '746f6b656e74657374',
         },
         'data': {
-            'admin': 'ZmFsc2U=',
             'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
             'username': 'dG9rZW50ZXN0',
-            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+            'grouplist': 'WyJhZG1pbkdyb3VwIl0=',
+            'extension': 'e30=',
+            'email': 'dGVzdEBwYWkuY29t'
         },
         'type': 'Opaque'
     });
 
     nock(apiServerRootUri)
-    .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+    .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
     .reply(404, {
       'kind': 'Status',
       'apiVersion': 'v1',
@@ -81,8 +83,9 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
+      .set('Host', 'example.test')
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
@@ -97,7 +100,7 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 2 (Negative): Should authenticate failed with wrong password', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': 'abcdef' })))
       .end((err, res) => {
@@ -110,7 +113,7 @@ describe('user token test: post /api/v1/token', () => {
 
   it('Case 3 (Negative): Should authenticate failed with non-exist user', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/token')
+      .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'nonexist', 'password': 'abcdef' })))
       .end((err, res) => {
