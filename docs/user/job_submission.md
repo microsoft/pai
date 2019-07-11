@@ -44,14 +44,14 @@ Follow to submit a very simple job like hello-world during learning a program la
    python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data
    python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
    ```
-   
+
    Note: Please **Do Not** use # for comments or use \ for line continuation. These symbols may break the syntax and will be supported in the future.
 
    ![hello_world2](imgs/submit_hello_world_2.png)
 
 4. Specify the resource you need. You can only set the GPU number in default. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "ufoym/deepo:tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the official Docker Hub. If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
+5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "ufoym/deepo:tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/). If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
 
    <img src="imgs/submit_hello_world_3.png" width="60%" height="60%" alt="hello_world3" />
 
