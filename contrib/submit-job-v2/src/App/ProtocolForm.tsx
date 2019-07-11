@@ -952,20 +952,20 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       switch (storage.type) {
         case "HDFS":
           if (storage.hostIP === "" || storage.port === "" || storage.remotePath === "") {
-            alert("Please complete the external storage config!")
+            alert("Please complete the external storage config!");
             return;
-          };
+          }
           break;
         case "NFS":
           if (storage.hostIP === "" || storage.remotePath === "") {
-            alert("Please complete the external storage config!")
+            alert("Please complete the external storage config!");
             return;
-          };
+          }
           break;
         default:
-          alert("Unsupport external storage type!")
+          alert("Unsupport external storage type!");
           return;
-      };
+      }
       await this.addTensorBoardConfig();
     }
     const protocol = yaml.safeLoad(this.state.protocolYAML);
