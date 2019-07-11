@@ -879,12 +879,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     if (!Object.prototype.hasOwnProperty.call(protocol, "taskRoles")) {
       protocol.taskRoles = {};
     }
-
+    let minSucceededInstances = Object.getOwnPropertyNames(protocol.taskRoles).length;
     protocol.taskRoles[tensorBoardName] = {
       instances: 1,
       completion: {
         minFailedInstances: 1,
-        minSucceededInstances: null,
+        minSucceededInstances: minSucceededInstances <= 0 ? null : minSucceededInstances,
       },
       taskRetryCount: 0,
       dockerImage: tensorBoardImage,
@@ -976,6 +976,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
 
     try {
+      debugger;
       const res = await fetch(`${this.props.api}/api/v2/jobs`, {
         body: yaml.safeDump(protocol),
         headers: {
