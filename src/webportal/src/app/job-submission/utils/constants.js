@@ -98,7 +98,10 @@ export const PROTOCOL_TOOLTIPS = {
   data:
     'Data section is used to generate pre-command that download/mount your data to specific path in container.',
 };
-export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar. Do not add comments in the command.'`;
+
+export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.
+
+All lines will be concatenated by "&&". So do not use characters like "#", "\\" in your command`;
 
 export const DOCKER_OPTIONS = [
   {
