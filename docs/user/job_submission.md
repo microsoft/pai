@@ -19,24 +19,25 @@
 
 # Submit Jobs on OpenPAI
 
-This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have IP address or domain name and an account of an OpenPAI cluster already. If there isn't an OpenPAI cluster yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+
+There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md), and [python sdk]. Here we use webportal to submit a hello world job.
 
 ## Submit a Hello World Job
 
-The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers.
+The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers. (TODO: the definition of job should be revised)
 
-Follow to submit a very simple job like hello-world during learning a program language. It trains a model, which is implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and doesn't copy model out. It helps getting started with OpenPAI. Next sections include more details to help on submitting real jobs.
+The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) include more details about this job config.
 
-**Note**: web portal is one of ways to submit jobs. It's the simplest way to begin, but's not most efficient way to submit and manage jobs. [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md) is recommended, as it provides best experience.
-
-1. Navigate to OpenPAI web portal. Input IP address or domain name of OpenPAI, which is from administrator of the OpenPAI cluster. Click *sign in* and input username, password, once login page shows.
+1. Login to OpenPAI web portal.
 
 2. Click **Submit Job** on the left pane and reach this page.
 
    ![hello_world1](imgs/submit_hello_world_1.png)
 
 3. Fill in the name of your virtual cluster, and give a name of your job and your task role. Then copy the following commands into the command box.
-   ```
+
+   ```bash
    apt update
    apt install -y git
    git clone https://github.com/tensorflow/models
@@ -45,25 +46,23 @@ Follow to submit a very simple job like hello-world during learning a program la
    python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
    ```
 
-   Note: Please **Do Not** use # for comments or use \ for line continuation. These symbols may break the syntax and will be supported in the future.
+   Note: Please **Do Not** use # for comments or use \ for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
    ![hello_world2](imgs/submit_hello_world_2.png)
 
-4. Specify the resource you need. You can only set the GPU number in default. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
+4. Specify the resources you need. By default only gpu number could be set. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
 5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "ufoym/deepo:tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/). If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
 
    <img src="imgs/submit_hello_world_3.png" width="60%" height="60%" alt="hello_world3" />
 
-
 6. Click **Submit** to kick off your first OpenPAI job!
 
 ## Learn the Hello World Job
 
-The Hello World job will download the CIFAR-10 dataset and train a simple model with 1,000 steps as it is specified in the commands. Here are some detailed explanations about several fields on the submission page:
+The Hello World job is set to download the CIFAR-10 dataset and train a simple model with 1,000 steps. Here are some detailed explanations about configs on the submission page:
 
 - **Job name** is the name of current job. It must be unique in each user account. A meaningful name helps manage jobs well.
-
 
 - **Task role name** defines names of different roles in a job.
 
@@ -75,22 +74,19 @@ The Hello World job will download the CIFAR-10 dataset and train a simple model 
 
 - **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, MB of memory, and the number of CPU cores.
 
-- **Command** is the command to run in this task role. It can be multiple lines. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress. If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
+- **Command** is the commands to run in this task role. It can be multiple lines. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress. If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
 
 - **Docker image**
 
-  [Docker](https://www.docker.com/why-docker) is a popular technology to provide virtual environments on a server. OpenPAI uses Docker to provide consistent and clean environments. With Docker, OpenPAI can serve multiple resource requests on the same server.
+  OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
 
-  The **Docker image** field is the identity of a Docker image, which is installed customized Python and system packages.
+  The hub.docker.com is a public Docker repository. And the [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. You can also set your own image from private repository by toggling custom button.
 
-  The hub.docker.com is a public Docker repository with a lot of Docker images. The [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. Administrator may set a private Docker repository.
-
-  If an appropriate Docker image isn't found, it's easy to [build a Docker image](../job_docker_env.md).
+  If an appropriate Docker image isn't found, you could [build a Docker image](../job_docker_env.md) by your self.
 
   Note, if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image.
 
-
-## Transfer Your Data
+## Manage Your Data
 
 Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
 
@@ -103,8 +99,6 @@ In the Data section, you can configure your team storage settings as follows.
 Besides Team Storage, OpenPAI also supports local files, http/https files, git repository, and PAI HDFS as additional data sources. Click the button **Add data source** to choose one kind of data source and fill in the path information in the text box. For example, the following setting will copy the HDFS folder "/foo/bar" to "/pai_data/mydata". You can access the folder with "/pai_data/mydata/bar" in your commands.
 
 <img src="imgs/transfer_data_1.png" width="50%" height="50%" alt="transfer_data1" />
-
-Note: We use "wget" to fetch data from the http/https source, and "git clone" for git repository. Please make sure these commands are available in your docker image, otherwise the data transfer may fail.
 
 ## Use Parameters and Secrets
 
@@ -161,14 +155,11 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup language. You can click the button **Edit YAML** below to edit the YAML definition directly. You can also export and import YAML files using the **Export** and **Import** button.
 
-
 ## Job workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. To submit a job, it's recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md).
+Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md) or [python sdk] to submit jobs.
 
-Note, both web UI and the Visual Studio Code Client through [RESTful API](../rest-server/API.md) to access OpenPAI. The RESTful API can be used to customize the client experience.
-
-After received job configuration, OpenPAI processes it as below steps.
+After receiving job configuration, OpenPAI processes it as below steps:
 
 1. Wait for resource allocated. OpenPAI waits enough resources including CPU, memory, and GPU are allocated. If there is enough resource, the job starts very soon. If there is not enough resource, job is queued and wait on previous jobs completing and releasing resource.
 
