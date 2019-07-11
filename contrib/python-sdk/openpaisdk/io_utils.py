@@ -4,7 +4,7 @@ import shutil
 from webbrowser import open_new_tab
 from contextlib import contextmanager
 import json
-from openpaisdk import __logger__, __local_default_file__
+from openpaisdk import __logger__, __local_default_file__, __global_default_file__
 from urllib.request import urlopen
 from urllib.parse import urlparse, urlsplit
 from urllib.request import urlretrieve
@@ -15,10 +15,37 @@ __yaml_exts__ = ['.yaml', '.yml']
 __json_exts__ = ['.json', '.jsn']
 
 
-def get_defaults():
+def get_global_defaults():
+    if os.path.isfile(__global_default_file__):
+        return from_file(__global_default_file__, default="==FATAL==")
+    return {}
+
+
+def get_per_folder_defaults():
     if os.path.isfile(__local_default_file__):
         return from_file(__local_default_file__, default="==FATAL==")
     return {}
+
+
+def get_defaults(global_only: bool=False):
+    dic = get_global_defaults()
+    if not global_only:
+        dic.update(get_per_folder_defaults())
+    return dic
+
+
+def update_default(key: str, value: str=None, is_global: bool=False, to_delete: bool=False):
+    filename = __global_default_file__ if is_global else __local_default_file__
+    dic = get_global_defaults() if is_global else get_per_folder_defaults()
+    if to_delete:
+        if key not in dic:
+            __logger__.warn("key %s not found in %s, ignored", key, filename)
+            return
+        del dic[key]
+    else:
+        __logger__.info("key %s updated to %s in %s", key, value, filename)
+        dic[key] = value
+    to_file(dic, filename)
 
 
 def browser_open(url: str):
