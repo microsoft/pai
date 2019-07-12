@@ -136,4 +136,4 @@ export const DOCKER_OPTIONS = [
     image: 'ufoym/deepo:pytorch-py36-cpu',
   },
 ];
-export const DEFAULT_DOCKER_URI = 'ufoym/deepo:all-py36-cu100';
+export const DEFAULT_DOCKER_URI = 'ufoym/deepo:tensorflow-py36-cu90';
