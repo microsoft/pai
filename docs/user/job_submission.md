@@ -21,7 +21,7 @@
 
 This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
-There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md), and [python sdk]. Here we use webportal to submit a hello world job.
+There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](../../contrib/pai_vscode/README.md), and [python sdk](../../contrib/python-sdk/README.md). Here we use webportal to submit a hello world job.
 
 ## Submit a Hello World Job
 
@@ -163,7 +163,7 @@ In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup lang
 
 ## Job workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md) or [python sdk] to submit jobs.
+Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/README.md) or [python sdk](../../contrib/python-sdk/README.md) to submit jobs.
 
 After receiving job configuration, OpenPAI processes it as below steps:
 
