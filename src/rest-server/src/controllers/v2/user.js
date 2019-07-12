@@ -64,7 +64,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
       let data = {};
       if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
         data['accessToken'] = req.undecodedAccessToken;
-        data['graphUrl'] = `https://${authnConfig.OIDCConfig.msgraph_host}/`;
+        data['graphUrl'] = `https://${authConfig.OIDCConfig.msgraph_host}/`;
       }
       grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
