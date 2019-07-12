@@ -423,6 +423,34 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 };
 
+const execute = async (frameworkName, executionType) => {
+  // send request to framework controller
+  let response;
+  try {
+    response = await axios({
+      method: 'patch',
+      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
+      headers: {
+        'Content-Type': 'application/merge-patch+json',
+      },
+      data: {
+        spec: {
+          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+        },
+      },
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
 const getConfig = async (frameworkName) => {
   // send request to framework controller
   let response;
@@ -464,6 +492,7 @@ module.exports = {
   list,
   get,
   put,
+  execute,
   getConfig,
   getSshInfo,
 };
