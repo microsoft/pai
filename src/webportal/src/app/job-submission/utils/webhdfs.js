@@ -1,9 +1,12 @@
 import * as webhdfs from 'webhdfs';
 import {promisify} from 'util';
 
+import {getHostNameFromUrl} from './utils';
+
 export class WebHDFSClient {
   constructor(host, user, timeout, port = '50070', path = `/webhdfs/v1`) {
     this.host = `http://${host}:${port}`;
+    this.pylonEndpoint = `http://${host}:80/webhdfs/api/v1`;
     this.endpoint = `http://${host}:${port}${path}`;
     this.client = webhdfs.createClient({host, port, user, path}, {timeout});
     this.client.readdir = promisify(this.client.readdir);
@@ -42,6 +45,13 @@ export class WebHDFSClient {
   }
 
   async uploadFile(dir, file, newFileName = file.name) {
+    const hostName = getHostNameFromUrl(this.host);
+    const checkPylon = await fetch(`http://${hostName}/healthz`);
+    if (!checkPylon || checkPylon.status !== 200) {
+      alert('pylon is not available');
+      return;
+    }
+
     try {
       await this.client.readdir(dir);
     } catch (e) {
@@ -50,7 +60,7 @@ export class WebHDFSClient {
 
     const res = await fetch(
       `${
-        this.endpoint
+        this.pylonEndpoint
       }${dir}/${newFileName}?op=create&overwrite=true&permission=0755`,
       {
         method: 'put',
