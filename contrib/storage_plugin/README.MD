@@ -33,6 +33,7 @@ Team wise storage solution offers:
 
 ### Setup server <a name="Usages_setup_server"></a>
 - NFS
+
 Edit /etc/exports, export /root/path/to/share 
 ```
 /root/path/to/share (rw, sync, no_root_squash) 
@@ -40,6 +41,7 @@ Edit /etc/exports, export /root/path/to/share
 no_root_squash is needed for storage plugin to creae folders.
 
 - Samba
+
 After create samba server, create user for PAI to use samba.
 ```
 useradd paismb
@@ -48,9 +50,11 @@ smbpasswd -a paismb
 ```
 
 - Azurefile
+
 Create Azurefile share through azure web portal.
 
 - Azureblob
+
 Create Azureblob share through azure web portal.
 
 
