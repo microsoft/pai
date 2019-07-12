@@ -29,7 +29,7 @@
   - [Advanced Mode](#advanced-mode)
   - [PAI Environment Variables](#pai-environment-variables)
   - [Export and Import Jobs](#export-and-import-jobs)
-  - [Job workflow](#job-workflow)
+  - [Job Workflow](#job-workflow)
   - [Reference](#reference)
 
 
