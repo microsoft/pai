@@ -47,7 +47,7 @@ const getAllGroup = async () => {
   }
 };
 
-const getUserGrouplistFromExternal = async (username) => {
+const getUserGrouplistFromExternal = async (username, data = {}) => {
   try {
     const adapterType = authConfig.groupConfig.groupDataSource;
     const groupAdapter = adapter.getStorageObject(adapterType);
@@ -60,6 +60,8 @@ const getUserGrouplistFromExternal = async (username) => {
           response.push(externalName2Groupname[externalGroupname]);
         }
       }
+    } else if (adapterType === 'ms-graph') {
+      groupAdapter.initConfig(data.graphUrl, data.accessToken);
     }
     return response;
   } catch (error) {

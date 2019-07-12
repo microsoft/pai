@@ -61,7 +61,12 @@ const createUserIfUserNotExist = async (req, res, next) => {
     let virtualCluster = [];
     let groupType = await groupModel.getAllGroupTypeObject();
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
-      grouplist = await groupModel.getUserGrouplistFromExternal(username);
+      let data = {};
+      if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
+        data['accessToken'] = req.undecodedAccessToken;
+        data['graphUrl'] = `https://${authnConfig.OIDCConfig.msgraph_host}/`;
+      }
+      grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
       if (grouplist && grouplist.length === 0) {
         return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));

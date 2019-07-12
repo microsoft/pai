@@ -16,15 +16,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const winbindAdapter = require('./winbindAdapter');
-const msGraphAdapter = require('./msGraphAdapter');
+const axios = require('axios');
 
-const getStorageObject = (type) => {
-  if (type === 'winbind') {
-    return winbindAdapter;
-  } else if (type === 'ms-graph') {
-    return msGraphAdapter;
+function initConfig(msGraphUrl, accessToken) {
+  return {
+    'requestConfig': {
+      'baseURL': `${msGraphUrl}v1.0/me/`,
+      'maxRedirects': 0,
+    },
+    'Authorization': `Authorization: Bearer ${accessToken}`,
+  };
+}
+
+async function getUserGroupList(username, config) {
+  try {
+    const request = axios.create(config.requestConfig);
+    const response = await request.get('memberOf', {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': config.Authorization,
+      },
+    });
+    console.log(response['data']);
+    return response['data'];
+  } catch (error) {
+    throw error;
   }
-};
+}
 
-module.exports = {getStorageObject};
+module.exports = {
+  initConfig,
+  getUserGroupList,
+};

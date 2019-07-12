@@ -28,7 +28,10 @@ const requestAuthCode = async (req, res, next) => {
   const responseType = 'code';
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
-  const scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
+  let scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
+  if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
+    scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
+  }
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
     state = decodeURIComponent(req.query.redirect_uri);
@@ -47,7 +50,10 @@ const requestAuthCode = async (req, res, next) => {
 const requestTokenWithCode = async (req, res, next) => {
   try {
     const authCode = req.body.code;
-    const scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
+    let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
+    if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
+      scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
+    }
     const clientId = authnConfig.OIDCConfig.clientID;
     const redirectUri = authnConfig.OIDCConfig.redirectUrl;
     const grantType = 'authorization_code';
@@ -62,9 +68,12 @@ const requestTokenWithCode = async (req, res, next) => {
       client_secret: clientSecret,
     };
     const response = await axios.post(requestUrl, querystring.stringify(data));
+    req.undecodedIDToken = response.data.id_token;
     req.IDToken = jwt.decode(response.data.id_token);
+    req.undecodedAccessToken = response.data.access_token;
     req.accessToken = jwt.decode(response.data.access_token);
-    req.refreshToken = jwt.decode(response.data.access_token);
+    req.undecodedRefreshToken = response.data.refresh_token;
+    req.refreshToken = jwt.decode(response.data.refresh_token);
     req.returnBackURI = req.body.state;
     next();
   } catch (error) {
