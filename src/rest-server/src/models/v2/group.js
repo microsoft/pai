@@ -432,7 +432,7 @@ const groupTypeVCCheck = async () => {
 };
 
 if (config.env !== 'test') {
-  (async function() {
+  (async function groupAndUserDataInit() {
     await initGrouplistInCfg();
     await groupTypeVCCheck();
     if (authConfig.authnMethod !== 'OIDC') {
