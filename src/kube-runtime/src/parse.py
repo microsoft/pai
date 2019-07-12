@@ -36,26 +36,6 @@ def get_container_port(envs, name):
 def export(k, v):
     print "export %s='%s'" % (k, v)
 
-def gen_static_env(framework):
-    export("PAI_USER_NAME", framework["metadata"]["labels"]["userName"])
-    export("PAI_JOB_NAME", "{}~{}".format(framework["metadata"]["labels"]["userName"], framework["metadata"]["labels"]["jobName"]))
-    export("PAI_TASK_ROLE_COUNT", len(framework["spec"]["taskRoles"]))
-    export("PAI_TASK_ROLE_LIST", ",".join(map(lambda x: x["name"], framework["spec"]["taskRoles"])))
-
-    for idx, taskRole in enumerate(framework["spec"]["taskRoles"]):
-        export("PAI_TASK_ROLE_TASK_COUNT_{}".format(taskRole["name"]), taskRole["taskNumber"])
-        export("PAI_MIN_FAILED_INSTANCE_{}".format(taskRole["name"]), taskRole["frameworkAttemptCompletionPolicy"]["minFailedTaskCount"])
-        export("PAI_MIN_SUCCEEDED_INSTANCE_{}".format(taskRole["name"]), taskRole["frameworkAttemptCompletionPolicy"]["minSucceededTaskCount"])
-
-        if (taskRole["name"] == os.environ.get("FC_TASKROLE_NAME")):
-            export("PAI_CURRENT_TASK_ROLE_NAME", taskRole["name"])
-            export("PAI_CURRENT_TASK_ROLE_TASK_COUNT", taskRole["taskNumber"])
-            resources = taskRole["task"]["pod"]["spec"]["containers"][0]["resources"]["limits"]
-            export("PAI_CURRENT_TASK_ROLE_CPU_COUNT", resources["cpu"] or "")
-            export("PAI_CURRENT_TASK_ROLE_MEM_MB", resources["memory"] or "")
-            export("PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT", taskRole["frameworkAttemptCompletionPolicy"]["minFailedTaskCount"])
-            export("PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT", taskRole["frameworkAttemptCompletionPolicy"]["minSucceededTaskCount"])
-
 
 # generate runtime environment variables:
 # PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
@@ -145,5 +125,4 @@ if __name__ == '__main__':
 
     with open(args.framework_json) as f:
         framework = json.load(f)
-    gen_static_env(framework)
     gen_runtime_env(framework)
