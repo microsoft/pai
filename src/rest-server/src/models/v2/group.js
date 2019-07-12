@@ -52,17 +52,22 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
     const adapterType = authConfig.groupConfig.groupDataSource;
     const groupAdapter = adapter.getStorageObject(adapterType);
     let response = [];
+    let config = {};
     if (adapterType === 'winbind') {
-      const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
-      const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
-      for (const externalGroupname of externalGrouplist) {
-        if (externalGroupname in externalName2Groupname) {
-          response.push(externalName2Groupname[externalGroupname]);
-        }
-      }
+      config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
     } else if (adapterType === 'ms-graph') {
-      groupAdapter.initConfig(data.graphUrl, data.accessToken);
+      config = groupAdapter.initConfig(data.graphUrl, data.accessToken);
     }
+    const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
+    // eslint-disable-next-line no-console
+    console.log(externalGrouplist);
+    for (const externalGroupname of externalGrouplist) {
+      if (externalGroupname in externalName2Groupname) {
+        response.push(externalName2Groupname[externalGroupname]);
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.log(response);
     return response;
   } catch (error) {
     throw error;
