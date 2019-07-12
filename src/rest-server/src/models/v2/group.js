@@ -59,17 +59,11 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
       config = groupAdapter.initConfig(data.graphUrl, data.accessToken);
     }
     const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
-    // eslint-disable-next-line no-console
-    console.log(externalGrouplist);
-    // eslint-disable-next-line no-console
-    console.log(externalName2Groupname);
     for (const externalGroupname of externalGrouplist) {
       if (externalGroupname in externalName2Groupname) {
         response.push(externalName2Groupname[externalGroupname]);
       }
     }
-    // eslint-disable-next-line no-console
-    console.log(response);
     return response;
   } catch (error) {
     throw error;
