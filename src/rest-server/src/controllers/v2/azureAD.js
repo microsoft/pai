@@ -75,6 +75,8 @@ const requestTokenWithCode = async (req, res, next) => {
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
     req.returnBackURI = req.body.state;
+    // eslint-disable-next-line no-console
+    console.log(req.undecodedAccessToken);
     next();
   } catch (error) {
     return next(createError.unknown(error));
