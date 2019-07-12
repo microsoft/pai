@@ -64,6 +64,11 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
         response.push(externalName2Groupname[externalGroupname]);
       }
     }
+    // eslint-disable-next-line no-console
+    console.log(response);
+    response = [...new Set(response)];
+    // eslint-disable-next-line no-console
+    console.log(response);
     return response;
   } catch (error) {
     throw error;
