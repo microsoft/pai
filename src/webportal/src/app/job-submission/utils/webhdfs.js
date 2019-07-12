@@ -49,6 +49,7 @@ export class WebHDFSClient {
     const checkPylon = await fetch(`http://${hostName}/healthz`);
     if (!checkPylon || checkPylon.status !== 200) {
       alert('pylon is not available');
+      return;
     }
 
     try {
