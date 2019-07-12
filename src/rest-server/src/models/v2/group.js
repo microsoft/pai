@@ -23,6 +23,7 @@ const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
 const userModel = require('@pai/models/v2/user');
 const logger = require('@pai/config/logger');
+const vcModel = require('@pai/models/vc');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
@@ -412,16 +413,37 @@ const updateUserGroupAndVirtualCluster = async () => {
   }
 };
 
-if (config.env !== 'test') {
-  (async function() {
-    await initGrouplistInCfg();
-    if (authConfig.authnMethod !== 'OIDC') {
-      await createAdminUser();
-    } else {
-      await updateGroup2ExnternalMapper();
+const groupTypeVCCheck = async () => {
+  try {
+    const groupInfoList = await getAllGroup();
+    const vcList = await vcModel.prototype.getVcListAsyc();
+    for (let groupItem of groupInfoList) {
+      if (groupItem.extension.groupType && groupItem.extension.groupType === 'vc') {
+        if (!vcList || !(groupItem.groupname in vcList)) {
+          deleteGroup(groupItem.groupname);
+          logger.info(`Delete vc type group [${groupItem.groupname}]. Can't find it in yarn's vc list.`);
+        }
+      }
     }
-    updateUserGroupAndVirtualCluster();
-  })();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+};
+
+const groupAndUserDataInit = async () => {
+  await initGrouplistInCfg();
+  await groupTypeVCCheck();
+  if (authConfig.authnMethod !== 'OIDC') {
+    await createAdminUser();
+  } else {
+    await updateGroup2ExnternalMapper();
+  }
+  await updateUserGroupAndVirtualCluster();
+};
+
+if (config.env !== 'test') {
+  groupAndUserDataInit();
   if (authConfig.authnMethod === 'OIDC') {
     setInterval(async function() {
       await updateGroup2ExnternalMapper();
