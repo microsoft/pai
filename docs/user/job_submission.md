@@ -25,7 +25,7 @@ There are several ways of submitting pai job, including webportal, [OpenPAI VS C
 
 ## Submit a Hello World Job
 
-The **job** of OpenPAI defines how to execute command(s) in specified environment(s). A job can be model training, other kinds of commands, or distributed on multiple servers. (TODO: the definition of job should be revised)
+The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributed.
 
 The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) include more details about this job config.
 
@@ -118,17 +118,7 @@ In some cases, it is desired to define some secret messages such as password, to
 
 ## Advanced Mode
 
-### Define Retry Times
-
-Jobs will not be retried in default. You can define retry times in advanced mode. Both job-level and task-level settings are available.
-
-![retry_1](imgs/retry_1.png)
-
-### Ports (TBD)
-
-
-### Completion Policy (TBD)
-
+You can set more detailed configs by enabling advanced mode. In the advanced mode, you could define ```retry time```, ```ports```, ```completion policy``` before submitting job. For more details about the fields, please refer to [Pai Job Protocol](../pai-job-protocol.yaml)
 
 ## PAI Environment Variables
 
