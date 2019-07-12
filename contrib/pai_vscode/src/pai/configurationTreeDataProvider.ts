@@ -11,7 +11,7 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_CREATE_JOB_CONFIG, COMMAND_CREATE_YAML_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_HDFS,
+    COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_HDFS,
     COMMAND_REFRESH_CLUSTER, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
     COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_TREEVIEW_OPEN_PORTAL,
     CONTEXT_CONFIGURATION_ITEM,
@@ -46,11 +46,6 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
     {
         title: 'treeview.node.create-config',
         command: COMMAND_CREATE_JOB_CONFIG,
-        icon: ICON_CREATE_CONFIG
-    },
-    {
-        title: 'treeview.node.create-yaml-config',
-        command: COMMAND_CREATE_YAML_JOB_CONFIG,
         icon: ICON_CREATE_CONFIG
     },
     {
