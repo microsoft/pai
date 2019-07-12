@@ -440,7 +440,7 @@ const groupAndUserDataInit = async () => {
     await updateGroup2ExnternalMapper();
   }
   await updateUserGroupAndVirtualCluster();
-}
+};
 
 if (config.env !== 'test') {
   groupAndUserDataInit();
