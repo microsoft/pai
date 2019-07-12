@@ -29,7 +29,7 @@ const requestAuthCode = async (req, res, next) => {
   const redirectUri = authnConfig.OIDCConfig.redirectUrl;
   const responseMode = 'form_post';
   let scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
-  if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
+  if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
     scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
   }
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
@@ -51,7 +51,7 @@ const requestTokenWithCode = async (req, res, next) => {
   try {
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
-    if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
+    if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
       scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
     }
     const clientId = authnConfig.OIDCConfig.clientID;
