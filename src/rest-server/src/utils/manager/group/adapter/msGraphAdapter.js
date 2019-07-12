@@ -37,6 +37,7 @@ async function getUserGroupList(username, config) {
         'Authorization': config.Authorization,
       },
     });
+    // eslint-disable-next-line no-console
     console.log(response['data']);
     return response['data'];
   } catch (error) {
