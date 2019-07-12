@@ -20,27 +20,35 @@ const axios = require('axios');
 
 function initConfig(msGraphUrl, accessToken) {
   return {
-    'requestConfig': {
-      'baseURL': `${msGraphUrl}v1.0/me/`,
-      'maxRedirects': 0,
-    },
+    'msGraphAPI': `${msGraphUrl}v1.0/me/memberOf`,
     'Authorization': `Bearer ${accessToken}`,
   };
 }
 
 async function getUserGroupList(username, config) {
   try {
-    const request = axios.create(config.requestConfig);
-    const response = await request.get('memberOf', {
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': config.Authorization,
-      },
-    });
+    let responseData = [];
+    let requestUrl = config.msGraphAPI;
+    while (true) {
+      let response = await axios.get(requestUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': config.Authorization,
+        },
+      });
+      responseData.push(response['data']['value']);
+      if ('@odata.nextLink' in response['data']) {
+        requestUrl = response['data']['@odata.nextLink'];
+      } else {
+        break;
+      }
+    }
     let groupList = [];
-    for (const groupItem of response['data']['value']) {
-      if (groupItem.displayName) {
-        groupList.push(groupItem.displayName);
+    for (const dataBlock of responseData) {
+      for (const groupItem of dataBlock) {
+        if (groupItem.displayName) {
+          groupList.push(groupItem.displayName);
+        }
       }
     }
     return groupList;
