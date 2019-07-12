@@ -37,9 +37,10 @@ class Authentication:
             return False, "group name should only contain alpha-numeric and underscore characters"
         if bool(pattern.match(self.service_configuration['group-manager']['default-group']['groupname'])) is False:
             return False, "group name should only contain alpha-numeric and underscore characters"
-        for groupConfig in self.service_configuration['group-manager']['grouplist']:
-            if bool(pattern.match(groupConfig['groupname'])) is False:
-                return False, "group name should only contain alpha-numeric and underscore characters"
+        if 'grouplist' in self.service_configuration['group-manager']:
+            for groupConfig in self.service_configuration['group-manager']['grouplist']:
+                if bool(pattern.match(groupConfig['groupname'])) is False:
+                    return False, "group name should only contain alpha-numeric and underscore characters"
         if self.service_configuration["OIDC"] is False:
             return True, None
         if "OIDC-type" not in self.service_configuration:
