@@ -19,13 +19,27 @@
 
 # Submit Jobs on OpenPAI
 
+- [Submit Jobs on OpenPAI](#submit-jobs-on-openpai)
+  - [Submit a Hello World Job](#submit-a-hello-world-job)
+  - [Learn the Hello World Job](#learn-the-hello-world-job)
+  - [Manage Your Data](#manage-your-data)
+    - [Make Use of Team-wise Storage]()
+    - [Additional Data Sources](#make-use-of-team-wise-storage)
+  - [Use Parameters and Secrets](#use-parameters-and-secrets)
+  - [Advanced Mode](#advanced-mode)
+  - [PAI Environment Variables](#pai-environment-variables)
+  - [Export and Import Jobs](#export-and-import-jobs)
+  - [Job workflow](#job-workflow)
+  - [Reference](#reference)
+
+
 This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
 There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](../../contrib/pai_vscode/VSCodeExt.md), and [python sdk]. Here we use webportal to submit a hello world job.
 
 ## Submit a Hello World Job
 
-The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributed.
+The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.
 
 The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) include more details about this job config.
 
@@ -118,7 +132,7 @@ In some cases, it is desired to define some secret messages such as password, to
 
 ## Advanced Mode
 
-You can set more detailed configs by enabling advanced mode. In the advanced mode, you could define ```retry time```, ```ports```, ```completion policy``` before submitting job. For more details about the fields, please refer to [Pai Job Protocol](../pai-job-protocol.yaml)
+You can set more detailed configs by enabling advanced mode. In the advanced mode, you could define ```retry time```, ```ports```, ```completion policy``` before submitting job. For more details about the fields, please refer to [Pai Job Protocol](../pai-job-protocol.yaml).
 
 ## PAI Environment Variables
 
@@ -151,7 +165,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup language. You can click the button **Edit YAML** below to edit the YAML definition directly. You can also export and import YAML files using the **Export** and **Import** button.
 
-## Job workflow
+## Job Workflow
 
 Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md) or [python sdk] to submit jobs.
 
