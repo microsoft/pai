@@ -431,17 +431,20 @@ const groupTypeVCCheck = async () => {
   }
 };
 
+const groupAndUserDataInit = async () => {
+  await initGrouplistInCfg();
+  await groupTypeVCCheck();
+  if (authConfig.authnMethod !== 'OIDC') {
+    await createAdminUser();
+  } else {
+    await updateGroup2ExnternalMapper();
+  }
+  await updateUserGroupAndVirtualCluster();
+}
+
+
 if (config.env !== 'test') {
-  (async function groupAndUserDataInit() {
-    await initGrouplistInCfg();
-    await groupTypeVCCheck();
-    if (authConfig.authnMethod !== 'OIDC') {
-      await createAdminUser();
-    } else {
-      await updateGroup2ExnternalMapper();
-    }
-    await updateUserGroupAndVirtualCluster();
-  })();
+  groupAndUserDataInit();
   if (authConfig.authnMethod === 'OIDC') {
     setInterval(async function() {
       await updateGroup2ExnternalMapper();
