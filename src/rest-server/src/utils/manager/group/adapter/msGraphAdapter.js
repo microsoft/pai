@@ -37,11 +37,11 @@ async function getUserGroupList(username, config) {
         'Authorization': config.Authorization,
       },
     });
-    // eslint-disable-next-line no-console
-    console.log(response['data']);
     let groupList = [];
     for (const groupItem of response['data']['value']) {
-      groupList.push(groupItem['displayName']);
+      if (groupItem.displayName) {
+        groupList.push(groupItem.displayName);
+      }
     }
     return groupList;
   } catch (error) {
