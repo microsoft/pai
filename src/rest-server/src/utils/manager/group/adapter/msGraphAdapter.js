@@ -24,7 +24,7 @@ function initConfig(msGraphUrl, accessToken) {
       'baseURL': `${msGraphUrl}v1.0/me/`,
       'maxRedirects': 0,
     },
-    'Authorization': `Authorization: Bearer ${accessToken}`,
+    'Authorization': `Bearer ${accessToken}`,
   };
 }
 
