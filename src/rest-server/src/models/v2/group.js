@@ -61,6 +61,8 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
     const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
     // eslint-disable-next-line no-console
     console.log(externalGrouplist);
+    // eslint-disable-next-line no-console
+    console.log(externalName2Groupname);
     for (const externalGroupname of externalGrouplist) {
       if (externalGroupname in externalName2Groupname) {
         response.push(externalName2Groupname[externalGroupname]);
