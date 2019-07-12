@@ -84,7 +84,7 @@ function getDockerImageOptionKey(uri) {
   return dockerOption.key;
 }
 
-export const DockerSection = ({onValueChange, value}) => {
+export const DockerSection = ({sectionTooltip, onValueChange, value}) => {
   const {uri, auth, isUseCustomizedDocker} = value;
 
   const nameInput = useRef(null);
@@ -193,7 +193,7 @@ export const DockerSection = ({onValueChange, value}) => {
   };
 
   return (
-    <BasicSection sectionLabel='Docker image'>
+    <BasicSection sectionLabel='Docker image' sectionTooltip={sectionTooltip}>
       <Stack horizontal gap='l1'>
         <FormShortSection>
           <Dropdown
@@ -236,6 +236,7 @@ export const DockerSection = ({onValueChange, value}) => {
 
 DockerSection.propTypes = {
   value: PropTypes.instanceOf(DockerInfo).isRequired,
+  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   auth: PropTypes.object,
   onValueChange: PropTypes.func,
 };
