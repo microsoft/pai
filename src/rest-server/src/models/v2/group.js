@@ -442,7 +442,6 @@ const groupAndUserDataInit = async () => {
   await updateUserGroupAndVirtualCluster();
 }
 
-
 if (config.env !== 'test') {
   groupAndUserDataInit();
   if (authConfig.authnMethod === 'OIDC') {
