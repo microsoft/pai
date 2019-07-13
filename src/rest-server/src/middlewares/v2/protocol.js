@@ -21,6 +21,7 @@ const yaml = require('js-yaml');
 const mustache = require('mustache');
 const createError = require('@pai/utils/error');
 const protocolSchema = require('@pai/config/v2/protocol');
+const hivedSchema = require('@pai/config/v2/hived');
 
 
 const mustacheWriter = new mustache.Writer();
@@ -70,6 +71,9 @@ const convertPriority = (priorityClass) => {
 };
 
 const hivedValidate = (protocolObj) => {
+  if (!hivedSchema.validate(protocolObj)) {
+    throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
+  }
   let hivedConfig = null;
   const affinityGroups = {};
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
@@ -287,14 +291,18 @@ const protocolSubmitMiddleware = [
     next();
   },
   (req, res, next) => {
-    res.locals.protocol = hivedValidate(res.locals.protocol);
-    next();
-  },
-  (req, res, next) => {
     res.locals.protocol = protocolRender(res.locals.protocol);
     next();
   },
 ];
+
+if (hivedSchema.enableHived) {
+  protocolSubmitMiddleware.push(
+    (req, res, next) => {
+      res.locals.protocol = hivedValidate(res.locals.protocol);
+      next();
+  })
+}
 
 // module exports
 module.exports = {
