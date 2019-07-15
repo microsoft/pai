@@ -339,7 +339,28 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     taskRoleDescription.pod.spec.containers.env.push(...envlist.concat([
       {
         name: 'PAI_CURRENT_TASK_ROLE_NAME',
-        value: taskRole,
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASKROLE_NAME']`,
+          },
+        },
+      },
+      {
+        name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+          },
+        },
+      },
+      // backward capabilities
+      {
+        name: 'PAI_TASK_INDEX',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+          },
+        },
       },
       // use random ports temporally
       {
