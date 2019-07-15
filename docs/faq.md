@@ -130,21 +130,23 @@ Run "docker system df" to see how much space can be reclaimed. If the space is l
 
 Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more. 
 
-### Q: How to change Docker install path for PAI?
+### Q: How to change Docker cache path for OpenPAI?
 
-A: If we install Docker on a small disk, when under disk pressure, the cleaner may activate and kill jobs to prevent system crash. We'd better to move Docker to a larger disk. We can change Docker install path through following steps:
+A: If default Docker cache path is set to a disk with small disk space, the path can be changed with below steps:
 
-1.	Change the Docker path on PAI node.  
-2.	Stop ALL service of the cluster.  
-```sudo ./paictl.py service stop```
-3.	Destroy k8s cluster.  
+1.	Stop ALL service of the cluster.  
+  ```sudo ./paictl.py service stop```
+2.	Destroy k8s cluster.  
   ```sudo ./paictl.py cluster k8s-clean –p /path/to/config```
-4.  Modify your config file layout.yaml. Change "docker-data" to your new Docker path. See sample [layout.yaml](../blob/master/examples/cluster-configuration/layout.yaml#L55)  
+3.	Change the Docker cache path on OpenPAI node using --data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)  
+4.  Modify your config file layout.yaml. Change "docker-data" to your new Docker cache path. See sample [layout.yaml](../examples/cluster-configuration/layout.yaml#L55)  
 5.	Restart k8s cluster with updated config.  
   ```sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config```
 6.	Push the latest config to cluster.  
-  ```sudo ./paictl.py config push –p /path/to/config```
+  ```sudo ./paictl.py config push –p /path/to/new/config```
 7.	Restart all service.  
   ```sudo ./paictl.py service start```
 
-Note: the legacy docker data file in the old path won’t be automatically cleaned. So if we want to free the disk space which is occupied by the old docker data, we should manually delete it. 
+Note: 
+1. The cluster is unavailable during this change, it may take long time due to pull all images again.
+2. The legacy docker cache path won’t be automatically cleaned. Manually clean up is needed.
