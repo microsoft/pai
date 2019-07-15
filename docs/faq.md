@@ -129,3 +129,22 @@ Run "docker system df" to see how much space can be reclaimed. If the space is l
 - (3) Check /tmp directory. 
 
 Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more. 
+
+### Q: How to change Docker install path for PAI?
+
+A: If we install Docker on a small disk, when under disk pressure, the cleaner may activate and kill jobs to prevent system crash. We'd better to move Docker to a larger disk. We can change Docker install path through following steps:
+
+1.	Change the Docker path on PAI node.  
+2.	Stop ALL service of the cluster.  
+```sudo ./paictl.py service stop```
+3.	Destroy k8s cluster.  
+  ```sudo ./paictl.py cluster k8s-clean –p /path/to/config```
+4.  Modify your config file layout.yaml. Change "docker-data" to your new Docker path. See sample [layout.yaml](../blob/master/examples/cluster-configuration/layout.yaml#L55)  
+5.	Restart k8s cluster with updated config.  
+  ```sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config```
+6.	Push the latest config to cluster.  
+  ```sudo ./paictl.py config push –p /path/to/config```
+7.	Restart all service.  
+  ```sudo ./paictl.py service start```
+
+Note: the legacy docker data file in the old path won’t be automatically cleaned. So if we want to free the disk space which is occupied by the old docker data, we should manually delete it. 
