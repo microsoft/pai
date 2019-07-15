@@ -37,7 +37,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
