@@ -17,9 +17,9 @@
 
 import React, { Suspense, lazy } from "react";
 import {
-  ChoiceGroup, ComboBox, IComboBox, DefaultButton, DefaultPalette, Fabric, IChoiceGroupOption, IRenderFunction,
+  ChoiceGroup, DefaultButton, DefaultPalette, Fabric, IChoiceGroupOption, IRenderFunction,
   Label, List, Panel, PanelType, PrimaryButton, Stack, Spinner, SpinnerSize, Text, TextField, Toggle,
-  initializeIcons, mergeStyleSets, IComboBoxOption,
+  initializeIcons, mergeStyleSets,
 } from "office-ui-fabric-react";
 import Cookies from "js-cookie";
 import classNames from "classnames/bind";
@@ -390,7 +390,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     } catch (err) {
       alert(err.message);
     }
-    console.log(this.state.enableTensorBoard);
     this.setState({ loading: false });
   }
 
@@ -567,7 +566,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       return;
     }
     const protocol = yaml.safeLoad(this.state.protocolYAML);
-    let tensorBoardConfig = undefined;
+    let tensorBoardConfig;
     if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
       if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
         tensorBoardConfig = protocol.extras.tensorBoard;

@@ -1,7 +1,6 @@
 import React from "react";
 import {
-  ComboBox, IComboBox, IComboBoxOption, Toggle, Callout, DefaultButton, Dropdown, DropdownMenuItemType,
-  Fabric, IDropdownOption, Stack, PrimaryButton, TextField, mergeStyleSets, enableBodyScroll, TooltipHostBase,
+  ComboBox, IComboBox, IComboBoxOption, Toggle, Stack, TextField,
 } from "office-ui-fabric-react";
 import update from "immutability-helper";
 
@@ -29,8 +28,8 @@ interface ITensorBoardProps {
 
 interface ITensorBoardState {
   protocol: any;
-  tensorBoardConfig: ITensorBoardConfig,
-  enableTensorBoard: boolean,
+  tensorBoardConfig: ITensorBoardConfig;
+  enableTensorBoard: boolean;
 }
 
 const defaultExternalStorageTypeOptions: IComboBoxOption[] = [
@@ -118,7 +117,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
         }
       }
     }
-    if (protocol != this.state.protocol) {
+    if (protocol !== this.state.protocol) {
       this.setState(({
         tensorBoardConfig,
         protocol,
@@ -138,7 +137,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
         <Toggle
           label="Enable TensorBoard"
           checked={this.state.enableTensorBoard}
-          onChange={this.toggleTensorBoard.bind(this)}
+          onChange={this.toggleTensorBoard}
           inlineLabel={true}
         />
         {this.renderTensorBoardStorage()}
