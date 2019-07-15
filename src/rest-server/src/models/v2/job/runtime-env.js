@@ -23,22 +23,24 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_JOB_NAME: config.name,
     PAI_USER_NAME: userName,
     PAI_DEFAULT_FS_URI: '',
-    PAI_TASK_ROLE_COUNT: config.taskRoles.length,
+    PAI_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
   };
   let tasksNum = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
-    tasksNum += tasks.instances;
     const tasks = config.taskRoles[taskRole];
-    env[`PAI_TASK_ROLE_TASK_COUNT_${taskRole}`] = tasks.instances;
+    tasksNum += (tasks.instances || 1);
+    env[`PAI_TASK_ROLE_TASK_COUNT_${taskRole}`] = (tasks.instances || 1);
     env[`PAI_RESOURCE_${taskRole}`] = [
       tasks.resourcePerInstance.gpu,
       tasks.resourcePerInstance.cpu,
       tasks.resourcePerInstance.memoryMB,
-      tasks.extraContainerOptions.shmMB,
+      (tasks.extraContainerOptions && 'shmMB' in tasks.extraContainerOptions) ? tasks.extraContainerOptions.shmMB : 0,
     ].join(',');
-    env[`PAI_MIN_FAILED_TASK_COUNT_${taskRole}`] = tasks.completion.minFailedInstances;
-    env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] = tasks.completion.minSucceededInstances;
+    env[`PAI_MIN_FAILED_TASK_COUNT_${taskRole}`] =
+      (tasks.completion && 'minFailedInstances' in tasks.completion) ? tasks.completion.minFailedInstances : 1;
+    env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] =
+      (tasks.completion && 'minSucceededInstances' in tasks.completion) ? tasks.completion.minSucceededInstances : -1;
   }
   return {
     ...env,
@@ -46,8 +48,8 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_USERNAME: userName,
     PAI_TASKS_NUM: tasksNum,
     PAI_JOB_TASK_COUNT: tasksNum,
-    PAI_TASK_ROLES_NUM: config.taskRoles.length,
-    PAI_JOB_TASK_ROLE_COUNT: config.taskRoles.length,
+    PAI_TASK_ROLES_NUM: Object.keys(config.taskRoles).length,
+    PAI_JOB_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
     PAI_JOB_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
   };
 };

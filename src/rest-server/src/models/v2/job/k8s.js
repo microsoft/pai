@@ -331,12 +331,12 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   // generate runtime env
   const env = runtimeEnv.generateFrameworkEnv(frameworkName, config);
   const envlist = Object.keys(env).map((name) => {
-    return {name, value: env[name]};
+    return {name, value: `${env[name]}`};
   });
   // fill in task roles
   for (let taskRole of Object.keys(config.taskRoles)) {
     const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
-    taskRoleDescription.pod.spec.containers.env.push(...envlist.concat([
+    taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
         name: 'PAI_CURRENT_TASK_ROLE_NAME',
         valueFrom: {
