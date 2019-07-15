@@ -20,6 +20,7 @@
 const axios = require('axios');
 const yaml = require('js-yaml');
 const status = require('statuses');
+const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 
@@ -236,8 +237,12 @@ const generateTaskRole = (taskRole, labels, config) => {
                   },
                 },
                 {
-                  name: 'PAI_CURRENT_CONTAINER_PORT',
-                  value: `${Math.floor((Math.random() * 10000) + 10000)}`,
+                  name: 'GPU_ID',
+                  valueFrom: {
+                    fieldRef: {
+                      fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+                    },
+                  },
                 },
               ],
               securityContext: {
@@ -334,10 +339,51 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       taskRoles: [],
     },
   };
+  // generate runtime env
+  const env = runtimeEnv.generateFrameworkEnv(frameworkName, config);
+  const envlist = Object.keys(env).map((name) => {
+    return {name, value: `${env[name]}`};
+  });
   // fill in task roles
   for (let taskRole of Object.keys(config.taskRoles)) {
-    frameworkDescription.spec.taskRoles.push(
-      generateTaskRole(taskRole, frameworkLabels, config));
+    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
+    taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
+      {
+        name: 'PAI_CURRENT_TASK_ROLE_NAME',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASKROLE_NAME']`,
+          },
+        },
+      },
+      {
+        name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+          },
+        },
+      },
+      // backward compatibility
+      {
+        name: 'PAI_TASK_INDEX',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+          },
+        },
+      },
+      // use random ports temporally
+      {
+        name: 'PAI_CURRENT_CONTAINER_PORT',
+        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
+      },
+      {
+        name: 'PAI_CONTAINER_SSH_PORT',
+        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
+      },
+    ]));
+    frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   return frameworkDescription;
 };
