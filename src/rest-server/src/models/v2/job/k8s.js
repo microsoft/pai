@@ -353,7 +353,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
           },
         },
       },
-      // backward capabilities
+      // backward compatibility
       {
         name: 'PAI_TASK_INDEX',
         valueFrom: {

@@ -26,7 +26,9 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_TASK_ROLE_COUNT: config.taskRoles.length,
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
   };
+  let tasksNum = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
+    tasksNum += tasks.instances;
     const tasks = config.taskRoles[taskRole];
     env[`PAI_TASK_ROLE_TASK_COUNT_${taskRole}`] = tasks.instances;
     env[`PAI_RESOURCE_${taskRole}`] = [
@@ -38,6 +40,16 @@ const generateFrameworkEnv = (frameworkName, config) => {
     env[`PAI_MIN_FAILED_TASK_COUNT_${taskRole}`] = tasks.completion.minFailedInstances;
     env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] = tasks.completion.minSucceededInstances;
   }
+  return {
+    ...env,
+    // backward compatibility
+    PAI_USERNAME: userName,
+    PAI_TASKS_NUM: tasksNum,
+    PAI_JOB_TASK_COUNT: tasksNum,
+    PAI_TASK_ROLES_NUM: config.taskRoles.length,
+    PAI_JOB_TASK_ROLE_COUNT: config.taskRoles.length,
+    PAI_JOB_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
+  };
 };
 
 // module exports
