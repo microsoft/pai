@@ -29,6 +29,7 @@ async function getUserGroupList(username, config) {
   try {
     let responseData = [];
     let requestUrl = config.msGraphAPI;
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       let response = await axios.get(requestUrl, {
         headers: {
