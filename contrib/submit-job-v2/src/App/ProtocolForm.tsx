@@ -28,12 +28,9 @@ import yaml, { safeLoad, YAMLException } from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
+import TensorBoard from "./TensorBoard";
 import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 
-const externalStorageTypeOptions: IComboBoxOption[] = [
-  { key: "HDFS", text: "HDFS" },
-  { key: "NFS", text: "NFS" },
-];
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
   form: {
@@ -132,6 +129,23 @@ const cx = classNames.bind(styles);
 
 initializeIcons();
 
+interface ILogDirectoryObj {
+  [key: string]: string;
+}
+
+interface IStorage {
+  type: string;
+  hostIP: string;
+  port: string;
+  remotePath: string;
+}
+
+interface ITensorBoardConfig {
+  randomStr: string;
+  storage: IStorage;
+  logDirectories: ILogDirectoryObj;
+}
+
 interface IParameterObj {
   [key: string]: string;
 }
@@ -163,16 +177,7 @@ interface IProtocolState {
   loading: boolean;
   showParameters: boolean;
   showEditor: boolean;
-  tensorBoardConfig: {
-    randomStr: string;
-    storage: {
-      type: string;
-      hostIP: string;
-      port: string;
-      remotePath: string;
-    };
-    logDirectories?: IParameterObj;
-  };
+  tensorBoardConfig: ITensorBoardConfig;
   enableTensorBoard: boolean;
 }
 
@@ -348,14 +353,10 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
             </Stack>
             <Stack className={styles.item}>
-              <Toggle
-                label="Enable TensorBoard"
-                checked={this.state.enableTensorBoard}
-                onChange={this.toggleTensorBoard}
-                inlineLabel={true}
+              <TensorBoard
+                setTensorBoardConfig={this.setTensorBoardConfig}
+                toggleTensorBoard={this.toggleTensorBoard}
               />
-              {this.renderTensorBoardStorage()}
-              {this.renderTensorBoardLogPath()}
             </Stack>
             <Stack className={styles.item}>
               <Toggle
@@ -453,37 +454,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
   }
 
-  private setHostIP = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, hostIP?: string) => {
-    if (hostIP !== undefined) {
-      const tensorBoardConfig = this.state.tensorBoardConfig;
-      tensorBoardConfig.storage.hostIP = hostIP;
-      this.setState({ tensorBoardConfig });
-    }
-  }
 
-  private setPort = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, port?: string) => {
-    if (port !== undefined) {
-      const tensorBoardConfig = this.state.tensorBoardConfig;
-      tensorBoardConfig.storage.port = port;
-      this.setState({ tensorBoardConfig });
-    }
-  }
-
-  private setRemotePath = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, remotePath?: string) => {
-    if (remotePath !== undefined) {
-      const tensorBoardConfig = this.state.tensorBoardConfig;
-      tensorBoardConfig.storage.remotePath = remotePath;
-      this.setState({ tensorBoardConfig });
-    }
-  }
-
-  private setType = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
-    if (option !== undefined) {
-      const tensorBoardConfig = this.state.tensorBoardConfig;
-      tensorBoardConfig.storage.type = option.key.toString();
-      this.setState({ tensorBoardConfig });
-    }
-  }
 
   private onSelectProtocol = (text: string) => {
     try {
@@ -661,102 +632,15 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private toggleTensorBoard = (event: React.MouseEvent<HTMLElement, MouseEvent>, checked?: boolean) => {
-    if (Object.getOwnPropertyNames(this.state.protocol).length === 0) {
-      alert("PLease upload protocol YAML first!");
-      return;
-    }
-    if (checked !== undefined) {
-      this.setState({
-        enableTensorBoard: checked,
-      });
-    }
+  private setTensorBoardConfig = (tensorBoardConfig: ITensorBoardConfig) => {
+    this.setState({ tensorBoardConfig });
   }
 
-  private renderTensorBoardStorage = () => {
-    if (this.state.enableTensorBoard) {
-      return (
-        <div>
-          <ComboBox
-            label="Storage Type"
-            onChange={this.setType}
-            text={this.state.tensorBoardConfig.storage.type}
-            options={externalStorageTypeOptions}
-          />
-          {this.renderTensorBoardStorageParameters()}
-        </div>
-      );
-    }
+  public toggleTensorBoard = (checked: boolean) => {
+    this.setState({ enableTensorBoard: checked });
   }
 
-  private renderTensorBoardStorageParameters = () => {
-    switch (this.state.tensorBoardConfig.storage.type) {
-      case "HDFS":
-        return (
-          <div>
-            <TextField
-              label="Host IP"
-              placeholder={`${this.props.api.split("//")[1].split(":")[0]}`}
-              value={this.state.tensorBoardConfig.storage.hostIP}
-              onChange={this.setHostIP}
-              required={true}
-            />
-            <TextField
-              label="Port"
-              placeholder={`9000`}
-              value={this.state.tensorBoardConfig.storage.port}
-              onChange={this.setPort}
-              required={true}
-            />
-            <TextField
-              label="Remote Path"
-              value={this.state.tensorBoardConfig.storage.remotePath}
-              onChange={this.setRemotePath}
-              required={true}
-            />
-          </div>
-        );
-        break;
-      case "NFS":
-        return (
-          <div>
-            <TextField
-              label="Host IP"
-              value={this.state.tensorBoardConfig.storage.hostIP}
-              onChange={this.setHostIP}
-              required={true}
-            />
-            <TextField
-              label="Remote Path"
-              value={this.state.tensorBoardConfig.storage.remotePath}
-              onChange={this.setRemotePath}
-              required={true}
-            />
-          </div>
-        );
-        break;
-    }
-  }
-
-  private renderTensorBoardLogPath = () => {
-    if (this.state.enableTensorBoard) {
-      const logPathList: string[] = [];
-      const logDirectories = this.state.tensorBoardConfig.logDirectories as IParameterObj;
-      Object.keys(logDirectories).forEach((key) => {
-        logPathList.push(`${key}:${logDirectories[key]}`);
-      });
-      const logPath = logPathList.join(":");
-      return (
-        <TextField
-          label="Log Path"
-          value={logPath}
-          readOnly={true}
-        />
-      );
-    }
-  }
-
-  private generatePreCommand = async () => {
+  private generatePreCommand = () => {
     let preCommand = [];
     let mountPath = "/TMP_TENSORBOARD_LOG";
     const storageConfig = this.state.tensorBoardConfig.storage;
@@ -808,8 +692,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     return preCommand;
   }
 
-  private injectCommand = async () => {
-    const preCommand = await this.generatePreCommand();
+  private injectCommand = () => {
+    const preCommand = this.generatePreCommand();
     if (preCommand.length === 0) {
       return false;
     }
@@ -826,7 +710,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private addTensorBoardConfig = async () => {
+  private addTensorBoardConfig = () => {
     const protocol = this.state.protocol;
     if (protocol === undefined) {
       return;
@@ -843,11 +727,11 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocolYAML: yaml.safeDump(protocol),
       tensorBoardConfig,
     });
-    await this.addTensorBoardTaskRole();
-    await this.injectCommand();
+    this.addTensorBoardTaskRole();
+    this.injectCommand();
   }
 
-  private addTensorBoardTaskRole = async () => {
+  private addTensorBoardTaskRole = () => {
     const protocol = this.state.protocol;
     const tensorBoardConfig = this.state.tensorBoardConfig;
     const tensorBoardName = `TensorBoard_${tensorBoardConfig.randomStr}`;
@@ -905,7 +789,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private deleteTensorBoardConfig = async () => {
+  private deleteTensorBoardConfig = () => {
     const protocol = this.state.protocol;
     const randomStr = this.state.tensorBoardConfig.randomStr;
     const tensorBoardName = `TensorBoard_${randomStr}`;
