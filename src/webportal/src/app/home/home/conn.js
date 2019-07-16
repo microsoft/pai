@@ -16,12 +16,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import querystring from 'querystring';
-import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 
 const username = cookies.get('user');
 const token = cookies.get('token');
+
+export class UnauthorizedError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = 'UnauthorizedError';
+  }
+}
 
 async function fetchWrapper(...args) {
   const res = await fetch(...args);
@@ -30,8 +36,7 @@ async function fetchWrapper(...args) {
     return json;
   } else {
     if (json.code === 'UnauthorizedUserError') {
-      alert(json.message);
-      userLogout();
+      throw new UnauthorizedError(json.message);
     } else {
       throw new Error(json.message);
     }
