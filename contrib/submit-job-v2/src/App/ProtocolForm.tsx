@@ -24,12 +24,11 @@ import {
 import Cookies from "js-cookie";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
-import yaml, { safeLoad, YAMLException } from "js-yaml";
+import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
 import TensorBoard from "./TensorBoard";
-import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
@@ -172,19 +171,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     loading: true,
     showParameters: true,
     showEditor: false,
-    tensorBoardConfig: {
-      randomStr: "",
-      storage: {
-        type: "HDFS",
-        hostIP: "",
-        port: "",
-        remotePath: "",
-      },
-      logDirectories: {
-        default: "$TB_ROOT",
-      },
-    },
-    enableTensorBoard: false,
   };
 
   public componentDidMount() {
@@ -334,12 +320,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
             </Stack>
             <Stack className={styles.item}>
-              <TensorBoard
-                protocol={this.state.protocol}
-                setProtocol={this.setProtocol}
-              />
-            </Stack>
-            <Stack className={styles.item}>
               <Toggle
                 label="Job Parameters"
                 checked={this.state.showParameters}
@@ -347,6 +327,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
                 inlineLabel={true}
               />
               {this.renderParameters()}
+            </Stack>
+            <Stack className={styles.item}>
+              <TensorBoard
+                protocol={this.state.protocol}
+                setProtocol={this.setProtocol}
+              />
             </Stack>
             <Stack gap={20} horizontal={true} horizontalAlign="end" className={styles.footer}>
               <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
@@ -520,7 +506,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     this.setState({ protocolYAML: text });
   }
 
-  private openEditor = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  private openEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     this.setState({ showEditor: true });
   }
@@ -530,6 +516,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private saveEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    debugger;
     event.preventDefault();
     const text = this.state.protocolYAML;
     try {
@@ -567,10 +554,8 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     }
     const protocol = yaml.safeLoad(this.state.protocolYAML);
     let tensorBoardConfig;
-    if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
-      if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
-        tensorBoardConfig = protocol.extras.tensorBoard;
-      }
+    if (protocol && protocol.extras && protocol.extras.tensorBoard) {
+      tensorBoardConfig = protocol.extras.tensorBoard;
     }
     if (tensorBoardConfig !== undefined) {
       const storage = tensorBoardConfig.storage;

@@ -73,13 +73,9 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
       },
     };
     let enableTensorBoard = false;
-    if (protocol !== null) {
-      if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
-        if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
-          tensorBoardConfig = protocol.extras.tensorBoard;
-          enableTensorBoard = true;
-        }
-      }
+    if (protocol && protocol.extras && protocol.extras.tensorBoard) {
+      tensorBoardConfig = protocol.extras.tensorBoard;
+      enableTensorBoard = true;
     }
     this.setState(({
       tensorBoardConfig,
@@ -107,13 +103,9 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
       },
     };
     let enableTensorBoard = false;
-    if (protocol !== null) {
-      if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
-        if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
-          tensorBoardConfig = protocol.extras.tensorBoard;
-          enableTensorBoard = true;
-        }
-      }
+    if (protocol && protocol.extras && protocol.extras.tensorBoard) {
+      tensorBoardConfig = protocol.extras.tensorBoard;
+      enableTensorBoard = true;
     }
     if (protocol !== this.state.protocol) {
       this.setState(({
@@ -133,7 +125,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
     return (
       <Stack>
         <Toggle
-          label="Enable TensorBoard"
+          label="TensorBoard"
           checked={this.state.enableTensorBoard}
           onChange={this.toggleTensorBoard}
           inlineLabel={true}
@@ -336,14 +328,13 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
       return false;
     }
     const protocol = this.state.protocol;
-    if (Object.prototype.hasOwnProperty.call(protocol, "taskRoles")) {
+    if (protocol && protocol.taskRoles) {
       const obj = protocol.taskRoles;
       Object.keys(obj).forEach((key) => {
         obj[key].commands = preCommand.concat(obj[key].commands);
       });
       this.setState({ protocol });
     }
-
   }
 
   private addTensorBoardConfig = () => {
@@ -353,7 +344,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
     }
     const tensorBoardConfig = this.state.tensorBoardConfig;
     tensorBoardConfig.randomStr = Math.random().toString(36).slice(2, 10);
-    if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
+    if (protocol && protocol.extras) {
       protocol.extras.tensorBoard = tensorBoardConfig;
     } else {
       protocol.extras = { tensorBoard: tensorBoardConfig };
@@ -373,7 +364,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
     const tensorBoardImage = `tensorBoardImage_${tensorBoardConfig.randomStr}`;
     const tensorBoardPort = `tensorBoardPort_${tensorBoardConfig.randomStr}`;
 
-    if (!Object.prototype.hasOwnProperty.call(protocol, "prerequisites")) {
+    if (!protocol.prerequisites) {
       protocol.prerequisites = [];
     }
     protocol.prerequisites = update(protocol.prerequisites, {
@@ -395,7 +386,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
     });
     const logPath = logPathList.join(":");
 
-    if (!Object.prototype.hasOwnProperty.call(protocol, "taskRoles")) {
+    if (!protocol.taskRoles) {
       protocol.taskRoles = {};
     }
     const minSucceededInstances = Object.getOwnPropertyNames(protocol.taskRoles).length;
@@ -425,7 +416,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
     const randomStr = this.state.tensorBoardConfig.randomStr;
     const tensorBoardName = `TensorBoard_${randomStr}`;
     const tensorBoardImage = `tensorBoardImage_${randomStr}`;
-    if (Object.prototype.hasOwnProperty.call(protocol, "taskRoles")) {
+    if (protocol && protocol.taskRoles) {
       delete protocol.taskRoles[tensorBoardName];
       Object.keys(protocol.taskRoles).forEach((key) => {
         const startIndex = protocol.taskRoles[key].commands.indexOf("`#TENSORBOARD_STORAGE_START`");
@@ -438,7 +429,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
         delete protocol.taskRoles;
       }
     }
-    if (Object.prototype.hasOwnProperty.call(protocol, "prerequisites")) {
+    if (protocol && protocol.prerequisites) {
       const index = protocol.prerequisites.findIndex((ele: any) => ele.name === tensorBoardImage);
       if (index !== -1) {
         protocol.prerequisites.splice(index, 1);
@@ -447,10 +438,8 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
         delete protocol.prerequisites;
       }
     }
-    if (Object.prototype.hasOwnProperty.call(protocol, "extras")) {
-      if (Object.prototype.hasOwnProperty.call(protocol.extras, "tensorBoard")) {
-        delete protocol.extras.tensorBoard;
-      }
+    if (protocol && protocol.extras && protocol.extras.tensorBoard) {
+      delete protocol.extras.tensorBoard;
       if (Object.getOwnPropertyNames(protocol.extras).length === 0) {
         delete protocol.extras;
       }
