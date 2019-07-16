@@ -1,17 +1,12 @@
 # Upgrade to v0.14.0
 
-We have test the upgrade process against v0.8 and later.
-It takes hours or more, depends on the number of nodes in the cluster and the internet network speed.
-During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
+Please check the [release note](TODO: release note) for the new features in v0.14.0. The upgrade process will take hours depends on the number of nodes in the cluster and the internet network speed. During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
 
 Table of Contents
 
 1. [Prepare](#Prepare)
-2. [Stop Services and Backup Data](#Stop-Services-and-Backup-Data)
-3. [Destroy Kubernetes Cluster](#Destroy-Kubernetes-Cluster)
-4. [Install Kubernetes Cluster](#Install-Kubernetes-Cluster)
-5. [Run Migration Scripts And Start Services](#Run-Migration-Scripts-And-Start-Services)
-6. [It's Done](#It's-Done)
+2. [Backup Data and Deploy k8s Cluster](#Backup-Data-and-Deploy-k8s-Cluster)
+3. [Build New Images and Start All Services](#Build-New-Images-and-Start-All-Services)
 
 ## Prepare
 
@@ -22,8 +17,8 @@ The [dev-box](../pai-management/doc/how-to-setup-dev-box.md) is a docker contain
 ```bash
 # build dev-box
 git clone -b v0.14.0 https://github.com/Microsoft/pai.git
-cd pai/src/dev-box/build
-sudo docker build -t dev-box . --file=dev-box.dockerfile
+cd pai/src/dev-box
+sudo docker build -t dev-box . --file=./bulid/dev-box.dockerfile
 
 # create dev-box
 sudo docker run -itd \
@@ -55,7 +50,7 @@ If this is the first time you deploy PAI cluster, you should refer the deploymen
 If you have deployed pai before, and the cluster version is v0.9 or higher, then you could use paictl to pull the config from cluster:
 
 ```bash
-paictl.py config pull -o <path_of_config>
+./paictl.py config pull -o <path_of_config>
 ```
 
 There should be four files under the `<path_of_config>`:
@@ -150,13 +145,24 @@ Now the Kubernetes cluster is up, you can check the Kubernetes dashboard.
 
 ### Build Image with New Version
 
-Build and push all the service images with 0.14.0 version. Make sure the pai code is in tag 0.14.0.
+This process is optional. By default all PAI services will use official v0.14.0 images in docker.io. This section works if your cluster has a private docker registry and you want to make some customization based on v0.14.0.
+
+Build and push all the service images with 0.14.0 version. Make sure the pai code is newest. Please refer to [build doc](../pai-build/pai-build.md) for more details.
 
 ```bash
 ./build/pai_build.py build -c <path_of_new_config>
 ```
 
-If build successfully, push them to the registry.
+If build successfully, push them to the registry. Before you push the docker images, make sure the file `services-configureation.yaml` has correct docker registry info like this:
+
+```yaml
+  docker-registry:
+    domain: xxx.azurecr.io
+    namespace: yyy
+    password: zzz
+    secret-name: aaa
+    tag: 'v0.14.0'
+```
 
 ```bash
 ./build/pai_build.py push -c <path_of_new_config>
