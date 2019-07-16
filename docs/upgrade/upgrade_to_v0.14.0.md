@@ -18,7 +18,7 @@ The [dev-box](../pai-management/doc/how-to-setup-dev-box.md) is a docker contain
 # build dev-box
 git clone -b v0.14.0 https://github.com/Microsoft/pai.git
 cd pai/src/dev-box
-sudo docker build -t dev-box . --file=./bulid/dev-box.dockerfile
+sudo docker build -t dev-box . --file=./build/dev-box.dockerfile
 
 # create dev-box
 sudo docker run -itd \
