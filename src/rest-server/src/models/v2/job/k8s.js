@@ -23,6 +23,7 @@ const base32 = require('base32');
 const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
+const hivedConfig = require('@pai/config/v2/hived');
 const createError = require('@pai/utils/error');
 
 
@@ -226,7 +227,6 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
-          schedulerName: launcherConfig.scheduler,
           restartPolicy: 'Never',
           serviceAccountName: 'frameworkbarrier',
           initContainers: [
@@ -266,7 +266,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
-                  'hivedscheduler.microsoft.com/pod-scheduling-enable': 1,
+                  'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
                 },
               },
               env: [
@@ -345,6 +345,41 @@ const generateTaskRole = (taskRole, labels, config) => {
       minSucceededTaskCount: -1,
     };
   }
+  // hived spec
+  if (hivedConfig.enabledHived) {
+    frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
+
+    delete  frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
+    frameworkTaskRole.task.pod.spec.containers[0]
+      .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;
+
+    if (frameworkTaskRole.task.pod.metadata.annotations == null) {
+      frameworkTaskRole.task.pod.metadata.annotations = {}
+    }
+    frameworkTaskRole.task.pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec'] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
+
+    if (frameworkTaskRole.task.pod.spec.containers[0].env == null) {
+      frameworkTaskRole.task.pod.spec.containers[0].env = [];
+    }
+    frameworkTaskRole.task.pod.spec.containers[0].env.push(
+      {
+        name: 'NVIDIA_VISIBLE_DEVICES',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+          },
+        },
+      },
+      {
+        name: 'GPU_ID',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+          },
+        },
+      })
+  }
+
   return frameworkTaskRole;
 };
 

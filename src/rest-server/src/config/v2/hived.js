@@ -20,11 +20,9 @@
 const Ajv = require('ajv');
 const ajv = new Ajv({allErrors: true, useDefaults: true});
 
-const Joi = require('joi');
-
 
 let enabledHived = false;
-if (process.env.SCHEDULER_TYPE === 'hived') {
+if (process.env.LAUNCHER_TYPE === 'k8s' && process.env.SCHEDULER_TYPE === 'hived') {
   enabledHived = true;
 }
 
@@ -80,5 +78,5 @@ const hivedValidate = ajv.compile(hivedSchema);
 // module exports
 module.exports = {
   validate: hivedValidate,
-  enableHived: enabledHived,
+  enabledHived: enabledHived,
 };

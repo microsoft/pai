@@ -296,7 +296,7 @@ const protocolSubmitMiddleware = [
   },
 ];
 
-if (hivedSchema.enableHived) {
+if (hivedSchema.enabledHived) {
   protocolSubmitMiddleware.push(
     (req, res, next) => {
       res.locals.protocol = hivedValidate(res.locals.protocol);
