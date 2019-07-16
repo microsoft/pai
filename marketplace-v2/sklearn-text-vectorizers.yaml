@@ -21,7 +21,7 @@ taskRoles:
   worker:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: sklearn_example
     resourcePerInstance:
       cpu: 4
