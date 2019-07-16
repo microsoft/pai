@@ -34,7 +34,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: chainer_example
     resourcePerInstance:
       cpu: 4

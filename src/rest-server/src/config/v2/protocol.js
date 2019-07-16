@@ -227,8 +227,8 @@ const protocolSchema = {
                 minSucceededInstances: {
                   type: ['integer', 'null'],
                 },
-                additionalProperties: false,
               },
+              additionalProperties: false,
             },
             taskRetryCount: {
               type: 'integer',
