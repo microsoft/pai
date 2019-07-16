@@ -30,7 +30,7 @@ const requestAuthCode = async (req, res, next) => {
   const responseMode = 'form_post';
   let scope = `openid offline_access https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
   if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
-    scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
+    scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
   }
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
@@ -52,7 +52,7 @@ const requestTokenWithCode = async (req, res, next) => {
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
-      scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`
+      scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
     }
     const clientId = authnConfig.OIDCConfig.clientID;
     const redirectUri = authnConfig.OIDCConfig.redirectUrl;
