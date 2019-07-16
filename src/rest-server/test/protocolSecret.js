@@ -45,7 +45,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -71,7 +71,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -108,7 +108,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -134,7 +134,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4

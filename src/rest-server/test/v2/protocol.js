@@ -49,7 +49,7 @@ const validprotocolObjs = {
       'train': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'caffe_example',
         'resourcePerInstance': {
@@ -122,7 +122,7 @@ const validprotocolObjs = {
       'worker': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'pytorch_example',
         'script': 'pytorch_example',
@@ -177,7 +177,7 @@ const validprotocolObjs = {
       'train': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'secret_example',
         'resourcePerInstance': {
@@ -214,7 +214,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -262,7 +262,7 @@ taskRoles:
   worker:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: pytorch_example
     script: pytorch_example
     resourcePerInstance:
@@ -303,7 +303,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -333,7 +333,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -362,7 +362,7 @@ taskRoles:
   invalid-name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -405,7 +405,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -433,7 +433,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -460,7 +460,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
