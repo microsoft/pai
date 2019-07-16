@@ -76,7 +76,7 @@ cluster:
     ...
 ```
 
-Change the version of tag to ```0.14.0```
+Change the version of tag to ```v0.14.0```
 
 ### Convert and Customize Cluster Configuration
 
