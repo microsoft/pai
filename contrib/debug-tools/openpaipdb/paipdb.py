@@ -180,6 +180,7 @@ def main():
     except:
         traceback.print_exc()
         print('Failed to start the remote debug')
+        sys.exit(1)
 
     while True:
         try:
@@ -210,5 +211,4 @@ def main():
     currentPdb.stop_server()
 
 if __name__ == '__main__':
-    import paipdb
-    paipdb.main()
+    main()
