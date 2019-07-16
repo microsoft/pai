@@ -507,6 +507,16 @@ if [[ -n $PAI_CODE_DIR ]]; then
   fi
 fi
 
+#Prepare debug tools
+pai_debug="tmp/pai-root/pai-debug"
+mkdir -p $pai_debug
+pai_pdb=https://raw.githubusercontent.com/microsoft/pai/binyli/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py
+pai_rpdb=https://raw.githubusercontent.com/microsoft/pai/binyli/remote_debug/contrib/debug-tools/openpaipdb/rpdb.py
+curl -s -I https://raw.githubusercontent.com/microsoft/pai/binyli/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py
+curl -s -I https://raw.githubusercontent.com/microsoft/pai/binyli/remote_debug/contrib/debug-tools/openpaipdb/rpdb.py
+curl -s -I https://github.com/microsoft/pai/blob/binyli/remote_debug/contrib/debug-tools/openpaipdb/__init__.py
+popd
+
 # Prepare docker debug log
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
