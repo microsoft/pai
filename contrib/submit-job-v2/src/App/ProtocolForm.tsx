@@ -516,7 +516,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   }
 
   private saveEditor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    debugger;
     event.preventDefault();
     const text = this.state.protocolYAML;
     try {
