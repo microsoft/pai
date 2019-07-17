@@ -834,6 +834,62 @@ Status: 404
 }
 ```
 
+### `POST group` (administrator only)
+
+Admin can create a group in system.
+
+*Request*
+
+```
+POST /api/v2/group
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "groupname": "username in [A-Za-z0-9_]++ format",
+  "description": "description for the group",
+  "externalName": "the external group name binding with the group in OpenPAI",
+  "extension": { 
+    "extension-key1": "extension-value1"
+  }
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "group is created successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
 ### `GET jobs`
 
 Get the list of jobs.
