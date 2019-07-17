@@ -25,6 +25,7 @@ const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 const dbUtility = require('@pai/utils/dbUtil');
 const secretConfig = require('@pai/config/secret');
+const vcConfig = require('@pai/config/vc');
 
 
 const db = dbUtility.getStorageObject('UserSecret', {
@@ -226,6 +227,11 @@ class VirtualCluster {
         return callback(null, vcList[vcName]);
       }
     });
+  }
+
+  getSkus(callback) {
+    // TODO: get it from yarn or cluster configuration
+    return callback(null, vcConfig.skus);
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
@@ -467,6 +473,11 @@ module.exports = {
     }),
   get: (vcName) => util.promisify(vc.getVc.bind(vc))(vcName)
     .then((vcInfo) => vcInfo)
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
+  getSkus: () => util.promisify(vc.getSkus.bind(vc))()
+    .then((skuInfo) => skuInfo)
     .catch((err) => {
       throw createError.unknown(err);
     }),

@@ -17,6 +17,9 @@
 
 // module dependencies
 const Joi = require('joi');
+const hivedConfig = require('@pai/config/v2/hived');
+const yaml = require('js-yaml');
+const fs = require('fs');
 
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
@@ -37,8 +40,22 @@ const vcStatusPutInputSchema = Joi.object().keys({
     .required(),
 }).required();
 
+let skus;
+if (hivedConfig.enabledHived) {
+  skus = yaml.safeLoad(fs.readFileSync(hivedConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
+} else {
+  skus = {
+    DEFAULT: {
+      gpu: 1,
+      cpu: 4,
+      memory: "8192Mi"
+    }
+  }
+}
+
 // module exports
 module.exports = {
   vcPutInputSchema: vcPutInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
+  skus: skus,
 };

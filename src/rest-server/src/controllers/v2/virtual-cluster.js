@@ -42,6 +42,11 @@ const get = asyncHandler(async (req, res) => {
   res.status(status('OK')).json(data);
 });
 
+const getSkus = asyncHandler(async (req, res) => {
+  const data = await virtualCluster.getSkus();
+  res.status(status('OK')).json(data);
+});
+
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   const capacity = parseInt(req.body.vcCapacity);
@@ -99,6 +104,7 @@ module.exports = {
   validate,
   list,
   get,
+  getSkus,
   update,
   updateStatus,
   remove,

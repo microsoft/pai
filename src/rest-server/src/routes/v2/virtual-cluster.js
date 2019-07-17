@@ -39,6 +39,10 @@ router.route('/:virtualClusterName/status')
   /** PUT /api/v2/virtual-clusters/:virtualClusterName - Change virtual cluster status (running or stopped) */
   .put(token.check, controller.updateStatus);
 
+router.route('/:virtualClusterName/skus')
+  /** GET /api/v2/virtual-clusters/:virtualClusterName/skus - Get virtual cluster available skus */
+  .get(controller.getSkus);
+
 router.param('virtualClusterName', controller.validate);
 
 // module exports

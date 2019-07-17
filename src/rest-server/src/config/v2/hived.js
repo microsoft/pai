@@ -26,6 +26,11 @@ if (process.env.LAUNCHER_TYPE === 'k8s' && process.env.SCHEDULER_TYPE === 'hived
   enabledHived = true;
 }
 
+let hivedSpecPath = '/hived-spec/hivedscheduler.yaml';
+if (process.env.HIVED_SPEC_PATH) {
+  hivedSpecPath = process.env.HIVED_SPEC_PATH;
+}
+
 // hived schema
 const hivedSchema = {
   type: 'object',
@@ -79,4 +84,5 @@ const hivedValidate = ajv.compile(hivedSchema);
 module.exports = {
   validate: hivedValidate,
   enabledHived: enabledHived,
+  hivedSpecPath: hivedSpecPath,
 };
