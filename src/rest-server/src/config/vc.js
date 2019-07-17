@@ -48,9 +48,33 @@ if (hivedConfig.enabledHived) {
     DEFAULT: {
       gpu: 1,
       cpu: 4,
-      memory: "8192Mi"
-    }
+      memory: '8192Mi',
+    },
+  };
+}
+
+const convertMemory = (memoryStr) => {
+  let memoryMb = parseInt(memoryStr);
+  switch (memoryStr.replace(/[0-9]/g, '')) {
+    case 'Ti':
+      memoryMb *= 1000000;
+      break;
+    case 'Gi':
+      memoryMb *= 1000;
+      break;
+    case 'Mi':
+      break;
+    case 'Ki':
+      memoryMb /= 1000;
+      break;
+    default:
+      memoryMb /= 1000000;
   }
+  return memoryMb;
+};
+
+for (let sku of Object.keys(skus)) {
+  skus[sku].memory = convertMemory(skus[sku].memory);
 }
 
 // module exports

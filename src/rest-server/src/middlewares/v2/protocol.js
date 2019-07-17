@@ -22,6 +22,7 @@ const mustache = require('mustache');
 const createError = require('@pai/utils/error');
 const protocolSchema = require('@pai/config/v2/protocol');
 const hivedSchema = require('@pai/config/v2/hived');
+const vcConfig = require('@pai/config/vc');
 
 
 const mustacheWriter = new mustache.Writer();
@@ -74,6 +75,9 @@ const hivedValidate = (protocolObj) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
+  const skus = vcConfig.skus;
+  const minCpu = Math.min(...Array.from(Object.values(skus), (v)=>v.cpu));
+  const minMemoryMB = Math.min(...Array.from(Object.values(skus), (v)=>v.memory));
   let hivedConfig = null;
   const affinityGroups = {};
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
@@ -89,7 +93,7 @@ const hivedValidate = (protocolObj) => {
         );
       }
       const instances = protocolObj.taskRoles[taskRole].instances;
-      const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu;
+      const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
 
       const taskRoleConfig = hivedConfig.taskRoles[taskRole];
       // at most one of [reservationId, gpuType] allowed
@@ -98,6 +102,14 @@ const hivedValidate = (protocolObj) => {
           'Bad Request',
           'InvalidProtocolError',
           `Hived error: ${taskRole} has both reservationId and gpuType, only one allowed.`
+        );
+      }
+
+      if (taskRoleConfig.gpuType !== null && !(taskRoleConfig.gpuType in skus)) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Hived error: ${taskRole} has unknown gpuType ${taskRoleConfig.gpuType}, allow ${Object.keys(skus)}.`
         );
       }
 
@@ -148,6 +160,11 @@ const hivedValidate = (protocolObj) => {
 
   // generate podSpec for every taskRole
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
+    const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
+    const cpu = protocolObj.taskRoles[taskRole].resourcePerInstance.cpu;
+    const memoryMB = protocolObj.taskRoles[taskRole].resourcePerInstance.memoryMB;
+    let allowedCpu = minCpu * gpu;
+    let allowedMemoryMB = minMemoryMB * gpu;
     const podSpec = {
       virtualCluster: ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
         protocolObj.defaults.virtualCluster : 'default',
@@ -160,6 +177,10 @@ const hivedValidate = (protocolObj) => {
     if (hivedConfig !== null && taskRole in hivedConfig.taskRoles) {
       podSpec.priority = convertPriority(hivedConfig.jobPriorityClass);
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
+      if (podSpec.gpuType !== null) {
+        allowedCpu = skus[podSpec.gpuType].cpu * gpu;
+        allowedMemoryMB = skus[podSpec.gpuType].memory * gpu;
+      }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 
       const affinityGroupName = hivedConfig.taskRoles[taskRole].affinityGroupName;
@@ -167,6 +188,13 @@ const hivedValidate = (protocolObj) => {
         name: protocolObj.name + '/' + affinityGroupName,
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
+    }
+    if (cpu > allowedCpu || memoryMB > allowedMemoryMB) {
+      throw createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        `Hived error: ${taskRole} requests (${cpu}cpu, ${memoryMB}memoryMB), allow (${allowedCpu}cpu, ${allowedMemoryMB}memoryMB) with ${gpu}gpu.`
+      );
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
@@ -301,7 +329,7 @@ if (hivedSchema.enabledHived) {
     (req, res, next) => {
       res.locals.protocol = hivedValidate(res.locals.protocol);
       next();
-  })
+  });
 }
 
 // module exports
