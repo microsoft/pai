@@ -33,10 +33,12 @@ import threading
 import signal
 from functools import partial
 
-DEFAULT_ADDR = "127.0.0.1"
-DEFAULT_PORT = 4444
+CURRENT_TEST_ROLE_NAME = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
+TASK_ROLE_INDEX = os.environ.get("PAI_TASK_ROLE_INDEX")
+DEFAULT_ADDR = os.environ.get("PAI_HOST_IP_" + CURRENT_TEST_ROLE_NAME + "_" + TASK_ROLE_INDEX)
+DEFAULT_PORT = int(os.environ.get("DEBUG_PORT", 4444))
 # Debug will exit if there is no connection in 600 seconds
-DEFAULT_TIMEOUT = 600
+DEFAULT_TIMEOUT = int(os.environ.get("DEBUG_TIMEOUT", 600))
 
 class FileObjectWrapper(object):
     def __init__(self, fileobject, stdio):
@@ -72,10 +74,10 @@ class Paipdb(pdb.Pdb):
         self.skt.bind((addr, port))
         self.skt.listen(1)
         
-        print("paipdb is running on {}:{}\n".format(*self.skt.getsockname()), flush=True)
+        print("paipdb is running on {}:{}\n".format(*self.skt.getsockname()))
 
-        (clientsocket, address) = self.skt.accept()
-        handle = clientsocket.makefile('rw', buffering=None)
+        (clientsocket, _) = self.skt.accept()
+        handle = clientsocket.makefile('rw')
         pdb.Pdb.__init__(self, completekey='tab',
                             stdin=FileObjectWrapper(handle, self.old_stdin),
                             stdout=FileObjectWrapper(handle, self.old_stdin))
@@ -84,10 +86,11 @@ class Paipdb(pdb.Pdb):
 
     def stop_server(self):
         """Revert the stdin & stdout, close the socket"""
-        self.skt.close()
-        OCCUPIED.unclaim(self.port)
+
         sys.stdout = self.old_stdout
         sys.stdin = self.old_stdin
+        OCCUPIED.unclaim(self.port)
+        self.skt.close()
 
 
 def set_trace(addr=DEFAULT_ADDR, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, frame=None):
@@ -165,17 +168,13 @@ def main():
     mainpyfile = args[0]
     sys.argv[:] = args
 
-    hostIp = os.environ.get("DEBUG_HOST_IP", "127.0.0.1")
-    debugPort = int(os.environ.get("DEBUG_PORT", "4444"))
-    debugTimeout = int(os.environ.get("DEBUG_TIMEOUT", "600"))
-
     print("debug host ip is set to {}, port is set to {}, timeout is set to {}".format(
-          hostIp, debugPort, debugTimeout))
+          DEFAULT_ADDR, DEFAULT_PORT, DEFAULT_TIMEOUT))
 
     try:
-        currentPdb = Paipdb(addr=hostIp, port=debugPort, timeout=debugTimeout)
+        currentPdb = Paipdb()
     except socket.timeout:
-        print("No client connect to server in {} seconds, exit".format(debugTimeout))
+        print("No client connect to server in {} seconds, exit".format(DEFAULT_TIMEOUT))
         sys.exit(1)
     except:
         traceback.print_exc()
@@ -188,15 +187,12 @@ def main():
             if currentPdb._user_requested_quit:
                 break
             print("The program finished and will be restarted")
-            break
         except pdb.Restart:
-            break
             print("Restarting", mainpyfile, "with arguments:")
             print("\t" + " ".join(args))
         except SystemExit:
             # In most cases SystemExit does not warrant a post-mortem session.
-            print("The program exited via sys.exit(). Exit status:", end=' ')
-            print(sys.exc_info()[1])
+            print("The program exited via sys.exit(). Exit status: ", sys.exc_info()[1])
         except SyntaxError:
             traceback.print_exc()
             sys.exit(1)
@@ -211,4 +207,5 @@ def main():
     currentPdb.stop_server()
 
 if __name__ == '__main__':
-    main()
+    import paipdb
+    paipdb.main()

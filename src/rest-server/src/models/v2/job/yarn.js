@@ -145,7 +145,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
     frameworkInfoWebhdfsUri: launcherConfig.frameworkInfoWebhdfsPath(frameworkName),
     azRDMA: azureEnv.azRDMA === 'true' ? true : false,
     reqAzRDMA: false,
-    isLiveDebug: config.extras && config.extras === 'true' ? true: false,
+    isLiveDebug: config.extras && config.extras.isLiveDebug === true ? true: false,
     inspectPidFormat: '{{.State.Pid}}',
     infoDefaultRuntimeFormat: '"{{json .DefaultRuntime}}"',
   });
