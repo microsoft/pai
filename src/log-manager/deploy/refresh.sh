@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -18,32 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# This script tries to behave like initd, will execute shell scripts under
-# `/usr/local/pai/init`, main.sh will get a special treat: it will start after
-# all other script and if main.sh exit this initd will kill all other processes in
-# container.
+pushd $(dirname "$0") > /dev/null
 
-PAI_DIR=/usr/local/pai
-INIT_DIR=${PAI_DIR}/init
-#PAI_LOG_DIR=/usr/local/pai/logs/attempt-${FC_FRAMEWORK_ATTEMPT_ID}/role-${FC_TASKROLE_NAME}/idx-${FC_TASK_INDEX}/attempt-${FC_TASK_ATTEMPT_ID}/
-PAI_LOG_DIR=${PAI_DIR}/logs
+bash stop.sh
+bash start.sh
 
-. $PAI_DIR/runtime_env.sh
-
-for i in `find $INIT_DIR/ -type f -regex ".*.sh"` ; do
-  file_name=`basename $i`
-  if [ $file_name = "main.sh" ] ; then
-    echo "skip main.sh for now"
-    continue
-  else
-    echo "starting ${file_name}"
-    $i > ${PAI_LOG_DIR}/${FC_POD_UID}_init_${file_name}.log 2>&1 &
-  fi
-done
-
-echo "starting main.sh"
-$INIT_DIR/main.sh 2>&1 | tee ${PAI_LOG_DIR}/${FC_POD_UID}.log & # TODO tee may not exist in user's container
-MAIN_PID=$!
-
-echo "wait for main"
-wait $MAIN_PID
+popd > /dev/null
