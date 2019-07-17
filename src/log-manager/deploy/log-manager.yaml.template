@@ -78,7 +78,7 @@ spec:
         ports:
         - containerPort: 80
           hostPort: {{ cluster_cfg["log-manager"]["port"] }}
-          name: main
+          name: log-manager
       volumes:
         - name: pai-log
           hostPath:

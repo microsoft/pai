@@ -210,6 +210,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
+                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
                   mountPath: '/usr/local/pai/logs',
                 },
               ],
@@ -258,6 +259,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
+                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -276,7 +278,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             {
               name: 'host-log',
               hostPath: {
-                path: `/var/log/pai/${labels.userName}/${labels.jobName}/${taskRole}`,
+                path: `/var/log/pai`,
               },
             },
             {

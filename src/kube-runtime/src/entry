@@ -28,7 +28,7 @@ INIT_DIR=${PAI_DIR}/init
 PAI_LOG_DIR=${PAI_DIR}/logs
 
 MAIN_SH=${INIT_DIR}/main.sh
-LOG_FILE=${PAI_LOG_DIR}/entry.log
+LOG_FILE=${PAI_LOG_DIR}/${FC_POD_UID}_entry.log
 
 mkdir -p $PAI_LOG_DIR
 cp /pai-runtime/run $PAI_DIR
@@ -37,15 +37,17 @@ cp -r /pai-runtime/init $PAI_DIR
 # do preparation for each script
 for i in `find /pai-runtime/prep/ -type f -regex ".*.sh"` ; do
   file_name=`basename $i`
-  $i > ${PAI_LOG_DIR}/prep_${file_name}.log 2>&1
+  echo -e "##### [${i} start] ##### \n"
+  $i >> ${PAI_LOG_DIR}/${FC_POD_UID}_prep.log 2>&1
+  echo -e "##### [${i} end] ##### \n\n"
 done
 
 # do service discovery
 cd $PAI_LOG_DIR
 
-/pai-runtime/frameworkbarrier > $PAI_LOG_DIR/barrier.log 2>&1
+/pai-runtime/frameworkbarrier > $PAI_LOG_DIR/${FC_POD_UID}_barrier.log 2>&1
 echo "barrier returns $?" >> $LOG_FILE
-python /pai-runtime/parse.py framework.json > $PAI_DIR/runtime_env.sh 2> $PAI_LOG_DIR/parse.log
+python /pai-runtime/parse.py framework.json > $PAI_DIR/runtime_env.sh 2> $PAI_LOG_DIR/${FC_POD_UID}_parse.log
 echo "parser.py returns $?" >> $LOG_FILE
 
 # prepare main.sh, which is where user command get started

@@ -16,3 +16,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FROM nginx:1.17.1
+COPY src/conf/nginx.conf /etc/nginx/nginx.conf

@@ -57,6 +57,8 @@ spec:
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+        - name: LOGMANAGER_PORT
+          value: {{ cluster_cfg['log-manager']['port'] }}
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: DEFAULT_PAI_ADMIN_USERNAME
