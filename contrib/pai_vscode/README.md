@@ -10,6 +10,7 @@ OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jo
     - [Steps](#steps)
     - [Limitations](#limitations)
   - [Reference](#reference)
+    - [Installation](https://github.com/microsoft/pai/blob/master/contrib/pai_vscode/VSCodeExt.md#installation)
     - [GUI](#gui)
     - [Command Palette](#command-palette)
     - [PAI Cluster Explorer](#pai-cluster-explorer)
