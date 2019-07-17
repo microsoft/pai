@@ -18,19 +18,20 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: log-manager
+  name: log-manager-ds
 spec:
   selector:
     matchLabels:
       app: log-manager
   template:
     metadata:
+      name: log-manager
       labels:
         app: log-manager
       annotations:
         port: "{{ cluster_cfg["log-manager"]["port"] }}"
-      name: log-manager
     spec:
+      hostNetwork: false
       containers:
       - name: log-manager-logrotate
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -52,16 +53,14 @@ spec:
       - name: log-manager-nginx
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-nginx:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        livenessProbe: # in case log-manager hangs
+        livenessProbe:
           httpGet:
             path: '/healthz'
-            port: {{ cluster_cfg["log-manager"]["port"] }}
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          timeoutSeconds: 10
+            port: log-manager
+          initialDelaySeconds: 10
+          periodSeconds: 60
         securityContext:
           privileged: true
-        env:
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
