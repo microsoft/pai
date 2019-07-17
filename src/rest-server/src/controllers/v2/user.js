@@ -23,9 +23,6 @@ const groupModel = require('@pai/models/v2/group');
 
 const getUser = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
     userInfo['admin'] = userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
@@ -42,9 +39,6 @@ const getUser = async (req, res, next) => {
 
 const getAllUser = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
     const userList = await userModel.getAllUser();
     let retUserList = [];
     for (let userItem of userList) {
