@@ -33,10 +33,12 @@ import threading
 import signal
 from functools import partial
 
-CURRENT_TEST_ROLE_NAME = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
+CURRENT_TAST_ROLE_NAME = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
 TASK_ROLE_INDEX = os.environ.get("PAI_TASK_ROLE_INDEX")
-DEFAULT_ADDR = os.environ.get("PAI_HOST_IP_" + CURRENT_TEST_ROLE_NAME + "_" + TASK_ROLE_INDEX)
-DEFAULT_PORT = int(os.environ.get("DEBUG_PORT", 4444))
+DEFAULT_ADDR = os.environ.get("PAI_HOST_IP_" + CURRENT_TAST_ROLE_NAME + "_" + TASK_ROLE_INDEX)
+DEBUG_PORT_NAME = os.environ.get("DEBUG_PORT_NAME")
+DEBUG_PORT = "PAI_PORT_LIST_" + CURRENT_TAST_ROLE_NAME + "_" + TASK_ROLE_INDEX + "_" + DEBUG_PORT_NAME
+DEFAULT_PORT = int(os.environ.get(DEBUG_PORT, 4444))
 # Debug will exit if there is no connection in 600 seconds
 DEFAULT_TIMEOUT = int(os.environ.get("DEBUG_TIMEOUT", 600))
 
