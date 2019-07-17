@@ -38,10 +38,6 @@ spec:
         securityContext:
           privileged: true
         env:
-        - name: HOST_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
         - name: LOGS_DIRECTORIES
           value: "/usr/local/pai/logs"
         - name: LOGROTATE_INTERVAL
@@ -66,10 +62,6 @@ spec:
         securityContext:
           privileged: true
         env:
-        - name: HOST_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
@@ -88,7 +80,6 @@ spec:
             path: /var/log/pai-backup
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
-      hostNetwork: true
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
