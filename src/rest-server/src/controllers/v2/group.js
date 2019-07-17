@@ -23,9 +23,6 @@ const authConfig = require('@pai/config/authn');
 
 const getGroup = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
     const groupname = req.params.groupname;
     const groupInfo = await groupModel.getGroup(groupname);
     return res.status(200).json(groupInfo);
@@ -36,9 +33,6 @@ const getGroup = async (req, res, next) => {
 
 const getAllGroup = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
     const groupList = await groupModel.getAllGroup();
     return res.status(200).json(groupList);
   } catch (error) {
