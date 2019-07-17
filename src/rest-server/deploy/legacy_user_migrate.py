@@ -106,7 +106,7 @@ class TransferClient:
             grouplist.append(vc_name)
         extension = {}
         if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
-            extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT'])
+            extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT']).decode('utf-8')
         user_dict = {
             'username': user_info_item['data']['username'],
             'password': user_info_item['data']['password'],
