@@ -774,7 +774,7 @@ Status: 500
 
 ### `DELETE user group` (administrator only, basic authentication mode only)
 
-Administrator add a group to other user's grouplist.
+Administrator remove a group from other user's grouplist.
 
 *Request*
 
