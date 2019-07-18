@@ -33,14 +33,14 @@ Here is a sample:
 ```bash
 if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
 apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python -m paipdb user_python_script.py args ...
 ```
 or you can use python3 to run the script:
 ```bash
 if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
 apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python3 -m paipdb user_python_script.py args ...
 ```
 
@@ -59,7 +59,7 @@ To run the python script, just use:
 ```bash
 if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
 apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_TIMEOUT=600 python3 user_python_script.py args ...
 ```
 

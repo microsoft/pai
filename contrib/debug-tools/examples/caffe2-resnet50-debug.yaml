@@ -36,7 +36,7 @@ taskRoles:
       - apt-get install -y --no-install-recommends wget
       - >-
         wget
-        https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py
+        https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py
         -P /pai_data/debug
       - >-
         PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=debug python -m paipdb resnet50_trainer.py
