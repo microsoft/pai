@@ -23,11 +23,11 @@ const vcConfig = require('@pai/config/vc');
 
 class VirtualCluster {
   constructor() {
-    this.skus = vcConfig.skus;
+    this.resourceUnits = vcConfig.resourceUnits;
   }
 
-  getSkus(callback) {
-    return callback(null, this.skus);
+  getResourceUnits() {
+    return this.resourceUnits;
   }
 }
 
@@ -35,9 +35,5 @@ const vc = new VirtualCluster();
 
 // module exports
 module.exports = {
-  getSkus: () => util.promisify(vc.getSkus.bind(vc))()
-    .then((vcInfo) => vcInfo)
-    .catch((err) => {
-      throw createError.unknown(err);
-    }),
+  getResourceUnits: vc.getResourceUnits.bind(vc)
 };

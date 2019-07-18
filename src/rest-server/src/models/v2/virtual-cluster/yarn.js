@@ -229,9 +229,9 @@ class VirtualCluster {
     });
   }
 
-  getSkus(callback) {
+  getResourceUnits() {
     // TODO: get it from yarn or cluster configuration
-    return callback(null, vcConfig.skus);
+    return vcConfig.resourceUnits;
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
@@ -476,11 +476,7 @@ module.exports = {
     .catch((err) => {
       throw createError.unknown(err);
     }),
-  getSkus: () => util.promisify(vc.getSkus.bind(vc))()
-    .then((skuInfo) => skuInfo)
-    .catch((err) => {
-      throw createError.unknown(err);
-    }),
+  getResourceUnits: vc.getResourceUnits.bind(vc),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
     .catch((err) => {
       throw createError.unknown(err);

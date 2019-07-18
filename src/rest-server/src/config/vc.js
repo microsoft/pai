@@ -40,11 +40,11 @@ const vcStatusPutInputSchema = Joi.object().keys({
     .required(),
 }).required();
 
-let skus;
+let resourceUnits;
 if (hivedConfig.enabledHived) {
-  skus = yaml.safeLoad(fs.readFileSync(hivedConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
+  resourceUnits = yaml.safeLoad(fs.readFileSync(hivedConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
 } else {
-  skus = {
+  resourceUnits = {
     DEFAULT: {
       gpu: 1,
       cpu: 4,
@@ -73,13 +73,14 @@ const convertMemory = (memoryStr) => {
   return memoryMb;
 };
 
-for (let sku of Object.keys(skus)) {
-  skus[sku].memory = convertMemory(skus[sku].memory);
+for (let gpuType of Object.keys(resourceUnits)) {
+  resourceUnits[gpuType].memoryMB = convertMemory(resourceUnits[gpuType].memory);
+  delete resourceUnits[gpuType].memory;
 }
 
 // module exports
 module.exports = {
   vcPutInputSchema: vcPutInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
-  skus: skus,
+  resourceUnits: resourceUnits,
 };

@@ -75,9 +75,9 @@ const hivedValidate = (protocolObj) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
-  const skus = vcConfig.skus;
-  const minCpu = Math.min(...Array.from(Object.values(skus), (v)=>v.cpu));
-  const minMemoryMB = Math.min(...Array.from(Object.values(skus), (v)=>v.memory));
+  const resourceUnits = vcConfig.resourceUnits;
+  const minCpu = Math.min(...Array.from(Object.values(resourceUnits), (v)=>v.cpu));
+  const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v)=>v.memoryMB));
   let hivedConfig = null;
   const affinityGroups = {};
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
@@ -105,11 +105,11 @@ const hivedValidate = (protocolObj) => {
         );
       }
 
-      if (taskRoleConfig.gpuType !== null && !(taskRoleConfig.gpuType in skus)) {
+      if (taskRoleConfig.gpuType !== null && !(taskRoleConfig.gpuType in resourceUnits)) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Hived error: ${taskRole} has unknown gpuType ${taskRoleConfig.gpuType}, allow ${Object.keys(skus)}.`
+          `Hived error: ${taskRole} has unknown gpuType ${taskRoleConfig.gpuType}, allow ${Object.keys(resourceUnits)}.`
         );
       }
 
@@ -178,8 +178,8 @@ const hivedValidate = (protocolObj) => {
       podSpec.priority = convertPriority(hivedConfig.jobPriorityClass);
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
       if (podSpec.gpuType !== null) {
-        allowedCpu = skus[podSpec.gpuType].cpu * gpu;
-        allowedMemoryMB = skus[podSpec.gpuType].memory * gpu;
+        allowedCpu = resourceUnits[podSpec.gpuType].cpu * gpu;
+        allowedMemoryMB = resourceUnits[podSpec.gpuType].memoryMB * gpu;
       }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 

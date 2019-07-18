@@ -42,10 +42,15 @@ const get = asyncHandler(async (req, res) => {
   res.status(status('OK')).json(data);
 });
 
-const getSkus = asyncHandler(async (req, res) => {
-  const data = await virtualCluster.getSkus();
-  res.status(status('OK')).json(data);
-});
+const getResourceUnits = (req, res) => {
+  let data;
+  try {
+    data = virtualCluster.getResourceUnits();
+  } catch (error) {
+    return createError.unknown(err);
+  }
+  return res.status(status('OK')).json(data);
+};
 
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
@@ -104,7 +109,7 @@ module.exports = {
   validate,
   list,
   get,
-  getSkus,
+  getResourceUnits,
   update,
   updateStatus,
   remove,
