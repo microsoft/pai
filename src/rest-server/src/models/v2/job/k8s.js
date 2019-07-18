@@ -164,6 +164,20 @@ const convertFrameworkDetail = (framework) => {
 };
 
 const generateTaskRole = (taskRole, labels, config) => {
+  const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
+  for (let port of ['ssh', 'http']) {
+    if (!(port in ports)) {
+      ports[port] = 1;
+    }
+  }
+  // schedule ports in [20000, 40000) randomly
+  const randomPorts = {};
+  for (let port of Object.keys(ports)) {
+    randomPorts[port] = {
+      start: Math.floor((Math.random() * 20000) + 20000),
+      count: ports[port],
+    };
+  }
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -180,6 +194,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           },
           annotations: {
             'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'rest-server/port-scheduling-spec': JSON.stringify(randomPorts),
             'hivedscheduler.microsoft.com/pod-scheduling-spec': yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec),
           },
         },
@@ -230,14 +245,6 @@ const generateTaskRole = (taskRole, labels, config) => {
               env: [
                 {
                   name: 'NVIDIA_VISIBLE_DEVICES',
-                  valueFrom: {
-                    fieldRef: {
-                      fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
-                    },
-                  },
-                },
-                {
-                  name: 'GPU_ID',
                   valueFrom: {
                     fieldRef: {
                       fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
@@ -372,15 +379,6 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
             fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
           },
         },
-      },
-      // use random ports temporally
-      {
-        name: 'PAI_CURRENT_CONTAINER_PORT',
-        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
-      },
-      {
-        name: 'PAI_CONTAINER_SSH_PORT',
-        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
       },
     ]));
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
