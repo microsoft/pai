@@ -879,6 +879,269 @@ Status: 401
 }
 ```
 
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group extension` (administrator only)
+
+Admin can change a group's extension.
+
+*Request*
+
+```
+POST /api/v2/group/:groupname/extension
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "extension": { 
+    "key-create-or-update-1": "extension-value1",
+    "key-create-or-update-2": [ ... ],
+    "key-create-or-update-3": { ... }
+  }
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "group is created successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group description` (administrator only)
+
+Admin can change a group's description.
+
+*Request*
+
+```
+POST /api/v2/group/:groupname/description
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "description": "description for the group"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update group description data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group externalname` (administrator only)
+
+Admin can change a group's externalname, and bind it with another external group.
+
+*Request*
+
+```
+POST /api/v2/group/:groupname/externalname
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "externalName": "the external group name binding with the group in OpenPAI"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update group externalNameData data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `DELETE group` (administrator only)
+
+Admin can delete a group from system.
+
+*Request*
+
+```
+DELETE /api/v2/group/:groupname
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "externalName": "the external group name binding with the group in OpenPAI"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "message": "group is removed successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
 *Response if a server error occurred*
 
 ```json
