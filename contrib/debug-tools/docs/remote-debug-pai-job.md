@@ -7,6 +7,8 @@ OpenPai remote debug tool only support **python** job. It contains two debug mod
 
 Currently this feature is in experiment phrase, and we don't have a mechanism to notify user weather debug server is starts. Users need to check log to my theirself to get this notification.
 
+We recommend to user first approach to start debug. To use second approach, user need to manage the debug ports by theirselves.
+
 ***NOTICE: This is an experiment feature and may be changed in future release***
 
 # 2. Edit the job submission yaml to support debug
