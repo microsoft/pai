@@ -36,8 +36,6 @@ spec:
       - name: log-manager-logrotate
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: LOGS_DIRECTORIES
           value: "/usr/local/pai/logs"
@@ -59,8 +57,6 @@ spec:
             port: log-manager
           initialDelaySeconds: 10
           periodSeconds: 60
-        securityContext:
-          privileged: true
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
