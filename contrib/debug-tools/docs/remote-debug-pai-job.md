@@ -7,12 +7,12 @@ OpenPai remote debug tool only support **python** job. It contains two debug mod
 
 Currently this feature is in experiment phrase, and we don't have a mechanism to notify user weather debug server is starts. Users need to check log to my theirself to get this notification.
 
-We recommend to user first approach to start debug. To use second approach, user need to manage the debug ports by theirselves.
+We recommend to use first approach to start debug. To use second approach, user need to manage the debug ports by themselves.
 
 ***NOTICE: This is an experiment feature and may be changed in future release***
 
 # 2. Edit the job submission yaml to support debug
-To support the live debug, we need to modify the job submit yaml. Please add `isLiveDebug: true` in `extras` filed. And user must request one debug port in `resourcePerInstance` field.
+To support the live debug, we need to modify the job submit yaml. Please request one debug port in `resourcePerInstance` field.
 
 The full examples can refer to [examples](../examples).
 ```yaml
@@ -24,20 +24,24 @@ taskRoles:
       gpu: 4
       ports:
         debug: 1
-extras:
-  isLiveDebug: true
 ``` 
 
-# 3. Start debug when task begin
-To start debug when task begin. We need to change the task role command.
+# 3. Start debugging when task begins
+To start debugging when task begins. We need to change the task role command.
 
 Here is a sample:
 ```bash
-PYTHONPATH=$PYTHONPATH:/pai/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python -m paipdb user_python_script.py args ...
+if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+apt-get install -y --no-install-recommends wget
+wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python -m paipdb user_python_script.py args ...
 ```
 or you can use python3 to run the script:
 ```bash
-PYTHONPATH=$PYTHONPATH:/pai/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python3 -m paipdb user_python_script.py args ...
+if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+apt-get install -y --no-install-recommends wget
+wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python3 -m paipdb user_python_script.py args ...
 ```
 
 The `DEBUG_PORT_NAME` here is the debug port we request in `resourcePerInstance`. The `DEBUG_TIMEOUT` means the seconds debug server will wait for connecting. If there is no client connect to debug server before timeout, the task will exit.
@@ -53,7 +57,10 @@ To enable this, user can set breakpoint by insert `import paipdb; paipdb.settrac
 
 To run the python script, just use:
 ```bash
-PYTHONPATH=$PYTHONPATH:/pai/debug DEBUG_TIMEOUT=600 python3 user_python_script.py args ...
+if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+apt-get install -y --no-install-recommends wget
+wget https://raw.githubusercontent.com/microsoft/pai/master/remote_debug/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
+PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_TIMEOUT=600 python3 user_python_script.py args ...
 ```
 
 ***We do not set DEBUG_PORT_NAME here since it will be managed by user self***
