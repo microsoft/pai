@@ -16,8 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const util = require('util');
-const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
 
 
@@ -35,5 +33,5 @@ const vc = new VirtualCluster();
 
 // module exports
 module.exports = {
-  getResourceUnits: vc.getResourceUnits.bind(vc)
+  getResourceUnits: vc.getResourceUnits.bind(vc),
 };

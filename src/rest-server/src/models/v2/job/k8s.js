@@ -339,12 +339,12 @@ const generateTaskRole = (taskRole, labels, config) => {
   if (hivedConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
 
-    delete  frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
+    delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]
       .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;
 
     if (frameworkTaskRole.task.pod.metadata.annotations == null) {
-      frameworkTaskRole.task.pod.metadata.annotations = {}
+      frameworkTaskRole.task.pod.metadata.annotations = {};
     }
     frameworkTaskRole.task.pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec'] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
 
@@ -359,7 +359,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
           },
         },
-      })
+      });
   }
 
   return frameworkTaskRole;

@@ -46,7 +46,7 @@ const getResourceUnits = (req, res) => {
   let data;
   try {
     data = virtualCluster.getResourceUnits();
-  } catch (error) {
+  } catch (err) {
     return createError.unknown(err);
   }
   return res.status(status('OK')).json(data);
