@@ -11,6 +11,8 @@ Currently this feature is in experiment phrase, and we don't have a mechanism to
 
 # 2. Edit the job submission yaml to support debug
 To support the live debug, we need to modify the job submit yaml. Please add `isLiveDebug: true` in `extras` filed. And user must request one debug port in `resourcePerInstance` field.
+
+The full examples can refer to [examples](../examples).
 ```yaml
 taskRoles:
   taskRole1:
@@ -59,7 +61,7 @@ User can use `netcat` to connet to debug server.
 
 For linux user, he/she can use `nc debug_server_ip debug_port` to connect
 
-User can get the task `host_ip` and `debug_port` by: curl http://10.158.22.91/rest-server/api/v1/user/your_user_name/jobs/your_job_name
+User can get the task `host_ip` and `debug_port` from the job detail page. Or through restAPI: /rest-server/api/v1/user/your_user_name/jobs/your_job_name
 
 # 5. Debug commands
 paipdb is just a simple wrapper for `pdb`. You can use the commands supported by `pdb` to debug your pai job. The `pdb` reference is here:

@@ -37,8 +37,8 @@ CURRENT_TAST_ROLE_NAME = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
 TASK_ROLE_INDEX = os.environ.get("PAI_TASK_ROLE_INDEX")
 DEFAULT_ADDR = os.environ.get("PAI_HOST_IP_" + CURRENT_TAST_ROLE_NAME + "_" + TASK_ROLE_INDEX)
 DEBUG_PORT_NAME = os.environ.get("DEBUG_PORT_NAME")
-DEBUG_PORT = "PAI_PORT_LIST_" + CURRENT_TAST_ROLE_NAME + "_" + TASK_ROLE_INDEX + "_" + DEBUG_PORT_NAME
-DEFAULT_PORT = int(os.environ.get(DEBUG_PORT, 4444))
+DEBUG_PORT_LIST = "PAI_PORT_LIST_" + CURRENT_TAST_ROLE_NAME + "_" + TASK_ROLE_INDEX + "_" + DEBUG_PORT_NAME
+DEFAULT_PORT = int(os.environ.get(DEBUG_PORT_LIST, "4444").split(',')[0])
 # Debug will exit if there is no connection in 600 seconds
 DEFAULT_TIMEOUT = int(os.environ.get("DEBUG_TIMEOUT", 600))
 
@@ -76,7 +76,8 @@ class Paipdb(pdb.Pdb):
         self.skt.bind((addr, port))
         self.skt.listen(1)
         
-        print("paipdb is running on {}:{}\n".format(*self.skt.getsockname()))
+        # write to stderr for not buffering this message
+        sys.stderr.write("paipdb is running on {}:{}\n".format(*self.skt.getsockname()))
 
         (clientsocket, _) = self.skt.accept()
         handle = clientsocket.makefile('rw')
@@ -170,8 +171,9 @@ def main():
     mainpyfile = args[0]
     sys.argv[:] = args
 
-    print("debug host ip is set to {}, port is set to {}, timeout is set to {}".format(
-          DEFAULT_ADDR, DEFAULT_PORT, DEFAULT_TIMEOUT))
+    # Do not buffer this message, print to stderr
+    sys.stderr.write("debug host ip is set to {}, port is set to {}, timeout is set to {}\n".format(
+        DEFAULT_ADDR, DEFAULT_PORT, DEFAULT_TIMEOUT))
 
     try:
         currentPdb = Paipdb()
