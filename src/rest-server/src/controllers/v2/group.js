@@ -64,6 +64,9 @@ const getGroupUserList = async (req, res, next) => {
 
 const createGroup = async (req, res, next) => {
   try {
+    if (!req.user.admin) {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
     const groupname = req.body.groupname;
     const groupValue = {
       groupname: req.body.groupname,

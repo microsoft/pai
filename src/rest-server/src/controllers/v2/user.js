@@ -196,7 +196,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
     const username = req.params.username;
     let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     let virtualCluster = req.body.virtualCluster;
-    if (req.user.admin || req.user.username === username) {
+    if (req.user.admin) {
       let groupType = await groupModel.getAllGroupTypeObject();
       let userInfo = await userModel.getUser(username);
       for (const groupname of userInfo['grouplist']) {
