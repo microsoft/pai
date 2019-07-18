@@ -342,15 +342,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]
       .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;
-
-    if (frameworkTaskRole.task.pod.metadata.annotations == null) {
-      frameworkTaskRole.task.pod.metadata.annotations = {};
-    }
     frameworkTaskRole.task.pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec'] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
-
-    if (frameworkTaskRole.task.pod.spec.containers[0].env == null) {
-      frameworkTaskRole.task.pod.spec.containers[0].env = [];
-    }
     frameworkTaskRole.task.pod.spec.containers[0].env.push(
       {
         name: 'NVIDIA_VISIBLE_DEVICES',

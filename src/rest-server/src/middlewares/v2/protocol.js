@@ -82,7 +82,6 @@ const hivedValidate = (protocolObj) => {
   const affinityGroups = {};
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
-    // console.log(JSON.stringify(hivedConfig, null, 4));
     for (let taskRole of Object.keys(hivedConfig.taskRoles)) {
       // must be a valid taskRole
       if (!(taskRole in protocolObj.taskRoles)) {
