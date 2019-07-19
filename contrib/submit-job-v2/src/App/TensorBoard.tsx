@@ -206,7 +206,7 @@ export default class TensorBoard extends React.Component<ITensorBoardProps, ITen
       Object.keys(logDirectories).forEach((key) => {
         logPathList.push(`${key}:${logDirectories[key]}`);
       });
-      const logPath = logPathList.join(":");
+      const logPath = logPathList.join(",");
       return (
         <TextField
           label="Log Path"

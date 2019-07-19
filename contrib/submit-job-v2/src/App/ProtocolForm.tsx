@@ -227,7 +227,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               {render!(props)}
               <Label>Upload from local disk</Label>
               <label className={styles.fileLabel}>
-                <a className={cx({ fileBtn: true, fileDisabled: !(props && props.checked) })}>
+                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
                   Import
                 </a>
                 <input
@@ -445,7 +445,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     const parameters = this.state.protocol.parameters as object;
     if (parameters) {
       Object.entries(parameters).forEach(
-        ([key, value]) => pairs.push({ key, value }),
+        ([key, value]) => pairs.push({key, value}),
       );
     }
     return pairs;
