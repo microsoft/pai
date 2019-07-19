@@ -177,8 +177,8 @@ const convertFrameworkDetail = async (framework) => {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
   }
 
-  const frameworkName = decodeName(framework.metadata.name);
-  const [userName, jobName] = frameworkName.split(/~(.+)/);
+  const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
+  const jobName = decodeName(framework.metadata.name);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
