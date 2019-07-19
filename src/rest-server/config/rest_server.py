@@ -63,7 +63,8 @@ class RestServer:
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')
-
+        service_object_model['log-manager-port'] = self.cluster_configuration['log-manager']['port'] if 'log-manager' in self.cluster_configuration \
+            and 'port' in self.cluster_configuration['log-manager'] else self.service_configuration['log-manager-port']
         return service_object_model
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

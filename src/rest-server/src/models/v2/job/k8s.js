@@ -100,20 +100,6 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = (taskStatus) => {
-  const completionStatus = taskStatus.attemptStatus.completionStatus;
-  return {
-    taskIndex: taskStatus.index,
-    taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
-    containerId: taskStatus.attemptStatus.podName,
-    containerIp: taskStatus.attemptStatus.podHostIP,
-    containerPorts: {}, // TODO
-    containerGpus: 0, // TODO
-    containerLog: '',
-    containerExitCode: completionStatus ? completionStatus.code : null,
-  };
-};
-
 const convertFrameworkDetail = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const detail = {
@@ -152,15 +138,37 @@ const convertFrameworkDetail = (framework) => {
     },
     taskRoles: {},
   };
+
+  const frameworkName = decodeName(framework.metadata.name);
+  const [userName, jobName] = frameworkName.split(/~(.+)/);
+
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: taskRoleStatus.taskStatuses.map(convertTaskDetail),
+      taskStatuses: generateTaskStatuses(userName, jobName, taskRoleStatus.name, taskRoleStatus.taskStatuses),
     };
   }
   return detail;
+};
+
+const generateTaskStatuses = (userName, jobName, taskRoleName, taskStatuses) => {
+  let returnValue = [];
+  for (const taskStatus of taskStatuses) {
+    const completionStatus = taskStatus.attemptStatus.completionStatus;
+    returnValue.push({
+      taskIndex: taskStatus.index,
+      taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
+      containerId: taskStatus.attemptStatus.podName,
+      containerIp: taskStatus.attemptStatus.podHostIP,
+      containerPorts: {}, // TODO
+      containerGpus: 0, // TODO
+      containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}_main.log`,
+      containerExitCode: completionStatus ? completionStatus.code : null,
+    });
+  }
+  return returnValue;
 };
 
 const generateTaskRole = (taskRole, labels, config) => {
