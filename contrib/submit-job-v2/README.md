@@ -10,6 +10,13 @@ User can upload a job v2 yaml file from disk, choose a job v2 from marketplace, 
 
 Please refer to [PAI protocol spec](../../docs/pai-job-protocol.yaml) for more details.
 
+## TensorBoard
+
+To enable TensorBoard, users should provide external storage such as PAI built-in HDFS or NFS. External storage can share logs from different containers on PAI. The mount point of external storage will be exported as an environment variable named `$TB_ROOT`. `$TB_ROOT` can be accessed in every container of the job so that users can use `$TB_ROOT` to refer to log directories in their training scripts. Users can also separate log folders as they want. Please refer to [TensorBoard](
+https://github.com/tensorflow/tensorboard/blob/master/README.md#runs-comparing-different-executions-of-your-model) page for details. The TensorBoard config is stored in the extra field of job YAML with the following format.
+
+![format](./docs/tbconfig.png)
+
 ## Build
 
 ```sh
