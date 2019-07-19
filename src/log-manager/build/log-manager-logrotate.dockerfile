@@ -30,6 +30,8 @@ RUN export CONTAINER_USER=logrotate && \
     addgroup -g $CONTAINER_GID logrotate && \
     adduser -u $CONTAINER_UID -G logrotate -h /usr/bin/logrotate.d -s /bin/bash -S logrotate && \
     apk add --update \
+      tini \
+      bash \
       tar \
       gzip \
       wget \
