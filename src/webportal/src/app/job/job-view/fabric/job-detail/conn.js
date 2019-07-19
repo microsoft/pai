@@ -104,8 +104,8 @@ export async function fetchSshInfo() {
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
-  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoardStr')) {
-    const randomStr = rawJobConfig.extras.tensorBoardStr;
+  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
+    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
     const tensorBoardStr = `TensorBoard_${randomStr}`;
     const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
     const obj = jobInfo.taskRoles;
