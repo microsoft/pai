@@ -24,6 +24,7 @@ process.env.SERVER_PORT = 8080;
 process.env.LAUNCHER_TYPE = 'yarn';
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:5070';
+process.env.LOG_MANAGER_PORT = 9103;
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
