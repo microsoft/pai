@@ -23,6 +23,7 @@ const createError = require('@pai/utils/error');
 const protocolSchema = require('@pai/config/v2/protocol');
 const hivedSchema = require('@pai/config/v2/hived');
 const vcConfig = require('@pai/config/vc');
+const launcherConfig = require('@pai/config/launcher');
 
 
 const mustacheWriter = new mustache.Writer();
@@ -188,6 +189,11 @@ const hivedValidate = (protocolObj) => {
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
     }
+    // TODO: hardcode for demo, removed it!
+    if (podSpec.gpuType === null && podSpec.reservationId === null) {
+      podSpec.gpuType = 'K80';
+    }
+
     if (cpu > allowedCpu || memoryMB > allowedMemoryMB) {
       throw createError(
         'Bad Request',
@@ -323,7 +329,7 @@ const protocolSubmitMiddleware = [
   },
 ];
 
-if (hivedSchema.enabledHived) {
+if (launcherConfig.enabledHived) {
   protocolSubmitMiddleware.push(
     (req, res, next) => {
       res.locals.protocol = hivedValidate(res.locals.protocol);

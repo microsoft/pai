@@ -17,9 +17,10 @@
 
 // module dependencies
 const Joi = require('joi');
-const hivedConfig = require('@pai/config/v2/hived');
+const launcherConfig = require('@pai/config/launcher');
 const yaml = require('js-yaml');
 const fs = require('fs');
+const logger = require('@pai/config/logger');
 
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
@@ -41,11 +42,24 @@ const vcStatusPutInputSchema = Joi.object().keys({
 }).required();
 
 let resourceUnits;
-if (hivedConfig.enabledHived) {
-  resourceUnits = yaml.safeLoad(fs.readFileSync(hivedConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
+if (launcherConfig.enabledHived) {
+  // TODO: this is a hardcode for demo, this exception shouldn't be catch and ignored
+  try {
+    resourceUnits = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
+  } catch (_) {
+    resourceUnits = {
+      K80: {
+        gpu: 1,
+        cpu: 4,
+        memory: '8192Mi',
+      },
+    };
+    logger.warn(`Hived enabled but spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
+    logger.warn(`Init hived resource unit to: ${resourceUnits}`);
+  }
 } else {
   resourceUnits = {
-    DEFAULT: {
+    'null': {
       gpu: 1,
       cpu: 4,
       memory: '8192Mi',

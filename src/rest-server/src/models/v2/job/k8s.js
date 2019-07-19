@@ -23,7 +23,6 @@ const base32 = require('base32');
 const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
-const hivedConfig = require('@pai/config/v2/hived');
 const createError = require('@pai/utils/error');
 
 
@@ -336,7 +335,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     };
   }
   // hived spec
-  if (hivedConfig.enabledHived) {
+  if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
 
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];

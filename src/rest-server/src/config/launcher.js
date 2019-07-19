@@ -96,6 +96,10 @@ const k8sLauncherConfigSchema = Joi.object().keys({
     .required(),
   scheduler: Joi.string()
     .required(),
+  enabledHived: Joi.boolean()
+    .required(),
+  hivedSpecPath: Joi.string()
+    .required(),
   runtimeImage: Joi.string()
     .required(),
   runtimeImagePullSecrets: Joi.string()
@@ -183,6 +187,8 @@ if (launcherType === 'yarn') {
     scheduler: process.env.LAUNCHER_SCHEDULER,
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
+    enabledHived: process.env.SCHEDULER_TYPE === 'hived',
+    hivedSpecPath: process.env.HIVED_SPEC_PATH || '/hived-spec/hivedscheduler.yaml',
     requestHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
