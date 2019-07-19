@@ -67,6 +67,8 @@ const convertState = (state, exitCode) => {
     case 'Completed':
       if (exitCode === 0) {
         return 'SUCCEEDED';
+      } else if (exitCode === -210 || exitCode === -220) {
+        return 'STOPPED';
       } else {
         return 'FAILED';
       }
