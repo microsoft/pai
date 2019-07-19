@@ -77,7 +77,7 @@ taskRoles:
   worker:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: tf_example
     data: cifar10
     output: tensorflow_cifar10_model
@@ -103,7 +103,7 @@ taskRoles:
   ps_server:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: tf_example
     data: cifar10
     output: tensorflow_cifar10_model

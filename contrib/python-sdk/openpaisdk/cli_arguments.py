@@ -141,6 +141,7 @@ class ArgumentFactory:
         self.add_argument('--image', '-i', default=defaults.get('image', None), help='docker image')
 
         # common
+        self.add_argument('--is-global', '-g', action="store_true", help="set globally (not limited to current working folder)", default=False)
         self.add_argument('--details', help='if asserted, show details of the job (or cluster)', action='store_true', default=False)
         self.add_argument('--default', help='set current as default', action='store_true', default=False)
         self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value (key1:key2:...=value for nested objects)')
@@ -166,8 +167,8 @@ class ArgumentFactory:
 
         # storage
         self.add_argument('--storage-alias', help="alias of storage attached to cluster")
-        self.add_argument('--recursive', help="recursive target operation")
-        self.add_argument('--overwrite', help="enable overwrite if exists")
+        self.add_argument('--recursive', action='store_true', default=False, help="recursive target operation")
+        self.add_argument('--overwrite', action='store_true', default=False, help="enable overwrite if exists")
         self.add_argument('local_path', help="local path")
         self.add_argument('remote_path', help="remote path")
 

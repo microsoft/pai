@@ -20,11 +20,12 @@ class ProtocolUnit:
 
     @staticmethod
     def validate(u: dict):
-        assert u["protocolVersion"] in ["1", "2", 1, 2], "invalid protocolVersion (%s)" % u["protocolVersion"]
+        # assert u["protocolVersion"] in ["1", "2", 1, 2], "invalid protocolVersion (%s)" % u["protocolVersion"]
         assert u["type"] in __protocol_unit_types__, "invalid type (%s)" % u["type"]
         assert u["name"], "invalid name"
-        if u["type"] == "dockerimage":
-            assert u["uri"], "dockerimage must have a uri"
+        # uri: String or list, required # Only when the type is data can the uri be a list.
+        assert isinstance(u["uri"], str) or u["type"] == "data" and isinstance(u["uri"], list), "uri: String or list, required # Only when the type is data can the uri be a list."
+
 
 class TaskRole:
 

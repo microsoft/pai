@@ -146,7 +146,7 @@ secrets:
 jobRetryCount: 1
 taskRoles:
   worker:
-    instance: 1
+    instances: 1
     completion:
       minFailedInstances: 1
       minSucceededInstances: 1
@@ -162,8 +162,8 @@ taskRoles:
       memoryMB: 16384
       gpu: 4
       ports:
-        ssh: 0
-        http: 0
+        ssh: 1
+        http: 1
     commands:
       - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
@@ -190,13 +190,13 @@ taskRoles:
     script: tensorflow_cnnbenchmarks
     extraContainerOptions:
       shmMB: 64
-    resourcePerInstanec:
+    resourcePerInstance:
       cpu: 2
       memoryMB: 8192
       gpu: 0
       ports:
-        ssh: 0
-        http: 0
+        ssh: 1
+        http: 1
     commands:
       - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >

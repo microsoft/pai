@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='openpaisdk',
-    version='0.1',
+    version='0.4.00',
     description='A simple SDK for OpenPAI',
     url='https://github.com/microsoft/pai/contrib/python-sdk',
     packages=['openpaisdk'],

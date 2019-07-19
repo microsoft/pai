@@ -32,6 +32,7 @@ RUNTIME_DOCKER_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.error
 RUNTIME_DOCKER_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.log
 USER_STDOUT=$LAUNCHER_LOG_DIR/user.pai.stdout
 USER_STDERR=$LAUNCHER_LOG_DIR/user.pai.stderr
+USER_LOG_ALL=$LAUNCHER_LOG_DIR/user.pai.all
 DISK_CLEANER_ERROR_FILE=$LAUNCHER_LOG_DIR/diskCleaner.pai.error
 RUNTIME_AGG_ERROR_FILE=$LAUNCHER_LOG_DIR/runtime.pai.agg.error
 
@@ -510,11 +511,12 @@ fi
 # Prepare docker debug log
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $LAUNCHER_LOG_DIR/runtime.docker.pai.error
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $LAUNCHER_LOG_DIR/runtime.docker.pai.log
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stderr $LAUNCHER_LOG_DIR/user.pai.stderr
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stdout $LAUNCHER_LOG_DIR/user.pai.stdout
-ln -s $LAUNCHER_LOG_DIR/diskCleaner.pai.error /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $RUNTIME_DOCKER_ERR_LOG
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $RUNTIME_DOCKER_LOG
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stderr $USER_STDERR
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stdout $USER_STDOUT
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.all $USER_LOG_ALL
+ln -s $DISK_CLEANER_ERROR_FILE /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error
 
 # copy the hadoop configuration file
 hadoop_config_dir="hadoop_config"

@@ -44,6 +44,10 @@
             "type": "string",
             "description": "PAI web portal endpoint",
             "pattern": "^(?!https?:\/\/).*"
+        },
+        "protocol_version": {
+            "type": "string",
+            "description": "PAI protocol version"
         }
     },
     "required": [
