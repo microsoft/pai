@@ -48,6 +48,8 @@ spec:
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+        - name: LAUNCHER_SCHEDULER
+          value: yqwang-scheduler
 {%- endif %}          
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}

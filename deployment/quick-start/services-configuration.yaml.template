@@ -135,3 +135,7 @@ rest-server:
 # cleaner:
 #  threshold: 94
 #  interval: 60
+
+# uncomment following section if you want to customize the port of log-manager
+# log-manager:
+#  port: 9103
