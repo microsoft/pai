@@ -292,6 +292,13 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
+base32@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/base32/-/base32-0.0.6.tgz#79038bcb5aec2d8f22bcc1c28402924f50a6d2ac"
+  integrity sha1-eQOLy1rsLY8ivMHChAKST1Cm0qw=
+  dependencies:
+    optimist ">=0.1.0"
+
 base@^0.11.1:
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/base/-/base-0.11.2.tgz#7bde5ced145b6d551a90db87f83c558b4eb48a8f"
@@ -2566,7 +2573,7 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-optimist@^0.6.1:
+optimist@>=0.1.0, optimist@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.6.1.tgz#da3ea74686fa21a19a111c326e90eb15a0196686"
   integrity sha1-2j6nRob6IaGaERwybpDrFaAZZoY=
