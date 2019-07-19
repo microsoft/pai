@@ -13,34 +13,45 @@ We recommend to use first approach to start debug. To use second approach, user 
 
 # 2. Edit the job submission yaml to support debug
 To support the live debug, we need to modify the job submit yaml. Please request one debug port in `resourcePerInstance` field.
+And create a new `debug` deployment.
 
-The full examples can refer to [examples](../examples).
 ```yaml
 taskRoles:
-  taskRole1:
+  train:
     resourcePerInstance:
       cpu: 2
       memoryMB: 16384
       gpu: 4
       ports:
         debug: 1
+deployments:
+  - name: debug
+    taskRoles:
+      train:
+        preCommands:
+          - >-
+            if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+          - apt-get install -y --no-install-recommends wget
+          - >-
+            wget
+            https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py
+            -P /pai_data/debug
+
+defaults:
+  deployment: debug
 ``` 
+
+The full examples can refer to [examples](../examples).
 
 # 3. Start debugging when task begins
 To start debugging when task begins. We need to change the task role command.
 
 Here is a sample:
 ```bash
-if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
-apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python -m paipdb user_python_script.py args ...
 ```
 or you can use python3 to run the script:
 ```bash
-if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
-apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=your_debug_port_name DEBUG_TIMEOUT=600 python3 -m paipdb user_python_script.py args ...
 ```
 
@@ -57,9 +68,6 @@ To enable this, user can set breakpoint by insert `import paipdb; paipdb.settrac
 
 To run the python script, just use:
 ```bash
-if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
-apt-get install -y --no-install-recommends wget
-wget https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py -P /pai_data/debug
 PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_TIMEOUT=600 python3 user_python_script.py args ...
 ```
 

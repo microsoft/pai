@@ -185,6 +185,7 @@ def main():
         print('Failed to start the remote debug')
         sys.exit(1)
 
+    # PDB will deal with the client close connection and stop the debugging
     while True:
         try:
             currentPdb._runscript(mainpyfile)

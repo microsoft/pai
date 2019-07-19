@@ -32,14 +32,22 @@ taskRoles:
         debug: 1
     commands:
       - >-
-        if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
-      - apt-get install -y --no-install-recommends wget
-      - >-
-        wget
-        https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py
-        -P /pai_data/debug
-      - >-
         PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=debug python -m paipdb resnet50_trainer.py
         --train_data null
         --epoch_size <% $parameters.epochSize %>
         --num_epochs <% $parameters.epochNum %>
+deployments:
+  - name: debug
+    taskRoles:
+      train:
+        preCommands:
+          - >-
+            if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+          - apt-get install -y --no-install-recommends wget
+          - >-
+            wget
+            https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py
+            -P /pai_data/debug
+
+defaults:
+  deployment: debug
