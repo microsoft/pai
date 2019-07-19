@@ -176,6 +176,10 @@ const convertFrameworkDetail = async (framework) => {
   for (let taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
   }
+
+  const frameworkName = decodeName(framework.metadata.name);
+  const [userName, jobName] = frameworkName.split(/~(.+)/);
+
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
@@ -187,6 +191,24 @@ const convertFrameworkDetail = async (framework) => {
     };
   }
   return detail;
+};
+
+const generateTaskStatuses = (userName, jobName, taskRoleName, taskStatuses) => {
+  let returnValue = [];
+  for (const taskStatus of taskStatuses) {
+    const completionStatus = taskStatus.attemptStatus.completionStatus;
+    returnValue.push({
+      taskIndex: taskStatus.index,
+      taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
+      containerId: taskStatus.attemptStatus.podName,
+      containerIp: taskStatus.attemptStatus.podHostIP,
+      containerPorts: {}, // TODO
+      containerGpus: 0, // TODO
+      containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}_main.log`,
+      containerExitCode: completionStatus ? completionStatus.code : null,
+    });
+  }
+  return returnValue;
 };
 
 const generateTaskRole = (taskRole, labels, config) => {
