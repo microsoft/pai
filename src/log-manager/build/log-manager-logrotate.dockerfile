@@ -1,5 +1,5 @@
-# Copyright (c) 2015 Steffen Bleul
-# Copyright (c) Microsoft Corporation
+# Original work Copyright (c) 2015 Steffen Bleul
+# Modified work Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
 # MIT License
