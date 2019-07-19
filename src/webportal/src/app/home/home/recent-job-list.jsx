@@ -72,7 +72,7 @@ const DummyContent = () => {
             <DefaultButton
               text='Tutorial'
               styles={{root: [{width: 120}]}}
-              href='https://github.com/microsoft/pai/blob/pai-0.14.y/docs/user/job_submission.md'
+              href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
               target='_blank'
             />
           </Stack.Item>

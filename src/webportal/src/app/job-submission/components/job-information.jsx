@@ -69,7 +69,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
           </Text>
           <Link
             target='_blank'
-            href='https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
+            href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
             style={{fontWeight: FontWeights.semibold}}
           >{'Learn more >'}</Link>
         </Stack>
