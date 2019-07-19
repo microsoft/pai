@@ -34,7 +34,7 @@ const Bottom = () => (
         </div>
       </div>
       <Link
-        href='https://github.com/microsoft/pai/blob/pai-0.14.y/docs/user/job_submission.md'
+        href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
         target='_blank'
         style={{fontWeight: FontWeights.semibold}}
       >
@@ -51,7 +51,7 @@ const Bottom = () => (
         </div>
       </div>
       <Link
-        href='https://github.com/microsoft/pai/blob/pai-0.14.y/docs/user/job_submission.md#learn-the-hello-world-job'
+        href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#learn-the-hello-world-job'
         target='_blank'
         style={{fontWeight: FontWeights.semibold}}
       >
