@@ -55,7 +55,7 @@ if (launcherConfig.enabledHived) {
       },
     };
     logger.warn(`Hived enabled but spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
-    logger.warn(`Init hived resource unit to: ${resourceUnits}`);
+    logger.warn(`Init hived resource unit to: `, resourceUnits);
   }
 } else {
   resourceUnits = {
