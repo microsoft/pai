@@ -58,6 +58,7 @@ If REST Server is deployed manually, the following fields should be configured a
 * `WEBHDFS_URI`: URI endpoint of WebHDFS
 * `YARN_URI`: URI endpoint of Apache Hadoop YARN
 * `ETCD_URI`: URI endpoints of ectd, could be multiple and separated by comma(`,`)
+* `LOG_MANAGER_PORT`: The port of log manager.
 * `JWT_SECRET`: A random secret token for user authorization, keep it secret to users.
 * `DEFAULT_PAI_ADMIN_USERNAME`: The username of default user. REST Server will auto generate it after the first start of service.
 * `DEFAULT_PAI_ADMIN_PASSWORD`: The password of default user.
