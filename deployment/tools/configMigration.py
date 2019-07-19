@@ -13,6 +13,8 @@ print("Usage: configMigration.py from_directory to_directory")
 
 input_dir = os.path.expanduser(sys.argv[1])
 output_dir = os.path.expanduser(sys.argv[2])
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 print("Input directory: {}".format(input_dir))
 print("Output directory: {}".format(output_dir))
 
