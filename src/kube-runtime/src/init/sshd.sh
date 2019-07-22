@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -69,8 +69,7 @@ function prepare_user_ssh()
 
 function start_ssh()
 {
-  printf "%s %s\n" \  
-    "[INFO]" "start ssh service"
+  printf "%s %s\n" "[INFO]" "start ssh service"
   service ssh restart
 }
 

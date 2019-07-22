@@ -35,11 +35,12 @@ cp /pai-runtime/run $PAI_DIR
 cp -r /pai-runtime/init $PAI_DIR
 
 # do preparation for each script
+PAI_PREP_LOG=${PAI_LOG_DIR}/${FC_POD_UID}_prep.log
 for i in `find /pai-runtime/prep/ -type f -regex ".*.sh"` ; do
   file_name=`basename $i`
-  echo -e "##### [${i} start] ##### \n"
-  $i >> ${PAI_LOG_DIR}/${FC_POD_UID}_prep.log 2>&1
-  echo -e "##### [${i} end] ##### \n\n"
+  echo -e "##### [${file_name} start] ##### \n" >> ${PAI_PREP_LOG}
+  $i >> ${PAI_PREP_LOG} 2>&1
+  echo -e "##### [${file_name} end] ##### \n\n" >> ${PAI_PREP_LOG}
 done
 
 # do service discovery
