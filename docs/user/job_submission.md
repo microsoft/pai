@@ -34,7 +34,7 @@
 
 This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
-There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](../../contrib/pai_vscode/README.md), and [python sdk](../../contrib/python-sdk/README.md). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
+There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
 
 ## Submit a Hello World Job
 
@@ -105,7 +105,7 @@ Most model training and other kinds of jobs need to transfer files between runni
 
 ### Make Use of Team-wise Storage
 
-OpenPAI admin can define Team-wise Storage through [Team-wise Storage Plugin](../../contrib/storage_plugin/README.MD). It can support multiple NAS file systems like NFS, Samba, HDFS, Azurefile and Azureblob.
+OpenPAI admin can define Team-wise Storage through [Team-wise Storage Plugin](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). It can support multiple NAS file systems like NFS, Samba, HDFS, Azurefile and Azureblob.
 
 Once your OpenPAI admin has set up Team-wise storage for your group, you can find your Team-wise storage settings in Data section. Check team-wise configs to mount NAS as local path in job container.
 
@@ -166,7 +166,7 @@ In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup lang
 
 ## Job Workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](../../contrib/pai_vscode/README.md) or [python sdk](../../contrib/python-sdk/README.md) to submit jobs.
+Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode) or [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) to submit jobs.
 
 After receiving job configuration, OpenPAI processes it as below steps:
 
