@@ -100,14 +100,21 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = (taskStatus) => {
+const convertTaskDetail = (taskStatus, ports) => {
+  const containerPorts = {};
+  if (ports) {
+    const randomPorts = JSON.parse(ports);
+    for (let port of Object.keys(randomPorts)) {
+      containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+    }
+  }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
     taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
-    containerPorts: {}, // TODO
+    containerPorts,
     containerGpus: 0, // TODO
     containerLog: '',
     containerExitCode: completionStatus ? completionStatus.code : null,
@@ -152,12 +159,16 @@ const convertFrameworkDetail = (framework) => {
     },
     taskRoles: {},
   };
+  const ports = {};
+  for (let taskRoleSpec of framework.spec.taskRoles) {
+    ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
+  }
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: taskRoleStatus.taskStatuses.map(convertTaskDetail),
+      taskStatuses: taskRoleStatus.taskStatuses.map((status) => convertTaskDetail(status, ports[taskRoleStatus.name])),
     };
   }
   return detail;
