@@ -295,7 +295,7 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{iconName: 'TextDocument'}}
                 text='Stdout'
-                onClick={() => this.showContainerLog(`${item.containerLog}`, 'Standard Output (Last 4096 bytes)')}
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
@@ -306,7 +306,7 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{iconName: 'Error'}}
                 text='Stderr'
-                onClick={() => this.showContainerLog(`${item.containerLog}`, 'Standard Error (Last 4096 bytes)')}
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
