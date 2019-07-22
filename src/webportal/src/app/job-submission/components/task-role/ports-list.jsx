@@ -46,7 +46,7 @@ export const PortsList = React.memo(({onChange, ports}) => (
         valueField='value'
         onValidateKey={(val) => {
           if (!PORT_LABEL_REGEX.test(val)) {
-            return 'Invalid portLabel.';
+            return 'Should be string in ^[A-Za-z0-9\\-._~]+$ format';
           }
         }}
         onValidateValue={(val) => {
