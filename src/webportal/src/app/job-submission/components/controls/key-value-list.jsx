@@ -24,9 +24,10 @@
  */
 
 import {camelCase, isEmpty, isNil} from 'lodash';
-import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
+import {IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
+import {DebouncedTextField} from './debounced-text-field';
 import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
@@ -129,7 +130,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
           }
         }
         return (
-          <TextField
+          <DebouncedTextField
             errorMessage={errorMessage}
             value={item[keyField]}
             onChange={(e, val) => onKeyChange(idx, val)}
@@ -150,7 +151,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
           }
         }
         return (
-          <TextField
+          <DebouncedTextField
             errorMessage={errorMessage}
             value={item[valueField]}
             type={secret && 'password'}

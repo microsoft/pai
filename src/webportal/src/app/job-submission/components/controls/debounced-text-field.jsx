@@ -23,57 +23,37 @@
  * SOFTWARE.
  */
 
-import {isEmpty} from 'lodash';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
+import {TextField} from 'office-ui-fabric-react';
+
 import PropTypes from 'prop-types';
-import React, {useCallback} from 'react';
-import {BasicSection} from './basic-section';
-import {FormShortSection} from './form-page';
-import {DebouncedTextField} from './controls/debounced-text-field';
+import {debounce} from 'lodash';
 
-const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
-export const FormTextField = React.memo((props) => {
-  const {sectionLabel, onChange, sectionOptional, sectionTooltip, shortStyle, value} = props;
-  const _onGetErrorMessage = (value) => {
-    const match = TEXT_FILED_REGX.exec(value);
-    if (isEmpty(match)) {
-      return 'Input is invalid';
-    }
-    return '';
-  };
+export const DebouncedTextField = (props) => {
+  const {onChange, value} = props;
+  const [cachedValue, setCachedValue] = useState('');
+  useEffect(() => setCachedValue(value), [value]);
+  const debouncedOnChange = useMemo(() => debounce(onChange, 200), [onChange]);
 
   const onChangeWrapper = useCallback(
-    (_, val) => {
-      onChange(val);
+    (e, val) => {
+      setCachedValue(val);
+      debouncedOnChange(e, val);
     },
-    [onChange],
-  );
-
-  const textField = (
-    <DebouncedTextField
-      {...props}
-      value={value}
-      onChange={onChangeWrapper}
-      onGetErrorMessage={_onGetErrorMessage}
-    />
+    [setCachedValue, debouncedOnChange],
   );
 
   return (
-    <BasicSection sectionLabel={sectionLabel} sectionTooltip={sectionTooltip} optional={sectionOptional}>
-      {shortStyle ? (
-        <FormShortSection>{textField}</FormShortSection>
-      ) : (
-        textField
-      )}
-    </BasicSection>
+    <TextField
+      {...props}
+      value={cachedValue}
+      onChange={onChangeWrapper}
+    />
   );
-});
+};
 
-FormTextField.propTypes = {
-  sectionLabel: PropTypes.string.isRequired,
-  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+DebouncedTextField.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.string,
-  sectionOptional: PropTypes.bool,
-  shortStyle: PropTypes.bool,
 };
