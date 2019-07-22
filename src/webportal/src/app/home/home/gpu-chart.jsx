@@ -15,9 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import Chart from 'chart.js';
+import d3 from 'd3';
 import c from 'classnames';
-import {range} from 'lodash';
+import {isNil, range} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, FontClassNames} from 'office-ui-fabric-react';
 import React, {useEffect, useRef, useMemo} from 'react';
@@ -28,9 +28,6 @@ import t from '../../components/tachyons.scss';
 import {getVirtualClusterColor} from './util';
 
 const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
-  const maxVal = useMemo(() => {
-    return Math.max(...Object.values(gpuPerNode));
-  }, [gpuPerNode]);
 
   const dataset = useMemo(() => {
     const processed = {};
@@ -79,60 +76,45 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
   }, Array(maxVal).fill(0));
   const height = Math.max(...stackedData);
 
-  const chartRef = useRef(null);
+  const svgRef = useRef(null);
 
   useEffect(() => {
-    new Chart(chartRef.current, {
-      type: 'bar',
-      data: {
-        labels: range(1, maxVal + 1),
-        datasets: dataset,
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: false,
-        },
-        tooltips: {
-          enabled: true,
-          mode: 'index',
-          callbacks: {
-            title: (item, data) => (
-              `#GPU: ${item[0].label}`
-            ),
-          },
-        },
-        scales: {
-          xAxes: [{
-            stacked: true,
-            scaleLabel: {
-              display: true,
-              labelString: '#GPU',
-            },
-            gridLines: {
-              display: false,
-            },
-          }],
-          yAxes: [{
-            stacked: true,
-            scaleLabel: {
-              display: true,
-              labelString: '#Node',
-            },
-            ticks: {
-              max: height,
-              display: true,
-              precision: 0,
-            },
-            gridLines: {
-              display: true,
-            },
-          }],
-        },
-      },
-    });
-  });
+    function redraw() {
+      if (isNil(svgRef.current)) {
+        return;
+      }
+      // width & height
+      const svg = d3.select(svgRef.current);
+      const container = d3.select(svg.node().parentNode);
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      svg
+        .attr('width', width)
+        .attr('height', height);
+      // data
+      const maxGpu = Math.max(...Object.values(gpuPerNode));
+
+      // axis
+      const x = d3.scaleBand()
+        .domain(range(1, maxGpu))
+        .range([0, width])
+        .paddingInner(32)
+        .paddingOuter(32)
+        .round(true);
+      const xAxis = axisBottom(x)
+        .tickFormat((x) => `Node with ${x}GPU`);
+      const y = d3.scaleLinear()
+        .domain()
+        .range([0, height])
+      const series = d3
+    }
+
+    redraw();
+    window.addEventListener('resize', redraw);
+    return () => {
+      window.removeEventListener('resize', redraw);
+    };
+  }, [gpuPerNode, virtualClusters]);
 
   return (
     <Card style={style}>
@@ -144,7 +126,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         </Stack.Item>
         <Stack.Item styles={{root: [t.relative]}} grow>
           <div className={c(t.absolute, t.absoluteFill)}>
-            <canvas ref={chartRef}></canvas>
+            <svg ref={svgRef}></svg>
           </div>
         </Stack.Item>
       </Stack>
