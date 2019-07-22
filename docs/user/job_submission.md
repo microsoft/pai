@@ -166,7 +166,7 @@ In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup lang
 
 ## Job Workflow
 
-Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode) or [python sdk]( https://github.com/microsoft/pai/tree/master/contrib/python-sdk) to submit jobs.
+Once job configuration is ready, next step is to submit it to OpenPAI. Besides webportal, it's also recommended to use [Visual Studio Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode) or [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) to submit jobs.
 
 After receiving job configuration, OpenPAI processes it as below steps:
 
