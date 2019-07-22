@@ -112,7 +112,7 @@ export class JobProtocol {
       res[secret.key] = secret.value;
       return res;
     }, {}));
-    const defaultsField = removeEmptyProperties(jobBasicInfo.getDefaults());
+    const defaultsField = {...this.defaults, ...removeEmptyProperties(jobBasicInfo.getDefaults())};
 
     return new JobProtocol({
       ...this,
