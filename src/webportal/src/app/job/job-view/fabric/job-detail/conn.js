@@ -174,26 +174,40 @@ export async function getContainerLog(logUrl) {
   if (!res.ok) {
     throw new Error(res.statusText);
   }
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const content = doc.getElementsByClassName('content')[0];
-    const pre = content.getElementsByTagName('pre')[0];
-    ret.text = pre.innerText;
-    // fetch full log link
-    if (pre.previousElementSibling) {
-      const link = pre.previousElementSibling.getElementsByTagName('a');
-      if (link.length === 1) {
-        ret.fullLogLink = link[0].href;
-        // relative link
-        if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
-          const url = new URL(ret.fullLogLink, res.url);
-          ret.fullLogLink = url.href;
+
+  const contentType = res.headers.get('content-type');
+  if (!contentType) {
+    throw new Error(`Log not available`);
+  }
+
+    // Check content-type. text/html for yarn logs, text/plain for log manager logs.
+  if (contentType.indexOf('text/html') !== -1) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const content = doc.getElementsByClassName('content')[0];
+      const pre = content.getElementsByTagName('pre')[0];
+      ret.text = pre.innerText;
+      // fetch full log link
+      if (pre.previousElementSibling) {
+        const link = pre.previousElementSibling.getElementsByTagName('a');
+        if (link.length === 1) {
+          ret.fullLogLink = link[0].href;
+          // relative link
+          if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
+            const url = new URL(ret.fullLogLink, res.url);
+            ret.fullLogLink = url.href;
+          }
         }
       }
+      return ret;
+    } catch (e) {
+      throw new Error(`Log not available`);
     }
+  } else if (contentType.indexOf('text/plain') !== -1) {
+    ret.text = text;
     return ret;
-  } catch (e) {
+  } else {
     throw new Error(`Log not available`);
   }
 }
