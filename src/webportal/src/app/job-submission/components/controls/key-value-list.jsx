@@ -23,14 +23,14 @@
  * SOFTWARE.
  */
 
-import {camelCase, isEmpty} from 'lodash';
+import {camelCase, isEmpty, isNil} from 'lodash';
 import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
 import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
-export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
+export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyName, keyField, valueName, valueField, secret, onValidateKey, onValidateValue}) => {
   columnWidth = columnWidth || 180;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
@@ -57,6 +57,24 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
     }
     if (value.some((x) => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
       errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
+    }
+    if (!isNil(onValidateKey) || !isNil(onValidateValue)) {
+      for (const item of value) {
+        if (!isNil(onValidateKey)) {
+          const key = item[keyField];
+          const res = onValidateKey(key);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
+        if (!isNil(onValidateValue)) {
+          const value = item[valueField];
+          const res = onValidateValue(value);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
+      }
     }
     if (onError) {
       onError(errorMessage);
@@ -104,6 +122,12 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
         if (isEmpty(item[keyField]) && !isEmpty(item[valueField])) {
           errorMessage = 'empty key';
         }
+        if (!isNil(onValidateKey)) {
+          const res = onValidateKey(item[keyField]);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
         return (
           <TextField
             errorMessage={errorMessage}
@@ -118,8 +142,16 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
       name: valueName,
       minWidth: columnWidth,
       onRender: (item, idx) => {
+        let errorMessage = null;
+        if (!isNil(onValidateValue)) {
+          const res = onValidateValue(item[valueField]);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
         return (
           <TextField
+            errorMessage={errorMessage}
             value={item[valueField]}
             type={secret && 'password'}
             onChange={(e, val) => onValueChange(idx, val)}
@@ -189,4 +221,7 @@ KeyValueList.propTypes = {
   keyField: PropTypes.string,
   valueName: PropTypes.string,
   valueField: PropTypes.string,
+  // validation
+  onValidateKey: PropTypes.func,
+  onValidateValue: PropTypes.func,
 };

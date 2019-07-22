@@ -89,7 +89,11 @@ export class JobTaskRole {
   convertToProtocolFormat() {
     const taskRole = {};
     const ports = this.ports.reduce((val, x) => {
-      val[x.key] = x.value;
+      if (typeof x.value === 'string') {
+        val[x.key] = parseInt(x.value);
+      } else {
+        val[x.key] = x.value;
+      }
       return val;
     }, {});
     const resourcePerInstance = removeEmptyProperties({...this.containerSize, ports: ports});
