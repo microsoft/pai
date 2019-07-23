@@ -38,7 +38,12 @@ TASK_ROLE_INDEX = os.environ.get("PAI_TASK_ROLE_INDEX")
 DEFAULT_ADDR = os.environ.get("PAI_HOST_IP_" + CURRENT_TASK_ROLE_NAME + "_" + TASK_ROLE_INDEX)
 DEBUG_PORT_NAME = os.environ.get("DEBUG_PORT_NAME", "")
 DEBUG_PORT_LIST = "PAI_PORT_LIST_" + CURRENT_TASK_ROLE_NAME + "_" + TASK_ROLE_INDEX + "_" + DEBUG_PORT_NAME
-DEFAULT_PORT = int(os.environ.get(DEBUG_PORT_LIST, "4444").split(',')[0])
+
+if os.environ.get(DEBUG_PORT_LIST) is None:
+    print("Can not get debug port, exit")
+    sys.exit(1)
+
+DEFAULT_PORT = int(os.environ.get(DEBUG_PORT_LIST).split(',')[0])
 # Debug will exit if there is no connection in 600 seconds
 DEFAULT_TIMEOUT = int(os.environ.get("DEBUG_TIMEOUT", 600))
 
