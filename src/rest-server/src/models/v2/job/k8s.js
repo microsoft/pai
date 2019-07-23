@@ -204,7 +204,7 @@ const generateTaskStatuses = (userName, jobName, taskRoleName, taskStatuses) => 
       containerIp: taskStatus.attemptStatus.podHostIP,
       containerPorts: {}, // TODO
       containerGpus: 0, // TODO
-      containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}_`,
+      containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
       containerExitCode: completionStatus ? completionStatus.code : null,
     });
   }
