@@ -110,6 +110,9 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   frameworkPath: Joi.func()
     .arity(1)
     .required(),
+  podPath: Joi.func()
+    .arity(1)
+    .required(),
 }).required();
 
 let launcherConfig;
@@ -192,6 +195,9 @@ if (launcherType === 'yarn') {
     },
     frameworkPath: (frameworkName, namespace='default') => {
       return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
+    },
+    podPath: (podName, namespace='default') => {
+      return `${launcherConfig.apiServerUri}/apis/api/v1/namespaces/${namespace}/pods/${podName}`;
     },
   };
 

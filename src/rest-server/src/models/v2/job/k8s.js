@@ -95,20 +95,32 @@ const convertFrameworkSummary = (framework) => {
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
-    totalGpuNumber: 0, // TODO
+    totalGpuNumber: framework.metadata.annotations ? framework.metadata.annotations.totalGpuNumber : 0,
     totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
       (num, statuses) => num + statuses.taskStatuses.length, 0),
     totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
   };
 };
 
-const convertTaskDetail = (taskStatus, ports) => {
+const convertTaskDetail = async (taskStatus, ports) => {
+  // get container ports
   const containerPorts = {};
   if (ports) {
     const randomPorts = JSON.parse(ports);
     for (let port of Object.keys(randomPorts)) {
       containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
     }
+  }
+  // get container gpus
+  let containerGpus;
+  try {
+    const isolation = (await axios({
+      method: 'get',
+      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+    })).metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+    containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
+  } catch (e) {
+    containerGpus = 0;
   }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
@@ -117,13 +129,13 @@ const convertTaskDetail = (taskStatus, ports) => {
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
-    containerGpus: 0, // TODO
+    containerGpus,
     containerLog: '',
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
 
-const convertFrameworkDetail = (framework) => {
+const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const detail = {
     name: decodeName(framework.metadata.name),
@@ -170,7 +182,9 @@ const convertFrameworkDetail = (framework) => {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: taskRoleStatus.taskStatuses.map((status) => convertTaskDetail(status, ports[taskRoleStatus.name])),
+      taskStatuses: await Promise.all(taskRoleStatus.taskStatuses.map(
+        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name]))
+      ),
     };
   }
   return detail;
@@ -367,7 +381,9 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     return {name, value: `${env[name]}`};
   });
   // fill in task roles
+  let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
+    totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu;
     const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -398,6 +414,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     ]));
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
+  frameworkDescription.metadata.annotations.totalGpuNumber = totalGpuNumber;
   return frameworkDescription;
 };
 
@@ -446,7 +463,7 @@ const get = async (frameworkName) => {
   }
 
   if (response.status === status('OK')) {
-    return convertFrameworkDetail(response.data);
+    return (await convertFrameworkDetail(response.data));
   }
   if (response.status === status('Not Found')) {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
