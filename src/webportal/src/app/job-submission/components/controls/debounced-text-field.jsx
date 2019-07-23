@@ -23,47 +23,37 @@
  * SOFTWARE.
  */
 
-import {isNaN} from 'lodash';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
+import {TextField} from 'office-ui-fabric-react';
+
 import PropTypes from 'prop-types';
-import React from 'react';
-import {BasicSection} from '../basic-section';
-import {FormShortSection} from '../form-page';
-import {KeyValueList} from '../controls/key-value-list';
+import {debounce} from 'lodash';
 
-const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
-export const PortsList = React.memo(({onChange, ports}) => (
-  <BasicSection sectionLabel='Ports' sectionOptional>
-    <FormShortSection>
-      <KeyValueList
-        name='Port List'
-        value={ports}
-        onChange={onChange}
-        columnWidth={220}
-        keyName='Port Label'
-        keyField='key'
-        valueName='Port Field'
-        valueField='value'
-        onValidateKey={(val) => {
-          if (!PORT_LABEL_REGEX.test(val)) {
-            return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
-          }
-        }}
-        onValidateValue={(val) => {
-          let int = val;
-          if (typeof val === 'string') {
-            int = parseInt(val, 10);
-          }
-          if (int <= 0 || isNaN(int)) {
-            return 'Should be integer and no less than 1';
-          }
-        }}
-      />
-    </FormShortSection>
-  </BasicSection>
-));
+export const DebouncedTextField = (props) => {
+  const {onChange, value} = props;
+  const [cachedValue, setCachedValue] = useState('');
+  useEffect(() => setCachedValue(value), [value]);
+  const debouncedOnChange = useMemo(() => debounce(onChange, 200), [onChange]);
 
-PortsList.propTypes = {
-  ports: PropTypes.array,
+  const onChangeWrapper = useCallback(
+    (e, val) => {
+      setCachedValue(val);
+      debouncedOnChange(e, val);
+    },
+    [setCachedValue, debouncedOnChange],
+  );
+
+  return (
+    <TextField
+      {...props}
+      value={cachedValue}
+      onChange={onChangeWrapper}
+    />
+  );
+};
+
+DebouncedTextField.propTypes = {
   onChange: PropTypes.func,
+  value: PropTypes.string,
 };
