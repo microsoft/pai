@@ -20,7 +20,7 @@ import c from 'classnames';
 import {isNil, range} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, FontClassNames} from 'office-ui-fabric-react';
-import React, {useEffect, useRef, useMemo} from 'react';
+import React, {useEffect, useRef} from 'react';
 
 import Card from './card';
 
@@ -28,54 +28,6 @@ import t from '../../components/tachyons.scss';
 import {getVirtualClusterColor} from './util';
 
 const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
-
-  const dataset = useMemo(() => {
-    const processed = {};
-    const result = [];
-    // dedicated
-    for (const [name, vc] of Object.entries(virtualClusters)) {
-      if (vc.dedicated && vc.nodeList) {
-        const data = Array(maxVal).fill(0);
-        for (const node of vc.nodeList) {
-          if (gpuPerNode[node] > 0) {
-            data[gpuPerNode[node] - 1] += 1;
-            processed[node] = true;
-          }
-        }
-        result.push({
-          backgroundColor: getVirtualClusterColor(name, vc),
-          hoverBackgroundColor: getVirtualClusterColor(name, vc),
-          label: `${name} (dedicated)`,
-          data: data,
-        });
-      }
-    }
-    // shared_vc
-    const data = Array(maxVal).fill(0);
-    for (const key of Object.keys(gpuPerNode)) {
-      if (gpuPerNode[key] > 0 && !processed[key]) {
-        data[gpuPerNode[key] - 1] += 1;
-      }
-    }
-    result.unshift({
-      backgroundColor: getVirtualClusterColor(),
-      hoverBackgroundColor: getVirtualClusterColor(),
-      label: 'shared_vc',
-      data: data,
-    });
-    return result;
-  }, [virtualClusters, gpuPerNode]);
-
-  const stackedData = dataset.reduce((prev, x) => {
-    for (let i = 0; i < maxVal; i++) {
-      if (x.data[i]) {
-        prev[i] += x.data[i];
-      }
-    }
-    return prev;
-  }, Array(maxVal).fill(0));
-  const height = Math.max(...stackedData);
-
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -93,6 +45,39 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         .attr('height', height);
       // data
       const maxGpu = Math.max(...Object.values(gpuPerNode));
+      const processed = {};
+      const stack = [];
+      const shared = Array.from({length: maxGpu + 1}, () => 0);
+      const dedicated = {};
+      // data - dedicated
+      for (const [name, vc] of Object.entries(virtualClusters)) {
+        if (vc.dedicated && vc.nodeList) {
+          const data = Array.from({length: maxGpu + 1}, () => 0);
+          for (const node of vc.nodeList) {
+            data[gpuPerNode[node]] += 1;
+            processed[node] = true;
+          }
+          dedicated[name] = data;
+        }
+      }
+      // data - shared
+      for (const key of Object.keys(gpuPerNode)) {
+        if (!processed[key]) {
+          shared[gpuPerNode[key]] += 1;
+        }
+      }
+      // data - stack
+      stack[0] = shared;
+      stack[1] = Object.values(dedicated).reduce((prev, val) => {
+        for (let i = 0; i <= maxGpu; i += 1) {
+          prev[i] += val[i];
+        }
+        return prev;
+      }, Array.from({length: maxGpu + 1}, () => 0));
+      const maxHeight = Math.max(...Array.from(
+        {length: maxGpu + 1},
+        (_, idx) => stack[0][idx] + stack[1][idx],
+      ));
 
       // axis
       const x = d3.scaleBand()
@@ -101,11 +86,11 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         .paddingInner(32)
         .paddingOuter(32)
         .round(true);
-      const xAxis = axisBottom(x)
+      const xAxis = d3.axisBottom(x)
         .tickFormat((x) => `Node with ${x}GPU`);
       const y = d3.scaleLinear()
-        .domain()
-        .range([0, height])
+        .domain([0, maxHeight])
+        .range([0, height]);
       const series = d3
     }
 
