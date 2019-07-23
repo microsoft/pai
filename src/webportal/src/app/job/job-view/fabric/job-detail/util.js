@@ -35,6 +35,8 @@ export function getHumanizedJobStateString(jobInfo) {
     } else {
       hjss = 'Running';
     }
+  } else if (status.state === 'COMPLETING') {
+    hjss = 'Completing';
   } else if (status.state === 'SUCCEEDED') {
     hjss = 'Succeeded';
   } else if (status.state === 'FAILED') {

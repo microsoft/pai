@@ -63,7 +63,7 @@ const convertState = (state, exitCode) => {
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
     case 'AttemptCompleted':
-      return 'WAITING';
+      return 'COMPLETING';
     case 'Completed':
       if (exitCode === 0) {
         return 'SUCCEEDED';
