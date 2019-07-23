@@ -102,14 +102,21 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = (taskStatus) => {
+const convertTaskDetail = (taskStatus, ports) => {
+  const containerPorts = {};
+  if (ports) {
+    const randomPorts = JSON.parse(ports);
+    for (let port of Object.keys(randomPorts)) {
+      containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+    }
+  }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
     taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
-    containerPorts: {}, // TODO
+    containerPorts,
     containerGpus: 0, // TODO
     containerLog: '',
     containerExitCode: completionStatus ? completionStatus.code : null,
@@ -154,18 +161,36 @@ const convertFrameworkDetail = (framework) => {
     },
     taskRoles: {},
   };
+  const ports = {};
+  for (let taskRoleSpec of framework.spec.taskRoles) {
+    ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
+  }
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: taskRoleStatus.taskStatuses.map(convertTaskDetail),
+      taskStatuses: taskRoleStatus.taskStatuses.map((status) => convertTaskDetail(status, ports[taskRoleStatus.name])),
     };
   }
   return detail;
 };
 
 const generateTaskRole = (taskRole, labels, config) => {
+  const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
+  for (let port of ['ssh', 'http']) {
+    if (!(port in ports)) {
+      ports[port] = 1;
+    }
+  }
+  // schedule ports in [20000, 40000) randomly
+  const randomPorts = {};
+  for (let port of Object.keys(ports)) {
+    randomPorts[port] = {
+      start: Math.floor((Math.random() * 20000) + 20000),
+      count: ports[port],
+    };
+  }
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -182,6 +207,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           },
           annotations: {
             'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'rest-server/port-scheduling-spec': JSON.stringify(randomPorts),
             'hivedscheduler.microsoft.com/pod-scheduling-spec': yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec),
           },
         },
@@ -233,14 +259,6 @@ const generateTaskRole = (taskRole, labels, config) => {
               env: [
                 {
                   name: 'NVIDIA_VISIBLE_DEVICES',
-                  valueFrom: {
-                    fieldRef: {
-                      fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
-                    },
-                  },
-                },
-                {
-                  name: 'GPU_ID',
                   valueFrom: {
                     fieldRef: {
                       fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
@@ -376,15 +394,6 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
             fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
           },
         },
-      },
-      // use random ports temporally
-      {
-        name: 'PAI_CURRENT_CONTAINER_PORT',
-        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
-      },
-      {
-        name: 'PAI_CONTAINER_SSH_PORT',
-        value: `${Math.floor((Math.random() * 10000) + 10000)}`,
       },
     ]));
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
