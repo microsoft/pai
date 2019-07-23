@@ -18,24 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# This script is entrypoint of pai runtime, this will copy run to /usr/local/pai/run
-# which will be the entrypoint of task container. So `entry` running in runtime
-# container, `/usr/local/pai/run` running in task container, and will be pid 1 in
-# task container
+# This init script will be executed inside init container,
+# all scripts under init.d will be executed in priority order.
+# Init scripts will do preparations before user container starts.
+# Runtime script will be executed as the entrypoint of user container
+# and will be pid 1 process in user container.
 
 PAI_DIR=/usr/local/pai
-INIT_DIR=${PAI_DIR}/init
+RUNTIME_DIR=${PAI_DIR}/runtime.d
 PAI_LOG_DIR=${PAI_DIR}/logs
 
-MAIN_SH=${INIT_DIR}/main.sh
 LOG_FILE=${PAI_LOG_DIR}/${FC_POD_UID}_entry.log
 
 mkdir -p $PAI_LOG_DIR
-cp /pai-runtime/run $PAI_DIR
-cp -r /pai-runtime/init $PAI_DIR
+cp /pai-runtime/runtime $PAI_DIR
+cp -r /pai-runtime/runtime.d $PAI_DIR
 
 # do preparation for each script
-for i in `find /pai-runtime/prep/ -type f -regex ".*.sh"` ; do
+for i in `find /pai-runtime/init.d/ -type f -regex ".*.sh"` ; do
   file_name=`basename $i`
   echo -e "##### [${i} start] ##### \n"
   $i >> ${PAI_LOG_DIR}/${FC_POD_UID}_prep.log 2>&1
@@ -47,14 +47,11 @@ cd $PAI_LOG_DIR
 
 /pai-runtime/frameworkbarrier > $PAI_LOG_DIR/${FC_POD_UID}_barrier.log 2>&1
 echo "barrier returns $?" >> $LOG_FILE
-python /pai-runtime/parse.py framework.json > $PAI_DIR/runtime_env.sh 2> $PAI_LOG_DIR/${FC_POD_UID}_parse.log
+python /pai-runtime/runtime.d/parse.py framework.json > $PAI_DIR/runtime_env.sh 2> $PAI_LOG_DIR/${FC_POD_UID}_parse.log
 echo "parser.py returns $?" >> $LOG_FILE
 
-# prepare main.sh, which is where user command get started
-echo '#!/bin/sh' >> $MAIN_SH
-echo -e "\n\n$USER_CMD" >> $MAIN_SH
-
-chmod +x $MAIN_SH
+# prepare user.sh, which is where user command get started
+echo -e "\n$USER_CMD" >> ${RUNTIME_DIR}/user.sh
 
 # debug
 echo -e "finished entry\nmain.sh has:" >> $LOG_FILE

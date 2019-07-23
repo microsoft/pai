@@ -23,4 +23,4 @@ WORKDIR /pai-runtime
 COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier .
 COPY src/ ./
 
-CMD ["/bin/sh", "-c", "/pai-runtime/entry"]
+CMD ["/bin/sh", "-c", "/pai-runtime/init"]
