@@ -25,7 +25,7 @@
 
 PAI_DIR=/usr/local/pai
 INIT_DIR=${PAI_DIR}/init
-PAI_LOG_DIR=${PAI_DIR}/logs
+PAI_LOG_DIR=${PAI_DIR}/logs/${FC_POD_UID}
 
 . $PAI_DIR/runtime_env.sh
 
@@ -36,14 +36,16 @@ for i in `find $INIT_DIR/ -type f -regex ".*.sh"` ; do
     continue
   else
     echo "starting ${file_name}"
-    $i > ${PAI_LOG_DIR}/${FC_POD_UID}_${file_name}_init.log 2>&1 &
+    $i > ${PAI_LOG_DIR}/${file_name}_init.log 2>&1 &
   fi
 done
 
 echo "starting main.sh"
-# We want to put verbose output to _user.pai.stdout and error to _user.pai.stderr
-$INIT_DIR/main.sh 2>&1 >>${PAI_LOG_DIR}/${FC_POD_UID}_user.pai.stdout | tee -a ${PAI_LOG_DIR}/${FC_POD_UID}_user.pai.stdout >${PAI_LOG_DIR}/${FC_POD_UID}_user.pai.stderr
-#$INIT_DIR/main.sh 2>&1 | tee ${PAI_LOG_DIR}/${FC_POD_UID}_user.pai.stdout & # TODO tee may not exist in user's container
+
+LOG_PREFIX=${PAI_LOG_DIR}/user.pai
+# Put verbose output to _user.pai.stdver, stdout to _user.pai.stdout, stderr to _user.pai.stderr
+$INIT_DIR/main.sh > >(tee -a ${LOG_PREFIX}.stdout ${LOG_PREFIX}.stdver) 2> >(tee -a ${LOG_PREFIX}.stderr ${LOG_PREFIX}.stdver >&2) &
+
 MAIN_PID=$!
 
 echo "wait for main"
