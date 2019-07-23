@@ -44,12 +44,12 @@ export const taskRoleSchema = Joi.object().keys({
     cpu: Joi.number().required(),
     memoryMB: Joi.number().required(),
     gpu: Joi.number().required(),
-    ports: Joi.object().pattern(/^[A-Za-z0-9\-._~]+$/, Joi.number()),
+    ports: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, Joi.number()),
   }),
   commands: Joi.array().items(Joi.string()).min(1).required(),
 });
 
-export const taskRolesSchema = Joi.object().pattern(/^[A-Za-z0-9\-._~]+$/, taskRoleSchema.required());
+export const taskRolesSchema = Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, taskRoleSchema.required());
 
 export const prerequisitesSchema = Joi.object().keys({
   protocolVersion: [Joi.string(), Joi.number()],

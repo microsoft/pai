@@ -30,7 +30,7 @@ import {BasicSection} from '../basic-section';
 import {FormShortSection} from '../form-page';
 import {KeyValueList} from '../controls/key-value-list';
 
-const PORT_LABEL_REGEX = /^[A-Za-z0-9\-._~]+$/;
+const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 export const PortsList = React.memo(({onChange, ports}) => (
   <BasicSection sectionLabel='Ports' sectionOptional>
@@ -46,7 +46,7 @@ export const PortsList = React.memo(({onChange, ports}) => (
         valueField='value'
         onValidateKey={(val) => {
           if (!PORT_LABEL_REGEX.test(val)) {
-            return 'Should be string in ^[A-Za-z0-9\\-._~]+$ format';
+            return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
           }
         }}
         onValidateValue={(val) => {
