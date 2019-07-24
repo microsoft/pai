@@ -28,6 +28,12 @@ After parsing, object model looks like:
 pylon:
     port: 80
     uri: "http://master_ip:80"
+    #ssl:
+    #  # self-sign
+    #  crt_name: xxxxxx
+    #  crt_path: /path/to/xxxxxx
+    #  key_name: yyyyyy
+    #  key_path: /path/to/yyyyyy
 ```
 
 ## Table <a name="T_Config"></a>
@@ -50,5 +56,29 @@ pylon:
     <td>com["pylon"]["uri"]</td>
     <td>cluster_cfg["pylon"]["uri"]</td>
     <td>URL</td>
+</tr>
+<tr>
+    <td>pylon.ssl.crt_name</td>
+    <td>com["pylon"]["ssl"]["crt_name"]</td>
+    <td>cluster_cfg["pylon"]["ssl"]["crt_name"]</td>
+    <td>certificate file name</td>
+</tr>
+<tr>
+    <td>pylon.ssl.crt_path</td>
+    <td>com["pylon"]["ssl"]["crt_path"]</td>
+    <td>cluster_cfg["pylon"]["ssl"]["crt_path"]</td>
+    <td>the path to certificate file</td>
+</tr>
+<tr>
+    <td>pylon.ssl.key_name</td>
+    <td>com["pylon"]["ssl"]["key_name"]</td>
+    <td>cluster_cfg["pylon"]["ssl"]["key_name"]</td>
+    <td>certificate key file name</td>
+</tr>
+<tr>
+    <td>pylon.ssl.key_path</td>
+    <td>com["pylon"]["ssl"]["key_path"]</td>
+    <td>cluster_cfg["pylon"]["ssl"]["key_path"]</td>
+    <td>the path to certificate key file</td>
 </tr>
 </table>

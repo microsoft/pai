@@ -35,6 +35,7 @@ import {CommandSection} from './command-section';
 import {CompletionPolicy} from './task-role/completion-policy';
 import {PortsList} from './task-role/ports-list';
 import {getDefaultContainerSize} from '../models/container-size';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
   const _onValueChange = (propertyName, propertyValue) => {
@@ -55,28 +56,46 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
 
   return (
     <FormPage>
-      <FormTextField sectionLabel={'Task role name'}
-                     shortStyle
-                     value={jobTaskRole.name}
-                     onChange={(value) => _onValueChange('name', value)}
-                     placeholder='Enter task role name...'/>
-      <CommandSection value={jobTaskRole.commands}
-                      onChange={(value)=>_onValueChange('commands', value)}/>
-      <FormSpinButton sectionLabel={'Instances'}
-                      shortStyle
-                      textFiledProps={{placeholder: 'Enter instance number...'}}
-                      value={jobTaskRole.instances}
-                      min={1}
-                      onChange={(value) => _onValueChange('instances', value)}/>
-      <ContainerSizeSection value={jobTaskRole.containerSize}
-                            onEnable={(checked) => _onValuesChange({
-                              isContainerSizeEnabled: checked,
-                              containerSize: getDefaultContainerSize(jobTaskRole.containerSize.gpu),
-                            })}
-                            onChange={(containerSize) => _onValueChange('containerSize', containerSize)}
-                            isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}/>
-      <DockerSection value={jobTaskRole.dockerInfo}
-                     onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}/>
+      <FormTextField
+        sectionLabel={'Task role name'}
+        sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
+        shortStyle
+        value={jobTaskRole.name}
+        onChange={(value) => _onValueChange('name', value)}
+        placeholder='Enter task role name...'
+      />
+      <CommandSection
+        value={jobTaskRole.commands}
+        onChange={(value) => _onValueChange('commands', value)}
+      />
+      <FormSpinButton
+        sectionLabel={'Instances'}
+        shortStyle
+        textFiledProps={{placeholder: 'Enter instance number...'}}
+        value={jobTaskRole.instances}
+        min={1}
+        onChange={(value) => _onValueChange('instances', value)}
+      />
+      <ContainerSizeSection
+        value={jobTaskRole.containerSize}
+        onEnable={(checked) =>
+          _onValuesChange({
+            isContainerSizeEnabled: checked,
+            containerSize: getDefaultContainerSize(
+              jobTaskRole.containerSize.gpu,
+            ),
+          })
+        }
+        onChange={(containerSize) =>
+          _onValueChange('containerSize', containerSize)
+        }
+        isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
+      />
+      <DockerSection
+        sectionTooltip={PROTOCOL_TOOLTIPS.dockerImage}
+        value={jobTaskRole.dockerInfo}
+        onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}
+      />
       {advanceFlag && (
         <React.Fragment>
           <PortsList
@@ -88,10 +107,10 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
             shortStyle
             sectionOptional
             value={jobTaskRole.taskRetryCount || 0}
-            onChange={(value)=>_onValueChange('taskRetryCount', value)}
+            onChange={(value) => _onValueChange('taskRetryCount', value)}
           />
           <CompletionPolicy
-            onChange={(completion)=>_onValueChange('completion', completion)}
+            onChange={(completion) => _onValueChange('completion', completion)}
             value={jobTaskRole.completion}
           />
         </React.Fragment>

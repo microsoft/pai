@@ -37,7 +37,7 @@ export class NotFoundError extends Error {
 
 export async function fetchJobInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -50,7 +50,7 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -86,7 +86,7 @@ export async function fetchJobConfig() {
 
 export async function fetchSshInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh`
+    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
@@ -155,6 +155,12 @@ export async function cloneJob(rawJobConfig) {
   const plugins = window.PAI_PLUGINS;
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
+    // redirect v2 job to default submission page
+    if (isJobV2(rawJobConfig)) {
+      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+      return;
+    }
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     return;
   }
@@ -165,7 +171,7 @@ export async function stopJob() {
   const flag = confirm(`Are you sure to stop ${jobName}?`);
   if (flag) {
     const url = namespace
-      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
     const res = await fetch(url, {
@@ -210,7 +216,7 @@ export async function getContainerLog(logUrl) {
     if (pre.previousElementSibling) {
       const link = pre.previousElementSibling.getElementsByTagName('a');
       if (link.length === 1) {
-        ret.fullLogLink = link[0].href;
+        ret.fullLogLink = link[0].getAttribute('href');
         // relative link
         if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
           const url = new URL(ret.fullLogLink, res.url);

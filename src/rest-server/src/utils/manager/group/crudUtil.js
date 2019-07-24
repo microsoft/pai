@@ -15,27 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const util = require('util');
-const userModel = require('@pai/models/user');
-const createError = require('@pai/utils/error');
+// module dependencies
+const crudK8sSecret = require('./crudK8sSecret');
 
-const check = (username, password, callback) => {
-  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));
-  dbGet(username, null, (err, res) => {
-    if (!res) {
-      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
-    }
-    userModel.encrypt(username, password, (err, derivedKey) => {
-      if (err) {
-        return callback(err);
-      }
-      callback(null,
-        derivedKey === res[0]['password'],
-        res[0]['admin'] === 'true',
-        res[0].hasOwnProperty('githubPAT')&&
-        Boolean(res[0]['githubPAT']));
-    });
-  });
+const getStorageObject = (type) => {
+  if (type === 'k8sSecret') {
+    return crudK8sSecret;
+  }
 };
 
-module.exports = {check};
+module.exports = {getStorageObject};

@@ -1,3 +1,6 @@
+# PAI Version directory
+version/
+
 # Directory for submitted jobs' json file and scripts
 frameworklauncher/
 

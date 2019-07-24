@@ -27,8 +27,15 @@ oppositely, the one submitted to Dedicated VC could only be scheduled to corresp
 Currently we support configure shared_vc by web UI, but only cmdline tool for dedicated_vc. 
 This doc introduce more details.
 
+**dev-box environment is necessary for all below operations**
+
 
 ## Commands
+
+Operating dedicated vc need admin account, please setup admin username and password as the first step:
+```bash
+python node_maintain.py user set -u {admin_username} -p {admin_password} -m {master_ip}
+```
 
 We provide get, add and remove dedicated vc in the node_maintain.py, working directory is pai/src/tools.
 ```bash

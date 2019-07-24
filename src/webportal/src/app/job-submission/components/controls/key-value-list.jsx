@@ -23,15 +23,16 @@
  * SOFTWARE.
  */
 
-import {camelCase} from 'lodash';
-import {TextField, IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme} from 'office-ui-fabric-react';
+import {camelCase, isEmpty, isNil} from 'lodash';
+import {IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
+import {DebouncedTextField} from './debounced-text-field';
 import {dispatchResizeEvent} from '../../utils/utils';
 import context from '../context';
 
-export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, keyName, keyField, valueName, valueField, secret}) => {
-  columnWidth = columnWidth || 200;
+export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyName, keyField, valueName, valueField, secret, onValidateKey, onValidateValue}) => {
+  columnWidth = columnWidth || 180;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
   valueName = valueName || 'Value';
@@ -51,17 +52,35 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
     const newDupList = value.filter((x) => keyCount[x[keyField]] > 1).map((x) => x[keyField]);
 
     const msgId = `KeyValueList ${name}`;
+    let errorMessage = '';
     if (newDupList.length > 0) {
-      setErrorMessage(msgId, `${name || 'KeyValueList'} has duplicated keys.`);
-      if (onDuplicate) {
-        onDuplicate(true);
-      }
-    } else {
-      setErrorMessage(msgId, '');
-      if (onDuplicate) {
-        onDuplicate(false);
+      errorMessage = `${name || 'KeyValueList'} has duplicated keys.`;
+    }
+    if (value.some((x) => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
+      errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
+    }
+    if (!isNil(onValidateKey) || !isNil(onValidateValue)) {
+      for (const item of value) {
+        if (!isNil(onValidateKey)) {
+          const key = item[keyField];
+          const res = onValidateKey(key);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
+        if (!isNil(onValidateValue)) {
+          const value = item[valueField];
+          const res = onValidateValue(value);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
       }
     }
+    if (onError) {
+      onError(errorMessage);
+    }
+    setErrorMessage(msgId, errorMessage);
     setDupList(newDupList);
   }, [value]);
 
@@ -96,21 +115,44 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
       key: keyName,
       name: keyName,
       minWidth: columnWidth,
-      onRender: (item, idx) => (
-        <TextField
-          errorMessage={dupList.includes(item[keyField]) && 'duplicated key'}
-          value={item[keyField]}
-          onChange={(e, val) => onKeyChange(idx, val)}
-        />
-      ),
+      onRender: (item, idx) => {
+        let errorMessage = null;
+        if (dupList.includes(item[keyField])) {
+          errorMessage = 'duplicated key';
+        }
+        if (isEmpty(item[keyField]) && !isEmpty(item[valueField])) {
+          errorMessage = 'empty key';
+        }
+        if (!isNil(onValidateKey)) {
+          const res = onValidateKey(item[keyField]);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
+        return (
+          <DebouncedTextField
+            errorMessage={errorMessage}
+            value={item[keyField]}
+            onChange={(e, val) => onKeyChange(idx, val)}
+          />
+        );
+      },
     },
     {
       key: valueName,
       name: valueName,
       minWidth: columnWidth,
       onRender: (item, idx) => {
+        let errorMessage = null;
+        if (!isNil(onValidateValue)) {
+          const res = onValidateValue(item[valueField]);
+          if (!isEmpty(res)) {
+            errorMessage = res;
+          }
+        }
         return (
-          <TextField
+          <DebouncedTextField
+            errorMessage={errorMessage}
             value={item[valueField]}
             type={secret && 'password'}
             onChange={(e, val) => onValueChange(idx, val)}
@@ -151,6 +193,7 @@ export const KeyValueList = ({name, value, onChange, onDuplicate, columnWidth, k
           getKey={getKey}
           checkboxVisibility={CheckboxVisibility.hidden}
           layoutMode={DetailsListLayoutMode.fixedColumns}
+          selectionMode={SelectionMode.none}
           compact
         />
       </div>
@@ -171,7 +214,7 @@ KeyValueList.propTypes = {
   name: PropTypes.string,
   value: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
-  onDuplicate: PropTypes.func,
+  onError: PropTypes.func,
   // custom field
   secret: PropTypes.bool,
   columnWidth: PropTypes.number,
@@ -179,4 +222,7 @@ KeyValueList.propTypes = {
   keyField: PropTypes.string,
   valueName: PropTypes.string,
   valueField: PropTypes.string,
+  // validation
+  onValidateKey: PropTypes.func,
+  onValidateValue: PropTypes.func,
 };

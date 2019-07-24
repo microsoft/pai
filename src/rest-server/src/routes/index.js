@@ -18,11 +18,12 @@
 
 // module dependencies
 const express = require('express');
+const authnRouter = require('@pai/routes/authn');
 const controller = require('@pai/controllers/index');
-const tokenRouter = require('@pai/routes/token');
-const userRouter = require('@pai/routes/user');
 const jobRouter = require('@pai/routes/job');
+const tokenRouter = require('@pai/routes/token');
 const vcRouter = require('@pai/routes/vc');
+const userRouter = require('@pai/routes/user');
 const kubernetesProxy = require('@pai/controllers/kubernetes-proxy');
 
 const router = new express.Router();
@@ -30,11 +31,12 @@ const router = new express.Router();
 router.route('/')
     .all(controller.index);
 
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', vcRouter);
 router.use('/kubernetes', kubernetesProxy);
+router.use('/authn', authnRouter);
+router.use('/token', tokenRouter);
+router.use('/user', userRouter);
 
 // module exports
 module.exports = router;

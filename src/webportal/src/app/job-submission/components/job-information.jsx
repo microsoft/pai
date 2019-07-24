@@ -24,7 +24,7 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text} from 'office-ui-fabric-react';
+import {Text, Stack, FontWeights, Link} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -32,6 +32,7 @@ import {FormSpinButton} from './form-spin-button';
 import {VirtualCluster} from './virtual-cluster';
 import Card from '../../components/card';
 import {JobBasicInfo} from '../models/job-basic-info';
+import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag}) => {
   const {name, virtualCluster, jobRetryCount} = jobInformation;
@@ -55,18 +56,26 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   );
 
   const onRetryCountChange = useCallback(
-    (val) => onChangeProp('retryCount', val),
+    (val) => onChangeProp('jobRetryCount', val),
     [onChangeProp]
   );
 
   return (
     <Card>
       <FormPage>
-        <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
-          Job Information
-        </Text>
+        <Stack horizontal gap='m' verticalAlign='baseline'>
+          <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
+            Job submission
+          </Text>
+          <Link
+            target='_blank'
+            href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
+            style={{fontWeight: FontWeights.semibold}}
+          >{'Learn more >'}</Link>
+        </Stack>
         <FormTextField
           sectionLabel={'Job name'}
+          sectionTooltip={PROTOCOL_TOOLTIPS.jobName}
           value={name}
           shortStyle
           onChange={onNameChange}

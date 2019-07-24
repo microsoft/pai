@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {DetailsList, CheckboxVisibility, Stack, DetailsListLayoutMode} from 'office-ui-fabric-react';
+import {DetailsList, CheckboxVisibility, Stack, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {Hint} from './hint';
 import {SidebarCard} from './sidebar-card';
@@ -49,7 +49,7 @@ const columns = [
 
 export const EnvVar = React.memo(({selected, onSelect}) => (
   <SidebarCard
-    title='PAI Environment Variables'
+    title='PAI environment variables'
     selected={selected}
     onSelect={onSelect}
   >
@@ -63,6 +63,7 @@ export const EnvVar = React.memo(({selected, onSelect}) => (
           columns={columns}
           checkboxVisibility={CheckboxVisibility.hidden}
           layoutMode={DetailsListLayoutMode.fixedColumns}
+          selectionMode={SelectionMode.none}
           compact
         />
       </div>

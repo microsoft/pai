@@ -34,6 +34,16 @@ spec:
         - name: pylon
           image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}pylon:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
           imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /pylon-config
+              name: pylon-configuration
+{% if cluster_cfg['authentication']['OIDC'] %}
+            - mountPath: /https-config
+              name: https-configuration
+{% endif %}
+          command:
+            - "/bin/bash"
+            - "/pylon-config/run.sh"
           env:
             - name: REST_SERVER_URI
               value: {{ cluster_cfg['rest-server']['uri'] }}
@@ -44,6 +54,14 @@ spec:
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
             - name: WEBHDFS_LEGACY_PORT
               value: '{{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}'
+{% endif %}
+{% if cluster_cfg['authentication']['OIDC'] %}
+            - name: AUTH_MODE
+              value: OIDC
+            - name: CRT_NAME
+              value: '{{ cluster_cfg['pylon']['ssl']['crt_name'] }}'
+            - name: KEY_NAME
+              value: '{{ cluster_cfg['pylon']['ssl']['key_name'] }}'
 {% endif %}
             - name: PROMETHEUS_URI
               value: {{ cluster_cfg['prometheus']['url'] }}
@@ -61,6 +79,9 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ cluster_cfg['pylon']['port'] }}
+            - name: pylon-https
+              containerPort: 443
+              hostPort: 443
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
             - name: pylon-webhdfs
               containerPort: {{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}
@@ -79,3 +100,13 @@ spec:
           {%- endif %}
       imagePullSecrets:
         - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      volumes:
+        - name: pylon-configuration
+          configMap:
+            name: pylon-config
+{% if cluster_cfg['authentication']['OIDC'] %}
+        - name: https-configuration
+          configMap:
+            name: https-config
+{% endif %}
+
