@@ -14,6 +14,7 @@ export interface IPAICluster {
     hdfs_uri?: string;
     k8s_dashboard_uri?: string;
     web_portal_uri?: string;
+    protocol_version?: string;
 }
 
 export interface IPAITaskRole {
@@ -25,7 +26,7 @@ export interface IPAITaskRole {
     command: string;
 }
 
-export interface IPAIJobConfig {
+export interface IPAIJobConfigV1 {
     jobName: string;
     image: string;
     dataDir?: string;
@@ -52,7 +53,7 @@ export interface IPAIJobInfo {
 /**
  * OpenPAI Job Protocol.
  */
-export interface IPAIYamlJobConfig {
+export interface IPAIJobConfigV2 {
     /** Protocol version, current version is 2. */
     protocolVersion: string | number;
     name: string;
@@ -66,7 +67,7 @@ export interface IPAIYamlJobConfig {
     /** Each item is the protocol for data, script, dockerimage, or output type. */
     prerequisites?: {
         /** If omitted, follow the protocolVersion in root. */
-        protocolVersion?: string | number;
+        protocolVersion?: string;
         name: string;
         /** Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job". */
         type: string;

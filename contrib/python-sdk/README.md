@@ -33,10 +33,12 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
   - [`Jupyter` notebook](#Jupyter-notebook)
     - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
-    - [How to launch a remote jupyter server and connect it](#How-to-launch-a-remote-jupyter-server-and-connect-it)
+    - [How to launch a remote `Jupyter` server and connect it](#How-to-launch-a-remote-Jupyter-server-and-connect-it)
   - [Other FAQ of CLI](#Other-FAQ-of-CLI)
     - [How to select a cluster to use until I change it](#How-to-select-a-cluster-to-use-until-I-change-it)
     - [How to simplify the command](#How-to-simplify-the-command)
+    - [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK)
+    - [How to specify the `python` environment I want to use in the job container](#How-to-specify-the-python-environment-I-want-to-use-in-the-job-container)
 - [Python binding](#Python-binding)
   - [Cluster management](#Cluster-management)
   - [Job management](#Job-management)
@@ -55,19 +57,15 @@ We provide installing method leveraging `pip install`
 
 ```bash
 python -m pip install --upgrade pip
-pip install -U -e "git+https://github.com/Microsoft/pai@sdk-release-v0.4.00#egg=openpaisdk&subdirectory=contrib/python-sdk"
+pip install -U "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdirectory=contrib/python-sdk"
 ```
 
-The `sdk-release-v0.4.00` is the branch name which containing the source code of SDK. User may change it to another branch to install another version of the package.
-
-After installing, please verify by CLI or python binding as below.
+Refer to [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK) for more details about installing. After installing, please verify by CLI or python binding as below.
 
 ```bash
 opai -h
 python -c "from openpaisdk import __version__; print(__version__)"
 ```
-
-And you may also change it to another branch (only take effect in the job container) by `opai set sdk-branch=<your/branch>`.
 
 ### Dependencies
 
@@ -130,7 +128,7 @@ _*: if specified, a directory `<workspace>/jobs/<job-name>` and subfolders (e.g.
 
 ### How to list existing clusters
 
-To list all existing clusters in `~/.openpai/clusters.json`, execute below command
+To list all existing clusters in `~/.openpai/clusters.yaml`, execute below command
 
 ```bash
 opai cluster list
@@ -269,9 +267,9 @@ This command requires options as the `opai job sub` does. This command would
 - _Local_ -  wait and query the job state until its status to be `SUCCEEDED`
 - _Local_ - download `<html-result>` to local and open it with web browser
 
-### How to launch a remote jupyter server and connect it
+### How to launch a remote `Jupyter` server and connect it
 
-Sometimes user may want to launch a remote jupyter server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overriden by `--token <token>`) to login the notebook.
+Sometimes user may want to launch a remote `Jupyter` server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overridden by `--token <token>`) to login the notebook.
 
 ## Other FAQ of CLI
 
@@ -280,20 +278,20 @@ Sometimes user may want to launch a remote jupyter server and do some work on it
 As shown in above examples, `--cluster-alias, -a` is required by lots of commands, but it may not be changed frequently. So it is annoying to type it every time. The CLI tool provides a command to select a cluster to use by
 
 ```
-opai cluster select <cluster-alias>
+opai cluster select [-g] <cluster-alias>
 ```
 
-Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly.
+Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly. The mechanism and priority sequence is the same to below section.
 
 ### How to simplify the command
 
 The mechanism behind `opai cluster select` command help us to simplify the command further. For example, we could set `--workspace, -w` with a default value by
 
 ```bash
-opai set workspace=<workspace>
+opai set [-g] workspace=<workspace>
 ```
 
-This will add a key-value pair in `.openpai/defaults.json` in your current working directory. In every command requires a `--workspace, -w` option but no value defined, the default value would be used.
+The SDK will first load (`~/.openpai/defaults.yaml`), and then update them with the contents in `.openpai/defaults.yaml` in your current working directory. In every command requires a `--workspace, -w` option but no value defined, the default value would be used.
 
 Some commonly used default variables includes
 
@@ -302,7 +300,21 @@ Some commonly used default variables includes
 - `workspace=<workspace>`
 - `sdk-branch=<sdk-branch-tag>` which branch to use when install the sdk in job container
 
+### How to install a different version of SDK
 
+User could easily switch to another version of SDK both in local environment and in job container. In local environment, user just change `<your/branch>` to another branch (e.g. `pai-0.14.y` for `OpenPAI` end-June release or a feature developing branch for the canary version).
+
+```bash
+pip install -U "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisdk&subdirectory=contrib/python-sdk"
+```
+
+To debug a local update, just use `pip install -U your/path/to/setup.py`.
+
+For jobs submitted by the SDK or command line tool, the version specified by `opai set sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
+
+### How to specify the `python` environment I want to use in the job container
+
+In some cases, there are more than one `python` environments in a docker image. For example, there are both `python` and `python3` environments in `openpai/pai.example.keras.tensorflow`. User could add `--python <path/to/python>` (e.g. `--python python3`) in the command `job notebook` or `job sub` to use the specific `python` environment. Refer to [notebook example](examples/1-submit-and-query-via-command-line.ipynb) for more details.
 
 # Python binding
 
@@ -311,7 +323,7 @@ Some commonly used default variables includes
 - [x] User can describe a cluster with `openpaisdk.core.ClusterList` class to describe multiple clusters
 
 ```python
-clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.json"
+clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.yaml"
 ```
 
 User `add`, `delete` methods to update clusters, `select` and `get_client` methods to select one from multiple clusters
@@ -324,7 +336,7 @@ client.jobs(name)
 client.rest_api_submit(job_config)
 ```
 
-- [x] the `Cluster` class has methods to access storage (through WebHDFS only for this version)
+- [x] the `Cluster` class has methods to access storage (through `WebHDFS` only for this version)
 
 ```python
 Cluster(...).storage.upload/download(...)

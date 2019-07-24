@@ -25,6 +25,7 @@ import argparse
 import readline
 import logging
 import logging.config
+import time
 
 from . import conf_storage_util
 from ..paiLibrary.common import file_handler, directory_handler
@@ -46,19 +47,37 @@ class upload_configuration:
         self.config_path = config_path
 
     def check_cluster_id(self):
+        service_config = conf_storage_util.load_yaml_config("{0}/services-configuration.yaml".format(self.config_path))
+        # Default cluster-id in our default configuration is pai.
+        cluster_id_in_config = 'pai'
+        if 'cluster' in service_config and 'common' in service_config['cluster'] and 'cluster-id' in service_config['cluster']['common']:
+            cluster_id_in_config = service_config['cluster']['common']['cluster-id']
 
         cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
         if cluster_id is None:
-            self.logger.warning("No cluster_id found in your cluster.")
-            user_input = raw_input("Please input the cluster-id for your cluster: ")
-            conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, user_input)
-            return False
+            self.logger.warning("No cluster-id found in your cluster.")
+            self.logger.warning("cluster-id [ {0} ] in configuration will be updated into your cluster.".format(cluster_id_in_config))
+            if cluster_id_in_config == 'pai':
+                self.logger.warning("cluster_id [ pai ] is the default ID in configuration.")
+                self.logger.warning("Because no cluster-id found in your configuration, it [pai] will be used.")
+            conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, cluster_id_in_config)
+            self.logger.warning("Waiting 5s to update cluster-id.")
+            time.sleep(5)
+            cluster_id = cluster_id_in_config
 
         user_input = raw_input("Please input the cluster-id which you wanna operate: ")
         if user_input != cluster_id:
             self.logger.error("Ops, maybe you find the wrong cluster. Please check your input and the target cluster.")
             sys.exit(1)
+
+        if cluster_id != cluster_id_in_config:
+            self.logger.warning("Cluster ID's update is detected from your service-configuration!")
+            self.logger.warning("The old one will be overwrote!")
+            self.logger.warning("The new one is [ {0} ]!".format(cluster_id_in_config))
+            conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, cluster_id_in_config)
+            self.logger.warning("Waiting 5s to update cluster-id.")
+            time.sleep(5)
 
         self.logger.info("Congratulations: Cluster-id checking passed.")
         return True

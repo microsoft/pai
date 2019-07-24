@@ -101,6 +101,27 @@ export async function fetchSshInfo() {
   }
 }
 
+export function getTensorBoardUrl(jobInfo, rawJobConfig) {
+  let port = null;
+  let ip = null;
+  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
+    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+    const tensorBoardStr = `TensorBoard_${randomStr}`;
+    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
+    const obj = jobInfo.taskRoles;
+    if (obj.hasOwnProperty(tensorBoardStr)) {
+      if (obj[tensorBoardStr].taskStatuses[0].taskState === 'RUNNING') {
+        port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
+        ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
+      }
+    }
+  }
+  if (isNil(port) || isNil(ip)) {
+    return null;
+  }
+  return `http://${ip}:${port}`;
+}
+
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
