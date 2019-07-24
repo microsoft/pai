@@ -29,6 +29,7 @@
     "async": "~2.5.0",
     "axios": "^0.18.0",
     "chai": "~4.1.2",
+    "chai-as-promised": "~7.1.1",
     "chai-http": "~3.0.0",
     "compression": "~1.7.1",
     "cookie-parser": "~1.4.3",
@@ -57,7 +58,14 @@
     "statuses": "~1.5.0",
     "unirest": "~0.5.1",
     "winston": "~2.4.0",
-    "xml2js": "~0.4.19"
+    "xml2js": "~0.4.19",
+    "querystring": "~0.2.0"
+  },
+  "_moduleAliases": {
+    "@pai": "src"
+  },
+  "_moduleAliases": {
+    "@pai": "src"
   },
   "_moduleAliases": {
     "@pai": "src"

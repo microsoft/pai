@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-describe('Jobs API /api/v1/user/:username/jobs', () => {
+describe('Jobs API /api/v2/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -92,7 +92,7 @@ describe('Jobs API /api/v1/user/:username/jobs', () => {
         allFrameworks
       );
     chai.request(server)
-      .get('/api/v1/user/test1/jobs')
+      .get('/api/v2/user/test1/jobs')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;

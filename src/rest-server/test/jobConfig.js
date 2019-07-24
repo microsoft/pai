@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () => {
+describe('Get job config: GET /api/v2/user/:username/jobs/:jobName/config', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -115,7 +115,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
 
   it('Case 1 (Positive): The job exists, and its config file exists too.', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/job1/config')
+      .get('/api/v2/user/test/jobs/job1/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'response format').be.json;
@@ -130,7 +130,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
 
   it('Case 2 (Negative): The job does not exist at all.', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/job2/config')
+      .get('/api/v2/user/test/jobs/job2/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
@@ -140,7 +140,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
 
   it('Case 3 (Negative): The job exists, but does not contain config file.', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/job3/config')
+      .get('/api/v2/user/test/jobs/job3/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
@@ -150,7 +150,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
 
   it('Case 4 (Negative): Cannot connect to Launcher.', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/job4/config')
+      .get('/api/v2/user/test/jobs/job4/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
@@ -160,7 +160,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
 
   it('Case 5 (Negative): Cannot connect to WebHDFS.', (done) => {
     chai.request(server)
-      .get('/api/v1/user/test/jobs/job5/config')
+      .get('/api/v2/user/test/jobs/job5/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;

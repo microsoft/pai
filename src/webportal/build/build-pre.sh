@@ -21,7 +21,6 @@ pushd $(dirname "$0") > /dev/null
 
 mkdir -p "../dependency"
 cp -arf "../../../docs" "../../../examples" "../dependency"
-
-npm --no-git-tag-version version $(cat ../../../version/PAI.VERSION)
+cp -arf "../../../version" "../version"
 
 popd > /dev/null

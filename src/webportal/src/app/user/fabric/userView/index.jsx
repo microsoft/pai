@@ -18,7 +18,7 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 
 import {Fabric, Stack, initializeIcons, getTheme} from 'office-ui-fabric-react';
-import {debounce} from 'lodash';
+import {debounce, findIndex} from 'lodash';
 
 import {MaskSpinnerLoading} from '../../../components/loading';
 import {initTheme} from '../../../components/theme';
@@ -123,7 +123,7 @@ export default function UserView() {
 
   const [ordering, setOrdering] = useState(new Ordering());
 
-  const importCSV = () => {
+  const createBulkUsers = () => {
     window.location.href = '/batch-register.html';
   };
 
@@ -169,7 +169,17 @@ export default function UserView() {
 
   const [batchPasswordEditor, setBatchPasswordEditor] = useState({isOpen: false});
   const showBatchPasswordEditor = () => {
-    setBatchPasswordEditor({isOpen: true});
+    const selectedAdmin = findIndex(getSelectedUsers(), (user) => user.admin) != -1;
+    if (selectedAdmin) {
+      showMessageBoxWithConfirm('Your options include the administrator, please confirm whether to continue this operation')
+      .then((confirmed) => {
+        if (confirmed) {
+          setBatchPasswordEditor({isOpen: true});
+        }
+      });
+    } else {
+      setBatchPasswordEditor({isOpen: true});
+    }
   };
   const hideBatchPasswordEditor = () => {
     setBatchPasswordEditor({isOpen: false});
@@ -198,7 +208,7 @@ export default function UserView() {
     getSelectedUsers,
     setAllSelected,
     addUser,
-    importCSV,
+    createBulkUsers,
     removeUsers,
     editUser,
     showBatchPasswordEditor,

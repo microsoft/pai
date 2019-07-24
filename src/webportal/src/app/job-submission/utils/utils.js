@@ -67,30 +67,20 @@ export function addPathPrefix(path, prefix) {
   return prefix.concat(path);
 }
 
-export function pruneComponents(jobInformation, secrets, context) {
+function populateComponents(jobInformation, context) {
   const {vcNames} = context;
   const virtualCluster = jobInformation.virtualCluster;
   if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
-    jobInformation.virtualCluster = '';
-  }
-
-  const removeValueIndex = secrets.map((secret, index) => {
-    if (secret.value === HIDE_SECRET) {
-      return index;
-    }
-    return -1;
-  }).filter((value) => value >= 0);
-
-  for (let i = removeValueIndex.length -1; i >= 0; i--) {
-    secrets.splice(removeValueIndex[i], 1);
+    jobInformation.virtualCluster = 'default';
   }
 }
 
-export function getJobComponentsFormConfig(jobConfig) {
+export function getJobComponentsFromConfig(jobConfig, context) {
   if (isNil(jobConfig)) {
     return;
   }
 
+  removePreCommandsFromProtocolTaskRoles(jobConfig);
   const parameters = jobConfig.parameters || [];
   const taskRoles = jobConfig.taskRoles || [];
   const deployments = jobConfig.deployments || [];
@@ -101,9 +91,12 @@ export function getJobComponentsFormConfig(jobConfig) {
   const updatedParameters = Object.keys(parameters).map((key) => {
     return {key: key, value: parameters[key]};
   });
-  const updatedSecrets = Object.keys(secrets).map((key) => {
-    return {key: key, value: secrets[key]};
-  });
+  const updatedSecrets =
+    secrets === HIDE_SECRET
+      ? []
+      : Object.keys(secrets).map((key) => {
+          return {key: key, value: secrets[key]};
+        });
   const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
     JobTaskRole.fromProtocol(
       name,
@@ -113,6 +106,8 @@ export function getJobComponentsFormConfig(jobConfig) {
       secrets,
     ),
   );
+
+  populateComponents(updatedJobInformation, context);
   return [
     updatedJobInformation,
     updatedTaskRoles,
@@ -124,6 +119,11 @@ export function getJobComponentsFormConfig(jobConfig) {
 export function getHostNameFromUrl(url) {
   const parser = new URL(url);
   return parser.hostname;
+}
+
+export function getPortFromUrl(url) {
+  const parser = new URL(url);
+  return parser.port;
 }
 
 function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
@@ -157,7 +157,7 @@ function removePreCommandSection(commands, beginTag, endTag) {
   return commands;
 }
 
-export function removePreCommandsFromProtocolTaskRoles(protocol) {
+function removePreCommandsFromProtocolTaskRoles(protocol) {
   Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     let commands = taskRole.commands || [];

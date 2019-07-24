@@ -1,13 +1,17 @@
 import {InputData} from './input-data';
-import {TEAMWISE_DATA_CMD_START, TEAMWISE_DATA_CMD_END} from '../../utils/constants';
+import {
+  TEAMWISE_DATA_CMD_START,
+  TEAMWISE_DATA_CMD_END,
+  AUTO_GENERATE_NOTIFY,
+} from '../../utils/constants';
 import {isEmpty} from 'lodash';
 
 export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
     this.user = user;
     this.jobName = jobName;
-    this.selectedConfigs = selectedConfigs;
-    this.servers = servers;
+    this.selectedConfigs = selectedConfigs || [];
+    this.servers = servers || [];
   }
 
   getPaiCommand() {
@@ -17,7 +21,7 @@ export class MountDirectories {
 
     const returnValue = [
       TEAMWISE_DATA_CMD_START,
-      '#Auto generated code, please do not modify',
+      AUTO_GENERATE_NOTIFY,
       'apt-get update',
       'apt-get install --assume-yes nfs-common cifs-utils sshpass wget',
       'umask 000',

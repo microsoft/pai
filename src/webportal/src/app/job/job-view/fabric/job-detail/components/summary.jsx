@@ -411,17 +411,20 @@ export default class Summary extends React.Component {
               </Link>
             </div>
             <div>
-              <PrimaryButton
-                text='Clone'
-                onClick={() => cloneJob(rawJobConfig)}
-                disabled={!isClonable(rawJobConfig)}
-              />
-              <DefaultButton
-                className={c(t.ml2)}
-                text='Stop'
-                onClick={onStopJob}
-                disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo.jobStatus))}
-              />
+              <span>
+                <PrimaryButton
+                  text='Clone'
+                  onClick={() => cloneJob(rawJobConfig)}
+                  disabled={!isClonable(rawJobConfig)}
+                />
+              </span>
+              <span className={c(t.ml2)}>
+                <DefaultButton
+                  text='Stop'
+                  onClick={onStopJob}
+                  disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo.jobStatus))}
+                />
+              </span>
             </div>
           </div>
           {/* Monaco Editor Modal */}

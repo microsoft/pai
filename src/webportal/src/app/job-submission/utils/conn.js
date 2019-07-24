@@ -19,6 +19,7 @@ import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
+import {get} from 'lodash';
 
 const token = cookies.get('token');
 
@@ -73,8 +74,13 @@ export async function fetchJobConfig(userName, jobName) {
   }
 }
 
-export async function listVirtualClusters() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
+export async function listUserVirtualClusters(user) {
+  const userInfo = await fetchWrapper(`${config.restServerUri}/api/v1/user/${user}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return get(userInfo, 'virtualCluster', []);
 }
 
 export async function fetchUserGroup(api, user, token) {

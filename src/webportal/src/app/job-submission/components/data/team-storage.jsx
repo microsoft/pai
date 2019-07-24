@@ -24,14 +24,15 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Stack, Checkbox, FontClassNames, FontWeights} from 'office-ui-fabric-react';
+import {Stack, Checkbox, FontClassNames, FontWeights, getTheme} from 'office-ui-fabric-react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {cloneDeep} from 'lodash';
 
 import {MountDirectories} from '../../models/data/mount-directories';
 import {TeamMountList} from './team-mount-list';
-import t from '../../../../app/components/tachyons.scss';
+
+const {spacing} = getTheme();
 
 export const TeamStorage = ({
   teamConfigs,
@@ -40,7 +41,7 @@ export const TeamStorage = ({
   onMountDirChange,
 }) => {
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
-    return defaultTeamConfigs.map((element) => {
+    return mountDirs.selectedConfigs.map((element) => {
       return element.name;
     });
   });
@@ -92,8 +93,8 @@ export const TeamStorage = ({
       return (
         <div>
           <div
-            className={c(FontClassNames.mediumPlus, t.pb2)}
-            style={{fontWeight: FontWeights.semibold}}
+            className={c(FontClassNames.mediumPlus)}
+            style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
           >
             Team Share Storage
           </div>

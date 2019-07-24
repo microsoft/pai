@@ -30,8 +30,6 @@ class AlertOperator(BaseOperator):
 
     def __init__(self, prometheus_ip, prometheus_port=9091):
         super(AlertOperator, self).__init__(prometheus_ip, prometheus_port)
-        self.master_ip = prometheus_ip
-        self.master_port = prometheus_port
 
     def get_gpu_alert_nodes(self):
         api_path = "/prometheus/api/v1/query?query=ALERTS"

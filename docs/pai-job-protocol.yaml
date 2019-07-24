@@ -3,7 +3,7 @@
 # OpenPAI Job Protocol YAML
 
 protocolVersion: String, required # Protocol version, current version is 2.
-name: String, required
+name: String, required # String in ^[a-zA-Z0-9_-]+$ format.
 type: String, required # Component type, should be "job" here.
 version: String, optional # Component version, default is latest.
 contributor: String, optional
@@ -43,7 +43,7 @@ jobRetryCount: Integer, optional # Default is 0.
 # Task roles are different types of task in the protocol.
 # One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.
 taskRoles:
-  <name>: String, required  # Name of the taskRole, string in ^[A-Za-z0-9\-._~]+$ format.
+  <name>: String, required  # Name of the taskRole, string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format (valid C variable name).
     instances: Integer, optional # Default is 1, instances of a taskRole, no less than 1.
     completion: # Completion poclicy for the job, https://github.com/Microsoft/pai/blob/master/subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy.
       # Number of failed tasks to fail the entire job, null or no less than 1, if set to null means the job will always succeed regardless any task failure.
@@ -63,8 +63,8 @@ taskRoles:
       cpu: Integer, required # CPU number, unit is CPU vcore
       memoryMB: Integer, required # Memory number, unit is MB
       gpu: Integer, required # GPU number, unit is GPU card
-      ports: # Optional
-        <portLabel>: Integer, required, minimum number is 1 # Port number for the port label. Only for host network, portLabel string in ^[A-Za-z0-9\-._~]+$ format.
+      ports: # Optional, only for host network, port label is string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format (valid C variable name).
+        <portLabel>: Integer, required, minimum number is 1 # Port number for the port label.
     commands:
       - String, required
 

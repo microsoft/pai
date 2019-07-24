@@ -31,14 +31,15 @@ import {
   StackItem,
   FontClassNames,
 } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 import {FormSection} from './form-page';
 import {getFormPageSytle, getFormBasicSectionStyle} from './form-style';
-import PropTypes from 'prop-types';
+import {TooltipIcon} from './controls/tooltip-icon';
 
 const formPageStyle = getFormPageSytle();
 
 export const BasicSection = (props) => {
-  const {sectionLabel, sectionOptional, children} = props;
+  const {sectionLabel, sectionOptional, sectionTooltip, children} = props;
   const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 
   const [isSectionOn, setSectionOn] = useState(true);
@@ -57,9 +58,14 @@ export const BasicSection = (props) => {
           />
           <StackItem grow>
             <div>
-              <Label styles={basicSectionStyle.label}>
-                {sectionLabel}
-              </Label>
+              <Stack horizontal gap='s1'>
+                <Label styles={basicSectionStyle.label}>
+                  {sectionLabel}
+                </Label>
+                {sectionTooltip && (
+                  <TooltipIcon content={sectionTooltip} />
+                )}
+              </Stack>
               {sectionOptional && (
                 <div className={FontClassNames.tiny}>Optional</div>
               )}
@@ -74,8 +80,13 @@ export const BasicSection = (props) => {
   );
 };
 
+BasicSection.defaultProps = {
+  sectionLabel: '',
+};
+
 BasicSection.propTypes = {
-  sectionLabel: PropTypes.string.isRequired,
+  sectionLabel: PropTypes.string,
+  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   children: PropTypes.node,
   sectionOptional: PropTypes.bool,
 };
