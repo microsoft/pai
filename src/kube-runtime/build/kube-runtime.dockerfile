@@ -15,12 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 FROM python:2.7-alpine3.8
 
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 
-WORKDIR /pai-runtime
-COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier .
-COPY src/ ./
+WORKDIR /usr/local/pai
 
-CMD ["/bin/sh", "-c", "/pai-runtime/entry"]
+COPY src/ ./
+COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
+RUN mkdir -p ./logs && \
+    chmod -R +x ./
+
+CMD ["/bin/sh", "-c", "/usr/local/pai/init"]
