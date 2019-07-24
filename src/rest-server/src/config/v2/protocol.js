@@ -281,7 +281,7 @@ const protocolSchema = {
           },
           taskRoles: {
             patternProperties: {
-              '^[A-Za-z0-9._~]+$': {
+              '^[a-zA-Z_][a-zA-Z0-9_]*$': {
                 type: 'object',
                 properties: {
                   preCommands: {

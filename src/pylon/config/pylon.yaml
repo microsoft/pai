@@ -2,3 +2,10 @@ port: 80
 # The following 2 config is for internal use
 webhdfs-legacy-port: 50070
 deploy-service: false
+
+#ssl:
+#  # self-sign
+#  crt_name: xxxxxx
+#  crt_path: /path/to/xxxxxx
+#  key_name: yyyyyy
+#  key_path: /path/to/yyyyyy

@@ -341,6 +341,29 @@ http {
     }
   }
 
+  {% if AUTH_MODE %}
+  # proxy https://x.x.x.x/rest-server/auth/oidc/return to http://x.x.x.x/rest-server/auth/oidc/return
+  server {
+    listen  443 ssl;
+    server_name  localhost;
+
+    ssl on;
+    ssl_certificate /root/{{CRT_NAME}};
+    ssl_certificate_key /root/{{KEY_NAME}};
+
+    ssl_session_timeout 40m;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_verify_client off;
+
+
+    location / {
+        proxy_pass http://localhost:80;
+    }
+
+  }
+  {% endif %}
+
   {% if WEBHDFS_LEGACY_PORT %}
   # Proxy 50070 to webhdfs for backward compatibility
   server {

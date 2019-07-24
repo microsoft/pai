@@ -15,42 +15,29 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
 const Joi = require('joi');
 
-// define the input schema for the 'update user' api
-const userPutInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
+const groupSchema = Joi.object().keys({
+  groupname: Joi.string()
+    .regex(/^[A-Za-z0-9_]+$/, 'groupname')
     .required(),
-  admin: Joi.boolean(),
-  modify: Joi.boolean()
-    .required(),
-  password: Joi.when('modify', {
-    is: true,
-    then: Joi.string().min(6).allow(''),
-    otherwise: Joi.string().min(6).required(),
-  }),
-}).required();
-
-// define the input schema for the 'remove user' api
-const userDeleteInputSchema = Joi.object().keys({
-  username: Joi.string()
-    .regex(/^[\w.-]+$/, 'username')
+  description: Joi.string()
+    .empty('')
+    .default(''),
+  externalName: Joi.string()
+    .empty('')
+    .default(''),
+  extension: Joi.object()
+    .pattern(/\w+/, Joi.required())
     .required(),
 }).required();
 
-// define the input schema for the 'update user virtual cluster' api
-const userVcUpdateInputSchema = Joi.object().keys({
-  virtualClusters: Joi.string()
-    .allow('')
-    .regex(/^[A-Za-z0-9_,]+$/)
-    .optional(),
-}).required();
+function createGroup(value) {
+  const res = groupSchema.validate(value);
+  if (res['error']) {
+    throw new Error('Group schema error\n${error}');
+  }
+  return res['value'];
+}
 
-// module exports
-module.exports = {
-  userPutInputSchema: userPutInputSchema,
-  userDeleteInputSchema: userDeleteInputSchema,
-  userVcUpdateInputSchema: userVcUpdateInputSchema,
-};
+module.exports = {createGroup};

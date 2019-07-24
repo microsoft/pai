@@ -16,41 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const jwt = require('jsonwebtoken');
-const tokenConfig = require('@pai/config/token');
-const tokenModel = require('@pai/models/token');
-const createError = require('@pai/utils/error');
+const winbindAdapter = require('./winbindAdapter');
 
-/**
- * Get the token.
- */
-const get = (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const expiration = req.body.expiration;
-  tokenModel.check(username, password, (err, state, admin, hasGitHubPAT) => {
-    if (err) {
-      return next(createError.unknown(err));
-    }
-    if (!state) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    jwt.sign({
-      username: username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      if (signError) {
-        return next(createError.unknown(signError));
-      }
-      return res.status(200).json({
-        user: username,
-        token: token,
-        admin: admin,
-        hasGitHubPAT: hasGitHubPAT,
-      });
-    });
-  });
+const getStorageObject = (type) => {
+  if (type === 'winbind') {
+    return winbindAdapter;
+  }
 };
 
-// module exports
-module.exports = {get};
+module.exports = {getStorageObject};

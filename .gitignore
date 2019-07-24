@@ -28,4 +28,3 @@ __pycache__
 *.pyproj
 *.vs
 .editorconfig
-.prettier.config.js

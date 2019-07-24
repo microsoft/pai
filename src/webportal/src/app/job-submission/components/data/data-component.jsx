@@ -1,5 +1,6 @@
 import React, {useCallback, useReducer, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
+import {Stack} from 'office-ui-fabric-react';
 
 import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
@@ -7,7 +8,7 @@ import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';
 import {HdfsContext} from '../../models/data/hdfs-context';
-import {getHostNameFromUrl} from '../../utils/utils';
+import {getHostNameFromUrl, getPortFromUrl} from '../../utils/utils';
 import {MountDirectories} from '../../models/data/mount-directories';
 import {
   fetchUserGroup,
@@ -15,9 +16,9 @@ import {
   fetchStorageServer,
 } from '../../utils/conn';
 import config from '../../../config/webportal.config';
-
-const host = getHostNameFromUrl(config.restServerUri);
 import {JobData} from '../../models/data/job-data';
+import {Hint} from '../sidebar/hint';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 function reducer(state, action) {
   let jobData;
@@ -46,11 +47,25 @@ function reducer(state, action) {
 }
 
 export const DataComponent = React.memo((props) => {
-  const hdfsClient = new WebHDFSClient(host);
+  const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
+  let hdfsHost;
+  let port;
+  let apiPath;
+  if (!config.webHDFSUri || envsubRegex.test(config.webHDFSUri)) {
+    hdfsHost = window.location.hostname;
+  } else {
+    // add WEBHDFS_URI to .env for local debug
+    hdfsHost = getHostNameFromUrl(config.webHDFSUri);
+    port = getPortFromUrl(config.webHDFSUri);
+  }
+  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port, apiPath);
   const {onChange} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
-  const [dataError, setDataError] = useState({customContainerPathError: false, customDataSourceError: false});
+  const [dataError, setDataError] = useState({
+    customContainerPathError: false,
+    customDataSourceError: false,
+  });
   const [jobData, dispatch] = useReducer(
     reducer,
     new JobData(hdfsClient, [], null),
@@ -132,32 +147,42 @@ export const DataComponent = React.memo((props) => {
     <HdfsContext.Provider value={{user: '', api: '', token: '', hdfsClient}}>
       <SidebarCard
         title='Data'
+        tooltip={PROTOCOL_TOOLTIPS.data}
         selected={props.selected}
         onSelect={props.onSelect}
-        error={dataError.customContainerPathError || dataError.customDataSourceError}
+        error={
+          dataError.customContainerPathError || dataError.customDataSourceError
+        }
       >
-        {teamConfigs && (
-          <TeamStorage
-            teamConfigs={teamConfigs}
-            defaultTeamConfigs={defaultTeamConfigs}
-            mountDirs={jobData.mountDirs}
-            onMountDirChange={onMountDirChange}
+        <Stack gap='m'>
+          <Hint>
+            The data configured here will be mounted or copied into job
+            container. You could use them with <code>{'Container Path'}</code>{' '}
+            value below.
+          </Hint>
+          {teamConfigs && (
+            <TeamStorage
+              teamConfigs={teamConfigs}
+              defaultTeamConfigs={defaultTeamConfigs}
+              mountDirs={jobData.mountDirs}
+              onMountDirChange={onMountDirChange}
+            />
+          )}
+          <CustomStorage
+            dataList={jobData.customDataList}
+            setDataList={_onDataListChange}
+            setDataError={setDataError}
           />
-        )}
-        <CustomStorage
-          dataList={jobData.customDataList}
-          setDataList={_onDataListChange}
-          setDataError={setDataError}
-        />
-        <MountTreeView
-          dataList={
-            jobData.mountDirs == null
-              ? jobData.customDataList
-              : jobData.mountDirs
-                  .getTeamDataList()
-                  .concat(jobData.customDataList)
-          }
-        />
+          <MountTreeView
+            dataList={
+              jobData.mountDirs == null
+                ? jobData.customDataList
+                : jobData.mountDirs
+                    .getTeamDataList()
+                    .concat(jobData.customDataList)
+            }
+          />
+        </Stack>
       </SidebarCard>
     </HdfsContext.Provider>
   );

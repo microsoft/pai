@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {FontClassNames, FontWeights} from 'office-ui-fabric-react';
+import {FontClassNames, FontWeights, getTheme} from 'office-ui-fabric-react';
 import c from 'classnames';
 
 import {AddDataSource} from './add-data-source';
 import {MountList} from './custom-mount-list';
 import {InputData} from '../../models/data/input-data';
-import t from '../../../../app/components/tachyons.scss';
 
+const {spacing} = getTheme();
 export const CustomStorage = ({dataList, setDataList, setDataError}) => {
   return (
     <div>
       <div
-        className={c(FontClassNames.mediumPlus, t.pv3)}
-        style={{fontWeight: FontWeights.semibold}}
+        className={c(FontClassNames.mediumPlus)}
+        style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
       >
-        Customized Storage
+        Customized storage
       </div>
       <div>
         <AddDataSource dataList={dataList} setDataList={setDataList} />

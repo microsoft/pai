@@ -1,0 +1,53 @@
+protocolVersion: 2
+name: caffe2_resnet50_debug
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  # Caffe2 ResNet50 Example
+  This example shows using caffe2 to train ResNet50 with fake data on OpenPAI.
+parameters:
+  epochSize: 1000
+  epochNum: 1
+
+prerequisites:
+  - protocolVersion: 2
+    name: caffe2_example
+    type: dockerimage
+    version: 1.0
+    contributor : OpenPAI
+    description: |
+      This is an [example caffe2 Docker image on OpenPAI](https://github.com/Microsoft/pai/tree/master/examples/caffe2).
+    uri : openpai/pai.example.caffe2
+
+taskRoles:
+  train:
+    instances: 1
+    dockerImage: caffe2_example
+    resourcePerInstance:
+      gpu: 0
+      cpu: 1
+      memoryMB: 1024
+      ports:
+        debug: 1
+    commands:
+      - >-
+        PYTHONPATH=$PYTHONPATH:/pai_data/debug DEBUG_PORT_NAME=debug python -m paipdb resnet50_trainer.py
+        --train_data null
+        --epoch_size <% $parameters.epochSize %>
+        --num_epochs <% $parameters.epochNum %>
+deployments:
+  - name: debug
+    taskRoles:
+      train:
+        preCommands:
+          - >-
+            if [ ! -d /pai_data/debug ]; then mkdir --parents /pai_data/debug; fi
+          - apt-get install -y --no-install-recommends wget
+          - >-
+            wget
+            https://raw.githubusercontent.com/microsoft/pai/master/contrib/debug-tools/openpaipdb/paipdb.py
+            -P /pai_data/debug
+
+defaults:
+  deployment: debug

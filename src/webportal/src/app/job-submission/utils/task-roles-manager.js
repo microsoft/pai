@@ -1,9 +1,9 @@
 import {DockerInfo} from '../models/docker-info';
 
 import {createUniqueName} from './utils';
+import {SECRET_PATTERN} from '../utils/constants';
 import {isEmpty, get} from 'lodash';
 
-const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 const SECRET_PREFIX = 'docker_password';
 const DOCKER_IMAGE_PREFIX = 'docker_image';
 

@@ -50,10 +50,9 @@ function log_runtime_error()
 
 function sigterm_handler()
 {
-  rc=$?
   printf "[DEBUG] SIGTERM received, job will be killed\n"
   log_runtime_error "ERROR" "REASON" "\"Container receive signal SIGTERM\""
-  exit $rc
+  exit 143
 } 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
 

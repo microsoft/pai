@@ -24,20 +24,23 @@
  */
 
 import React, {useState} from 'react';
+import {isEmpty} from 'lodash';
 import {Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {SidebarCard} from './sidebar-card';
 import {Hint} from './hint';
 import {KeyValueList} from '../controls/key-value-list';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   return (
     <SidebarCard
       title='Secrets'
+      tooltip={PROTOCOL_TOOLTIPS.secrets}
       selected={selected}
       onSelect={onSelect}
-      error={error}
+      error={!isEmpty(error)}
     >
       <Stack gap='m'>
         <Hint>
@@ -48,7 +51,7 @@ export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
             name='Secret List'
             value={secrets}
             onChange={onChange}
-            onDuplicate={setError}
+            onError={setError}
           />
         </div>
       </Stack>

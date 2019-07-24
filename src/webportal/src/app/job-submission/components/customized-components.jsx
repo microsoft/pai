@@ -24,12 +24,13 @@
  */
 
 import React, {useCallback} from 'react';
-import {SpinButton} from 'office-ui-fabric-react';
+import {SpinButton, Stack} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {debounce, isNil} from 'lodash';
+import {TooltipIcon} from './controls/tooltip-icon';
 
 export const CSpinButton = (props) => {
-  const {onChange, onIncrement, onDecrement, onValidate, min, max} = props;
+  const {onChange, onIncrement, onDecrement, onValidate, min, max, label, tooltip} = props;
 
   const _onChange = useCallback((value, operateFunc, defaultReturnValue) => {
     let newValue = defaultReturnValue;
@@ -53,13 +54,21 @@ export const CSpinButton = (props) => {
   const _onValidate = (value) => _onChange(value, onValidate, value);
 
   return (
-    <SpinButton
-      {...props}
-      styles={{labelWrapper: [{width: '160px'}]}}
-      onIncrement={debounce(_onIncrement)}
-      onDecrement={debounce(_onDecrement)}
-      onValidate={debounce(_onValidate)}
-    />
+    <Stack horizontal gap='s1' verticalAlign='baseline'>
+      {label && (
+        <div style={{width: 160}}>{label}</div>
+      )}
+      {tooltip && (
+        <TooltipIcon content={tooltip} />
+      )}
+      <SpinButton
+        {...props}
+        label={null}
+        onIncrement={debounce(_onIncrement)}
+        onDecrement={debounce(_onDecrement)}
+        onValidate={debounce(_onValidate)}
+      />
+    </Stack>
   );
 };
 
@@ -68,6 +77,8 @@ CSpinButton.defaultProps = {
 };
 
 CSpinButton.propTypes = {
+  label: PropTypes.string,
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   min: PropTypes.number,
   max: PropTypes.number,
   onChange: PropTypes.func,

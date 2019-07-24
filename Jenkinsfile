@@ -322,7 +322,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$SINGLE_BOX_URL/rest-server/api/v1/token \
+$SINGLE_BOX_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",
@@ -335,7 +335,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/ \
+$SINGLE_BOX_URL/rest-server/api/v2/user/admin/jobs/ \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -354,7 +354,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/ \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
+curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v2/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
@@ -420,7 +420,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$CLUSTER_URL/rest-server/api/v1/token \
+$CLUSTER_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",
@@ -433,7 +433,7 @@ $CLUSTER_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$CLUSTER_URL/rest-server/api/v1/user/admin/jobs \
+$CLUSTER_URL/rest-server/api/v2/user/admin/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -452,7 +452,7 @@ $CLUSTER_URL/rest-server/api/v1/user/admin/jobs \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
+curl --silent --verbose $CLUSTER_URL/rest-server/api/v2/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
