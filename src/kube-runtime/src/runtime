@@ -33,14 +33,24 @@ PAI_LOG_FILE=${PAI_LOG_DIR}/${FC_POD_UID}_runtime.log
 
 # To run runtime scripts under runtime.d in task container,
 # execute them here in priority order.
+# Here're the steps to onboard a new runtime script,
+# 1. put it under runtime.d
+# 2. give it a priority in [0, 100] and insert below in order
+# 3. add the following format block
+
+# comment for the script purpose
+# priority=value
 # ${PAI_RUNTIME_DIR}/runtime.sh >> ${PAI_LOG_FILE} 2>&1
 
+
 # export runtime env variables
+# priority=0
 source ${PAI_RUNTIME_DIR}/runtime_env.sh
 
 # prepare ssh
 
 # execute user commands
+# priority=100
 echo "[INFO] USER COMMAND START"
 ${PAI_RUNTIME_DIR}/user.sh 2>&1 | tee ${PAI_LOG_DIR}/${FC_POD_UID}_main.log & # TODO tee may not exist in user's container
 USER_PID=$!
