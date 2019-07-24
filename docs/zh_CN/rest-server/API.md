@@ -6,6 +6,8 @@
 
 2. Authentication
     
+    ##### a. Basic Mode, user account and password
+    
     HTTP POST your username and password to get an access token from:
 
         http://restserver/api/v1/token
@@ -16,6 +18,32 @@
              -X POST http://restserver/api/v1/token \
              -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
         ```
+    
+        ##### b. Azure AD - OIDC mode
+    
+        ###### I. Login - get AuthCode
+    
+        HTTP GET the redirect URL of Azure AD for authentication:
+    
+        ```
+        http://restserver/api/v1/authn/oidc/login
+        ```
+    
+        ###### II. Login - get token with AuthCode
+    
+        HTTP POST the token from AAD (AccessToken, IDToken, RefreshToken) to get OpenPAI's access token. Web-browser will call this API automatically after the step I.
+    
+        ```
+        HTTP://restserver/api/v1/authn/oidc/return
+        ```
+    
+        ###### III. Logout
+    
+        HTTP GET the redirect URL of Azure AD to sign out the authentication:
+    
+        ```
+        http://restserver/api/v1/authn/oidc/login 
+        ```   
     
     3. Submit a job
     
@@ -58,11 +86,11 @@
     
     ## Root URI
     
-    Configure the rest server port in [services-configuration.yaml](../../../examples/cluster-configuration/services-configuration.yaml).
+    Configure the rest server port in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
     
     ## API Details
     
-    ### `POST token`
+    ### `POST token`  (basic authentication mode only)
     
     Authenticated and get an access token in the system.
     
@@ -127,25 +155,28 @@ Status: 500
 }
 ```
 
-### `PUT user`
+### `POST user` (administrator only, basic authentication mode only)
 
-Update a user in the system. Administrator can add user or change other user's password; user can change his own password.
+Admin can create a user in system.
 
 *Request*
 
-```json
-PUT /api/v1/user
-Authorization: Bearer <ACCESS_TOKEN>
-```
+    POST /api/v2/user
+    Authorization: Bearer <ACCESS_TOKEN>
+    
 
 *Parameters*
 
 ```json
 {
-  "username": "username in [_A-Za-z0-9]+ format",
+  "username": "username in [\w.-]+ format",
   "password": "password at least 6 characters",
   "admin": true | false,
-  "modify": true | false
+  "email": "email address or empty string",
+  "virtualCluster": ["vcname1 in [A-Za-z0-9_]+ format", "vcname2 in [A-Za-z0-9_]+ format"],
+  "extension": { 
+    "extension-key1": "extension-value1"
+  }
 }
 ```
 
@@ -155,7 +186,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 201
 
 {
-  "message": "update successfully"
+  "message": "User is created successfully"
 }
 ```
 
@@ -178,6 +209,80 @@ Status: 403
 {
   "code": "ForbiddenUserError",
   "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if created user has a duplicate name*
+
+```json
+Status: 409
+
+{
+  "code": "ConflictUserError",
+  "message": "User name $username already exists."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT user password` (basic authentication mode only)
+
+Administrator change other user's password; user can change his own password.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/password
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "oldPassword": "password at least 6 characters, admin could ignore this params",
+  "newPassword": "password at least 6 characters"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update user password successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if user input the wrong password*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Pls input the correct password."
 }
 ```
 
@@ -214,14 +319,14 @@ Status: 500
 }
 ```
 
-### `DELETE user` (administrator only)
+### `PUT user virtualcluster` (administrator only, basic authentication mode only)
 
-Remove a user in the system.
+Administrator change other user's virtualCluster list.
 
 *Request*
 
 ```json
-DELETE /api/v1/user
+PUT /api/v2/user/:username/virtualcluster
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -229,8 +334,376 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ```json
 {
-  "username": "username to be removed"
+  "virtualCluster": ["vcname1 in [A-Za-z0-9_]+ format", "vcname2 in [A-Za-z0-9_]+ format"]
 }
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Update user virtualCluster data successfully."
+}
+```
+
+*Response if the virtual cluster does not exist.*
+
+```json
+Status: 400
+
+{
+  "code": "NoVirtualClusterError",
+  "message": "Virtual cluster $vcname is not found."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT user email` (basic authentication mode only)
+
+Administrator change other user's email address, and user could update his own email address.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/email
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "email": "Update user email data successfully."
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Update user virtualCluster data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+### `PUT user admin permission` (administrator only, basic authentication mode only)
+
+Administrator change other user's email address, and user could update his own email address.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/admin
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "admin": true | false
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Update user admin permission successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+### `PUT user extension`
+
+Administrator change other user's extension, and user could update his own extension.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/extension
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "extension": {
+    "key-you-wannat-add-or-update-1": "value1",
+    "key-you-wannat-add-or-update-2": {...},
+    "key-you-wannat-add-or-update-3": [...]
+  }
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Update user extension data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+### `PUT user grouplist` (administrator only, basic authentication mode only)
+
+Administrator change other user's grouplist.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/grouplist
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "grouplist": ["group1 in [A-Za-z0-9_]+ format", "group2 in [A-Za-z0-9_]+ format", "group3 in [A-Za-z0-9_]+ format"]
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update user grouplist successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+### `PUT user group` (administrator only, basic authentication mode only)
+
+Administrator add a group to other user's grouplist.
+
+*Request*
+
+```json
+PUT /api/v2/user/:username/group
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "groupname": "groupname in [A-Za-z0-9_]+ format"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "User ${username} is added into group ${groupname}"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if user does not exist.*
+
+```json
+Status: 404
+
+{
+  "code": "NoUserError",
+  "message": "User $username not found."
+}
+```
+
+### `DELETE user` (administrator only, basic authentication mode only)
+
+Remove a user in the system.
+
+*Request*
+
+```json
+DELETE /api/v2/user/:username
+Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 *Response if succeeded*
@@ -239,7 +712,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 200
 
 {
-  "message": "remove successfully"
+  "message": "user is removed successfully"
 }
 ```
 
@@ -298,14 +771,14 @@ Status: 500
 }
 ```
 
-### `PUT user/:username/virtualClusters` (administrator only)
+### `DELETE user group` (administrator only, basic authentication mode only)
 
-Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
+Administrator remove a group from other user's grouplist.
 
 *Request*
 
 ```json
-PUT /api/v1/user/:username/virtualClusters
+DELETE /api/v2/user/:username/group
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -313,7 +786,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ```json
 {
-  "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
+  "groupname": "groupname in [A-Za-z0-9_]+ format"
 }
 ```
 
@@ -323,18 +796,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 201
 
 {
-  "message": "update user virtual clusters successfully"
-}
-```
-
-*Response if the virtual cluster does not exist.*
-
-```json
-Status: 400
-
-{
-  "code": "NoVirtualClusterError",
-  "message": "Virtual cluster $vcname is not found."
+  "message": "User ${username} is removed from group ${groupname}"
 }
 ```
 
@@ -349,7 +811,7 @@ Status: 401
 }
 ```
 
-*Response if user has no permission*
+*Response if current user has no permission*
 
 ```json
 Status: 403
@@ -367,7 +829,310 @@ Status: 404
 
 {
   "code": "NoUserError",
-  "message": "User $username is not found."
+  "message": "User $username not found."
+}
+```
+
+### `POST group` (administrator only)
+
+Admin can create a group in system.
+
+*Request*
+
+    POST /api/v2/group
+    Authorization: Bearer <ACCESS_TOKEN>
+    
+
+*Parameters*
+
+```json
+{
+  "groupname": "username in [A-Za-z0-9_]++ format",
+  "description": "description for the group",
+  "externalName": "the external group name binding with the group in OpenPAI",
+  "extension": { 
+    "extension-key1": "extension-value1"
+  }
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "group is created successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group extension` (administrator only)
+
+Admin can change a group's extension.
+
+*Request*
+
+    POST /api/v2/group/:groupname/extension
+    Authorization: Bearer <ACCESS_TOKEN>
+    
+
+*Parameters*
+
+```json
+{
+  "extension": { 
+    "key-create-or-update-1": "extension-value1",
+    "key-create-or-update-2": [ ... ],
+    "key-create-or-update-3": { ... }
+  }
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "group is created successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group description` (administrator only)
+
+Admin can change a group's description.
+
+*Request*
+
+    POST /api/v2/group/:groupname/description
+    Authorization: Bearer <ACCESS_TOKEN>
+    
+
+*Parameters*
+
+```json
+{
+  "description": "description for the group"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update group description data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT group externalname` (administrator only)
+
+Admin can change a group's externalname, and bind it with another external group.
+
+*Request*
+
+    POST /api/v2/group/:groupname/externalname
+    Authorization: Bearer <ACCESS_TOKEN>
+    
+
+*Parameters*
+
+```json
+{
+  "externalName": "the external group name binding with the group in OpenPAI"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "update group externalNameData data successfully."
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `DELETE group` (administrator only)
+
+Admin can delete a group from system.
+
+*Request*
+
+    DELETE /api/v2/group/:groupname
+    Authorization: Bearer <ACCESS_TOKEN>
+    
+
+*Parameters*
+
+```json
+{
+  "externalName": "the external group name binding with the group in OpenPAI"
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "message": "group is removed successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
 }
 ```
 
@@ -1268,6 +2033,6 @@ Status: 500
 
 ## About legacy jobs
 
-从此版本开始，会启用 [Framework ACL](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) ，Job 的命名空间会包含创建者的用户名。 However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version, jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
 
 In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced job as soon as possible.
