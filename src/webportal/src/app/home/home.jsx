@@ -31,6 +31,7 @@ import VirtualClusterList from './home/virtual-cluster-list';
 import GpuChart from './home/gpu-chart';
 import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError} from './home/conn';
 import RecentJobList from './home/recent-job-list';
+import {BREAKPOINT1} from './home/util';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
 import {userLogout} from '../user/user-logout/user-logout.component.js';
@@ -74,10 +75,8 @@ const Home = () => {
   } else {
     const {spacing} = getTheme();
 
-    const breakpoint = '1400px';
-
     const ResponsiveFlexBox = styled.div`
-      @media screen and (min-width: ${breakpoint}) {
+      @media screen and (min-width: ${BREAKPOINT1}) {
         display:flex;
       }
     `;
@@ -85,7 +84,7 @@ const Home = () => {
     const ResponsiveGap = styled.div`
       height: 0;
       width: ${spacing.l2};
-      @media screen and (max-width: ${breakpoint}) {
+      @media screen and (max-width: ${BREAKPOINT1}) {
         height: ${spacing.l2};
         width: 0;
       }
@@ -94,7 +93,7 @@ const Home = () => {
     const ResponsiveItem = styled.div`
       width: 33%;
       height: auto;
-      @media screen and (max-width: ${breakpoint}) {
+      @media screen and (max-width: ${BREAKPOINT1}) {
         width: 100%;
         height: 320px;
       }
@@ -102,7 +101,7 @@ const Home = () => {
 
     return (
       <Stack
-        styles={{root: [t.w100, t.h100L]}}
+        styles={{root: [t.w100, t.h100L, {minWidth: 500}]}}
         padding='l2'
         gap='l2'
       >
@@ -110,7 +109,10 @@ const Home = () => {
         <Stack.Item>
           <ResponsiveFlexBox>
             <ResponsiveItem>
-              <JobStatus jobs={jobs} />
+              <JobStatus
+                style={{height: '100%'}}
+                jobs={jobs}
+              />
             </ResponsiveItem>
             <ResponsiveGap />
             <ResponsiveItem>
@@ -125,6 +127,7 @@ const Home = () => {
               <GpuChart
                 style={{height: '100%'}}
                 gpuPerNode={gpuPerNode}
+                userInfo={userInfo}
                 virtualClusters={virtualClusters}
               />
             </ResponsiveItem>

@@ -15,15 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import randomColor from 'randomcolor';
 import {statusColor} from '../../components/theme';
 
-export const DEFAULT_COLOR = statusColor.succeeded;
-
-export function getVirtualClusterColor(name, info) {
-  if (!info || !info.dedicated) {
-    return DEFAULT_COLOR;
-  } else {
-    return randomColor({seed: name, luminosity: 'bright'});
-  }
-}
+export const SHARED_VC_COLOR = statusColor.succeeded;
+export const DEDICATED_VC_COLOR = statusColor.running;
+export const BREAKPOINT1 = '1400px';
+export const BREAKPOINT2 = '1650px';
