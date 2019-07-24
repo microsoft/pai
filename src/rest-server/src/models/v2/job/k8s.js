@@ -178,7 +178,7 @@ const convertFrameworkDetail = async (framework) => {
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const jobName = decodeName(framework.metadata.name);
+  const jobName = decodeName(framework.metadata.name, framework.metadata.labels);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
