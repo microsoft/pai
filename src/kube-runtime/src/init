@@ -28,8 +28,8 @@ PAI_WORK_DIR=/usr/local/pai
 PAI_INIT_DIR=${PAI_WORK_DIR}/init.d
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
-PAI_LOG_DIR=${PAI_WORK_DIR}/logs
-PAI_LOG_FILE=${PAI_LOG_DIR}/${FC_POD_UID}_init.log
+PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
+PAI_LOG_FILE=${PAI_LOG_DIR}/init.log
 
 
 # To run init scripts under init.d in init container,
@@ -46,12 +46,12 @@ PAI_LOG_FILE=${PAI_LOG_DIR}/${FC_POD_UID}_init.log
 
 # framework barrier
 # priority=0
-${PAI_INIT_DIR}/frameworkbarrier > ${PAI_LOG_DIR}/${FC_POD_UID}_barrier.log 2>&1
+${PAI_INIT_DIR}/frameworkbarrier > ${PAI_LOG_DIR}/barrier.log 2>&1
 echo "barrier returns $?" >> ${PAI_LOG_FILE}
 
 # generate runtime env variables
 # priority=10
-python ${PAI_INIT_DIR}/parse.py framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh 2> ${PAI_LOG_DIR}/${FC_POD_UID}_parse.log
+python ${PAI_INIT_DIR}/parse.py framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh 2> ${PAI_LOG_DIR}/parse.log
 echo "parser.py returns $?" >> ${PAI_LOG_FILE}
 
 # write user commands to user.sh

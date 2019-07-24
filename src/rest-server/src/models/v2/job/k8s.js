@@ -101,7 +101,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports) => {
+const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -129,7 +129,7 @@ const convertTaskDetail = async (taskStatus, ports) => {
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
-    containerLog: '',
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
@@ -186,29 +186,11 @@ const convertFrameworkDetail = async (framework) => {
         name: taskRoleStatus.name,
       },
       taskStatuses: await Promise.all(taskRoleStatus.taskStatuses.map(
-        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name]))
+        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name], userName, jobName, taskRoleStatus.name))
       ),
     };
   }
   return detail;
-};
-
-const generateTaskStatuses = (userName, jobName, taskRoleName, taskStatuses) => {
-  let returnValue = [];
-  for (const taskStatus of taskStatuses) {
-    const completionStatus = taskStatus.attemptStatus.completionStatus;
-    returnValue.push({
-      taskIndex: taskStatus.index,
-      taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
-      containerId: taskStatus.attemptStatus.podName,
-      containerIp: taskStatus.attemptStatus.podHostIP,
-      containerPorts: {}, // TODO
-      containerGpus: 0, // TODO
-      containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
-      containerExitCode: completionStatus ? completionStatus.code : null,
-    });
-  }
-  return returnValue;
 };
 
 const generateTaskRole = (taskRole, labels, config) => {
