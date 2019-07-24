@@ -413,7 +413,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     ]));
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
-  frameworkDescription.metadata.annotations.totalGpuNumber = totalGpuNumber;
+  frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
   return frameworkDescription;
 };
 
