@@ -5,7 +5,7 @@ OpenPai remote debug tool only support **python** job. It contains two debug mod
 1. Start remote debug when job task starts
 2. Inject breakpoint in source code and start debug when hit the breakpoint.
 
-Currently this feature is in experiment phrase, and we don't have a mechanism to notify user weather debug server is started.
+Currently this feature is in experiment phrase, and we don't have a mechanism to notify user whether debug server is started.
 Users need to check log themselves to get this info.
 
 We recommend to use first approach to start debug. To use second approach, user need to manage the debug ports by themselves.
