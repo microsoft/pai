@@ -265,7 +265,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             {
               name: 'main',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
-              command: ['/usr/local/pai/run'],
+              command: ['/usr/local/pai/runtime'],
               resources: {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
