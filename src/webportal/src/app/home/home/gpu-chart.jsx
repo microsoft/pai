@@ -17,7 +17,7 @@
 
 import c3 from 'c3';
 import c from 'classnames';
-import {isNil} from 'lodash';
+import {isNil, merge} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, FontClassNames} from 'office-ui-fabric-react';
 import React, {useEffect, useRef, useMemo} from 'react';
@@ -75,12 +75,9 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
     }, Array.from({length: maxGpu + 1}, () => 0));
     stack[1][0] = 'dedicated';
 
-    // c3
-    const chart = c3.generate({
+    // c3 option
+    const defaultOption = {
       bindto: chartRef.current,
-      padding: {
-        bottom: maxGpu <= 4 ? 16 : 24,
-      },
       data: {
         columns: stack,
         type: 'bar',
@@ -96,7 +93,6 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
             format: (x) => `Node with ${x + 1}GPU`,
             multiline: true,
             multilineMax: 3,
-            width: maxGpu <= 4 ? 80 : 40,
           },
         },
         y: {
@@ -114,19 +110,77 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
         show: false,
       },
       bar: {
-        width: 24,
+        width: {
+          ratio: 0.4,
+        },
       },
       color: {
         pattern: [SHARED_VC_COLOR, DEDICATED_VC_COLOR],
       },
-    });
-    function resize() {
+    };
+
+    // c3 draw
+    let smallFlag = chartRef.current.clientWidth < 420;
+    let chart;
+    function draw() {
+      const twoLine = {
+        padding: {
+          bottom: 16,
+        },
+        axis: {
+          x: {
+            tick: {
+              width: 80,
+            },
+          },
+        },
+      };
+      const threeLine = {
+        padding: {
+          bottom: 24,
+        },
+        axis: {
+          x: {
+            tick: {
+              width: 40,
+            },
+          },
+        },
+      };
+
+      let opt;
+      if (smallFlag) {
+        if (maxGpu > 4) {
+          opt = merge({}, defaultOption, threeLine);
+        } else {
+          opt = merge({}, defaultOption, twoLine);
+        }
+      } else {
+        if (maxGpu > 4) {
+          opt = merge({}, defaultOption, twoLine);
+        } else {
+          opt = merge({}, defaultOption);
+        }
+      }
+
+      const chart = c3.generate(opt);
       chart.resize();
+      return chart;
     }
-    resize();
-    window.addEventListener('resize', resize);
+    chart = draw();
+
+    function onResize() {
+      const newFlag = chartRef.current.clientWidth < 400;
+      if (newFlag === smallFlag) {
+        chart.resize();
+      } else {
+        smallFlag = newFlag;
+        chart = draw();
+      }
+    }
+    window.addEventListener('resize', onResize);
     return () => {
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', onResize);
     };
   }, [gpuPerNode, userInfo, virtualClusters]);
 
@@ -171,7 +225,8 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
           </Stack>
         </Stack.Item>
         <Stack.Item styles={{root: [t.relative]}} grow>
-          <div ref={chartRef} className={c(t.absolute, t.absoluteFill)}>
+          <div className={c(t.absolute, t.absoluteFill)}>
+            <div className={c(t.h100, t.w100)} ref={chartRef}></div>
           </div>
         </Stack.Item>
       </Stack>
