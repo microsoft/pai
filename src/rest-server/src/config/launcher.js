@@ -197,7 +197,7 @@ if (launcherType === 'yarn') {
       return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
     },
     podPath: (podName, namespace='default') => {
-      return `${launcherConfig.apiServerUri}/apis/api/v1/namespaces/${namespace}/pods/${podName}`;
+      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/pods/${podName}`;
     },
   };
 

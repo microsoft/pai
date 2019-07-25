@@ -86,7 +86,7 @@ def generate_runtime_env(framework):
                 export("PAI_{}_{}_{}_PORT".format(name, index, port), current_port_str)
 
             # export ip/port for current container
-            if (current_taskrole_name == name and current_task_index == index):
+            if (current_taskrole_name == name and current_task_index == str(index)):
                 export("PAI_CURRENT_CONTAINER_IP", current_ip)
                 export("PAI_CURRENT_CONTAINER_PORT", get_port_base("http"))
                 export("PAI_CONTAINER_HOST_IP", current_ip)
@@ -97,7 +97,7 @@ def generate_runtime_env(framework):
                     start, count = get_port_base(port), int(ports[port]["count"])
                     current_port_str = ",".join(str(x) for x in range(start, start + count))
                     export("PAI_CONTAINER_HOST_{}_PORT_LIST".format(port), current_port_str)
-                    port_list += "{}:{};".format(port, current_port_str)
+                    port_str += "{}:{};".format(port, current_port_str)
                 export("PAI_CONTAINER_HOST_PORT_LIST", port_str)
 
             host_list.append("{}:{}".format(current_ip, get_port_base("http")))

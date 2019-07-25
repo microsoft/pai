@@ -116,7 +116,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     const isolation = (await axios({
       method: 'get',
       url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-    })).metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+    })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
     containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
   } catch (e) {
     containerGpus = 0;
