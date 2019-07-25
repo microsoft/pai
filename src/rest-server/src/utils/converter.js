@@ -33,7 +33,7 @@ const prerequisiteMapping = {
 const hdfs = new HDFS(launcherConfig.webhdfsUri);
 // async read file on hdfs
 const readFile = async (path) => {
-  return util.promisify(hdfs.createFolder.bind(hdfs))(path, null);
+  return util.promisify(hdfs.readFile.bind(hdfs))(path, null);
 };
 
 const protocolConvert = async (jobConfig) => {
@@ -82,7 +82,16 @@ const protocolConvert = async (jobConfig) => {
     }
   }
   if (jobConfig.authFile) {
-    const authStr = await readFile(jobConfig.authFile.replace(/(hdfs:\/\/)?([^/\s]+)(\/.*)/, '$3'));
+    let authStr;
+    try {
+      authStr = await readFile(jobConfig.authFile.replace(/(hdfs:\/\/)?([^/\s]+)(\/.*)/, '$3'));
+    } catch (err) {
+      throw createError(
+        'Bad Request',
+        'InvalidAuthFileError',
+        `Cannot read Authentication file ${jobConfig.authFile}.`
+      );
+    }
     const authCreds = authStr.trim().split(/\r?\n/);
     if (authCreds.length !== 3) {
       throw createError(
