@@ -69,3 +69,6 @@ typings/
 
 # css TypeScript definition files
 *.css.d.ts
+
+# Webpack bundle profile file
+bundle.profile.json

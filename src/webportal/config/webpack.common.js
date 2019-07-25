@@ -349,6 +349,18 @@ const config = (env, argv) => ({
         parallel: true,
       }),
     ],
+    splitChunks: {
+      name: false,
+      cacheGroups: {
+        vendors: {
+          chunks: 'all',
+          minSize: 0,
+          minChunks: 2,
+          maxAsyncRequests: Infinity,
+          maxInitialRequests: Infinity,
+        },
+      },
+    },
   },
   node: {
     fs: 'empty',
