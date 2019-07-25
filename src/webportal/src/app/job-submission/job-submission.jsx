@@ -53,11 +53,13 @@ import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
 import {EnvVar} from './components/sidebar/env-var';
 import {DataComponent} from './components/data/data-component';
+import {ToolComponent} from './components/tools/tool-component';
 // models
 import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
 import {JobData} from './models/data/job-data';
 import {JobProtocol} from './models/job-protocol';
+import {DockerInfo} from './models/docker-info';
 
 initTheme();
 initializeIcons();
@@ -68,13 +70,14 @@ const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
+const SIDEBAR_TOOL = 'tool';
 
 const loginUser = cookies.get('user');
 
 function getChecksum(str) {
   let res = 0;
   for (const c of str) {
-    res^= c.charCodeAt(0) & 0xff;
+    res ^= c.charCodeAt(0) & 0xff;
   }
   return res.toString(16);
 }
@@ -112,6 +115,8 @@ const JobSubmission = () => {
   const [jobData, setJobData] = useState(new JobData());
   const [loading, setLoading] = useState(true);
   const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
+  const [tensorBoardFlag, setTensorBoardFlag] = useState(false);
+  const [tensorBoardExtras, setTensorBoardExtras] = useState({});
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -261,6 +266,129 @@ const JobSubmission = () => {
     }
   }, []);
 
+
+  // Functions for TensorBoard
+
+  const defaultLogPath = '/mnt/data2';
+
+  const addInitTensorBoardTaksRole = () => {
+    const randomStr = Math.random().toString(36).slice(2, 10);
+    const tensorBoardName = `TensorBoard_${randomStr}`;
+    const tensorBoardImage = `tensorBoardImage_${randomStr}`;
+    const tensorBoardPort = `tensorBoardPort_${randomStr}`;
+    const portList = `--port=$PAI_CONTAINER_HOST_${tensorBoardPort}_PORT_LIST`;
+    const logPath = `${defaultLogPath}/$PAI_JOB_NAME`;
+    const updatedTaskRoles = [
+      ...jobTaskRoles,
+      new JobTaskRole({
+        name: tensorBoardName,
+        dockerInfo: new DockerInfo({
+          uri: 'openpai/pai.example.tensorflow',
+          name: tensorBoardImage,
+          isUseCustomizedDocker: true,
+        }),
+        ports: [{
+          key: tensorBoardPort,
+          value: 1,
+        }],
+        containerSize: {
+          gpu: 0,
+          cpu: 4,
+          memoryMB: 8192,
+        },
+        commands: '`#Auto generated code, please do not modify`\n' +
+          `tensorboard --logdir=${logPath} ${portList}`,
+      }),
+    ];
+    setJobTaskRoles(updatedTaskRoles);
+    const updatedTensorBoardExtras = {
+      randomStr: randomStr,
+      logDirectories: {
+        default: `${defaultLogPath}/$PAI_JOB_NAME`,
+      },
+    };
+    setTensorBoardExtras(updatedTensorBoardExtras);
+  };
+
+  const delTensorBoardTaksRole = () => {
+    if (Object.getOwnPropertyNames(tensorBoardExtras).length !== 0) {
+      const randomStr = tensorBoardExtras.randomStr;
+      const tensorBoardName = `TensorBoard_${randomStr}`;
+      const updatedTaskRoles = jobTaskRoles.filter((taskRole) => taskRole.name !== tensorBoardName);
+      setJobTaskRoles(updatedTaskRoles);
+      setTensorBoardExtras({});
+    }
+  };
+
+  useEffect(() => {
+    if (tensorBoardFlag) {
+      delTensorBoardTaksRole();
+      addInitTensorBoardTaksRole();
+    } else {
+      delTensorBoardTaksRole();
+    }
+  }, [tensorBoardFlag]);
+
+  useEffect(() => {
+    if (tensorBoardFlag) {
+      let enable = false;
+      const teamDataList = jobData.mountDirs.getTeamDataList();
+      for (const teamData of teamDataList) {
+        if (teamData.mountPath === '/mnt/data2') {
+          enable = true;
+        }
+      }
+      if (!enable) {
+        setTensorBoardFlag(false);
+        selectTool();
+      }
+    }
+  }, [jobData]);
+
+  useEffect(() => {
+    if (tensorBoardFlag) {
+      const randomStr = tensorBoardExtras.randomStr;
+      const tensorBoardName = `TensorBoard_${randomStr}`;
+      let enable = false;
+      for (const taskRoles of jobTaskRoles) {
+        if (taskRoles.name === tensorBoardName) {
+          enable = true;
+        }
+      }
+      if (!enable) {
+        setTensorBoardFlag(false);
+        setTensorBoardExtras({});
+      }
+    }
+  }, [jobTaskRoles]);
+
+  useEffect(() => {
+    if (tensorBoardFlag) {
+      if (Object.getOwnPropertyNames(tensorBoardExtras).length !== 0) {
+        const randomStr = tensorBoardExtras.randomStr;
+        const logDirectories = tensorBoardExtras.logDirectories;
+        const tensorBoardName = `TensorBoard_${randomStr}`;
+        const tensorBoardPort = `tensorBoardPort_${randomStr}`;
+        const portList = `--port=$PAI_CONTAINER_HOST_${tensorBoardPort}_PORT_LIST`;
+        const logPathList = [];
+        Object.keys(logDirectories).forEach((key) => {
+          logPathList.push(`${key}:${logDirectories[key]}`);
+        });
+        const logPath = logPathList.join(',');
+        const updatedTaskRoles = jobTaskRoles.map((taskRole) => {
+          if (taskRole.name === tensorBoardName) {
+            taskRole.commands = '`#Auto generated code, please do not modify`\n' +
+            `tensorboard --logdir=${logPath} ${portList}`;
+          }
+          return taskRole;
+        });
+        setJobTaskRoles(updatedTaskRoles);
+      } else {
+        setTensorBoardFlag(false);
+      }
+    }
+  }, [tensorBoardExtras]);
+
   const onToggleAdvanceFlag = useCallback(() => {
     setAdvanceFlag(!advanceFlag);
   }, [advanceFlag, setAdvanceFlag]);
@@ -269,6 +397,7 @@ const JobSubmission = () => {
   const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect]);
   const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
   const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
+  const selectTool = useCallback(() => onSelect(SIDEBAR_TOOL), [onSelect]);
 
   if (loading) {
     return <SpinnerLoading />;
@@ -332,6 +461,17 @@ const JobSubmission = () => {
                   jobName={jobInformation.name}
                   onChange={setJobData}
                 />
+                <ToolComponent
+                  selected={selected === SIDEBAR_TOOL}
+                  onSelect={selectTool}
+                  tensorBoardFlag={tensorBoardFlag}
+                  setTensorBoardFlag={setTensorBoardFlag}
+                  taskRoles={jobTaskRoles}
+                  setTaskRoles={setJobTaskRoles}
+                  jobData={jobData}
+                  tensorBoardExtras={tensorBoardExtras}
+                  setTensorBoardExtras={setTensorBoardExtras}
+                />
               </Stack>
             </StackItem>
           </Stack>
@@ -345,6 +485,8 @@ const JobSubmission = () => {
             onToggleAdvanceFlag={onToggleAdvanceFlag}
             jobData={jobData}
             initJobProtocol={initJobProtocol}
+            tensorBoardExtras={tensorBoardExtras}
+            setTensorBoardExtras={setTensorBoardExtras}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,

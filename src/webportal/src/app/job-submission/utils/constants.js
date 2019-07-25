@@ -97,6 +97,8 @@ export const PROTOCOL_TOOLTIPS = {
   secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
   data:
     'Data section is used to generate pre-command that download/mount your data to specific path in container.',
+  tools:
+    'Tools section is used to configure the tools that are useful for jobs.',
   dockerImage: 'Please contact admin to make sure which cuda versions in docker image is supported by gpu drivers.',
 };
 

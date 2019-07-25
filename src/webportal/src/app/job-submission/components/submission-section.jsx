@@ -93,6 +93,8 @@ export const SubmissionSection = (props) => {
     onToggleAdvanceFlag,
     jobData,
     initJobProtocol,
+    tensorBoardExtras,
+    setTensorBoardExtras,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
@@ -122,8 +124,23 @@ export const SubmissionSection = (props) => {
       parameters,
       secrets,
     );
+    if (Object.getOwnPropertyNames(tensorBoardExtras).length === 0) {
+      delete protocol.extras.tensorBoard;
+    }
+    if (protocol.extras.tensorBoard) {
+      const newTensorBoardExtras = protocol.extras.tensorBoard;
+      if (!newTensorBoardExtras.randomStr || !newTensorBoardExtras.logDirectories) {
+        protocol.extras.tensorBoard = tensorBoardExtras;
+      } else {
+        setTensorBoardExtras(protocol.extras.tensorBoard);
+      }
+    } else {
+      if (Object.getOwnPropertyNames(tensorBoardExtras).length !== 0) {
+        protocol.extras.tensorBoard = tensorBoardExtras;
+      }
+    }
     _protocolAndErrorUpdate(protocol);
-  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
+  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol, tensorBoardExtras]);
 
   const _openEditor = async (event) => {
     event.preventDefault();
@@ -283,7 +300,7 @@ export const SubmissionSection = (props) => {
         </Stack>
       </MediaQuery>
       {/* small screen - center */}
-      <MediaQuery maxWidth={widthBreakpoint-1}>
+      <MediaQuery maxWidth={widthBreakpoint - 1}>
         <Stack horizontal gap='s1' horizontalAlign='center'>
           <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
             Submit
@@ -358,4 +375,6 @@ SubmissionSection.propTypes = {
   onToggleAdvanceFlag: PropTypes.func,
   jobData: PropTypes.object,
   initJobProtocol: PropTypes.object,
+  tensorBoardExtras: PropTypes.object,
+  setTensorBoardExtras: PropTypes.func,
 };
