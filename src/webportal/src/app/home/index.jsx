@@ -26,6 +26,7 @@ import {initializeIcons} from 'office-ui-fabric-react';
 import querystring from 'querystring';
 import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
+import url from 'url';
 
 import Bottom from './index/bottom';
 import {login} from './index/conn';
@@ -34,12 +35,11 @@ import LoginModal from './index/login-modal';
 import {checkToken} from '../user/user-auth/user-auth.component';
 import config from '../config/webportal.config';
 import t from 'tachyons-sass/tachyons.scss';
-import url from 'url';
 
 let loginTarget = '/home.html';
 
-const url = new URL(window.location.href);
-const from = url.searchParams.get('from');
+const currentUrl = new URL(window.location.href);
+const from = currentUrl.searchParams.get('from');
 if (!isEmpty(from)) {
   loginTarget = from;
 }
