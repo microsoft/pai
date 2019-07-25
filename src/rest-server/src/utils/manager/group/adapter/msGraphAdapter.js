@@ -16,15 +16,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const winbindAdapter = require('./winbindAdapter');
-const msGraphAdapter = require('./msGraphAdapter');
+const axios = require('axios');
 
-const getStorageObject = (type) => {
-  if (type === 'winbind') {
-    return winbindAdapter;
-  } else if (type === 'ms-graph') {
-    return msGraphAdapter;
+function initConfig(msGraphUrl, accessToken) {
+  return {
+    'msGraphAPI': `${msGraphUrl}v1.0/me/memberOf`,
+    'Authorization': `Bearer ${accessToken}`,
+  };
+}
+
+async function getUserGroupList(username, config) {
+  try {
+    let responseData = [];
+    let requestUrl = config.msGraphAPI;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      let response = await axios.get(requestUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': config.Authorization,
+        },
+      });
+      responseData.push(response['data']['value']);
+      if ('@odata.nextLink' in response['data']) {
+        requestUrl = response['data']['@odata.nextLink'];
+      } else {
+        break;
+      }
+    }
+    let groupList = [];
+    for (const dataBlock of responseData) {
+      for (const groupItem of dataBlock) {
+        if (groupItem.displayName) {
+          groupList.push(groupItem.displayName);
+        }
+      }
+    }
+    return groupList;
+  } catch (error) {
+    throw error;
   }
-};
+}
 
-module.exports = {getStorageObject};
+module.exports = {
+  initConfig,
+  getUserGroupList,
+};

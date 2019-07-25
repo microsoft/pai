@@ -19,7 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-
 /bin/bash configmap-create.sh
 
 # Check whether has etcd-uri in cluster config if so need to transfer user-data
