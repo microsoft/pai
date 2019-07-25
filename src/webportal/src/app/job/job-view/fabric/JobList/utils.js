@@ -38,7 +38,7 @@ function generateStatus(job) {
   } else if (job.state === 'COMPLETING') {
     job._statusText = 'Completing';
     job._statusIndex = 2;
-  }else if (job.state === 'SUCCEEDED') {
+  } else if (job.state === 'SUCCEEDED') {
     job._statusText = 'Succeeded';
     job._statusIndex = 3;
   } else if (job.state === 'FAILED') {
