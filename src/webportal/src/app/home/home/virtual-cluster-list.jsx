@@ -52,11 +52,11 @@ const VirtualClusterItem = ({name, info}) => {
           {/* vc item text */}
           <Stack horizontal horizontalAlign='space-between' gap='s1'>
             {/* title */}
-            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.mediumPlus)}>
+            <div className={c(FontClassNames.mediumPlus)}>
               {info.dedicated ? `${name} (dedicated)` : name}
             </div>
             {/* available count */}
-            <Stack horizontal gap='s1' styles={{root: {minWidth: 120}}}>
+            <Stack horizontal gap='s1' horizontalAlign='end' styles={{root: {minWidth: 120}}}>
               <div
                 className={FontClassNames.mediumPlus}
                 style={{color, fontWeight: FontWeights.semibold}}

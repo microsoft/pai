@@ -21,6 +21,7 @@ import {isNil, merge} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, FontClassNames} from 'office-ui-fabric-react';
 import React, {useEffect, useRef, useMemo} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import MediaQuery from 'react-responsive';
 
 import Card from './card';
@@ -112,6 +113,14 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       bar: {
         width: {
           ratio: 0.4,
+        },
+      },
+      tooltip: {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          // TODO
+          return renderToStaticMarkup(
+            <div>123</div>
+          );
         },
       },
       color: {
