@@ -113,7 +113,7 @@ const protocolConvert = async (jobConfig, submission=false) => {
         registryuri: authCreds[0],
       };
     } else {
-      protocolObj.secrets = "******";
+      protocolObj.secrets = '******';
     }
   }
   if (jobConfig.jobEnvs) {
