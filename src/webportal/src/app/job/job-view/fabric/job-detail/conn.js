@@ -223,8 +223,9 @@ export async function getContainerLog(logUrl) {
           let baseUrl = res.url;
           // check base tag
           const baseTags = doc.getElementsByTagName('base');
-          if (baseTags.length > 0 && baseTags[baseTags.length - 1].hasAttribute('href')) {
-            baseUrl = baseTags[baseTags.length - 1].getAttribute('href');
+          // There can be only one <base> element in a document.
+          if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
+            baseUrl = baseTags[0].getAttribute('href');
             // relative base tag url
             if (!absoluteUrlRegExp.test(baseUrl)) {
               baseUrl = new URL(baseUrl, res.url);
