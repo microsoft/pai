@@ -1392,12 +1392,13 @@ Status: 500
 
 ### `GET user/:username/jobs/:jobName/config`
 
-Get job config JSON content.
+Get job config content. This API returns the original format of submitted job config.
 
 *Request*
 
 ```json
 GET /api/v1/user/:username/jobs/:jobName/config
+Accept: application/json | text/yaml (default: application/json)
 ```
 
 *Response if succeeded*
@@ -1970,14 +1971,13 @@ Status: 500
 
 ### `GET jobs/:frameworkName/config`
 
-Get job config JSON or YAML content.
+Get job config content. This API always returns job config in v2 format. Old job config in v1 format will be converted automatically.
 
 *Request*
 
 ```json
 GET /api/v2/jobs/:frameworkName/config
-Accept: json (for v1 jobs)
-Accept: yaml (for v2 jobs)
+Accept: application/json | text/yaml (default: application/json)
 ```
 
 *Response if succeeded*
