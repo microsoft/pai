@@ -47,20 +47,24 @@ const getAllGroup = async () => {
   }
 };
 
-const getUserGrouplistFromExternal = async (username) => {
+const getUserGrouplistFromExternal = async (username, data = {}) => {
   try {
     const adapterType = authConfig.groupConfig.groupDataSource;
     const groupAdapter = adapter.getStorageObject(adapterType);
     let response = [];
+    let config = {};
     if (adapterType === 'winbind') {
-      const config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
-      const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
-      for (const externalGroupname of externalGrouplist) {
-        if (externalGroupname in externalName2Groupname) {
-          response.push(externalName2Groupname[externalGroupname]);
-        }
+      config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
+    } else if (adapterType === 'ms-graph') {
+      config = groupAdapter.initConfig(data.graphUrl, data.accessToken);
+    }
+    const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
+    for (const externalGroupname of externalGrouplist) {
+      if (externalGroupname in externalName2Groupname) {
+        response.push(externalName2Groupname[externalGroupname]);
       }
     }
+    response = [...new Set(response)];
     return response;
   } catch (error) {
     throw error;
