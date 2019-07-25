@@ -27,6 +27,7 @@ import {isJobV2} from './util';
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
+const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -218,8 +219,18 @@ export async function getContainerLog(logUrl) {
       if (link.length === 1) {
         ret.fullLogLink = link[0].getAttribute('href');
         // relative link
-        if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
-          const url = new URL(ret.fullLogLink, res.url);
+        if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
+          let baseUrl = res.url;
+          // check base tag
+          const baseTags = doc.getElementsByTagName('base');
+          if (baseTags.length > 0 && baseTags[baseTags.length - 1].hasAttribute('href')) {
+            baseUrl = baseTags[baseTags.length - 1].getAttribute('href');
+            // relative base tag url
+            if (!absoluteUrlRegExp.test(baseUrl)) {
+              baseUrl = new URL(baseUrl, res.url);
+            }
+          }
+          const url = new URL(ret.fullLogLink, baseUrl);
           ret.fullLogLink = url.href;
         }
       }
