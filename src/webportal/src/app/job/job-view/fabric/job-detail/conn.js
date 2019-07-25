@@ -101,6 +101,27 @@ export async function fetchSshInfo() {
   }
 }
 
+export function getTensorBoardUrl(jobInfo, rawJobConfig) {
+  let port = null;
+  let ip = null;
+  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
+    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+    const tensorBoardStr = `TensorBoard_${randomStr}`;
+    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
+    const obj = jobInfo.taskRoles;
+    if (obj.hasOwnProperty(tensorBoardStr)) {
+      if (obj[tensorBoardStr].taskStatuses[0].taskState === 'RUNNING') {
+        port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
+        ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
+      }
+    }
+  }
+  if (isNil(port) || isNil(ip)) {
+    return null;
+  }
+  return `http://${ip}:${port}`;
+}
+
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
@@ -134,6 +155,12 @@ export async function cloneJob(rawJobConfig) {
   const plugins = window.PAI_PLUGINS;
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
+    // redirect v2 job to default submission page
+    if (isJobV2(rawJobConfig)) {
+      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+      return;
+    }
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     return;
   }
@@ -189,7 +216,7 @@ export async function getContainerLog(logUrl) {
     if (pre.previousElementSibling) {
       const link = pre.previousElementSibling.getElementsByTagName('a');
       if (link.length === 1) {
-        ret.fullLogLink = link[0].href;
+        ret.fullLogLink = link[0].getAttribute('href');
         // relative link
         if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
           const url = new URL(ret.fullLogLink, res.url);

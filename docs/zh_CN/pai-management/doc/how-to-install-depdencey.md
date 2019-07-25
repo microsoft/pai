@@ -56,7 +56,7 @@ apt-get -y install \
       realpath \
       net-tools
 
-pip install python-etcd docker kubernetes GitPython
+pip install python-etcd docker kubernetes GitPython -U
 
 # replace version number to latest, like v0.9.5.
 git clone -b v0.x.y https://github.com/Microsoft/pai.git

@@ -17,7 +17,7 @@
 
 import React, {useContext, useState} from 'react';
 
-import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames, getTheme} from 'office-ui-fabric-react';
+import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames, getTheme, TooltipHost} from 'office-ui-fabric-react';
 import {PropTypes} from 'prop-types';
 import {findIndex} from 'lodash';
 
@@ -62,7 +62,7 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allVCs, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, importCSV, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
+  const {allVCs, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, createBulkUsers, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
 
   const transparentStyles = {root: {background: 'transparent'}};
 
@@ -82,14 +82,14 @@ function TopBar() {
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
-  const btnImportCSV = {
-    key: 'importCSV',
-    name: 'Import CSV',
+  const btnCreateBulkUsers = {
+    key: 'createBulkUsers',
+    name: 'Create Bulk Users',
     buttonStyles: transparentStyles,
     iconProps: {
       iconName: 'Stack',
     },
-    onClick: importCSV,
+    onClick: createBulkUsers,
   };
 
   /**
@@ -103,6 +103,21 @@ function TopBar() {
       iconName: 'UserRemove',
     },
     onClick: removeUsers,
+    onRender(item) {
+      return (
+        <TooltipHost content={item.disabledTip} styles={{root: {display: 'inherit'}}}>
+          <CommandBarButton
+            onClick={item.onClick}
+            iconProps={item.iconProps}
+            menuIconProps={item.menuIconProps}
+            styles={transparentStyles}
+            disabled={item.disabled}
+          >
+            {item.name}
+          </CommandBarButton>
+        </TooltipHost>
+      );
+    },
   };
 
   /**
@@ -144,6 +159,21 @@ function TopBar() {
       iconName: 'FullWidthEdit',
     },
     onClick: showBatchVirtualClustersEditor,
+    onRender(item) {
+      return (
+        <TooltipHost content={item.disabledTip} styles={{root: {display: 'inherit'}}}>
+          <CommandBarButton
+            onClick={item.onClick}
+            iconProps={item.iconProps}
+            menuIconProps={item.menuIconProps}
+            styles={transparentStyles}
+            disabled={item.disabled}
+          >
+            {item.name}
+          </CommandBarButton>
+        </TooltipHost>
+      );
+    },
   };
 
   /**
@@ -350,24 +380,26 @@ function TopBar() {
   const selectedAdmin = findIndex(selectedUsers, (user) => user.admin) != -1;
   if (selected) {
     if (selectedMulti) {
+      topBarItems.push(btnBatchEditPassword);
       if (selectedAdmin) {
-        topBarItems.push(Object.assign(btnBatchEditPassword, {disabled: true}));
-        topBarItems.push(Object.assign(btnBatchEditVirtualClusters, {disabled: true}));
+        const disabledTip = 'Unable to do this for administrators, please make sure the multi-option does not include an administrator';
+        topBarItems.push(Object.assign(btnBatchEditVirtualClusters, {disabled: true, disabledTip}));
+        topBarItems.push(Object.assign(btnRemove, {disabled: true, disabledTip}));
       } else {
-        topBarItems.push(btnBatchEditPassword);
         topBarItems.push(btnBatchEditVirtualClusters);
+        topBarItems.push(btnRemove);
       }
     } else {
       topBarItems.push(btnEdit);
-    }
-    if (selectedAdmin) {
-      topBarItems.push(Object.assign(btnRemove, {disabled: true}));
-    } else {
-      topBarItems.push(btnRemove);
+      if (selectedAdmin) {
+        topBarItems.push(Object.assign(btnRemove, {disabled: true, disabledTip: 'The administrator could not be removed'}));
+      } else {
+        topBarItems.push(btnRemove);
+      }
     }
   } else {
     topBarItems.push(btnAddUser);
-    topBarItems.push(btnImportCSV);
+    topBarItems.push(btnCreateBulkUsers);
   }
   topBarItems.push(btnRefresh);
   const topBarFarItems = [btnFilters];

@@ -27,7 +27,7 @@ import {getVirtualClusterColor} from './util';
 import t from '../../components/tachyons.scss';
 
 const VirtualClusterItem = ({name, info}) => {
-  const availableGpu = Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs);
+  const availableGpu = Math.max(Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs), 0);
   const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
   const color = getVirtualClusterColor(name, info);
 

@@ -24,12 +24,12 @@ export const TeamMountList = ({dataList}) => {
       key: 'containerPath',
       name: 'Container Path',
       headerClassName: FontClassNames.medium,
-      minWidth: 200,
+      minWidth: 100,
       onRender: (item, idx) => {
         return (
           <div className={FontClassNames.medium}>{`${
             item.mountPath
-          } ( ${item.sourceType} )`}</div>
+          }`}</div>
         );
       },
     },
@@ -38,13 +38,27 @@ export const TeamMountList = ({dataList}) => {
       name: 'Data Source',
       headerClassName: FontClassNames.medium,
       isMultiline: true,
-      minWidth: 250,
+      minWidth: 200,
       // eslint-disable-next-line react/display-name
       onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>{`${
             item.dataSource
-          } ( ${item.sourceType} )`}</div>
+          }`}</div>
+        );
+      },
+    },
+    {
+      key: 'configName',
+      name: 'Config Name',
+      headerClassName: FontClassNames.medium,
+      isMultiline: true,
+      minWidth: 100,
+      // eslint-disable-next-line react/display-name
+      onRender: (item) => {
+        return (
+          <div className={FontClassNames.medium}>
+            {`${item.sourceType}`}</div>
         );
       },
     },

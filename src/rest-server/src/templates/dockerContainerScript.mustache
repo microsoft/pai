@@ -27,6 +27,7 @@ RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
 RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
 USER_STDOUT=/pai/log/user.pai.stdout
 USER_STDERR=/pai/log/user.pai.stderr
+USER_LOG_ALL=/pai/log/user.pai.all
 DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 
 # create runtime docker log here. Since multi shell IO block will write to the files,
@@ -49,10 +50,9 @@ function log_runtime_error()
 
 function sigterm_handler()
 {
-  rc=$?
   printf "[DEBUG] SIGTERM received, job will be killed\n"
   log_runtime_error "ERROR" "REASON" "\"Container receive signal SIGTERM\""
-  exit $rc
+  exit 143
 } 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
 
 
@@ -226,7 +226,7 @@ function run_user_command()
   exit 0
 }
 
-run_user_command >$USER_STDOUT 2>$USER_STDERR &
+(run_user_command 2> >(tee $USER_STDERR) > >(tee $USER_STDOUT)) > $USER_LOG_ALL &
 
 user_command_pid=$!
 
