@@ -40,17 +40,23 @@ spec:
           name: pai-configuration-rest-server
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+        - mountPath: /hived-spec
+          name: hived-spec-rest-server
+{%- endif %}
         env:
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg['rest-server']['launcher-type'] }}
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+        - name: SCHEDULER_TYPE
+          value: hived
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
           value: yqwang-scheduler
-{%- endif %}          
+{%- endif %}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
@@ -109,3 +115,6 @@ spec:
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+      - name: hived-spec-rest-server
+        configMap:
+          name: hived-spec-configuration

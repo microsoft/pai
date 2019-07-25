@@ -20,5 +20,5 @@ const launcherConfig = require('@pai/config/launcher');
 if (launcherConfig.type === 'yarn') {
   module.exports = require('@pai/models/v2/virtual-cluster/yarn');
 } else {
-  module.exports = require('@pai/models/v2/virtual-cluster/yarn');
+  module.exports = require('@pai/models/v2/virtual-cluster/k8s');
 }
