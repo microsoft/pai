@@ -1399,7 +1399,7 @@ Status: 500
 ### `GET user/:username/jobs/:jobName/config`
 
 Get job config content.
-This API returns the original format (plain text) of submitted job config.
+This API returns the original format (text/plain) of submitted job config.
 
 *Request*
 
