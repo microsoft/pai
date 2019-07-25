@@ -26,7 +26,6 @@ const logger = require('@pai/config/logger');
 const dbUtility = require('@pai/utils/dbUtil');
 const secretConfig = require('@pai/config/secret');
 
-
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': secretConfig.paiUserNameSpace,
   'requestConfig': secretConfig.requestConfig(),
@@ -226,6 +225,11 @@ class VirtualCluster {
         return callback(null, vcList[vcName]);
       }
     });
+  }
+
+  getResourceUnits() {
+    // TODO: get it from yarn or cluster configuration
+    throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn');
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
@@ -470,6 +474,7 @@ module.exports = {
     .catch((err) => {
       throw createError.unknown(err);
     }),
+  getResourceUnits: vc.getResourceUnits.bind(vc),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
     .catch((err) => {
       throw createError.unknown(err);

@@ -17,6 +17,10 @@
 
 // module dependencies
 const Joi = require('joi');
+const launcherConfig = require('@pai/config/launcher');
+const yaml = require('js-yaml');
+const fs = require('fs');
+const logger = require('@pai/config/logger');
 
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
@@ -37,8 +41,60 @@ const vcStatusPutInputSchema = Joi.object().keys({
     .required(),
 }).required();
 
+let resourceUnits;
+if (launcherConfig.enabledHived) {
+  // TODO: this is a hardcode for demo, this exception shouldn't be catch and ignored
+  try {
+    resourceUnits = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath)).physicalCluster.cellTypes.leaves;
+  } catch (_) {
+    resourceUnits = {
+      K80: {
+        gpu: 1,
+        cpu: 4,
+        memory: '8192Mi',
+      },
+    };
+    logger.warn(`Hived enabled but spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
+    logger.warn(`Init hived resource unit to: `, resourceUnits);
+  }
+} else {
+  resourceUnits = {
+    'null': {
+      gpu: 1,
+      cpu: 4,
+      memory: '8192Mi',
+    },
+  };
+}
+
+const convertMemory = (memoryStr) => {
+  let memoryMb = parseInt(memoryStr);
+  switch (memoryStr.replace(/[0-9]/g, '')) {
+    case 'Ti':
+      memoryMb *= 1000000;
+      break;
+    case 'Gi':
+      memoryMb *= 1000;
+      break;
+    case 'Mi':
+      break;
+    case 'Ki':
+      memoryMb /= 1000;
+      break;
+    default:
+      memoryMb /= 1000000;
+  }
+  return memoryMb;
+};
+
+for (let gpuType of Object.keys(resourceUnits)) {
+  resourceUnits[gpuType].memoryMB = convertMemory(resourceUnits[gpuType].memory);
+  delete resourceUnits[gpuType].memory;
+}
+
 // module exports
 module.exports = {
   vcPutInputSchema: vcPutInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
+  resourceUnits: resourceUnits,
 };
