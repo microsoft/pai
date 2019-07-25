@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,14 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SSHD_BIN=/usr/sbin/sshd
-CONFIG_DIR=/usr/local/pai/sshd
+PAI_WORK_DIR=/usr/local/pai
+SSH_DIR=/root/.ssh
 
 function prepare_ssh()
 {
-  mkdir /root/.ssh
-  touch /root/.ssh/authorized_keys
-  chmod 600 /root/.ssh/authorized_keys
+  mkdir ${SSH_DIR}
+  touch ${SSH_DIR}/authorized_keys
+  chmod 600 ${SSH_DIR}/authorized_keys
 
   mkdir -p /var/run/sshd
 
@@ -38,21 +38,21 @@ function prepare_ssh()
   echo "sshd:ALL" >> /etc/hosts.allow
 
 # Set user environment
-  env > /root/.ssh/environment
+  env > ${SSH_DIR}/environment
 }
 
 function prepare_job_ssh()
 {
 # Job ssh files are mounted to /usr/local/pai/ssh-secret.
 # Please refer to https://kubernetes.io/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys
-  localPublicKeyPath=/etc/ssh-secret/ssh-publickey
-  localPrivateKeyPath=/etc/ssh-secret/ssh-privatekey
+  localPublicKeyPath=${PAI_WORK_DIR}/ssh-secret/ssh-publickey
+  localPrivateKeyPath=${PAI_WORK_DIR}/ssh-secret/ssh-privatekey
 
   if [ -f $localPublicKeyPath ] && [ -f $localPrivateKeyPath ] ; then
-    cat $localPublicKeyPath >> /root/.ssh/authorized_keys
+    cat $localPublicKeyPath >> ${SSH_DIR}/authorized_keys
 
-    cp $localPrivateKeyPath /root/.ssh/job_ssh_key
-    chmod 400 /root/.ssh/job_ssh_key
+    cp $localPrivateKeyPath ${SSH_DIR}/job_ssh_key
+    chmod 400 ${SSH_DIR}/job_ssh_key
   else
     echo "no job ssh keys found" >&2
   fi
@@ -63,7 +63,7 @@ function prepare_user_ssh()
   if [ -z "$PAI_SSH_PUB_KEY" ] ; then
     echo "no user ssh key provided" >&2
   else
-    echo "$PAI_SSH_PUB_KEY" >> /root/.ssh/authorized_keys
+    echo "$PAI_SSH_PUB_KEY" >> ${SSH_DIR}/authorized_keys
   fi
 }
 

@@ -20,11 +20,10 @@ FROM python:2.7-alpine3.8
 
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 
-WORKDIR /usr/local/pai
+WORKDIR /kube-runtime/src
 
 COPY src/ ./
 COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
-RUN mkdir -p ./logs && \
-    chmod -R +x ./
+RUN chmod -R +x ./
 
-CMD ["/bin/sh", "-c", "/usr/local/pai/init"]
+CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]

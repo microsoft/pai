@@ -101,7 +101,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports) => {
+const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -129,7 +129,7 @@ const convertTaskDetail = async (taskStatus, ports) => {
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
-    containerLog: '',
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
@@ -176,13 +176,17 @@ const convertFrameworkDetail = async (framework) => {
   for (let taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
   }
+
+  const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
+  const jobName = decodeName(framework.metadata.name, framework.metadata.labels);
+
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
       taskStatuses: await Promise.all(taskRoleStatus.taskStatuses.map(
-        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name]))
+        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name], userName, jobName, taskRoleStatus.name))
       ),
     };
   }
@@ -261,7 +265,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             {
               name: 'main',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
-              command: ['/usr/local/pai/run'],
+              command: ['/usr/local/pai/runtime'],
               resources: {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
