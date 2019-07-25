@@ -137,7 +137,7 @@ function start_ssh_service()
   printf "%s %s\n" \
     "[INFO]" "start ssh service"
   cat /root/.ssh/{{ jobData.jobName }}.pub >> /root/.ssh/authorized_keys
-  sed -i 's/.Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
+  sed -i 's/[# ]*Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
   service ssh restart
 }
