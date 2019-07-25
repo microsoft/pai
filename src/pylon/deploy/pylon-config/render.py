@@ -24,8 +24,12 @@ for key in os.environ:
     env[key] = os.environ[key]
 
 templateString = open('/pylon-config/nginx.conf.template', 'r').read()
+locationCfgTemplateString = open('/pylon-config/location.cfg.template', 'r').read()
 
 env.setdefault('PYLON_CONF_ETAG', md5(templateString).hexdigest())
 
 renderedString = Template(templateString).render(env)
 open('/root/nginx.conf', 'w').write(renderedString)
+
+locationCfgRenderedString = Template(locationCfgTemplateString).render(env)
+open('/root/location.cfg', 'w').write(locationCfgRenderedString)
