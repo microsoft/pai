@@ -20,7 +20,6 @@ FROM python:2.7-alpine3.8
 
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 
-RUN mkdir -p /kube-runtime/src
 WORKDIR /kube-runtime/src
 
 COPY src/ ./

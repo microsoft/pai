@@ -31,8 +31,8 @@ PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 PAI_INIT_LOG_FILE=${PAI_LOG_DIR}/init.log
 
-# copy all runtime sources to PAI_WORK_DIR
-cp -r . ${PAI_WORK_DIR}
+# Move all runtime sources to PAI_WORK_DIR
+mv ./* ${PAI_WORK_DIR}
 
 mkdir -p ${PAI_LOG_DIR}
 
