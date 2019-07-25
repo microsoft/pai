@@ -231,7 +231,7 @@ class VirtualCluster {
 
   getResourceUnits() {
     // TODO: get it from yarn or cluster configuration
-    return vcConfig.resourceUnits;
+    throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn')
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
