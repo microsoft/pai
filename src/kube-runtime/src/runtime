@@ -50,6 +50,8 @@ source ${PAI_RUNTIME_DIR}/runtime_env.sh
 # priority=1
 ${PAI_RUNTIME_DIR}/sshd.sh >> ${PAI_RUNTIME_LOG_FILE} 2>&1
 
+# check port conflict
+python ${PAI_RUNTIME_DIR}/port.py >> ${PAI_RUNTIME_LOG_FILE} 2>&1
 
 # execute user commands
 # priority=100
