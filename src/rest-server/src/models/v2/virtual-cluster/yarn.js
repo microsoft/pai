@@ -25,8 +25,6 @@ const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 const dbUtility = require('@pai/utils/dbUtil');
 const secretConfig = require('@pai/config/secret');
-const vcConfig = require('@pai/config/vc');
-
 
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': secretConfig.paiUserNameSpace,
@@ -231,7 +229,7 @@ class VirtualCluster {
 
   getResourceUnits() {
     // TODO: get it from yarn or cluster configuration
-    throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn')
+    throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn');
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
