@@ -240,7 +240,7 @@ export const SubmissionSection = (props) => {
   };
 
   // Functions for TensorBoard
-  const defaultLogPath = '/mnt/data2';
+  const defaultLogPath = '/mnt/tensorboard';
 
   const injectTensorBoardExtras = () => {
     const randomStr = Math.random().toString(36).slice(2, 10);

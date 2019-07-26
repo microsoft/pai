@@ -22,7 +22,7 @@ export const TensorBoard = (props) => {
     jobData,
   } = props;
 
-  const defaultLogPath = '/mnt/data2';
+  const defaultLogPath = '/mnt/tensorboard';
 
   const canEnableTensorBoard = () => {
     const teamDataList = jobData.mountDirs.getTeamDataList();
