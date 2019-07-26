@@ -77,7 +77,7 @@ if (launcherConfig.enabledHived) {
     }
     const spec = cellTypeParents[cellType];
     if (spec == null) {
-      // TODO: error: `Leaf cell: ${cellType} not found in cell types`
+      createError('Internal Server Error', 'BadConfigurationError', `Hived error: leaf cell: ${cellType} not found in cell types`);
     }
     addCellType(spec.childCellType);
     const childEle = cellTypeMap[spec.childCellType];
