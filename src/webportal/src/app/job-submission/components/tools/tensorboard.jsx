@@ -2,10 +2,19 @@ import React from 'react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {Hint} from '../sidebar/hint';
+import {ErrMsg} from '../sidebar/errormessage';
 
-import {Stack, Checkbox, FontClassNames, FontWeights, getTheme} from 'office-ui-fabric-react';
+import {
+  FontClassNames,
+  FontWeights,
+  getTheme,
+  Toggle,
+  TooltipHost,
+  Icon,
+} from 'office-ui-fabric-react';
 
 const {spacing} = getTheme();
+
 export const TensorBoard = (props) => {
   const {
     tensorBoardFlag,
@@ -31,22 +40,36 @@ export const TensorBoard = (props) => {
         className={c(FontClassNames.mediumPlus)}
         style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
       >
-        TensorBoard
+        <TooltipHost tooltipProps={{
+          onRenderContent: () => {
+            return (
+              <Hint>
+                You could save your logs under <code>{`${defaultLogPath}/$PAI_JOB_NAME`}</code> in the training script.
+              </Hint>
+            );
+          },
+        }}
+        >
+          TensorBoard
+          <Icon iconName="Info" />
+        </TooltipHost>
       </div>
-      <Stack gap='m'>
-        <Hint>
-          You could save your logs under <code>{`${defaultLogPath}/$PAI_JOB_NAME`}</code> in the training script.
-        </Hint>
-        <Checkbox
-          key='TensorBoard'
+      <div>
+        <Toggle
           label='Enable TensorBoard'
+          inlineLabel={true}
           checked={tensorBoardFlag}
           onChange={(ev, isChecked) => {
             setTensorBoardFlag(isChecked);
           }}
           disabled={!canEnableTensorBoard()}
         />
-      </Stack>
+        {!canEnableTensorBoard() && (
+          <ErrMsg>
+            Please mount <code>{defaultLogPath}</code> in Data section.
+        </ErrMsg>
+        )}
+      </div>
     </div>
   );
 };
