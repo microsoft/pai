@@ -11,6 +11,10 @@ from deployment.utility import pai_version
 print("This script is used for migrating config to v0.11!")
 print("Usage: configMigration.py from_directory to_directory")
 
+if len(sys.argv) != 3:
+    print("!!! Error, only two arguments are allowed! Check the arguments please.")
+    sys.exit(-1)
+
 input_dir = os.path.expanduser(sys.argv[1])
 output_dir = os.path.expanduser(sys.argv[2])
 if not os.path.exists(output_dir):
