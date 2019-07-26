@@ -29,19 +29,14 @@ import PropTypes from 'prop-types';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {Hint} from '../sidebar/hint';
 import {TensorBoard} from './tensorboard';
-import {JobTaskRole} from '../../models/job-task-role';
 import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const ToolComponent = React.memo(({
   tensorBoardFlag,
   setTensorBoardFlag,
-  taskRoles,
-  setTaskRoles,
   jobData,
   selected,
   onSelect,
-  tensorBoardExtras,
-  setTensorBoardExtras,
 }) => {
   return (
     <SidebarCard
@@ -58,11 +53,7 @@ export const ToolComponent = React.memo(({
           <TensorBoard
             tensorBoardFlag={tensorBoardFlag}
             setTensorBoardFlag={setTensorBoardFlag}
-            taskRoles={taskRoles}
-            setTaskRoles={setTaskRoles}
             jobData={jobData}
-            tensorBoardExtras={tensorBoardExtras}
-            setTensorBoardExtras={setTensorBoardExtras}
           />
         </div>
       </Stack>
@@ -73,11 +64,7 @@ export const ToolComponent = React.memo(({
 ToolComponent.propTypes = {
   tensorBoardFlag: PropTypes.bool,
   setTensorBoardFlag: PropTypes.func,
-  taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
-  setTaskRoles: PropTypes.func,
   jobData: PropTypes.object.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-  tensorBoardExtras: PropTypes.object,
-  setTensorBoardExtras: PropTypes.func,
 };

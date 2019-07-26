@@ -2,7 +2,6 @@ import React from 'react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {Hint} from '../sidebar/hint';
-import {JobTaskRole} from '../../models/job-task-role';
 
 import {Stack, Checkbox, FontClassNames, FontWeights, getTheme} from 'office-ui-fabric-react';
 
@@ -43,7 +42,7 @@ export const TensorBoard = (props) => {
           label='Enable TensorBoard'
           checked={tensorBoardFlag}
           onChange={(ev, isChecked) => {
-            setTensorBoardFlag(isChecked && canEnableTensorBoard());
+            setTensorBoardFlag(isChecked);
           }}
           disabled={!canEnableTensorBoard()}
         />
@@ -55,9 +54,5 @@ export const TensorBoard = (props) => {
 TensorBoard.propTypes = {
   tensorBoardFlag: PropTypes.bool,
   setTensorBoardFlag: PropTypes.func,
-  taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
-  setTaskRoles: PropTypes.func,
   jobData: PropTypes.object.isRequired,
-  tensorBoardExtras: PropTypes.object,
-  setTensorBoardExtras: PropTypes.func,
 };
