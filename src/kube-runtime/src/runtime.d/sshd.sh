@@ -22,7 +22,7 @@ SSH_DIR=/root/.ssh
 
 function prepare_ssh()
 {
-  mkdir ${SSH_DIR}
+  mkdir -p ${SSH_DIR}
   chmod 700 ${SSH_DIR}
   touch ${SSH_DIR}/authorized_keys
   chmod 644 ${SSH_DIR}/authorized_keys
@@ -63,17 +63,18 @@ function prepare_job_ssh()
   for i in "${taskRoleInstanceArray[@]}"; do
     instancePair=(${i//:/ })
     taskrole=${instancePair[0]}
-    index==${instancePair[1]}
+    index=${instancePair[1]}
     printf "%s\n  %s %s\n  %s %s\n  %s\n  %s\n  %s\n  %s\n" \
       "Host ${taskrole}-${index}" \
       "HostName" \
-	  `eval echo '$PAI_HOST_IP_'${taskrole}_${index}` \
-      "Port" \PAI_{}_{}_{}_PORT
-	  `eval echo '$PAI_'${taskrole}_${index}_ssh_PORT` \
+      `eval echo '$PAI_HOST_IP_'${taskrole}_${index}` \
+      "Port" \
+      `eval echo '$PAI_'${taskrole}_${index}_ssh_PORT` \
       "User root" \
       "StrictHostKeyChecking no" \
       "UserKnownHostsFile /dev/null" \
-      "IdentityFile /root/.ssh/" >> /etc/ssh/ssh_config
+      "IdentityFile /root/.ssh/id_rsa" >> /etc/ssh/ssh_config
+  done
 }
 
 function prepare_user_ssh()
