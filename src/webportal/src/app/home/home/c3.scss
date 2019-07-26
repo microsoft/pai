@@ -238,4 +238,7 @@
   .c3-xgrid-focus {
     display: none;
   }
+  .c3-axis-x .tick line {
+    display: none;
+  }
 }

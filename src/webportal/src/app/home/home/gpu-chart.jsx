@@ -93,6 +93,10 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
           format: (x) => x === 0 ? '' : x,
         },
       },
+      padding: {
+        left: 32,
+        bottom: 0,
+      },
       axis: {
         x: {
           tick: {
@@ -172,7 +176,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
     function draw() {
       const twoLine = {
         padding: {
-          bottom: 16,
+          bottom: 8,
         },
         axis: {
           x: {
@@ -184,7 +188,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       };
       const threeLine = {
         padding: {
-          bottom: 24,
+          bottom: 20,
         },
         axis: {
           x: {
@@ -200,7 +204,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
         if (maxGpu > 4) {
           opt = merge({}, defaultOption, threeLine);
         } else {
-          opt = merge({}, defaultOption, twoLine);
+          opt = merge({}, defaultOption, threeLine);
         }
       } else {
         if (maxGpu > 4) {
