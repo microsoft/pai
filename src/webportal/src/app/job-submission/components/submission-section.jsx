@@ -94,7 +94,6 @@ export const SubmissionSection = (props) => {
     jobData,
     initJobProtocol,
     tensorBoardFlag,
-    setTensorBoardFlag,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
@@ -416,5 +415,4 @@ SubmissionSection.propTypes = {
   jobData: PropTypes.object,
   initJobProtocol: PropTypes.object,
   tensorBoardFlag: PropTypes.bool,
-  setTensorBoardFlag: PropTypes.func,
 };

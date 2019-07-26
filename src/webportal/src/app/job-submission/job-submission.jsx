@@ -358,7 +358,6 @@ const JobSubmission = () => {
             jobData={jobData}
             initJobProtocol={initJobProtocol}
             tensorBoardFlag={tensorBoardFlag}
-            setTensorBoardFlag={setTensorBoardFlag}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
