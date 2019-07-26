@@ -15,15 +15,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 
-const userLogout = () => {
+const userLogout = (origin = window.location.href) => {
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
   cookies.remove('my-jobs');
   if (webportalConfig.authnMethod === 'basic') {
-    window.location.replace('/index.html');
+    if (!origin) {
+      window.location.replace('/index.html');
+    } else {
+      window.location.replace(`/index.html?${querystring.stringify({from: origin})}`);
+    }
   } else {
     location.href = webportalConfig.restServerUri+'/api/v1/authn/oidc/logout';
   }

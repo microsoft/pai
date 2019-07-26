@@ -57,7 +57,7 @@ $(document).ready(() => {
             alert(userData.message);
           } else {
             alert('Change password successfully, please login again.');
-            userLogout();
+            userLogout('/home.html');
           }
         },
         error: (xhr, textStatus, error) => {
