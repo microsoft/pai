@@ -273,21 +273,6 @@ export const SubmissionSection = (props) => {
 
   useEffect(() => {
     if (tensorBoardFlag) {
-      let enable = false;
-      const teamDataList = jobData.mountDirs.getTeamDataList();
-      for (const teamData of teamDataList) {
-        if (teamData.mountPath === defaultLogPath) {
-          enable = true;
-        }
-      }
-      if (!enable) {
-        setTensorBoardFlag(false);
-      }
-    }
-  }, [jobData]);
-
-  useEffect(() => {
-    if (tensorBoardFlag) {
       const updatedTensorBoardExtras = extras.tensorBoard || {};
       if (updatedTensorBoardExtras.randomStr !== tensorBoardExtras.randomStr
         || !updatedTensorBoardExtras.logDirectories

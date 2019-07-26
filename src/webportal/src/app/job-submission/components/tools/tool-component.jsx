@@ -35,6 +35,7 @@ export const ToolComponent = React.memo(({
   tensorBoardFlag,
   setTensorBoardFlag,
   jobData,
+  taskRoles,
   selected,
   onSelect,
 }) => {
@@ -54,6 +55,7 @@ export const ToolComponent = React.memo(({
             tensorBoardFlag={tensorBoardFlag}
             setTensorBoardFlag={setTensorBoardFlag}
             jobData={jobData}
+            taskRoles={taskRoles}
           />
         </div>
       </Stack>
@@ -65,6 +67,7 @@ ToolComponent.propTypes = {
   tensorBoardFlag: PropTypes.bool,
   setTensorBoardFlag: PropTypes.func,
   jobData: PropTypes.object.isRequired,
+  taskRoles: PropTypes.array.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
 };

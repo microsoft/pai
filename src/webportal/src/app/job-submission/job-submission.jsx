@@ -342,6 +342,7 @@ const JobSubmission = () => {
                   tensorBoardFlag={tensorBoardFlag}
                   setTensorBoardFlag={setTensorBoardFlag}
                   jobData={jobData}
+                  taskRoles={jobTaskRoles}
                 />
               </Stack>
             </StackItem>
