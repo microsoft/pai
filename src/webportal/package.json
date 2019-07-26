@@ -40,6 +40,7 @@
     "core-js": "^3.0.1",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",
+    "d3": "^5.9.7",
     "datatables.net-buttons-bs": "^1.5.4",
     "datatables.net-plugins": "~1.10.15",
     "datatables.net-responsive-bs": "^2.2.3",

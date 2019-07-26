@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c3 from 'c3';
+import * as d3 from 'd3';
 import c from 'classnames';
 import {isNil, merge} from 'lodash';
 import PropTypes from 'prop-types';
@@ -94,7 +95,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
         },
       },
       padding: {
-        left: 32,
+        left: 20,
         bottom: 0,
       },
       axis: {
@@ -167,6 +168,9 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       },
       color: {
         pattern: [SHARED_VC_COLOR, DEDICATED_VC_COLOR],
+      },
+      onrendered: () => {
+        d3.select('.c3-axis-y-label').attr('dy', '-10');
       },
     };
 
