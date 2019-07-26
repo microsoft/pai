@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def export(k, v):
-    print("export {}={}".format(k, v))
+    print("export {}='{}'".format(k, v))
 
 
 def generate_runtime_env(framework):
