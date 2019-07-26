@@ -19,23 +19,127 @@
 const util = require('util');
 const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
+const k8s = require('@pai/utils/k8sUtils');
+const axios = require('axios');
+const yaml = require('js-yaml');
 
 
 class VirtualCluster {
   constructor() {
     this.resourceUnits = vcConfig.resourceUnits;
+    this.virtualCellCapacity = vcConfig.virtualCellCapacity;
   }
 
   getResourceUnits() {
     return this.resourceUnits;
   }
 
-  getVcList() {
-    throw createError('Bad Request', 'NotImplementedError', 'getVcList not implemented in k8s');
+  async getVcList() {
+    const rawPods = (await axios({
+      method: 'get',
+      url: vcConfig.podsUrl,
+    })).data.items;
+
+    // parse pods spec
+    const pods = Array.from(rawPods, (pod) => {
+      const annotations = pod.metadata.annotations;
+      const labels = pod.metadata.labels;
+
+      const podInfo = {
+        jobName: labels.jobName,
+        userName: labels.userName,
+        virtualCluster: labels.virtualCluster,
+        taskRoleName: labels.FC_TASKROLE_NAME,
+        resourceUsed: {
+          cpu: 0,
+          memoryMB: 0,
+          gpu: 0,
+        },
+      };
+
+      const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
+      const resourceRequest = pod.spec.containers[0].resources.requests;
+      podInfo.resourceUsed.cpu = parseInt(resourceRequest.cpu);
+      podInfo.resourceUsed.memoryMB = k8s.convertMemory(resourceRequest.memory);
+      if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
+        if (bindingInfo != null) {
+          // scheduled by hived
+          const info = yaml.safeLoad(bindingInfo);
+          podInfo.resourceUsed.gpu = info.gpuIsolation.length;
+        }
+      } else {
+        podInfo.resourceUsed.gpu = resourceRequest['nvidia.com/gpu'];
+      }
+      return podInfo;
+    });
+
+    // get vc usage
+    const vcInfos = {};
+    const countedJob = new Set();
+    for (let pod of pods) {
+      if (!vcInfos.hasOwnProperty(pod.virtualCluster)) {
+        vcInfos[pod.virtualCluster] = {
+          capacity: 0,
+          usedCapacity: 0,
+          numJobs: 0,
+          resourceUsed: {
+            memory: 0,
+            vCores: 0,
+            GPUs: 0,
+          },
+          resourceTotal: {
+            memory: 0,
+            vCores: 0,
+            GPUs: 0,
+          },
+        };
+      }
+      if (!countedJob.has(pod.userName + '~' + pod.jobName)) {
+        countedJob.add(pod.userName + '~' + pod.jobName);
+        vcInfos[pod.virtualCluster].numJobs += 1;
+      }
+      vcInfos[pod.virtualCluster].resourceUsed.memory += pod.resourceUsed.memoryMB;
+      vcInfos[pod.virtualCluster].resourceUsed.vCores += pod.resourceUsed.cpu;
+      vcInfos[pod.virtualCluster].resourceUsed.GPUs += pod.resourceUsed.gpu;
+    }
+
+    // merge configured vc and used vc
+    for (let vc of Object.keys(this.virtualCellCapacity)) {
+      // configured but not used vc
+      if (!vcInfos.hasOwnProperty(vc)) {
+        vcInfos[vc] = {
+          capacity: 0,
+          usedCapacity: 0,
+          numJobs: 0,
+          resourceUsed: {
+            memory: 0,
+            vCores: 0,
+            GPUs: 0,
+          },
+          resourceTotal: {
+            memory: 0,
+            vCores: 0,
+            GPUs: 0,
+          },
+        };
+      }
+
+      vcInfos[vc].resourceTotal.memory = this.virtualCellCapacity.resourceTotal.memory;
+      vcInfos[vc].resourceTotal.vCores = this.virtualCellCapacity.resourceTotal.cpu;
+      vcInfos[vc].resourceTotal.GPUs = this.virtualCellCapacity.resourceTotal.gpu;
+    }
+
+    // add capacity and usedCapacity for compatibility
+    for (let vc of Object.keys(vcInfos)) {
+      vcInfos[vc].capacity = vcInfos[vc].resourceTotal.GPUs/vcConfig.clusterTotalGpu;
+      vcInfos[vc].usedCapacity = vcInfos[vc].resourceUsed.GPUs/vcConfig.clusterTotalGpu;
+    }
+    return vcInfos;
   }
 
-  getVc() {
-    throw createError('Bad Request', 'NotImplementedError', 'getVc not implemented in k8s');
+  async getVc(vcName) {
+    const vcInfos = await this.getVcList();
+    return vcInfos[vcName];
   }
 
   updateVc() {
