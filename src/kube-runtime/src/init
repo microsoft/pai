@@ -33,6 +33,7 @@ PAI_INIT_LOG_FILE=${PAI_LOG_DIR}/init.log
 
 # Move all runtime sources to PAI_WORK_DIR
 mv ./* ${PAI_WORK_DIR}
+cd ${PAI_WORK_DIR}
 
 mkdir -p ${PAI_LOG_DIR}
 

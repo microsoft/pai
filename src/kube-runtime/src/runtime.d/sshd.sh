@@ -22,9 +22,10 @@ SSH_DIR=/root/.ssh
 
 function prepare_ssh()
 {
-  mkdir ${SSH_DIR}
+  mkdir -p ${SSH_DIR}
+  chmod 700 ${SSH_DIR}
   touch ${SSH_DIR}/authorized_keys
-  chmod 600 ${SSH_DIR}/authorized_keys
+  chmod 644 ${SSH_DIR}/authorized_keys
 
   mkdir -p /var/run/sshd
 
@@ -51,11 +52,29 @@ function prepare_job_ssh()
   if [ -f $localPublicKeyPath ] && [ -f $localPrivateKeyPath ] ; then
     cat $localPublicKeyPath >> ${SSH_DIR}/authorized_keys
 
-    cp $localPrivateKeyPath ${SSH_DIR}/job_ssh_key
-    chmod 400 ${SSH_DIR}/job_ssh_key
+    cp $localPrivateKeyPath ${SSH_DIR}/id_rsa
+    chmod 400 ${SSH_DIR}/id_rsa
   else
     echo "no job ssh keys found" >&2
   fi
+
+# Set ssh config for all task role instances
+  taskRoleInstanceArray=(${PAI_TASK_ROLE_INSTANCES//,/ })
+  for i in "${taskRoleInstanceArray[@]}"; do
+    instancePair=(${i//:/ })
+    taskrole=${instancePair[0]}
+    index=${instancePair[1]}
+    printf "%s\n  %s %s\n  %s %s\n  %s\n  %s\n  %s\n  %s\n" \
+      "Host ${taskrole}-${index}" \
+      "HostName" \
+      `eval echo '$PAI_HOST_IP_'${taskrole}_${index}` \
+      "Port" \
+      `eval echo '$PAI_'${taskrole}_${index}_ssh_PORT` \
+      "User root" \
+      "StrictHostKeyChecking no" \
+      "UserKnownHostsFile /dev/null" \
+      "IdentityFile /root/.ssh/id_rsa" >> /etc/ssh/ssh_config
+  done
 }
 
 function prepare_user_ssh()
