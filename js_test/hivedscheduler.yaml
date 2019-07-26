@@ -1,0 +1,274 @@
+# Put it directly under hivedscheduler's current working directory.
+# For the full config setting and usage, see ./pkg/api/config.go
+
+# This is the designed config for hivedscheduler.
+
+kubeApiServerAddress: http://10.10.10.10:8080
+#kubeConfigFilePath: ""
+
+################################################################################
+# Cluster Admin -> HS Config -> PC
+#
+# Constrains:
+# 1. All cellTypes should form a forest, i.e. a disjoint union of trees.
+# 2. All physicalCells should contain at most one physical specific GPU.
+# 3. Each physicalCell should contain exactly one node level cellType.
+# 4. Each physicalCell should specify full hierarchies defined by its cellType.
+# 5. A reservationId should can be universally locate one physicalCell.
+#
+# Best Practice:
+# 1. Best effort to merge to large cell and reflect physical facts, unless need
+#    to split for cell fraction.
+# 2. Best effort to forge hierarchy and the corresponding cell types, so that VC
+#    can request more fine-grained cells.
+################################################################################
+physicalCluster:
+  # Define the cell structures.
+  # Each leaf cellType contains a single GPU and also defines a gpuType of the
+  # same name.
+  cellTypes:
+    #######################################
+    # CT1
+    #######################################
+    CT1-NODE:
+      # Specify the cellType of its child cells.
+      childCellType: CT1
+      # Specify how many child cells it contains.
+      childCellNumber: 2
+      # Specify whether it is a node level cellType, i.e. contains all GPUs of
+      # its corresponding gpuType within one node and only contains these GPUs.
+      # Defaults to false.
+      isNodeLevel: true
+
+    #######################################
+    # DGX1-P100
+    #######################################
+    DGX1-P100-PCI-SWITCH:
+      childCellType: DGX1-P100
+      childCellNumber: 2
+    DGX1-P100-CPU-SOCKET:
+      childCellType: DGX1-P100-PCI-SWITCH
+      childCellNumber: 2
+    DGX1-P100-NODE:
+      childCellType: DGX1-P100-CPU-SOCKET
+      childCellNumber: 2
+      isNodeLevel: true
+    3-DGX1-P100-NODE:
+      childCellType: DGX1-P100-NODE
+      childCellNumber: 3
+
+    #######################################
+    # DGX1-V100
+    #######################################
+    DGX1-V100-PCI-SWITCH:
+      childCellType: DGX1-V100
+      childCellNumber: 2
+    DGX1-V100-CPU-SOCKET:
+      childCellType: DGX1-V100-PCI-SWITCH
+      childCellNumber: 2
+    DGX1-V100-NODE:
+      childCellType: DGX1-V100-CPU-SOCKET
+      childCellNumber: 2
+      isNodeLevel: true
+    2-DGX1-V100-NODE:
+      childCellType: DGX1-V100-NODE
+      childCellNumber: 2
+
+    #######################################
+    # DGX2-V100 without IB
+    #######################################
+    # Forged hierarchy to allow request more fine-grained cells, the real
+    # hierarchy is:
+    # DGX2-V100-NODE:
+    #   childCellType: DGX2-V100
+    #   childCellNumber: 16
+    DGX2-V100-NODE-2-GPU:
+      childCellType: DGX2-V100
+      childCellNumber: 2
+    DGX2-V100-NODE-4-GPU:
+      childCellType: DGX2-V100-NODE-2-GPU
+      childCellNumber: 2
+    DGX2-V100-NODE-8-GPU:
+      childCellType: DGX2-V100-NODE-4-GPU
+      childCellNumber: 2
+    DGX2-V100-NODE:
+      childCellType: DGX2-V100-NODE-8-GPU
+      childCellNumber: 2
+      isNodeLevel: true
+    # Enumerate all rack hierarchies here for VC and Job to request a group of
+    # nodes that must be within the same rack.
+    2-DGX2-V100-NODE:
+      childCellType: DGX2-V100-NODE
+      childCellNumber: 2
+    3-DGX2-V100-NODE:
+      childCellType: DGX2-V100-NODE
+      childCellNumber: 3
+    # Forged hierarchy to allow request more fine-grained cells, the real
+    # hierarchy may be:
+    # 4-DGX2-V100-NODE:
+    #   childCellType: DGX2-V100-NODE
+    #   childCellNumber: 4
+    4-DGX2-V100-NODE:
+      childCellType: 2-DGX2-V100-NODE
+      childCellNumber: 2
+    # Etc...
+
+    #######################################
+    # DGX2-V100 with IB
+    #######################################
+    IB-DGX2-V100-NODE-2-GPU:
+      childCellType: IB-DGX2-V100-V100
+      childCellNumber: 2
+    IB-DGX2-V100-NODE-4-GPU:
+      childCellType: IB-DGX2-V100-NODE-2-GPU
+      childCellNumber: 2
+    IB-DGX2-V100-NODE-8-GPU:
+      childCellType: IB-DGX2-V100-NODE-4-GPU
+      childCellNumber: 2
+    IB-DGX2-V100-NODE:
+      childCellType: IB-DGX2-V100-NODE-8-GPU
+      childCellNumber: 2
+      isNodeLevel: true
+    2-IB-DGX2-V100-NODE:
+      childCellType: IB-DGX2-V100-NODE
+      childCellNumber: 2
+    # Etc...
+
+  # Instantiate physical cell by mapping physical devices to the cell structure
+  # defined by cellType.
+  physicalCells:
+  # One node has multiple gpu types and not standard gpu indices
+  - cellType: CT1-NODE
+    cellAddress: 1.0.0.2  # NODE Name
+    cellChildren:
+    - cellAddress: 8  # GPU Index
+      reservationId: VC1-YQW-CT1
+    - cellAddress: 9  # GPU Index
+  # One cell has not standard gpu indices
+  - cellType: 3-DGX1-P100-NODE
+    cellChildren:
+    # cellAddress can be omitted for not node level cellType, which defaults to
+    # ascending integers started from 0 for the same cellType.
+    # Such as the cellChildren for below cell is the same as 1.0.0.1.
+    - cellAddress: 1.0.0.2  # NODE Name
+      cellChildren: null # null, empty or not specified
+    - cellAddress: 1.0.0.1  # NODE Name
+      cellChildren:
+      - cellAddress: 0      # CPU-SOCKET Index
+        cellChildren:
+        - cellAddress: 0    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 0  # GPU Index
+          - cellAddress: 1  # GPU Index
+        - cellAddress: 1    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 2  # GPU Index
+          - cellAddress: 3  # GPU Index
+      - cellAddress: 1      # CPU-SOCKET Index
+        cellChildren:
+        - cellAddress: 2    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 4  # GPU Index
+          - cellAddress: 5  # GPU Index
+        - cellAddress: 3    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 6  # GPU Index
+          - cellAddress: 7  # GPU Index
+    - cellAddress: 1.0.0.0  # NODE Name
+      cellChildren:
+      - cellAddress: 1      # CPU-SOCKET Index
+        cellChildren:
+        - cellAddress: 1    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 1  # GPU Index
+          - cellAddress: 3  # GPU Index
+        - cellAddress: 0    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 4  # GPU Index
+          - cellAddress: 7  # GPU Index
+      - cellAddress: 0      # CPU-SOCKET Index
+        cellChildren:
+        - cellAddress: 1    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 0  # GPU Index
+          - cellAddress: 2  # GPU Index
+        - cellAddress: 0    # PCI-SWITCH Index
+          cellChildren:
+          - cellAddress: 6  # GPU Index
+          - cellAddress: 5  # GPU Index
+  - cellType: DGX2-V100-NODE
+    cellAddress: 0.0.1.0
+  - cellType: DGX2-V100-NODE
+    cellAddress: 0.0.5.0
+  - cellType: 3-DGX2-V100-NODE
+    cellChildren:
+    - cellAddress: 0.0.2.0
+    - cellAddress: 0.0.2.1
+    - cellAddress: 0.0.2.2
+  - cellType: 4-DGX2-V100-NODE
+    cellChildren:
+    - reservationId: VC1-YQW-DGX2
+      cellChildren:
+      - cellAddress: 0.0.3.0
+      - cellAddress: 0.0.3.1
+    - cellChildren:
+      - cellAddress: 0.0.3.2
+      - cellAddress: 0.0.3.3
+  - cellType: 4-DGX2-V100-NODE
+    cellChildren:
+    - cellChildren:
+      - cellAddress: 0.0.4.0
+      - cellAddress: 0.0.4.1
+    - cellChildren:
+      - cellAddress: 0.0.4.2
+      - cellAddress: 0.0.4.3
+  - cellType: 2-IB-DGX2-V100-NODE
+    reservationId: VC1-YQW-IB-DGX2
+    cellChildren:
+    - cellAddress: 0.1.0.0
+    - cellAddress: 0.1.0.1
+
+
+################################################################################
+# VC Admin -> HS Config -> VC
+#
+# Constrains:
+# 1. The whole VCs must be able to be fitted into the PC.
+# 2. The cellType field should be full qualified and should be started with a
+#    cellType which is referred in physicalCells.
+# 3. A reservationId should can only be referred in one VC for one time.
+#
+# Best Practice:
+# 1. Best effort to just plan its own VC quota based on the PC facts, unless need
+#    to request a fraction of cell.
+################################################################################
+virtualClusters:
+  VC1:
+    virtualCells:
+    # 2 DGX2-V100-NODE may not be within the same rack.
+    - cellType: 4-DGX2-V100-NODE.2-DGX2-V100-NODE.DGX2-V100-NODE
+      cellNumber: 2
+    # 2 DGX2-V100-NODE may not be within the same rack.
+    - cellType: 3-DGX2-V100-NODE.DGX2-V100-NODE
+      cellNumber: 2
+    # 2 DGX2-V100-NODE must not be within the same rack.
+    - cellType: DGX2-V100-NODE
+      cellNumber: 2
+    # 2 DGX2-V100-NODE must be within the same rack.
+    - cellType: 4-DGX2-V100-NODE.2-DGX2-V100-NODE
+      cellNumber: 1
+    reservedCells:
+    # 1 CT1 GPU must be the VC1-YQW-CT1 GPU.
+    - reservationId: VC1-YQW-CT1
+    # 2 DGX2-V100-NODE must be within the VC1-YQW-DGX2 rack.
+    - reservationId: VC1-YQW-DGX2
+    # 2 IB-DGX2-V100-NODE must be within the VC1-YQW-IB-DGX2 rack.
+    - reservationId: VC1-YQW-IB-DGX2
+  VC2:
+    virtualCells:
+    # 2 DGX1-P100-NODE may not be within the same rack.
+    - cellType: 3-DGX1-P100-NODE.DGX1-P100-NODE
+      cellNumber: 2
+    # 2 DGX1-P100-CPU-SOCKET may not be within the same node.
+    - cellType: 3-DGX1-P100-NODE.DGX1-P100-NODE.DGX1-P100-CPU-SOCKET
+      cellNumber: 2

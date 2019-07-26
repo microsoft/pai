@@ -1,0 +1,10 @@
+virtualCluster: default
+priority: 1000
+gpuType: null
+reservationId: VC1-YQW-IB-DGX2
+gpuNumber: 3
+affinityGroup:
+  name: tensorflow_cifar10/PCN-F
+  members:
+    - podNumber: 2
+      gpuNumber: 3
