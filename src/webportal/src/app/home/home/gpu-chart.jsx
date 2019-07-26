@@ -208,7 +208,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
         if (maxGpu > 4) {
           opt = merge({}, defaultOption, threeLine);
         } else {
-          opt = merge({}, defaultOption, threeLine);
+          opt = merge({}, defaultOption, twoLine);
         }
       } else {
         if (maxGpu > 4) {
