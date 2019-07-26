@@ -47,8 +47,8 @@ async function getUserGroupList(username, config) {
     let groupList = [];
     for (const dataBlock of responseData) {
       for (const groupItem of dataBlock) {
-        if (groupItem.displayName) {
-          groupList.push(groupItem.displayName);
+        if (groupItem.mailNickname) {
+          groupList.push(groupItem.mailNickname);
         }
       }
     }

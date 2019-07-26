@@ -42,6 +42,7 @@ OIDC: false
 group-manager:
   # basic: If you set group-data-source as the value basic, admin should manually modify user's grouplist.
   # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
+  # ms-graph: If you manage your group through azure ad. And you have the permission directory.read.all. You could choose this solution.
   group-data-source: basic
 
   # If you set winbind as your data source, you should configure this configuraiton.
@@ -51,6 +52,8 @@ group-manager:
   admin-group:
     groupname: admingroup
     description: "admin's group"
+    # If ms-graph, please fill email alias (email nick name)
+    # If winbind server, fill the format from your winbind server.
     externalName: ""
 
   # Group for default vc.
