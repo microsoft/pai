@@ -1,41 +1,46 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es6": true,
-    "node": true,
-    "jquery": true,
+  plugins: ["react"],
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+    jquery: true
   },
-  "extends": [
+  extends: [
     "eslint:recommended",
     "plugin:react/recommended",
-    "google"
+    "google",
+    "prettier/react",
+    "prettier"
   ],
-  "globals": {
-    "cookies": false,
-    "userLogout": false,
+  globals: {
+    cookies: "readonly",
+    userLogout: "readonly"
   },
-  "rules": {
-    "max-len": [0, 80],
-    "require-jsdoc": 0,
-    "valid-jsdoc": 0,
-    "react/display-name": 0,
+  rules: {
+    "prettier/prettier": "warn",
+    "max-len": ["error", 80],
+    // https://basarat.gitbooks.io/typescript/docs/tips/defaultIsBad.html
+    "import/prefer-default-export": "off",
+    "import/no-default-export": "error",
+    "react/display-name": "off"
   },
-  "settings": {
-    "react": {
-      "version": "detect"
+  settings: {
+    react: {
+      version: "detect" // https://github.com/yannickcr/eslint-plugin-react/issues/1955
     }
   },
-  "overrides": [
+  overrides: [
     {
-      "files": [
+      files: [
         "**/*.jsx",
         "src/app/job/job-view/fabric/**/*.js",
         "src/app/components/**/*.js",
         "src/app/home/**/*.js",
         "src/app/user/fabric/**/*.js",
-        "src/app/job-submission/**/*.js",
+        "src/app/job-submission/**/*.js"
       ],
-      "parser": "babel-eslint"
+      parser: "babel-eslint"
     }
   ]
 };

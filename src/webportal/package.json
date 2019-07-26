@@ -117,5 +117,8 @@
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^6.0.0"
   }
 }
