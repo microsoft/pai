@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme, FontWeights} from 'office-ui-fabric-react';
 import React from 'react';
 
-import Card from './card';
+import Card from '../../components/card';
 
 import t from '../../components/tachyons.scss';
 import {DEDICATED_VC_COLOR, SHARED_VC_COLOR} from './util';
@@ -104,7 +104,7 @@ const VirtualCluster = ({style, userInfo, virtualClusters}) => {
   const vcNames = userInfo.virtualCluster.filter((name) => !isNil(virtualClusters[name]));
   const {spacing} = getTheme();
   return (
-    <Card style={{paddingRight: spacing.m, ...style}}>
+    <Card className={t.ph5} style={{paddingRight: spacing.m, ...style}}>
       <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>

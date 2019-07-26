@@ -19,12 +19,12 @@ import c3 from 'c3';
 import c from 'classnames';
 import {isNil, merge} from 'lodash';
 import PropTypes from 'prop-types';
-import {Stack, FontClassNames} from 'office-ui-fabric-react';
+import {Stack, FontClassNames, getTheme, FontWeights} from 'office-ui-fabric-react';
 import React, {useEffect, useRef, useMemo} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import MediaQuery from 'react-responsive';
 
-import Card from './card';
+import Card from '../../components/card';
 
 import './c3.scss';
 import t from '../../components/tachyons.scss';
@@ -32,6 +32,12 @@ import {SHARED_VC_COLOR, DEDICATED_VC_COLOR, BREAKPOINT1, BREAKPOINT2} from './u
 
 const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
   const chartRef = useRef(null);
+
+  const hasDedicatedVC = useMemo(() => {
+    return Object.entries(virtualClusters)
+      .filter(([name, info]) => userInfo.virtualCluster.includes(name))
+      .some(([name, info]) => info.dedicated);
+  }, [userInfo, virtualClusters]);
 
   useEffect(() => {
     if (isNil(chartRef.current)) {
@@ -117,9 +123,41 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          // TODO
+          const {palette, spacing} = getTheme();
           return renderToStaticMarkup(
-            <div>123</div>
+            <Card
+              className={c(t.z5)}
+              style={{
+                backgroundColor: palette.neutralLight,
+                padding: spacing.s1,
+              }}
+            >
+              <Stack gap='s2'>
+                {d[0].value > 0 && (
+                  <Stack horizontal gap='s1' verticalAlign='center'>
+                    <div style={{width: 20, height: 16, backgroundColor: SHARED_VC_COLOR}}></div>
+                    <div>Available nodes in shared VC:</div>
+                    <div style={{fontWeight: FontWeights.semibold}}>{d[0].value}</div>
+                  </Stack>
+                )}
+                {d[1].value > 0 && (
+                  <Stack gap='s2'>
+                    <Stack horizontal gap='s1' verticalAlign='center'>
+                      <div style={{width: 20, height: 16, backgroundColor: DEDICATED_VC_COLOR}}></div>
+                      <div>Available nodes in dedicated VC:</div>
+                      <div style={{fontWeight: FontWeights.semibold}}>{d[1].value}</div>
+                    </Stack>
+                    {Object.entries(dedicated).map(([name, info]) => (
+                      <Stack key={`dedicated-${name}`} horizontal gap='s1' padding='0 l2' verticalAlign='center'>
+                        <div style={{width: 12, height: 12, backgroundColor: DEDICATED_VC_COLOR}}></div>
+                        <div>{`${name}:`}</div>
+                        <div>{info[d[0].x + 1]}</div>
+                      </Stack>
+                    ))}
+                  </Stack>
+                )}
+              </Stack>
+            </Card>
           );
         },
       },
@@ -193,14 +231,8 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
     };
   }, [gpuPerNode, userInfo, virtualClusters]);
 
-  const hasDedicatedVC = useMemo(() => {
-    return Object.entries(virtualClusters)
-      .filter(([name, info]) => userInfo.virtualCluster.includes(name))
-      .some(([name, info]) => info.dedicated);
-  }, [userInfo, virtualClusters]);
-
   return (
-    <Card style={style}>
+    <Card className={t.ph5} style={style}>
       <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
           <Stack horizontal horizontalAlign='space-between'>
