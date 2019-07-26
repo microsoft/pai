@@ -19,7 +19,7 @@
 
 python /pylon-config/render.py
 cp /root/nginx.conf /etc/nginx/nginx.conf
-cp /root/location.cfg /etc/nginx/location.cfg
+cp /root/location.conf /etc/nginx/location.conf
 
 {% if cluster_cfg['authentication']['OIDC'] %}
 cp /https-config/{{cluster_cfg['pylon']['ssl']['crt_name']}} /root/{{cluster_cfg['pylon']['ssl']['crt_name']}}

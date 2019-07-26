@@ -62,7 +62,7 @@ http {
     proxy_read_timeout 60m;
     send_timeout 60m;
 
-    include location.cfg;
+    include location.conf;
   }
 
   {% if AUTH_MODE %}
@@ -80,7 +80,7 @@ http {
     ssl_session_tickets off;
     ssl_verify_client off;
 
-    include location.cfg;
+    include location.conf;
 
   }
   {% endif %}
