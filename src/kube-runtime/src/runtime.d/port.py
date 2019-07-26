@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 import os
+import re
 import sys
 import socket
 
@@ -45,13 +46,11 @@ def main():
 
     Check whether there's conflict in scheduled ports.
     """
-    port_list = os.environ.get("PAI_CONTAINER_HOST_PORT_LIST")
-    if port_list:
-        for each in port_list.split(";"):
-            portno_list = each.split(":")
-            if len(portno_list) > 1:
-                for portno in portno_list[1].split(","):
-                    check_port(int(portno))
+    port_list_env = os.environ.get("PAI_CONTAINER_HOST_PORT_LIST")
+    if port_list_env:
+        for each in re.split(":|;|,", port_list_env):
+            if each.isdigit():
+                check_port(int(each))
 
 
 if __name__ == "__main__":
