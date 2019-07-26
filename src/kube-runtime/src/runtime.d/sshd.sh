@@ -57,6 +57,23 @@ function prepare_job_ssh()
   else
     echo "no job ssh keys found" >&2
   fi
+
+# Set ssh config for all task role instances
+  taskRoleInstanceArray=(${PAI_TASK_ROLE_INSTANCES//,/ })
+  for i in "${taskRoleInstanceArray[@]}"; do
+    instancePair=(${i//:/ })
+    taskrole=${instancePair[0]}
+    index==${instancePair[1]}
+    printf "%s\n  %s %s\n  %s %s\n  %s\n  %s\n  %s\n  %s\n" \
+      "Host ${taskrole}-${index}" \
+      "HostName" \
+	  `eval echo '$PAI_HOST_IP_'${taskrole}_${index}` \
+      "Port" \PAI_{}_{}_{}_PORT
+	  `eval echo '$PAI_'${taskrole}_${index}_ssh_PORT` \
+      "User root" \
+      "StrictHostKeyChecking no" \
+      "UserKnownHostsFile /dev/null" \
+      "IdentityFile /root/.ssh/" >> /etc/ssh/ssh_config
 }
 
 function prepare_user_ssh()
