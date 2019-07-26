@@ -64,12 +64,6 @@
   "_moduleAliases": {
     "@pai": "src"
   },
-  "_moduleAliases": {
-    "@pai": "src"
-  },
-  "_moduleAliases": {
-    "@pai": "src"
-  },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
     "lint": "eslint \"src/**/*.js\"",
