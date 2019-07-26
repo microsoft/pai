@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const yaml = require('js-yaml');
 const url = require('url');
 const Job = require('@pai/models/v1/job/yarn');
 const createError = require('@pai/utils/error');
@@ -197,14 +196,7 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
-        try {
-          const data = yaml.safeLoad(result);
-          const type = req.accepts(['json', 'yaml']) || 'json';
-          const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
-          return res.status(200).type(type).send(body);
-        } catch (e) {
-          return next(createError.unknown(e));
-        }
+        return res.status(200).type('text/plain').send(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`));
       } else {
