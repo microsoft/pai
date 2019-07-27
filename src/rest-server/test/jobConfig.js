@@ -118,8 +118,8 @@ describe('Get job config: GET /api/v2/user/:username/jobs/:jobName/config', () =
       .get('/api/v2/user/test/jobs/job1/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
-        expect(res, 'response format').be.json;
-        expect(JSON.stringify(res.body), 'response body content').include('jobName');
+        expect(res, 'response format').be.text;
+        expect(res.text, 'response body content').include('jobName');
         done();
       });
   });
@@ -272,8 +272,8 @@ describe('Get job config: GET /api/v1/jobs/:jobName/config', () => {
       .get('/api/v1/jobs/job1/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
-        expect(res, 'response format').be.json;
-        expect(JSON.stringify(res.body), 'response body content').include('jobName');
+        expect(res, 'response format').be.text;
+        expect(res.text, 'response body content').include('jobName');
         done();
       });
   });

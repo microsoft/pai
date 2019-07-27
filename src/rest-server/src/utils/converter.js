@@ -33,10 +33,10 @@ const prerequisiteMapping = {
 const hdfs = new HDFS(launcherConfig.webhdfsUri);
 // async read file on hdfs
 const readFile = async (path) => {
-  return util.promisify(hdfs.createFolder.bind(hdfs))(path, null);
+  return util.promisify(hdfs.readFile.bind(hdfs))(path, null);
 };
 
-const protocolConvert = async (jobConfig) => {
+const protocolConvert = async (jobConfig, submission=false) => {
   const protocolObj = {
     protocolVersion: '2',
     name: jobConfig.jobName,
@@ -82,26 +82,39 @@ const protocolConvert = async (jobConfig) => {
     }
   }
   if (jobConfig.authFile) {
-    const authStr = await readFile(jobConfig.authFile.replace(/(hdfs:\/\/)?([^/\s]+)(\/.*)/, '$3'));
-    const authCreds = authStr.trim().split(/\r?\n/);
-    if (authCreds.length !== 3) {
-      throw createError(
-        'Bad Request',
-        'InvalidAuthFileError',
-        `Authentication file ${jobConfig.authFile} has wrong format.`
-      );
+    if (submission === true) {
+      let authStr;
+      try {
+        authStr = await readFile(jobConfig.authFile.replace(/(hdfs:\/\/)?([^/\s]+)(\/.*)/, '$3'));
+      } catch (err) {
+        throw createError(
+          'Bad Request',
+          'InvalidAuthFileError',
+          `Cannot read Authentication file ${jobConfig.authFile}.`
+        );
+      }
+      const authCreds = authStr.trim().split(/\r?\n/);
+      if (authCreds.length !== 3) {
+        throw createError(
+          'Bad Request',
+          'InvalidAuthFileError',
+          `Authentication file ${jobConfig.authFile} has wrong format.`
+        );
+      }
+      protocolObj.secrets = {
+        registry: {
+          username: authCreds[1],
+          password: authCreds[2],
+        },
+      };
+      protocolObj.prerequisites[0].auth = {
+        username: '<% $secrets.registry.username %>',
+        password: '<% $secrets.registry.password %>',
+        registryuri: authCreds[0],
+      };
+    } else {
+      protocolObj.secrets = '******';
     }
-    protocolObj.secrets = {
-      registry: {
-        username: authCreds[1],
-        password: authCreds[2],
-      },
-    };
-    protocolObj.prerequisites[0].auth = {
-      username: '<% $secrets.registry.username %>',
-      password: '<% $secrets.registry.password %>',
-      registryuri: authCreds[0],
-    };
   }
   if (jobConfig.jobEnvs) {
     protocolObj.parameters = {};
