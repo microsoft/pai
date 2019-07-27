@@ -28,6 +28,7 @@ class VirtualCluster {
   constructor() {
     this.resourceUnits = vcConfig.resourceUnits;
     this.virtualCellCapacity = vcConfig.virtualCellCapacity;
+    this.clusterTotalGpu = vcConfig.clusterTotalGpu;
   }
 
   getResourceUnits() {
@@ -52,7 +53,7 @@ class VirtualCluster {
         taskRoleName: labels.FC_TASKROLE_NAME,
         resourceUsed: {
           cpu: 0,
-          memoryMB: 0,
+          memory: 0,
           gpu: 0,
         },
       };
@@ -60,7 +61,7 @@ class VirtualCluster {
       const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
       const resourceRequest = pod.spec.containers[0].resources.requests;
       podInfo.resourceUsed.cpu = parseInt(resourceRequest.cpu);
-      podInfo.resourceUsed.memoryMB = k8s.convertMemory(resourceRequest.memory);
+      podInfo.resourceUsed.memory = k8s.convertMemory(resourceRequest.memory);
       if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
         if (bindingInfo != null) {
           // scheduled by hived
@@ -75,70 +76,65 @@ class VirtualCluster {
 
     // get vc usage
     const vcInfos = {};
+    const allVc = new Set([...Array.from(pods, (pod) => pod.virtualCluster), ...Object.keys(this.virtualCellCapacity)]);
+    for (let vc of allVc) {
+      vcInfos[vc] = {
+        capacity: 0,
+        usedCapacity: 0,
+        numJobs: 0,
+        resourceUsed: {
+          memory: 0,
+          cpu: 0,
+          gpu: 0,
+        },
+        resourceTotal: {
+          memory: 0,
+          cpu: 0,
+          gpu: 0,
+        },
+      };
+    }
+
+    // set used resource
     const countedJob = new Set();
     for (let pod of pods) {
-      if (!vcInfos.hasOwnProperty(pod.virtualCluster)) {
-        vcInfos[pod.virtualCluster] = {
-          capacity: 0,
-          usedCapacity: 0,
-          numJobs: 0,
-          resourceUsed: {
-            memory: 0,
-            vCores: 0,
-            GPUs: 0,
-          },
-          resourceTotal: {
-            memory: 0,
-            vCores: 0,
-            GPUs: 0,
-          },
-        };
-      }
       if (!countedJob.has(pod.userName + '~' + pod.jobName)) {
         countedJob.add(pod.userName + '~' + pod.jobName);
         vcInfos[pod.virtualCluster].numJobs += 1;
       }
-      vcInfos[pod.virtualCluster].resourceUsed.memory += pod.resourceUsed.memoryMB;
-      vcInfos[pod.virtualCluster].resourceUsed.vCores += pod.resourceUsed.cpu;
-      vcInfos[pod.virtualCluster].resourceUsed.GPUs += pod.resourceUsed.gpu;
+      vcInfos[pod.virtualCluster].resourceUsed.memory += pod.resourceUsed.memory;
+      vcInfos[pod.virtualCluster].resourceUsed.cpu += pod.resourceUsed.cpu;
+      vcInfos[pod.virtualCluster].resourceUsed.gpu += pod.resourceUsed.gpu;
     }
 
-    // merge configured vc and used vc
+    // set configured resource
     for (let vc of Object.keys(this.virtualCellCapacity)) {
-      // configured but not used vc
-      if (!vcInfos.hasOwnProperty(vc)) {
-        vcInfos[vc] = {
-          capacity: 0,
-          usedCapacity: 0,
-          numJobs: 0,
-          resourceUsed: {
-            memory: 0,
-            vCores: 0,
-            GPUs: 0,
-          },
-          resourceTotal: {
-            memory: 0,
-            vCores: 0,
-            GPUs: 0,
-          },
-        };
-      }
-
-      vcInfos[vc].resourceTotal.memory = this.virtualCellCapacity.resourceTotal.memory;
-      vcInfos[vc].resourceTotal.vCores = this.virtualCellCapacity.resourceTotal.cpu;
-      vcInfos[vc].resourceTotal.GPUs = this.virtualCellCapacity.resourceTotal.gpu;
+      vcInfos[vc].resourceTotal.memory = this.virtualCellCapacity[vc].resourceTotal.memory;
+      vcInfos[vc].resourceTotal.cpu = this.virtualCellCapacity[vc].resourceTotal.cpu;
+      vcInfos[vc].resourceTotal.gpu = this.virtualCellCapacity[vc].resourceTotal.gpu;
     }
 
     // add capacity and usedCapacity for compatibility
     for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].capacity = vcInfos[vc].resourceTotal.GPUs/vcConfig.clusterTotalGpu;
-      vcInfos[vc].usedCapacity = vcInfos[vc].resourceUsed.GPUs/vcConfig.clusterTotalGpu;
+      vcInfos[vc].capacity = vcInfos[vc].resourceTotal.gpu/this.clusterTotalGpu * 100;
+      vcInfos[vc].usedCapacity = vcInfos[vc].resourceUsed.gpu/this.clusterTotalGpu * 100;
+    }
+
+    // add GPUs, vCores for compatibility
+    for (let vc of Object.keys(vcInfos)) {
+      vcInfos[vc].resourceUsed.vCores = vcInfos[vc].resourceUsed.cpu;
+      vcInfos[vc].resourceUsed.GPUs = vcInfos[vc].resourceUsed.gpu;
+      vcInfos[vc].resourceTotal.vCores = vcInfos[vc].resourceTotal.cpu;
+      vcInfos[vc].resourceTotal.GPUs = vcInfos[vc].resourceTotal.gpu;
     }
     return vcInfos;
   }
 
   async getVc(vcName) {
     const vcInfos = await this.getVcList();
+    if (!vcInfos.hasOwnProperty(vcName)) {
+      throw createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found`);
+    }
     return vcInfos[vcName];
   }
 
@@ -163,16 +159,8 @@ const vc = new VirtualCluster();
 
 // module exports
 module.exports = {
-  list: () => util.promisify(vc.getVcList.bind(vc))()
-    .then((vcList) => vcList)
-    .catch((err) => {
-      throw createError.unknown(err);
-    }),
-  get: (vcName) => util.promisify(vc.getVc.bind(vc))(vcName)
-    .then((vcInfo) => vcInfo)
-    .catch((err) => {
-      throw createError.unknown(err);
-    }),
+  list: vc.getVcList.bind(vc),
+  get: vc.getVc.bind(vc),
   getResourceUnits: vc.getResourceUnits.bind(vc),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
     .catch((err) => {

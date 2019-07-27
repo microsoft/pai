@@ -21,7 +21,6 @@ const launcherConfig = require('@pai/config/launcher');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const k8s = require('@pai/utils/k8sUtils');
-const createError = require('@pai/utils/error');
 
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
@@ -54,9 +53,9 @@ if (launcherConfig.enabledHived) {
   const virtualClusters = hivedObj.virtualClusters;
   for (let gpuType of Object.keys(cellTypeLeaves)) {
     resourceUnits[gpuType] = {
-      vCores: parseInt(cellTypeLeaves[gpuType].cpu),
-      memory: k8s.convertMemory(resourceUnits[gpuType].memory),
-      GPUs: parseInt(cellTypeLeaves[gpuType].gpu),
+      cpu: parseInt(cellTypeLeaves[gpuType].cpu),
+      memory: k8s.convertMemory(cellTypeLeaves[gpuType].memory),
+      gpu: parseInt(cellTypeLeaves[gpuType].gpu),
     };
   }
 
@@ -77,7 +76,7 @@ if (launcherConfig.enabledHived) {
     }
     const spec = cellTypeParents[cellType];
     if (spec == null) {
-      createError('Internal Server Error', 'BadConfigurationError', `Hived error: leaf cell: ${cellType} not found in cell types`);
+      throw new Error(`hived error: leaf cell: ${cellType} not found in cell types`);
     }
     addCellType(spec.childCellType);
     const childEle = cellTypeMap[spec.childCellType];
@@ -96,12 +95,12 @@ if (launcherConfig.enabledHived) {
 
   const addReservation = (cellInstance, cellType) => {
     if (!cellTypeMap.hasOwnProperty(cellType)) {
-      createError('Internal Server Error', 'BadConfigurationError', `Hived error: cellType: ${cellType} not found in cell types`);
+      throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
     }
     if (cellInstance.hasOwnProperty('reservationId')) {
       const rId = cellInstance.reservationId;
       if (reservationCells.hasOwnProperty(rId)) {
-        createError('Internal Server Error', 'BadConfigurationError', `Hived error: duplicate reservationId found: ${rId}`);
+        throw new Error(`hived error: duplicate reservationId found: ${rId}`);
       }
       reservationCells[rId] = cellType;
     }
@@ -142,11 +141,11 @@ if (launcherConfig.enabledHived) {
         const cellTypeArray = vCell.cellType.split('.');
         const cellType = cellTypeArray[cellTypeArray.length-1];
         if (!cellTypeMap.hasOwnProperty(cellType)) {
-          createError('Internal Server Error', 'BadConfigurationError', `Hived error: cellType: ${cellType} not found in cell types`);
+          throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
         virtualCellCapacity[vc].resourceShared.gpu += cellGpu;
-        virtualCellCapacity[vc].resourceShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].vCores * cellGpu;
+        virtualCellCapacity[vc].resourceShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].resourceShared.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }
@@ -154,12 +153,12 @@ if (launcherConfig.enabledHived) {
       for (let vCell of virtualClusters[vc].reservedCells) {
         const rId = vCell.reservationId;
         if (!reservationCells.hasOwnProperty(rId)) {
-          createError('Internal Server Error', 'BadConfigurationError', `Hived error: reservationId: ${rId} not found in physical cells`);
+          throw new Error(`hived error: reservationId: ${rId} not found in physical cells`);
         }
         const cellType = reservationCells[rId];
         const cellGpu = cellTypeMap[cellType].gpuNumber;
         virtualCellCapacity[vc].resourceReserved.gpu += cellGpu;
-        virtualCellCapacity[vc].resourceReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].vCores * cellGpu;
+        virtualCellCapacity[vc].resourceReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].resourceReserved.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }

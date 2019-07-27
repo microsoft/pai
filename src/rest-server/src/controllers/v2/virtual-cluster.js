@@ -43,13 +43,8 @@ const get = asyncHandler(async (req, res) => {
 });
 
 const getResourceUnits = (req, res) => {
-  let data;
-  try {
-    data = virtualCluster.getResourceUnits();
-  } catch (err) {
-    return createError.unknown(err);
-  }
-  return res.status(status('OK')).json(data);
+  const data = virtualCluster.getResourceUnits();
+  res.status(status('OK')).json(data);
 };
 
 const update = asyncHandler(async (req, res) => {
