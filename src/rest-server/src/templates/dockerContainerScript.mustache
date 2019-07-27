@@ -83,6 +83,12 @@ touch "/alive/docker_$PAI_CONTAINER_ID"
 export PAI_WORK_DIR="$(pwd)"
 PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
+
+# Use for export hadoop lib
+if [[ ! -z $(command -v hadoop) ]]; then
+  export CLASSPATH="$(hadoop classpath --glob)"
+fi
+
 # Make all GPUs allocated to the container accessible
 export NVIDIA_VISIBLE_DEVICES=all
 
