@@ -29,13 +29,14 @@ class VirtualCluster {
     this.resourceUnits = vcConfig.resourceUnits;
     this.virtualCellCapacity = vcConfig.virtualCellCapacity;
     this.clusterTotalGpu = vcConfig.clusterTotalGpu;
+    this.clusterNodeGpu = vcConfig.clusterNodeGpu;
   }
 
   getResourceUnits() {
     return this.resourceUnits;
   }
 
-  async getVcList() {
+  async getPodsInfo() {
     const rawPods = (await axios({
       method: 'get',
       url: vcConfig.podsUrl,
@@ -51,6 +52,7 @@ class VirtualCluster {
         userName: labels.userName,
         virtualCluster: labels.virtualCluster,
         taskRoleName: labels.FC_TASKROLE_NAME,
+        nodeIp: pod.spec.nodeName,
         resourceUsed: {
           cpu: 0,
           memory: 0,
@@ -73,6 +75,35 @@ class VirtualCluster {
       }
       return podInfo;
     });
+
+    return pods;
+  }
+
+  async getNodeResource() {
+    const pods = await this.getPodsInfo();
+    const nodeResource = {};
+
+    for (let node of Object.keys(this.clusterNodeGpu)) {
+      nodeResource[node] = {
+        gpuTotal: this.clusterNodeGpu[node].gpu,
+        gpuUsed: 0,
+        gpuAvaiable: this.clusterNodeGpu[node].gpu,
+      };
+    }
+
+    for (let pod of pods) {
+      if (!nodeResource.hasOwnProperty(pod.nodeIp)) {
+        // pod not in configured nodes
+        continue;
+      }
+      nodeResource[pod.nodeIp].gpuUsed += pod.resourceUsed.gpu;
+      nodeResource[pod.nodeIp].gpuAvaiable -= pod.resourceUsed.gpu;
+    }
+    return nodeResource;
+  }
+
+  async getVcList() {
+    const pods = await this.getPodsInfo();
 
     // get vc usage
     const vcInfos = {};
@@ -162,6 +193,7 @@ module.exports = {
   list: vc.getVcList.bind(vc),
   get: vc.getVc.bind(vc),
   getResourceUnits: vc.getResourceUnits.bind(vc),
+  getNodeResource: vc.getNodeResource.bind(vc),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
     .catch((err) => {
       throw createError.unknown(err);

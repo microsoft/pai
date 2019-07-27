@@ -44,6 +44,7 @@ const vcStatusPutInputSchema = Joi.object().keys({
 const resourceUnits = {};
 const virtualCellCapacity = {};
 let clusterTotalGpu = 0;
+const clusterNodeGpu = {};
 if (launcherConfig.enabledHived) {
   const hivedObj = yaml.load(fs.readFileSync(launcherConfig.hivedSpecPath));
 
@@ -51,6 +52,7 @@ if (launcherConfig.enabledHived) {
   const cellTypeParents = hivedObj.physicalCluster.cellTypes.parents;
   const physicalCells = hivedObj.physicalCluster.physicalCells;
   const virtualClusters = hivedObj.virtualClusters;
+  // generate gputype resource unit
   for (let gpuType of Object.keys(cellTypeLeaves)) {
     resourceUnits[gpuType] = {
       cpu: parseInt(cellTypeLeaves[gpuType].cpu),
@@ -59,6 +61,7 @@ if (launcherConfig.enabledHived) {
     };
   }
 
+  // generate cell type map
   const cellTypeMap = {};
   // initialize cellTypeMap to leaves
   for (let gpuType of Object.keys(cellTypeLeaves)) {
@@ -68,7 +71,6 @@ if (launcherConfig.enabledHived) {
       childCellType: null,
     };
   }
-
   const addCellType = (cellType) => {
     if (cellTypeMap.hasOwnProperty(cellType)) {
       // already added
@@ -84,15 +86,15 @@ if (launcherConfig.enabledHived) {
       gpuType: childEle.gpuType,
       gpuNumber: childEle.gpuNumber * spec.childCellNumber,
       childCellType: spec.childCellType,
+      isNode: spec.isNodeLevel === true,
     };
   };
-
   for (let cellType of Object.keys(cellTypeParents)) {
     addCellType(cellType);
   }
 
+  // generate reservation info
   const reservationCells = {};
-
   const addReservation = (cellInstance, cellType) => {
     if (!cellTypeMap.hasOwnProperty(cellType)) {
       throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
@@ -112,12 +114,12 @@ if (launcherConfig.enabledHived) {
       }
     }
   };
-
   for (let cellInstance of physicalCells) {
     clusterTotalGpu += cellTypeMap[cellInstance.cellType].gpuNumber;
     addReservation(cellInstance, cellInstance.cellType);
   }
 
+  // calculate vc quota
   for (let vc of Object.keys(virtualClusters)) {
     virtualCellCapacity[vc] = {
       resourceTotal: {
@@ -166,6 +168,27 @@ if (launcherConfig.enabledHived) {
     virtualCellCapacity[vc].resourceTotal.cpu = virtualCellCapacity[vc].resourceShared.cpu + virtualCellCapacity[vc].resourceReserved.cpu;
     virtualCellCapacity[vc].resourceTotal.memory = virtualCellCapacity[vc].resourceShared.memory + virtualCellCapacity[vc].resourceReserved.memory;
   }
+
+  // calculate every node resource
+  const addNodesInfo = (cellInstance, cellType, generatedInfo) => {
+    if (cellTypeMap[cellType].isNode) {
+      const cellIp = cellInstance.cellAddress;
+      const cellGpu = cellTypeMap[cellType].gpuNumber;
+      generatedInfo[cellIp] = {
+        gpu: cellGpu,
+      };
+    }
+
+    // recursively check cellChildren if not null or empty
+    if (cellInstance.cellChildren) {
+      for (let childCellInstance of cellInstance.cellChildren) {
+        addNodesInfo(childCellInstance, cellTypeMap[cellType].childCellType, generatedInfo);
+      }
+    }
+  };
+  for (let cellInstance of physicalCells) {
+    addNodesInfo(cellInstance, cellInstance.cellType, clusterNodeGpu);
+  }
 }
 
 // module exports
@@ -176,4 +199,5 @@ module.exports = {
   virtualCellCapacity: virtualCellCapacity,
   podsUrl: `${launcherConfig.apiServerUri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
   clusterTotalGpu: clusterTotalGpu,
+  clusterNodeGpu: clusterNodeGpu,
 };

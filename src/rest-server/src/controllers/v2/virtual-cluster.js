@@ -47,6 +47,11 @@ const getResourceUnits = (req, res) => {
   res.status(status('OK')).json(data);
 };
 
+const getNodeResource = asyncHandler(async (req, res) => {
+  const data = await virtualCluster.getNodeResource();
+  res.status(status('OK')).json(data);
+});
+
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   const capacity = parseInt(req.body.vcCapacity);
@@ -105,6 +110,7 @@ module.exports = {
   list,
   get,
   getResourceUnits,
+  getNodeResource,
   update,
   updateStatus,
   remove,
