@@ -27,7 +27,7 @@ PAI_WORK_DIR=/usr/local/pai
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
-PAI_RUNTIME_LOG_FILE=${PAI_LOG_DIR}/runtime.log
+PAI_RUNTIME_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
 
 
 # To run runtime scripts under runtime.d in task container,
@@ -50,6 +50,8 @@ source ${PAI_RUNTIME_DIR}/runtime_env.sh
 # priority=1
 ${PAI_RUNTIME_DIR}/sshd.sh >> ${PAI_RUNTIME_LOG_FILE} 2>&1
 
+# check port conflict
+python ${PAI_RUNTIME_DIR}/port.py >> ${PAI_RUNTIME_LOG_FILE} 2>&1
 
 # execute user commands
 # priority=100
