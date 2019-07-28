@@ -122,17 +122,17 @@ if (launcherConfig.enabledHived) {
   // calculate vc quota
   for (let vc of Object.keys(virtualClusters)) {
     virtualCellCapacity[vc] = {
-      resourceTotal: {
+      resourcesTotal: {
         gpu: 0,
         memory: 0,
         cpu: 0,
       },
-      resourceShared: {
+      resourcesShared: {
         gpu: 0,
         memory: 0,
         cpu: 0,
       },
-      resourceReserved: {
+      resourcesReserved: {
         gpu: 0,
         memory: 0,
         cpu: 0,
@@ -146,9 +146,9 @@ if (launcherConfig.enabledHived) {
           throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
-        virtualCellCapacity[vc].resourceShared.gpu += cellGpu;
-        virtualCellCapacity[vc].resourceShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].resourceShared.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
+        virtualCellCapacity[vc].resourcesShared.gpu += cellGpu;
+        virtualCellCapacity[vc].resourcesShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+        virtualCellCapacity[vc].resourcesShared.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }
     if (virtualClusters[vc].hasOwnProperty('reservedCells')) {
@@ -159,14 +159,14 @@ if (launcherConfig.enabledHived) {
         }
         const cellType = reservationCells[rId];
         const cellGpu = cellTypeMap[cellType].gpuNumber;
-        virtualCellCapacity[vc].resourceReserved.gpu += cellGpu;
-        virtualCellCapacity[vc].resourceReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].resourceReserved.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
+        virtualCellCapacity[vc].resourcesReserved.gpu += cellGpu;
+        virtualCellCapacity[vc].resourcesReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+        virtualCellCapacity[vc].resourcesReserved.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }
-    virtualCellCapacity[vc].resourceTotal.gpu = virtualCellCapacity[vc].resourceShared.gpu + virtualCellCapacity[vc].resourceReserved.gpu;
-    virtualCellCapacity[vc].resourceTotal.cpu = virtualCellCapacity[vc].resourceShared.cpu + virtualCellCapacity[vc].resourceReserved.cpu;
-    virtualCellCapacity[vc].resourceTotal.memory = virtualCellCapacity[vc].resourceShared.memory + virtualCellCapacity[vc].resourceReserved.memory;
+    virtualCellCapacity[vc].resourcesTotal.gpu = virtualCellCapacity[vc].resourcesShared.gpu + virtualCellCapacity[vc].resourcesReserved.gpu;
+    virtualCellCapacity[vc].resourcesTotal.cpu = virtualCellCapacity[vc].resourcesShared.cpu + virtualCellCapacity[vc].resourcesReserved.cpu;
+    virtualCellCapacity[vc].resourcesTotal.memory = virtualCellCapacity[vc].resourcesShared.memory + virtualCellCapacity[vc].resourcesReserved.memory;
   }
 
   // calculate every node resource

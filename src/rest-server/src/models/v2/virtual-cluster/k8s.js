@@ -53,7 +53,7 @@ class VirtualCluster {
         virtualCluster: labels.virtualCluster,
         taskRoleName: labels.FC_TASKROLE_NAME,
         nodeIp: pod.spec.nodeName,
-        resourceUsed: {
+        resourcesUsed: {
           cpu: 0,
           memory: 0,
           gpu: 0,
@@ -62,16 +62,16 @@ class VirtualCluster {
 
       const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
       const resourceRequest = pod.spec.containers[0].resources.requests;
-      podInfo.resourceUsed.cpu = parseInt(resourceRequest.cpu);
-      podInfo.resourceUsed.memory = k8s.convertMemory(resourceRequest.memory);
+      podInfo.resourcesUsed.cpu = parseInt(resourceRequest.cpu);
+      podInfo.resourcesUsed.memory = k8s.convertMemory(resourceRequest.memory);
       if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
         if (bindingInfo != null) {
           // scheduled by hived
           const info = yaml.safeLoad(bindingInfo);
-          podInfo.resourceUsed.gpu = info.gpuIsolation.length;
+          podInfo.resourcesUsed.gpu = info.gpuIsolation.length;
         }
       } else {
-        podInfo.resourceUsed.gpu = resourceRequest['nvidia.com/gpu'];
+        podInfo.resourcesUsed.gpu = resourceRequest['nvidia.com/gpu'];
       }
       return podInfo;
     });
@@ -96,8 +96,8 @@ class VirtualCluster {
         // pod not in configured nodes
         continue;
       }
-      nodeResource[pod.nodeIp].gpuUsed += pod.resourceUsed.gpu;
-      nodeResource[pod.nodeIp].gpuAvaiable -= pod.resourceUsed.gpu;
+      nodeResource[pod.nodeIp].gpuUsed += pod.resourcesUsed.gpu;
+      nodeResource[pod.nodeIp].gpuAvaiable -= pod.resourcesUsed.gpu;
     }
     return nodeResource;
   }
@@ -113,12 +113,12 @@ class VirtualCluster {
         capacity: 0,
         usedCapacity: 0,
         numJobs: 0,
-        resourceUsed: {
+        resourcesUsed: {
           memory: 0,
           cpu: 0,
           gpu: 0,
         },
-        resourceTotal: {
+        resourcesTotal: {
           memory: 0,
           cpu: 0,
           gpu: 0,
@@ -133,30 +133,31 @@ class VirtualCluster {
         countedJob.add(pod.userName + '~' + pod.jobName);
         vcInfos[pod.virtualCluster].numJobs += 1;
       }
-      vcInfos[pod.virtualCluster].resourceUsed.memory += pod.resourceUsed.memory;
-      vcInfos[pod.virtualCluster].resourceUsed.cpu += pod.resourceUsed.cpu;
-      vcInfos[pod.virtualCluster].resourceUsed.gpu += pod.resourceUsed.gpu;
+      vcInfos[pod.virtualCluster].resourcesUsed.memory += pod.resourcesUsed.memory;
+      vcInfos[pod.virtualCluster].resourcesUsed.cpu += pod.resourcesUsed.cpu;
+      vcInfos[pod.virtualCluster].resourcesUsed.gpu += pod.resourcesUsed.gpu;
     }
 
     // set configured resource
     for (let vc of Object.keys(this.virtualCellCapacity)) {
-      vcInfos[vc].resourceTotal.memory = this.virtualCellCapacity[vc].resourceTotal.memory;
-      vcInfos[vc].resourceTotal.cpu = this.virtualCellCapacity[vc].resourceTotal.cpu;
-      vcInfos[vc].resourceTotal.gpu = this.virtualCellCapacity[vc].resourceTotal.gpu;
+      vcInfos[vc].resourcesTotal.memory = this.virtualCellCapacity[vc].resourcesTotal.memory;
+      vcInfos[vc].resourcesTotal.cpu = this.virtualCellCapacity[vc].resourcesTotal.cpu;
+      vcInfos[vc].resourcesTotal.gpu = this.virtualCellCapacity[vc].resourcesTotal.gpu;
     }
 
-    // add capacity and usedCapacity for compatibility
+    // add capacity, maxCapacity, usedCapacity for compatibility
     for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].capacity = vcInfos[vc].resourceTotal.gpu/this.clusterTotalGpu * 100;
-      vcInfos[vc].usedCapacity = vcInfos[vc].resourceUsed.gpu/this.clusterTotalGpu * 100;
+      vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu/this.clusterTotalGpu * 100;
+      vcInfos[vc].maxCapacity = vcInfos[vc].capacity;
+      vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu/this.clusterTotalGpu * 100;
     }
 
     // add GPUs, vCores for compatibility
     for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].resourceUsed.vCores = vcInfos[vc].resourceUsed.cpu;
-      vcInfos[vc].resourceUsed.GPUs = vcInfos[vc].resourceUsed.gpu;
-      vcInfos[vc].resourceTotal.vCores = vcInfos[vc].resourceTotal.cpu;
-      vcInfos[vc].resourceTotal.GPUs = vcInfos[vc].resourceTotal.gpu;
+      vcInfos[vc].resourcesUsed.vCores = vcInfos[vc].resourcesUsed.cpu;
+      vcInfos[vc].resourcesUsed.GPUs = vcInfos[vc].resourcesUsed.gpu;
+      vcInfos[vc].resourcesTotal.vCores = vcInfos[vc].resourcesTotal.cpu;
+      vcInfos[vc].resourcesTotal.GPUs = vcInfos[vc].resourcesTotal.gpu;
     }
     return vcInfos;
   }
