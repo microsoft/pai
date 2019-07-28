@@ -232,8 +232,27 @@ class VirtualCluster {
     throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn');
   }
 
-  async getNodeResource() {
-    throw createError('Bad Request', 'NotImplementedError', 'getNodeResource not implemented in yarn');
+  async getNodeResource(next) {
+    unirest.get(yarnConfig.yarnNodeInfoPath)
+      .headers(yarnConfig.webserviceRequestHeaders)
+      .end((res) => {
+        try {
+          const resJson = typeof res.body === 'object' ?
+            res.body : JSON.parse(res.body);
+          const nodeInfo = resJson.nodes.node;
+          const nodeResource = {};
+          for (let node of nodeInfo) {
+            nodeResource[node.nodeHostName] = {
+              gpuTotal: node.usedGPUs + node.availableGPUs,
+              gpuUsed: node.usedGPUs,
+              gpuAvaiable: node.availableGPUs,
+            };
+          }
+          next(null, nodeResource);
+        } catch (error) {
+          next(error);
+        }
+    });
   }
 
   updateVc(vcName, capacity, maxCapacity, callback) {
@@ -479,7 +498,11 @@ module.exports = {
       throw createError.unknown(err);
     }),
   getResourceUnits: vc.getResourceUnits.bind(vc),
-  getNodeResource: vc.getNodeResource.bind(vc),
+  getNodeResource: () => util.promisify(vc.getNodeResource.bind(vc))()
+    .then((nodeResource) => nodeResource)
+    .catch((err) => {
+      throw createError.unknown(err);
+    }),
   update: (vcName, vcCapacity, vcMaxCapacity) => util.promisify(vc.updateVc.bind(vc))(vcName, vcCapacity, vcMaxCapacity)
     .catch((err) => {
       throw createError.unknown(err);

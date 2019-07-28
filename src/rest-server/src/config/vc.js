@@ -191,13 +191,18 @@ if (launcherConfig.enabledHived) {
   }
 }
 
-// module exports
-module.exports = {
+const vcExports = {
   vcPutInputSchema: vcPutInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
-  resourceUnits: resourceUnits,
-  virtualCellCapacity: virtualCellCapacity,
-  podsUrl: `${launcherConfig.apiServerUri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
-  clusterTotalGpu: clusterTotalGpu,
-  clusterNodeGpu: clusterNodeGpu,
 };
+
+if (launcherConfig.type === 'k8s') {
+  vcExports.podsUrl = `${process.env.K8S_APISERVER_URI}/api/v1/pods?labelSelector=type=kube-launcher-task`;
+  vcExports.resourceUnits = resourceUnits;
+  vcExports.virtualCellCapacity = virtualCellCapacity;
+  vcExports.clusterTotalGpu = clusterTotalGpu;
+  vcExports.clusterNodeGpu = clusterNodeGpu;
+}
+
+// module exports
+module.exports = vcExports;
