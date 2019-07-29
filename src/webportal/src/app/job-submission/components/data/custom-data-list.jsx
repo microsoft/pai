@@ -11,7 +11,6 @@ import {
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {removePathPrefix} from '../../utils/utils';
 import {
@@ -32,12 +31,13 @@ const checkErrorMessage = async (
   setContainerPathErrorMessage,
   dataSourceErrorMessage,
   setDataSourceErrorMessage,
+  prefix,
 ) => {
   const newErrorMessage = cloneDeep(containerPathErrorMessage);
   const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
   dataList.forEach(async (dataItem, index) => {
     const validPath = validateMountPath(
-      dataItem.mountPath.replace(STORAGE_PREFIX, '/'),
+      dataItem.mountPath.replace(prefix, '/'),
     );
     let validSource;
     if (!validPath.isLegal) {
@@ -62,7 +62,7 @@ const checkErrorMessage = async (
   setDataSourceErrorMessage(newDataSourceErrorMessage);
 };
 
-export const CustomDataList = ({dataList, setDataList, setDataError}) => {
+export const CustomDataList = ({dataList, setDataList, setDataError, prefix}) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
@@ -84,6 +84,7 @@ export const CustomDataList = ({dataList, setDataList, setDataError}) => {
       setContainerPathErrorMessage,
       dataSourceErrorMessage,
       setDataSourceErrorMessage,
+      prefix,
     );
   }, [dataList]);
 
@@ -136,12 +137,12 @@ export const CustomDataList = ({dataList, setDataList, setDataError}) => {
       onRender: (item, idx) => {
         return (
           <TextField
-            prefix={STORAGE_PREFIX}
-            value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
+            prefix={prefix}
+            value={removePathPrefix(item.mountPath, prefix)}
             errorMessage={containerPathErrorMessage[idx]}
             onChange={(_event, newValue) => {
               let updatedDataList = cloneDeep(dataList);
-              updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
+              updatedDataList[idx].mountPath = `${prefix}${newValue}`;
               setDataList(updatedDataList);
             }}
           />
@@ -207,4 +208,5 @@ CustomDataList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataError: PropTypes.func,
+  prefix: PropTypes.string,
 };

@@ -112,6 +112,7 @@ const JobSubmission = () => {
   const [jobData, setJobData] = useState(new JobData());
   const [loading, setLoading] = useState(true);
   const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
+  const [customMountFlag, setCustomMountFlag] = useState(false);
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -330,6 +331,8 @@ const JobSubmission = () => {
                   selected={selected === SIDEBAR_DATA}
                   onSelect={selectData}
                   jobName={jobInformation.name}
+                  customMountFlag={customMountFlag}
+                  setCustomMountFlag={setCustomMountFlag}
                   onChange={setJobData}
                 />
               </Stack>

@@ -71,7 +71,7 @@ export const DataComponent = React.memo((props) => {
     port = getPortFromUrl(config.webHDFSUri);
   }
   const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port, apiPath);
-  const {onChange} = props;
+  const {onChange, customMountFlag, setCustomMountFlag} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
   const [dataError, setDataError] = useState({
@@ -190,6 +190,8 @@ export const DataComponent = React.memo((props) => {
           <CustomMount
             mountList={jobData.customMountList}
             setMountList={onMountListChange}
+            customMountFlag={customMountFlag}
+            setCustomMountFlag={setCustomMountFlag}
             setDataError={setDataError}
           />
           <ImportAtt
@@ -216,5 +218,7 @@ DataComponent.propTypes = {
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
   jobName: PropTypes.string,
+  customMountFlag: PropTypes.bool,
+  setCustomMountFlag: PropTypes.func,
   onChange: PropTypes.func.isRequired,
 };

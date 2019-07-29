@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {FontClassNames, FontWeights, getTheme, Toggle} from 'office-ui-fabric-react';
 import c from 'classnames';
@@ -8,8 +8,14 @@ import {CustomDataList} from './custom-data-list';
 import {InputData} from '../../models/data/input-data';
 
 const {spacing} = getTheme();
-export const CustomMount = ({mountList, setMountList, setDataError}) => {
-  const [customMountFlag, setCustomMountFlag] = useState(false);
+export const CustomMount = (
+  {
+    mountList,
+    setMountList,
+    customMountFlag,
+    setCustomMountFlag,
+    setDataError,
+  }) => {
   return (
     <div>
       <Toggle
@@ -51,5 +57,7 @@ export const CustomMount = ({mountList, setMountList, setDataError}) => {
 CustomMount.propTypes = {
   mountList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setMountList: PropTypes.func,
+  customMountFlag: PropTypes.bool,
+  setCustomMountFlag: PropTypes.func,
   setDataError: PropTypes.func,
 };

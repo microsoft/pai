@@ -6,6 +6,7 @@ import c from 'classnames';
 import {AddAttSource} from './add-att-source';
 import {CustomDataList} from './custom-data-list';
 import {InputData} from '../../models/data/input-data';
+import {STORAGE_PREFIX} from '../../utils/constants';
 
 const {spacing} = getTheme();
 export const ImportAtt = ({dataList, setDataList, setDataError}) => {
@@ -18,8 +19,16 @@ export const ImportAtt = ({dataList, setDataList, setDataError}) => {
         Attachment
       </div>
       <div>
-        <AddAttSource dataList={dataList} setDataList={setDataList} />
-        <CustomDataList dataList={dataList} setDataList={setDataList} setDataError={setDataError} />
+        <AddAttSource
+          dataList={dataList}
+          setDataList={setDataList}
+        />
+        <CustomDataList
+          dataList={dataList}
+          setDataList={setDataList}
+          setDataError={setDataError}
+          prefix={STORAGE_PREFIX}
+        />
       </div>
     </div>
   );
