@@ -3,16 +3,16 @@ import c from 'classnames';
 import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import PropTypes from 'prop-types';
 
-import {AddHttp} from './add-http';
-import {AddLocal} from './add-local';
-import {AddGit} from './add-git';
-import {AddHDFS} from './add-hdfs';
+import {AddHttpAtt} from './add-http-att';
+import {AddLocalAtt} from './add-local-att';
+import {AddGitAtt} from './add-git-att';
+import {AddHDFSAtt} from './add-hdfs-att';
 import {InputData} from '../../models/data/input-data';
 import {HdfsContext} from '../../models/data/hdfs-context';
 
 import t from '../../../../app/components/tachyons.scss';
 
-export const AddDataSource = (props) => {
+export const AddAttSource = (props) => {
   const {dataList, setDataList} = props;
   const [dataType, setDataType] = useState();
 
@@ -55,14 +55,14 @@ export const AddDataSource = (props) => {
     <div>
       <PrimaryButton
         iconProps={{iconName: 'Add'}}
-        text='Add data source'
+        text='Add attachment source'
         menuProps={{items: menuItems}}
       />
       <div className={c(t.mb1)}>
         {dataType === 'local' && (
           <HdfsContext.Consumer>
             {(value) => (
-              <AddLocal
+              <AddLocalAtt
                 dataList={dataList}
                 setDataList={setDataList}
                 setDataType={setDataType}
@@ -72,14 +72,14 @@ export const AddDataSource = (props) => {
           </HdfsContext.Consumer>
         )}
         {dataType === 'http' && (
-          <AddHttp
+          <AddHttpAtt
             dataList={dataList}
             setDataList={setDataList}
             setDataType={setDataType}
           />
         )}
         {dataType === 'git' && (
-          <AddGit
+          <AddGitAtt
             dataList={dataList}
             setDataList={setDataList}
             setDataType={setDataType}
@@ -88,7 +88,7 @@ export const AddDataSource = (props) => {
         {dataType === 'hdfs' && (
           <HdfsContext.Consumer>
             {(value) => (
-              <AddHDFS
+              <AddHDFSAtt
                 dataList={dataList}
                 setDataList={setDataList}
                 setDataType={setDataType}
@@ -103,7 +103,7 @@ export const AddDataSource = (props) => {
   );
 };
 
-AddDataSource.propTypes = {
+AddAttSource.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
 };

@@ -62,7 +62,7 @@ const checkErrorMessage = async (
   setDataSourceErrorMessage(newDataSourceErrorMessage);
 };
 
-export const MountList = ({dataList, setDataList, setDataError}) => {
+export const CustomDataList = ({dataList, setDataList, setDataError}) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
@@ -203,7 +203,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
   );
 };
 
-MountList.propTypes = {
+CustomDataList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataError: PropTypes.func,

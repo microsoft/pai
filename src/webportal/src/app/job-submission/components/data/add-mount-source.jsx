@@ -9,7 +9,7 @@ import {InputData} from '../../models/data/input-data';
 
 import t from '../../../../app/components/tachyons.scss';
 
-export const AddMount = (props) => {
+export const AddMountSource = (props) => {
   const {mountList, setMountList} = props;
   const [mountType, setMountType] = useState();
 
@@ -36,7 +36,7 @@ export const AddMount = (props) => {
     <div>
       <PrimaryButton
         iconProps={{iconName: 'Add'}}
-        text='Add mount'
+        text='Add mount source'
         menuProps={{items: menuItems}}
       />
       <div className={c(t.mb1)}>
@@ -59,7 +59,7 @@ export const AddMount = (props) => {
   );
 };
 
-AddMount.propTypes = {
+AddMountSource.propTypes = {
   mountList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setMountList: PropTypes.func,
 };

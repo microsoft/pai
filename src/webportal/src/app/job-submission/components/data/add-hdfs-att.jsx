@@ -18,7 +18,7 @@ import {WebHDFSClient} from '../../utils/webhdfs';
 
 const {semanticColors} = getTheme();
 
-export const AddHDFS = ({
+export const AddHDFSAtt = ({
   dataList,
   setDataList,
   setDataType,
@@ -210,7 +210,7 @@ export const AddHDFS = ({
   );
 };
 
-AddHDFS.propTypes = {
+AddHDFSAtt.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataType: PropTypes.func,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {Stack} from 'office-ui-fabric-react';
 
 import {TeamStorage} from './team-storage';
-import {CustomStorage} from './custom-storage';
+import {ImportAtt} from './import-att';
 import {CustomMount} from './custom-mount';
 import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
@@ -192,7 +192,7 @@ export const DataComponent = React.memo((props) => {
             setMountList={onMountListChange}
             setDataError={setDataError}
           />
-          <CustomStorage
+          <ImportAtt
             dataList={jobData.customDataList}
             setDataList={_onDataListChange}
             setDataError={setDataError}

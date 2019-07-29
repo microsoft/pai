@@ -18,7 +18,7 @@ import {WebHDFSClient} from '../../utils/webhdfs';
 
 const {semanticColors} = getTheme();
 
-export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
+export const AddLocalAtt = ({dataList, setDataList, setDataType, hdfsClient}) => {
   const [mountPath, setMountPath] = useState();
   const [files, setFiles] = useState();
   const [uploadType, setUploadType] = useState('Files');
@@ -199,7 +199,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
   );
 };
 
-AddLocal.propTypes = {
+AddLocalAtt.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataType: PropTypes.func,

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import {FontClassNames, FontWeights, getTheme, Toggle} from 'office-ui-fabric-react';
 import c from 'classnames';
 import {MOUNT_PREFIX} from '../../utils/constants';
-import {AddMount} from './add-mount';
-import {MountList} from './custom-mount-list';
+import {AddMountSource} from './add-mount-source';
+import {CustomDataList} from './custom-data-list';
 import {InputData} from '../../models/data/input-data';
 
 const {spacing} = getTheme();
@@ -32,11 +32,11 @@ export const CustomMount = ({mountList, setMountList, setDataError}) => {
       />
       {customMountFlag && (
         <div>
-          <AddMount
+          <AddMountSource
             mountList={mountList}
             setMountList={setMountList}
           />
-          <MountList
+          <CustomDataList
             dataList={mountList}
             setDataList={setMountList}
             setDataError={setDataError}

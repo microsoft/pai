@@ -4,24 +4,24 @@ import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
+import {validateMountPath} from '../../utils/validation';
 import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateGitUrl} from '../../utils/validation';
 
-export const AddGit = (props) => {
+export const AddHttpAtt = (props) => {
   const {dataList, setDataList, setDataType} = props;
   const [mountPath, setMountPath] = useState();
-  const [gitUrl, setGitUrl] = useState();
+  const [httpUrl, setHttpUrl] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     'Path should not be empty',
   );
-  const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState(
-    'Git should not be empty',
+  const [httpAddressErrorMessage, setHttpAddressErrorMessage] = useState(
+    'Http address should not be empty',
   );
 
   const submitMount = () => {
-    const newDataList = cloneDeep(dataList);
-    newDataList.push(new InputData(mountPath, gitUrl, 'git'));
-    setDataList(newDataList);
+    const newMountList = cloneDeep(dataList);
+    newMountList.push(new InputData(mountPath, httpUrl, 'http'));
+    setDataList(newMountList);
     setDataType('none');
   };
 
@@ -29,7 +29,7 @@ export const AddGit = (props) => {
     <Stack horizontal horizontalAlign='space-between' gap='m'>
       <Stack.Item align='baseline'>
         <TextField
-          required={true}
+          required
           prefix={STORAGE_PREFIX}
           label='Container path'
           errorMessage={containerPathErrorMessage}
@@ -45,48 +45,52 @@ export const AddGit = (props) => {
           }}
         />
       </Stack.Item>
-      <Stack.Item align='baseline' />
-      <TextField
-        required={true} // eslint-disable-line react/jsx-boolean-value
-        label='Git repo address'
-        errorMessage={gitAddressErrorMessage}
-        onChange={(_event, newValue) => {
-          const valid = validateGitUrl(newValue);
-          if (!valid.isLegal) {
-            setGitAddressErrorMessage(valid.illegalMessage);
-          } else {
-            setGitAddressErrorMessage(null);
-            setGitUrl(newValue);
-          }
-        }}
-      />
+      <Stack.Item align='baseline'>
+        <TextField
+          required
+          label='Http address'
+          errorMessage={httpAddressErrorMessage}
+          onChange={(_event, newValue) => {
+            if (!newValue) {
+              setHttpAddressErrorMessage('Http address should not be empty');
+            } else {
+              setHttpAddressErrorMessage(null);
+              setHttpUrl(newValue);
+            }
+          }}
+        />
+      </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'Accept'}}
-          disabled={containerPathErrorMessage || gitAddressErrorMessage}
+          onClick={submitMount}
+          disabled={httpAddressErrorMessage || containerPathErrorMessage}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
+                httpAddressErrorMessage || containerPathErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
             },
           }}
-          onClick={submitMount}
         />
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
           iconProps={{iconName: 'Cancel'}}
+          onClick={() => {
+            setDataType('none');
+          }}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
+                httpAddressErrorMessage || containerPathErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
-          }}
-          onClick={() => {
-            setDataType('none');
           }}
         />
       </Stack.Item>
@@ -94,7 +98,7 @@ export const AddGit = (props) => {
   );
 };
 
-AddGit.propTypes = {
+AddHttpAtt.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataType: PropTypes.func,
