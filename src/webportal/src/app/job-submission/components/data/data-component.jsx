@@ -4,7 +4,7 @@ import {Stack} from 'office-ui-fabric-react';
 
 import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
-import {CustomMount} from './custom-mount/custom-mount';
+import {CustomMount} from './custom-mount';
 import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';

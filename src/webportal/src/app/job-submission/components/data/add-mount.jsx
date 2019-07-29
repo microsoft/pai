@@ -3,11 +3,11 @@ import c from 'classnames';
 import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
 import PropTypes from 'prop-types';
 
-import {MountNFS} from './mount-nfs';
-import {MountHDFS} from './mount-hdfs';
-import {InputData} from '../../../models/data/input-data';
+import {AddNFSMount} from './add-nfs-mount';
+import {AddHDFSMount} from './add-hdfs-mount';
+import {InputData} from '../../models/data/input-data';
 
-import t from '../../../../../app/components/tachyons.scss';
+import t from '../../../../app/components/tachyons.scss';
 
 export const AddMount = (props) => {
   const {mountList, setMountList} = props;
@@ -41,14 +41,14 @@ export const AddMount = (props) => {
       />
       <div className={c(t.mb1)}>
         {mountType === 'nfs' && (
-          <MountNFS
+          <AddNFSMount
             mountList={mountList}
             setMountList={setMountList}
             setMountType={setMountType}
           />
         )}
         {mountType === 'hdfs' && (
-          <MountHDFS
+          <AddHDFSMount
             mountList={mountList}
             setMountList={setMountList}
             setMountType={setMountType}

@@ -3,24 +3,24 @@ import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
-import {MOUNT_PREFIX, ERROR_MARGIN} from '../../../utils/constants';
-import {validateMountPath, validateNFSUrl} from '../../../utils/validation';
-import {InputData} from '../../../models/data/input-data';
+import {MOUNT_PREFIX, ERROR_MARGIN} from '../../utils/constants';
+import {validateMountPath, validateHDFSUrl} from '../../utils/validation';
+import {InputData} from '../../models/data/input-data';
 
-export const MountNFS = (props) => {
+export const AddHDFSMount = (props) => {
   const {mountList, setMountList, setMountType} = props;
   const [mountPath, setMountPath] = useState();
-  const [nFSUrl, setNFSUrl] = useState();
+  const [hDFSUrl, setHDFSUrl] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     'Path should not be empty',
   );
-  const [nFSUrlErrorMessage, setNFSUrlErrorMessage] = useState(
-    'NFS url should not be empty',
+  const [hDFSUrlErrorMessage, setHDFSUrlErrorMessage] = useState(
+    'HDFS url should not be empty',
   );
 
   const submitMount = () => {
     const newMountList = cloneDeep(mountList);
-    newMountList.push(new InputData(mountPath, `nfs://${nFSUrl}`, 'nfsmount'));
+    newMountList.push(new InputData(mountPath, `hdfs://${hDFSUrl}`, 'hdfsmount'));
     setMountList(newMountList);
     setMountType('none');
   };
@@ -47,20 +47,20 @@ export const MountNFS = (props) => {
       </Stack.Item>
       <Stack.Item align='baseline'>
         <TextField
-          prefix='nfs://'
           required
-          label='IP/RemotePath'
-          errorMessage={nFSUrlErrorMessage}
+          prefix='hdfs://'
+          label='IP:Port/RemotePath'
+          errorMessage={hDFSUrlErrorMessage}
           onChange={(_event, newValue) => {
-            const valid = validateNFSUrl(`${newValue}`);
+            const valid = validateHDFSUrl(`${newValue}`);
             if (!newValue) {
-              setNFSUrlErrorMessage('NFS url should not be empty');
+              setHDFSUrlErrorMessage('HDFS url should not be empty');
             } else {
               if (!valid.isLegal) {
-                setNFSUrlErrorMessage(valid.illegalMessage);
+                setHDFSUrlErrorMessage(valid.illegalMessage);
               } else {
-                setNFSUrlErrorMessage(null);
-                setNFSUrl(newValue);
+                setHDFSUrlErrorMessage(null);
+                setHDFSUrl(newValue);
               }
             }
           }}
@@ -70,11 +70,11 @@ export const MountNFS = (props) => {
         <IconButton
           iconProps={{iconName: 'Accept'}}
           onClick={submitMount}
-          disabled={nFSUrlErrorMessage || containerPathErrorMessage}
+          disabled={hDFSUrlErrorMessage || containerPathErrorMessage}
           styles={{
             root: {
               marginBottom:
-                nFSUrlErrorMessage || containerPathErrorMessage
+                hDFSUrlErrorMessage || containerPathErrorMessage
                   ? ERROR_MARGIN
                   : 0,
             },
@@ -93,7 +93,7 @@ export const MountNFS = (props) => {
           styles={{
             root: {
               marginBottom:
-                nFSUrlErrorMessage || containerPathErrorMessage
+                hDFSUrlErrorMessage || containerPathErrorMessage
                   ? ERROR_MARGIN
                   : 0,
             },
@@ -103,7 +103,8 @@ export const MountNFS = (props) => {
     </Stack>
   );
 };
-MountNFS.propTypes = {
+
+AddHDFSMount.propTypes = {
   mountList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setMountList: PropTypes.func,
   setMountType: PropTypes.func,
