@@ -76,7 +76,7 @@ const Home = () => {
     const {spacing} = getTheme();
 
     const ResponsiveFlexBox = styled.div`
-      @media screen and (min-width: ${BREAKPOINT1}) {
+      @media screen and (min-width: ${BREAKPOINT1}px) {
         display:flex;
       }
     `;
@@ -84,7 +84,7 @@ const Home = () => {
     const ResponsiveGap = styled.div`
       height: 0;
       width: ${spacing.l2};
-      @media screen and (max-width: ${BREAKPOINT1}) {
+      @media screen and (max-width: ${BREAKPOINT1}px) {
         height: ${spacing.l2};
         width: 0;
       }
@@ -93,7 +93,7 @@ const Home = () => {
     const ResponsiveItem = styled.div`
       width: 33%;
       height: auto;
-      @media screen and (max-width: ${BREAKPOINT1}) {
+      @media screen and (max-width: ${BREAKPOINT1}px) {
         width: 100%;
         height: 320px;
       }

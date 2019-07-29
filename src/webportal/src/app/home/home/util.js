@@ -19,5 +19,5 @@ import {statusColor} from '../../components/theme';
 
 export const SHARED_VC_COLOR = statusColor.succeeded;
 export const DEDICATED_VC_COLOR = statusColor.running;
-export const BREAKPOINT1 = '1400px';
-export const BREAKPOINT2 = '1650px';
+export const BREAKPOINT1 = 1400;
+export const BREAKPOINT2 = 1650;

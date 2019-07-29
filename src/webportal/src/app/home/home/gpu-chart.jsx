@@ -16,11 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c3 from 'c3';
-import * as d3 from 'd3';
 import c from 'classnames';
 import {isNil, merge} from 'lodash';
 import PropTypes from 'prop-types';
-import {Stack, FontClassNames, getTheme, FontWeights} from 'office-ui-fabric-react';
+import {Stack, FontClassNames, getTheme, FontWeights, TooltipHost, DirectionalHint} from 'office-ui-fabric-react';
 import React, {useEffect, useRef, useMemo} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import MediaQuery from 'react-responsive';
@@ -33,6 +32,7 @@ import {SHARED_VC_COLOR, DEDICATED_VC_COLOR, BREAKPOINT1, BREAKPOINT2} from './u
 
 const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
   const chartRef = useRef(null);
+  const {palette, spacing} = getTheme();
 
   const hasDedicatedVC = useMemo(() => {
     return Object.entries(virtualClusters)
@@ -98,6 +98,9 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
         left: 20,
         bottom: 0,
       },
+      transition: {
+        duration: 0,
+      },
       axis: {
         x: {
           tick: {
@@ -116,6 +119,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
             outer: false,
             values: [],
           },
+          inner: true,
         },
       },
       legend: {
@@ -128,7 +132,6 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const {palette, spacing} = getTheme();
           return renderToStaticMarkup(
             <Card
               className={c(t.z5)}
@@ -168,9 +171,6 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       },
       color: {
         pattern: [SHARED_VC_COLOR, DEDICATED_VC_COLOR],
-      },
-      onrendered: () => {
-        d3.select('.c3-axis-y-label').attr('dy', '-10');
       },
     };
 
@@ -227,7 +227,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
     function onResize() {
       const newFlag = chartRef.current.clientWidth < 400;
       if (newFlag === smallFlag) {
-        chart.resize();
+        chart.resize({width: chartRef.current.clientWidth, height: chartRef.current.clientHeight});
       } else {
         smallFlag = newFlag;
         chart = draw();
@@ -249,26 +249,89 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
             </div>
             <div>
               {hasDedicatedVC && (
-                <Stack gap='s2'>
-                  <Stack horizontal gap='s1' verticalAlign='center'>
-                    <div style={{width: 20, height: 16, backgroundColor: SHARED_VC_COLOR}}></div>
-                    <MediaQuery maxWidth={BREAKPOINT1}>
-                      <div>Available nodes in shared VC</div>
-                    </MediaQuery>
-                    <MediaQuery minWidth={BREAKPOINT2}>
-                      <div>Available nodes in shared VC</div>
-                    </MediaQuery>
-                  </Stack>
-                  <Stack horizontal gap='s1' verticalAlign='center'>
-                    <div style={{width: 20, height: 16, backgroundColor: DEDICATED_VC_COLOR}}></div>
-                    <MediaQuery maxWidth={BREAKPOINT1}>
-                      <div>Available nodes in dedicated VC</div>
-                    </MediaQuery>
-                    <MediaQuery minWidth={BREAKPOINT2}>
-                      <div>Available nodes in dedicated VC</div>
-                    </MediaQuery>
-                  </Stack>
-                </Stack>
+                <div>
+                  {/* large */}
+                  <MediaQuery maxWidth={BREAKPOINT1}>
+                    <Stack gap='s2'>
+                      <Stack horizontal gap='s1' verticalAlign='center'>
+                        <div style={{width: 20, height: 16, backgroundColor: SHARED_VC_COLOR}}></div>
+                        <div>Available nodes in shared VC</div>
+                      </Stack>
+                      <Stack horizontal gap='s1' verticalAlign='center'>
+                        <div style={{width: 20, height: 16, backgroundColor: DEDICATED_VC_COLOR}}></div>
+                        <div>Available nodes in dedicated VC</div>
+                      </Stack>
+                    </Stack>
+                  </MediaQuery>
+                  {/* large */}
+                  <MediaQuery minWidth={BREAKPOINT2}>
+                    <Stack gap='s2'>
+                      <Stack horizontal gap='s1' verticalAlign='center'>
+                        <div style={{width: 20, height: 16, backgroundColor: SHARED_VC_COLOR}}></div>
+                        <div>Available nodes in shared VC</div>
+                      </Stack>
+                      <Stack horizontal gap='s1' verticalAlign='center'>
+                        <div style={{width: 20, height: 16, backgroundColor: DEDICATED_VC_COLOR}}></div>
+                        <div>Available nodes in dedicated VC</div>
+                      </Stack>
+                    </Stack>
+                  </MediaQuery>
+                  {/* small */}
+                  <MediaQuery minWidth={BREAKPOINT1 + 1} maxWidth={BREAKPOINT2 - 1}>
+                    <Stack gap='s2'>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        delay={0}
+                        directionalHint={DirectionalHint.leftCenter}
+                        tooltipProps={{
+                          styles: {
+                            root: [{padding: 0, border: 0, boxShadow: 'none', animation: 'none'}],
+                          },
+                          onRenderContent: () => (
+                            <Card
+                              className={c(t.z5, FontClassNames.medium)}
+                              style={{
+                                backgroundColor: palette.neutralLight,
+                                padding: spacing.s1,
+                              }}
+                            >
+                              Available nodes in shared VC
+                            </Card>
+                          ),
+                        }}
+                      >
+                        <div style={{width: 20, height: 16, backgroundColor: SHARED_VC_COLOR}}></div>
+                      </TooltipHost>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        delay={0}
+                        directionalHint={DirectionalHint.leftCenter}
+                        tooltipProps={{
+                          styles: {
+                            root: [{padding: 0, border: 0, boxShadow: 'none', animation: 'none'}],
+                          },
+                          onRenderContent: () => (
+                            <Card
+                              className={c(t.z5, FontClassNames.medium)}
+                              style={{
+                                backgroundColor: palette.neutralLight,
+                                padding: spacing.s1,
+                              }}
+                            >
+                              Available nodes in dedicated VC
+                            </Card>
+                          ),
+                        }}
+                      >
+                        <div style={{width: 20, height: 16, backgroundColor: DEDICATED_VC_COLOR}}></div>
+                      </TooltipHost>
+                    </Stack>
+                  </MediaQuery>
+                </div>
               )}
             </div>
           </Stack>
