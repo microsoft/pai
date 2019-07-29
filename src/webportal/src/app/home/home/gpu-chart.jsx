@@ -172,11 +172,15 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       color: {
         pattern: [SHARED_VC_COLOR, DEDICATED_VC_COLOR],
       },
+      onresize: () => {
+        // workaround for https://github.com/c3js/c3/issues/1450
+        chartRef.current.style.maxHeight = '';
+      },
     };
 
     // c3 draw
-    let smallFlag = chartRef.current.clientWidth < 420;
-    let chart = null;
+    const getSmallFlag = () => chartRef.current.clientWidth < 420;
+    let smallFlag = getSmallFlag();
     function draw() {
       const twoLine = {
         padding: {
@@ -222,14 +226,13 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       chart.resize();
       return chart;
     }
-    chart = draw();
+    draw();
 
     function onResize() {
-      const newFlag = chartRef.current.clientWidth < 400;
+      const newFlag = getSmallFlag();
       if (newFlag !== smallFlag) {
         smallFlag = newFlag;
-        chart.destroy();
-        chart = draw();
+        draw();
       }
     }
     window.addEventListener('resize', onResize);
