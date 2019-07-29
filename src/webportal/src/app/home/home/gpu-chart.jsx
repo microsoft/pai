@@ -176,6 +176,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
 
     // c3 draw
     let smallFlag = chartRef.current.clientWidth < 420;
+    let chart = null;
     function draw() {
       const twoLine = {
         padding: {
@@ -221,13 +222,14 @@ const GpuChart = ({style, gpuPerNode, virtualClusters, userInfo}) => {
       chart.resize();
       return chart;
     }
-    draw();
+    chart = draw();
 
     function onResize() {
       const newFlag = chartRef.current.clientWidth < 400;
       if (newFlag !== smallFlag) {
         smallFlag = newFlag;
-        draw();
+        chart.destroy();
+        chart = draw();
       }
     }
     window.addEventListener('resize', onResize);
