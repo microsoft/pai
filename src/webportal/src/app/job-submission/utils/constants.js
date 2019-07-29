@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 export const STORAGE_PREFIX = '/pai_data/';
+export const MOUNT_PREFIX = '/mnt/';
 export const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 
 export const ERROR_MARGIN = 22.15;
@@ -23,6 +24,8 @@ export const ERROR_MARGIN = 22.15;
 // runtime to support comments in commands filed
 export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';
 export const CUSTOM_STORAGE_END = '`#CUSTOM_STORAGE_END`';
+export const CUSTOM_MOUNT_START = '`#CUSTOM_MOUNT_START`';
+export const CUSTOM_MOUNT_END = '`#CUSTOM_MOUNT_END`';
 export const TEAMWISE_DATA_CMD_START = '`#TEAMWISE_STORAGE_START`';
 export const TEAMWISE_DATA_CMD_END = '`#TEAMWISE_STORAGE_END`';
 export const AUTO_GENERATE_NOTIFY =

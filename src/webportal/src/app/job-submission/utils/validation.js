@@ -71,3 +71,23 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
     return {isLegal: false, illegalMessage: e.message};
   }
 }
+
+export function validateNFSUrl(url) {
+  const nFSRegex = /[A-Za-z0-9\-._]+\/[A-Za-z0-9\-._]+/;
+  let illegalMessage = '';
+  if (!nFSRegex.test(url)) {
+    illegalMessage = 'NFS url is not illegal';
+    return {isLegal: false, illegalMessage};
+  }
+  return {isLegal: true, illegalMessage};
+}
+
+export function validateHDFSUrl(url) {
+  const nFSRegex = /[A-Za-z0-9\-._]+:[0-9]+\/[A-Za-z0-9\-._]+/;
+  let illegalMessage = '';
+  if (!nFSRegex.test(url)) {
+    illegalMessage = 'HDFS url is not illegal';
+    return {isLegal: false, illegalMessage};
+  }
+  return {isLegal: true, illegalMessage};
+}

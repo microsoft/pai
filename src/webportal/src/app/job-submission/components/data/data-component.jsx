@@ -4,6 +4,7 @@ import {Stack} from 'office-ui-fabric-react';
 
 import {TeamStorage} from './team-storage';
 import {CustomStorage} from './custom-storage';
+import {CustomMount} from './custom-mount/custom-mount';
 import {MountTreeView} from './mount-tree-view';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {WebHDFSClient} from '../../utils/webhdfs';
@@ -29,6 +30,7 @@ function reducer(state, action) {
         action.value,
         state.mountDirs,
         true,
+        state.customMountList,
       );
       action.onChange(jobData);
       return jobData;
@@ -37,7 +39,17 @@ function reducer(state, action) {
         state.hdfsClient,
         state.customDataList,
         action.value,
+        state.customMountList,
+      );
+      action.onChange(jobData);
+      return jobData;
+    case 'mountList':
+      jobData = new JobData(
+        state.hdfsClient,
+        state.customDataList,
+        state.mountDirs,
         true,
+        action.value,
       );
       action.onChange(jobData);
       return jobData;
@@ -68,7 +80,7 @@ export const DataComponent = React.memo((props) => {
   });
   const [jobData, dispatch] = useReducer(
     reducer,
-    new JobData(hdfsClient, [], null),
+    new JobData(hdfsClient, [], null, true, []),
   );
 
   useEffect(() => {
@@ -143,6 +155,13 @@ export const DataComponent = React.memo((props) => {
     [onChange],
   );
 
+  const onMountListChange = useCallback(
+    (mountList) => {
+      dispatch({type: 'mountList', value: mountList, onChange: onChange});
+    },
+    [onChange],
+  );
+
   return (
     <HdfsContext.Provider value={{user: '', api: '', token: '', hdfsClient}}>
       <SidebarCard
@@ -168,6 +187,11 @@ export const DataComponent = React.memo((props) => {
               onMountDirChange={onMountDirChange}
             />
           )}
+          <CustomMount
+            mountList={jobData.customMountList}
+            setMountList={onMountListChange}
+            setDataError={setDataError}
+          />
           <CustomStorage
             dataList={jobData.customDataList}
             setDataList={_onDataListChange}
@@ -176,10 +200,10 @@ export const DataComponent = React.memo((props) => {
           <MountTreeView
             dataList={
               jobData.mountDirs == null
-                ? jobData.customDataList
+                ? jobData.customDataList.concat(jobData.customMountList)
                 : jobData.mountDirs
-                    .getTeamDataList()
-                    .concat(jobData.customDataList)
+                  .getTeamDataList()
+                  .concat(jobData.customDataList.concat(jobData.customMountList))
             }
           />
         </Stack>

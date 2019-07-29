@@ -6,6 +6,8 @@ import {JobTaskRole} from '../models/job-task-role';
 import {
   CUSTOM_STORAGE_START,
   CUSTOM_STORAGE_END,
+  CUSTOM_MOUNT_START,
+  CUSTOM_MOUNT_END,
   TEAMWISE_DATA_CMD_START,
   TEAMWISE_DATA_CMD_END,
 } from './constants';
@@ -174,6 +176,11 @@ function removePreCommandsFromProtocolTaskRoles(protocol) {
       commands,
       TEAMWISE_DATA_CMD_START,
       TEAMWISE_DATA_CMD_END,
+    );
+    commands = removePreCommandSection(
+      commands,
+      CUSTOM_MOUNT_START,
+      CUSTOM_MOUNT_END,
     );
     taskRole.commands = commands;
   });
