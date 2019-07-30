@@ -1,0 +1,508 @@
+################################################################################
+# [Optional]: Job User -> RestServer Request
+#
+# Constrains:
+# 1. For one task, only need to specify gpuType or reservationId, not both.
+# 2. All gpuTypes or reservationIds under the same affinityGroup must be the same.
+#
+# affinityGroupName:
+# An affinityGroup forms a cell request and scheduler will try all candidate
+# cellTypes and physicalCells for the cell to allocate.
+# 1. All candidate cellTypes:
+#    All the sufficient cellTypes with the smallest cellLevel.
+# 2. All candidate physicalCells:
+#    If reservationId not specified:
+#       All the sufficient physicalCells, except for all reservedCells.
+#    Else:
+#       All the sufficient physicalCells, only within the specified reservedCell.
+#
+# Allocate task within its affinityGroup cell:
+# 1. Avoid allocating one task across multiple nodes:
+#    Using buddy allocation.
+################################################################################
+jobVC: VC1
+jobName: JOBX
+jobPriorityClass: PROD
+taskRoles:
+  # All tasks in role A, B, C should be within the same cell named PCN-ABC.
+  #
+  # Total request of PCN-ABC:
+  #   gpuType: DGX2-V100
+  #   gpuNumber: 1 * 16 + 3 * 8 + 1 * 4 = 44 GPUs = 2.75 DGX2 nodes
+  # Candidate cellTypes:
+  #   3-DGX2-NODE, 4-DGX2-NODE, 4-DIRECT-DGX2-NODE, 5-DGX2-NODE.
+  A:
+    taskNumber: 1
+    gpuType: DGX2-V100
+    gpuNumber: 16
+    affinityGroupName: PCN-ABC
+  B:
+    taskNumber: 3
+    gpuType: DGX2-V100
+    gpuNumber: 8
+    affinityGroupName: PCN-ABC
+  C:
+    taskNumber: 1
+    gpuType: DGX2-V100
+    gpuNumber: 4
+    affinityGroupName: PCN-ABC
+
+  # All tasks in role D should be within the same cell named PCN-D.
+  #
+  # Total request of PCN-D:
+  #   gpuType: null -> any gpuType
+  #   gpuNumber: 2 * CP2(3) = 2 * 4 = 8 GPUs
+  # Candidate cellTypes:
+  #   DGX1-P100-NODE, DGX1-V100-NODE, DGX2-NODE-8-GPU, IB-DGX2-NODE-8-GPU.
+  D:
+    taskNumber: 2
+    gpuType: null # null, empty or not specified -> any gpuType
+    gpuNumber: 3
+    affinityGroupName: PCN-D
+
+  # Tasks in role E is not required to be within the same cell.
+  #
+  # Each task forms a cell request:
+  #   gpuType: DGX2-V100
+  #   gpuNumber: 1 * 16 = 16 GPUs = 1 DGX2 node
+  # Candidate cellTypes:
+  #   DGX2-NODE.
+  E:
+    taskNumber: 2
+    gpuType: DGX2-V100
+    gpuNumber: 16
+    affinityGroupName: null # null, empty or not specified -> no affinityGroup
+
+  # All tasks in role F should be within the same cell named PCN-F.
+  #
+  # Total request of PCN-F:
+  #   reservationId: VC1-YQW-IB-DGX2
+  #   gpuNumber: 2 * CP2(3) = 2 * 4 = 8 GPUs
+  # Candidate physicalCells:
+  #   VC1-YQW-IB-DGX2.
+  F:
+    taskNumber: 2
+    reservationId: VC1-YQW-IB-DGX2
+    gpuNumber: 3
+    affinityGroupName: PCN-F
+
+---
+################################################################################
+# [Optional]: Cluster Admin -> RestServer Config -> PC
+################################################################################
+# HS Config is also a part of RestServer Config, so that RestServer can determine
+# things in advance.
+# For example:
+# Pod Spec cpu, memory.
+# 1. Given gpuType or reservationId, just pick the corresponding cpu, memory unit.
+# 2. No gpuType or reservationId is given, choose the minimal cpu, memory unit.
+physicalCluster:
+  gpuTypes:
+    # Check resource value format in
+    #   k8s.io/apimachinery/pkg/api/resource/quantity.go
+
+    # Forged Cases
+    CT1:
+      gpu: 1
+      cpu: 5 # 2 * 20 / 8
+      memory: 64Gi # 512GB / 8
+
+    # Real Cases
+    DGX1-P100:
+      gpu: 1
+      cpu: 5 # 2 * 20 / 8
+      memory: 64Gi # 512GB / 8
+    DGX1-V100:
+      gpu: 1
+      cpu: 5 # 2 * 20 / 8
+      memory: 64Gi # 512GB / 8
+    DGX2-V100:
+      gpu: 1
+      cpu: 3 # 2 * 24 / 16
+      memory: 96Gi # 1.5TB / 16
+    IB-DGX2-V100:
+      gpu: 1
+      cpu: 3 # 2 * 24 / 16
+      memory: 96Gi # 1.5TB / 16
+
+---
+################################################################################
+# [Optional]: RestServer -> FC Request
+################################################################################
+apiVersion: frameworkcontroller.microsoft.com/v1
+kind: Framework
+metadata:
+  name: JOBX
+spec:
+  taskRoles:
+  - name: A
+    taskNumber: 1
+    task:
+      pod:
+        metadata:
+          annotations:
+            # Format of affinityGroup.name :
+            # {jobName}/{affinityGroupName}
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              gpuType: DGX2-V100
+              gpuNumber: 16
+              affinityGroup:
+                name: JOBX/PCN-ABC
+                members:
+                - podNumber: 1
+                  gpuNumber: 16
+                - podNumber: 3
+                  gpuNumber: 8
+                - podNumber: 1
+                  gpuNumber: 4
+        # Setup gpu, cpu and memory isolation for container runtime.
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                cpu: 3 * 16
+                memory: 96Gi * 16
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  # This annotation will be populated by scheduler when bind the pod.
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+        # K8S port scheduling is incompatible with hived, so the job should detect
+        # port conflict by itself and fail with transient error, then controller
+        # should retry it with new port.
+        #    ports:
+        #    - containerPort: 4001
+  - name: B
+    taskNumber: 3
+    task:
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              gpuType: DGX2-V100
+              gpuNumber: 8
+              affinityGroup:
+                name: JOBX/PCN-ABC
+                members:
+                - podNumber: 1
+                  gpuNumber: 16
+                - podNumber: 3
+                  gpuNumber: 8
+                - podNumber: 1
+                  gpuNumber: 4
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                cpu: 3 * 8
+                memory: 96Gi * 8
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+  - name: C
+    taskNumber: 1
+    task:
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              gpuType: DGX2-V100
+              gpuNumber: 4
+              affinityGroup:
+                name: JOBX/PCN-ABC
+                members:
+                - podNumber: 1
+                  gpuNumber: 16
+                - podNumber: 3
+                  gpuNumber: 8
+                - podNumber: 1
+                  gpuNumber: 4
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                cpu: 3 * 4
+                memory: 96Gi * 4
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+  - name: D
+    taskNumber: 2
+    task:
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              gpuType: null
+              gpuNumber: 3
+              affinityGroup:
+                name: JOBX/PCN-D
+                members:
+                - podNumber: 2
+                  gpuNumber: 3
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                # 3 is the minimal cpu unit in PC
+                cpu: 3 * 3
+                # 64Gi is the minimal memory unit in PC
+                memory: 64Gi * 3
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+  - name: E
+    taskNumber: 2
+    task:
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              gpuType: DGX2-V100
+              gpuNumber: 16
+              affinityGroup: null
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                cpu: 3 * 16
+                memory: 96Gi * 16
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+  - name: F
+    taskNumber: 2
+    task:
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC1
+              priority: 1000
+              reservationId: VC1-YQW-IB-DGX2
+              gpuNumber: 3
+              affinityGroup:
+                name: JOBX/PCN-F
+                members:
+                - podNumber: 2
+                  gpuNumber: 3
+        spec:
+          containers:
+          - resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                cpu: 3 * 3
+                memory: 96Gi * 3
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+
+---
+################################################################################
+# [Required]: FC -> HS Framework Request
+################################################################################
+apiVersion: v1
+kind: Pod
+metadata:
+  name: JOBX-A-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: DGX2-V100
+      gpuNumber: 16
+      affinityGroup:
+        name: JOBX/PCN-ABC
+        members:
+        - podNumber: 1
+          gpuNumber: 16
+        - podNumber: 3
+          gpuNumber: 8
+        - podNumber: 1
+          gpuNumber: 4
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 16
+        memory: 96Gi * 16
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # JOBX-B-1 and JOBX-B-2 are the same
+  name: JOBX-B-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: DGX2-V100
+      gpuNumber: 8
+      affinityGroup:
+        name: JOBX/PCN-ABC
+        members:
+        - podNumber: 1
+          gpuNumber: 16
+        - podNumber: 3
+          gpuNumber: 8
+        - podNumber: 1
+          gpuNumber: 4
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 8
+        memory: 96Gi * 8
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: JOBX-C-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: DGX2-V100
+      gpuNumber: 4
+      affinityGroup:
+        name: JOBX/PCN-ABC
+        members:
+        - podNumber: 1
+          gpuNumber: 16
+        - podNumber: 3
+          gpuNumber: 8
+        - podNumber: 1
+          gpuNumber: 4
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 4
+        memory: 96Gi * 4
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # JOBX-D-1 is the same
+  name: JOBX-D-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: null
+      gpuNumber: 3
+      affinityGroup:
+        name: JOBX/PCN-D
+        members:
+        - podNumber: 2
+          gpuNumber: 3
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 3
+        memory: 64Gi * 3
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # JOBX-E-1 is the same
+  name: JOBX-E-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: DGX2-V100
+      gpuNumber: 16
+      affinityGroup: null
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 16
+        memory: 96Gi * 16
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # JOBX-F-1 is the same
+  name: JOBX-F-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      reservationId: VC1-YQW-IB-DGX2
+      gpuNumber: 3
+      affinityGroup:
+        name: JOBX/PCN-F
+        members:
+        - podNumber: 2
+          gpuNumber: 3
+spec:
+  containers:
+  - resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 3 * 3
+        memory: 96Gi * 3
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']

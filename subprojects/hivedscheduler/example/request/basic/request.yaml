@@ -1,0 +1,279 @@
+################################################################################
+# [Optional]: Job User -> RestServer Request
+################################################################################
+jobVC: VC1
+jobName: demo1
+jobPriorityClass: PROD
+taskRoles:
+  a:
+    taskNumber: 5
+    gpuType: K80
+    gpuNumber: 1
+    affinityGroupName: null
+---
+jobVC: VC2
+jobName: demo2norsv
+jobPriorityClass: PROD
+taskRoles:
+  a:
+    taskNumber: 5
+    gpuType: K80
+    gpuNumber: 1
+    affinityGroupName: null
+---
+jobVC: VC2
+jobName: demo2rsv
+jobPriorityClass: PROD
+taskRoles:
+  a:
+    taskNumber: 5
+    reservationId: VC2-K80
+    gpuNumber: 1
+    affinityGroupName: null
+
+---
+################################################################################
+# [Optional]: Cluster Admin -> RestServer Config -> PC
+################################################################################
+physicalCluster:
+  gpuTypes:
+    K80:
+      gpu: 1
+      cpu: 4
+      memory: 8Gi
+
+---
+################################################################################
+# [Optional]: RestServer -> FC Request
+################################################################################
+apiVersion: frameworkcontroller.microsoft.com/v1
+kind: Framework
+metadata:
+  name: demo1
+spec:
+  executionType: Start
+  retryPolicy:
+    fancyRetryPolicy: true
+    maxRetryCount: 0
+  taskRoles:
+    - name: a
+      taskNumber: 5
+      frameworkAttemptCompletionPolicy:
+        minFailedTaskCount: 1
+        minSucceededTaskCount: 5
+      task:
+        retryPolicy:
+          fancyRetryPolicy: false
+          maxRetryCount: 0
+        pod:
+          metadata:
+            annotations:
+              hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+                virtualCluster: VC1
+                priority: 1000
+                gpuType: K80
+                gpuNumber: 1
+                affinityGroup: null
+          spec:
+            schedulerName: hivedscheduler
+            restartPolicy: Never
+            containers:
+            - name: ubuntu
+              image: ubuntu:trusty
+              command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+              resources:
+                limits:
+                  hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                  cpu: 4
+                  memory: 8Gi
+              env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: frameworkcontroller.microsoft.com/v1
+kind: Framework
+metadata:
+  name: demo2norsv
+spec:
+  executionType: Start
+  retryPolicy:
+    fancyRetryPolicy: true
+    maxRetryCount: 0
+  taskRoles:
+    - name: a
+      taskNumber: 5
+      frameworkAttemptCompletionPolicy:
+        minFailedTaskCount: 1
+        minSucceededTaskCount: 5
+      task:
+        retryPolicy:
+          fancyRetryPolicy: false
+          maxRetryCount: 0
+        pod:
+          metadata:
+            annotations:
+              hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+                virtualCluster: VC2
+                priority: 1000
+                gpuType: K80
+                gpuNumber: 1
+                affinityGroup: null
+          spec:
+            schedulerName: hivedscheduler
+            restartPolicy: Never
+            containers:
+            - name: ubuntu
+              image: ubuntu:trusty
+              command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+              resources:
+                limits:
+                  hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                  cpu: 4
+                  memory: 8Gi
+              env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: frameworkcontroller.microsoft.com/v1
+kind: Framework
+metadata:
+  name: demo2rsv
+spec:
+  executionType: Start
+  retryPolicy:
+    fancyRetryPolicy: true
+    maxRetryCount: 0
+  taskRoles:
+    - name: a
+      taskNumber: 5
+      frameworkAttemptCompletionPolicy:
+        minFailedTaskCount: 1
+        minSucceededTaskCount: 5
+      task:
+        retryPolicy:
+          fancyRetryPolicy: false
+          maxRetryCount: 0
+        pod:
+          metadata:
+            annotations:
+              hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+                virtualCluster: VC2
+                priority: 1000
+                reservationId: VC2-K80
+                gpuNumber: 1
+                affinityGroup: null
+          spec:
+            schedulerName: hivedscheduler
+            restartPolicy: Never
+            containers:
+            - name: ubuntu
+              image: ubuntu:trusty
+              command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+              resources:
+                limits:
+                  hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+                  cpu: 4
+                  memory: 8Gi
+              env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+
+---
+################################################################################
+# [Required]: FC -> HS Framework Request
+################################################################################
+apiVersion: v1
+kind: Pod
+metadata:
+  # demo1-a-{1-4} are the same
+  name: demo1-a-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC1
+      priority: 1000
+      gpuType: K80
+      gpuNumber: 1
+      affinityGroup: null
+spec:
+  schedulerName: hivedscheduler
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu:trusty
+    command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+    resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 4
+        memory: 8Gi
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # demo2norsv-a-{1-4} are the same
+  name: demo2norsv-a-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC2
+      priority: 1000
+      gpuType: K80
+      gpuNumber: 1
+      affinityGroup: null
+spec:
+  schedulerName: hivedscheduler
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu:trusty
+    command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+    resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 4
+        memory: 8Gi
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  # demo2rsv-a-{1-4} are the same
+  name: demo2rsv-a-0
+  annotations:
+    hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+      virtualCluster: VC2
+      priority: 1000
+      reservationId: VC2-K80
+      gpuNumber: 1
+      affinityGroup: null
+spec:
+  schedulerName: hivedscheduler
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu:trusty
+    command: ["sh", "-c", "nvidia-smi -L ; printenv ; sleep infinity"]
+    resources:
+      limits:
+        hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+        cpu: 4
+        memory: 8Gi
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
