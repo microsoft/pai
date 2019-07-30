@@ -78,7 +78,7 @@ export function validateNFSUrl(url) {
   const nFSRegexEndWithSlash = /^nfs:\/\/[A-Za-z0-9\-._]+\/$/;
   let illegalMessage = '';
   if (!nFSRegixPrefix.test(url)) {
-    illegalMessage = 'path should begin with nfs:\/\/';
+    illegalMessage = 'path should begin with nfs://';
     return {isLegal: false, illegalMessage};
   }
   if (!nFSRegexEndWithSlash.test(url) && url.charAt(url.length - 1) === '/') {
@@ -98,7 +98,7 @@ export function validateHDFSUrl(url) {
   const hDFSRegexEndWithSlash = /^hdfs:\/\/[A-Za-z0-9\-._]+:[0-9]+\/$/;
   let illegalMessage = '';
   if (!hDFSRegixPrefix.test(url)) {
-    illegalMessage = 'path should begin with hdfs:\/\/';
+    illegalMessage = 'path should begin with hdfs://';
     return {isLegal: false, illegalMessage};
   }
   if (!hDFSRegexEndWithSlash.test(url) && url.charAt(url.length - 1) === '/') {
