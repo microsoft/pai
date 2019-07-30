@@ -1,9 +1,10 @@
 import React from 'react';
 import c from 'classnames';
 import PropTypes from 'prop-types';
+import {cloneDeep} from 'lodash';
 import {Hint} from '../sidebar/hint';
 import {ErrMsg} from '../sidebar/errormessage';
-
+import {generateDefaultTensorBoardExtras} from '../../utils/utils';
 import {
   FontClassNames,
   FontWeights,
@@ -17,16 +18,16 @@ const {spacing} = getTheme();
 
 export const TensorBoard = (props) => {
   const {
-    tensorBoardFlag,
-    setTensorBoardFlag,
     jobData,
     taskRoles,
+    extras,
+    onChange,
   } = props;
 
   const defaultLogPath = '/mnt/tensorboard';
 
   const detectMountPathAndMultipleTaskRoles = () => {
-    if (!tensorBoardFlag) {
+    if (!extras.tensorBoard) {
       return false;
     }
     const teamDataList = jobData.mountDirs.getTeamDataList();
@@ -66,9 +67,15 @@ export const TensorBoard = (props) => {
         <Toggle
           label='Enable TensorBoard'
           inlineLabel={true}
-          checked={tensorBoardFlag}
+          checked={extras.tensorBoard}
           onChange={(ev, isChecked) => {
-            setTensorBoardFlag(isChecked);
+            const updatedExtras = cloneDeep(extras);
+            if (isChecked) {
+              updatedExtras.tensorBoard = generateDefaultTensorBoardExtras();
+            } else {
+              delete updatedExtras.tensorBoard;
+            }
+            onChange(updatedExtras);
           }}
         />
         {detectMountPathAndMultipleTaskRoles() && (
@@ -79,7 +86,7 @@ export const TensorBoard = (props) => {
             <div>
               TensorBoard can only read logs from the first task role.
             </div>
-        </ErrMsg>
+          </ErrMsg>
         )}
       </div>
     </div>
@@ -87,8 +94,8 @@ export const TensorBoard = (props) => {
 };
 
 TensorBoard.propTypes = {
-  tensorBoardFlag: PropTypes.bool,
-  setTensorBoardFlag: PropTypes.func,
   jobData: PropTypes.object.isRequired,
   taskRoles: PropTypes.array.isRequired,
+  extras: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
 };

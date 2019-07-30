@@ -32,10 +32,10 @@ import {TensorBoard} from './tensorboard';
 import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
 export const ToolComponent = React.memo(({
-  tensorBoardFlag,
-  setTensorBoardFlag,
   jobData,
   taskRoles,
+  extras,
+  onChange,
   selected,
   onSelect,
 }) => {
@@ -52,10 +52,10 @@ export const ToolComponent = React.memo(({
         </Hint>
         <div>
           <TensorBoard
-            tensorBoardFlag={tensorBoardFlag}
-            setTensorBoardFlag={setTensorBoardFlag}
             jobData={jobData}
             taskRoles={taskRoles}
+            extras={extras}
+            onChange={onChange}
           />
         </div>
       </Stack>
@@ -64,10 +64,10 @@ export const ToolComponent = React.memo(({
 });
 
 ToolComponent.propTypes = {
-  tensorBoardFlag: PropTypes.bool,
-  setTensorBoardFlag: PropTypes.func,
   jobData: PropTypes.object.isRequired,
   taskRoles: PropTypes.array.isRequired,
+  extras: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
 };

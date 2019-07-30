@@ -247,3 +247,15 @@ export function createUniqueName(usedNames, namePrefix, startindex) {
   }
   return [name, index];
 }
+
+export function generateDefaultTensorBoardExtras() {
+  const defaultLogPath = '/mnt/tensorboard';
+  const randomStr = Math.random().toString(36).slice(2, 10);
+  const tensorBoardExtras = {
+    randomStr: randomStr,
+    logDirectories: {
+      default: `${defaultLogPath}/$PAI_JOB_NAME`,
+    },
+  };
+  return tensorBoardExtras;
+}

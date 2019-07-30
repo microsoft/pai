@@ -112,9 +112,9 @@ const JobSubmission = () => {
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
+  const [extras, setExtras] = useState({});
   const [loading, setLoading] = useState(true);
   const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
-  const [tensorBoardFlag, setTensorBoardFlag] = useState(false);
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -339,10 +339,10 @@ const JobSubmission = () => {
                 <ToolComponent
                   selected={selected === SIDEBAR_TOOL}
                   onSelect={selectTool}
-                  tensorBoardFlag={tensorBoardFlag}
-                  setTensorBoardFlag={setTensorBoardFlag}
                   jobData={jobData}
                   taskRoles={jobTaskRoles}
+                  extras={extras}
+                  onChange={setExtras}
                 />
               </Stack>
             </StackItem>
@@ -353,21 +353,23 @@ const JobSubmission = () => {
             jobTaskRoles={jobTaskRoles}
             parameters={parameters}
             secrets={secrets}
+            extras={extras}
             advanceFlag={advanceFlag}
             onToggleAdvanceFlag={onToggleAdvanceFlag}
             jobData={jobData}
             initJobProtocol={initJobProtocol}
-            tensorBoardFlag={tensorBoardFlag}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
               updatedParameters,
               updatedSecrets,
+              updatedExtras,
             ) => {
               setJobInformation(updatedJobInfo);
               setJobTaskRoles(updatedTaskRoles);
               setParameters(updatedParameters);
               setSecrets(updatedSecrets);
+              setExtras(updatedExtras);
             }}
           />
         </Stack>

@@ -88,20 +88,18 @@ export const SubmissionSection = (props) => {
     jobTaskRoles,
     parameters,
     secrets,
+    extras,
     onChange,
     advanceFlag,
     onToggleAdvanceFlag,
     jobData,
     initJobProtocol,
-    tensorBoardFlag,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(new JobProtocol(initJobProtocol));
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
-  const [extras, setExtras] = useState({});
-  const [tensorBoardExtras, setTensorBoardExtras] = useState({});
 
   const monaco = useRef(null);
 
@@ -169,13 +167,23 @@ export const SubmissionSection = (props) => {
       updatedExtras,
     ] = getJobComponentsFromConfig(updatedJob, {vcNames});
 
+    if (extras.tensorBoard) {
+      const originalTensorBoardExtras = extras.tensorBoard;
+      const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
+      if (updatedTensorBoardExtras.randomStr !== originalTensorBoardExtras.randomStr
+        || !updatedTensorBoardExtras.logDirectories
+        || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2) {
+        updatedExtras.tensorBoard = originalTensorBoardExtras.tensorBoard;
+      }
+    }
+
     onChange(
       updatedJobInformation,
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
+      updatedExtras,
     );
-    setExtras(updatedExtras);
   };
 
   const _closeEditor = () => {
@@ -238,53 +246,6 @@ export const SubmissionSection = (props) => {
     }
   };
 
-  // Functions for TensorBoard
-  const defaultLogPath = '/mnt/tensorboard';
-
-  const injectTensorBoardExtras = () => {
-    const randomStr = Math.random().toString(36).slice(2, 10);
-    const tensorBoardExtras = {
-      randomStr: randomStr,
-      logDirectories: {
-        default: `${defaultLogPath}/$PAI_JOB_NAME`,
-      },
-    };
-    const updatedExtras = cloneDeep(extras);
-    updatedExtras.tensorBoard = tensorBoardExtras;
-    setExtras(updatedExtras);
-    setTensorBoardExtras(tensorBoardExtras);
-  };
-
-  const deleteTensorBoardExtras = () => {
-    const updatedExtras = cloneDeep(extras);
-    delete updatedExtras.tensorBoard;
-    setExtras(updatedExtras);
-    setTensorBoardExtras({});
-  };
-
-  useEffect(() => {
-    if (tensorBoardFlag) {
-      injectTensorBoardExtras();
-    } else {
-      deleteTensorBoardExtras();
-    }
-  }, [tensorBoardFlag]);
-
-  useEffect(() => {
-    if (tensorBoardFlag) {
-      const updatedTensorBoardExtras = extras.tensorBoard || {};
-      if (updatedTensorBoardExtras.randomStr !== tensorBoardExtras.randomStr
-        || !updatedTensorBoardExtras.logDirectories
-        || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2) {
-        const updatedExtras = cloneDeep(extras);
-        updatedExtras.tensorBoard = tensorBoardExtras;
-        setExtras(updatedExtras);
-        return;
-      } else {
-        setTensorBoardExtras(extras.tensorBoard);
-      }
-    }
-  }, [extras]);
 
   const widthBreakpoint = 1550;
 
@@ -409,10 +370,10 @@ SubmissionSection.propTypes = {
   jobTaskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   parameters: PropTypes.array.isRequired,
   secrets: PropTypes.array.isRequired,
+  extras: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
   onToggleAdvanceFlag: PropTypes.func,
   jobData: PropTypes.object,
   initJobProtocol: PropTypes.object,
-  tensorBoardFlag: PropTypes.bool,
 };
