@@ -60,7 +60,7 @@ export default class MonacoCallout extends React.Component {
         <Callout
           target={this.buttonRef.current}
           onDismiss={this.dismiss}
-          setInitialFocus={true}
+          setInitialFocus
           hidden={!open}
         >
           {open && (

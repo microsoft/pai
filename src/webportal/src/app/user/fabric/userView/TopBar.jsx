@@ -279,7 +279,7 @@ function TopBar() {
         text: key ? 'Yes' : 'No',
         canCheck: true,
         checked: filter.admins.has(key),
-        onClick: onClick,
+        onClick,
       };
     }
 
@@ -346,7 +346,7 @@ function TopBar() {
         text: key,
         canCheck: true,
         checked: filter.virtualClusters.has(key),
-        onClick: onClick,
+        onClick,
       };
     }
 

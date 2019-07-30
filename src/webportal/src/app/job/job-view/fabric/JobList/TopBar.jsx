@@ -89,7 +89,7 @@ function TopBar() {
       }).then((body) => {
         const allUsers = Object.create(null);
         body.forEach((userBody) => {
-          allUsers[userBody['username']] = true;
+          allUsers[userBody.username] = true;
         });
         setUser(allUsers);
       }).catch((err) => {
@@ -260,7 +260,7 @@ function TopBar() {
         text: key,
         canCheck: true,
         checked: filter.users.has(key),
-        onClick: onClick,
+        onClick,
       };
     }
 
@@ -272,7 +272,7 @@ function TopBar() {
         text: '@Me',
         canCheck: true,
         checked: filter.users.has(username),
-        onClick: onClick,
+        onClick,
       });
     }
     subMenuItems.push(...Object.keys(users)
@@ -338,7 +338,7 @@ function TopBar() {
         text: key,
         canCheck: true,
         checked: filter.virtualClusters.has(key),
-        onClick: onClick,
+        onClick,
       };
     }
 
@@ -405,7 +405,7 @@ function TopBar() {
         text: key,
         canCheck: true,
         checked: filter.statuses.has(key),
-        onClick: onClick,
+        onClick,
       };
     }
 

@@ -32,8 +32,8 @@ import {
   FontSizes,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import MonacoEditor from '../../components/monaco-editor';
 import {isEmpty, isNil, debounce} from 'lodash';
+import MonacoEditor from '../../components/monaco-editor';
 
 export const MonacoTextFiled = (props) => {
   const {
@@ -99,7 +99,7 @@ export const MonacoTextFiled = (props) => {
           flex: '1 1 100%',
           minHeight: 0,
           border: 'solid 1px',
-          borderColor: borderColor,
+          borderColor,
           paddingTop: spacing.s1,
         }}
         completionItems={completionItems}
@@ -114,7 +114,7 @@ export const MonacoTextFiled = (props) => {
             defaultEOL: 1,
             minimap: {enabled: false},
           },
-          value: value,
+          value,
           onChange: onChangeWrapper,
           editorDidMount: editorDidMountCallback,
           ...monacoProps,

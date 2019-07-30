@@ -1,12 +1,12 @@
 import React, {useContext, useMemo} from 'react';
+import {isEmpty} from 'lodash';
+import PropTypes from 'prop-types';
 import {TabForm} from './tab-form';
 import {JobTaskRole} from '../models/job-task-role';
 import Context from './context';
 
 import {createUniqueName} from '../utils/utils';
 
-import {isEmpty} from 'lodash';
-import PropTypes from 'prop-types';
 
 const HEADER_PREFIX = 'Task_role';
 let taskRoleSeq = 1;

@@ -27,7 +27,6 @@
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
     "autoprefixer": "^9.5.1",
-    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-lodash": "^3.3.4",
     "blueimp-file-upload": "~9.22.1",
@@ -48,9 +47,6 @@
     "dotenv": "~4.0.0",
     "ejs-loader": "~0.3.0",
     "envsub": "3.0.9",
-    "eslint": "~4.18.2",
-    "eslint-config-google": "~0.9.1",
-    "eslint-plugin-react": "^7.12.4",
     "express": "~4.16.2",
     "file-loader": "~1.1.5",
     "floatthead": "~2.0.3",
@@ -119,6 +115,12 @@
     "start": "node server"
   },
   "devDependencies": {
-    "eslint-config-prettier": "^6.0.0"
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3"
   }
 }

@@ -89,7 +89,7 @@ export const TeamStorage = ({
   const showConfigSets = () => {
     if (teamConfigs.length === 0) {
       return null;
-    } else {
+    } 
       return (
         <div>
           <div
@@ -106,7 +106,7 @@ export const TeamStorage = ({
           />
         </div>
       );
-    }
+    
   };
 
   return <div>{showConfigSets()}</div>;

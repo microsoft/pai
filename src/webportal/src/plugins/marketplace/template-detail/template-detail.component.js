@@ -20,8 +20,8 @@ require('./template-detail.component.css');
 
 module.exports = function(element, restServerUri, query) {
 const context = {
-    compileUri: function(uri) {
-        if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
+    compileUri(uri) {
+        if (!/^https?:\/\//.test(uri)) return `http://hub.docker.com/r/${  uri}`;
         if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
         return uri;
     },
@@ -35,7 +35,7 @@ $(function() {
         'script': 'script',
         'data': 'data',
     }[query.type] || 'job';
-    const name = query.name;
+    const {name} = query;
     if (type == null || name == null) return location.href = '/';
 
     const u = `${restServerUri}/api/v2/template/${type}/${name}`;

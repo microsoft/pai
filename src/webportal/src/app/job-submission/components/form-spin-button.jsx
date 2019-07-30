@@ -24,8 +24,8 @@
  */
 
 import React, {useCallback} from 'react';
-import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
+import {BasicSection} from './basic-section';
 import {CSpinButton} from './customized-components';
 import {FormShortSection} from './form-page';
 

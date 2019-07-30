@@ -35,7 +35,7 @@ const getHostname = (host) => host.split(':', 1)[0];
 //
 
 const getCellId = (instanceName) => {
-  return '#' + instanceName.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+  return `#${  instanceName.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1')}`;
 };
 
 //
@@ -57,12 +57,12 @@ const getCellHtml = (percentage) => {
     outerColorString = 'hsl(0, 100%, 45%)';
     loadLevelString = 'Heavy load';
   }
-  const title = (Math.round(percentage * 100) / 100) + '% (' + loadLevelString + ')';
+  const title = `${Math.round(percentage * 100) / 100  }% (${  loadLevelString  })`;
   let cellHtml = '';
-  cellHtml += '<span title="' + percentage + '">';
-  cellHtml += '<span class=\'fa-stack metric-span\' title=\'' + title + '\'>';
-  cellHtml += '<i class=\'fa fa-circle fa-stack-1x metric-icon\' style=\'color:' + innerColorString + '\'></i>';
-  cellHtml += '<i class=\'fa fa-circle-thin fa-stack-1x metric-icon\' style=\'color:' + outerColorString + '\'></i>';
+  cellHtml += `<span title="${  percentage  }">`;
+  cellHtml += `<span class='fa-stack metric-span' title='${  title  }'>`;
+  cellHtml += `<i class='fa fa-circle fa-stack-1x metric-icon' style='color:${  innerColorString  }'></i>`;
+  cellHtml += `<i class='fa fa-circle-thin fa-stack-1x metric-icon' style='color:${  outerColorString  }'></i>`;
   cellHtml += '</span>';
   return cellHtml;
 };
@@ -72,7 +72,7 @@ const getCellHtml = (percentage) => {
 const initCells = (idPrefix, instanceList, table) => {
   const noDataCellHtml = '<span title="-1"/><font color=\'silver\' title=\'\'>N/A</font>';
   for (let i = 0; i < instanceList.length; i++) {
-    const cellId = getCellId(idPrefix + ':' + instanceList[i]);
+    const cellId = getCellId(`${idPrefix  }:${  instanceList[i]}`);
     table.cell(cellId).data(noDataCellHtml);
   }
 };
@@ -83,21 +83,21 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=100%20-%20(avg%20by%20(instance)(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B' + metricGranularity + '%5D))%20*%20100)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(data) {
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=100%20-%20(avg%20by%20(instance)(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B${  metricGranularity  }%5D))%20*%20100)` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(data) {
       initCells('cpu', instanceList, table);
-      const result = data.data.result;
+      const {result} = data.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('cpu:' + getHostname(item.metric.instance));
+        const cellId = getCellId(`cpu:${  getHostname(item.metric.instance)}`);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error() {
       initCells('cpu', instanceList, table);
       alert('Error when loading CPU utilization data.');
     },
@@ -109,39 +109,39 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=node_memory_MemTotal_bytes+-+node_memory_MemFree_bytes+-+node_memory_Buffers_bytes+-+node_memory_Cached_bytes' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(dataOfMemUsed) {
-      let dictOfMemUsed = {};
-      const result = dataOfMemUsed.data.result;
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=node_memory_MemTotal_bytes+-+node_memory_MemFree_bytes+-+node_memory_Buffers_bytes+-+node_memory_Cached_bytes` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(dataOfMemUsed) {
+      const dictOfMemUsed = {};
+      const {result} = dataOfMemUsed.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
         dictOfMemUsed[item.metric.instance] = item.values[0][1];
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
-          'query=node_memory_MemTotal_bytes' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-        success: function(dataOfMemTotal) {
+        url: `${prometheusUri  }/api/v1/query_range?` +
+          `query=node_memory_MemTotal_bytes` +
+          `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+        success(dataOfMemTotal) {
           initCells('mem', instanceList, table);
-          const result = dataOfMemTotal.data.result;
+          const {result} = dataOfMemTotal.data;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('mem:' + getHostname(item.metric.instance));
+            const cellId = getCellId(`mem:${  getHostname(item.metric.instance)}`);
             const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
             table.cell(cellId).data(cellHtml);
           }
         },
-        error: function() {
+        error() {
           initCells('mem', instanceList, table);
           alert('Error when loading memory utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error() {
       initCells('mem', instanceList, table);
       alert('Error when loading memory utilization data (step 1).');
     },
@@ -153,21 +153,21 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=avg+by+(instance)(nvidiasmi_utilization_gpu)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(data) {
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=avg+by+(instance)(nvidiasmi_utilization_gpu)` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(data) {
       initCells('gpu', instanceList, table);
-      const result = data.data.result;
+      const {result} = data.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpu:' + getHostname(item.metric.instance));
+        const cellId = getCellId(`gpu:${  getHostname(item.metric.instance)}`);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error() {
       initCells('gpu', instanceList, table);
       alert('Error when loading GPU utilization data.');
     },
@@ -179,21 +179,21 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=avg+by+(instance)(nvidiasmi_utilization_memory)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(data) {
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=avg+by+(instance)(nvidiasmi_utilization_memory)` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(data) {
       initCells('gpumem', instanceList, table);
-      const result = data.data.result;
+      const {result} = data.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = getCellId('gpumem:' + getHostname(item.metric.instance));
+        const cellId = getCellId(`gpumem:${  getHostname(item.metric.instance)}`);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error() {
       initCells('gpumem', instanceList, table);
       alert('Error when loading GPU memory utilization data.');
     },
@@ -206,27 +206,27 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_disk_read_bytes_total%5B' + metricGranularity + '%5D))' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(dataOfDiskBytesRead) {
-      let dictOfDiskBytesRead = {};
-      const result = dataOfDiskBytesRead.data.result;
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=sum+by+(instance)(rate(node_disk_read_bytes_total%5B${  metricGranularity  }%5D))` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(dataOfDiskBytesRead) {
+      const dictOfDiskBytesRead = {};
+      const {result} = dataOfDiskBytesRead.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
         dictOfDiskBytesRead[item.metric.instance] = item.values[0][1];
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-        success: function(dataOfDiskBytesWritten) {
+        url: `${prometheusUri  }/api/v1/query_range?` +
+          `query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B${  metricGranularity  }%5D))` +
+          `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+        success(dataOfDiskBytesWritten) {
           initCells('disk', instanceList, table);
-          const result = dataOfDiskBytesWritten.data.result;
+          const {result} = dataOfDiskBytesWritten.data;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('disk:' + getHostname(item.metric.instance));
+            const cellId = getCellId(`disk:${  getHostname(item.metric.instance)}`);
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
             if (diskBytesRead && diskBytesWritten) {
@@ -238,13 +238,13 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
             }
           }
         },
-        error: function() {
+        error() {
           initCells('disk', instanceList, table);
           alert('Error when loading disk utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error() {
       initCells('disk', instanceList, table);
       alert('Error when loading disk utilization data (step 1).');
     },
@@ -257,27 +257,27 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_network_receive_bytes_total%5B' + metricGranularity + '%5D))' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-    success: function(dataOfEthBytesRecieved) {
-      let dictOfEthBytesRecieved = {};
-      const result = dataOfEthBytesRecieved.data.result;
+    url: `${prometheusUri  }/api/v1/query_range?` +
+      `query=sum+by+(instance)(rate(node_network_receive_bytes_total%5B${  metricGranularity  }%5D))` +
+      `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+    success(dataOfEthBytesRecieved) {
+      const dictOfEthBytesRecieved = {};
+      const {result} = dataOfEthBytesRecieved.data;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
         dictOfEthBytesRecieved[item.metric.instance] = item.values[0][1];
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
-        success: function(dataOfEthBytesSent) {
+        url: `${prometheusUri  }/api/v1/query_range?` +
+          `query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B${  metricGranularity  }%5D))` +
+          `&start=${  currentEpochTimeInSeconds  }&end=${  currentEpochTimeInSeconds  }&step=1`,
+        success(dataOfEthBytesSent) {
           initCells('eth', instanceList, table);
-          const result = dataOfEthBytesSent.data.result;
+          const {result} = dataOfEthBytesSent.data;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('eth:' + getHostname(item.metric.instance));
+            const cellId = getCellId(`eth:${  getHostname(item.metric.instance)}`);
             const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
             if (ethBytesReceived && ethBytesSent) {
@@ -289,13 +289,13 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             }
           }
         },
-        error: function() {
+        error() {
           initCells('eth', instanceList, table);
           alert('Error when loading ethernet utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error() {
       initCells('eth', instanceList, table);
       alert('Error when loading ethernet utilization data (step 1).');
     },
@@ -308,9 +308,9 @@ const loadData = () => {
   const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
   $.ajax({
     type: 'GET',
-    url: webportalConfig.prometheusUri + '/api/v1/query?' +
-      'query=node_uname_info&time=' + currentEpochTimeInSeconds,
-    success: function(data) {
+    url: `${webportalConfig.prometheusUri  }/api/v1/query?` +
+      `query=node_uname_info&time=${  currentEpochTimeInSeconds}`,
+    success(data) {
       const hardwareHtml = hardwareComponent({
         breadcrumb: breadcrumbComponent,
         grafanaUri: webportalConfig.grafanaUri,
@@ -318,7 +318,7 @@ const loadData = () => {
       });
       $('#content-wrapper').html(hardwareHtml);
       table = $('#hardware-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
+        scrollY: `${$(window).height() - 265  }px`,
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0]},
@@ -326,7 +326,7 @@ const loadData = () => {
           {type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7]},
         ],
       }).api();
-      let instanceList = [];
+      const instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
         instanceList.push(getHostname(data.data.result[i].metric.instance));
       }
@@ -337,7 +337,7 @@ const loadData = () => {
       loadDiskUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
       loadEthUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
     },
-    error: function() {
+    error() {
       alert('Error when loading data.');
     },
   });
@@ -346,9 +346,9 @@ const loadData = () => {
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({'height': `${$(window).height()  }px`});
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    $('.dataTables_scrollBody').css('height', `${$(window).height() - 265  }px`);
     table.columns.adjust().draw();
   }
 };

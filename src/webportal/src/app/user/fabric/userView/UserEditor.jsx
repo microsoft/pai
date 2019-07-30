@@ -207,7 +207,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
   return (
     <Modal
       isOpen={isOpen}
-      isBlocking={true}
+      isBlocking
       containerClassName={mergeStyles({width: '450px', minWidth: '450px'})}
     >
       <div className={c(t.pa4)}>
@@ -266,7 +266,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                       multiSelect
                       options={vcsOptions}
                       selectedKeys={vcs}
-                      disabled={isAdmin ? true : false}
+                      disabled={!!isAdmin}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
                       style={{maxWidth: '248px'}}
@@ -278,7 +278,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                     Admin user
                   </td>
                   <td className={tdPaddingStyle}>
-                    <Stack horizontal={true} gap={spacing.m}>
+                    <Stack horizontal gap={spacing.m}>
                       <StackItem>
                         <Checkbox
                           componentRef={adminRef}
@@ -298,7 +298,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
             </table>
           </div>
           <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
-            <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
+            <Stack horizontal horizontalAlign='center' gap={spacing.s1}>
               <StackItem>
                 <PrimaryButton type="submit" disabled={lock}>
                   {isCreate ? 'Add' : 'Save'}

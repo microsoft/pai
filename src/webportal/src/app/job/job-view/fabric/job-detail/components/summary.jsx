@@ -245,7 +245,7 @@ export default class Summary extends React.Component {
           </div>
         </MessageBar>
       );
-    } else if (state === 'Waiting') {
+    } if (state === 'Waiting') {
       const resourceRetries = get(jobInfo, 'jobStatus.retryDetails.resource');
       if (resourceRetries >= 3) {
         return (
@@ -374,7 +374,7 @@ export default class Summary extends React.Component {
               >
                 View Job Config
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} />
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href='#'
@@ -383,7 +383,7 @@ export default class Summary extends React.Component {
               >
                 View Exit Diagnostics
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} />
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={jobInfo.jobStatus.appTrackingUrl}
@@ -392,7 +392,7 @@ export default class Summary extends React.Component {
               >
                 Go to Application Tracking Page
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} />
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={getJobMetricsUrl(jobInfo)}
@@ -400,7 +400,7 @@ export default class Summary extends React.Component {
               >
                 Go to Job Metrics Page
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.bl, t.mh3)} />
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
                 href={getTensorBoardUrl(jobInfo, rawJobConfig)}

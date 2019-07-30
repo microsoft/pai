@@ -90,7 +90,7 @@ export default class TaskRole extends React.Component {
               calloutProps={{isBeakVisible: false, gapSpace: 8}} // spacing.s1
               content={capitalize(x)}
             >
-              <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}></div>
+              <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}} />
             </TooltipHost>
             <div className={c(t.ml2)}>{count[x]}</div>
           </div>

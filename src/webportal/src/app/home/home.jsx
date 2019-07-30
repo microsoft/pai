@@ -71,7 +71,7 @@ const Home = () => {
 
   if (loading) {
     return <SpinnerLoading />;
-  } else {
+  } 
     const {spacing} = getTheme();
 
     const breakpoint = '1400px';
@@ -136,7 +136,7 @@ const Home = () => {
         </Stack.Item>
       </Stack>
     );
-  }
+  
 };
 
 const contentWrapper = document.getElementById('content-wrapper');

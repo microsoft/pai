@@ -62,7 +62,7 @@ import {JobProtocol} from './models/job-protocol';
 initTheme();
 initializeIcons();
 
-const formLayout = getFormClassNames().formLayout;
+const {formLayout} = getFormClassNames();
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -91,7 +91,7 @@ function generateJobName(jobName) {
   let suffix = Date.now().toString(16);
   suffix = suffix.substring(suffix.length - 6);
   name = `${name}_${suffix}`;
-  name = name + getChecksum(name);
+  name += getChecksum(name);
   return name;
 }
 
@@ -201,14 +201,12 @@ const JobSubmission = () => {
             delete updated[id];
             return updated;
           }
-        } else {
-          if (prev !== undefined && prev[id] !== msg) {
+        } else if (prev !== undefined && prev[id] !== msg) {
             return {
               ...prev,
               [id]: msg,
             };
           }
-        }
         return prev;
       });
     },

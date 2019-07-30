@@ -43,9 +43,9 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
   const getUploadText = () => {
     if (files === undefined) {
       return `Upload ${uploadType}`;
-    } else if (files !== undefined && files.length === 1) {
+    } if (files !== undefined && files.length === 1) {
       return files[0].name;
-    } else if (files !== undefined && files.length > 1) {
+    } if (files !== undefined && files.length > 1) {
       return `${files.length} Files`;
     }
   };
@@ -103,7 +103,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           iconProps={{iconName: 'Upload'}}
           text={getUploadText()}
           errorMessage={errorMessage}
-          split={true}
+          split
           onClick={clickUpload}
           menuProps={{
             items: [

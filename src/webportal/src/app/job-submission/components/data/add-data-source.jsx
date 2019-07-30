@@ -10,7 +10,7 @@ import {AddHDFS} from './add-hdfs';
 import {InputData} from '../../models/data/input-data';
 import {HdfsContext} from '../../models/data/hdfs-context';
 
-import t from '../../../../app/components/tachyons.scss';
+import t from "../../../components/tachyons.scss";
 
 export const AddDataSource = (props) => {
   const {dataList, setDataList} = props;

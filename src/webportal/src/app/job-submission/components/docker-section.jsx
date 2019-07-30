@@ -36,13 +36,13 @@ import {
   getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'lodash';
 import {DockerInfo} from '../models/docker-info';
 import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
 
 import {getDockerSectionStyle} from './form-style';
 import t from '../../components/tachyons.scss';
-import {isEmpty} from 'lodash';
 import {DOCKER_OPTIONS, DEFAULT_DOCKER_URI} from '../utils/constants';
 
 const {spacing} = getTheme();
@@ -208,7 +208,7 @@ export const DockerSection = ({sectionTooltip, onValueChange, value}) => {
           <Toggle
             checked={isUseCustomizedDocker}
             label='Custom'
-            inlineLabel={true}
+            inlineLabel
             styles={{
               label: {order: -1, marginLeft: 0, marginRight: spacing.s1},
             }}

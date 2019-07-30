@@ -73,13 +73,13 @@ export const ContainerSizeSection = (props) => {
             }
           />
           <CSpinButton
-            label={'CPU vcore count'}
+            label="CPU vcore count"
             disabled={!isContainerSizeEnabled}
             value={cpu}
             onChange={(value) => _onChange('cpu', value)}
           />
           <CSpinButton
-            label={'Memory (MB)'}
+            label="Memory (MB)"
             disabled={!isContainerSizeEnabled}
             value={memoryMB}
             onChange={(value) => _onChange('memoryMB', value)}
@@ -89,7 +89,7 @@ export const ContainerSizeSection = (props) => {
           <Toggle
             checked={isContainerSizeEnabled}
             label='Custom'
-            inlineLabel={true}
+            inlineLabel
             styles={{
               label: {order: -1, marginLeft: 0, marginRight: spacing.s1},
             }}

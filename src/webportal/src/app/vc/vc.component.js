@@ -16,20 +16,20 @@ const userAuth = require('../user/user-auth/user-auth.component');
 //
 let commonTable = null;
 let dedicateTable = null;
-let nodeListShowLength = 2;
-let isAdmin = cookies.get('admin');
+const nodeListShowLength = 2;
+const isAdmin = cookies.get('admin');
 //
 
 const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
-    url: webportalConfig.restServerUri + '/api/v1/virtual-clusters',
-    success: function(data) {
+    url: `${webportalConfig.restServerUri  }/api/v1/virtual-clusters`,
+    success(data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
-        specifiedVc: specifiedVc,
-        data: data,
-        formatNumber: formatNumber,
+        specifiedVc,
+        data,
+        formatNumber,
         yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
         grafanaUri: webportalConfig.grafanaUri,
         isAdmin,
@@ -37,14 +37,14 @@ const loadData = (specifiedVc) => {
       });
       $('#content-wrapper').html(vcHtml);
       commonTable = $('#common-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
+        scrollY: `${$(window).height() - 265  }px`,
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
         ],
       }).api();
       dedicateTable = $('#dedicated-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
+        scrollY: `${$(window).height() - 265  }px`,
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
@@ -54,16 +54,16 @@ const loadData = (specifiedVc) => {
             render: (data, type, full, meta) => {
               if (full[1].split(',').length > nodeListShowLength) {
                 return getPartialRemarksHtml(full[1]);
-              } else {
+              } 
                 return full[1];
-              }
+              
             },
           },
         ],
       }).api();
       resizeContentWrapper();
     },
-    error: function() {
+    error() {
       alert('Error when loading data.');
     },
   });
@@ -77,9 +77,9 @@ const formatNumber = (x, precision) => {
 
 //
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
-  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 386)) + 'px');
+  $('#content-wrapper').css({'height': `${$(window).height()  }px`});
+  $('#sharedvc .dataTables_scrollBody').css('height', `${$(window).height() - (isAdmin === 'true' ? 410 : 366)  }px`);
+  $('#dedicatedvc .dataTables_scrollBody').css('height', `${$(window).height() - 386  }px`);
   if (commonTable != null) {
     commonTable.columns.adjust().draw();
   }
@@ -90,7 +90,7 @@ const resizeContentWrapper = () => {
 
 //
 const nodeListShow = (nodelist, obj) => {
-  const attributes = Array.prototype.slice.call($(obj))[0].attributes;
+  const {attributes} = Array.prototype.slice.call($(obj))[0];
   if (attributes.isdetail === true) {
     attributes.isdetail = false;
     $(obj).html(getPartialRemarksHtml(nodelist));
@@ -102,7 +102,7 @@ const nodeListShow = (nodelist, obj) => {
 
 //
 const getPartialRemarksHtml = (nodelist) => {
-  return nodelist.split(',').splice(0, nodeListShowLength) + '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>';
+  return `${nodelist.split(',').splice(0, nodeListShowLength)  }&nbsp;<a href="javascript:void(0);" ><b>...</b></a>`;
 };
 
 //
@@ -120,9 +120,9 @@ const virtualClusterShow = () => {
 //
 const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
-    let vcName = $('#virtualClustersList input[name="vcname"]').val();
-    let capacity = $('#virtualClustersList input[name="capacity"]').val();
-    let externalName = $('#virtualClustersList input[name="securitygroup"]').val();
+    const vcName = $('#virtualClustersList input[name="vcname"]').val();
+    const capacity = $('#virtualClustersList input[name="capacity"]').val();
+    const externalName = $('#virtualClustersList input[name="securitygroup"]').val();
     if (!vcName) {
       $('#virtualClustersList input[name="vcname"]').focus();
       return false;
@@ -139,7 +139,7 @@ const virtualClustersAdd = () => {
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
         'vcCapacity': capacity,
-        'externalName': externalName ? externalName : ``,
+        'externalName': externalName || ``,
         'description': ``,
       }),
       headers: {
@@ -149,7 +149,7 @@ const virtualClustersAdd = () => {
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
-        loadData(url.parse(window.location.href, true).query['vcName']);
+        loadData(url.parse(window.location.href, true).query.vcName);
         $('#virtualClustersList').modal('hide');
         alert(data.message);
       },
@@ -179,7 +179,7 @@ const deleteVcItem = (name) => {
       type: 'DELETE',
       dataType: 'json',
       success: (data) => {
-        loadData(url.parse(window.location.href, true).query['vcName']);
+        loadData(url.parse(window.location.href, true).query.vcName);
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -217,7 +217,7 @@ const editVcItemPut = (name, capacity) => {
       dataType: 'json',
       success: (data) => {
         $('#virtualClustersEdit').modal('hide');
-        loadData(url.parse(window.location.href, true).query['vcName']);
+        loadData(url.parse(window.location.href, true).query.vcName);
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -250,7 +250,7 @@ const changeVcState = (name, state) => {
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
-        loadData(url.parse(window.location.href, true).query['vcName']);
+        loadData(url.parse(window.location.href, true).query.vcName);
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -307,7 +307,7 @@ $(document).ready(() => {
     resizeContentWrapper();
    });
   resizeContentWrapper();
-  loadData(url.parse(window.location.href, true).query['vcName']);
+  loadData(url.parse(window.location.href, true).query.vcName);
 
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
@@ -315,8 +315,8 @@ $(document).ready(() => {
   });
 
   $(document).on('click', '#virtualClustersListEdit', () => {
-    let name = $('input[name="nameEdit"]').val();
-    let capacity = $('input[name="capacityEdit"]').val();
+    const name = $('input[name="nameEdit"]').val();
+    const capacity = $('input[name="capacityEdit"]').val();
     editVcItemPut(name, capacity);
   });
 });

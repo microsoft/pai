@@ -82,11 +82,11 @@ const VirtualClusterItem = ({name, info}) => {
                 <div className={c(t.w100, t.h100, t.flex)}>
                   <div
                     style={{backgroundColor: color, width: `${percentage * 100}%`}}
-                  ></div>
+                   />
                   <div
                     className={c(ColorClassNames.neutralLightBackground)}
                     style={{width: `${(1 - percentage) * 100}%`}}
-                  ></div>
+                   />
                 </div>
               )}
               </div>

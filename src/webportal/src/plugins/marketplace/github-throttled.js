@@ -5,7 +5,7 @@ module.exports = () => {
     ].join('\n'))) {
         location.href = '/change-github-pat.html';
         return true;
-    } else {
+    } 
         return false;
-    }
+    
 };

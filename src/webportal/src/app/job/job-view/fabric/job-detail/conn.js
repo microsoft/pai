@@ -44,9 +44,9 @@ export async function fetchJobInfo() {
   const json = await res.json();
   if (res.ok) {
     return json;
-  } else {
+  } 
     throw new Error(json.message);
-  }
+  
 }
 
 export async function fetchRawJobConfig() {
@@ -55,16 +55,16 @@ export async function fetchRawJobConfig() {
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
-  } else {
+  } 
     if (json.code === 'NoJobConfigError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
     }
-  }
+  
 }
 
 export async function fetchJobConfig() {
@@ -73,16 +73,16 @@ export async function fetchJobConfig() {
     : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
-  } else {
+  } 
     if (json.code === 'NoJobConfigError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
     }
-  }
+  
 }
 
 export async function fetchSshInfo() {
@@ -93,20 +93,20 @@ export async function fetchSshInfo() {
   const json = await res.json();
   if (res.ok) {
     return json;
-  } else {
+  } 
     if (json.code === 'NoJobSshInfoError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
     }
-  }
+  
 }
 
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
   if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
-    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+    const {randomStr} = rawJobConfig.extras.tensorBoard;
     const tensorBoardStr = `TensorBoard_${randomStr}`;
     const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
     const obj = jobInfo.taskRoles;
@@ -188,7 +188,7 @@ export async function stopJob() {
     const json = await res.json();
     if (res.ok) {
       return json;
-    } else if (res.code === 'UnauthorizedUserError') {
+    } if (res.code === 'UnauthorizedUserError') {
       alert(res.message);
       userLogout();
     } else {
@@ -243,7 +243,7 @@ export async function getContainerLog(logUrl) {
 }
 
 export function openJobAttemptsPage(retryCount) {
-  const search = namespace ? namespace + '~' + jobName : jobName;
+  const search = namespace ? `${namespace  }~${  jobName}` : jobName;
   const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
     'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
     'abVisCols': []});

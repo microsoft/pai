@@ -23,7 +23,7 @@ const fetchWrapper = async (...args) => {
   const json = await res.json();
   if (res.ok) {
     return json;
-  } else if (json.code === 'UnauthorizedUserError') {
+  } if (json.code === 'UnauthorizedUserError') {
     alert(json.message);
     userLogout();
   } else {

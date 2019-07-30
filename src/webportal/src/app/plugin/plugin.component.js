@@ -33,8 +33,8 @@ function loadScript(uri, callback) {
 }
 
 $(document).ready(function() {
-  const query = url.parse(window.location.href, true).query;
-  const index = Number(query['index']);
+  const {query} = url.parse(window.location.href, true);
+  const index = Number(query.index);
   const plugin = window.PAI_PLUGINS[index];
 
   if (plugin == null) {
@@ -42,7 +42,7 @@ $(document).ready(function() {
     location.href = '/';
   }
 
-  $('.sidebar-menu .plugin-' + index).addClass('active');
+  $(`.sidebar-menu .plugin-${  index}`).addClass('active');
 
   loadScript(plugin.uri, function() {
     const $plugin = $('<pai-plugin>')

@@ -22,9 +22,9 @@ export const checkUsername = (value) => {
   const {error} = Joi.validate(value, usernameSchema);
   if (error) {
     return error.message.replace('"value"', 'User name');
-  } else {
+  } 
     return error;
-  }
+  
 };
 
 const passwordSchema = Joi.string().min(6).required();
@@ -32,9 +32,9 @@ export const checkPassword = (value) => {
   const {error} = Joi.validate(value, passwordSchema);
   if (error) {
     return error.message.replace('"value"', 'Password');
-  } else {
+  } 
     return error;
-  }
+  
 };
 
 const emailSchema = Joi.string().email().empty('');
@@ -42,7 +42,7 @@ export const checkEmail = (value) => {
   const {error} = Joi.validate(value, emailSchema);
   if (error) {
     return error.message.replace('"value"', 'Email');
-  } else {
+  } 
     return error;
-  }
+  
 };

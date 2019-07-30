@@ -55,7 +55,7 @@ export const EnvVar = React.memo(({selected, onSelect}) => (
   >
     <Stack gap='m'>
       <Hint>
-        You could reference these PAI Environment Variables in command by <code>{'$envKey'}</code>
+        You could reference these PAI Environment Variables in command by <code>$envKey</code>
       </Hint>
       <div>
         <DetailsList

@@ -34,7 +34,7 @@ export default function TableTextField(props) {
     showError = true;
   }
 
-  let textFiedlStyle = styles ? styles : {};
+  let textFiedlStyle = styles || {};
   if (showError) {
     textFiedlStyle = Object.assign(textFiedlStyle, {
       fieldGroup: [

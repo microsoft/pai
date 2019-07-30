@@ -25,7 +25,7 @@ const dashboardHtml = dashboardComponent({
 });
 
 function resizeContentWrapper() {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({'height': `${$(window).height()  }px`});
 }
 
 window.onresize = function(envent) {

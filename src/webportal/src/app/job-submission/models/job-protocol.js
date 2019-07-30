@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-import {jobProtocolSchema} from '../models/protocol-schema';
 
 import {get, isEmpty, cloneDeep} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
+import {jobProtocolSchema} from "./protocol-schema";
 import {removeEmptyProperties} from '../utils/utils';
 import {TaskRolesManager} from '../utils/task-roles-manager';
 
@@ -117,11 +117,11 @@ export class JobProtocol {
     return new JobProtocol({
       ...this,
       ...jobBasicInfo.convertToProtocolFormat(),
-      parameters: parameters,
-      taskRoles: taskRoles,
-      prerequisites: prerequisites,
-      deployments: deployments,
-      secrets: secrets,
+      parameters,
+      taskRoles,
+      prerequisites,
+      deployments,
+      secrets,
       defaults: defaultsField,
     });
   }

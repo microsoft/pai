@@ -24,12 +24,12 @@
  */
 
 import React from 'react';
-import {BasicSection} from './basic-section';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'lodash';
+import {BasicSection} from './basic-section';
 import {MonacoTextFiled} from './monaco-text-field';
 import {FormShortSection} from './form-page';
 import {PAI_ENV_VAR, COMMAND_PLACEHOLDER} from '../utils/constants';
-import {isEmpty} from 'lodash';
 
 export const CommandSection = (props) => {
   const {onChange, value} = props;

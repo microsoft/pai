@@ -43,16 +43,16 @@ export const CompletionPolicy = React.memo(({onChange, value}) => {
   };
 
   return (
-    <BasicSection sectionLabel={'Completion policy'} sectionOptional>
+    <BasicSection sectionLabel="Completion policy" sectionOptional>
       <FormShortSection gap='m'>
         <Stack horizontal gap='s1'>
-          <CSpinButton label={'Min Failed Instances'}
+          <CSpinButton label="Min Failed Instances"
                        value={minFailedInstances}
                        min={1}
                        onChange={(v) => _onChange('minFailedInstances', v)}/>
         </Stack>
         <Stack horizontal gap='s1'>
-          <CSpinButton label={'Min Succeed Instances'}
+          <CSpinButton label="Min Succeed Instances"
                        value={minSucceededInstances}
                        min={1}
                        onChange={(v) => _onChange('minSucceededInstances', v)}/>

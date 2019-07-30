@@ -26,7 +26,7 @@ function MessageBox(props) {
   const {text, onDismiss, confirm} = props;
 
   const closeModal = () => {
-    if (onDismiss) onDismiss(confirm ? false : true);
+    if (onDismiss) onDismiss(!confirm);
   };
 
   const onClickOK = () => {
@@ -39,7 +39,7 @@ function MessageBox(props) {
 
   return (
     <Modal
-      isOpen={true}
+      isOpen
       onDismiss={closeModal}
       isBlocking={false}
       styles={{main: [{minWidth: '300px', maxWidth: '80vw'}, t.flex, t.flexColumn, t.flexNowrap, t.itemsStretch]}}

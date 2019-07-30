@@ -100,7 +100,7 @@ export const getFormBasicSectionStyle = (optional) => {
         color: palette.neutralSecondary,
         cursor: 'pointer',
         userSelect: 'none',
-        visibility: visibility,
+        visibility,
       },
     },
     label: {

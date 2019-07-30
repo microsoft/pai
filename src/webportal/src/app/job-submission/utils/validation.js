@@ -54,7 +54,7 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
     return {
       isLegal: true,
     };
-  } else {
+  } 
     const isAccess = await hdfsClient.checkAccess();
     if (!isAccess) {
       return {
@@ -62,7 +62,7 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
         illegalMessage: 'hdfs server could not be accessed',
       };
     }
-  }
+  
 
   try {
     await hdfsClient.readDir(path);

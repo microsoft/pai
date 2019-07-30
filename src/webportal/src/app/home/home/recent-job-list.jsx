@@ -145,7 +145,7 @@ const jobListColumns = [
 const Content = ({jobs}) => {
   if (true && isEmpty(jobs)) {
     return <DummyContent />;
-  } else {
+  } 
     const items = jobs
       .slice()
       .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
@@ -161,7 +161,7 @@ const Content = ({jobs}) => {
         />
       </div>
     );
-  }
+  
 };
 
 const RecentJobList = ({className, jobs}) => {

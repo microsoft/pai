@@ -21,10 +21,10 @@ const yaml = require('js-yaml');
 
 const convertParameterToKeyValue = (d) => {
   if ('parameters' in d) {
-    let parameters = d['parameters'];
-    d['parameters'] = [];
+    const {parameters} = d;
+    d.parameters = [];
     Object.keys(parameters).forEach((key) => {
-      d['parameters'].push({
+      d.parameters.push({
         name: key,
         value: parameters[key],
       });
@@ -34,10 +34,10 @@ const convertParameterToKeyValue = (d) => {
 
 const convertParameterFromKeyValue = (d) => {
   if ('parameters' in d) {
-    let parameters = d['parameters'];
-    d['parameters'] = {};
+    const {parameters} = d;
+    d.parameters = {};
     parameters.forEach((t) => {
-      d['parameters'][t['name']] = t['value'];
+      d.parameters[t.name] = t.value;
     });
   }
 };
@@ -46,7 +46,7 @@ const yamlLoad = (yamlString) => {
   try {
     return yaml.safeLoad(yamlString);
   } catch (error) {
-    alert('Failed to load yaml file: ' + error);
+    alert(`Failed to load yaml file: ${  error}`);
     return null;
   }
 };
@@ -58,13 +58,13 @@ const jsonToJsonEditor = (data) => {
     }
 
     if ('tasks' in data) {
-      data['tasks'].forEach((task) => {
-        task['instances'] = task['resource']['instances'];
-        task['cpu'] = task['resource']['resourcePerInstance']['cpu'];
-        task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
-        task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
-        task['portList'] = task['resource']['portList'];
-        delete task['resource'];
+      data.tasks.forEach((task) => {
+        task.instances = task.resource.instances;
+        task.cpu = task.resource.resourcePerInstance.cpu;
+        task.gpu = task.resource.resourcePerInstance.gpu;
+        task.memoryMB = task.resource.resourcePerInstance.memoryMB;
+        task.portList = task.resource.portList;
+        delete task.resource;
         convertParameterToKeyValue(task);
       });
     }
@@ -75,43 +75,43 @@ const jsonToJsonEditor = (data) => {
 
     return data;
   } catch (error) {
-    alert('Failed to parse yaml file. ' + error);
+    alert(`Failed to parse yaml file. ${  error}`);
     return null;
   }
 };
 
 const jsonEditorToJobJson = (editors) => {
-  let res = JSON.parse(JSON.stringify(editors['job'][0].getValue())); // deep copy
+  const res = JSON.parse(JSON.stringify(editors.job[0].getValue())); // deep copy
   convertParameterFromKeyValue(res);
 
-  res['type'] = 'job';
-  res['prerequisites'] = [];
-  res['tasks'] = [];
+  res.type = 'job';
+  res.prerequisites = [];
+  res.tasks = [];
 
   ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
     editors[type].forEach((editor) => {
       if (editor != null) {
-        let temp = JSON.parse(JSON.stringify(editor.getValue()));
+        const temp = JSON.parse(JSON.stringify(editor.getValue()));
         if (type == 'task') {
           convertParameterFromKeyValue(temp);
-          temp['resource'] = {
-            'instances': temp['instances'],
+          temp.resource = {
+            'instances': temp.instances,
             'resourcePerInstance': {
-              cpu: temp['cpu'],
-              memoryMB: temp['memoryMB'],
-              gpu: temp['gpu'],
+              cpu: temp.cpu,
+              memoryMB: temp.memoryMB,
+              gpu: temp.gpu,
             },
-            'portList': temp['portList'],
+            'portList': temp.portList,
           };
-          delete temp['portList'];
-          delete temp['instances'];
-          delete temp['cpu'];
-          delete temp['memoryMB'];
-          delete temp['gpu'];
-          res['tasks'].push(temp);
+          delete temp.portList;
+          delete temp.instances;
+          delete temp.cpu;
+          delete temp.memoryMB;
+          delete temp.gpu;
+          res.tasks.push(temp);
         } else {
-          temp['type'] = type;
-          res['prerequisites'].push(temp);
+          temp.type = type;
+          res.prerequisites.push(temp);
         }
       }
     });
@@ -120,7 +120,7 @@ const jsonEditorToJobJson = (editors) => {
 };
 
 const exportToYaml = (editors) => {
-  let res = jsonEditorToJobJson(editors);
+  const res = jsonEditorToJobJson(editors);
   return yaml.safeDump(res);
 };
 

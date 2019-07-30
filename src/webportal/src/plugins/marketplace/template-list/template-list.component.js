@@ -22,7 +22,7 @@ require('./template-list.component.css');
 
 module.exports = function(element, restServerUri, query) {
 const context = {
-  parseType: function(raw) {
+  parseType(raw) {
     return {
       'job': 'job',
       'dockerimage': 'docker',

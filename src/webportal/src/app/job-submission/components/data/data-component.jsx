@@ -131,14 +131,14 @@ export const DataComponent = React.memo((props) => {
 
   const _onDataListChange = useCallback(
     (dataList) => {
-      dispatch({type: 'dataList', value: dataList, onChange: onChange});
+      dispatch({type: 'dataList', value: dataList, onChange});
     },
     [onChange],
   );
 
   const onMountDirChange = useCallback(
     (mountDir) => {
-      dispatch({type: 'mountDir', value: mountDir, onChange: onChange});
+      dispatch({type: 'mountDir', value: mountDir, onChange});
     },
     [onChange],
   );
@@ -157,7 +157,7 @@ export const DataComponent = React.memo((props) => {
         <Stack gap='m'>
           <Hint>
             The data configured here will be mounted or copied into job
-            container. You could use them with <code>{'Container Path'}</code>{' '}
+            container. You could use them with <code>Container Path</code>{' '}
             value below.
           </Hint>
           {teamConfigs && (

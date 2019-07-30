@@ -29,7 +29,7 @@ export const AddGit = (props) => {
     <Stack horizontal horizontalAlign='space-between' gap='m'>
       <Stack.Item align='baseline'>
         <TextField
-          required={true}
+          required
           prefix={STORAGE_PREFIX}
           label='Container path'
           errorMessage={containerPathErrorMessage}

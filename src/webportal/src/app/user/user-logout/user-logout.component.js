@@ -30,7 +30,7 @@ const userLogout = (origin = window.location.href) => {
       window.location.replace(`/index.html?${querystring.stringify({from: origin})}`);
     }
   } else {
-    location.href = webportalConfig.restServerUri+'/api/v1/authn/oidc/logout';
+    location.href = `${webportalConfig.restServerUri}/api/v1/authn/oidc/logout`;
   }
 };
 

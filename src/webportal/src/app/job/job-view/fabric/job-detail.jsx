@@ -148,7 +148,7 @@ class JobDetail extends React.Component {
           isFailed={failedTaskRole && name === failedTaskRole}
         />
       ));
-    } else if (jobConfig && jobConfig.taskRoles) {
+    } if (jobConfig && jobConfig.taskRoles) {
       return Object.entries(jobConfig.taskRoles).map(([name, taskConfig]) => {
         // dummy tasks
         let dummyTaskInfo = null;
@@ -169,16 +169,16 @@ class JobDetail extends React.Component {
           />
         );
       });
-    } else {
+    } 
       return null;
-    }
+    
   }
 
   render() {
     const {loading, reloading, error, jobInfo, jobConfig, rawJobConfig, sshInfo} = this.state;
     if (loading) {
       return <SpinnerLoading />;
-    } else {
+    } 
       return (
         <Context.Provider value={{sshInfo, rawJobConfig, jobConfig}}>
           <div className={classNames(t.w100, t.pa4, FontClassNames.medium)}>
@@ -201,7 +201,7 @@ class JobDetail extends React.Component {
           </div>
         </Context.Provider>
       );
-    }
+    
   }
 }
 

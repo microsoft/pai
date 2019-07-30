@@ -53,9 +53,9 @@ export class DockerInfo {
     const isUseCustomizedDocker = DockerInfo.isUseCustomizedDocker(dockerInfoProtocol.uri);
     return new DockerInfo({
       ...dockerInfoProtocol,
-      auth: auth,
-      secretRef: secretRef,
-      isUseCustomizedDocker: isUseCustomizedDocker,
+      auth,
+      secretRef,
+      isUseCustomizedDocker,
     });
   }
 

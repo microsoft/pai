@@ -57,7 +57,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
   return (
     <FormPage>
       <FormTextField
-        sectionLabel={'Task role name'}
+        sectionLabel="Task role name"
         sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
         shortStyle
         value={jobTaskRole.name}
@@ -69,7 +69,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
         onChange={(value) => _onValueChange('commands', value)}
       />
       <FormSpinButton
-        sectionLabel={'Instances'}
+        sectionLabel="Instances"
         shortStyle
         textFiledProps={{placeholder: 'Enter instance number...'}}
         value={jobTaskRole.instances}
@@ -103,7 +103,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
             onChange={(ports) => _onValueChange('ports', ports)}
           />
           <FormSpinButton
-            sectionLabel={'Task retry count'}
+            sectionLabel="Task retry count"
             shortStyle
             sectionOptional
             value={jobTaskRole.taskRetryCount || 0}

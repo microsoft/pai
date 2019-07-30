@@ -37,9 +37,9 @@ export class JobBasicInfo {
     const {name, jobRetryCount} = protocol;
     const virtualCluster = get(protocol, 'defaults.virtualCluster', 'default');
     return new JobBasicInfo({
-      name: name,
-      jobRetryCount: jobRetryCount,
-      virtualCluster: virtualCluster,
+      name,
+      jobRetryCount,
+      virtualCluster,
     });
   }
 

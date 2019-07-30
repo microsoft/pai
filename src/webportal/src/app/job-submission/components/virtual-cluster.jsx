@@ -1,9 +1,9 @@
 import React, {useMemo, useCallback, useContext} from 'react';
-import {BasicSection} from './basic-section';
 import {Dropdown} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import {BasicSection} from './basic-section';
 import {FormShortSection} from './form-page';
 import Context from './context';
-import PropTypes from 'prop-types';
 
 export const VirtualCluster = React.memo((props) => {
   const {onChange, virtualCluster} = props;
@@ -24,7 +24,7 @@ export const VirtualCluster = React.memo((props) => {
 
   const vcIndex = options.findIndex((value)=> value.text === virtualCluster);
   return (
-    <BasicSection sectionLabel={'Virutual cluster'}>
+    <BasicSection sectionLabel="Virutual cluster">
       <FormShortSection>
         <Dropdown
           placeholder='Select an option'

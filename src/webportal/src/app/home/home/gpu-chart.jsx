@@ -49,7 +49,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
           backgroundColor: getVirtualClusterColor(name, vc),
           hoverBackgroundColor: getVirtualClusterColor(name, vc),
           label: `${name} (dedicated)`,
-          data: data,
+          data,
         });
       }
     }
@@ -64,7 +64,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
       backgroundColor: getVirtualClusterColor(),
       hoverBackgroundColor: getVirtualClusterColor(),
       label: 'shared_vc',
-      data: data,
+      data,
     });
     return result;
   }, [virtualClusters, gpuPerNode]);
@@ -144,7 +144,7 @@ const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
         </Stack.Item>
         <Stack.Item styles={{root: [t.relative]}} grow>
           <div className={c(t.absolute, t.absoluteFill)}>
-            <canvas ref={chartRef}></canvas>
+            <canvas ref={chartRef} />
           </div>
         </Stack.Item>
       </Stack>

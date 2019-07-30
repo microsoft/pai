@@ -25,7 +25,7 @@ const k8sDashboardHtml = k8sComponent({
 });
 
 function resizeContentWrapper() {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({'height': `${$(window).height()  }px`});
 }
 
 window.onresize = function(envent) {

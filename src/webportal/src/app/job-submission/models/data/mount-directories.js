@@ -1,10 +1,10 @@
+import {isEmpty} from 'lodash';
 import {InputData} from './input-data';
 import {
   TEAMWISE_DATA_CMD_START,
   TEAMWISE_DATA_CMD_END,
   AUTO_GENERATE_NOTIFY,
 } from '../../utils/constants';
-import {isEmpty} from 'lodash';
 
 export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
@@ -70,7 +70,7 @@ export class MountDirectories {
           for (const mountInfo of mountInfos) {
             // Check duplicated mount points
             if (mountPoints.includes(mountInfo.mountPoint)) {
-              throw new Error('Mount point error! More than one mount point [' + mountInfo.mountPoint + ']!');
+              throw new Error(`Mount point error! More than one mount point [${  mountInfo.mountPoint  }]!`);
             } else {
               mountPoints.push(mountInfo.mountPoint);
             }
@@ -79,7 +79,7 @@ export class MountDirectories {
             returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`);
             returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`);
             // Monitor mount point
-            returnValue.push('MOUNTPOINTS=(${MOUNTPOINTS[@]} ' + mountInfo.mountPoint + ')');
+            returnValue.push(`MOUNTPOINTS=(\${MOUNTPOINTS[@]} ${  mountInfo.mountPoint  })`);
           }
 
           const postCmds = this.generatePostMountCmds(server, tmpFolder);
@@ -207,29 +207,29 @@ export class MountDirectories {
       case 'nfs':
         return [
           `mount -t nfs4 ${serverData.address}:${this.normalizePath(
-            serverData.rootPath + '/' + relativePath)} ${mountPoint}`,
+            `${serverData.rootPath  }/${  relativePath}`)} ${mountPoint}`,
         ];
       case 'samba':
         return [
           `mount -t cifs //${serverData.address}${this.normalizePath(
-            '/' + serverData.rootPath + '/' + relativePath)} ${mountPoint} -o vers=3.0,username=${
-            serverData.userName},password=${serverData.password}` +
-            (serverData.domain !== undefined && serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ''),
+            `/${  serverData.rootPath  }/${  relativePath}`)} ${mountPoint} -o vers=3.0,username=${
+            serverData.userName},password=${serverData.password}${ 
+            serverData.domain !== undefined && serverData.domain.length > 0 ? `,domain=${serverData.domain}` : ''}`,
           ];
       case 'azurefile':
         if (serverData.proxy !== undefined) {
           return [
             `mount -t cifs //localhost/${this.normalizePath(
-              serverData.fileShare + '/' + relativePath)} ${mountPoint} -o vers=3.0,username=${
+              `${serverData.fileShare  }/${  relativePath}`)} ${mountPoint} -o vers=3.0,username=${
                 serverData.accountName},password=${serverData.key},dir_mode=0777,file_mode=0777,serverino`,
               ];
-        } else {
+        } 
           return [
             `mount -t cifs //${serverData.dataStore}/${this.normalizePath(
-              serverData.fileShare + '/' + relativePath)} ${mountPoint} -o vers=3.0,username=${
+              `${serverData.fileShare  }/${  relativePath}`)} ${mountPoint} -o vers=3.0,username=${
                 serverData.accountName},password=${serverData.key},dir_mode=0777,file_mode=0777,serverino`,
               ];
-        }
+        
       case 'azureblob':
       case 'hdfs':
         if (mountPoint === tmpFolder) {
@@ -241,7 +241,7 @@ export class MountDirectories {
               `blobfuse ${tmpFolder} --tmp-path=${tmpPath} --config-file=${cfgFile} -o attr_timeout=240 ` +
               `-o entry_timeout=240 -o negative_timeout=120`,
             ];
-          } else if (serverType === 'hdfs') {
+          } if (serverType === 'hdfs') {
             return [
               `(hdfs-mount ${serverData.namenode}:${serverData.port} ${mountPoint} &)`,
               // sleep to wait until mount
@@ -273,16 +273,16 @@ export class MountDirectories {
     if (server !== undefined) {
       switch (server.type) {
         case 'nfs':
-          returnValue = 'nfs://' + server.address + ':' + server.rootPath;
+          returnValue = `nfs://${  server.address  }:${  server.rootPath}`;
           break;
         case 'samba':
-          returnValue = 'smb://' + server.address + '/' + server.rootPath;
+          returnValue = `smb://${  server.address  }/${  server.rootPath}`;
           break;
         case 'azurefile':
-          returnValue = 'azurefile://' + server.dataStore + '/' + server.fileShare;
+          returnValue = `azurefile://${  server.dataStore  }/${  server.fileShare}`;
           break;
         case 'azureblob':
-          returnValue = 'azureblob://' + server.dataStore + '/' + server.containerName;
+          returnValue = `azureblob://${  server.dataStore  }/${  server.containerName}`;
           break;
       }
     }
@@ -291,10 +291,10 @@ export class MountDirectories {
 
 
   getTeamDataList() {
-    let newTeamDataList = [];
+    const newTeamDataList = [];
     for (const config of this.selectedConfigs) {
       for (const mountInfo of config.mountInfos) {
-        newTeamDataList.push(new InputData(mountInfo.mountPoint, this.getServerPath(mountInfo.server) + this.normalizePath('/' + mountInfo.path), config.name));
+        newTeamDataList.push(new InputData(mountInfo.mountPoint, this.getServerPath(mountInfo.server) + this.normalizePath(`/${  mountInfo.path}`), config.name));
       }
     }
     return newTeamDataList;

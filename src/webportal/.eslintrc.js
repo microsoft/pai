@@ -1,46 +1,21 @@
 module.exports = {
-  plugins: ["react"],
+  plugins: ['eslint-plugin-prettier'],
   env: {
     browser: true,
     es6: true,
     node: true,
-    jquery: true
+    jquery: true,
   },
-  extends: [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "google",
-    "prettier/react",
-    "prettier"
-  ],
+  extends: ['airbnb', 'plugin:prettier/recommended', 'prettier/react', 'prettier'],
   globals: {
-    cookies: "readonly",
-    userLogout: "readonly"
+    cookies: 'readonly',
+    userLogout: 'readonly',
   },
   rules: {
-    "prettier/prettier": "warn",
-    "max-len": ["error", 80],
+    'prettier/prettier': 'warn',
     // https://basarat.gitbooks.io/typescript/docs/tips/defaultIsBad.html
-    "import/prefer-default-export": "off",
-    "import/no-default-export": "error",
-    "react/display-name": "off"
+    'import/prefer-default-export': 'off',
+    'import/no-default-export': 'error',
+    'react/display-name': 'off',
   },
-  settings: {
-    react: {
-      version: "detect" // https://github.com/yannickcr/eslint-plugin-react/issues/1955
-    }
-  },
-  overrides: [
-    {
-      files: [
-        "**/*.jsx",
-        "src/app/job/job-view/fabric/**/*.js",
-        "src/app/components/**/*.js",
-        "src/app/home/**/*.js",
-        "src/app/user/fabric/**/*.js",
-        "src/app/job-submission/**/*.js"
-      ],
-      parser: "babel-eslint"
-    }
-  ]
-};
+}

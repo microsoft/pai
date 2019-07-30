@@ -19,6 +19,8 @@
 // module dependencies
 require('./job-submit.component.scss');
 require('json-editor'); /* global JSONEditor */
+const querystring = require('querystring');
+const stripJsonComments = require('strip-json-comments');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
@@ -26,8 +28,6 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
-const querystring = require('querystring');
-const stripJsonComments = require('strip-json-comments');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -49,29 +49,29 @@ const isValidJson = (str) => {
   let valid = true;
   let errors = null;
   try {
-    let json = JSON.parse(str);
+    const json = JSON.parse(str);
     errors = editor.validate(json);
     if (errors.length) {
       valid = false;
-      errors = errors[0].path.replace('root.', '') + ': ' + errors[0].message;
+      errors = `${errors[0].path.replace('root.', '')  }: ${  errors[0].message}`;
     }
   } catch (e) {
     errors = e.message;
     valid = false;
   }
   if (!valid) {
-    alert('Please fix the invalid parameters: ' + errors);
+    alert(`Please fix the invalid parameters: ${  errors}`);
   }
   return valid;
 };
 
 const exportFile = (data, filename, type) => {
-  let file = new Blob([data], {type: type});
+  const file = new Blob([data], {type});
   if (window.navigator.msSaveOrOpenBlob) { // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
   } else { // Others
-    let a = document.createElement('a');
-    let url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(file);
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -120,7 +120,7 @@ const submitJob = (jobConfig) => {
 };
 
 const loadEditor = () => {
-  let element = $('#editor-holder')[0];
+  const element = $('#editor-holder')[0];
   editor = new JSONEditor(element, {
     schema: jobSchema,
     theme: 'bootstrap3',
@@ -133,8 +133,8 @@ const loadEditor = () => {
 };
 
 const resize = () => {
-  let heights = window.innerHeight;
-  $('#editor-holder')[0].style.height = heights - 300 + 'px';
+  const heights = window.innerHeight;
+  $('#editor-holder')[0].style.height = `${heights - 300  }px`;
 };
 
 $('#sidebar-menu--submit-job').addClass('active');
@@ -150,13 +150,13 @@ $(document).ready(() => {
     // choose the first edit json box
     $('[title="Edit JSON"]').filter(':first').one('click', () => {
       // disable old save button to avoid saving automatically
-      let oldSave = $('[title="Edit JSON"]').filter(':first').next('div').children('[title=Save]')[0];
-      let newSave = oldSave.cloneNode(true);
+      const oldSave = $('[title="Edit JSON"]').filter(':first').next('div').children('[title=Save]')[0];
+      const newSave = oldSave.cloneNode(true);
       oldSave.parentNode.replaceChild(newSave, oldSave);
 
       // add new click listener
       $(newSave).on('click', () => {
-        let curConfig = editor.root.editjson_textarea.value;
+        const curConfig = editor.root.editjson_textarea.value;
         if (isValidJson(curConfig)) {
           editor.root.setValue(JSON.parse(curConfig));
           editor.root.hideEditJSON();
@@ -183,7 +183,7 @@ $(document).ready(() => {
     });
     $(document).on('click', '#fileExport', () => {
       exportFile(JSON.stringify(editor.getValue(), null, 4),
-        (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json',
+        `${editor.getEditor('root.jobName').getValue() || 'jobconfig'  }.json`,
         'application/json');
     });
     resize();
@@ -191,17 +191,17 @@ $(document).ready(() => {
       resize();
     };
     const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
-    const op = query.op;
-    const type = query.type;
+    const {op} = query;
+    const {type} = query;
     const username = query.user;
-    const jobname = query.jobname;
+    const {jobname} = query;
     if (op === 'resubmit') {
       if (type != null && username != null && jobname != null) {
         const url = username==''
           ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
           : `${webportalConfig.restServerUri}/api/v2/user/${username}/jobs/${jobname}/config`;
         $.ajax({
-          url: url,
+          url,
           type: 'GET',
           success: (data) => {
             let jobConfigObj = data;
@@ -213,7 +213,7 @@ $(document).ready(() => {
               name = name.slice(0, -9);
             }
             name = `${name}_${Date.now().toString(16).substr(-6)}`;
-            name = name + getChecksum(name);
+            name += getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
           },
@@ -222,7 +222,7 @@ $(document).ready(() => {
             if (res.message === 'ConfigFileNotFound') {
               alert('This job\'s config file has not been stored.');
             } else {
-              alert('Error: ' + res.message);
+              alert(`Error: ${  res.message}`);
             }
           },
         });

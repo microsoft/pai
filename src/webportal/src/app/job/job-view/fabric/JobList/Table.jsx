@@ -242,7 +242,7 @@ export default function Table() {
         </div>
       </div>
     );
-  } else {
+  } 
     const items = pagination.apply(ordering.apply(filteredJobs || []));
     return (
       <ShimmeredDetailsList
@@ -254,5 +254,5 @@ export default function Table() {
         selection={selection}
       />
     );
-  }
+  
 }

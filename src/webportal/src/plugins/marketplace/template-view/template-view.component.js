@@ -39,7 +39,7 @@ const slideContext = {
       'data': 'data',
     }[rawType] || 'job';
   },
-  pluginIndex: pluginIndex,
+  pluginIndex,
 };
 
 let uploadData = {};
@@ -89,7 +89,7 @@ function loadCarousel($slick, type, page) {
         if (data.totalCount > 5) {
           $slick.parents('section').find('h2 a')
             .removeClass('hidden')
-            .attr('href', '?index=' + pluginIndex + '&type=' + slideContext.parseType(type));
+            .attr('href', `?index=${  pluginIndex  }&type=${  slideContext.parseType(type)}`);
         }
       });
   }
@@ -128,7 +128,7 @@ function search(query) {
         type: 'GET',
         dataType: 'json',
         data: {
-          query: query,
+          query,
           pageno: page,
         },
         beforeSend: function setHeader(xhr) {
@@ -137,10 +137,10 @@ function search(query) {
             xhr.setRequestHeader('Authorization', `Bearer ${token}`);
           }
         },
-        success: function(data) {
+        success(data) {
           if ($jobsSlick.data('request-id') !== requestId) return;
 
-          const items = data.items;
+          const {items} = data;
 
           $(slideTemplate.call(slideContext, {
             items: items.filter(function(item) {
@@ -152,7 +152,7 @@ function search(query) {
           if ($jobsSlick.find('.thumbnail').length > 5) {
             $jobsSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '?index=' + pluginIndex + '&type=job&query=' + query);
+              .attr('href', `?index=${  pluginIndex  }&type=job&query=${  query}`);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -165,7 +165,7 @@ function search(query) {
           if ($dockersSlick.find('.thumbnail').length > 5) {
             $dockersSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '?index=' + pluginIndex + '&type=docker&query=' + query);
+              .attr('href', `?index=${  pluginIndex  }&type=docker&query=${  query}`);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -178,7 +178,7 @@ function search(query) {
           if ($scriptsSlick.find('.thumbnail').length > 5) {
             $scriptsSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '?index=' + pluginIndex + '&type=script&query=' + query);
+              .attr('href', `?index=${  pluginIndex  }&type=script&query=${  query}`);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -191,14 +191,14 @@ function search(query) {
           if ($dataSlick.find('.thumbnail').length > 5) {
             $dataSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '?index=' + pluginIndex + '&type=data&query=' + query);
+              .attr('href', `?index=${  pluginIndex  }&type=data&query=${  query}`);
           }
 
           if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
             setTimeout(append, 100, page + 1);
           }
         },
-        error: function(jqxhr, _, error) {
+        error(jqxhr, _, error) {
           if (jqxhr.status == 500) {
             githubThrottled();
           } else {
@@ -214,7 +214,7 @@ $(function() {
   $(element).html(template(query));
   $('#search').submit(function(event) {
     event.preventDefault();
-    let query = $(this).find('input').val();
+    const query = $(this).find('input').val();
     if (query) {
       search(query);
     } else {
@@ -263,9 +263,9 @@ $(function() {
       $('#upload-modal-title').html(dialogTitle);
       $('#upload-body-select').addClass('hidden');
       $('#upload-body-form-container').removeClass('hidden');
-      let element = document.getElementById('upload-body-form');
+      const element = document.getElementById('upload-body-form');
       element.innerHTML = '';
-      let editor = new JSONEditor(element, {
+      const editor = new JSONEditor(element, {
         schema: jobSchema[uploadFormSchema],
         theme: 'bootstrap3',
         iconlib: 'bootstrap3',
@@ -280,29 +280,29 @@ $(function() {
         },
       });
       editor.on('change', () => {
-        let error = editor.validate();
+        const error = editor.validate();
         if (error.length == 0) {
           uploadData = editor.getValue();
-          uploadData['type'] = uploadDataType;
+          uploadData.type = uploadDataType;
         }
       });
     }
 
     $('#upload-submit').click(() => {
       $('#upload-body-form-container').addClass('hidden');
-      upload(false /* isYamlFile*/);
+      upload(false /* isYamlFile */);
     });
 
     $('#upload-yaml').change(function(evt) {
-      let files = evt.target.files;
+      const {files} = evt.target;
       if (files.length) {
-        let f = files[0];
-        let reader = new FileReader(); // read the local file
+        const f = files[0];
+        const reader = new FileReader(); // read the local file
         reader.onload = function(e) {
           uploadData = yamlHelper.jsonToJsonEditor(yamlHelper.yamlLoad(e.target.result));
           if (uploadData) {
             $('#upload-body-select').addClass('hidden');
-            upload(true /* isYamlFile*/);
+            upload(true /* isYamlFile */);
           }
         };
         reader.readAsText(f);

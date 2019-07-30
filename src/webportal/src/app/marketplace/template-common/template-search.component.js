@@ -9,7 +9,7 @@ const githubThrottled = require('./github-throttled');
 const generateUI = function(type, data, limit) {
   if (data.length == 0) return '';
 
-  let newdata = [];
+  const newdata = [];
   data.forEach(function(item) {
       newdata.push({
           type: item.type,
@@ -22,7 +22,7 @@ const generateUI = function(type, data, limit) {
           // downloads: item.count,
       });
   });
-  return viewCardsComponent({type: type, data: newdata, limit: limit});
+  return viewCardsComponent({type, data: newdata, limit});
 };
 
 const generateLoading = function() {
@@ -34,8 +34,8 @@ const load = function(type, callback, limit = 4) {
     url: `${webportalConfig.restServerUri}/api/v2/template/${type}`,
     type: 'GET',
     dataType: 'json',
-    success: function(res) {
-      let data = res.items;
+    success(res) {
+      const data = res.items;
       if (callback) {
         callback({type: generateUI(type, data, limit)});
       }
@@ -47,7 +47,7 @@ const search = function(query, types, callback, limit = 4) {
   if (query) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v2/template?query=` + encodeURIComponent(query),
+        url: `${webportalConfig.restServerUri}/api/v2/template?query=${  encodeURIComponent(query)}`,
         type: 'GET',
         dataType: 'json',
         beforeSend: function setHeader(xhr) {
@@ -56,9 +56,9 @@ const search = function(query, types, callback, limit = 4) {
             xhr.setRequestHeader('Authorization', `Bearer ${token}`);
           }
         },
-        success: function(res) {
-          let data = res.items;
-          let categories = {};
+        success(res) {
+          const data = res.items;
+          const categories = {};
           types.forEach((item) => {
             categories[item] = [];
           });
@@ -74,7 +74,7 @@ const search = function(query, types, callback, limit = 4) {
             callback(categories);
           }
         },
-        error: function(jqxhr, _, error) {
+        error(jqxhr, _, error) {
           if (jqxhr.status == 500) {
               githubThrottled();
           } else {

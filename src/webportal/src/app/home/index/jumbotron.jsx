@@ -43,7 +43,7 @@ const JumbotronBackground = styled.div`
 
 const Jumbotron = ({showLoginModal}) => (
   <div className={c(t.flexAuto, t.relative, t.flex)}>
-    <JumbotronBackground></JumbotronBackground>
+    <JumbotronBackground />
     <div className={c(t.flexAuto, t.z0, t.pa5, t.relative, t.flex, t.flexColumn, t.itemsCenter, t.justifyCenter)}>
       <div className={c(FontClassNames.superLarge, t.white)}>
         Platform for AI

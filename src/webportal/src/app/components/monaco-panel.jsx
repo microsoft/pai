@@ -31,7 +31,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
       <Panel
         componentRef={panelRef}
         onDismiss={onDismiss}
-        isLightDismiss={true}
+        isLightDismiss
         isOpen={isOpen}
         type={PanelType.large}
         headerText={title}

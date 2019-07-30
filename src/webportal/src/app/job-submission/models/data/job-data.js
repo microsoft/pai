@@ -1,3 +1,4 @@
+import {isEmpty} from 'lodash';
 import {
   CUSTOM_STORAGE_START,
   CUSTOM_STORAGE_END,
@@ -5,7 +6,6 @@ import {
   AUTO_GENERATE_NOTIFY,
 } from '../../utils/constants';
 import {getProjectNameFromGit} from '../../utils/utils';
-import {isEmpty} from 'lodash';
 
 export class JobData {
   constructor(hdfsClient, customDataList, mountDirs, containData) {

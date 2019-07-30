@@ -49,7 +49,7 @@ export class TabForm extends React.Component {
     }
 
     this.state = {
-      selectedIndex: selectedIndex,
+      selectedIndex,
     };
   }
 
@@ -91,7 +91,7 @@ export class TabForm extends React.Component {
             left: spacing.s2,
             right: spacing.s2,
           }}>
-            <div style={{height: 40, width: '100%', border: `1px solid ${palette.red}`}}></div>
+            <div style={{height: 40, width: '100%', border: `1px solid ${palette.red}`}} />
           </div>
         )}
         <div style={{padding: `0 ${spacing.l1}`}}>

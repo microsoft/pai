@@ -20,12 +20,12 @@
 const getServiceView = (kubeURL, namespace, callback) => {
   $.ajax({
     type: 'GET',
-    url: kubeURL + '/api/v1/nodes',
+    url: `${kubeURL  }/api/v1/nodes`,
     dataType: 'json',
-    success: function(data) {
-      let items = data.items;
-      let nodeList = [];
-      for (let item of items) {
+    success(data) {
+      const {items} = data;
+      const nodeList = [];
+      for (const item of items) {
         nodeList.push(item);
       }
       getNodePods(kubeURL, namespace, nodeList, callback);
@@ -36,21 +36,21 @@ const getServiceView = (kubeURL, namespace, callback) => {
 const getNodePods = (kubeURL, namespace, nodeList, callback) => {
   $.ajax({
     type: 'GET',
-    url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
+    url: `${kubeURL  }/api/v1/namespaces/${  namespace  }/pods/`,
     dataType: 'json',
-    success: function(pods) {
-      let podsItems = pods.items;
-      let nodeDic = [];
+    success(pods) {
+      const podsItems = pods.items;
+      const nodeDic = [];
 
-      for (let pod of podsItems) {
-        let nodeName = pod.spec.nodeName;
+      for (const pod of podsItems) {
+        const {nodeName} = pod.spec;
         if (nodeDic[nodeName] == null) {
           nodeDic[nodeName] = [];
         }
         nodeDic[nodeName].push(pod);
       }
-      let resultDic = [];
-      for (let node of nodeList) {
+      const resultDic = [];
+      for (const node of nodeList) {
         if (nodeDic[node.metadata.name] == undefined) {
           nodeDic[node.metadata.name] = [];
         }

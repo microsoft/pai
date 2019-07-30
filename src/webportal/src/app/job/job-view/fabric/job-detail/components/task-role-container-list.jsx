@@ -207,7 +207,7 @@ export default class TaskRoleContainerList extends React.Component {
           return !isNil(ports) && (
             <div className={c(t.truncate)}>
               {flatten(Object.keys(ports).map(
-                (key, idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`}></span>, `${key}: ${ports[key]}`]
+                (key, idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`} />, `${key}: ${ports[key]}`]
               ))}
             </div>
           );
@@ -225,9 +225,9 @@ export default class TaskRoleContainerList extends React.Component {
           const gpuAttr = isNil(item.containerGpus) ? null : parseGpuAttr(item.containerGpus);
           if (isNil(gpuAttr)) {
             return null;
-          } else if (gpuAttr.length === 0) {
+          } if (gpuAttr.length === 0) {
             return <div>0</div>;
-          } else {
+          } 
             return (
               <div>
                 <TooltipHost
@@ -254,7 +254,7 @@ export default class TaskRoleContainerList extends React.Component {
                 </TooltipHost>
               </div>
             );
-          }
+          
         },
       },
       {

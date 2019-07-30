@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
+import {get, isNil, isEmpty} from 'lodash';
 import {DockerInfo} from './docker-info';
 import {Completion} from './completion';
 import {Deployment} from './deployment';
-import {getDefaultContainerSize, isDefaultContainerSize} from '../models/container-size';
-import {get, isNil, isEmpty} from 'lodash';
+import {getDefaultContainerSize, isDefaultContainerSize} from "./container-size";
 import {removeEmptyProperties} from '../utils/utils';
 import {DEFAULT_DOCKER_URI} from '../utils/constants';
 
@@ -61,15 +61,15 @@ export class JobTaskRole {
     const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
 
     const jobTaskRole = new JobTaskRole({
-      name: name,
-      instances: instances,
+      name,
+      instances,
       completion: Completion.fromProtocol(completion),
       commands: isNil(commands) ? '' : commands.join('\n'),
       containerSize: resourcePerInstance,
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
-      ports: ports,
-      taskRetryCount: taskRetryCount,
+      ports,
+      taskRetryCount,
     });
 
     if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
@@ -96,13 +96,13 @@ export class JobTaskRole {
       }
       return val;
     }, {});
-    const resourcePerInstance = removeEmptyProperties({...this.containerSize, ports: ports});
+    const resourcePerInstance = removeEmptyProperties({...this.containerSize, ports});
 
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
       completion: this.completion,
       dockerImage: this.dockerInfo.name,
-      resourcePerInstance: resourcePerInstance,
+      resourcePerInstance,
       commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
       taskRetryCount: this.taskRetryCount,
     });

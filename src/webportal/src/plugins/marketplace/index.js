@@ -22,8 +22,8 @@ class MarketplaceElement extends HTMLElement {
     const self = this;
     const qs = location.search.replace(/^\?+/, ''); // Strip leading question marks
     const query = querystring.parse(qs);
-    const type = query['type'];
-    const name = query['name'];
+    const {type} = query;
+    const {name} = query;
 
     const restServerUri = this.getAttribute('pai-rest-server-uri');
 

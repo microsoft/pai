@@ -15,11 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import yaml from 'js-yaml';
+import {get} from 'lodash';
 import {userLogout} from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
-import yaml from 'js-yaml';
-import {get} from 'lodash';
 
 const token = cookies.get('token');
 
@@ -35,14 +35,14 @@ async function fetchWrapper(...args) {
   const json = await res.json();
   if (res.ok) {
     return json;
-  } else {
+  } 
     if (json.code === 'UnauthorizedUserError') {
       alert(json.message);
       userLogout();
     } else {
       throw new Error(json.message);
     }
-  }
+  
 }
 
 export async function submitJob(jobProtocol) {
@@ -62,16 +62,16 @@ export async function fetchJobConfig(userName, jobName) {
   }/api/v2/jobs/${userName}~${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
-  } else {
+  } 
     if (json.code === 'NoJobConfigError') {
       throw new NotFoundError(json.message);
     } else {
       throw new Error(json.message);
     }
-  }
+  
 }
 
 export async function listUserVirtualClusters(user) {
@@ -95,9 +95,9 @@ export async function fetchUserGroup(api, user, token) {
       return response.json().then((responseData) => {
         return responseData.grouplist;
       });
-    } else {
+    } 
       throw Error(`fetch ${userInfoUrl}: HTTP ${response.status}`);
-    }
+    
   });
 }
 
@@ -106,9 +106,9 @@ export async function fetchStorageConfigData(api) {
   return fetch(storageConfigUrl).then((response) => {
     if (response.ok) {
       return response.json().then((responseData) => responseData.data);
-    } else {
+    } 
       throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`);
-    }
+    
   });
 }
 
@@ -117,8 +117,8 @@ export async function fetchStorageServer(api) {
   return fetch(storageServerUrl).then((response) => {
     if (response.ok) {
       return response.json().then((responseData) => responseData.data);
-    } else {
+    } 
       throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`);
-    }
+    
   });
 }

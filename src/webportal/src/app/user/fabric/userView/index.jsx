@@ -116,9 +116,9 @@ export default function UserView() {
   const getSelectedUsers = () => {
     if (allSelected) {
       return pagination.apply(ordering.apply(filteredUsers || []));
-    } else {
+    } 
       return selectedUsers;
-    }
+    
   };
 
   const [ordering, setOrdering] = useState(new Ordering());
@@ -226,7 +226,7 @@ export default function UserView() {
             <TopBar />
           </Stack.Item>
           <Stack.Item>
-            <div style={{height: spacing.s1}}></div>
+            <div style={{height: spacing.s1}} />
           </Stack.Item>
           <Stack.Item grow styles={{root: [t.overflowAuto, t.bgWhite, {height: 0, padding: spacing.l1}]}}>
             <Table />

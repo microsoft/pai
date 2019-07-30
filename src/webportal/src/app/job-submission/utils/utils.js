@@ -69,7 +69,7 @@ export function addPathPrefix(path, prefix) {
 
 function populateComponents(jobInformation, context) {
   const {vcNames} = context;
-  const virtualCluster = jobInformation.virtualCluster;
+  const {virtualCluster} = jobInformation;
   if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
     jobInformation.virtualCluster = 'default';
   }
@@ -89,13 +89,13 @@ export function getJobComponentsFromConfig(jobConfig, context) {
 
   const updatedJobInformation = JobBasicInfo.fromProtocol(jobConfig);
   const updatedParameters = Object.keys(parameters).map((key) => {
-    return {key: key, value: parameters[key]};
+    return {key, value: parameters[key]};
   });
   const updatedSecrets =
     secrets === HIDE_SECRET
       ? []
       : Object.keys(secrets).map((key) => {
-          return {key: key, value: secrets[key]};
+          return {key, value: secrets[key]};
         });
   const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
     JobTaskRole.fromProtocol(

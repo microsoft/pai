@@ -44,7 +44,7 @@ export default function Table() {
     onRender: (userInfo) => {
       const {username} = userInfo;
       const getErrorMessage = (value) => {
-        let errorMessage = checkUsername(value);
+        const errorMessage = checkUsername(value);
         if (errorMessage) {
           return errorMessage;
         }
@@ -205,13 +205,13 @@ export default function Table() {
           onRenderTitle={(_options) => {
             if (userInfo.vcs.length == 0) {
               return null;
-            } else {
+            } 
               let innerText = userInfo.vcs[0];
               if (userInfo.vcs.length > 1) {
-                innerText = innerText + ` (+${userInfo.vcs.length - 1})`;
+                innerText += ` (+${userInfo.vcs.length - 1})`;
               }
               return <span className={t.black}>{innerText}</span>;
-            }
+            
           }}
         />
       );
@@ -234,7 +234,7 @@ export default function Table() {
 
     onRender(userInfo) {
       const {status: {isSuccess, message} = {}} = userInfo;
-      let statusText = undefined;
+      let statusText;
       if (isSuccess === true) {
         statusText = 'Succeeded';
       } else if (isSuccess === false) {

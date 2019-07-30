@@ -28,13 +28,13 @@ import React, {useState, useCallback} from 'react';
 import ReactDOM from 'react-dom';
 import url from 'url';
 
+import t from 'tachyons-sass/tachyons.scss';
 import Bottom from './index/bottom';
 import {login} from './index/conn';
 import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
 import {checkToken} from '../user/user-auth/user-auth.component';
 import config from '../config/webportal.config';
-import t from 'tachyons-sass/tachyons.scss';
 
 let loginTarget = '/home.html';
 
@@ -45,9 +45,9 @@ if (!isEmpty(from)) {
 }
 
 if (config.authnMethod === 'OIDC') {
-  const query = url.parse(window.location.href, true).query;
+  const {query} = url.parse(window.location.href, true);
   const expiration = 7;
-  if (query['token']) {
+  if (query.token) {
     cookies.set('user', query.user, {expires: expiration});
     cookies.set('token', query.token, {expires: expiration});
     cookies.set('admin', query.admin, {expires: expiration});
@@ -87,7 +87,7 @@ const Index = () => {
       if (config.authnMethod === 'basic') {
         setLoginModal(true);
       } else {
-        location.href = config.restServerUri + `/api/v1/authn/oidc/login?${querystring.stringify({
+        location.href = `${config.restServerUri  }/api/v1/authn/oidc/login?${querystring.stringify({
           redirect_uri: new URL('/index.html', window.location.href).href,
           callback: window.location.href,
         })}`;

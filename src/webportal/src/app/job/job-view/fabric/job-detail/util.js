@@ -21,9 +21,9 @@ import {DateTime} from 'luxon';
 export function printDateTime(dt) {
   if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {
     return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
-  } else {
+  } 
     return dt.toLocaleString(DateTime.DATETIME_MED);
-  }
+  
 }
 
 export function parseGpuAttr(attr) {
@@ -45,11 +45,11 @@ export function isClonable(rawJobConfig) {
   // disable clone for old yaml job
   if (isNil(rawJobConfig)) {
     return false;
-  } else if (!isNil(rawJobConfig.protocol_version)) {
+  } if (!isNil(rawJobConfig.protocol_version)) {
     return false;
-  } else {
+  } 
     return true;
-  }
+  
 }
 
 export function getTaskConfig(rawJobConfig, name) {
@@ -57,10 +57,10 @@ export function getTaskConfig(rawJobConfig, name) {
     if (isJobV2(rawJobConfig)) {
       // v2
       return rawJobConfig.taskRoles[name];
-    } else {
+    } 
       // v1
       return rawJobConfig.taskRoles.find((x) => x.name === name);
-    }
+    
   }
   return null;
 }

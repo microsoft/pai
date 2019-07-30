@@ -28,7 +28,7 @@ const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 const pluginComponent = require('./plugins.component.ejs');
-const authnMethod = require('../config/webportal.config.js').authnMethod;
+const {authnMethod} = require('../config/webportal.config.js');
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
 

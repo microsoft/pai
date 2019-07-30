@@ -41,7 +41,7 @@ const serviceViewHtml = serviceViewComponent({
 
 const loadServices = () => {
   loading.showLoading();
-  service.getServiceView(webportalConfig.restServerUri + '/api/v1/kubernetes', 'default', (data) => {
+  service.getServiceView(`${webportalConfig.restServerUri  }/api/v1/kubernetes`, 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data,
@@ -50,7 +50,7 @@ const loadServices = () => {
       exporterPort: webportalConfig.exporterPort,
     }));
     $('#service-datatable').dataTable({
-      'scrollY': (($(window).height() - 265)) + 'px',
+      'scrollY': `${$(window).height() - 265  }px`,
         'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
         'columnDefs': [
           {orderDataType: 'dom-text', targets: [1, 2]},

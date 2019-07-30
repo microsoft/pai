@@ -74,7 +74,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
           >{'Learn more >'}</Link>
         </Stack>
         <FormTextField
-          sectionLabel={'Job name'}
+          sectionLabel="Job name"
           sectionTooltip={PROTOCOL_TOOLTIPS.jobName}
           value={name}
           shortStyle
@@ -88,7 +88,7 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
         {advanceFlag && (
           <FormSpinButton
             sectionOptional
-            sectionLabel={'Retry count'}
+            sectionLabel="Retry count"
             shortStyle
             value={jobRetryCount}
             onChange={onRetryCountChange}

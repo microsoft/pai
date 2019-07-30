@@ -85,7 +85,7 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
   return (
     <Modal
       isOpen={isOpen}
-      isBlocking={true}
+      isBlocking
       containerClassName={mergeStyles({width: '450px', minWidth: '450px'})}
     >
       <div className={c(t.pa4)}>
@@ -112,7 +112,7 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
             </table>
           </div>
           <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
-            <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
+            <Stack horizontal horizontalAlign='center' gap={spacing.s1}>
               <StackItem>
                 <PrimaryButton type="submit" disabled={lock}>
                   Save

@@ -17,6 +17,7 @@
 
 require('bootstrap/js/modal.js');
 
+const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 // const loading = require('../../job/loading/loading.component');
@@ -24,7 +25,6 @@ const common = require('../template-common/template-search.component.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const userTemplate = require('./sub-components/user-template.js');
-const querystring = require('querystring');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
@@ -72,8 +72,8 @@ $(document).on('click', '#submitJob', () => {
     // loading.showLoading();
     $('#submit-job-loading').removeClass('no-submit').addClass('loading-submit');
     $('#submit-job-loading').html(common.generateLoading());
-    let data = userTemplate.createSubmitData();
-    data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
+    const data = userTemplate.createSubmitData();
+    data.name += `_${  new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '')}`;
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
       data: JSON.stringify(data),
@@ -110,10 +110,10 @@ $(document).ready(() => {
     userTemplate.initPage();
     $('#submitJob').attr('disabled', 'disabled');
     document.getElementById('importYaml').addEventListener('change', function(evt) {
-      let files = evt.target.files;
+      const {files} = evt.target;
       if (files.length) {
-        let f = files[0];
-        let reader = new FileReader(); // read the local file
+        const f = files[0];
+        const reader = new FileReader(); // read the local file
         reader.onload = function(e) {
           userTemplate.updatePageFromYaml(e.target.result);
         };
@@ -123,10 +123,10 @@ $(document).ready(() => {
     }, false);
 
     const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
-    const type = query.type;
-    const name = query.name;
+    const {type} = query;
+    const {name} = query;
     const username = query.user;
-    const jobname = query.jobname;
+    const {jobname} = query;
 
     if (type != null && name != null) {
       const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
@@ -152,7 +152,7 @@ $(document).ready(() => {
 window.onbeforeunload = function() {
   if ($('#submitJob').prop('disabled') == true) {
     return undefined;
-  } else {
+  } 
     return 'you will lost your editing, save as yaml';
-  }
+  
 };

@@ -61,14 +61,14 @@ const {palette, spacing} = getTheme();
 const importButtonStyle = getImportButtonStyle();
 
 const _exportFile = (data, filename, type) => {
-  let file = new Blob([data], {type: type});
+  const file = new Blob([data], {type});
   if (window.navigator.msSaveOrOpenBlob) {
     // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
   } else {
     // Others
-    let a = document.createElement('a');
-    let url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(file);
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -185,7 +185,7 @@ export const SubmissionSection = (props) => {
       await populateProtocolWithDataCli(user, protocol, jobData);
       _exportFile(
         protocol.toYaml(),
-        (protocol.name || 'job') + '.yaml',
+        `${protocol.name || 'job'  }.yaml`,
         'text/yaml',
       );
     } catch (err) {
@@ -195,7 +195,7 @@ export const SubmissionSection = (props) => {
 
   const _importFile = (event) => {
     event.preventDefault();
-    const files = event.target.files;
+    const {files} = event.target;
     if (!files || !files[0]) {
       return;
     }
@@ -279,7 +279,7 @@ export const SubmissionSection = (props) => {
               </Stack>
             </BasicSection>
           </StackItem>
-          <div style={{width: 550}}></div>
+          <div style={{width: 550}} />
         </Stack>
       </MediaQuery>
       {/* small screen - center */}

@@ -51,9 +51,9 @@ export function getJobDuration(jobInfo) {
   const end = get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime);
   if (start) {
     return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration(['days', 'hours', 'minutes', 'seconds']);
-  } else {
+  } 
     return null;
-  }
+  
 }
 
 export function getJobDurationString(jobInfo) {
@@ -61,32 +61,32 @@ export function getJobDurationString(jobInfo) {
   if (!isNil(dur)) {
     if (dur.days > 0) {
       return dur.toFormat(`d'd' h'h' m'm' s's'`);
-    } else if (dur.hours > 0) {
+    } if (dur.hours > 0) {
       return dur.toFormat(`h'h' m'm' s's'`);
-    } else if (dur.minutes > 0) {
+    } if (dur.minutes > 0) {
       return dur.toFormat(`m'm' s's'`);
-    } else {
+    } 
       return dur.toFormat(`s's'`);
-    }
-  } else {
+    
+  } 
     return 'N/A';
-  }
+  
 }
 
 export function getJobModifiedTime(job) {
   const modified = job.completedTime || job.createdTime;
   if (!isNil(modified)) {
     return DateTime.fromMillis(modified);
-  } else {
+  } 
     return null;
-  }
+  
 }
 
 export function getJobModifiedTimeString(job) {
   const time = getJobModifiedTime(job);
   if (!isNil(time)) {
     return time.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
-  } else {
+  } 
     return 'N/A';
-  }
+  
 }
