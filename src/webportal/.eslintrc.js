@@ -6,16 +6,25 @@ module.exports = {
     node: true,
     jquery: true,
   },
-  extends: ['airbnb', 'plugin:prettier/recommended', 'prettier/react', 'prettier'],
+  extends: [
+    'standard',
+    'plugin:react/recommended',
+    'plugin:prettier/recommended',
+    'prettier/react',
+    'prettier',
+  ],
+  parserOptions: {
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
   globals: {
     cookies: 'readonly',
     userLogout: 'readonly',
   },
   rules: {
-    'prettier/prettier': 'warn',
-    // https://basarat.gitbooks.io/typescript/docs/tips/defaultIsBad.html
-    'import/prefer-default-export': 'off',
-    'import/no-default-export': 'error',
+    'prettier/prettier': ['error'],
     'react/display-name': 'off',
   },
 }

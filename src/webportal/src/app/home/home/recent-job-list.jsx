@@ -15,55 +15,74 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames';
-import {isEmpty} from 'lodash';
-import {Link, PrimaryButton, DefaultButton, Stack, getTheme, FontClassNames, DetailsList, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import React from 'react';
+import c from 'classnames'
+import { isEmpty } from 'lodash'
+import {
+  Link,
+  PrimaryButton,
+  DefaultButton,
+  Stack,
+  getTheme,
+  FontClassNames,
+  DetailsList,
+  DetailsListLayoutMode,
+  SelectionMode,
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
-import Card from './card';
-import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
+import Card from './card'
+import {
+  getJobDurationString,
+  getJobModifiedTimeString,
+  getHumanizedJobStateString,
+  getJobModifiedTime,
+} from '../../components/util/job'
 
-import t from '../../components/tachyons.scss';
-import StatusBadge from '../../components/status-badge';
+import t from '../../components/tachyons.scss'
+import StatusBadge from '../../components/status-badge'
 
-const Header = ({jobs}) => (
+const Header = ({ jobs }) => (
   <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
-    <div>
-      My rencent jobs
-    </div>
+    <div>My rencent jobs</div>
     {!isEmpty(jobs) && (
       <div>
         <Link href={`/job-list.html?user=${cookies.get('user')}`}>More</Link>
       </div>
     )}
   </div>
-);
+)
 
 Header.propTypes = {
   jobs: PropTypes.array.isRequired,
-};
+}
 
 const DummyContent = () => {
-  const {spacing} = getTheme();
+  const { spacing } = getTheme()
   return (
     <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
-      <div className={c(t.overflowAuto, t.w100)} style={{maxHeight: '100%', padding: spacing.m}}>
+      <div
+        className={c(t.overflowAuto, t.w100)}
+        style={{ maxHeight: '100%', padding: spacing.m }}
+      >
         <div className={c(t.tc, FontClassNames.large)}>
           No rencent resources to display
         </div>
-        <div className={c(t.tc, FontClassNames.large)} style={{marginTop: spacing.l2}}>
+        <div
+          className={c(t.tc, FontClassNames.large)}
+          style={{ marginTop: spacing.l2 }}
+        >
           {`As you visit jobs, they'll be listed in Recently used jobs for quick and easy access.`}
         </div>
         <Stack
-          styles={{root: [{marginTop: spacing.l3}]}}
+          styles={{ root: [{ marginTop: spacing.l3 }] }}
           horizontal
           horizontalAlign='center'
           gap='s1'
         >
           <Stack.Item>
             <PrimaryButton
-              styles={{root: [{width: 120}]}}
+              styles={{ root: [{ width: 120 }] }}
               text='Create a job'
               href='submit.html'
             />
@@ -71,7 +90,7 @@ const DummyContent = () => {
           <Stack.Item>
             <DefaultButton
               text='Tutorial'
-              styles={{root: [{width: 120}]}}
+              styles={{ root: [{ width: 120 }] }}
               href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
               target='_blank'
             />
@@ -79,8 +98,8 @@ const DummyContent = () => {
         </Stack>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const jobListColumns = [
   {
@@ -92,11 +111,11 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      const {legacy, name, namespace, username} = job;
+      const { legacy, name, namespace, username } = job
       const href = legacy
         ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
-      return <Link href={href}>{name}</Link>;
+        : `/job-detail.html?username=${namespace || username}&jobName=${name}`
+      return <Link href={href}>{name}</Link>
     },
   },
   {
@@ -107,7 +126,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobModifiedTimeString(job);
+      return getJobModifiedTimeString(job)
     },
   },
   {
@@ -118,7 +137,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobDurationString(job);
+      return getJobDurationString(job)
     },
   },
   {
@@ -137,51 +156,54 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return <StatusBadge status={getHumanizedJobStateString(job)} />;
+      return <StatusBadge status={getHumanizedJobStateString(job)} />
     },
   },
-];
+]
 
-const Content = ({jobs}) => {
+const Content = ({ jobs }) => {
   if (true && isEmpty(jobs)) {
-    return <DummyContent />;
-  } 
-    const items = jobs
-      .slice()
-      .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
-      .slice(0, 10);
-    return (
-      <div className={c(t.h100, t.overflowYAuto)}>
-        <DetailsList
-          columns={jobListColumns}
-          disableSelectionZone
-          items={items}
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-        />
-      </div>
-    );
-  
-};
+    return <DummyContent />
+  }
+  const items = jobs
+    .slice()
+    .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
+    .slice(0, 10)
+  return (
+    <div className={c(t.h100, t.overflowYAuto)}>
+      <DetailsList
+        columns={jobListColumns}
+        disableSelectionZone
+        items={items}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+      />
+    </div>
+  )
+}
 
-const RecentJobList = ({className, jobs}) => {
+const RecentJobList = ({ className, jobs }) => {
   return (
     <Card className={c(t.h100)}>
-      <Stack styles={{root: [t.h100]}} gap='l1'>
+      <Stack styles={{ root: [t.h100] }} gap='l1'>
         <Stack.Item>
           <Header jobs={jobs} />
         </Stack.Item>
-        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
+        <Stack.Item styles={{ root: [{ flexBasis: 0 }] }} grow>
           <Content jobs={jobs} />
         </Stack.Item>
       </Stack>
     </Card>
-  );
-};
+  )
+}
+
+Content.propTypes = {
+  jobs: PropTypes.array.isRequired,
+}
 
 RecentJobList.propTypes = {
   className: PropTypes.string,
   jobs: PropTypes.array.isRequired,
-};
+}
 
-export default RecentJobList;
+export default RecentJobList

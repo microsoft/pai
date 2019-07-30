@@ -23,19 +23,22 @@
  * SOFTWARE.
  */
 
-import React, {useCallback} from 'react';
-import PropTypes from 'prop-types';
-import {BasicSection} from './basic-section';
-import {CSpinButton} from './customized-components';
-import {FormShortSection} from './form-page';
+import React, { useCallback } from 'react'
+import PropTypes from 'prop-types'
+import { BasicSection } from './basic-section'
+import { CSpinButton } from './customized-components'
+import { FormShortSection } from './form-page'
 
-export const FormSpinButton = (props) => {
-  const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;
-  const _onChange = useCallback((value) => {
-    if (onChange !== undefined) {
-      onChange(Number(value));
-    }
-  }, [onChange]);
+export const FormSpinButton = props => {
+  const { sectionLabel, sectionOptional, onChange, value, shortStyle } = props
+  const _onChange = useCallback(
+    value => {
+      if (onChange !== undefined) {
+        onChange(Number(value))
+      }
+    },
+    [onChange],
+  )
 
   const spinButton = (
     <CSpinButton
@@ -45,7 +48,7 @@ export const FormSpinButton = (props) => {
       value={value === undefined ? NaN.toString() : value}
       onChange={_onChange}
     />
-  );
+  )
 
   return (
     <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
@@ -55,8 +58,8 @@ export const FormSpinButton = (props) => {
         spinButton
       )}
     </BasicSection>
-  );
-};
+  )
+}
 
 FormSpinButton.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
@@ -64,4 +67,4 @@ FormSpinButton.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   shortStyle: PropTypes.bool,
-};
+}

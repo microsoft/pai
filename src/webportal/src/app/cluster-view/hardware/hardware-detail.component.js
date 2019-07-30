@@ -17,38 +17,38 @@
 
 //
 
-const querystring = require('querystring');
-const hardwareDetailComponent = require('./hardware-detail.component.ejs');
-const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../../config/webportal.config.js');
+const querystring = require('querystring')
+const hardwareDetailComponent = require('./hardware-detail.component.ejs')
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs')
+const webportalConfig = require('../../config/webportal.config.js')
 
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': `${$(window).height()  }px`});
-  $('#content-iframe').css('height', `${$(window).height() - 120  }px`);
-};
+  $('#content-wrapper').css({ height: `${$(window).height()}px` })
+  $('#content-iframe').css('height', `${$(window).height() - 120}px`)
+}
 
 //
 
 $(document).ready(() => {
-  $('#sidebar-menu--cluster-view').addClass('active');
-  $('#sidebar-menu--cluster-view--hardware').addClass('active');
-  let instance = '';
-  const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
+  $('#sidebar-menu--cluster-view').addClass('active')
+  $('#sidebar-menu--cluster-view--hardware').addClass('active')
+  let instance = ''
+  const query = querystring.parse(window.location.search.replace(/^\?+/, ''))
   if (query.instance) {
-    instance = query.instance;
+    ;({ instance } = query)
   } else {
-    return;
+    return
   }
   const hardwareDetailHtml = hardwareDetailComponent({
     breadcrumb: breadcrumbComponent,
     grafanaUri: webportalConfig.grafanaUri,
     instance,
-  });
-  $('#content-wrapper').html(hardwareDetailHtml);
-  window.onresize = function(envent) {
-    resizeContentWrapper();
-  };
-  resizeContentWrapper();
-});
+  })
+  $('#content-wrapper').html(hardwareDetailHtml)
+  window.onresize = () => {
+    resizeContentWrapper()
+  }
+  resizeContentWrapper()
+})

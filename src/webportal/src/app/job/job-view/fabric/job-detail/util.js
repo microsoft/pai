@@ -15,52 +15,56 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {isNil} from 'lodash';
-import {DateTime} from 'luxon';
+import { isNil } from 'lodash'
+import { DateTime } from 'luxon'
 
 export function printDateTime(dt) {
-  if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {
-    return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
-  } 
-    return dt.toLocaleString(DateTime.DATETIME_MED);
-  
+  if (
+    dt > DateTime.utc().minus({ week: 1 }) &&
+    dt < DateTime.utc().minus({ minute: 1 })
+  ) {
+    return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`
+  }
+  return dt.toLocaleString(DateTime.DATETIME_MED)
 }
 
 export function parseGpuAttr(attr) {
-  const res = [];
-  for (let i = 0; attr !== 0; i++, attr>>=1) {
+  const res = []
+  for (let i = 0; attr !== 0; i++, attr >>= 1) {
     if ((attr & 1) === 1) {
-      res.push(i);
+      res.push(i)
     }
   }
 
-  return res;
+  return res
 }
 
 export function isJobV2(rawJobConfig) {
-  return !isNil(rawJobConfig.protocol_version) || !isNil(rawJobConfig.protocolVersion);
+  return (
+    !isNil(rawJobConfig.protocol_version) ||
+    !isNil(rawJobConfig.protocolVersion)
+  )
 }
 
 export function isClonable(rawJobConfig) {
   // disable clone for old yaml job
   if (isNil(rawJobConfig)) {
-    return false;
-  } if (!isNil(rawJobConfig.protocol_version)) {
-    return false;
-  } 
-    return true;
-  
+    return false
+  }
+  if (!isNil(rawJobConfig.protocol_version)) {
+    return false
+  }
+  return true
 }
 
 export function getTaskConfig(rawJobConfig, name) {
   if (rawJobConfig && rawJobConfig.taskRoles) {
     if (isJobV2(rawJobConfig)) {
       // v2
-      return rawJobConfig.taskRoles[name];
-    } 
-      // v1
-      return rawJobConfig.taskRoles.find((x) => x.name === name);
-    
+      return rawJobConfig.taskRoles[name]
+    }
+    // v1
+    return rawJobConfig.taskRoles.find(x => x.name === name)
   }
-  return null;
+  return null
 }

@@ -32,7 +32,8 @@ const portTypeSchema = {
       multipleOf: 1,
       minimum: 0,
       exclusiveMinimum: false,
-      description: 'The port to begin with in the port type, 0 for random selection',
+      description:
+        'The port to begin with in the port type, 0 for random selection',
     },
     portNumber: {
       type: 'number',
@@ -42,12 +43,8 @@ const portTypeSchema = {
       description: 'Number of ports for the specific type',
     },
   },
-  required: [
-    'label',
-    'beginAt',
-    'portNumber',
-  ],
-};
+  required: ['label', 'beginAt', 'portNumber'],
+}
 
 const taskRoleSchema = {
   type: 'object',
@@ -89,7 +86,8 @@ const taskRoleSchema = {
       multipleOf: 1,
       minimum: 64,
       exclusiveMinimum: false,
-      description: 'Shared memory for one task in the task role, no more than memory size',
+      description:
+        'Shared memory for one task in the task role, no more than memory size',
       default: 64,
     },
     gpuNumber: {
@@ -103,14 +101,16 @@ const taskRoleSchema = {
       type: ['number', 'null'],
       minimum: 1,
       exclusiveMinimum: false,
-      description: 'Number of failed tasks to kill the entire job, null or no less than 1',
+      description:
+        'Number of failed tasks to kill the entire job, null or no less than 1',
       default: 1,
     },
     minSucceededTaskCount: {
       type: ['number', 'null'],
       minimum: 1,
       exclusiveMinimum: false,
-      description: 'Number of succeeded tasks to kill the entire job, null or no less than 1',
+      description:
+        'Number of succeeded tasks to kill the entire job, null or no less than 1',
       default: null,
     },
     command: {
@@ -121,7 +121,8 @@ const taskRoleSchema = {
       options: {
         // expand_height: true,
       },
-      description: 'Executable command for tasks in the task role, can not be empty',
+      description:
+        'Executable command for tasks in the task role, can not be empty',
     },
     portList: {
       type: 'array',
@@ -147,7 +148,7 @@ const taskRoleSchema = {
     'gpuNumber',
     'command',
   ],
-};
+}
 
 const jobSchema = {
   type: 'object',
@@ -196,7 +197,8 @@ const jobSchema = {
       options: {
         grid_columns: 4,
       },
-      description: 'Output directory on HDFS, $PAI_DEFAULT_FS_URI/Output/$jobName will be used if not specified',
+      description:
+        'Output directory on HDFS, $PAI_DEFAULT_FS_URI/Output/$jobName will be used if not specified',
       default: '',
     },
     codeDir: {
@@ -214,7 +216,8 @@ const jobSchema = {
       options: {
         grid_columns: 4,
       },
-      description: 'The virtual cluster job runs on. If omitted, the job will run on default virtual cluster',
+      description:
+        'The virtual cluster job runs on. If omitted, the job will run on default virtual cluster',
       default: 'default',
     },
     gpuType: {
@@ -261,17 +264,8 @@ const jobSchema = {
       description: 'Extra parameters, store any information that job may use',
     },
   },
-  required: [
-    'jobName',
-    'image',
-    'taskRoles',
-  ],
-  defaultProperties: [
-    'jobName',
-    'image',
-    'virtualCluster',
-    'taskRoles',
-  ],
-};
+  required: ['jobName', 'image', 'taskRoles'],
+  defaultProperties: ['jobName', 'image', 'virtualCluster', 'taskRoles'],
+}
 
-module.exports = jobSchema;
+module.exports = jobSchema

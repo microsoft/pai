@@ -23,195 +23,195 @@
  * SOFTWARE.
  */
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
+import 'whatwg-fetch'
 
-import React, {useState, useCallback, useEffect, useMemo} from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
+import ReactDOM from 'react-dom'
 import {
   Fabric,
   Stack,
   initializeIcons,
   StackItem,
-} from 'office-ui-fabric-react';
-import {isEmpty, get} from 'lodash';
+} from 'office-ui-fabric-react'
+import { isEmpty, get } from 'lodash'
 
-import {JobInformation} from './components/job-information';
-import {getFormClassNames} from './components/form-style';
-import {SubmissionSection} from './components/submission-section';
-import {TaskRoles} from './components/task-roles';
-import Context from './components/context';
-import {fetchJobConfig, listUserVirtualClusters} from './utils/conn';
-import {getJobComponentsFromConfig} from './utils/utils';
-import {TaskRolesManager} from './utils/task-roles-manager';
-import {initTheme} from '../components/theme';
-import {SpinnerLoading} from '../components/loading';
+import { JobInformation } from './components/job-information'
+import { getFormClassNames } from './components/form-style'
+import { SubmissionSection } from './components/submission-section'
+import { TaskRoles } from './components/task-roles'
+import Context from './components/context'
+import { fetchJobConfig, listUserVirtualClusters } from './utils/conn'
+import { getJobComponentsFromConfig } from './utils/utils'
+import { TaskRolesManager } from './utils/task-roles-manager'
+import { initTheme } from '../components/theme'
+import { SpinnerLoading } from '../components/loading'
 
 // sidebar
-import {Parameters} from './components/sidebar/parameters';
-import {Secrets} from './components/sidebar/secrets';
-import {EnvVar} from './components/sidebar/env-var';
-import {DataComponent} from './components/data/data-component';
+import { Parameters } from './components/sidebar/parameters'
+import { Secrets } from './components/sidebar/secrets'
+import { EnvVar } from './components/sidebar/env-var'
+import { DataComponent } from './components/data/data-component'
 // models
-import {JobBasicInfo} from './models/job-basic-info';
-import {JobTaskRole} from './models/job-task-role';
-import {JobData} from './models/data/job-data';
-import {JobProtocol} from './models/job-protocol';
+import { JobBasicInfo } from './models/job-basic-info'
+import { JobTaskRole } from './models/job-task-role'
+import { JobData } from './models/data/job-data'
+import { JobProtocol } from './models/job-protocol'
 
-initTheme();
-initializeIcons();
+initTheme()
+initializeIcons()
 
-const {formLayout} = getFormClassNames();
+const { formLayout } = getFormClassNames()
 
-const SIDEBAR_PARAM = 'param';
-const SIDEBAR_SECRET = 'secret';
-const SIDEBAR_ENVVAR = 'envvar';
-const SIDEBAR_DATA = 'data';
+const SIDEBAR_PARAM = 'param'
+const SIDEBAR_SECRET = 'secret'
+const SIDEBAR_ENVVAR = 'envvar'
+const SIDEBAR_DATA = 'data'
 
-const loginUser = cookies.get('user');
+const loginUser = cookies.get('user')
 
 function getChecksum(str) {
-  let res = 0;
+  let res = 0
   for (const c of str) {
-    res^= c.charCodeAt(0) & 0xff;
+    res ^= c.charCodeAt(0) & 0xff
   }
-  return res.toString(16);
+  return res.toString(16)
 }
 
 function generateJobName(jobName) {
-  let name = jobName;
+  let name = jobName
   if (
     /_\w{8}$/.test(name) &&
     getChecksum(name.slice(0, -2)) === name.slice(-2)
   ) {
-    name = name.slice(0, -9);
+    name = name.slice(0, -9)
   }
 
-  let suffix = Date.now().toString(16);
-  suffix = suffix.substring(suffix.length - 6);
-  name = `${name}_${suffix}`;
-  name += getChecksum(name);
-  return name;
+  let suffix = Date.now().toString(16)
+  suffix = suffix.substring(suffix.length - 6)
+  name = `${name}_${suffix}`
+  name += getChecksum(name)
+  return name
 }
 
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
-    new JobTaskRole({name: 'Task_role_1'}),
-  ]);
-  const [parameters, setParametersState] = useState([{key: '', value: ''}]);
-  const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
+    new JobTaskRole({ name: 'Task_role_1' }),
+  ])
+  const [parameters, setParametersState] = useState([{ key: '', value: '' }])
+  const [secrets, setSecretsState] = useState([{ key: '', value: '' }])
   const [jobInformation, setJobInformation] = useState(
     new JobBasicInfo({
       name: `${loginUser}_${Date.now()}`,
       virtualCluster: 'default',
     }),
-  );
-  const [selected, setSelected] = useState(SIDEBAR_PARAM);
-  const [advanceFlag, setAdvanceFlag] = useState(false);
-  const [jobData, setJobData] = useState(new JobData());
-  const [loading, setLoading] = useState(true);
-  const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
+  )
+  const [selected, setSelected] = useState(SIDEBAR_PARAM)
+  const [advanceFlag, setAdvanceFlag] = useState(false)
+  const [jobData, setJobData] = useState(new JobData())
+  const [loading, setLoading] = useState(true)
+  const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}))
 
   // Context variables
-  const [vcNames, setVcNames] = useState([]);
-  const [errorMessages, setErrorMessages] = useState({});
+  const [vcNames, setVcNames] = useState([])
+  const [errorMessages, setErrorMessages] = useState({})
 
   useEffect(() => {
     // docker info will be updated in-place
-    const preTaskRoles = JSON.stringify(jobTaskRoles);
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    taskRolesManager.populateTaskRolesDockerInfo();
+    const preTaskRoles = JSON.stringify(jobTaskRoles)
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles)
+    taskRolesManager.populateTaskRolesDockerInfo()
     const [
       updatedSecrets,
       isUpdated,
-    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
+    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets)
 
-    const curTaskRoles = JSON.stringify(jobTaskRoles);
+    const curTaskRoles = JSON.stringify(jobTaskRoles)
     if (preTaskRoles !== curTaskRoles) {
-      setJobTaskRolesState(jobTaskRoles);
+      setJobTaskRolesState(jobTaskRoles)
     }
 
     if (isUpdated) {
-      setSecrets(updatedSecrets);
+      setSecrets(updatedSecrets)
     }
-  }, [jobTaskRoles]);
+  }, [jobTaskRoles])
 
   const setJobTaskRoles = useCallback(
-    (taskRoles) => {
+    taskRoles => {
       if (isEmpty(taskRoles)) {
-        setJobTaskRolesState([new JobTaskRole({name: 'Task_role_1'})]);
+        setJobTaskRolesState([new JobTaskRole({ name: 'Task_role_1' })])
       } else {
-        setJobTaskRolesState(taskRoles);
+        setJobTaskRolesState(taskRoles)
       }
     },
     [setJobTaskRolesState],
-  );
+  )
 
   useEffect(() => {
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles)
     const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(
       secrets,
-    );
+    )
     if (isUpdated) {
-      taskRolesManager.populateTaskRolesDockerInfo();
-      setJobTaskRoles(jobTaskRoles);
+      taskRolesManager.populateTaskRolesDockerInfo()
+      setJobTaskRoles(jobTaskRoles)
     }
-  }, [secrets]);
+  }, [secrets])
 
   const setParameters = useCallback(
-    (param) => {
+    param => {
       if (isEmpty(param)) {
-        setParametersState([{key: '', value: ''}]);
+        setParametersState([{ key: '', value: '' }])
       } else {
-        setParametersState(param);
+        setParametersState(param)
       }
     },
     [setParametersState],
-  );
+  )
 
   const setSecrets = useCallback(
-    (secret) => {
+    secret => {
       if (isEmpty(secret)) {
-        setSecretsState([{key: '', value: ''}]);
+        setSecretsState([{ key: '', value: '' }])
       } else {
-        setSecretsState(secret);
+        setSecretsState(secret)
       }
     },
     [setSecretsState],
-  );
+  )
 
   const onSelect = useCallback(
-    (x) => {
+    x => {
       if (x === selected) {
-        setSelected(null);
+        setSelected(null)
       } else {
-        setSelected(x);
+        setSelected(x)
       }
     },
     [selected, setSelected],
-  );
+  )
 
   const setErrorMessage = useCallback(
     (id, msg) => {
-      setErrorMessages((prev) => {
+      setErrorMessages(prev => {
         if (isEmpty(msg)) {
           if (prev !== undefined && prev[id] !== undefined) {
-            const updated = {...prev};
-            delete updated[id];
-            return updated;
+            const updated = { ...prev }
+            delete updated[id]
+            return updated
           }
         } else if (prev !== undefined && prev[id] !== msg) {
-            return {
-              ...prev,
-              [id]: msg,
-            };
+          return {
+            ...prev,
+            [id]: msg,
           }
-        return prev;
-      });
+        }
+        return prev
+      })
     },
     [setErrorMessages],
-  );
+  )
 
   const contextValue = useMemo(
     () => ({
@@ -220,79 +220,72 @@ const JobSubmission = () => {
       setErrorMessage,
     }),
     [vcNames, errorMessages, setErrorMessage],
-  );
+  )
 
   useEffect(() => {
     listUserVirtualClusters(loginUser)
-      .then((virtualClusters) => {
-        setVcNames(virtualClusters);
+      .then(virtualClusters => {
+        setVcNames(virtualClusters)
       })
-      .catch(alert);
-  }, []);
+      .catch(alert)
+  }, [])
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search)
     if (params.get('op') === 'resubmit') {
-      const jobName = params.get('jobname') || '';
-      const user = params.get('user') || '';
+      const jobName = params.get('jobname') || ''
+      const user = params.get('user') || ''
       if (user && jobName) {
         fetchJobConfig(user, jobName)
-          .then((jobConfig) => {
+          .then(jobConfig => {
             const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
               jobConfig,
-              {vcNames}
-            );
-            jobInfo.name = generateJobName(jobInfo.name);
+              { vcNames },
+            )
+            jobInfo.name = generateJobName(jobInfo.name)
             if (get(jobConfig, 'extras.submitFrom')) {
-              delete jobConfig.extras.submitFrom;
+              delete jobConfig.extras.submitFrom
             }
-            setInitJobProtocol(new JobProtocol(jobConfig));
-            setJobTaskRoles(taskRoles);
-            setParameters(parameters);
-            setJobInformation(jobInfo);
-            setLoading(false);
+            setInitJobProtocol(new JobProtocol(jobConfig))
+            setJobTaskRoles(taskRoles)
+            setParameters(parameters)
+            setJobInformation(jobInfo)
+            setLoading(false)
           })
-          .catch(alert);
+          .catch(alert)
       }
     } else {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   const onToggleAdvanceFlag = useCallback(() => {
-    setAdvanceFlag(!advanceFlag);
-  }, [advanceFlag, setAdvanceFlag]);
+    setAdvanceFlag(!advanceFlag)
+  }, [advanceFlag, setAdvanceFlag])
 
-  const selectParam = useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect]);
-  const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect]);
-  const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
-  const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
+  const selectParam = useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect])
+  const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect])
+  const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect])
+  const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect])
 
   if (loading) {
-    return <SpinnerLoading />;
+    return <SpinnerLoading />
   }
 
   return (
     <Context.Provider value={contextValue}>
-      <Fabric style={{height: '100%', overflowX: 'auto'}}>
+      <Fabric style={{ height: '100%', overflowX: 'auto' }}>
         <Stack
           className={formLayout}
-          styles={{root: {height: '100%', minWidth: 1000}}}
+          styles={{ root: { height: '100%', minWidth: 1000 } }}
           verticalAlign='space-between'
           gap='l1'
         >
           {/* top - form */}
-          <Stack
-            styles={{root: {minHeight: 0}}}
-            horizontal
-            gap='l1'
-          >
+          <Stack styles={{ root: { minHeight: 0 } }} horizontal gap='l1'>
             {/* left column */}
-            <StackItem grow styles={{root: {minWidth: 600, flexBasis: 0}}}>
-              <Stack
-                gap='l1'
-                styles={{root: {height: '100%'}}}
-              >
+            <StackItem grow styles={{ root: { minWidth: 600, flexBasis: 0 } }}>
+              <Stack gap='l1' styles={{ root: { height: '100%' } }}>
                 <JobInformation
                   jobInformation={jobInformation}
                   onChange={setJobInformation}
@@ -306,8 +299,8 @@ const JobSubmission = () => {
               </Stack>
             </StackItem>
             {/* right column */}
-            <StackItem shrink styles={{root: {overflowX: 'auto'}}}>
-              <Stack gap='l1' styles={{root: {height: '100%', width: 550}}}>
+            <StackItem shrink styles={{ root: { overflowX: 'auto' } }}>
+              <Stack gap='l1' styles={{ root: { height: '100%', width: 550 } }}>
                 <Parameters
                   parameters={parameters}
                   onChange={setParameters}
@@ -349,28 +342,28 @@ const JobSubmission = () => {
               updatedParameters,
               updatedSecrets,
             ) => {
-              setJobInformation(updatedJobInfo);
-              setJobTaskRoles(updatedTaskRoles);
-              setParameters(updatedParameters);
-              setSecrets(updatedSecrets);
+              setJobInformation(updatedJobInfo)
+              setJobTaskRoles(updatedTaskRoles)
+              setParameters(updatedParameters)
+              setSecrets(updatedSecrets)
             }}
           />
         </Stack>
       </Fabric>
     </Context.Provider>
-  );
-};
+  )
+}
 
-const contentWrapper = document.getElementById('content-wrapper');
+const contentWrapper = document.getElementById('content-wrapper')
 
-document.getElementById('sidebar-menu--job-submission').classList.add('active');
-ReactDOM.render(<JobSubmission />, contentWrapper);
+document.getElementById('sidebar-menu--job-submission').classList.add('active')
+ReactDOM.render(<JobSubmission />, contentWrapper)
 
 function layout() {
   setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
+    contentWrapper.style.height = contentWrapper.style.minHeight
+  }, 10)
 }
 
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);
+window.addEventListener('resize', layout)
+window.addEventListener('load', layout)

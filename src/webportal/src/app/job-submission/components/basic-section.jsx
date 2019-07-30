@@ -23,29 +23,29 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React, { useState } from 'react'
 import {
   Label,
   Stack,
   Icon,
   StackItem,
   FontClassNames,
-} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {FormSection} from './form-page';
-import {getFormPageSytle, getFormBasicSectionStyle} from './form-style';
-import {TooltipIcon} from './controls/tooltip-icon';
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { FormSection } from './form-page'
+import { getFormPageSytle, getFormBasicSectionStyle } from './form-style'
+import { TooltipIcon } from './controls/tooltip-icon'
 
-const formPageStyle = getFormPageSytle();
+const formPageStyle = getFormPageSytle()
 
-export const BasicSection = (props) => {
-  const {sectionLabel, sectionOptional, sectionTooltip, children} = props;
-  const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
+export const BasicSection = props => {
+  const { sectionLabel, sectionOptional, sectionTooltip, children } = props
+  const basicSectionStyle = getFormBasicSectionStyle(sectionOptional)
 
-  const [isSectionOn, setSectionOn] = useState(true);
+  const [isSectionOn, setSectionOn] = useState(true)
   const onToggle = () => {
-    setSectionOn(!isSectionOn);
-  };
+    setSectionOn(!isSectionOn)
+  }
 
   return (
     <FormSection>
@@ -59,12 +59,8 @@ export const BasicSection = (props) => {
           <StackItem grow>
             <div>
               <Stack horizontal gap='s1'>
-                <Label styles={basicSectionStyle.label}>
-                  {sectionLabel}
-                </Label>
-                {sectionTooltip && (
-                  <TooltipIcon content={sectionTooltip} />
-                )}
+                <Label styles={basicSectionStyle.label}>{sectionLabel}</Label>
+                {sectionTooltip && <TooltipIcon content={sectionTooltip} />}
               </Stack>
               {sectionOptional && (
                 <div className={FontClassNames.tiny}>Optional</div>
@@ -77,16 +73,19 @@ export const BasicSection = (props) => {
         <Stack gap='m'>{(!sectionOptional || isSectionOn) && children}</Stack>
       </StackItem>
     </FormSection>
-  );
-};
+  )
+}
 
 BasicSection.defaultProps = {
   sectionLabel: '',
-};
+}
 
 BasicSection.propTypes = {
   sectionLabel: PropTypes.string,
-  sectionTooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  sectionTooltip: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   children: PropTypes.node,
   sectionOptional: PropTypes.bool,
-};
+}

@@ -23,11 +23,18 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {Text, Stack, ActionButton, FontSizes, FontWeights, getTheme} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import Card from '../../../components/card';
-import {TooltipIcon} from '../controls/tooltip-icon';
+import React from 'react'
+import {
+  Text,
+  Stack,
+  ActionButton,
+  FontSizes,
+  FontWeights,
+  getTheme,
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import Card from '../../../components/card'
+import { TooltipIcon } from '../controls/tooltip-icon'
 
 const style = {
   headerText: {
@@ -45,42 +52,51 @@ const style = {
       height: 'auto',
     },
   },
-};
+}
 
-export const SidebarCard = ({title, selected, onSelect, children, error, tooltip}) => {
-  const {palette} = getTheme();
+export const SidebarCard = ({
+  title,
+  selected,
+  onSelect,
+  children,
+  error,
+  tooltip,
+}) => {
+  const { palette } = getTheme()
 
   return (
-    <Card style={{minHeight: selected ? 0 : null, border: error && !selected ? `1px solid ${palette.red}` : null}}>
-      <Stack gap='m' styles={{root: {height: '100%'}}}>
+    <Card
+      style={{
+        minHeight: selected ? 0 : null,
+        border: error && !selected ? `1px solid ${palette.red}` : null,
+      }}
+    >
+      <Stack gap='m' styles={{ root: { height: '100%' } }}>
         <Stack horizontal horizontalAlign='space-between'>
           <Stack horizontal gap='s1'>
             <Text styles={style.headerText}>{title}</Text>
-            {tooltip && (
-              <TooltipIcon content={tooltip} />
-            )}
+            {tooltip && <TooltipIcon content={tooltip} />}
           </Stack>
           <ActionButton
-            iconProps={{iconName: selected ? 'ChevronUp' : 'ChevronDown'}}
+            iconProps={{ iconName: selected ? 'ChevronUp' : 'ChevronDown' }}
             styles={style.actionButton}
             onClick={onSelect}
           />
         </Stack>
-        {selected && (
-          <div style={{overflowY: 'auto'}}>
-            {children}
-          </div>
-        )}
+        {selected && <div style={{ overflowY: 'auto' }}>{children}</div>}
       </Stack>
     </Card>
-  );
-};
+  )
+}
 
 SidebarCard.propTypes = {
   title: PropTypes.string,
-  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  tooltip: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
   children: PropTypes.node,
   error: PropTypes.bool,
-};
+}

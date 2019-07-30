@@ -1,29 +1,29 @@
-import React, {useState} from 'react';
-import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react'
+import { IconButton, Stack, TextField } from 'office-ui-fabric-react'
+import { cloneDeep } from 'lodash'
+import PropTypes from 'prop-types'
 
-import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
-import {validateMountPath} from '../../utils/validation';
-import {InputData} from '../../models/data/input-data';
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants'
+import { validateMountPath } from '../../utils/validation'
+import { InputData } from '../../models/data/input-data'
 
-export const AddHttp = (props) => {
-  const {dataList, setDataList, setDataType} = props;
-  const [mountPath, setMountPath] = useState();
-  const [httpUrl, setHttpUrl] = useState();
+export const AddHttp = props => {
+  const { dataList, setDataList, setDataType } = props
+  const [mountPath, setMountPath] = useState()
+  const [httpUrl, setHttpUrl] = useState()
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     'Path should not be empty',
-  );
+  )
   const [httpAddressErrorMessage, setHttpAddressErrorMessage] = useState(
     'Http address should not be empty',
-  );
+  )
 
   const submitMount = () => {
-    const newMountList = cloneDeep(dataList);
-    newMountList.push(new InputData(mountPath, httpUrl, 'http'));
-    setDataList(newMountList);
-    setDataType('none');
-  };
+    const newMountList = cloneDeep(dataList)
+    newMountList.push(new InputData(mountPath, httpUrl, 'http'))
+    setDataList(newMountList)
+    setDataType('none')
+  }
 
   return (
     <Stack horizontal horizontalAlign='space-between' gap='m'>
@@ -33,14 +33,14 @@ export const AddHttp = (props) => {
           prefix={STORAGE_PREFIX}
           label='Container path'
           errorMessage={containerPathErrorMessage}
-          styles={{root: {width: 200}}}
+          styles={{ root: { width: 200 } }}
           onChange={(_event, newValue) => {
-            const valid = validateMountPath(`/${newValue}`);
+            const valid = validateMountPath(`/${newValue}`)
             if (!valid.isLegal) {
-              setContainerPathErrorMessage(valid.illegalMessage);
+              setContainerPathErrorMessage(valid.illegalMessage)
             } else {
-              setContainerPathErrorMessage(null);
-              setMountPath(`${STORAGE_PREFIX}${newValue}`);
+              setContainerPathErrorMessage(null)
+              setMountPath(`${STORAGE_PREFIX}${newValue}`)
             }
           }}
         />
@@ -52,17 +52,17 @@ export const AddHttp = (props) => {
           errorMessage={httpAddressErrorMessage}
           onChange={(_event, newValue) => {
             if (!newValue) {
-              setHttpAddressErrorMessage('Http address should not be empty');
+              setHttpAddressErrorMessage('Http address should not be empty')
             } else {
-              setHttpAddressErrorMessage(null);
-              setHttpUrl(newValue);
+              setHttpAddressErrorMessage(null)
+              setHttpUrl(newValue)
             }
           }}
         />
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Accept'}}
+          iconProps={{ iconName: 'Accept' }}
           onClick={submitMount}
           disabled={httpAddressErrorMessage || containerPathErrorMessage}
           styles={{
@@ -80,9 +80,9 @@ export const AddHttp = (props) => {
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Cancel'}}
+          iconProps={{ iconName: 'Cancel' }}
           onClick={() => {
-            setDataType('none');
+            setDataType('none')
           }}
           styles={{
             root: {
@@ -95,11 +95,11 @@ export const AddHttp = (props) => {
         />
       </Stack.Item>
     </Stack>
-  );
-};
+  )
+}
 
 AddHttp.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataType: PropTypes.func,
-};
+}

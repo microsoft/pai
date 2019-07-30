@@ -23,45 +23,49 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
-import {isEmpty} from 'lodash';
-import {Stack} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {SidebarCard} from './sidebar-card';
-import {Hint} from './hint';
-import {KeyValueList} from '../controls/key-value-list';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import React, { useState } from 'react'
+import { isEmpty } from 'lodash'
+import { Stack } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { SidebarCard } from './sidebar-card'
+import { Hint } from './hint'
+import { KeyValueList } from '../controls/key-value-list'
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants'
 
-export const Secrets = React.memo(({secrets, onChange, selected, onSelect}) => {
-  const [error, setError] = useState('');
-  return (
-    <SidebarCard
-      title='Secrets'
-      tooltip={PROTOCOL_TOOLTIPS.secrets}
-      selected={selected}
-      onSelect={onSelect}
-      error={!isEmpty(error)}
-    >
-      <Stack gap='m'>
-        <Hint>
-        Secret is a special type of parameter which will be masked after submission. You could reference these secrets in command by <code>{'<% $secrets.secretKey %>'}</code>
-        </Hint>
-        <div>
-          <KeyValueList
-            name='Secret List'
-            value={secrets}
-            onChange={onChange}
-            onError={setError}
-          />
-        </div>
-      </Stack>
-    </SidebarCard>
-  );
-});
+export const Secrets = React.memo(
+  ({ secrets, onChange, selected, onSelect }) => {
+    const [error, setError] = useState('')
+    return (
+      <SidebarCard
+        title='Secrets'
+        tooltip={PROTOCOL_TOOLTIPS.secrets}
+        selected={selected}
+        onSelect={onSelect}
+        error={!isEmpty(error)}
+      >
+        <Stack gap='m'>
+          <Hint>
+            Secret is a special type of parameter which will be masked after
+            submission. You could reference these secrets in command by{' '}
+            <code>{'<% $secrets.secretKey %>'}</code>
+          </Hint>
+          <div>
+            <KeyValueList
+              name='Secret List'
+              value={secrets}
+              onChange={onChange}
+              onError={setError}
+            />
+          </div>
+        </Stack>
+      </SidebarCard>
+    )
+  },
+)
 
 Secrets.propTypes = {
   secrets: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-};
+}

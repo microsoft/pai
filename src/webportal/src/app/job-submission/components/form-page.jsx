@@ -23,46 +23,46 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {getFormPageSytle, getFormShortSectionStyle} from './form-style';
+import React from 'react'
+import { Stack } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { getFormPageSytle, getFormShortSectionStyle } from './form-style'
 
-const {formPageStyle} = getFormPageSytle();
-const formShortSectionStyle = getFormShortSectionStyle();
+const { formPageStyle } = getFormPageSytle()
+const formShortSectionStyle = getFormShortSectionStyle()
 
-export const FormPage = (props) => {
+export const FormPage = props => {
   return (
-    <Stack styles={formPageStyle} gap="l1">
+    <Stack styles={formPageStyle} gap='l1'>
       {props.children}
     </Stack>
-  );
-};
+  )
+}
 
-export const FormSection = (props) => {
+export const FormSection = props => {
   return (
-    <Stack horizontal gap="m">
+    <Stack horizontal gap='m'>
       {props.children}
     </Stack>
-  );
-};
+  )
+}
 
-export const FormShortSection = (props) => {
+export const FormShortSection = props => {
   return (
     <Stack {...props} styles={formShortSectionStyle}>
       {props.children}
     </Stack>
-  );
-};
+  )
+}
 
 FormPage.propTypes = {
   children: PropTypes.node,
-};
+}
 
 FormSection.propTypes = {
   children: PropTypes.node,
-};
+}
 
 FormShortSection.propTypes = {
   children: PropTypes.node,
-};
+}

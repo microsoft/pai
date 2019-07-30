@@ -15,36 +15,42 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import c from 'classnames'
+import PropTypes from 'prop-types'
+import { isNil } from 'lodash'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import ReactMonacoEditor from 'react-monaco-editor'
 
-import c from 'classnames';
-import PropTypes from 'prop-types';
-import {isNil} from 'lodash';
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
-import ReactMonacoEditor from 'react-monaco-editor';
+import { monacoHack } from './monaco-hack.scss'
+import t from './tachyons.scss'
 
-import {monacoHack} from './monaco-hack.scss';
-import t from './tachyons.scss';
-
-const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, monacoRef}) => {
+const MonacoEditor = ({
+  className,
+  style,
+  monacoProps,
+  completionItems,
+  schemas,
+  monacoRef,
+}) => {
   // monaco variables
-  const monaco = useRef(null);
-  const editor = useRef(null);
+  const monaco = useRef(null)
+  const editor = useRef(null)
   const completionList = useRef({
     suggestions: [],
-  });
+  })
 
   // resize event
   const handleResize = () => {
     if (editor.current !== null) {
-      editor.current.layout();
+      editor.current.layout()
     }
-  };
+  }
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize)
     return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  });
+      window.removeEventListener('resize', handleResize)
+    }
+  })
 
   // json schema
   const setSchemas = (monaco, schemas) => {
@@ -52,42 +58,42 @@ const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, 
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas,
-      });
+      })
     } else {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: false,
         schemas: [],
-      });
+      })
     }
-  };
+  }
   useLayoutEffect(() => {
     if (monaco.current !== null) {
-      setSchemas(monaco.current, schemas);
+      setSchemas(monaco.current, schemas)
     }
-  }, [schemas]);
+  }, [schemas])
 
   // completion items
   useEffect(() => {
     if (completionItems) {
       completionList.current = {
-        suggestions: completionItems.map((x) => ({
+        suggestions: completionItems.map(x => ({
           label: x,
           insertText: x,
         })),
-      };
+      }
     }
-  }, [completionItems]);
+  }, [completionItems])
 
-  let editorDidMountFunc = null;
+  let editorDidMountFunc = null
   if (!isNil(monacoProps.editorDidMount)) {
-    editorDidMountFunc = monacoProps.editorDidMount;
-    delete monacoProps.editorDidMount;
+    editorDidMountFunc = monacoProps.editorDidMount
+    delete monacoProps.editorDidMount
   }
 
-  let monacoClassName = null;
+  let monacoClassName = null
   if (!isNil(monacoProps.className)) {
-    monacoClassName = monacoProps.className;
-    delete monacoProps.className;
+    monacoClassName = monacoProps.className
+    delete monacoProps.className
   }
 
   return (
@@ -100,31 +106,31 @@ const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, 
         // editor did mount
         editorDidMount={(e, m) => {
           // save monaco context
-          editor.current = e;
-          monaco.current = m;
+          editor.current = e
+          monaco.current = m
           if (!isNil(monacoRef)) {
-            monacoRef.current = m;
+            monacoRef.current = m
           }
 
           // completion provider
           for (const lang of ['json', 'yaml', 'plaintext', 'shell']) {
             monaco.current.languages.registerCompletionItemProvider(lang, {
               provideCompletionItems() {
-                return completionList.current;
+                return completionList.current
               },
-            });
+            })
           }
           // json schema
-          setSchemas(monaco.current, schemas);
+          setSchemas(monaco.current, schemas)
           if (editorDidMountFunc !== null) {
-            editorDidMountFunc(e, m);
+            editorDidMountFunc(e, m)
           }
         }}
         {...monacoProps}
       />
     </div>
-  );
-};
+  )
+}
 
 MonacoEditor.propTypes = {
   className: PropTypes.string,
@@ -134,6 +140,6 @@ MonacoEditor.propTypes = {
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
   monacoRef: PropTypes.object,
-};
+}
 
-export default MonacoEditor;
+export default MonacoEditor

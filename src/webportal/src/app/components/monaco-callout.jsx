@@ -15,42 +15,42 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {Callout} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Callout } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
-import MonacoEditor from './monaco-editor';
+import MonacoEditor from './monaco-editor'
 
-import t from './tachyons.scss';
+import t from './tachyons.scss'
 
 export default class MonacoCallout extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       open: false,
-    };
-    this.show = this.show.bind(this);
-    this.dismiss = this.dismiss.bind(this);
-    this.toggle = this.toggle.bind(this);
-    this.buttonRef = React.createRef();
+    }
+    this.show = this.show.bind(this)
+    this.dismiss = this.dismiss.bind(this)
+    this.toggle = this.toggle.bind(this)
+    this.buttonRef = React.createRef()
   }
 
   show() {
-    this.setState({open: true});
+    this.setState({ open: true })
   }
 
   dismiss() {
-    this.setState({open: false});
+    this.setState({ open: false })
   }
 
   toggle() {
-    const {open} = this.state;
-    this.setState({open: !open});
+    const { open } = this.state
+    this.setState({ open: !open })
   }
 
   render() {
-    const {open} = this.state;
-    const {children, monacoProps, completionItems, schemas} = this.props;
+    const { open } = this.state
+    const { children, monacoProps, completionItems, schemas } = this.props
 
     return (
       <div>
@@ -82,7 +82,7 @@ export default class MonacoCallout extends React.Component {
           )}
         </Callout>
       </div>
-    );
+    )
   }
 }
 
@@ -92,4 +92,4 @@ MonacoCallout.propTypes = {
   monacoProps: PropTypes.object,
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
-};
+}

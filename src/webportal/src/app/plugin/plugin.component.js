@@ -15,43 +15,44 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require('@webcomponents/custom-elements');
-
-const url = require('url');
+require('@webcomponents/custom-elements')
 
 function loadScript(uri, callback) {
-  const script = document.createElement('script');
-  script.addEventListener('load', loadHandler);
-  script.src = uri;
-  document.head.appendChild(script);
+  const script = document.createElement('script')
+  script.addEventListener('load', loadHandler)
+  script.src = uri
+  document.head.appendChild(script)
 
   function loadHandler() {
-    script.removeEventListener('load', loadHandler);
-    document.head.removeChild(script);
-    callback();
+    script.removeEventListener('load', loadHandler)
+    document.head.removeChild(script)
+    callback()
   }
 }
 
 $(document).ready(function() {
-  const {query} = url.parse(window.location.href, true);
-  const index = Number(query.index);
-  const plugin = window.PAI_PLUGINS[index];
+  const { query } = new URL(window.location.href)
+  const index = Number(query.index)
+  const plugin = window.PAI_PLUGINS[index]
 
   if (plugin == null) {
-    alert('Plugin Not Found');
-    location.href = '/';
+    alert('Plugin Not Found')
+    location.href = '/'
   }
 
-  $(`.sidebar-menu .plugin-${  index}`).addClass('active');
+  $(`.sidebar-menu .plugin-${index}`).addClass('active')
 
   loadScript(plugin.uri, function() {
     const $plugin = $('<pai-plugin>')
       .attr('pai-rest-server-uri', window.ENV.restServerUri)
-      .attr('pai-version', window.PAI_VERSION);
+      .attr('pai-version', window.PAI_VERSION)
     if (cookies.get('token')) {
-      $plugin.attr('pai-user', cookies.get('user'))
-        .attr('pai-rest-server-token', cookies.get('token'));
+      $plugin
+        .attr('pai-user', cookies.get('user'))
+        .attr('pai-rest-server-token', cookies.get('token'))
     }
-    $('#content-wrapper').empty().append($plugin);
-  });
-});
+    $('#content-wrapper')
+      .empty()
+      .append($plugin)
+  })
+})

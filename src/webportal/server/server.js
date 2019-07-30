@@ -15,15 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const config = require('./config/index');
-const logger = require('./config/logger');
-const app = require('./config/express');
+const config = require('./config/index')
+const logger = require('./config/logger')
+const app = require('./config/express')
 
-logger.info('config: %j', config);
+logger.info('config: %j', config)
 
 // start the server
 app.listen(config.serverPort, () => {
-  logger.info('Webportal server starts on port %d', config.serverPort);
-});
+  logger.info('Webportal server starts on port %d', config.serverPort)
+})

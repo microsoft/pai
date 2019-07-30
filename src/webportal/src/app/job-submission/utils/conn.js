@@ -15,110 +15,106 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import yaml from 'js-yaml';
-import {get} from 'lodash';
-import {userLogout} from '../../user/user-logout/user-logout.component.js';
+import yaml from 'js-yaml'
+import { get } from 'lodash'
+import { userLogout } from '../../user/user-logout/user-logout.component.js'
 
-import config from '../../config/webportal.config';
+import config from '../../config/webportal.config'
 
-const token = cookies.get('token');
+const token = cookies.get('token')
 
 export class NotFoundError extends Error {
   constructor(msg) {
-    super(msg);
-    this.name = 'NotFoundError';
+    super(msg)
+    this.name = 'NotFoundError'
   }
 }
 
 async function fetchWrapper(...args) {
-  const res = await fetch(...args);
-  const json = await res.json();
+  const res = await fetch(...args)
+  const json = await res.json()
   if (res.ok) {
-    return json;
-  } 
-    if (json.code === 'UnauthorizedUserError') {
-      alert(json.message);
-      userLogout();
-    } else {
-      throw new Error(json.message);
-    }
-  
+    return json
+  }
+  if (json.code === 'UnauthorizedUserError') {
+    alert(json.message)
+    userLogout()
+  } else {
+    throw new Error(json.message)
+  }
 }
 
 export async function submitJob(jobProtocol) {
-  return await fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
+  return fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
     body: jobProtocol,
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'text/yaml',
     },
     method: 'POST',
-  });
+  })
 }
 
 export async function fetchJobConfig(userName, jobName) {
-  const url = `${
-    config.restServerUri
-  }/api/v2/jobs/${userName}~${jobName}/config`;
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = yaml.safeLoad(text);
+  const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
+  const res = await fetch(url)
+  const text = await res.text()
+  const json = yaml.safeLoad(text)
   if (res.ok) {
-    return json;
-  } 
-    if (json.code === 'NoJobConfigError') {
-      throw new NotFoundError(json.message);
-    } else {
-      throw new Error(json.message);
-    }
-  
+    return json
+  }
+  if (json.code === 'NoJobConfigError') {
+    throw new NotFoundError(json.message)
+  } else {
+    throw new Error(json.message)
+  }
 }
 
 export async function listUserVirtualClusters(user) {
-  const userInfo = await fetchWrapper(`${config.restServerUri}/api/v1/user/${user}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
+  const userInfo = await fetchWrapper(
+    `${config.restServerUri}/api/v1/user/${user}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
-  return get(userInfo, 'virtualCluster', []);
+  )
+  return get(userInfo, 'virtualCluster', [])
 }
 
 export async function fetchUserGroup(api, user, token) {
-  const userInfoUrl = `${api}/api/v2/user/${user}`;
+  const userInfoUrl = `${api}/api/v2/user/${user}`
 
   return fetch(userInfoUrl, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  }).then((response) => {
+  }).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => {
-        return responseData.grouplist;
-      });
-    } 
-      throw Error(`fetch ${userInfoUrl}: HTTP ${response.status}`);
-    
-  });
+      return response.json().then(responseData => {
+        return responseData.grouplist
+      })
+    }
+    throw Error(`fetch ${userInfoUrl}: HTTP ${response.status}`)
+  })
 }
 
 export async function fetchStorageConfigData(api) {
-  const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
-  return fetch(storageConfigUrl).then((response) => {
+  const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`
+  return fetch(storageConfigUrl).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => responseData.data);
-    } 
-      throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`);
-    
-  });
+      return response.json().then(responseData => responseData.data)
+    }
+    throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`)
+  })
 }
 
 export async function fetchStorageServer(api) {
-  const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
-  return fetch(storageServerUrl).then((response) => {
+  const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`
+  return fetch(storageServerUrl).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => responseData.data);
-    } 
-      throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`);
-    
-  });
+      return response.json().then(responseData => responseData.data)
+    }
+    throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`)
+  })
 }

@@ -23,10 +23,15 @@
  * SOFTWARE.
  */
 
-import {FontSizes, FontWeights, getTheme, IconFontSizes,
-        mergeStyleSets} from 'office-ui-fabric-react';
+import {
+  FontSizes,
+  FontWeights,
+  getTheme,
+  IconFontSizes,
+  mergeStyleSets,
+} from 'office-ui-fabric-react'
 
-const {spacing, palette} = getTheme();
+const { spacing, palette } = getTheme()
 
 export const getFormClassNames = () => {
   return mergeStyleSets({
@@ -41,11 +46,11 @@ export const getFormClassNames = () => {
       background: palette.neutralLighterAlt,
       alignItems: 'start',
     },
-  });
-};
+  })
+}
 
 export const getTabFromStyle = () => {
-  return ({
+  return {
     tabWapper: {
       root: {
         overflow: 'auto',
@@ -66,11 +71,11 @@ export const getTabFromStyle = () => {
         marginLeft: spacing.m,
       },
     },
-  });
-};
+  }
+}
 
 export const getFormPageSytle = () => {
-  return ({
+  return {
     formPage: {
       root: {
         marginLeft: spacing.s1,
@@ -86,12 +91,12 @@ export const getFormPageSytle = () => {
         width: '80%',
       },
     },
-  });
-};
+  }
+}
 
-export const getFormBasicSectionStyle = (optional) => {
-  const visibility = !optional? 'hidden': 'visible';
-  return ({
+export const getFormBasicSectionStyle = optional => {
+  const visibility = !optional ? 'hidden' : 'visible'
+  return {
     icon: {
       root: {
         fontSize: FontSizes.mini,
@@ -110,19 +115,19 @@ export const getFormBasicSectionStyle = (optional) => {
         padding: '0px',
       },
     },
-  });
-};
+  }
+}
 
 export const getFormShortSectionStyle = () => {
-  return ({
+  return {
     root: {
       width: '80%',
     },
-  });
-};
+  }
+}
 
 export const getImportButtonStyle = () => {
-  return ({
+  return {
     label: {
       position: 'absolute',
       top: 0,
@@ -138,11 +143,11 @@ export const getImportButtonStyle = () => {
       height: '1px',
       opacity: '.0001',
     },
-  });
-};
+  }
+}
 
 export const getDockerSectionStyle = () => {
-  return ({
+  return {
     auth: {
       outerForm: {
         position: 'fixed',
@@ -162,5 +167,5 @@ export const getDockerSectionStyle = () => {
         backgroundColor: palette.white,
       },
     },
-  });
-};
+  }
+}

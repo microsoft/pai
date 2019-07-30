@@ -15,46 +15,65 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useMemo} from 'react';
+import React, { useContext, useMemo } from 'react'
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles, TooltipHost} from 'office-ui-fabric-react';
+import {
+  ShimmeredDetailsList,
+  Selection,
+  FontClassNames,
+  ColumnActionsMode,
+  DefaultButton,
+  mergeStyles,
+  TooltipHost,
+} from 'office-ui-fabric-react'
 
-import c from 'classnames';
-import t from '../../../components/tachyons.scss';
+import c from 'classnames'
+import t from '../../../components/tachyons.scss'
 
-import {getVirtualCluster} from './utils';
+import { getVirtualCluster } from './utils'
 
-import Context from './Context';
-import Ordering from './Ordering';
+import Context from './Context'
+import Ordering from './Ordering'
 
 export default function Table() {
-  const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser, getSelectedUsers} = useContext(Context);
+  const {
+    allUsers,
+    filteredUsers,
+    filter,
+    ordering,
+    setOrdering,
+    pagination,
+    setSelectedUsers,
+    setAllSelected,
+    editUser,
+    getSelectedUsers,
+  } = useContext(Context)
   /**
    * @type {import('office-ui-fabric-react').Selection}
    */
   const selection = useMemo(() => {
     return new Selection({
       onSelectionChanged() {
-        setSelectedUsers(selection.getSelection());
-        setAllSelected(selection.isAllSelected());
+        setSelectedUsers(selection.getSelection())
+        setAllSelected(selection.isAllSelected())
       },
-    });
-  }, []);
+    })
+  }, [])
 
   /**
    * @param {React.MouseEvent<HTMLElement>} event
    * @param {import('office-ui-fabric-react').IColumn} column
    */
   function onColumnClick(event, column) {
-    const {field, descending} = ordering;
+    const { field, descending } = ordering
     if (field === column.key) {
       if (descending) {
-        setOrdering(new Ordering());
+        setOrdering(new Ordering())
       } else {
-        setOrdering(new Ordering(field, true));
+        setOrdering(new Ordering(field, true))
       }
     } else {
-      setOrdering(new Ordering(column.key));
+      setOrdering(new Ordering(column.key))
     }
   }
 
@@ -62,10 +81,10 @@ export default function Table() {
    * @param {import('office-ui-fabric-react').IColumn} column
    */
   function applySortProps(column) {
-    column.isSorted = ordering.field === column.key;
-    column.isSortedDescending = ordering.descending;
-    column.onColumnClick = onColumnClick;
-    return column;
+    column.isSorted = ordering.field === column.key
+    column.isSortedDescending = ordering.descending
+    column.onColumnClick = onColumnClick
+    return column
   }
 
   /**
@@ -80,7 +99,7 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     isFiltered: filter.keyword !== '',
-  });
+  })
 
   const adminColumn = applySortProps({
     key: 'admin',
@@ -91,9 +110,9 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.admins.size > 0,
     onRender(user) {
-      return user.admin ? 'Yes' : 'No';
+      return user.admin ? 'Yes' : 'No'
     },
-  });
+  })
 
   const emailColumn = applySortProps({
     key: 'email',
@@ -103,7 +122,7 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-  });
+  })
 
   const virtualClusterColumn = applySortProps({
     key: 'virtualCluster',
@@ -114,9 +133,9 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.virtualClusters.size > 0,
     onRender(user) {
-      return getVirtualCluster(user);
+      return getVirtualCluster(user)
     },
-  });
+  })
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -127,39 +146,45 @@ export default function Table() {
     name: 'Actions',
     headerClassName: FontClassNames.medium,
     columnActionsMode: ColumnActionsMode.disabled,
-    className: mergeStyles({paddingTop: '0px !important', paddingBottom: '0px !important', display: 'flex !important'}),
+    className: mergeStyles({
+      paddingTop: '0px !important',
+      paddingBottom: '0px !important',
+      display: 'flex !important',
+    }),
     onRender(user) {
       /**
        * @param {React.MouseEvent} event
        */
       function onClick(event) {
-        event.stopPropagation();
-        editUser(user);
+        event.stopPropagation()
+        editUser(user)
       }
 
-      const disabled = getSelectedUsers().length > 1;
-      const disabledTip = disabled ? 'Multi-user simultaneous editing is not supported' : '';
+      const disabled = getSelectedUsers().length > 1
+      const disabledTip = disabled
+        ? 'Multi-user simultaneous editing is not supported'
+        : ''
 
-      return (
+      return ((
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <TooltipHost content={disabledTip}>
             <DefaultButton
               disabled={disabled}
               onClick={onClick}
               styles={{
-                root: {backgroundColor: '#e5e5e5'},
-                rootFocused: {backgroundColor: '#e5e5e5'},
-                rootDisabled: {backgroundColor: '#eeeeee'},
-                rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+                root: { backgroundColor: '#e5e5e5' },
+                rootFocused: { backgroundColor: '#e5e5e5' },
+                rootDisabled: { backgroundColor: '#eeeeee' },
+                rootCheckedDisabled: { backgroundColor: '#eeeeee' },
               }}
             >
               Edit
             </DefaultButton>
           </TooltipHost>
         </div>
-      );
+      ))
     },
-  };
+  }
 
   const columns = [
     usernameColumn,
@@ -167,16 +192,16 @@ export default function Table() {
     emailColumn,
     virtualClusterColumn,
     actionsColumn,
-  ];
+  ]
 
   return (
     <ShimmeredDetailsList
       items={pagination.apply(ordering.apply(filteredUsers || []))}
-      setKey="key"
+      setKey='key'
       columns={columns}
-      enableShimmer={allUsers === null || allUsers.length == 0}
+      enableShimmer={allUsers === null || allUsers.length === 0}
       shimmerLines={pagination.itemsPerPage}
       selection={selection}
     />
-  );
+  )
 }

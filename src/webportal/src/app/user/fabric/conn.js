@@ -15,104 +15,111 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import config from '../../config/webportal.config';
-import {checkToken} from '../user-auth/user-auth.component';
+import config from '../../config/webportal.config'
+import { checkToken } from '../user-auth/user-auth.component'
 
 const fetchWrapper = async (...args) => {
-  const res = await fetch(...args);
-  const json = await res.json();
+  const res = await fetch(...args)
+  const json = await res.json()
   if (res.ok) {
-    return json;
-  } if (json.code === 'UnauthorizedUserError') {
-    alert(json.message);
-    userLogout();
-  } else {
-    throw new Error(json.message);
+    return json
   }
-};
+  if (json.code === 'UnauthorizedUserError') {
+    alert(json.message)
+    userLogout()
+  } else {
+    throw new Error(json.message)
+  }
+}
 
 export const getAllUsersRequest = async () => {
-  const url = `${config.restServerUri}/api/v2/user`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+  const url = `${config.restServerUri}/api/v2/user`
+  const token = checkToken()
+  return fetchWrapper(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  });
-};
+  })
+}
 
-export const removeUserRequest = async (username) => {
-  const url = `${config.restServerUri}/api/v2/user/${username}`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+export const removeUserRequest = async username => {
+  const url = `${config.restServerUri}/api/v2/user/${username}`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  });
-};
+  })
+}
 
 export const updateUserVcRequest = async (username, virtualCluster) => {
-  const url = `${config.restServerUri}/api/v2/user/${username}/virtualcluster`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+  const url = `${config.restServerUri}/api/v2/user/${username}/virtualcluster`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({virtualCluster}),
-  });
-};
+    body: JSON.stringify({ virtualCluster }),
+  })
+}
 
-export const createUserRequest = async (username, email, password, admin, virtualCluster) => {
-  const url = `${config.restServerUri}/api/v2/user/`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+export const createUserRequest = async (
+  username,
+  email,
+  password,
+  admin,
+  virtualCluster,
+) => {
+  const url = `${config.restServerUri}/api/v2/user/`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({username, email, password, admin, virtualCluster}),
-  });
-};
+    body: JSON.stringify({ username, email, password, admin, virtualCluster }),
+  })
+}
 
 export const updateUserPasswordRequest = async (username, newPassword) => {
-  const url = `${config.restServerUri}/api/v2/user/${username}/password`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+  const url = `${config.restServerUri}/api/v2/user/${username}/password`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({newPassword}),
-  });
-};
+    body: JSON.stringify({ newPassword }),
+  })
+}
 
 export const updateUserEmailRequest = async (username, email) => {
-  const url = `${config.restServerUri}/api/v2/user/${username}/email`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+  const url = `${config.restServerUri}/api/v2/user/${username}/email`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({email}),
-  });
-};
+    body: JSON.stringify({ email }),
+  })
+}
 
 export const updateUserAdminRequest = async (username, admin) => {
-  const url = `${config.restServerUri}/api/v2/user/${username}/admin`;
-  const token = checkToken();
-  return await fetchWrapper(url, {
+  const url = `${config.restServerUri}/api/v2/user/${username}/admin`
+  const token = checkToken()
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({admin}),
-  });
-};
+    body: JSON.stringify({ admin }),
+  })
+}
 
 export const getAllVcsRequest = async () => {
-  const url = `${config.restServerUri}/api/v1/virtual-clusters`;
-  return await fetchWrapper(url);
-};
+  const url = `${config.restServerUri}/api/v1/virtual-clusters`
+  return fetchWrapper(url)
+}

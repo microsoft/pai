@@ -15,18 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext} from 'react';
+import React, { useContext } from 'react'
 
-import {PrimaryButton, CommandBar, getTheme} from 'office-ui-fabric-react';
+import { PrimaryButton, CommandBar, getTheme } from 'office-ui-fabric-react'
 
-import Context from './Context';
+import Context from './Context'
 
 function BottomBar() {
-  const {submit} = useContext(Context);
+  const { submit } = useContext(Context)
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme()
 
-  const buttonPrimaryStyles = {margin: spacing.l1};
+  const buttonPrimaryStyles = { margin: spacing.l1 }
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -35,20 +35,20 @@ function BottomBar() {
     return {
       key: 'submit',
       name: 'Submit',
-      buttonStyles: {root: buttonPrimaryStyles},
+      buttonStyles: { root: buttonPrimaryStyles },
       commandBarButtonAs: PrimaryButton,
       onClick: submit,
-    };
+    }
   }
 
   return (
     <React.Fragment>
       <CommandBar
         farItems={[getSubmit()]}
-        styles={{root: {background: 'transparent'}}}
+        styles={{ root: { background: 'transparent' } }}
       />
     </React.Fragment>
-  );
+  )
 }
 
-export default BottomBar;
+export default BottomBar

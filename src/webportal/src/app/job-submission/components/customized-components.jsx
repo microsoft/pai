@@ -23,44 +23,52 @@
  * SOFTWARE.
  */
 
-import React, {useCallback} from 'react';
-import {SpinButton, Stack} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {debounce, isNil} from 'lodash';
-import {TooltipIcon} from './controls/tooltip-icon';
+import React, { useCallback } from 'react'
+import { SpinButton, Stack } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { debounce, isNil } from 'lodash'
+import { TooltipIcon } from './controls/tooltip-icon'
 
-export const CSpinButton = (props) => {
-  const {onChange, onIncrement, onDecrement, onValidate, min, max, label, tooltip} = props;
+export const CSpinButton = props => {
+  const {
+    onChange,
+    onIncrement,
+    onDecrement,
+    onValidate,
+    min,
+    max,
+    label,
+    tooltip,
+  } = props
 
-  const _onChange = useCallback((value, operateFunc, defaultReturnValue) => {
-    let newValue = defaultReturnValue;
-    if (!isNil(min)) {
-      newValue = Math.max(min, newValue);
-    }
-    if (!isNil(max)) {
-      newValue = Math.min(max, newValue);
-    }
-    if (operateFunc !== undefined) {
-      newValue = operateFunc(value);
-    }
-    if (onChange === undefined) {
-      return newValue;
-    }
-    return onChange(newValue);
-  }, [onChange]);
+  const _onChange = useCallback(
+    (value, operateFunc, defaultReturnValue) => {
+      let newValue = defaultReturnValue
+      if (!isNil(min)) {
+        newValue = Math.max(min, newValue)
+      }
+      if (!isNil(max)) {
+        newValue = Math.min(max, newValue)
+      }
+      if (operateFunc !== undefined) {
+        newValue = operateFunc(value)
+      }
+      if (onChange === undefined) {
+        return newValue
+      }
+      return onChange(newValue)
+    },
+    [onChange],
+  )
 
-  const _onIncrement = (value) => _onChange(value, onIncrement, +value + 1);
-  const _onDecrement = (value) => _onChange(value, onDecrement, +value - 1);
-  const _onValidate = (value) => _onChange(value, onValidate, value);
+  const _onIncrement = value => _onChange(value, onIncrement, +value + 1)
+  const _onDecrement = value => _onChange(value, onDecrement, +value - 1)
+  const _onValidate = value => _onChange(value, onValidate, value)
 
   return (
     <Stack horizontal gap='s1' verticalAlign='baseline'>
-      {label && (
-        <div style={{width: 160}}>{label}</div>
-      )}
-      {tooltip && (
-        <TooltipIcon content={tooltip} />
-      )}
+      {label && <div style={{ width: 160 }}>{label}</div>}
+      {tooltip && <TooltipIcon content={tooltip} />}
       <SpinButton
         {...props}
         label={null}
@@ -69,20 +77,23 @@ export const CSpinButton = (props) => {
         onValidate={debounce(_onValidate)}
       />
     </Stack>
-  );
-};
+  )
+}
 
 CSpinButton.defaultProps = {
   min: 0,
-};
+}
 
 CSpinButton.propTypes = {
   label: PropTypes.string,
-  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  tooltip: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   min: PropTypes.number,
   max: PropTypes.number,
   onChange: PropTypes.func,
   onIncrement: PropTypes.func,
   onDecrement: PropTypes.func,
   onValidate: PropTypes.func,
-};
+}

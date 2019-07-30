@@ -23,42 +23,45 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import {getTheme, Toggle, Stack} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {BasicSection} from './basic-section';
-import {getDefaultContainerSize} from '../models/container-size';
-import {CSpinButton} from './customized-components';
-import {FormShortSection} from './form-page';
-import {PROTOCOL_TOOLTIPS} from '../utils/constants';
+import React from 'react'
+import { getTheme, Toggle, Stack } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { BasicSection } from './basic-section'
+import { getDefaultContainerSize } from '../models/container-size'
+import { CSpinButton } from './customized-components'
+import { FormShortSection } from './form-page'
+import { PROTOCOL_TOOLTIPS } from '../utils/constants'
 
-const {spacing} = getTheme();
+const { spacing } = getTheme()
 
-export const ContainerSizeSection = (props) => {
-  const {value, onChange, isContainerSizeEnabled, onEnable} = props;
-  const {cpu, memoryMB, gpu} = value;
+export const ContainerSizeSection = props => {
+  const { value, onChange, isContainerSizeEnabled, onEnable } = props
+  const { cpu, memoryMB, gpu } = value
 
   const _onChange = (keyName, newValue) => {
     if (onChange !== undefined) {
-      onChange({...value, [keyName]: newValue});
+      onChange({ ...value, [keyName]: newValue })
     }
-  };
+  }
 
   const _onEnable = (_, checked) => {
     if (onEnable === undefined) {
-      return;
+      return
     }
-    onEnable(checked);
-  };
+    onEnable(checked)
+  }
 
-  const _onGPUSkuChange= (gpuNumber) => {
+  const _onGPUSkuChange = gpuNumber => {
     if (onChange !== undefined) {
-      onChange(getDefaultContainerSize(gpuNumber));
+      onChange(getDefaultContainerSize(gpuNumber))
     }
-  };
+  }
 
   return (
-    <BasicSection sectionLabel='Resources per instance' sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleContainerSize}>
+    <BasicSection
+      sectionLabel='Resources per instance'
+      sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleContainerSize}
+    >
       <Stack horizontal gap='l1'>
         <FormShortSection gap='m'>
           <CSpinButton
@@ -68,21 +71,21 @@ export const ContainerSizeSection = (props) => {
             max={8}
             onChange={
               isContainerSizeEnabled
-                ? (value) => _onChange('gpu', value)
+                ? value => _onChange('gpu', value)
                 : _onGPUSkuChange
             }
           />
           <CSpinButton
-            label="CPU vcore count"
+            label='CPU vcore count'
             disabled={!isContainerSizeEnabled}
             value={cpu}
-            onChange={(value) => _onChange('cpu', value)}
+            onChange={value => _onChange('cpu', value)}
           />
           <CSpinButton
-            label="Memory (MB)"
+            label='Memory (MB)'
             disabled={!isContainerSizeEnabled}
             value={memoryMB}
-            onChange={(value) => _onChange('memoryMB', value)}
+            onChange={value => _onChange('memoryMB', value)}
           />
         </FormShortSection>
         <Stack horizontalAlign='start'>
@@ -91,19 +94,19 @@ export const ContainerSizeSection = (props) => {
             label='Custom'
             inlineLabel
             styles={{
-              label: {order: -1, marginLeft: 0, marginRight: spacing.s1},
+              label: { order: -1, marginLeft: 0, marginRight: spacing.s1 },
             }}
             onChange={_onEnable}
           />
         </Stack>
       </Stack>
     </BasicSection>
-  );
-};
+  )
+}
 
 ContainerSizeSection.propTypes = {
   value: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,
-};
+}

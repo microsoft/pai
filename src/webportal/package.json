@@ -40,6 +40,8 @@
     "core-js": "^3.0.1",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",
+    "datatables.net": "^1.10.19",
+    "datatables.net-bs": "^1.10.19",
     "datatables.net-buttons-bs": "^1.5.4",
     "datatables.net-plugins": "~1.10.15",
     "datatables.net-responsive-bs": "^2.2.3",
@@ -62,6 +64,7 @@
     "js-yaml": "~3.13.1",
     "json-editor": "~0.7.28",
     "json-loader": "~0.5.7",
+    "lodash": "^4.17.15",
     "luxon": "^1.11.3",
     "markdown-loader": "~2.0.1",
     "marked": "~0.3.9",
@@ -103,7 +106,7 @@
     "winston": "~2.4.0"
   },
   "scripts": {
-    "lint": "eslint --ext .js --ext .jsx src",
+    "lint": "eslint --ext .js --ext .jsx src server",
     "test": "npm run lint",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
@@ -116,11 +119,14 @@
   },
   "devDependencies": {
     "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.0.0",
+    "eslint-config-standard": "^13.0.1",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-react": "^7.14.3"
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-standard": "^4.0.0",
+    "prettier": "^1.18.2"
   }
 }

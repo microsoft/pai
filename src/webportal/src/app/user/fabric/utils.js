@@ -15,34 +15,37 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const Joi = require('joi-browser');
+const Joi = require('joi-browser')
 
-const usernameSchema = Joi.string().regex(/^[\w.-]+$/, 'username').required();
-export const checkUsername = (value) => {
-  const {error} = Joi.validate(value, usernameSchema);
+const usernameSchema = Joi.string()
+  .regex(/^[\w.-]+$/, 'username')
+  .required()
+export const checkUsername = value => {
+  const { error } = Joi.validate(value, usernameSchema)
   if (error) {
-    return error.message.replace('"value"', 'User name');
-  } 
-    return error;
-  
-};
+    return error.message.replace('"value"', 'User name')
+  }
+  return error
+}
 
-const passwordSchema = Joi.string().min(6).required();
-export const checkPassword = (value) => {
-  const {error} = Joi.validate(value, passwordSchema);
+const passwordSchema = Joi.string()
+  .min(6)
+  .required()
+export const checkPassword = value => {
+  const { error } = Joi.validate(value, passwordSchema)
   if (error) {
-    return error.message.replace('"value"', 'Password');
-  } 
-    return error;
-  
-};
+    return error.message.replace('"value"', 'Password')
+  }
+  return error
+}
 
-const emailSchema = Joi.string().email().empty('');
-export const checkEmail = (value) => {
-  const {error} = Joi.validate(value, emailSchema);
+const emailSchema = Joi.string()
+  .email()
+  .empty('')
+export const checkEmail = value => {
+  const { error } = Joi.validate(value, emailSchema)
   if (error) {
-    return error.message.replace('"value"', 'Email');
-  } 
-    return error;
-  
-};
+    return error.message.replace('"value"', 'Email')
+  }
+  return error
+}

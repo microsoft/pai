@@ -15,55 +15,67 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import {PropTypes} from 'prop-types';
+import React from 'react'
+import { PropTypes } from 'prop-types'
 
-import {Modal, MessageBar, MessageBarButton} from 'office-ui-fabric-react';
+import { Modal, MessageBar, MessageBarButton } from 'office-ui-fabric-react'
 
-import t from '../../../components/tachyons.scss';
+import t from '../../../components/tachyons.scss'
 
 function MessageBox(props) {
-  const {text, onDismiss, confirm} = props;
+  const { text, onDismiss, confirm } = props
 
   const closeModal = () => {
-    if (onDismiss) onDismiss(!confirm);
-  };
+    if (onDismiss) onDismiss(!confirm)
+  }
 
   const onClickOK = () => {
-    if (onDismiss) onDismiss(true);
-  };
+    if (onDismiss) onDismiss(true)
+  }
 
   const onClickCancel = () => {
-    if (onDismiss) onDismiss(false);
-  };
+    if (onDismiss) onDismiss(false)
+  }
 
   return (
     <Modal
       isOpen
       onDismiss={closeModal}
       isBlocking={false}
-      styles={{main: [{minWidth: '300px', maxWidth: '80vw'}, t.flex, t.flexColumn, t.flexNowrap, t.itemsStretch]}}
+      styles={{
+        main: [
+          { minWidth: '300px', maxWidth: '80vw' },
+          t.flex,
+          t.flexColumn,
+          t.flexNowrap,
+          t.itemsStretch,
+        ],
+      }}
     >
       <div>
         <MessageBar
           actions={
             <div>
               <MessageBarButton onClick={onClickOK}>OK</MessageBarButton>
-              {confirm && <MessageBarButton onClick={onClickCancel}>Cancel</MessageBarButton>}
+              {confirm && (
+                <MessageBarButton onClick={onClickCancel}>
+                  Cancel
+                </MessageBarButton>
+              )}
             </div>
           }
         >
           <span className={t.pre}>{text}</span>
         </MessageBar>
       </div>
-    </Modal >
-  );
+    </Modal>
+  )
 }
 
 MessageBox.propTypes = {
   text: PropTypes.string,
   onDismiss: PropTypes.func,
   confirm: PropTypes.bool,
-};
+}
 
-export default MessageBox;
+export default MessageBox

@@ -15,26 +15,31 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useState, useEffect, useContext} from 'react';
-import {PropTypes} from 'prop-types';
-import {TextField, Stack, IconButton, TooltipHost} from 'office-ui-fabric-react';
-import {getTheme} from '@uifabric/styling';
+import React, { useState, useEffect, useContext } from 'react'
+import { PropTypes } from 'prop-types'
+import {
+  TextField,
+  Stack,
+  IconButton,
+  TooltipHost,
+} from 'office-ui-fabric-react'
+import { getTheme } from '@uifabric/styling'
 
-import Context from './Context';
+import Context from './Context'
 
 export default function TableTextField(props) {
-  const {onGetErrorMessage, styles, ...otherProps} = props;
-  const {readOnly, defaultValue} = props;
-  const [customErrorMessage, setCustomErrorMessage] = useState();
-  const {allUsers} = useContext(Context);
-  const theme = getTheme();
+  const { onGetErrorMessage, styles, ...otherProps } = props
+  const { readOnly, defaultValue } = props
+  const [customErrorMessage, setCustomErrorMessage] = useState()
+  const { allUsers } = useContext(Context)
+  const theme = getTheme()
 
-  let showError = false;
+  let showError = false
   if (customErrorMessage && !readOnly) {
-    showError = true;
+    showError = true
   }
 
-  let textFiedlStyle = styles || {};
+  let textFiedlStyle = styles || {}
   if (showError) {
     textFiedlStyle = Object.assign(textFiedlStyle, {
       fieldGroup: [
@@ -42,21 +47,21 @@ export default function TableTextField(props) {
           borderColor: theme.semanticColors.errorText,
         },
       ],
-    });
+    })
   }
 
-  const _getErrorMessage = (value) => {
+  const _getErrorMessage = value => {
     if (!readOnly) {
-      setCustomErrorMessage(onGetErrorMessage(value));
+      setCustomErrorMessage(onGetErrorMessage(value))
     }
-  };
+  }
 
   useEffect(() => {
-    _getErrorMessage(defaultValue);
-  }, [defaultValue, allUsers]);
+    _getErrorMessage(defaultValue)
+  }, [defaultValue, allUsers])
 
   return (
-    <Stack horizontal >
+    <Stack horizontal>
       <Stack.Item grow>
         <TextField
           styles={textFiedlStyle}
@@ -64,19 +69,19 @@ export default function TableTextField(props) {
           onGetErrorMessage={_getErrorMessage}
         />
       </Stack.Item>
-      <Stack.Item >
+      <Stack.Item>
         {showError && (
           <TooltipHost content={customErrorMessage}>
             <IconButton
-              iconProps={{iconName: 'Info'}}
-              style={{color: theme.semanticColors.errorText}}
+              iconProps={{ iconName: 'Info' }}
+              style={{ color: theme.semanticColors.errorText }}
             />
           </TooltipHost>
         )}
-        {!showError && <div style={{width: 32}} />}
+        {!showError && <div style={{ width: 32 }} />}
       </Stack.Item>
     </Stack>
-  );
+  )
 }
 
 TableTextField.propTypes = {
@@ -84,4 +89,4 @@ TableTextField.propTypes = {
   styles: PropTypes.object,
   defaultValue: PropTypes.string,
   readOnly: PropTypes.bool,
-};
+}

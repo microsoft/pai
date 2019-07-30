@@ -1,85 +1,87 @@
-import React, {useContext, useMemo} from 'react';
-import {isEmpty} from 'lodash';
-import PropTypes from 'prop-types';
-import {TabForm} from './tab-form';
-import {JobTaskRole} from '../models/job-task-role';
-import Context from './context';
+import React, { useContext, useMemo } from 'react'
+import { isEmpty } from 'lodash'
+import PropTypes from 'prop-types'
+import { TabForm } from './tab-form'
+import { JobTaskRole } from '../models/job-task-role'
+import Context from './context'
 
-import {createUniqueName} from '../utils/utils';
+import { createUniqueName } from '../utils/utils'
 
-
-const HEADER_PREFIX = 'Task_role';
-let taskRoleSeq = 1;
+const HEADER_PREFIX = 'Task_role'
+let taskRoleSeq = 1
 
 function generateUniqueTaskName(taskRoles, curIndex) {
   const usedNames = taskRoles
-    .map((taskRole) => taskRole.name)
-    .filter((_, index) => index < curIndex);
-  const [newName, updateIndex] = createUniqueName(usedNames, HEADER_PREFIX, taskRoleSeq);
-  taskRoleSeq = updateIndex;
-  return newName;
+    .map(taskRole => taskRole.name)
+    .filter((_, index) => index < curIndex)
+  const [newName, updateIndex] = createUniqueName(
+    usedNames,
+    HEADER_PREFIX,
+    taskRoleSeq,
+  )
+  taskRoleSeq = updateIndex
+  return newName
 }
 
-export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
-  const _onItemChange = (items) => {
+export const TaskRoles = React.memo(({ taskRoles, onChange, advanceFlag }) => {
+  const _onItemChange = items => {
     if (onChange === undefined) {
-      return;
+      return
     }
-    onChange(items.map((item) => item.content));
-  };
+    onChange(items.map(item => item.content))
+  }
 
-  const _onItemAdd = (items) => {
+  const _onItemAdd = items => {
     const taskRoleName = generateUniqueTaskName(
-      items.map((item) => item.content),
+      items.map(item => item.content),
       items.length,
-    );
+    )
     const updatedItems = [
       ...items,
       {
         headerText: taskRoleName,
-        content: new JobTaskRole({name: taskRoleName}),
+        content: new JobTaskRole({ name: taskRoleName }),
       },
-    ];
-    _onItemChange(updatedItems);
-    return updatedItems.length - 1;
-  };
+    ]
+    _onItemChange(updatedItems)
+    return updatedItems.length - 1
+  }
 
   const _onItemDelete = (items, itemIndex) => {
     if (items.length === 1) {
-      return 0;
+      return 0
     }
-    const updatedItems = items.filter((_, index) => index !== itemIndex);
-    _onItemChange(updatedItems);
+    const updatedItems = items.filter((_, index) => index !== itemIndex)
+    _onItemChange(updatedItems)
 
     // TODO: use other policy to update index
-    return 0;
-  };
+    return 0
+  }
 
   const items = taskRoles.map((item, index) => {
-    let taskRoleName;
+    let taskRoleName
     if (!isEmpty(item.name)) {
-      taskRoleName = item.name;
+      taskRoleName = item.name
     }
-    return {headerText: taskRoleName, content: item};
-  });
+    return { headerText: taskRoleName, content: item }
+  })
 
-  const {setErrorMessage} = useContext(Context);
+  const { setErrorMessage } = useContext(Context)
   useMemo(() => {
     const nameCount = items.reduce((res, item) => {
       if (res[item.headerText] === undefined) {
-        res[item.headerText] = 0;
+        res[item.headerText] = 0
       }
-      res[item.headerText] += 1;
-      return res;
-    }, {});
-    const dupNames = Object.keys(nameCount)
-      .filter((key) => nameCount[key] > 1);
+      res[item.headerText] += 1
+      return res
+    }, {})
+    const dupNames = Object.keys(nameCount).filter(key => nameCount[key] > 1)
     if (dupNames.length > 0) {
-      setErrorMessage('TaskRole', `task role name '${dupNames}' is duplicated`);
+      setErrorMessage('TaskRole', `task role name '${dupNames}' is duplicated`)
     } else {
-      setErrorMessage('TaskRole', '');
+      setErrorMessage('TaskRole', '')
     }
-  }, [taskRoles]);
+  }, [taskRoles])
 
   return (
     <TabForm
@@ -89,11 +91,11 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
       onItemsChange={_onItemChange}
       advanceFlag={advanceFlag}
     />
-  );
-});
+  )
+})
 
 TaskRoles.propTypes = {
   taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
-};
+}

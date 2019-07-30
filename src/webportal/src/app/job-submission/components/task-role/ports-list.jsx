@@ -23,16 +23,16 @@
  * SOFTWARE.
  */
 
-import {isNaN} from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import {BasicSection} from '../basic-section';
-import {FormShortSection} from '../form-page';
-import {KeyValueList} from '../controls/key-value-list';
+import { isNaN } from 'lodash'
+import PropTypes from 'prop-types'
+import React from 'react'
+import { BasicSection } from '../basic-section'
+import { FormShortSection } from '../form-page'
+import { KeyValueList } from '../controls/key-value-list'
 
-const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/
 
-export const PortsList = React.memo(({onChange, ports}) => (
+export const PortsList = React.memo(({ onChange, ports }) => (
   <BasicSection sectionLabel='Ports' sectionOptional>
     <FormShortSection>
       <KeyValueList
@@ -44,26 +44,26 @@ export const PortsList = React.memo(({onChange, ports}) => (
         keyField='key'
         valueName='Port Field'
         valueField='value'
-        onValidateKey={(val) => {
+        onValidateKey={val => {
           if (!PORT_LABEL_REGEX.test(val)) {
-            return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
+            return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format'
           }
         }}
-        onValidateValue={(val) => {
-          let int = val;
+        onValidateValue={val => {
+          let int = val
           if (typeof val === 'string') {
-            int = parseInt(val, 10);
+            int = parseInt(val, 10)
           }
           if (int <= 0 || isNaN(int)) {
-            return 'Should be integer and no less than 1';
+            return 'Should be integer and no less than 1'
           }
         }}
       />
     </FormShortSection>
   </BasicSection>
-));
+))
 
 PortsList.propTypes = {
   ports: PropTypes.array,
   onChange: PropTypes.func,
-};
+}

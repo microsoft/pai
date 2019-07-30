@@ -15,17 +15,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames';
-import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import React, {useRef} from 'react';
+import c from 'classnames'
+import {
+  ColorClassNames,
+  DefaultButton,
+  Panel,
+  PanelType,
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import React, { useRef } from 'react'
 
-import MonacoEditor from './monaco-editor';
+import MonacoEditor from './monaco-editor'
 
-import t from './tachyons.scss';
+import t from './tachyons.scss'
 
-const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
-  const panelRef = useRef(null);
+const MonacoPanel = ({
+  isOpen,
+  onDismiss,
+  title,
+  header,
+  footer,
+  monacoProps,
+  completionItems,
+  schemas,
+  monacoRef,
+}) => {
+  const panelRef = useRef(null)
   return (
     <div>
       <Panel
@@ -40,16 +55,17 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           headerText: [ColorClassNames.white],
           overlay: [ColorClassNames.blackTranslucent40Background],
           content: [t.flex, t.flexAuto, t.flexColumn],
-          scrollableContent: [t.flex, t.flexAuto, {overflowY: 'visible'}],
-          closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
+          scrollableContent: [t.flex, t.flexAuto, { overflowY: 'visible' }],
+          closeButton: [
+            ColorClassNames.white,
+            ColorClassNames.neutralQuaternaryHover,
+          ],
         }}
       >
-        {header && <div className={c(t.mb4, t.flex)}>
-          {header}
-        </div>}
+        {header && <div className={c(t.mb4, t.flex)}>{header}</div>}
         <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
           <MonacoEditor
-            style={{flex: '1 1 100%', minHeight: 0}}
+            style={{ flex: '1 1 100%', minHeight: 0 }}
             monacoRef={monacoRef}
             monacoProps={{
               theme: 'vs-dark',
@@ -64,9 +80,7 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
             schemas={schemas}
           />
           <div className={c(t.mt4, t.flex, t.justifyBetween)}>
-            <div>
-              {footer}
-            </div>
+            <div>{footer}</div>
             <DefaultButton
               text='Close'
               styles={{
@@ -82,8 +96,8 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
         </div>
       </Panel>
     </div>
-  );
-};
+  )
+}
 
 MonacoPanel.propTypes = {
   // panel props
@@ -97,6 +111,6 @@ MonacoPanel.propTypes = {
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
   monacoRef: PropTypes.object,
-};
+}
 
-export default MonacoPanel;
+export default MonacoPanel

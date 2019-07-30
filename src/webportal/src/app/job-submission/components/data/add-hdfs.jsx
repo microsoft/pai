@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {cloneDeep} from 'lodash';
+import React, { useState, useEffect } from 'react'
+import { cloneDeep } from 'lodash'
 import {
   TextField,
   TagPicker,
@@ -8,15 +8,18 @@ import {
   IconButton,
   Label,
   getTheme,
-} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
 
-import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
-import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
-import {WebHDFSClient} from '../../utils/webhdfs';
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants'
+import { InputData } from '../../models/data/input-data'
+import {
+  validateMountPath,
+  validateHDFSPathAsync,
+} from '../../utils/validation'
+import { WebHDFSClient } from '../../utils/webhdfs'
 
-const {semanticColors} = getTheme();
+const { semanticColors } = getTheme()
 
 export const AddHDFS = ({
   dataList,
@@ -25,91 +28,91 @@ export const AddHDFS = ({
   hdfsClient,
   hdfsPathPrefix,
 }) => {
-  const [mountPath, setMountPath] = useState();
-  const [isHdfsEnabled, setIsHdfsEnabled] = useState(true);
-  const [hdfsPath, setHdfsPath] = useState();
+  const [mountPath, setMountPath] = useState()
+  const [isHdfsEnabled, setIsHdfsEnabled] = useState(true)
+  const [hdfsPath, setHdfsPath] = useState()
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     'Path should not be empty',
-  );
-  const [hdfsPathErrorMessage, setHdfsPathErrorMessage] = useState();
+  )
+  const [hdfsPathErrorMessage, setHdfsPathErrorMessage] = useState()
 
   useEffect(() => {
     if (!hdfsClient) {
-      setIsHdfsEnabled(false);
-      setHdfsPathErrorMessage('Pai HDFS is not available');
+      setIsHdfsEnabled(false)
+      setHdfsPathErrorMessage('Pai HDFS is not available')
     } else {
-      hdfsClient.checkAccess().then((isAccessiable) => {
-        setIsHdfsEnabled(isAccessiable);
+      hdfsClient.checkAccess().then(isAccessiable => {
+        setIsHdfsEnabled(isAccessiable)
         if (!isAccessiable) {
-          setHdfsPathErrorMessage('Pai HDFS is not available');
+          setHdfsPathErrorMessage('Pai HDFS is not available')
         }
-      });
+      })
     }
-  }, []);
+  }, [])
 
   const submitMount = async () => {
     if (hdfsClient) {
       try {
-        await hdfsClient.readDir(hdfsPath);
+        await hdfsClient.readDir(hdfsPath)
       } catch (e) {
-        alert(`${hdfsPath}: ${e.message}`);
+        alert(`${hdfsPath}: ${e.message}`)
 
-        return;
+        return
       }
     }
-    const newDataList = cloneDeep(dataList);
-    newDataList.push(new InputData(mountPath, hdfsPath, 'hdfs'));
-    setDataList(newDataList);
-    setDataType('none');
-  };
+    const newDataList = cloneDeep(dataList)
+    newDataList.push(new InputData(mountPath, hdfsPath, 'hdfs'))
+    setDataList(newDataList)
+    setDataType('none')
+  }
 
-  const onFilterChanged = async (filterText) => {
+  const onFilterChanged = async filterText => {
     if (!isHdfsEnabled || !hdfsClient) {
-      return [];
+      return []
     }
-    let result;
+    let result
     try {
-      const pathPrefix = filterText.slice(0, filterText.lastIndexOf('/') + 1);
-      result = await hdfsClient.readDir(`${hdfsPathPrefix}${pathPrefix}`);
+      const pathPrefix = filterText.slice(0, filterText.lastIndexOf('/') + 1)
+      result = await hdfsClient.readDir(`${hdfsPathPrefix}${pathPrefix}`)
       const resultTags = result
-        .filter((path) => {
+        .filter(path => {
           if (filterText.lastIndexOf('/') === filterText.length - 1) {
-            return true;
+            return true
           }
-          const partPath = filterText.split('/').pop();
+          const partPath = filterText.split('/').pop()
           if (!partPath) {
-            return [];
+            return []
           }
-          return path.includes(partPath);
+          return path.includes(partPath)
         })
-        .map((pathSuffix) => {
+        .map(pathSuffix => {
           return {
             name: pathSuffix,
             key: `${pathPrefix}${pathSuffix}`,
-          };
-        });
-      return resultTags;
+          }
+        })
+      return resultTags
     } catch (e) {
-      return [];
+      return []
     }
-  };
-  const onItemSelected = async (selectedItem) => {
+  }
+  const onItemSelected = async selectedItem => {
     if (!selectedItem) {
-      return null;
+      return null
     }
-    const hdfsPath = selectedItem.key;
-    setHdfsPath(hdfsPath);
-    const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
+    const hdfsPath = selectedItem.key
+    setHdfsPath(hdfsPath)
+    const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient)
     if (!valid.isLegal) {
-      setHdfsPathErrorMessage(valid.illegalMessage);
+      setHdfsPathErrorMessage(valid.illegalMessage)
     } else {
-      setHdfsPathErrorMessage(null);
+      setHdfsPathErrorMessage(null)
     }
     return {
       name: selectedItem.key,
       key: selectedItem.key,
-    };
-  };
+    }
+  }
 
   return (
     <Stack horizontal horizontalAlign='space-between' gap='s'>
@@ -120,14 +123,14 @@ export const AddHDFS = ({
         <TextField
           prefix={STORAGE_PREFIX}
           errorMessage={containerPathErrorMessage}
-          styles={{root: {width: 200}}}
+          styles={{ root: { width: 200 } }}
           onChange={(_event, newValue) => {
-            const valid = validateMountPath(`/${newValue}`);
+            const valid = validateMountPath(`/${newValue}`)
             if (!valid.isLegal) {
-              setContainerPathErrorMessage(valid.illegalMessage);
+              setContainerPathErrorMessage(valid.illegalMessage)
             } else {
-              setContainerPathErrorMessage(null);
-              setMountPath(`${STORAGE_PREFIX}${newValue}`);
+              setContainerPathErrorMessage(null)
+              setMountPath(`${STORAGE_PREFIX}${newValue}`)
             }
           }}
         />
@@ -160,30 +163,34 @@ export const AddHDFS = ({
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'View'}}
+          iconProps={{ iconName: 'View' }}
           disabled={!isHdfsEnabled}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
             },
           }}
           onClick={() => {
-            window.open(`${hdfsClient.host}/explorer.html#/`);
+            window.open(`${hdfsClient.host}/explorer.html#/`)
           }}
         />
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Accept'}}
+          iconProps={{ iconName: 'Accept' }}
           disabled={containerPathErrorMessage || hdfsPathErrorMessage}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -194,21 +201,23 @@ export const AddHDFS = ({
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Cancel'}}
+          iconProps={{ iconName: 'Cancel' }}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || hdfsPathErrorMessage ? ERROR_MARGIN : 0,
+                containerPathErrorMessage || hdfsPathErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
           }}
           onClick={() => {
-            setDataType('none');
+            setDataType('none')
           }}
         />
       </Stack.Item>
     </Stack>
-  );
-};
+  )
+}
 
 AddHDFS.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
@@ -216,4 +225,4 @@ AddHDFS.propTypes = {
   setDataType: PropTypes.func,
   hdfsClient: PropTypes.instanceOf(WebHDFSClient),
   hdfsPathPrefix: PropTypes.string,
-};
+}

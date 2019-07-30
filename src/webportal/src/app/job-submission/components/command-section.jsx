@@ -23,41 +23,40 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import {isEmpty} from 'lodash';
-import {BasicSection} from './basic-section';
-import {MonacoTextFiled} from './monaco-text-field';
-import {FormShortSection} from './form-page';
-import {PAI_ENV_VAR, COMMAND_PLACEHOLDER} from '../utils/constants';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { isEmpty } from 'lodash'
+import { BasicSection } from './basic-section'
+import { MonacoTextFiled } from './monaco-text-field'
+import { FormShortSection } from './form-page'
+import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../utils/constants'
 
-export const CommandSection = (props) => {
-  const {onChange, value} = props;
+export const CommandSection = props => {
+  const { onChange, value } = props
 
-  const _onChange = (newValue) => {
+  const _onChange = newValue => {
     if (onChange !== undefined) {
-      onChange(newValue);
+      onChange(newValue)
     }
-  };
-
+  }
 
   return (
     <BasicSection sectionLabel='Command'>
       <FormShortSection>
         <MonacoTextFiled
-          monacoProps={{height: 250, language: 'shell'}}
+          monacoProps={{ height: 250, language: 'shell' }}
           value={value}
           placeholder={COMMAND_PLACEHOLDER}
           onChange={_onChange}
-          completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
-          errorMessage={isEmpty(value) ? 'Commands can not be empty': null}
+          completionItems={[...PAI_ENV_VAR.map(x => x.key)]}
+          errorMessage={isEmpty(value) ? 'Commands can not be empty' : null}
         />
       </FormShortSection>
     </BasicSection>
-  );
-};
+  )
+}
 
 CommandSection.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func,
-};
+}

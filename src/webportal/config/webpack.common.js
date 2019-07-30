@@ -15,62 +15,69 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+/* eslint-disable global-require */
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const markedConfig = require('./marked.config')
+const helpers = require('./helpers')
 
-// module dependencies
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const markedConfig = require('./marked.config');
-const helpers = require('./helpers');
+const { version } = require('../package.json')
 
-const title = 'Platform for AI';
-const version = require('../package.json').version;
+const title = 'Platform for AI'
 const FABRIC_DIR = [
   path.resolve(__dirname, '../src/app/job/job-view/fabric'),
   path.resolve(__dirname, '../src/app/home'),
   path.resolve(__dirname, '../src/app/components'),
   path.resolve(__dirname, '../node_modules/tachyons'),
-];
+]
 
 function generateHtml(opt) {
-  return new HtmlWebpackPlugin(Object.assign({
-    title: title,
-    version: version,
-    template: './src/app/layout/layout.component.ejs',
-    minify: {
-      collapseWhitespace: true,
-      html5: true,
-      removeComments: true,
-      removeEmptyAttributes: true,
-      removeTagWhitespace: true,
-    },
-  }, opt));
+  return new HtmlWebpackPlugin(
+    Object.assign(
+      {
+        title,
+        version,
+        template: './src/app/layout/layout.component.ejs',
+        minify: {
+          collapseWhitespace: true,
+          html5: true,
+          removeComments: true,
+          removeEmptyAttributes: true,
+          removeTagWhitespace: true,
+        },
+      },
+      opt,
+    ),
+  )
 }
 
 const config = (env, argv) => ({
   entry: {
-    'index': './src/app/home/index.jsx',
-    'home': './src/app/home/home.jsx',
-    'layout': './src/app/layout/layout.component.js',
-    'userView': './src/app/user/fabric/user-view.jsx',
-    'batchRegister': './src/app/user/fabric/batch-register.jsx',
-    'changePassword': './src/app/user/change-password/change-password.component.js',
-    'dashboard': './src/app/dashboard/dashboard.component.js',
-    'submit': './src/app/job-submission/job-submission.jsx',
-    'submit_v1': './src/app/job/job-submit-v1/job-submit.component.js',
-    'jobList': './src/app/job/job-view/fabric/job-list.jsx',
-    'jobDetail': './src/app/job/job-view/fabric/job-detail.jsx',
-    'virtualClusters': './src/app/vc/vc.component.js',
-    'services': './src/app/cluster-view/services/services.component.js',
-    'hardware': './src/app/cluster-view/hardware/hardware.component.js',
-    'hardwareDetail': './src/app/cluster-view/hardware/hardware-detail.component.js',
-    'k8s': './src/app/cluster-view/k8s/k8s.component.js',
-    'docs': './src/app/job/job-docs/job-docs.component.js',
-    'plugin': './src/app/plugin/plugin.component.js',
+    index: './src/app/home/index.jsx',
+    home: './src/app/home/home.jsx',
+    layout: './src/app/layout/layout.component.js',
+    userView: './src/app/user/fabric/user-view.jsx',
+    batchRegister: './src/app/user/fabric/batch-register.jsx',
+    changePassword:
+      './src/app/user/change-password/change-password.component.js',
+    dashboard: './src/app/dashboard/dashboard.component.js',
+    submit: './src/app/job-submission/job-submission.jsx',
+    submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
+    jobList: './src/app/job/job-view/fabric/job-list.jsx',
+    jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
+    virtualClusters: './src/app/vc/vc.component.js',
+    services: './src/app/cluster-view/services/services.component.js',
+    hardware: './src/app/cluster-view/hardware/hardware.component.js',
+    hardwareDetail:
+      './src/app/cluster-view/hardware/hardware-detail.component.js',
+    k8s: './src/app/cluster-view/k8s/k8s.component.js',
+    docs: './src/app/job/job-docs/job-docs.component.js',
+    plugin: './src/app/plugin/plugin.component.js',
   },
   output: {
     path: helpers.root('dist'),
@@ -89,11 +96,15 @@ const config = (env, argv) => ({
           loader: 'babel-loader',
           options: {
             plugins: ['lodash'],
-            presets: ['@babel/preset-react',
-              ['@babel/preset-env', {
-                useBuiltIns: 'entry',
-                corejs: 3,
-              }],
+            presets: [
+              '@babel/preset-react',
+              [
+                '@babel/preset-env',
+                {
+                  useBuiltIns: 'entry',
+                  corejs: 3,
+                },
+              ],
             ],
           },
         },
@@ -128,11 +139,11 @@ const config = (env, argv) => ({
           argv.mode === 'production'
             ? MiniCssExtractPlugin.loader
             : {
-              loader: 'style-loader',
-              options: {
-                sourceMap: true,
+                loader: 'style-loader',
+                options: {
+                  sourceMap: true,
+                },
               },
-            },
           {
             loader: 'css-loader',
             options: {
@@ -149,8 +160,8 @@ const config = (env, argv) => ({
             options: {
               sourceMap: true,
               ident: 'postcss',
-              plugins: (loader) => [
-                require('postcss-import')({root: loader.resourcePath}),
+              plugins: loader => [
+                require('postcss-import')({ root: loader.resourcePath }),
                 require('autoprefixer')(),
                 require('cssnano')(),
               ],
@@ -171,11 +182,11 @@ const config = (env, argv) => ({
           argv.mode === 'production'
             ? MiniCssExtractPlugin.loader
             : {
-              loader: 'style-loader',
-              options: {
-                sourceMap: true,
+                loader: 'style-loader',
+                options: {
+                  sourceMap: true,
+                },
               },
-            },
           {
             loader: 'css-loader',
             options: {
@@ -189,8 +200,8 @@ const config = (env, argv) => ({
             options: {
               sourceMap: true,
               ident: 'postcss2',
-              plugins: (loader) => [
-                require('postcss-import')({root: loader.resourcePath}),
+              plugins: loader => [
+                require('postcss-import')({ root: loader.resourcePath }),
                 require('autoprefixer')(),
                 require('cssnano')(),
               ],
@@ -233,9 +244,7 @@ const config = (env, argv) => ({
     ],
   },
   plugins: [
-    new webpack.WatchIgnorePlugin([
-      /css\.d\.ts$/,
-    ]),
+    new webpack.WatchIgnorePlugin([/css\.d\.ts$/]),
     new webpack.IgnorePlugin({
       resourceRegExp: /^moment$/,
       contextRegExp: /chart.js/,
@@ -249,8 +258,8 @@ const config = (env, argv) => ({
       features: ['suggest', 'hover'],
     }),
     new CopyWebpackPlugin([
-      {from: 'src/assets', to: 'assets'},
-      {from: 'src/assets/img/favicon.ico', to: 'favicon.ico'},
+      { from: 'src/assets', to: 'assets' },
+      { from: 'src/assets/img/favicon.ico', to: 'favicon.ico' },
     ]),
     new MiniCssExtractPlugin({
       filename: 'styles/[name].bundle.css',
@@ -260,12 +269,12 @@ const config = (env, argv) => ({
       _: 'lodash',
     }),
     new webpack.ProvidePlugin({
-      '$': 'jquery',
-      'jQuery': 'jquery',
+      $: 'jquery',
+      jQuery: 'jquery',
       'window.jQuery': 'jquery',
     }),
     new webpack.ProvidePlugin({
-      'cookies': 'js-cookie',
+      cookies: 'js-cookie',
       'window.cookies': 'js-cookie',
     }),
     generateHtml({
@@ -370,6 +379,6 @@ const config = (env, argv) => ({
     process: true,
     module: false,
   },
-});
+})
 
-module.exports = config;
+module.exports = config

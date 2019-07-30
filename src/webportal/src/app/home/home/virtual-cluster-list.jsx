@@ -15,44 +15,49 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames';
-import {isNil} from 'lodash';
-import PropTypes from 'prop-types';
-import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme} from 'office-ui-fabric-react';
-import React from 'react';
+import c from 'classnames'
+import { isNil } from 'lodash'
+import PropTypes from 'prop-types'
+import {
+  Stack,
+  ColorClassNames,
+  FontClassNames,
+  PersonaCoin,
+  getTheme,
+} from 'office-ui-fabric-react'
+import React from 'react'
 
-import Card from './card';
-import {getVirtualClusterColor} from './util';
+import Card from './card'
+import { getVirtualClusterColor } from './util'
 
-import t from '../../components/tachyons.scss';
+import t from '../../components/tachyons.scss'
 
-const VirtualClusterItem = ({name, info}) => {
-  const availableGpu = Math.max(Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs), 0);
-  const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
-  const color = getVirtualClusterColor(name, info);
+const VirtualClusterItem = ({ name, info }) => {
+  const availableGpu = Math.max(
+    Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs),
+    0,
+  )
+  const percentage =
+    info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs
+  const color = getVirtualClusterColor(name, info)
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme()
 
   return (
-    <Stack
-      horizontal
-      verticalAlign='center'
-      padding='s1 0'
-      gap='l1'
-    >
+    <Stack horizontal verticalAlign='center' padding='s1 0' gap='l1'>
       <Stack.Item>
-        <PersonaCoin
-          text={name}
-          coinSize={80}
-        />
+        <PersonaCoin text={name} coinSize={80} />
       </Stack.Item>
       <Stack.Item grow>
-        <Stack
-          gap='l1'
-        >
+        <Stack gap='l1'>
           {/* vc item title */}
           <Stack.Item>
-            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.xLarge)}>
+            <div
+              className={c(
+                ColorClassNames.neutralSecondary,
+                FontClassNames.xLarge,
+              )}
+            >
               {info.dedicated ? `${name} (dedicated)` : name}
             </div>
           </Stack.Item>
@@ -61,13 +66,16 @@ const VirtualClusterItem = ({name, info}) => {
             <div className={c(t.flex, t.itemsCenter)}>
               <div
                 className={FontClassNames.xLarge}
-                style={{color, width: '20px', marginRight: spacing.l1}}
+                style={{ color, width: '20px', marginRight: spacing.l1 }}
               >
                 {availableGpu}
               </div>
               <div
-                className={c(ColorClassNames.neutralSecondary, FontClassNames.large)}
-                style={{marginRight: spacing.l2}}
+                className={c(
+                  ColorClassNames.neutralSecondary,
+                  FontClassNames.large,
+                )}
+                style={{ marginRight: spacing.l2 }}
               >
                 GPU Available
               </div>
@@ -78,71 +86,76 @@ const VirtualClusterItem = ({name, info}) => {
                   marginRight: spacing.m,
                 }}
               >
-              {(
-                <div className={c(t.w100, t.h100, t.flex)}>
-                  <div
-                    style={{backgroundColor: color, width: `${percentage * 100}%`}}
-                   />
-                  <div
-                    className={c(ColorClassNames.neutralLightBackground)}
-                    style={{width: `${(1 - percentage) * 100}%`}}
-                   />
-                </div>
-              )}
+                {
+                  <div className={c(t.w100, t.h100, t.flex)}>
+                    <div
+                      style={{
+                        backgroundColor: color,
+                        width: `${percentage * 100}%`,
+                      }}
+                    />
+                    <div
+                      className={c(ColorClassNames.neutralLightBackground)}
+                      style={{ width: `${(1 - percentage) * 100}%` }}
+                    />
+                  </div>
+                }
               </div>
             </div>
           </Stack.Item>
         </Stack>
       </Stack.Item>
     </Stack>
-  );
-};
+  )
+}
 
 VirtualClusterItem.propTypes = {
   name: PropTypes.string.isRequired,
   info: PropTypes.object.isRequired,
-};
+}
 
-const VirtualCluster = ({style, userInfo, virtualClusters}) => {
-  const vcNames = userInfo.virtualCluster.filter((name) => !isNil(virtualClusters[name]));
-  const {spacing} = getTheme();
+const VirtualCluster = ({ style, userInfo, virtualClusters }) => {
+  const vcNames = userInfo.virtualCluster.filter(
+    name => !isNil(virtualClusters[name]),
+  )
+  const { spacing } = getTheme()
   return (
-    <Card style={{paddingRight: spacing.m, ...style}}>
-      <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
+    <Card style={{ paddingRight: spacing.m, ...style }}>
+      <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             {`My virtual clusters (${vcNames.length})`}
           </div>
         </Stack.Item>
-        <Stack.Item styles={{root: [t.relative]}} grow>
+        <Stack.Item styles={{ root: [t.relative] }} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
             <Stack gap='l1'>
-              {vcNames.sort(
-                (a, b) => {
-                  const wa = virtualClusters[a].dedicated ? 1 : 0;
-                  const wb = virtualClusters[b].dedicated ? 1 : 0;
-                  return wa - wb;
-                }
-              ).map((name) => (
-                <Stack.Item key={name}>
-                  <VirtualClusterItem
-                    name={name}
-                    info={virtualClusters[name]}
-                  />
-                </Stack.Item>
-              ))}
+              {vcNames
+                .sort((a, b) => {
+                  const wa = virtualClusters[a].dedicated ? 1 : 0
+                  const wb = virtualClusters[b].dedicated ? 1 : 0
+                  return wa - wb
+                })
+                .map(name => (
+                  <Stack.Item key={name}>
+                    <VirtualClusterItem
+                      name={name}
+                      info={virtualClusters[name]}
+                    />
+                  </Stack.Item>
+                ))}
             </Stack>
           </div>
         </Stack.Item>
       </Stack>
     </Card>
-  );
-};
+  )
+}
 
 VirtualCluster.propTypes = {
   style: PropTypes.object,
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
-};
+}
 
-export default VirtualCluster;
+export default VirtualCluster

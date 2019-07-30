@@ -15,26 +15,28 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
+import 'whatwg-fetch'
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import UserView from './userView';
+import UserView from './userView'
 
-const contentWrapper = document.getElementById('content-wrapper');
+const contentWrapper = document.getElementById('content-wrapper')
 
-ReactDOM.render(<UserView />, contentWrapper);
+ReactDOM.render(<UserView />, contentWrapper)
 
-document.getElementById('sidebar-menu--cluster-view--user-management').classList.add('active');
+document
+  .getElementById('sidebar-menu--cluster-view--user-management')
+  .classList.add('active')
 
 function layout() {
   setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
+    contentWrapper.style.height = contentWrapper.style.minHeight
+  }, 10)
 }
 
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);
+window.addEventListener('resize', layout)
+window.addEventListener('load', layout)

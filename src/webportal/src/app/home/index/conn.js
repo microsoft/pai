@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import config from '../../config/webportal.config';
+import config from '../../config/webportal.config'
 
 export async function login(username, password, expires = 7) {
   const res = await fetch(`${config.restServerUri}/api/v1/authn/basic/login`, {
@@ -28,18 +28,18 @@ export async function login(username, password, expires = 7) {
     headers: {
       'content-type': 'application/json',
     },
-  });
+  })
   if (res.ok) {
-    const data = await res.json();
+    const data = await res.json()
     if (data.error) {
-      throw new Error(data.message);
+      throw new Error(data.message)
     } else {
-      cookies.set('user', data.user, {expires});
-      cookies.set('token', data.token, {expires});
-      cookies.set('admin', data.admin, {expires});
+      cookies.set('user', data.user, { expires })
+      cookies.set('token', data.token, { expires })
+      cookies.set('admin', data.admin, { expires })
     }
   } else {
-    const data = await res.json();
-    throw new Error(data.message);
+    const data = await res.json()
+    throw new Error(data.message)
   }
 }

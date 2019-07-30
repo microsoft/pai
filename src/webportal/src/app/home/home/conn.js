@@ -15,36 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import querystring from 'querystring';
+import querystring from 'querystring'
 
-import config from '../../config/webportal.config';
+import config from '../../config/webportal.config'
 
-const username = cookies.get('user');
-const token = cookies.get('token');
+const username = cookies.get('user')
+const token = cookies.get('token')
 
 export class UnauthorizedError extends Error {
   constructor(msg) {
-    super(msg);
-    this.name = 'UnauthorizedError';
+    super(msg)
+    this.name = 'UnauthorizedError'
   }
 }
 
 async function fetchWrapper(...args) {
-  const res = await fetch(...args);
-  const json = await res.json();
+  const res = await fetch(...args)
+  const json = await res.json()
   if (res.ok) {
-    return json;
+    return json
   } else {
     if (json.code === 'UnauthorizedUserError') {
-      throw new UnauthorizedError(json.message);
+      throw new UnauthorizedError(json.message)
     } else {
-      throw new Error(json.message);
+      throw new Error(json.message)
     }
   }
 }
 
 export async function listJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
+  return fetchWrapper(
+    `${config.restServerUri}/api/v1/jobs?${querystring.stringify({
+      username,
+    })}`,
+  )
 }
 
 export async function getUserInfo() {
@@ -52,31 +56,34 @@ export async function getUserInfo() {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  });
+  })
 }
 
 export async function listVirtualClusters() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
+  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`)
 }
 
 export async function getAvailableGpuPerNode() {
-  const res = await fetch(`${config.prometheusUri}/api/v1/query?query=yarn_node_gpu_available`);
+  const res = await fetch(
+    `${config.prometheusUri}/api/v1/query?query=yarn_node_gpu_available`,
+  )
 
   if (res.ok) {
-    const json = await res.json();
+    const json = await res.json()
     try {
-      const result = {};
+      const result = {}
+      // eslint-disable-next-line no-restricted-syntax
       for (const x of json.data.result) {
-        const ip = x.metric.node_ip;
-        const count = parseInt(x.value[1], 10);
-        result[ip] = count;
+        const ip = x.metric.node_ip
+        const count = parseInt(x.value[1], 10)
+        result[ip] = count
       }
-      return result;
-    } catch {
-      throw new Error('Invalid available gpu per node response');
+      return result
+    } catch (e) {
+      throw new Error('Invalid available gpu per node response')
     }
   } else {
-    const json = await res.json();
-    throw new Error(json.error);
+    const json = await res.json()
+    throw new Error(json.error)
   }
 }

@@ -23,19 +23,19 @@
  * SOFTWARE.
  */
 
-import React, {useCallback, useMemo} from 'react';
+import React, { useCallback, useMemo } from 'react'
 import {
   Label,
   getTheme,
   DelayedRender,
   AnimationClassNames,
   FontSizes,
-} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {isEmpty, isNil, debounce} from 'lodash';
-import MonacoEditor from '../../components/monaco-editor';
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { isEmpty, isNil, debounce } from 'lodash'
+import MonacoEditor from '../../components/monaco-editor'
 
-export const MonacoTextFiled = (props) => {
+export const MonacoTextFiled = props => {
   const {
     value,
     onChange,
@@ -45,51 +45,51 @@ export const MonacoTextFiled = (props) => {
     monacoProps: rawMonacoProps,
     monacoRef,
     errorMessage,
-  } = props;
-  const {palette, spacing, semanticColors} = getTheme();
+  } = props
+  const { palette, spacing, semanticColors } = getTheme()
   const borderColor = isEmpty(errorMessage)
     ? palette.neutralTertiary
-    : semanticColors.errorText;
+    : semanticColors.errorText
 
-  const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange]);
+  const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange])
   const onChangeWrapper = useCallback(
-    (val) => {
+    val => {
       if (val === placeholder) {
-        return;
+        return
       }
-      debouncedOnChange(val);
+      debouncedOnChange(val)
     },
     [debouncedOnChange],
-  );
+  )
 
-  const monacoProps = {...rawMonacoProps};
-  const rawEditorDidMount = monacoProps.editorDidMount;
-  delete monacoProps.editorDidMount;
+  const monacoProps = { ...rawMonacoProps }
+  const rawEditorDidMount = monacoProps.editorDidMount
+  delete monacoProps.editorDidMount
   const editorDidMountCallback = useCallback(
     (editor, monaco) => {
       editor.onDidFocusEditorText(() => {
-        const value = editor.getValue();
+        const value = editor.getValue()
         if (value === placeholder) {
-          editor.setValue('');
+          editor.setValue('')
         }
-      });
+      })
       editor.onDidBlurEditorText(() => {
-        const value = editor.getValue();
+        const value = editor.getValue()
         if (isEmpty(value) && !isEmpty(placeholder)) {
-          editor.setValue(placeholder);
+          editor.setValue(placeholder)
         }
-      });
+      })
 
-      const value = editor.getValue();
+      const value = editor.getValue()
       if (isEmpty(value) && !isEmpty(placeholder)) {
-        editor.setValue(placeholder);
+        editor.setValue(placeholder)
       }
       if (!isNil(rawEditorDidMount)) {
-        rawEditorDidMount(editor, monaco);
+        rawEditorDidMount(editor, monaco)
       }
     },
     [rawEditorDidMount],
-  );
+  )
 
   return (
     <div>
@@ -112,7 +112,7 @@ export const MonacoTextFiled = (props) => {
             wordWrap: 'on',
             readOnly: false,
             defaultEOL: 1,
-            minimap: {enabled: false},
+            minimap: { enabled: false },
           },
           value,
           onChange: onChangeWrapper,
@@ -134,16 +134,14 @@ export const MonacoTextFiled = (props) => {
                 alignItems: 'center',
               }}
             >
-              <span data-automation-id='error-message'>
-                {errorMessage}
-              </span>
+              <span data-automation-id='error-message'>{errorMessage}</span>
             </p>
           </DelayedRender>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
 MonacoTextFiled.propTypes = {
   value: PropTypes.string.isRequired,
@@ -154,4 +152,4 @@ MonacoTextFiled.propTypes = {
   monacoProps: PropTypes.object,
   monacoRef: PropTypes.object,
   errorMessage: PropTypes.string,
-};
+}

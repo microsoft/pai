@@ -3,9 +3,9 @@
  */
 export function getModified(job) {
   if (!('_modified' in job)) {
-    job._modified = new Date(job.completedTime || job.createdTime);
+    job._modified = new Date(job.completedTime || job.createdTime)
   }
-  return job._modified;
+  return job._modified
 }
 
 /**
@@ -13,40 +13,40 @@ export function getModified(job) {
  */
 export function getDuration(job) {
   if (!('_duration' in job)) {
-    job._duration = (job.completedTime || Date.now()) - job.createdTime;
+    job._duration = (job.completedTime || Date.now()) - job.createdTime
   }
-  return job._duration;
+  return job._duration
 }
 
 function generateStatus(job) {
   if (job.state === 'WAITING') {
     if (job.executionType === 'START') {
-      job._statusText = 'Waiting';
-      job._statusIndex = 0;
+      job._statusText = 'Waiting'
+      job._statusIndex = 0
     } else {
-      job._statusText = 'Stopping';
-      job._statusIndex = 2;
+      job._statusText = 'Stopping'
+      job._statusIndex = 2
     }
   } else if (job.state === 'RUNNING') {
     if (job.executionType === 'START') {
-      job._statusText = 'Running';
-      job._statusIndex = 1;
+      job._statusText = 'Running'
+      job._statusIndex = 1
     } else {
-      job._statusText = 'Stopping';
-      job._statusIndex = 2;
+      job._statusText = 'Stopping'
+      job._statusIndex = 2
     }
   } else if (job.state === 'SUCCEEDED') {
-    job._statusText = 'Succeeded';
-    job._statusIndex = 3;
+    job._statusText = 'Succeeded'
+    job._statusIndex = 3
   } else if (job.state === 'FAILED') {
-    job._statusText = 'Failed';
-    job._statusIndex = 4;
+    job._statusText = 'Failed'
+    job._statusIndex = 4
   } else if (job.state === 'STOPPED') {
-    job._statusText = 'Stopped';
-    job._statusIndex = 5;
+    job._statusText = 'Stopped'
+    job._statusIndex = 5
   } else {
-    job._statusText = 'Unknown';
-    job._statusIndex = -1;
+    job._statusText = 'Unknown'
+    job._statusIndex = -1
   }
 }
 
@@ -55,9 +55,9 @@ function generateStatus(job) {
  */
 export function getStatusText(job) {
   if (!('_statusText' in job)) {
-    generateStatus(job);
+    generateStatus(job)
   }
-  return job._statusText;
+  return job._statusText
 }
 
 /**
@@ -65,7 +65,7 @@ export function getStatusText(job) {
  */
 export function getStatusIndex(job) {
   if (!('_statusIndex' in job)) {
-    generateStatus(job);
+    generateStatus(job)
   }
-  return job._statusIndex;
+  return job._statusIndex
 }

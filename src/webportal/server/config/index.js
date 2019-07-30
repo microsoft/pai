@@ -15,41 +15,41 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const Joi = require('@hapi/joi');
-const dotenv = require('dotenv');
+const Joi = require('@hapi/joi')
+const dotenv = require('dotenv')
 
-
-dotenv.config();
+dotenv.config()
 
 // get config from environment variables
 let config = {
   env: process.env.NODE_ENV,
   logLevel: process.env.LOG_LEVEL,
   serverPort: process.env.SERVER_PORT,
-};
+}
 
 // define config schema
-const configSchema = Joi.object().keys({
-  env: Joi.string()
-    .allow(['development', 'production'])
-    .default('development'),
-  logLevel: Joi.string()
-    .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
-    .default('debug'),
-  serverPort: Joi.number()
-    .integer()
-    .min(8000)
-    .max(65535)
-    .default(9286),
-}).required();
+const configSchema = Joi.object()
+  .keys({
+    env: Joi.string()
+      .allow(['development', 'production'])
+      .default('development'),
+    logLevel: Joi.string()
+      .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
+      .default('debug'),
+    serverPort: Joi.number()
+      .integer()
+      .min(8000)
+      .max(65535)
+      .default(9286),
+  })
+  .required()
 
-const {error, value} = Joi.validate(config, configSchema);
+const { error, value } = Joi.validate(config, configSchema)
 if (error) {
-  throw new Error(`config error\n${error}`);
+  throw new Error(`config error\n${error}`)
 }
-config = value;
+config = value
 
 // module exports
-module.exports = config;
+module.exports = config

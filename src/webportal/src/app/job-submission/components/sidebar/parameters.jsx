@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
-import {isEmpty} from 'lodash';
-import {Stack} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import {Hint} from './hint';
-import {SidebarCard} from './sidebar-card';
-import {KeyValueList} from '../controls/key-value-list';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import React, { useState } from 'react'
+import { isEmpty } from 'lodash'
+import { Stack } from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
+import { Hint } from './hint'
+import { SidebarCard } from './sidebar-card'
+import { KeyValueList } from '../controls/key-value-list'
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants'
 
 export const Parameters = React.memo(
-  ({parameters, onChange, selected, onSelect}) => {
-    const [error, setError] = useState('');
+  ({ parameters, onChange, selected, onSelect }) => {
+    const [error, setError] = useState('')
     return (
       <SidebarCard
         title='Parameters'
@@ -58,13 +58,13 @@ export const Parameters = React.memo(
           </div>
         </Stack>
       </SidebarCard>
-    );
+    )
   },
-);
+)
 
 Parameters.propTypes = {
   parameters: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-};
+}

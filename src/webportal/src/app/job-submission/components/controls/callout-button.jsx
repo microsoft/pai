@@ -23,37 +23,36 @@
  * SOFTWARE.
  */
 
-import React, {useState, useRef, useCallback} from 'react';
+import React, { useState, useRef, useCallback } from 'react'
 import {
   Callout,
   IconButton,
   DirectionalHint,
   getTheme,
-} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
+} from 'office-ui-fabric-react'
+import PropTypes from 'prop-types'
 
-export const CalloutButton = (props) => {
-  const {children} = props;
+export const CalloutButton = props => {
+  const { children } = props
 
-  const [isCalloutVisible, setCalloutVisible] = useState(false);
-  const targetRef = useRef();
+  const [isCalloutVisible, setCalloutVisible] = useState(false)
+  const targetRef = useRef()
 
   const onToggle = useCallback(() => {
-    setCalloutVisible(!isCalloutVisible);
-  }, [isCalloutVisible, setCalloutVisible]);
+    setCalloutVisible(!isCalloutVisible)
+  }, [isCalloutVisible, setCalloutVisible])
 
   const onDismiss = useCallback(() => {
-    setCalloutVisible(false);
-  }, [setCalloutVisible]);
+    setCalloutVisible(false)
+  }, [setCalloutVisible])
 
-  const {spacing} = getTheme();
-
+  const { spacing } = getTheme()
 
   return (
     <div ref={targetRef}>
       <IconButton
-        styles={{root: {height: '100%'}}}
-        iconProps={{iconName: 'Info'}}
+        styles={{ root: { height: '100%' } }}
+        iconProps={{ iconName: 'Info' }}
         onClick={onToggle}
       />
       {isCalloutVisible && (
@@ -64,15 +63,13 @@ export const CalloutButton = (props) => {
           directionalHint={DirectionalHint.topAutoEdge}
           gapSpace={8} // spacing.s1
         >
-          <div style={{padding: spacing.s1}}>
-            {children}
-          </div>
+          <div style={{ padding: spacing.s1 }}>{children}</div>
         </Callout>
       )}
     </div>
-  );
-};
+  )
+}
 
 CalloutButton.propTypes = {
   children: PropTypes.node,
-};
+}

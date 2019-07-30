@@ -15,18 +15,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import {ActionButton} from 'office-ui-fabric-react/lib/Button';
+import React from 'react'
+import { ActionButton } from 'office-ui-fabric-react/lib/Button'
 
 const BackButton = () => (
   <div>
     <ActionButton
-      iconProps={{iconName: 'revToggleKey'}}
+      iconProps={{ iconName: 'revToggleKey' }}
       href='/user-view.html'
     >
       Back to User Management
-      </ActionButton>
+    </ActionButton>
   </div>
-);
+)
 
-export default BackButton;
+export default BackButton
