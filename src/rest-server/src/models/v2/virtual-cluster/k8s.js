@@ -146,10 +146,12 @@ class VirtualCluster {
     }
 
     // add capacity, maxCapacity, usedCapacity for compatibility
-    for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu/this.clusterTotalGpu * 100;
-      vcInfos[vc].maxCapacity = vcInfos[vc].capacity;
-      vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu/this.clusterTotalGpu * 100;
+    if (this.clusterTotalGpu > 0) {
+      for (let vc of Object.keys(vcInfos)) {
+        vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu / this.clusterTotalGpu * 100;
+        vcInfos[vc].maxCapacity = vcInfos[vc].capacity;
+        vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu / this.clusterTotalGpu * 100;
+      }
     }
 
     // add GPUs, vCores for compatibility
