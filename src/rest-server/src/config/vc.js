@@ -49,7 +49,7 @@ const clusterNodeGpu = {};
 if (launcherConfig.enabledHived) {
   let hivedObj;
   try {
-    hivedObj = yaml.load(fs.readFileSync(launcherConfig.hivedSpecPath));
+    hivedObj = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath));
   } catch (_) {
     // TODO: this is a hardcode for demo, this exception shouldn't be catch and ignored
     hivedObj = {
@@ -60,14 +60,14 @@ if (launcherConfig.enabledHived) {
               gpu: 1,
               cpu: 4,
               memory: '8192Mi',
-            }
+            },
           },
           parents: {},
         },
         physicalCells: [],
       },
       virtualClusters: {
-        default: {}
+        default: {},
         },
     };
     logger.warn(`Hived enabled but spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
