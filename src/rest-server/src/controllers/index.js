@@ -15,9 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const authnConfig = require('@pai/config/authn');
+const launcherConfig = require('@pai/config/launcher');
+const paiConfig = require('@pai/config/paiConfig');
 
 const index = (req, res) => {
-  return res.send('<pre>PAI RESTful API</pre>');
+  return res.status(200).json({
+    name: 'PAI RESTful API',
+    version: paiConfig.version,
+    launcherType: launcherConfig.type,
+    authnMethod: authnConfig.authnMethod,
+  });
 };
 
 // module exports
