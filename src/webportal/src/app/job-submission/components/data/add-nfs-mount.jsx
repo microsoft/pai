@@ -52,7 +52,7 @@ export const AddNFSMount = (props) => {
           label='IP/RemotePath'
           errorMessage={nFSUrlErrorMessage}
           onChange={(_event, newValue) => {
-            const valid = validateNFSUrl(`${newValue}`);
+            const valid = validateNFSUrl(`nfs://${newValue}`);
             if (!newValue) {
               setNFSUrlErrorMessage('NFS url should not be empty');
             } else {

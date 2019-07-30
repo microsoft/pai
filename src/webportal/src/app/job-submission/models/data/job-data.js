@@ -110,9 +110,10 @@ export class JobData {
     for (const customMount of this.customMountList) {
       const containerPath = customMount.mountPath;
       const type = customMount.sourceType;
-      const hostIP = customMount.dataSource.split('//')[1].split('/')[0].split(':')[0];
-      const port = customMount.dataSource.split('//')[1].split('/')[0].split(':')[1];
-      const remotePath = '/' + customMount.dataSource.split('//')[1].split('/').slice(1).join('/');
+      const dataSource = customMount.dataSource.split('//')[1];
+      const hostIP = dataSource.split('/')[0].split(':')[0];
+      const port = dataSource.split('/')[0].split(':')[1];
+      const remotePath = '/' + dataSource.split('/').slice(1).join('/');
       preCommand.push(
         `if [ ! -d ${containerPath} ]; then mkdir --parents ${
         containerPath

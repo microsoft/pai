@@ -73,21 +73,41 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
 }
 
 export function validateNFSUrl(url) {
-  const nFSRegex = /[A-Za-z0-9\-._]+\/[A-Za-z0-9\-._]+/;
+  const nFSRegixPrefix = /^nfs:\/\/*/;
+  const nFSRegex = /^nfs:\/\/[A-Za-z0-9\-._]+(\/[A-Za-z0-9\-._]+)+$/;
+  const nFSRegexEndWithSlash = /^nfs:\/\/[A-Za-z0-9\-._]+\/$/;
   let illegalMessage = '';
-  if (!nFSRegex.test(url)) {
+  if (!nFSRegixPrefix.test(url)) {
+    illegalMessage = 'path should begin with nfs:\/\/';
+    return {isLegal: false, illegalMessage};
+  }
+  if (!nFSRegexEndWithSlash.test(url) && url.charAt(url.length - 1) === '/') {
+    illegalMessage = 'path should not end with "/"';
+    return {isLegal: false, illegalMessage};
+  }
+  if (!nFSRegex.test(url) && !nFSRegexEndWithSlash.test(url)) {
     illegalMessage = 'NFS url is not illegal';
     return {isLegal: false, illegalMessage};
   }
-  return {isLegal: true, illegalMessage};
+  return {isLegal: true};
 }
 
 export function validateHDFSUrl(url) {
-  const nFSRegex = /[A-Za-z0-9\-._]+:[0-9]+\/[A-Za-z0-9\-._]+/;
+  const hDFSRegixPrefix = /^hdfs:\/\/*/;
+  const hDFSRegex = /^hdfs:\/\/[A-Za-z0-9\-._]+:[0-9]+(\/[A-Za-z0-9\-._]+)+$/;
+  const hDFSRegexEndWithSlash = /^hdfs:\/\/[A-Za-z0-9\-._]+:[0-9]+\/$/;
   let illegalMessage = '';
-  if (!nFSRegex.test(url)) {
+  if (!hDFSRegixPrefix.test(url)) {
+    illegalMessage = 'path should begin with hdfs:\/\/';
+    return {isLegal: false, illegalMessage};
+  }
+  if (!hDFSRegexEndWithSlash.test(url) && url.charAt(url.length - 1) === '/') {
+    illegalMessage = 'path should not end with "/"';
+    return {isLegal: false, illegalMessage};
+  }
+  if (!hDFSRegex.test(url) && !hDFSRegexEndWithSlash.test(url)) {
     illegalMessage = 'HDFS url is not illegal';
     return {isLegal: false, illegalMessage};
   }
-  return {isLegal: true, illegalMessage};
+  return {isLegal: true};
 }

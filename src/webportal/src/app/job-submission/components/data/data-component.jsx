@@ -39,6 +39,7 @@ function reducer(state, action) {
         state.hdfsClient,
         state.customDataList,
         action.value,
+        true,
         state.customMountList,
       );
       action.onChange(jobData);
@@ -74,7 +75,11 @@ export const DataComponent = React.memo((props) => {
   const {onChange, customMountFlag, setCustomMountFlag} = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
-  const [dataError, setDataError] = useState({
+  const [attError, setAttError] = useState({
+    customContainerPathError: false,
+    customDataSourceError: false,
+  });
+  const [mountError, setMountError] = useState({
     customContainerPathError: false,
     customDataSourceError: false,
   });
@@ -170,7 +175,10 @@ export const DataComponent = React.memo((props) => {
         selected={props.selected}
         onSelect={props.onSelect}
         error={
-          dataError.customContainerPathError || dataError.customDataSourceError
+          attError.customContainerPathError ||
+          attError.customDataSourceError ||
+          mountError.customContainerPathError ||
+          mountError.customDataSourceError
         }
       >
         <Stack gap='m'>
@@ -192,12 +200,12 @@ export const DataComponent = React.memo((props) => {
             setMountList={onMountListChange}
             customMountFlag={customMountFlag}
             setCustomMountFlag={setCustomMountFlag}
-            setDataError={setDataError}
+            setDataError={setMountError}
           />
           <ImportAtt
             dataList={jobData.customDataList}
             setDataList={_onDataListChange}
-            setDataError={setDataError}
+            setDataError={setAttError}
           />
           <MountTreeView
             dataList={

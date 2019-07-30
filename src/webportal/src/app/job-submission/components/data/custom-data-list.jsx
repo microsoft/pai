@@ -18,8 +18,11 @@ import {
   validateHttpUrl,
   validateGitUrl,
   validateHDFSPathSync,
+  validateNFSUrl,
+  validateHDFSUrl,
 } from '../../utils/validation';
 import Context from '../context';
+import {MOUNT_PREFIX} from '../../utils/constants';
 import {dispatchResizeEvent} from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 
@@ -35,22 +38,34 @@ const checkErrorMessage = async (
 ) => {
   const newErrorMessage = cloneDeep(containerPathErrorMessage);
   const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
+  const mountPathList = [];
   dataList.forEach(async (dataItem, index) => {
     const validPath = validateMountPath(
       dataItem.mountPath.replace(prefix, '/'),
     );
+    mountPathList.push(dataItem.mountPath);
     let validSource;
     if (!validPath.isLegal) {
       newErrorMessage[index] = validPath.illegalMessage;
     } else {
       newErrorMessage[index] = null;
     }
-    if (dataItem.sourceType === 'git') {
-      validSource = validateGitUrl(dataItem.dataSource);
-    } else if (dataItem.sourceType === 'http') {
-      validSource = validateHttpUrl(dataItem.dataSource);
-    } else if (dataItem.sourceType === 'hdfs') {
-      validSource = validateHDFSPathSync(dataItem.dataSource);
+    switch (dataItem.sourceType) {
+      case 'git':
+        validSource = validateGitUrl(dataItem.dataSource);
+        break;
+      case 'http':
+        validSource = validateHttpUrl(dataItem.dataSource);
+        break;
+      case 'hdfs':
+        validSource = validateHDFSPathSync(dataItem.dataSource);
+        break;
+      case 'nfsmount':
+        validSource = validateNFSUrl(dataItem.dataSource);
+        break;
+      case 'hdfsmount':
+        validSource = validateHDFSUrl(dataItem.dataSource);
+        break;
     }
     if (validSource && !validSource.isLegal) {
       newDataSourceErrorMessage[index] = validSource.illegalMessage;
@@ -58,6 +73,16 @@ const checkErrorMessage = async (
       newDataSourceErrorMessage[index] = null;
     }
   });
+  if (prefix === MOUNT_PREFIX) {
+    const mountPathListStr = mountPathList.join(',') + ',';
+    mountPathList.forEach((mountPath, index) => {
+      if (newErrorMessage[index] === null) {
+        if (mountPathListStr.replace(mountPath + ',', '').indexOf(mountPath + ',') > -1) {
+          newErrorMessage[index] = 'duplicated container path';
+        }
+      }
+    });
+  }
   setContainerPathErrorMessage(newErrorMessage);
   setDataSourceErrorMessage(newDataSourceErrorMessage);
 };
