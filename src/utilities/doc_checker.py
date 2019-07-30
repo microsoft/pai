@@ -25,6 +25,9 @@ class LinkChecker(markdown.treeprocessors.Treeprocessor):
                     if url.path == "" and url.fragment != "":
                         # ignore current file fragment checks
                         continue
+                    if "/vendor/" in path:
+                        # ignore 3rd party markdown check
+                        continue
 
                     if not os.path.exists(path):
                         sys.stderr.write("%s has broken link %s\n" %
