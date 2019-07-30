@@ -243,9 +243,9 @@ const JobSubmission = () => {
       if (user && jobName) {
         fetchJobConfig(user, jobName)
           .then((jobConfig) => {
-            const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
+            const [jobInfo, taskRoles, parameters, , extras] = getJobComponentsFromConfig(
               jobConfig,
-              {vcNames}
+              {vcNames},
             );
             jobInfo.name = generateJobName(jobInfo.name);
             if (get(jobConfig, 'extras.submitFrom')) {
@@ -255,6 +255,7 @@ const JobSubmission = () => {
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
+            setExtras(extras);
             setLoading(false);
           })
           .catch(alert);
