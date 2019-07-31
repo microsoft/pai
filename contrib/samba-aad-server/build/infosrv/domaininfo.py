@@ -24,8 +24,6 @@ def cmd_exec(cmdStr):
         output = ""
     return output
 
-
-# shows a list of all todos, and lets you POST to add new tasks
 class GetUserId(Resource):
     def get(self):
         parser.add_argument('userName')
@@ -33,8 +31,8 @@ class GetUserId(Resource):
         ret = {}
 
         if args["userName"] is not None and len(args["userName"].strip()) > 0:
-            # Please change to your corp domains
-            corpDomains = ['EUROPE','FAREAST','NORTHAMERICA','MIDDLEEAST','REDMOND','SOUTHAMERICA','SOUTHPACIFIC','AFRICA']
+            # Replace with your corp domains
+            corpDomains = ['ATHENA']
             ret["uid"] = ""
 
             for corpDomain in corpDomains:
