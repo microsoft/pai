@@ -37,20 +37,21 @@ import config from '../config/webportal.config'
 
 let loginTarget = '/home.html'
 
-const currentUrl = new URL(window.location.href)
-const from = currentUrl.searchParams.get('from')
+const query = new URLSearchParams(window.location.search)
+const from = query.get('from')
 if (!isEmpty(from)) {
   loginTarget = from
 }
 
 if (config.authnMethod === 'OIDC') {
-  const { query } = new URL(window.location.href)
   const expiration = 7
-  if (query.token) {
-    cookies.set('user', query.user, { expires: expiration })
-    cookies.set('token', query.token, { expires: expiration })
-    cookies.set('admin', query.admin, { expires: expiration })
-    cookies.set('hasGitHubPAT', query.hasGitHubPAT, { expires: expiration })
+  if (query.has('token')) {
+    cookies.set('user', query.get('user'), { expires: expiration })
+    cookies.set('token', query.get('token'), { expires: expiration })
+    cookies.set('admin', query.get('admin'), { expires: expiration })
+    cookies.set('hasGitHubPAT', query.get('hasGitHubPAT'), {
+      expires: expiration,
+    })
   }
 }
 

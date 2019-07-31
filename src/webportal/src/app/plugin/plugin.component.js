@@ -31,8 +31,8 @@ function loadScript(uri, callback) {
 }
 
 $(document).ready(function() {
-  const { query } = new URL(window.location.href)
-  const index = Number(query.index)
+  const query = new URLSearchParams(window.location.search)
+  const index = Number(query.get('index'))
   const plugin = window.PAI_PLUGINS[index]
 
   if (plugin == null) {

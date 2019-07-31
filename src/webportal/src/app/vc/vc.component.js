@@ -152,7 +152,9 @@ const virtualClustersAdd = () => {
       type: 'PUT',
       dataType: 'json',
       success: data => {
-        loadData(new URL(window.location.href).query.vcName)
+        const params = new URLSearchParams(window.location.search)
+        const vcName = params.get('vcName')
+        loadData(vcName)
         $('#virtualClustersList').modal('hide')
         alert(data.message)
       },
@@ -183,7 +185,9 @@ const deleteVcItem = name => {
       type: 'DELETE',
       dataType: 'json',
       success: data => {
-        loadData(new URL(window.location.href).query.vcName)
+        const params = new URLSearchParams(window.location.search)
+        const vcName = params.get('vcName')
+        loadData(vcName)
         alert(data.message)
       },
       error: (xhr, textStatus, error) => {
@@ -219,7 +223,9 @@ const editVcItemPut = (name, capacity) => {
       dataType: 'json',
       success: data => {
         $('#virtualClustersEdit').modal('hide')
-        loadData(new URL(window.location.href).query.vcName)
+        const params = new URLSearchParams(window.location.search)
+        const vcName = params.get('vcName')
+        loadData(vcName)
         alert(data.message)
       },
       error: (xhr, textStatus, error) => {
@@ -257,7 +263,9 @@ const changeVcState = (name, state) => {
       type: 'PUT',
       dataType: 'json',
       success: data => {
-        loadData(new URL(window.location.href).query.vcName)
+        const params = new URLSearchParams(window.location.search)
+        const vcName = params.get('vcName')
+        loadData(vcName)
         alert(data.message)
       },
       error: (xhr, textStatus, error) => {
@@ -313,7 +321,9 @@ $(document).ready(() => {
     resizeContentWrapper()
   })
   resizeContentWrapper()
-  loadData(new URL(window.location.href).query.vcName)
+  const params = new URLSearchParams(window.location.search)
+  const vcName = params.get('vcName')
+  loadData(vcName)
 
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
