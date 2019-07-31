@@ -20,7 +20,7 @@ def cmd_exec(cmdStr):
     try:
         output = subprocess.check_output(["bash","-c", cmdStr]).strip()
     except Exception as e:
-        print e
+        print(e)
         output = ""
     return output
 
