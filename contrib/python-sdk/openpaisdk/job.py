@@ -24,7 +24,7 @@ class ProtocolUnit:
         assert u["type"] in __protocol_unit_types__, "invalid type (%s)" % u["type"]
         assert u["name"], "invalid name"
         # uri: String or list, required # Only when the type is data can the uri be a list.
-        assert isinstance(u["uri"], str) or u["type"] == "data" and isinstance(u["uri"], list), "uri: String or list, required # Only when the type is data can the uri be a list."
+        assert isinstance(u["uri"], str) or u["type"] == "data" and isinstance(u["uri"], list), "uri: String or list, required # Only when the type is data can the uri be a list. (Error: %s)" % u
 
 
 class TaskRole:
@@ -150,7 +150,7 @@ class Job:
                 continue
             local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
             client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
-        client.get_token().rest_api_submit(self.get_config())
+        client.rest_api_submit(self.get_config())
         job_link = client.get_job_link(self.name)
         browser_open(job_link)
         return job_link
