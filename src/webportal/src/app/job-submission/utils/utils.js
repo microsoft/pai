@@ -141,6 +141,8 @@ function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
 }
 
 function addPostCommandsToProtocolTaskRoles(protocol) {
+  // Tensorboard is not a background process and will block the execution of the user script.
+  // So it has to be injeced after the user script.
   // inject TensorBoard port and command
   if (protocol.extras && protocol.extras.tensorBoard) {
     const tensorBoardExtras = protocol.extras.tensorBoard;
@@ -258,4 +260,14 @@ export function generateDefaultTensorBoardExtras() {
     },
   };
   return tensorBoardExtras;
+}
+
+export function isValidTensorBoardExtras(originalTensorBoardExtras, updatedTensorBoardExtras) {
+  if (updatedTensorBoardExtras.randomStr !== originalTensorBoardExtras.randomStr
+    || !updatedTensorBoardExtras.logDirectories
+    || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2
+    || Object.getOwnPropertyNames(updatedTensorBoardExtras.logDirectories).length === 0) {
+      return false;
+  }
+  return true;
 }

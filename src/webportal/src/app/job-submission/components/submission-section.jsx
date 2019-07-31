@@ -48,6 +48,7 @@ import Card from '../../components/card';
 import {
   populateProtocolWithDataCli,
   getJobComponentsFromConfig,
+  isValidTensorBoardExtras,
 } from '../utils/utils';
 import Context from './context';
 import {BasicSection} from './basic-section';
@@ -168,12 +169,9 @@ export const SubmissionSection = (props) => {
     ] = getJobComponentsFromConfig(updatedJob, {vcNames});
 
     if (extras.tensorBoard) {
-      const originalTensorBoardExtras = extras.tensorBoard;
       const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-      if (updatedTensorBoardExtras.randomStr !== originalTensorBoardExtras.randomStr
-        || !updatedTensorBoardExtras.logDirectories
-        || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2) {
-        updatedExtras.tensorBoard = originalTensorBoardExtras.tensorBoard;
+      if (!isValidTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
+        updatedExtras.tensorBoard = extras.tensorBoard;
       }
     }
 
