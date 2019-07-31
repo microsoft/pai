@@ -54,13 +54,14 @@ All these values in .env file will be imported as global object [`window.ENV`](.
 
 ### Devlopment Mode
 
-Run ```yarn install``` to install all the dependencies and then run ```yarn dev``` to start a webpack dev server.
+- Run ```yarn install``` to install all the dependencies
+- Run ```yarn dev``` to start a webpack dev server
 
 ### Production Mode
 
-To build a webportal, run ```yarn install``` to install all dependencies, and then```yarn build```.
-
-Webportal uses express as a static server. To start a webportal service, run ```yarn start``` to start the express server.
+- Run ```yarn install``` to install all dependencies
+- Run ```yarn build``` to build static files
+- Run ```yarn start``` to start webportal's static file host server
 
 ## Code style check of webportal
 
