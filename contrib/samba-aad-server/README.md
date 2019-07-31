@@ -1,6 +1,7 @@
 # Samba server with AAD integration
 
-A samba server integrated with AAD. 
+A samba server integrated with AAD. Has a shared path and private paths for AD users, and create a shared account.  
+Also, it offers api to query user groups by user name.
 
 ## Index
 - [Components](#Components)
@@ -13,9 +14,9 @@ Data Structure:
 root 
     -- data
     -- users 
-	 -- user1
-         -- user2
-         -- user3                 
+        -- user1
+        -- user2
+        -- user3                 
 ```
 data: Shared folder.
 user: User private folder, user folder will be created when user first use samba.
@@ -42,11 +43,14 @@ DOMAINPWD|Password for domain user
 PAISMBUSER|Create new local samba account for PAI to use
 PAISMBPWD|Password for new samba account
 
-- Access samba in domain-joined windows system. In windows file explorer, input:
+- Access samba with domain-joined windows system.  
+In windows file explorer, input:  
 ```
 \\<server address>
 ```
-This will show two folders: data and home. Data folder is a shared folder for all users, and home folder is private folder for current AD user.
+This will show two folders: data and home.  
+Data folder is a shared folder for all users.  
+Home folder is private folder for current AD user.  
 
 - Mount samba using personal account
 ```
@@ -55,8 +59,9 @@ mount -t cifs //<server address>/<folder> <mount point> -o username=<domain user
 
 - Mount samba using PAI account
 ```
-mount -t cifs //<server address>/<folder> <mount point> -o username=<pai smb user>,password=<pai smb password>,domain=local
+mount -t cifs //<server address>/<folder> <mount point> -o username=<pai smb user>,password=<pai smb password>,domain=WORKGROUP
 ```
+
 
 - Query user groups
 ```
