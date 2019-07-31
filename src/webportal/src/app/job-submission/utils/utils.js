@@ -262,7 +262,7 @@ export function generateDefaultTensorBoardExtras() {
   return tensorBoardExtras;
 }
 
-export function isValidTensorBoardExtras(originalTensorBoardExtras, updatedTensorBoardExtras) {
+export function isValidUpdatedTensorBoardExtras(originalTensorBoardExtras, updatedTensorBoardExtras) {
   if (updatedTensorBoardExtras.randomStr !== originalTensorBoardExtras.randomStr
     || !updatedTensorBoardExtras.logDirectories
     || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2

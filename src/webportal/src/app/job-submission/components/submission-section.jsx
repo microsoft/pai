@@ -48,7 +48,7 @@ import Card from '../../components/card';
 import {
   populateProtocolWithDataCli,
   getJobComponentsFromConfig,
-  isValidTensorBoardExtras,
+  isValidUpdatedTensorBoardExtras,
 } from '../utils/utils';
 import Context from './context';
 import {BasicSection} from './basic-section';
@@ -170,7 +170,7 @@ export const SubmissionSection = (props) => {
 
     if (extras.tensorBoard) {
       const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-      if (!isValidTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
+      if (!isValidUpdatedTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
         updatedExtras.tensorBoard = extras.tensorBoard;
       }
     }
