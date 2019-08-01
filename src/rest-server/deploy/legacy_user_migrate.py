@@ -147,63 +147,37 @@ class TransferClient:
         post_data_dict['data'] = group_dict
         return post_data_dict
 
-    def prepare_secret_base_path(self):
+    def create_group_if_not_exist(self, name):
         if self.in_cluster:
             config.load_incluster_config()
         else:
-            config.load_kube_config()
+            config.load_kube_config(config_file="~/.kube/config")
         try:
-            api_instance  = client.CoreV1Api()
-            name = self.secret_ns
-            api_response = api_instance.read_namespace(name)
-            target_data = api_response.data
-            target_metadata = api_response.metadata
-            print(target_data)
-            print(target_metadata)
+            api_instance = client.CoreV1Api()
+            api_instance.read_namespace(name)
         except ApiException as e:
             if e.status == 404:
                 api_instance = client.CoreV1Api()
                 meta_data = client.V1ObjectMeta()
-                meta_data.name = self.secret_ns
+                meta_data.name = name
                 body = client.V1Namespace(
-                    metadata=meta_data
+                  metadata=meta_data
                 )
-                api_response = api_instance.create_namespace(body)
-                print(api_response.metadata)
-                print(api_response.data)
-            else:
-                logger.error("Failed to create namespace [pai-group]")
-                sys.exit(1)
+                api_instance.create_namespace(body)
+                return True
+            logger.error("Failed to create namespace [{0}]".format(name))
+            sys.exit(1)
+        return False
+
+    def prepare_secret_base_path(self):
+        self.create_group_if_not_exist(self.secret_ns)
 
     def prepare_secret_base_path_v2(self):
         status = [0, 0]
-        ns_res_user_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_user_v2))
-        if ns_res_user_v2['code'] == 404:
-            payload = {"metadata": {"name": self.secret_ns_user_v2}}
-            res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
-            if res['code'] == 201:
-                logger.info("Create user info namespace (pai-user-v2) successfully")
-                status[0] = 1
-            else:
-                logger.error("create user info namespace (pai-user-v2) failed")
-                sys.exit(1)
-        elif ns_res_user_v2['code'] != 200:
-            logger.error("Connect k8s cluster failed when creating user ns v2")
-            sys.exit(1)
-
-        ns_res_group_v2 = http_get(self.k8s_conn, '/api/v1/namespaces/{0}'.format(self.secret_ns_group_v2))
-        if ns_res_group_v2['code'] == 404:
-            payload = {"metadata": {"name": self.secret_ns_group_v2}}
-            res = http_post(self.k8s_conn, '/api/v1/namespaces', json.dumps(payload))
-            if res['code'] == 201:
-              logger.info("Create group info namespace (pai-group) successfully")
-              status[1] = 1
-            else:
-              logger.error("create group info namespace (pai-group) failed")
-              sys.exit(1)
-        elif ns_res_group_v2['code'] != 200:
-            logger.error("Connect k8s cluster failed when creating group ns")
-            sys.exit(1)
+        if self.create_group_if_not_exist(self.secret_ns_user_v2):
+            status[0] = 1
+        if self.create_group_if_not_exist(self.secret_ns_group_v2):
+            status[1] = 1
         return status
 
     def create_secret_user(self, payload):
