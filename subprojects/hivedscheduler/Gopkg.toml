@@ -1,0 +1,31 @@
+ignored = ["github.com/microsoft/hivedscheduler"]
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "v0.8.0"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "kubernetes-1.14.2"
+
+[[constraint]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.14.2"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.14.2"
+
+# For K8S Scheduler Extender
+[[constraint]]
+  name = "k8s.io/kubernetes"
+  version = "v1.14.2"
+
+[prune]
+  go-tests = true
+  unused-packages = true
+  non-go = true
+  [[prune.project]]
+    name = "k8s.io/client-go"
+    unused-packages = false
+    non-go = false
