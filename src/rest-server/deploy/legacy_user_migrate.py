@@ -60,16 +60,7 @@ class TransferClient:
         return user_list
 
     def namespace_v1_data_prepare(self):
-        user_list = []
-        nsv1_result = http_get(self.k8s_conn, '/api/v1/namespaces/pai-user/secrets/', {'Accept': 'application/json'})
-        if nsv1_result['code'] == 200:
-            user_list = json.loads(nsv1_result['data'])['items']
-        elif nsv1_result['code'] == 404:
-            logger.info("No ledacy user data found in k8s namespace pai-user")
-        else:
-            logger.error("Check user data in k8s namespace pai-user")
-            sys.exit(1)
-        return user_list
+        return self.list_all_secrets_from_namespace('pai-user')
 
     def secret_data_prepare(self, user_info):
         post_data_dict = dict()
@@ -147,6 +138,23 @@ class TransferClient:
         post_data_dict['data'] = group_dict
         return post_data_dict
 
+    def list_all_secrets_from_namespace(self, namespace):
+        if self.in_cluster:
+            config.load_incluster_config()
+        else:
+            config.load_kube_config(config_file="~/.kube/config")
+        try:
+            exact = True
+            export = True
+            api_instance = client.CoreV1Api()
+            api_response = api_instance.list_namespaced_secret(namespace, exact=exact, export=export)
+            return api_response['items']
+        except ApiException as e:
+            if e.status == 404:
+                return []
+            logger.error('Exception when calling CoreV1Api->list_namespaced_secret: %s\n' % e)
+            sys.exit(1)
+
     def create_group_if_not_exist(self, name):
         if self.in_cluster:
             config.load_incluster_config()
@@ -169,6 +177,32 @@ class TransferClient:
             sys.exit(1)
         return False
 
+    def create_secret_in_namespace_if_not_exist(self, payload, namespace):
+        if self.in_cluster:
+            config.load_incluster_config()
+        else:
+            config.load_kube_config(config_file="~/.kube/config")
+        try:
+            api_instance = client.CoreV1Api()
+            api_instance.read_namespaced_secret(payload['metadata']['name'], namespace)
+        except ApiException as e:
+            if e.status == 404:
+                try:
+                    api_instance = client.CoreV1Api()
+                    meta_data = client.V1ObjectMeta()
+                    meta_data.name = payload['metadata']['name']
+                    body = client.V1Secret(
+                        metadata=meta_data,
+                        data=payload['data']
+                    )
+                    api_instance.create_namespaced_secret(namespace, body)
+                except ApiException as create_e:
+                    logger.error("Exception when calling CoreV1Api->create_namespaced_secret: %s\n" % e)
+                    sys.exit(1)
+            else:
+                logger.error("Exception when calling CoreV1Api->read_namespaced_secret: %s\n" % e)
+                sys.exit(1)
+
     def prepare_secret_base_path(self):
         self.create_group_if_not_exist(self.secret_ns)
 
@@ -181,29 +215,13 @@ class TransferClient:
         return status
 
     def create_secret_user(self, payload):
-        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns, payload['metadata']['name']))
-        if check_res['code'] == 404:
-            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns), json.dumps(payload))
-            if post_res['code'] != 201:
-                logger.error("Create user in k8s secret failed")
-                sys.exit(1)
+        self.create_secret_in_namespace_if_not_exist(payload, self.secret_ns)
 
     def create_secret_user_v2(self, payload):
-        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_user_v2, payload['metadata']['name']))
-        if check_res['code'] == 404:
-            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns_user_v2), json.dumps(payload))
-            if post_res['code'] != 201:
-                logger.error("Create user in k8s secret failed")
-                sys.exit(1)
+        self.create_secret_in_namespace_if_not_exist(payload, self.secret_ns_user_v2)
 
     def create_secret_group_v2(self, payload):
-        check_res = http_get(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/{1}'.format(self.secret_ns_group_v2,payload['metadata']['name']))
-        if check_res['code'] == 404:
-            post_res = http_post(self.k8s_conn, '/api/v1/namespaces/{0}/secrets/'.format(self.secret_ns_group_v2),
-                             json.dumps(payload))
-            if post_res['code'] != 201:
-                logger.error("Create group in k8s secret failed")
-                sys.exit(1)
+        self.create_secret_in_namespace_if_not_exist(payload, self.secret_ns_group_v2)
 
     def check_transfer_flag(self):
         check_res = http_get(self.etcd_conn, self.flag_path)
