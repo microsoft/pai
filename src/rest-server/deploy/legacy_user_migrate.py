@@ -146,7 +146,7 @@ class TransferClient:
         try:
             api_instance = client.CoreV1Api()
             api_response = api_instance.list_namespaced_secret(namespace)
-            return api_response['items']
+            return api_response.items
         except ApiException as e:
             if e.status == 404:
                 return []
