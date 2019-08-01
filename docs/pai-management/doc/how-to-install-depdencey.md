@@ -53,7 +53,7 @@ apt-get -y install \
       bash-completion \
       inotify-tools \
       rsync \
-      realpath \
+      coreutils \
       net-tools
 
 pip install python-etcd docker kubernetes GitPython
