@@ -23,14 +23,22 @@ module.exports = {
     cookies: 'readonly',
     userLogout: 'readonly',
   },
+  settings: {
+    react: {
+      version: 'detect',
+    }
+  },
   rules: {
     'prettier/prettier': ['error'],
     'react/display-name': 'off',
-    // 'max-len': [
-    //   'error',
-    //   {
-    //     code: 120,
-    //   },
-    // ],
+    'max-len': [
+      'error',
+      {
+        code: 120,
+        ignoreComments: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+      },
+    ],
   },
 };
