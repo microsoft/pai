@@ -144,10 +144,8 @@ class TransferClient:
         else:
             config.load_kube_config(config_file="~/.kube/config")
         try:
-            exact = True
-            export = True
             api_instance = client.CoreV1Api()
-            api_response = api_instance.list_namespaced_secret(namespace, exact=exact, export=export)
+            api_response = api_instance.list_namespaced_secret(namespace)
             return api_response['items']
         except ApiException as e:
             if e.status == 404:
