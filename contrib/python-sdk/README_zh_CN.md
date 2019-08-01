@@ -10,41 +10,42 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
 
 Besides above benefits, this project also provides powerful runtime support, which bridges users' (local) working environments and jobs' running environments (inside the containers started by remote cluster). See more about[ the scenarios and user stories](docs/scenarios-and-user-stories.md).
 
-- [Get started](#Get-started) 
-  - [Installation](#Installation) 
-    - [Dependencies](#Dependencies)
-  - [Define your clusters](#Define-your-clusters)
-- [How-to guide for the CLI tool](#How-to-guide-for-the-CLI-tool) 
-  - [Cluster and storage management](#Cluster-and-storage-management) 
-    - [How to list existing clusters](#How-to-list-existing-clusters)
-    - [How to open and edit the cluster configuration file](#How-to-open-and-edit-the-cluster-configuration-file)
-    - [How to add / delete a cluster](#How-to-add--delete-a-cluster)
-    - [How to access storages of a cluster](#How-to-access-storages-of-a-cluster)
-  - [Job operations](#Job-operations) 
-    - [How to query my jobs in a cluster](#How-to-query-my-jobs-in-a-cluster)
-    - [How to submit a job from existing job config file](#How-to-submit-a-job-from-existing-job-config-file)
-    - [How to change the configuration before submitting](#How-to-change-the-configuration-before-submitting)
-    - [How to submit a job if I have no existing job config file](#How-to-submit-a-job-if-I-have-no-existing-job-config-file)
-    - [How to request (GPU) resources for the job](#How-to-request-GPU-resources-for-the-job)
-    - [How to reference a local file when submitting a job](#How-to-reference-a-local-file-when-submitting-a-job)
-    - [How to submit a job given a sequence of commands](#How-to-submit-a-job-given-a-sequence-of-commands)
-    - [How to add `pip install` packages](#How-to-add-pip-install-packages)
-    - [How to preview the generated job config but not submit it](#How-to-preview-the-generated-job-config-but-not-submit-it)
-  - [`Jupyter` notebook](#Jupyter-notebook) 
-    - [How to run a local notebook with remote resources](#How-to-run-a-local-notebook-with-remote-resources)
-    - [How to launch a remote `Jupyter` server and connect it](#How-to-launch-a-remote-Jupyter-server-and-connect-it)
-  - [Other FAQ of CLI](#Other-FAQ-of-CLI) 
-    - [How to select a cluster to use until I change it](#How-to-select-a-cluster-to-use-until-I-change-it)
-    - [How to simplify the command](#How-to-simplify-the-command)
-    - [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK)
-    - [How to specify the `python` environment I want to use in the job container](#How-to-specify-the-python-environment-I-want-to-use-in-the-job-container)
-- [Python binding](#Python-binding) 
-  - [Cluster management](#Cluster-management)
-  - [Job management](#Job-management)
-- [Make contributions](#Make-contributions) 
-  - [Release plan](#Release-plan)
-  - [Debug the SDK](#Debug-the-SDK)
-  - [Unit tests](#Unit-tests)
+- [Get started](#get-started) 
+  - [Installation](#installation) 
+    - [Dependencies](#dependencies)
+  - [Define your clusters](#define-your-clusters)
+- [How-to guide for the CLI tool](#how-to-guide-for-the-cli-tool) 
+  - [Cluster and storage management](#cluster-and-storage-management) 
+    - [How to list existing clusters](#how-to-list-existing-clusters)
+    - [How to open and edit the cluster configuration file](#how-to-open-and-edit-the-cluster-configuration-file)
+  - [How to check the available resources of clusters](#how-to-check-the-available-resources-of-clusters) 
+    - [How to add / delete a cluster](#how-to-add--delete-a-cluster)
+    - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
+  - [Job operations](#job-operations) 
+    - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
+    - [How to submit a job from existing job config file](#how-to-submit-a-job-from-existing-job-config-file)
+    - [How to change the configuration before submitting](#how-to-change-the-configuration-before-submitting)
+    - [How to submit a job if I have no existing job config file](#how-to-submit-a-job-if-i-have-no-existing-job-config-file)
+    - [How to request (GPU) resources for the job](#how-to-request-gpu-resources-for-the-job)
+    - [How to reference a local file when submitting a job](#how-to-reference-a-local-file-when-submitting-a-job)
+    - [How to submit a job given a sequence of commands](#how-to-submit-a-job-given-a-sequence-of-commands)
+    - [How to add `pip install` packages](#how-to-add-pip-install-packages)
+    - [How to preview the generated job config but not submit it](#how-to-preview-the-generated-job-config-but-not-submit-it)
+  - [`Jupyter` notebook](#jupyter-notebook) 
+    - [How to run a local notebook with remote resources](#how-to-run-a-local-notebook-with-remote-resources)
+    - [How to launch a remote `Jupyter` server and connect it](#how-to-launch-a-remote-jupyter-server-and-connect-it)
+  - [Other FAQ of CLI](#other-faq-of-cli) 
+    - [How to select a cluster to use until I change it](#how-to-select-a-cluster-to-use-until-i-change-it)
+    - [How to simplify the command](#how-to-simplify-the-command)
+    - [How to install a different version of SDK](#how-to-install-a-different-version-of-sdk)
+    - [How to specify the `python` environment I want to use in the job container](#how-to-specify-the-python-environment-i-want-to-use-in-the-job-container)
+- [Python binding](#python-binding) 
+  - [Cluster management](#cluster-management)
+  - [Job management](#job-management)
+- [Make contributions](#make-contributions) 
+  - [Release plan](#release-plan)
+  - [Debug the SDK](#debug-the-sdk)
+  - [Unit tests](#unit-tests)
 
 # Get started
 
@@ -98,17 +99,18 @@ opai cluster list
 
 This section will brief you how to leverage the CLI tool (prefixed by `opai`) to improve the productivity of interacting with `OpenPAI`. Below is a summary of functions provided.
 
-| Command                          | Description                                                           |
-| -------------------------------- | --------------------------------------------------------------------- |
-| `opai cluster list`              | list clusters defined in `~/.openpai/clusters.yaml`                   |
-| `opai cluster edit`              | open `~/.openpai/clusters.yaml` for your editing                      |
-| `opai cluster add`               | add a cluster                                                         |
-| `opai cluster attach-hdfs`       | attach a `hdfs` storage through `WebHDFS`                             |
-| `opai job list`                  | list all jobs of current user (in a given cluster)                    |
-| `opai job submit`                | submit a given job config file to cluster                             |
-| `opai job sub`                   | shortcut to generate job config and submit from a given command       |
-| `opai job notebook`              | shortcut to run a local notebook remotely                             |
-| `opai storage <operation>` | execute `<operation>`* on selected storage (of a given cluster) |
+| Command                          | Description                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+| `opai cluster list`              | list clusters defined in `~/.openpai/clusters.yaml`                                |
+| `opai cluster resources`         | list available resources of every cluster (GPUs/vCores/Memory per virtual cluster) |
+| `opai cluster edit`              | open `~/.openpai/clusters.yaml` for your editing                                   |
+| `opai cluster add`               | add a cluster                                                                      |
+| `opai cluster attach-hdfs`       | attach a `hdfs` storage through `WebHDFS`                                          |
+| `opai job list`                  | list all jobs of current user (in a given cluster)                                 |
+| `opai job submit`                | submit a given job config file to cluster                                          |
+| `opai job sub`                   | shortcut to generate job config and submit from a given command                    |
+| `opai job notebook`              | shortcut to run a local notebook remotely                                          |
+| `opai storage <operation>` | execute `<operation>`* on selected storage (of a given cluster)              |
 
 **: operations include `list`, `status`, `upload`, `download` and `delete`*
 
@@ -142,6 +144,27 @@ opai cluster edit [--editor <path/to/editor>]
 ```
 
 The default editor is VS Code (`code`), users may change to other editor (e.g. `--editor notepad`).
+
+## How to check the available resources of clusters
+
+To check the availability of each cluster, use the command
+
+```bash
+opai cluster resources
+```
+
+it will return the available GPUs, vCores and memory of every virtual cluster in every cluster.
+
+User can also check it in a `Python` script as below
+
+```python
+from openpaisdk import __cluster_config_file__
+from openpaisdk.io_utils import from_file
+from openpaisdk.cluster import ClusterList
+
+cfg = from_file(__cluster_config_file__, default=[])
+ClusterList(cfg).available_resources()
+```
 
 ### How to add / delete a cluster
 
