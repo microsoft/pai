@@ -27,6 +27,10 @@ router.route('/')
   /** GET /api/v2/virtual-clusters - Return cluster virtual cluster info */
   .get(controller.list);
 
+router.route('/nodeResource')
+  /** GET /api/v2/virtual-clusters/nodeResource - Get virtual cluster per node resource */
+  .get(controller.getNodeResource);
+
 router.route('/:virtualClusterName')
   /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
   .get(controller.get)
