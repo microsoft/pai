@@ -1,0 +1,148 @@
+# Setup hivedscheduler by "kubectl apply -f deploy.yaml"
+# Notes:
+# 1. This will create an additional K8S default scheduler which pointers to
+#    hivedscheduler serving at http://localhost:9096/v1/extender. So, Pod should
+#    specify schedulerName to be hivedscheduler.
+#    You can also adjust the existing K8S default scheduler without creating the
+#    additional one. So, Pod does not have to specify schedulerName to be
+#    hivedscheduler.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hivedscheduler-config
+  namespace: default
+data:
+  config.yaml: |
+    apiVersion: kubescheduler.config.k8s.io/v1alpha1
+    kind: KubeSchedulerConfiguration
+    schedulerName: hivedscheduler
+    algorithmSource:
+      policy:
+        configMap:
+          name: hivedscheduler-config
+          namespace: default
+    leaderElection:
+      leaderElect: true
+      lockObjectName: hivedscheduler
+      lockObjectNamespace: default
+  policy.cfg : |
+    {
+      "kind": "Policy",
+      "apiVersion": "v1",
+      "extenders": [
+        {
+          "urlPrefix": "http://localhost:9096/v1/extender",
+          "filterVerb": "filter",
+          "preemptVerb": "preempt",
+          "bindVerb": "bind",
+          "enableHttps": false,
+          "httpTimeout": 5000000000,
+          "nodeCacheCapable": true,
+          "ignorable": false,
+          "managedResources": [
+            {
+              "name": "hivedscheduler.microsoft.com/pod-scheduling-enable",
+              "ignoredByScheduler": true
+            }
+          ]
+        }
+      ]
+    }
+  hivedscheduler.yaml: |
+    kubeApiServerAddress: http://10.151.41.15:8080
+    physicalCluster:
+      cellTypes:
+        K80-2GPU:
+          childCellType: K80
+          childCellNumber: 2
+        K80-NODE:
+          childCellType: K80-2GPU
+          childCellNumber: 2
+          isNodeLevel: true
+        3-K80-NODE:
+          childCellType: K80-NODE
+          childCellNumber: 3
+      physicalCells:
+        - cellType: 3-K80-NODE
+          cellChildren:
+            - cellAddress: 10.151.41.20
+            - cellAddress: 10.151.41.21
+              reservationId: VC2-K80
+            - cellAddress: 10.151.41.22
+    virtualClusters:
+      VC1:
+        virtualCells:
+          - cellType: 3-K80-NODE.K80-NODE
+            cellNumber: 1
+      VC2:
+        virtualCells:
+          - cellType: 3-K80-NODE.K80-NODE
+            cellNumber: 1
+        reservedCells:
+          - reservationId: VC2-K80
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hivedscheduler-account
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hivedscheduler-role-binding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: hivedscheduler-account
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hivedscheduler
+  namespace: default
+spec:
+  serviceName: hivedscheduler
+  selector:
+    matchLabels:
+      app: hivedscheduler
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hivedscheduler
+    spec:
+      serviceAccountName: hivedscheduler-account
+      containers:
+      - name: defaultscheduler
+        image: gcr.io/google_containers/kube-scheduler:v1.14.2
+        command: [
+          "/usr/local/bin/kube-scheduler",
+          "--master=http://10.151.41.15:8080",
+          "--config=/hivedscheduler-config/config.yaml",
+          "-v=4"]
+        volumeMounts:
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
+      - name: hivedscheduler
+        image: hivedscheduler/hivedscheduler
+        command: [
+          "bash", "-c",
+          "cp /hivedscheduler-config/hivedscheduler.yaml . &&
+          ./start.sh"]
+        env:
+          - name: KUBE_APISERVER_ADDRESS
+            value: http://10.151.41.15:8080
+        volumeMounts:
+          - name: hivedscheduler-config
+            mountPath: /hivedscheduler-config
+      volumes:
+      - name: hivedscheduler-config
+        configMap:
+          name: hivedscheduler-config

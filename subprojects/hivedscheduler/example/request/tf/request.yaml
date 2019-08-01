@@ -1,0 +1,149 @@
+################################################################################
+# [Optional]: RestServer -> FC Request
+################################################################################
+apiVersion: frameworkcontroller.microsoft.com/v1
+kind: Framework
+metadata:
+  name: hdtfdemo2
+spec:
+  executionType: Start
+  retryPolicy:
+    fancyRetryPolicy: true
+    maxRetryCount: 2
+  taskRoles:
+  - name: ps
+    taskNumber: 1
+    frameworkAttemptCompletionPolicy:
+      minFailedTaskCount: 1
+      minSucceededTaskCount: -1
+    task:
+      retryPolicy:
+        fancyRetryPolicy: false
+        maxRetryCount: 0
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC2
+              priority: 1000
+              gpuType: K80
+              gpuNumber: 1
+              affinityGroup: null
+        spec:
+          schedulerName: hivedscheduler
+          restartPolicy: Never
+          hostNetwork: true
+          containers:
+          - name: tensorflow
+            image: frameworkcontroller/tensorflow-examples:gpu
+            workingDir: "/tensorflow/benchmarks/scripts/tf_cnn_benchmarks"
+            command:
+            - sh
+            - "-c"
+            - FB_PS_PORT=4001 FB_WORKER_PORT=5001 . /mnt/frameworkbarrier/injector.sh &&
+              printenv && nvidia-smi -L &&
+              python tf_cnn_benchmarks.py --job_name=ps --task_index=${FC_TASK_INDEX}
+              --ps_hosts=${FB_PS_ADDRESSES} --worker_hosts=${FB_WORKER_ADDRESSES}
+              --variable_update=parameter_server --cross_replica_sync=false --model=alexnet
+              --batch_size=8 --num_batches=10 --device=gpu --local_parameter_device=gpu
+              --num_gpus=1 --data_format=NCHW --data_name=cifar10 --data_dir=/mnt/data/cifar-10-batches-py
+              --train_dir=/mnt/data/${FC_FRAMEWORK_NAME}/output
+            ports:
+            - containerPort: 4001
+            resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+            volumeMounts:
+            - name: frameworkbarrier-volume
+              mountPath: "/mnt/frameworkbarrier"
+            - name: data-volume
+              mountPath: "/mnt/data"
+          initContainers:
+          - name: frameworkbarrier
+            image: frameworkcontroller/frameworkbarrier
+            env:
+            - name: KUBE_APISERVER_ADDRESS
+              value: http://10.151.41.15:8080
+            volumeMounts:
+            - name: frameworkbarrier-volume
+              mountPath: "/mnt/frameworkbarrier"
+          volumes:
+          - name: frameworkbarrier-volume
+            emptyDir: {}
+          - name: data-volume
+            nfs:
+              server: 10.169.8.232
+              path: "/home/yqwang/nfs"
+  - name: worker
+    taskNumber: 1
+    frameworkAttemptCompletionPolicy:
+      minFailedTaskCount: 1
+      minSucceededTaskCount: 1
+    task:
+      retryPolicy:
+        fancyRetryPolicy: false
+        maxRetryCount: 0
+      pod:
+        metadata:
+          annotations:
+            hivedscheduler.microsoft.com/pod-scheduling-spec: |-
+              virtualCluster: VC2
+              priority: 1000
+              gpuType: K80
+              gpuNumber: 1
+              affinityGroup: null
+        spec:
+          schedulerName: hivedscheduler
+          restartPolicy: Never
+          hostNetwork: true
+          containers:
+          - name: tensorflow
+            image: frameworkcontroller/tensorflow-examples:gpu
+            workingDir: "/tensorflow/benchmarks/scripts/tf_cnn_benchmarks"
+            command:
+            - sh
+            - "-c"
+            - FB_PS_PORT=4001 FB_WORKER_PORT=5001 . /mnt/frameworkbarrier/injector.sh &&
+              printenv && nvidia-smi -L &&
+              python tf_cnn_benchmarks.py --job_name=worker --task_index=${FC_TASK_INDEX}
+              --ps_hosts=${FB_PS_ADDRESSES} --worker_hosts=${FB_WORKER_ADDRESSES}
+              --variable_update=parameter_server --cross_replica_sync=false --model=alexnet
+              --batch_size=8 --num_batches=10 --device=gpu --local_parameter_device=gpu
+              --num_gpus=1 --data_format=NCHW --data_name=cifar10 --data_dir=/mnt/data/cifar-10-batches-py
+              --train_dir=/mnt/data/${FC_FRAMEWORK_NAME}/output
+            ports:
+            - containerPort: 5001
+            resources:
+              limits:
+                hivedscheduler.microsoft.com/pod-scheduling-enable: 1
+            env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']
+            volumeMounts:
+            - name: frameworkbarrier-volume
+              mountPath: "/mnt/frameworkbarrier"
+            - name: data-volume
+              mountPath: "/mnt/data"
+          initContainers:
+          - name: frameworkbarrier
+            image: frameworkcontroller/frameworkbarrier
+            env:
+            - name: KUBE_APISERVER_ADDRESS
+              value: http://10.151.41.15:8080
+            volumeMounts:
+            - name: frameworkbarrier-volume
+              mountPath: "/mnt/frameworkbarrier"
+          volumes:
+          - name: frameworkbarrier-volume
+            emptyDir: {}
+          - name: data-volume
+            nfs:
+              server: 10.169.8.232
+              path: "/home/yqwang/nfs"

@@ -1,0 +1,9 @@
+#!/bin/bash
+paiuser=$1
+
+datapath=/share/pai/data
+umask 000
+if [ ! -d "$datapath" ];then
+  mkdir -p "$datapath"
+  chown "$paiuser":"$paiuser" "$datapath"
+fi

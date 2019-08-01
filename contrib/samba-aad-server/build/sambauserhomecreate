@@ -1,0 +1,25 @@
+#!/bin/bash
+user=$1
+domain=$2
+uname=$3
+paiuser=$4
+
+userspath=/share/pai/users
+umask 000
+if [ ! -d "$userspath" ];then
+  mkdir -p "$userspath"
+  chown "$paiuser":"$paiuser" "$userspath"
+fi
+
+umask 007
+userpath="$userspath"/"$user"
+if [ ! -d "$userpath" ];then
+  mkdir -p "$userpath"
+  if [ $user != $uname ]
+  then
+    chown "$domain\\$user":"$paiuser" $userpath
+  else
+    chown "$user":"$paiuser" $userpath
+  fi
+  setfacl -m u:"$paiuser":rwx $userpath
+fi
