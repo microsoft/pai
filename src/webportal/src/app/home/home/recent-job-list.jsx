@@ -15,8 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames'
-import { isEmpty } from 'lodash'
+import c from 'classnames';
+import { isEmpty } from 'lodash';
 import {
   Link,
   PrimaryButton,
@@ -27,20 +27,20 @@ import {
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import React from 'react'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import Card from './card'
+import Card from './card';
 import {
   getJobDurationString,
   getJobModifiedTimeString,
   getHumanizedJobStateString,
   getJobModifiedTime,
-} from '../../components/util/job'
+} from '../../components/util/job';
 
-import t from '../../components/tachyons.scss'
-import StatusBadge from '../../components/status-badge'
+import t from '../../components/tachyons.scss';
+import StatusBadge from '../../components/status-badge';
 
 const Header = ({ jobs }) => (
   <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
@@ -51,14 +51,14 @@ const Header = ({ jobs }) => (
       </div>
     )}
   </div>
-)
+);
 
 Header.propTypes = {
   jobs: PropTypes.array.isRequired,
-}
+};
 
 const DummyContent = () => {
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
   return (
     <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
       <div
@@ -98,8 +98,8 @@ const DummyContent = () => {
         </Stack>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const jobListColumns = [
   {
@@ -111,11 +111,11 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      const { legacy, name, namespace, username } = job
+      const { legacy, name, namespace, username } = job;
       const href = legacy
         ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`
-      return <Link href={href}>{name}</Link>
+        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+      return <Link href={href}>{name}</Link>;
     },
   },
   {
@@ -126,7 +126,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobModifiedTimeString(job)
+      return getJobModifiedTimeString(job);
     },
   },
   {
@@ -137,7 +137,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobDurationString(job)
+      return getJobDurationString(job);
     },
   },
   {
@@ -156,19 +156,19 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return <StatusBadge status={getHumanizedJobStateString(job)} />
+      return <StatusBadge status={getHumanizedJobStateString(job)} />;
     },
   },
-]
+];
 
 const Content = ({ jobs }) => {
   if (true && isEmpty(jobs)) {
-    return <DummyContent />
+    return <DummyContent />;
   }
   const items = jobs
     .slice()
     .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
-    .slice(0, 10)
+    .slice(0, 10);
   return (
     <div className={c(t.h100, t.overflowYAuto)}>
       <DetailsList
@@ -179,8 +179,8 @@ const Content = ({ jobs }) => {
         selectionMode={SelectionMode.none}
       />
     </div>
-  )
-}
+  );
+};
 
 const RecentJobList = ({ className, jobs }) => {
   return (
@@ -194,16 +194,16 @@ const RecentJobList = ({ className, jobs }) => {
         </Stack.Item>
       </Stack>
     </Card>
-  )
-}
+  );
+};
 
 Content.propTypes = {
   jobs: PropTypes.array.isRequired,
-}
+};
 
 RecentJobList.propTypes = {
   className: PropTypes.string,
   jobs: PropTypes.array.isRequired,
-}
+};
 
-export default RecentJobList
+export default RecentJobList;

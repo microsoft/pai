@@ -18,5 +18,5 @@
 export const getVirtualCluster = user => {
   return user.admin
     ? 'All virtual clusters'
-    : user.virtualCluster.sort().join(', ')
-}
+    : user.virtualCluster.sort().join(', ');
+};

@@ -23,22 +23,22 @@
  * SOFTWARE.
  */
 
-import React from 'react'
-import PropTypes from 'prop-types'
-import { isEmpty } from 'lodash'
-import { BasicSection } from './basic-section'
-import { MonacoTextFiled } from './monaco-text-field'
-import { FormShortSection } from './form-page'
-import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../utils/constants'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { isEmpty } from 'lodash';
+import { BasicSection } from './basic-section';
+import { MonacoTextFiled } from './monaco-text-field';
+import { FormShortSection } from './form-page';
+import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../utils/constants';
 
 export const CommandSection = props => {
-  const { onChange, value } = props
+  const { onChange, value } = props;
 
   const _onChange = newValue => {
     if (onChange !== undefined) {
-      onChange(newValue)
+      onChange(newValue);
     }
-  }
+  };
 
   return (
     <BasicSection sectionLabel='Command'>
@@ -53,10 +53,10 @@ export const CommandSection = props => {
         />
       </FormShortSection>
     </BasicSection>
-  )
-}
+  );
+};
 
 CommandSection.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func,
-}
+};

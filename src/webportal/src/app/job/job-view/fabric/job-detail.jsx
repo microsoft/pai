@@ -15,28 +15,28 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
-import 'whatwg-fetch'
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
 
-import classNames from 'classnames'
-import { get, isEmpty, isNil } from 'lodash'
+import classNames from 'classnames';
+import { get, isEmpty, isNil } from 'lodash';
 import {
   initializeIcons,
   FontClassNames,
   MessageBar,
   MessageBarType,
-} from 'office-ui-fabric-react'
-import React from 'react'
-import ReactDOM from 'react-dom'
+} from 'office-ui-fabric-react';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
-import Context from './job-detail/components/context'
-import Top from './job-detail/components/top'
-import Summary from './job-detail/components/summary'
-import { SpinnerLoading } from '../../../components/loading'
-import TaskRole from './job-detail/components/task-role'
+import Context from './job-detail/components/context';
+import Top from './job-detail/components/top';
+import Summary from './job-detail/components/summary';
+import { SpinnerLoading } from '../../../components/loading';
+import TaskRole from './job-detail/components/task-role';
 import {
   fetchJobConfig,
   fetchJobInfo,
@@ -44,14 +44,14 @@ import {
   stopJob,
   NotFoundError,
   fetchRawJobConfig,
-} from './job-detail/conn'
-import { getHumanizedJobStateString } from '../../../components/util/job'
+} from './job-detail/conn';
+import { getHumanizedJobStateString } from '../../../components/util/job';
 
-initializeIcons()
+initializeIcons();
 
 class JobDetail extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       loading: true,
       reloading: false,
@@ -62,97 +62,97 @@ class JobDetail extends React.Component {
       rawJobConfig: null,
       jobConfig: null,
       sshInfo: null,
-    }
-    this.stop = this.stop.bind(this)
-    this.reload = this.reload.bind(this)
+    };
+    this.stop = this.stop.bind(this);
+    this.reload = this.reload.bind(this);
   }
 
   componentDidMount() {
-    void this.reload(true)
+    void this.reload(true);
   }
 
   async reload(alertFlag) {
     this.setState({
       reloading: true,
-    })
-    const { rawJobConfig, jobConfig, sshInfo } = this.state
+    });
+    const { rawJobConfig, jobConfig, sshInfo } = this.state;
     const nextState = {
       loading: false,
       reloading: false,
       error: null,
-    }
+    };
     const loadJobInfo = async () => {
       try {
-        nextState.jobInfo = await fetchJobInfo()
+        nextState.jobInfo = await fetchJobInfo();
       } catch (err) {
-        nextState.error = `fetch job status failed: ${err.message}`
+        nextState.error = `fetch job status failed: ${err.message}`;
       }
-    }
+    };
     const loadJobConfig = async () => {
       if (!isNil(jobConfig)) {
-        return
+        return;
       }
       try {
-        nextState.jobConfig = await fetchJobConfig()
+        nextState.jobConfig = await fetchJobConfig();
       } catch (err) {
         if (err instanceof NotFoundError) {
-          nextState.jobConfig = null
+          nextState.jobConfig = null;
         } else {
-          nextState.error = `fetch job config failed: ${err.message}`
+          nextState.error = `fetch job config failed: ${err.message}`;
         }
       }
-    }
+    };
     const loadRawJobConfig = async () => {
       if (!isNil(rawJobConfig)) {
-        return
+        return;
       }
       try {
-        nextState.rawJobConfig = await fetchRawJobConfig()
+        nextState.rawJobConfig = await fetchRawJobConfig();
       } catch (err) {
         if (err instanceof NotFoundError) {
-          nextState.rawJobConfig = null
+          nextState.rawJobConfig = null;
         } else {
-          nextState.error = `fetch job config failed: ${err.message}`
+          nextState.error = `fetch job config failed: ${err.message}`;
         }
       }
-    }
+    };
     const loadSshInfo = async () => {
       if (!isNil(sshInfo)) {
-        return
+        return;
       }
       try {
-        nextState.sshInfo = await fetchSshInfo()
+        nextState.sshInfo = await fetchSshInfo();
       } catch (err) {
         if (err instanceof NotFoundError) {
-          nextState.sshInfo = null
+          nextState.sshInfo = null;
         } else {
-          nextState.error = `fetch ssh info failed: ${err.message}`
+          nextState.error = `fetch ssh info failed: ${err.message}`;
         }
       }
-    }
+    };
     await Promise.all([
       loadJobInfo(),
       loadJobConfig(),
       loadRawJobConfig(),
       loadSshInfo(),
-    ])
+    ]);
     if (alertFlag === true && !isNil(nextState.error)) {
-      alert(nextState.error)
+      alert(nextState.error);
     }
-    this.setState(nextState)
+    this.setState(nextState);
   }
 
   async stop() {
-    await stopJob()
-    await this.reload()
+    await stopJob();
+    await this.reload();
   }
 
   renderTaskRoles() {
-    const { jobConfig, jobInfo } = this.state
+    const { jobConfig, jobInfo } = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
       const failedTaskRole =
         getHumanizedJobStateString(jobInfo.jobStatus) === 'Failed' &&
-        get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName')
+        get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map(name => (
         <TaskRole
           key={name}
@@ -161,12 +161,12 @@ class JobDetail extends React.Component {
           taskInfo={jobInfo.taskRoles[name]}
           isFailed={failedTaskRole && name === failedTaskRole}
         />
-      ))
+      ));
     }
     if (jobConfig && jobConfig.taskRoles) {
       return Object.entries(jobConfig.taskRoles).map(([name, taskConfig]) => {
         // dummy tasks
-        let dummyTaskInfo = null
+        let dummyTaskInfo = null;
         if (taskConfig && taskConfig.instances) {
           dummyTaskInfo = {
             taskStatuses: Array.from(
@@ -175,7 +175,7 @@ class JobDetail extends React.Component {
                 taskState: 'Waiting',
               }),
             ),
-          }
+          };
         }
 
         return (
@@ -185,10 +185,10 @@ class JobDetail extends React.Component {
             className={t.mt3}
             taskInfo={dummyTaskInfo}
           />
-        )
-      })
+        );
+      });
     }
-    return null
+    return null;
   }
 
   render() {
@@ -200,9 +200,9 @@ class JobDetail extends React.Component {
       jobConfig,
       rawJobConfig,
       sshInfo,
-    } = this.state
+    } = this.state;
     if (loading) {
-      return <SpinnerLoading />
+      return <SpinnerLoading />;
     }
     return (
       <Context.Provider value={{ sshInfo, rawJobConfig, jobConfig }}>
@@ -225,10 +225,10 @@ class JobDetail extends React.Component {
           {this.renderTaskRoles()}
         </div>
       </Context.Provider>
-    )
+    );
   }
 }
 
-ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'))
+ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'));
 
-document.getElementById('sidebar-menu--job-view').classList.add('active')
+document.getElementById('sidebar-menu--job-view').classList.add('active');

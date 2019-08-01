@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useRef, useContext, useState, useEffect } from 'react'
+import React, { useRef, useContext, useState, useEffect } from 'react';
 import {
   Modal,
   TextField,
@@ -28,11 +28,11 @@ import {
   Dropdown,
   mergeStyles,
   getTheme,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { isEmpty, isEqual } from 'lodash'
-import c from 'classnames'
-import t from '../../../components/tachyons.scss'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { isEmpty, isEqual } from 'lodash';
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
 
 import {
   createUserRequest,
@@ -40,10 +40,10 @@ import {
   updateUserAdminRequest,
   updateUserEmailRequest,
   updateUserVcRequest,
-} from '../conn'
-import { checkUsername, checkPassword, checkEmail } from '../utils'
+} from '../conn';
+import { checkUsername, checkPassword, checkEmail } from '../utils';
 
-import Context from './Context'
+import Context from './Context';
 
 export default function UserEditor({
   user: { username = '', admin = false, email = '', virtualCluster = [] },
@@ -51,73 +51,73 @@ export default function UserEditor({
   isCreate = true,
   hide,
 }) {
-  const { allVCs, showMessageBox, refreshAllUsers } = useContext(Context)
+  const { allVCs, showMessageBox, refreshAllUsers } = useContext(Context);
 
-  const usernameRef = useRef(null)
-  const passwordRef = useRef(null)
-  const emailRef = useRef(null)
-  const adminRef = useRef(null)
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const emailRef = useRef(null);
+  const adminRef = useRef(null);
 
-  const oldAdmin = admin
-  const [isAdmin, setIsAdmin] = useState(false)
+  const oldAdmin = admin;
+  const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
-    setIsAdmin(oldAdmin)
-  }, [])
+    setIsAdmin(oldAdmin);
+  }, []);
 
   const handleAdminChanged = (_event, checked) => {
-    setIsAdmin(checked)
-  }
+    setIsAdmin(checked);
+  };
 
-  const [vcs, setVcs] = useState([])
+  const [vcs, setVcs] = useState([]);
   useEffect(() => {
-    setVcs(virtualCluster.slice())
-  }, [])
+    setVcs(virtualCluster.slice());
+  }, []);
 
   const handleVCsChanged = (_event, option, _index) => {
     if (option.selected) {
-      vcs.push(option.text)
+      vcs.push(option.text);
     } else {
-      vcs.splice(vcs.indexOf(option.text), 1)
+      vcs.splice(vcs.indexOf(option.text), 1);
     }
-    setVcs(vcs.slice())
-  }
+    setVcs(vcs.slice());
+  };
 
-  const [lock, setLock] = useState(false)
-  const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false)
+  const [lock, setLock] = useState(false);
+  const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
 
   const handleSubmit = async event => {
-    event.preventDefault()
-    setLock(true)
+    event.preventDefault();
+    setLock(true);
 
-    const newUsername = usernameRef.current.value
-    const newPassword = passwordRef.current.value
-    const newEmail = emailRef.current.value
-    const newAdmin = adminRef.current.checked
+    const newUsername = usernameRef.current.value;
+    const newPassword = passwordRef.current.value;
+    const newEmail = emailRef.current.value;
+    const newAdmin = adminRef.current.checked;
 
     if (isCreate) {
-      const errorMessage = checkUsername(newUsername)
+      const errorMessage = checkUsername(newUsername);
       if (errorMessage) {
-        await showMessageBox(errorMessage)
-        setLock(false)
-        return
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
       }
     }
 
     if (!isEmpty(newPassword) || isCreate) {
-      const errorMessage = checkPassword(newPassword)
+      const errorMessage = checkPassword(newPassword);
       if (errorMessage) {
-        await showMessageBox(errorMessage)
-        setLock(false)
-        return
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
       }
     }
 
     {
-      const errorMessage = checkEmail(newEmail)
+      const errorMessage = checkEmail(newEmail);
       if (errorMessage) {
-        await showMessageBox(errorMessage)
-        setLock(false)
-        return
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
       }
     }
 
@@ -130,63 +130,63 @@ export default function UserEditor({
         vcs,
       )
         .then(() => {
-          setNeedRefreshAllUsers(true)
-          return { success: true }
+          setNeedRefreshAllUsers(true);
+          return { success: true };
         })
         .catch(err => {
-          return { success: false, message: String(err) }
-        })
+          return { success: false, message: String(err) };
+        });
       if (!result.success) {
-        await showMessageBox(result.message)
-        setLock(false)
-        return
+        await showMessageBox(result.message);
+        setLock(false);
+        return;
       }
     } else {
       if (newEmail !== email) {
         const result = await updateUserEmailRequest(newUsername, newEmail)
           .then(() => {
-            setNeedRefreshAllUsers(true)
-            return { success: true }
+            setNeedRefreshAllUsers(true);
+            return { success: true };
           })
           .catch(err => {
-            return { success: false, message: String(err) }
-          })
+            return { success: false, message: String(err) };
+          });
         if (!result.success) {
-          await showMessageBox(result.message)
-          setLock(false)
-          return
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
         }
       }
 
       if (newPassword) {
         const result = await updateUserPasswordRequest(newUsername, newPassword)
           .then(() => {
-            setNeedRefreshAllUsers(true)
-            return { success: true }
+            setNeedRefreshAllUsers(true);
+            return { success: true };
           })
           .catch(err => {
-            return { success: false, message: String(err) }
-          })
+            return { success: false, message: String(err) };
+          });
         if (!result.success) {
-          await showMessageBox(result.message)
-          setLock(false)
-          return
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
         }
       }
 
       if (newAdmin !== oldAdmin) {
         const result = await updateUserAdminRequest(newUsername, newAdmin)
           .then(() => {
-            setNeedRefreshAllUsers(true)
-            return { success: true }
+            setNeedRefreshAllUsers(true);
+            return { success: true };
           })
           .catch(err => {
-            return { success: false, message: String(err) }
-          })
+            return { success: false, message: String(err) };
+          });
         if (!result.success) {
-          await showMessageBox(result.message)
-          setLock(false)
-          return
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
         }
       }
 
@@ -194,16 +194,16 @@ export default function UserEditor({
       if (!newAdmin && !isEqual(new Set(vcs), new Set(virtualCluster))) {
         const result = await updateUserVcRequest(newUsername, vcs)
           .then(() => {
-            setNeedRefreshAllUsers(true)
-            return { success: true }
+            setNeedRefreshAllUsers(true);
+            return { success: true };
           })
           .catch(err => {
-            return { success: false, message: String(err) }
-          })
+            return { success: false, message: String(err) };
+          });
         if (!result.success) {
-          await showMessageBox(result.message)
-          setLock(false)
-          return
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
         }
       }
     }
@@ -212,30 +212,30 @@ export default function UserEditor({
       isCreate
         ? 'Add new user successfully'
         : 'Update user information successfully',
-    )
-    setLock(false)
-    hide()
-    refreshAllUsers()
-  }
+    );
+    setLock(false);
+    hide();
+    refreshAllUsers();
+  };
 
   const handleCancel = () => {
-    hide()
+    hide();
     if (needRefreshAllUsers) {
-      refreshAllUsers()
+      refreshAllUsers();
     }
-  }
+  };
 
-  const tdPaddingStyle = c(t.pa3)
-  const tdLabelStyle = c(tdPaddingStyle, t.tr)
+  const tdPaddingStyle = c(t.pa3);
+  const tdLabelStyle = c(tdPaddingStyle, t.tr);
 
   /**
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
    */
   const vcsOptions = allVCs.map(vc => {
-    return { key: vc, text: vc }
-  })
+    return { key: vc, text: vc };
+  });
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <Modal
@@ -343,7 +343,7 @@ export default function UserEditor({
         </form>
       </div>
     </Modal>
-  )
+  );
 }
 
 UserEditor.propTypes = {
@@ -356,4 +356,4 @@ UserEditor.propTypes = {
   isOpen: PropTypes.bool,
   isCreate: PropTypes.bool,
   hide: PropTypes.func,
-}
+};

@@ -15,71 +15,71 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling'
-import c from 'classnames'
-import { capitalize } from 'lodash'
-import { Icon, IconButton, TooltipHost } from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import React from 'react'
-import yaml from 'js-yaml'
+import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
+import c from 'classnames';
+import { capitalize } from 'lodash';
+import { Icon, IconButton, TooltipHost } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import React from 'react';
+import yaml from 'js-yaml';
 
-import t from '../../../../../components/tachyons.scss'
+import t from '../../../../../components/tachyons.scss';
 
-import Card from './card'
-import Context from './context'
-import TaskRoleContainerList from './task-role-container-list'
-import { getTaskConfig } from '../util'
-import MonacoCallout from '../../../../../components/monaco-callout'
-import { statusColor } from '../../../../../components/theme'
+import Card from './card';
+import Context from './context';
+import TaskRoleContainerList from './task-role-container-list';
+import { getTaskConfig } from '../util';
+import MonacoCallout from '../../../../../components/monaco-callout';
+import { statusColor } from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       containerListExpanded: true,
-    }
-    this.taskConfigButtonRef = React.createRef()
-    this.expandContainerList = this.expandContainerList.bind(this)
-    this.collapseContainerList = this.collapseContainerList.bind(this)
+    };
+    this.taskConfigButtonRef = React.createRef();
+    this.expandContainerList = this.expandContainerList.bind(this);
+    this.collapseContainerList = this.collapseContainerList.bind(this);
   }
 
   expandContainerList() {
-    this.setState({ containerListExpanded: true })
+    this.setState({ containerListExpanded: true });
   }
 
   collapseContainerList() {
-    this.setState({ containerListExpanded: false })
+    this.setState({ containerListExpanded: false });
   }
 
   renderTaskRoleCount() {
-    const { taskInfo } = this.props
+    const { taskInfo } = this.props;
     const count = {
       running: 0,
       succeeded: 0,
       failed: 0,
       unknown: 0,
-    }
+    };
     if (taskInfo && taskInfo.taskStatuses) {
       for (const item of taskInfo.taskStatuses) {
         switch (item.taskState) {
           case 'RUNNING':
           case 'WAITING':
-            count.running += 1
-            break
+            count.running += 1;
+            break;
           case 'SUCCEEDED':
-            count.succeeded += 1
-            break
+            count.succeeded += 1;
+            break;
           case 'FAILED':
-            count.failed += 1
-            break
+            count.failed += 1;
+            break;
           default:
-            count.unknown += 1
-            break
+            count.unknown += 1;
+            break;
         }
       }
     } else {
       // task status info not available
-      return
+      return;
     }
 
     return (
@@ -101,15 +101,15 @@ export default class TaskRole extends React.Component {
             </div>
           ))}
       </div>
-    )
+    );
   }
 
   render() {
-    const { className, name, taskInfo, isFailed } = this.props
-    const { containerListExpanded } = this.state
-    const { semanticColors } = getTheme()
-    const { rawJobConfig } = this.context
-    const taskConfig = getTaskConfig(rawJobConfig, name)
+    const { className, name, taskInfo, isFailed } = this.props;
+    const { containerListExpanded } = this.state;
+    const { semanticColors } = getTheme();
+    const { rawJobConfig } = this.context;
+    const taskConfig = getTaskConfig(rawJobConfig, name);
     return (
       <div className={c(t.bgWhite, className)}>
         {/* summary */}
@@ -176,15 +176,15 @@ export default class TaskRole extends React.Component {
           )}
         </Card>
       </div>
-    )
+    );
   }
 }
 
-TaskRole.contextType = Context
+TaskRole.contextType = Context;
 
 TaskRole.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   taskInfo: PropTypes.object.isRequired,
   isFailed: PropTypes.bool,
-}
+};

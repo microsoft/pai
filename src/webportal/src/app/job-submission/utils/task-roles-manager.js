@@ -1,113 +1,113 @@
-import { isEmpty, get } from 'lodash'
-import { DockerInfo } from '../models/docker-info'
+import { isEmpty, get } from 'lodash';
+import { DockerInfo } from '../models/docker-info';
 
-import { createUniqueName } from './utils'
-import { SECRET_PATTERN } from './constants'
+import { createUniqueName } from './utils';
+import { SECRET_PATTERN } from './constants';
 
-const SECRET_PREFIX = 'docker_password'
-const DOCKER_IMAGE_PREFIX = 'docker_image'
+const SECRET_PREFIX = 'docker_password';
+const DOCKER_IMAGE_PREFIX = 'docker_image';
 
-const UPDATE_FROM_TASKROLE_TO_SECRET = 'taskrole_to_secret'
-const UPDATE_FROM_SECRET_TO_TASKROLE = 'secret_to_taskrole'
+const UPDATE_FROM_TASKROLE_TO_SECRET = 'taskrole_to_secret';
+const UPDATE_FROM_SECRET_TO_TASKROLE = 'secret_to_taskrole';
 
-let secretSeq = 0
-let dockerNameSeq = 0
+let secretSeq = 0;
+let dockerNameSeq = 0;
 
 // This class will modify the taskRoles in-place
 export class TaskRolesManager {
   constructor(taskRoles) {
-    this.taskRoles = taskRoles
+    this.taskRoles = taskRoles;
   }
 
   getUpdatedSecretsAndLinkTaskRoles(secrets) {
-    const updatedSecrets = Array.from(secrets)
-    let isUpdated = false
+    const updatedSecrets = Array.from(secrets);
+    let isUpdated = false;
 
     this.taskRoles
       .filter(
         taskRole => !isEmpty(get(taskRole, 'dockerInfo.auth.password', '')),
       )
       .forEach(taskRole => {
-        const { dockerInfo } = taskRole
-        const { password } = dockerInfo.auth
-        const secretKey = this._getSecretKey(dockerInfo.secretRef)
+        const { dockerInfo } = taskRole;
+        const { password } = dockerInfo.auth;
+        const secretKey = this._getSecretKey(dockerInfo.secretRef);
         if (!isEmpty(secretKey)) {
           isUpdated = this._populateDockerInfoWithSecret(
             dockerInfo,
             updatedSecrets,
             secretKey,
             UPDATE_FROM_TASKROLE_TO_SECRET,
-          )
+          );
         } else {
           // Add new secret here
           const [secretKey, updatedSeq] = createUniqueName(
             updatedSecrets.map(v => v.key),
             SECRET_PREFIX,
             secretSeq,
-          )
-          updatedSecrets.push({ key: secretKey, value: password })
-          dockerInfo.secretRef = `<% $secrets.${secretKey} %>`
-          secretSeq = updatedSeq
-          isUpdated = true
+          );
+          updatedSecrets.push({ key: secretKey, value: password });
+          dockerInfo.secretRef = `<% $secrets.${secretKey} %>`;
+          secretSeq = updatedSeq;
+          isUpdated = true;
         }
-      })
-    return [updatedSecrets, isUpdated]
+      });
+    return [updatedSecrets, isUpdated];
   }
 
   populateTaskRolesWithUpdatedSecret(secrets) {
-    let isUpdated = false
+    let isUpdated = false;
     this.taskRoles
       .filter(taskRole => !isEmpty(get(taskRole, 'dockerInfo.secretRef', '')))
       .forEach(taskRole => {
-        const { dockerInfo } = taskRole
-        const secretKey = this._getSecretKey(dockerInfo.secretRef)
+        const { dockerInfo } = taskRole;
+        const secretKey = this._getSecretKey(dockerInfo.secretRef);
         if (!isEmpty(secretKey)) {
           isUpdated = this._populateDockerInfoWithSecret(
             dockerInfo,
             secrets,
             secretKey,
             UPDATE_FROM_SECRET_TO_TASKROLE,
-          )
+          );
         } else {
-          dockerInfo.auth = {}
-          dockerInfo.secretRef = ''
-          isUpdated = true
+          dockerInfo.auth = {};
+          dockerInfo.secretRef = '';
+          isUpdated = true;
         }
-      })
-    return isUpdated
+      });
+    return isUpdated;
   }
 
   populateTaskRolesDockerInfo() {
-    const dockerInfoMap = this._generateDockerInfoMap()
+    const dockerInfoMap = this._generateDockerInfoMap();
     this.taskRoles.forEach(taskRole => {
-      const { dockerInfo } = taskRole
-      const dockerInfoKey = TaskRolesManager._getDockerInfoKey(dockerInfo)
+      const { dockerInfo } = taskRole;
+      const dockerInfoKey = TaskRolesManager._getDockerInfoKey(dockerInfo);
       if (!dockerInfoMap.has(dockerInfoKey)) {
-        taskRole.dockerInfo = new DockerInfo({})
+        taskRole.dockerInfo = new DockerInfo({});
       }
-      const mapInfo = dockerInfoMap.get(dockerInfoKey)
-      dockerInfo.name = mapInfo.name
-      dockerInfo.secretRef = mapInfo.secretRef
-    })
+      const mapInfo = dockerInfoMap.get(dockerInfoKey);
+      dockerInfo.name = mapInfo.name;
+      dockerInfo.secretRef = mapInfo.secretRef;
+    });
   }
 
   static getTaskRolesPrerequisites(taskRoles) {
-    const prerequistitesMap = new Map()
+    const prerequistitesMap = new Map();
     taskRoles.forEach(taskRole => {
-      const { dockerInfo } = taskRole
-      const dockerInfoKey = TaskRolesManager._getDockerInfoKey(dockerInfo)
-      prerequistitesMap.set(dockerInfoKey, taskRole.getDockerPrerequisite())
-    })
+      const { dockerInfo } = taskRole;
+      const dockerInfoKey = TaskRolesManager._getDockerInfoKey(dockerInfo);
+      prerequistitesMap.set(dockerInfoKey, taskRole.getDockerPrerequisite());
+    });
 
-    return Array.from(prerequistitesMap.values())
+    return Array.from(prerequistitesMap.values());
   }
 
   _getSecretKey(secretRef) {
-    const matchResults = SECRET_PATTERN.exec(secretRef)
+    const matchResults = SECRET_PATTERN.exec(secretRef);
     if (isEmpty(matchResults)) {
-      return ''
+      return '';
     }
-    return matchResults[1]
+    return matchResults[1];
   }
 
   _populateDockerInfoWithSecret(
@@ -116,87 +116,87 @@ export class TaskRolesManager {
     secretKey,
     updateDirection,
   ) {
-    let isUpdated = false
-    const { password } = dockerInfo.auth
-    const findSecret = secret.find(secret => secret.key === secretKey)
+    let isUpdated = false;
+    const { password } = dockerInfo.auth;
+    const findSecret = secret.find(secret => secret.key === secretKey);
     if (findSecret !== undefined && findSecret.value !== password) {
       if (updateDirection === UPDATE_FROM_TASKROLE_TO_SECRET) {
-        findSecret.value = password
+        findSecret.value = password;
       }
       if (updateDirection === UPDATE_FROM_SECRET_TO_TASKROLE) {
-        dockerInfo.auth.password = findSecret.value
+        dockerInfo.auth.password = findSecret.value;
       }
-      isUpdated = true
+      isUpdated = true;
     }
 
     // Remove auth from dockerMap if secret not exist
     if (findSecret === undefined) {
-      dockerInfo.auth = {}
-      dockerInfo.secretRef = ''
-      isUpdated = true
+      dockerInfo.auth = {};
+      dockerInfo.secretRef = '';
+      isUpdated = true;
     }
-    return isUpdated
+    return isUpdated;
   }
 
   _generateDockerInfoMap() {
-    const dockerInfoMap = new Map()
-    const usedNames = []
-    const usedSecretRefs = []
+    const dockerInfoMap = new Map();
+    const usedNames = [];
+    const usedSecretRefs = [];
     this.taskRoles.forEach(taskRole => {
-      const { dockerInfo } = taskRole
-      const keyString = TaskRolesManager._getDockerInfoKey(dockerInfo)
+      const { dockerInfo } = taskRole;
+      const keyString = TaskRolesManager._getDockerInfoKey(dockerInfo);
       if (dockerInfoMap.has(keyString)) {
-        return
+        return;
       }
-      const name = this._generateDockerName(dockerInfo, usedNames)
-      usedNames.push(name)
+      const name = this._generateDockerName(dockerInfo, usedNames);
+      usedNames.push(name);
 
-      let { secretRef } = dockerInfo
+      let { secretRef } = dockerInfo;
       if (this._isValidSecretKey(dockerInfo, usedSecretRefs)) {
-        usedSecretRefs.push(secretRef)
+        usedSecretRefs.push(secretRef);
       } else {
-        secretRef = ''
+        secretRef = '';
       }
 
-      dockerInfoMap.set(keyString, { name, secretRef })
-    })
-    return dockerInfoMap
+      dockerInfoMap.set(keyString, { name, secretRef });
+    });
+    return dockerInfoMap;
   }
 
   _generateDockerName(dockerInfo, usedNames) {
-    let { name } = dockerInfo
+    let { name } = dockerInfo;
     if (isEmpty(name) || usedNames.find(usedName => usedName === name)) {
-      ;[name, dockerNameSeq] = createUniqueName(
+      [name, dockerNameSeq] = createUniqueName(
         usedNames,
         DOCKER_IMAGE_PREFIX,
         dockerNameSeq,
-      )
+      );
     }
 
-    return name
+    return name;
   }
 
   _isValidSecretKey(dockerInfo, usedSecretRefs) {
-    const { secretRef } = dockerInfo
+    const { secretRef } = dockerInfo;
     if (isEmpty(secretRef)) {
-      return false
+      return false;
     }
 
-    const matchResults = SECRET_PATTERN.exec(secretRef)
+    const matchResults = SECRET_PATTERN.exec(secretRef);
     if (isEmpty(matchResults)) {
-      return false
+      return false;
     }
 
     if (usedSecretRefs.find(usedSecretRef => usedSecretRef === secretRef)) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   static _getDockerInfoKey(dockerInfo) {
-    const keyObject = { uri: dockerInfo.uri, auth: dockerInfo.auth }
-    const keyString = JSON.stringify(keyObject)
-    return keyString
+    const keyObject = { uri: dockerInfo.uri, auth: dockerInfo.auth };
+    const keyString = JSON.stringify(keyObject);
+    return keyString;
   }
 }

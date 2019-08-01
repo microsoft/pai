@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React from 'react'
+import React from 'react';
 import {
   Text,
   Stack,
@@ -31,10 +31,10 @@ import {
   FontSizes,
   FontWeights,
   getTheme,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import Card from '../../../components/card'
-import { TooltipIcon } from '../controls/tooltip-icon'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import Card from '../../../components/card';
+import { TooltipIcon } from '../controls/tooltip-icon';
 
 const style = {
   headerText: {
@@ -52,7 +52,7 @@ const style = {
       height: 'auto',
     },
   },
-}
+};
 
 export const SidebarCard = ({
   title,
@@ -62,7 +62,7 @@ export const SidebarCard = ({
   error,
   tooltip,
 }) => {
-  const { palette } = getTheme()
+  const { palette } = getTheme();
 
   return (
     <Card
@@ -86,8 +86,8 @@ export const SidebarCard = ({
         {selected && <div style={{ overflowY: 'auto' }}>{children}</div>}
       </Stack>
     </Card>
-  )
-}
+  );
+};
 
 SidebarCard.propTypes = {
   title: PropTypes.string,
@@ -99,4 +99,4 @@ SidebarCard.propTypes = {
   onSelect: PropTypes.func,
   children: PropTypes.node,
   error: PropTypes.bool,
-}
+};

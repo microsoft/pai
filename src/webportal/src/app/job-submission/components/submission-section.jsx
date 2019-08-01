@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import PropTypes from 'prop-types'
-import { isNil, debounce, isEqual, isEmpty, cloneDeep } from 'lodash'
-import React, { useState, useRef, useEffect, useContext } from 'react'
-import MediaQuery from 'react-responsive'
+import PropTypes from 'prop-types';
+import { isNil, debounce, isEqual, isEmpty, cloneDeep } from 'lodash';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import MediaQuery from 'react-responsive';
 import {
   Stack,
   DefaultButton,
@@ -36,51 +36,51 @@ import {
   Label,
   StackItem,
   Toggle,
-} from 'office-ui-fabric-react'
+} from 'office-ui-fabric-react';
 
-import { getImportButtonStyle } from './form-style'
-import { JobProtocol } from '../models/job-protocol'
-import { JobBasicInfo } from '../models/job-basic-info'
-import { JobTaskRole } from '../models/job-task-role'
-import { submitJob } from '../utils/conn'
-import MonacoPanel from '../../components/monaco-panel'
-import Card from '../../components/card'
+import { getImportButtonStyle } from './form-style';
+import { JobProtocol } from '../models/job-protocol';
+import { JobBasicInfo } from '../models/job-basic-info';
+import { JobTaskRole } from '../models/job-task-role';
+import { submitJob } from '../utils/conn';
+import MonacoPanel from '../../components/monaco-panel';
+import Card from '../../components/card';
 import {
   populateProtocolWithDataCli,
   getJobComponentsFromConfig,
-} from '../utils/utils'
-import Context from './context'
-import { BasicSection } from './basic-section'
-import { FormShortSection } from './form-page'
+} from '../utils/utils';
+import Context from './context';
+import { BasicSection } from './basic-section';
+import { FormShortSection } from './form-page';
 
 const JOB_PROTOCOL_SCHEMA_URL =
-  'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml'
+  'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
 
-const user = cookies.get('user')
-const { palette, spacing } = getTheme()
-const importButtonStyle = getImportButtonStyle()
+const user = cookies.get('user');
+const { palette, spacing } = getTheme();
+const importButtonStyle = getImportButtonStyle();
 
 const _exportFile = (data, filename, type) => {
-  const file = new Blob([data], { type })
+  const file = new Blob([data], { type });
   if (window.navigator.msSaveOrOpenBlob) {
     // IE10+
-    window.navigator.msSaveOrOpenBlob(file, filename)
+    window.navigator.msSaveOrOpenBlob(file, filename);
   } else {
     // Others
-    const a = document.createElement('a')
-    const url = URL.createObjectURL(file)
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
     setTimeout(function() {
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
-    }, 0)
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
   }
-}
+};
 
-const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section'
+const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
 
 export const SubmissionSection = props => {
   const {
@@ -93,29 +93,29 @@ export const SubmissionSection = props => {
     onToggleAdvanceFlag,
     jobData,
     initJobProtocol,
-  } = props
-  const [isEditorOpen, setEditorOpen] = useState(false)
+  } = props;
+  const [isEditorOpen, setEditorOpen] = useState(false);
 
   const [jobProtocol, setjobProtocol] = useState(
     new JobProtocol(initJobProtocol),
-  )
-  const [protocolYaml, setProtocolYaml] = useState('')
-  const [validationMsg, setValidationMsg] = useState('')
+  );
+  const [protocolYaml, setProtocolYaml] = useState('');
+  const [validationMsg, setValidationMsg] = useState('');
 
-  const monaco = useRef(null)
+  const monaco = useRef(null);
 
-  const { vcNames, errorMessages, setErrorMessage } = useContext(Context)
+  const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
 
   const _protocolAndErrorUpdate = protocol => {
     if (!isEqual(jobProtocol, protocol)) {
-      setjobProtocol(protocol)
+      setjobProtocol(protocol);
     }
-    const newValidationMessage = JobProtocol.validateFromObject(protocol)
+    const newValidationMessage = JobProtocol.validateFromObject(protocol);
     if (newValidationMessage !== validationMsg) {
-      setValidationMsg(newValidationMessage)
+      setValidationMsg(newValidationMessage);
     }
-    setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage)
-  }
+    setErrorMessage(VALIDATION_ERROR_MESSAGE_ID, newValidationMessage);
+  };
 
   useEffect(() => {
     const protocol = jobProtocol.getUpdatedProtocol(
@@ -123,38 +123,38 @@ export const SubmissionSection = props => {
       jobTaskRoles,
       parameters,
       secrets,
-    )
-    _protocolAndErrorUpdate(protocol)
-  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol])
+    );
+    _protocolAndErrorUpdate(protocol);
+  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
 
   const _openEditor = async event => {
-    event.preventDefault()
-    setEditorOpen(true)
+    event.preventDefault();
+    setEditorOpen(true);
 
     const protocol = jobProtocol.getUpdatedProtocol(
       jobInformation,
       jobTaskRoles,
       parameters,
       secrets,
-    )
-    _protocolAndErrorUpdate(protocol)
+    );
+    _protocolAndErrorUpdate(protocol);
     try {
-      await populateProtocolWithDataCli(user, protocol, jobData)
-      setProtocolYaml(protocol.toYaml())
+      await populateProtocolWithDataCli(user, protocol, jobData);
+      setProtocolYaml(protocol.toYaml());
     } catch (err) {
-      alert(err)
+      alert(err);
     }
-  }
+  };
 
   const _updatedComponent = protocolYaml => {
-    const updatedJob = JobProtocol.fromYaml(protocolYaml)
+    const updatedJob = JobProtocol.fromYaml(protocolYaml);
     if (isNil(updatedJob)) {
-      return
+      return;
     }
 
-    setjobProtocol(updatedJob)
+    setjobProtocol(updatedJob);
     if (onChange === undefined) {
-      return
+      return;
     }
 
     const [
@@ -162,75 +162,75 @@ export const SubmissionSection = props => {
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
-    ] = getJobComponentsFromConfig(updatedJob, { vcNames })
+    ] = getJobComponentsFromConfig(updatedJob, { vcNames });
 
     onChange(
       updatedJobInformation,
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
-    )
-  }
+    );
+  };
 
   const _closeEditor = () => {
-    setEditorOpen(false)
-    _updatedComponent(protocolYaml)
+    setEditorOpen(false);
+    _updatedComponent(protocolYaml);
 
     // Change to the default theme
-    monaco.current.editor.setTheme('vs')
-  }
+    monaco.current.editor.setTheme('vs');
+  };
 
   const _exportYaml = async event => {
-    event.preventDefault()
-    const protocol = cloneDeep(jobProtocol)
+    event.preventDefault();
+    const protocol = cloneDeep(jobProtocol);
     try {
-      await populateProtocolWithDataCli(user, protocol, jobData)
+      await populateProtocolWithDataCli(user, protocol, jobData);
       _exportFile(
         protocol.toYaml(),
         `${protocol.name || 'job'}.yaml`,
         'text/yaml',
-      )
+      );
     } catch (err) {
-      alert(err)
+      alert(err);
     }
-  }
+  };
 
   const _importFile = event => {
-    event.preventDefault()
-    const { files } = event.target
+    event.preventDefault();
+    const { files } = event.target;
     if (!files || !files[0]) {
-      return
+      return;
     }
-    const fileReader = new FileReader()
+    const fileReader = new FileReader();
     fileReader.addEventListener('load', () => {
-      const text = String(fileReader.result)
+      const text = String(fileReader.result);
       try {
-        _updatedComponent(text)
+        _updatedComponent(text);
       } catch (err) {
-        alert(err.message)
+        alert(err.message);
       }
-    })
-    fileReader.readAsText(files[0])
-  }
+    });
+    fileReader.readAsText(files[0]);
+  };
 
   const _onYamlTextChange = text => {
-    setProtocolYaml(text)
-    setValidationMsg(JobProtocol.validateFromYaml(text))
-  }
+    setProtocolYaml(text);
+    setValidationMsg(JobProtocol.validateFromYaml(text));
+  };
 
   const _submitJob = async event => {
-    event.preventDefault()
-    const protocol = cloneDeep(jobProtocol)
+    event.preventDefault();
+    const protocol = cloneDeep(jobProtocol);
     try {
-      await populateProtocolWithDataCli(user, protocol, jobData)
-      await submitJob(protocol.toYaml())
-      window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`
+      await populateProtocolWithDataCli(user, protocol, jobData);
+      await submitJob(protocol.toYaml());
+      window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
     } catch (err) {
-      alert(err)
+      alert(err);
     }
-  }
+  };
 
-  const widthBreakpoint = 1550
+  const widthBreakpoint = 1550;
 
   return (
     <Card>
@@ -351,8 +351,8 @@ export const SubmissionSection = props => {
         }}
       />
     </Card>
-  )
-}
+  );
+};
 
 SubmissionSection.propTypes = {
   jobInformation: PropTypes.instanceOf(JobBasicInfo).isRequired,
@@ -364,4 +364,4 @@ SubmissionSection.propTypes = {
   onToggleAdvanceFlag: PropTypes.func,
   jobData: PropTypes.object,
   initJobProtocol: PropTypes.object,
-}
+};

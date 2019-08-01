@@ -15,16 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, ColorClassNames } from '@uifabric/styling'
-import c from 'classnames'
-import { isEqual, isNil } from 'lodash'
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner'
-import React, { useLayoutEffect, useState } from 'react'
-import PropTypes from 'prop-types'
+import { FontClassNames, ColorClassNames } from '@uifabric/styling';
+import c from 'classnames';
+import { isEqual, isNil } from 'lodash';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import React, { useLayoutEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
-import t from './tachyons.scss'
+import t from './tachyons.scss';
 
-import loadingGif from '../../assets/img/loading.gif'
+import loadingGif from '../../assets/img/loading.gif';
 
 export const Loading = () => (
   <div
@@ -39,37 +39,37 @@ export const Loading = () => (
       <img className={t.o50} src={loadingGif} />
     </div>
   </div>
-)
+);
 
 // min-height issue hack
 // https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
 export const SpinnerLoading = ({ label = 'Loading...' }) => {
-  const [style, setStyle] = useState({})
+  const [style, setStyle] = useState({});
   useLayoutEffect(() => {
     function layout() {
-      const contentWrapper = document.getElementById('content-wrapper')
+      const contentWrapper = document.getElementById('content-wrapper');
       if (isNil(contentWrapper)) {
-        return
+        return;
       }
-      const pt = window.getComputedStyle(contentWrapper).paddingTop
-      const rect = contentWrapper.getBoundingClientRect()
+      const pt = window.getComputedStyle(contentWrapper).paddingTop;
+      const rect = contentWrapper.getBoundingClientRect();
       const nextStyle = {
         paddingTop: pt,
         top: rect.top,
         left: rect.left,
         width: rect.right - rect.left,
         height: rect.bottom - rect.top,
-      }
+      };
       if (!isEqual(nextStyle, style)) {
-        setStyle(nextStyle)
+        setStyle(nextStyle);
       }
     }
-    layout()
-    window.addEventListener('resize', layout)
+    layout();
+    window.addEventListener('resize', layout);
     return () => {
-      window.removeEventListener('resize', layout)
-    }
-  })
+      window.removeEventListener('resize', layout);
+    };
+  });
 
   return (
     <div
@@ -81,12 +81,12 @@ export const SpinnerLoading = ({ label = 'Loading...' }) => {
         <div className={c(t.ml4, FontClassNames.xLarge)}>{label}</div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 SpinnerLoading.propTypes = {
   label: PropTypes.string,
-}
+};
 
 export const MaskSpinnerLoading = ({ label = 'Loading...' }) => (
   <div
@@ -104,8 +104,8 @@ export const MaskSpinnerLoading = ({ label = 'Loading...' }) => (
       </div>
     </div>
   </div>
-)
+);
 
 MaskSpinnerLoading.propTypes = {
   label: PropTypes.string,
-}
+};

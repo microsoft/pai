@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 import {
   DetailsList,
   SelectionMode,
@@ -23,21 +23,21 @@ import {
   TooltipHost,
   Dropdown,
   DefaultButton,
-} from 'office-ui-fabric-react'
+} from 'office-ui-fabric-react';
 
-import c from 'classnames'
-import t from '../../../components/tachyons.scss'
-import { StatusBadge } from '../../../components/status-badge'
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
+import { StatusBadge } from '../../../components/status-badge';
 
-import TableTextField from './TableTextField'
-import Context from './Context'
-import { toBool, isFinished } from './utils'
-import { checkUsername, checkPassword, checkEmail } from '../utils'
+import TableTextField from './TableTextField';
+import Context from './Context';
+import { toBool, isFinished } from './utils';
+import { checkUsername, checkPassword, checkEmail } from '../utils';
 
 export default function Table() {
   const { userInfos, virtualClusters, removeRow, allUsers } = useContext(
     Context,
-  )
+  );
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -51,29 +51,29 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender: userInfo => {
-      const { username } = userInfo
+      const { username } = userInfo;
       const getErrorMessage = value => {
-        const errorMessage = checkUsername(value)
+        const errorMessage = checkUsername(value);
         if (errorMessage) {
-          return errorMessage
+          return errorMessage;
         }
         if (allUsers.indexOf(value) !== -1) {
-          return 'User name already exists'
+          return 'User name already exists';
         }
-        return ''
-      }
+        return '';
+      };
       return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={username}
           onChange={(_event, newValue) => {
-            userInfo.username = newValue
+            userInfo.username = newValue;
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -87,22 +87,22 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender: userInfo => {
-      const { password } = userInfo
+      const { password } = userInfo;
       const getErrorMessage = value => {
-        return checkPassword(value)
-      }
+        return checkPassword(value);
+      };
       return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={password}
           onChange={(_event, newValue) => {
-            userInfo.password = newValue
+            userInfo.password = newValue;
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -116,26 +116,26 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender: userInfo => {
-      const { email } = userInfo
+      const { email } = userInfo;
       const getErrorMessage = value => {
-        return checkEmail(value)
-      }
+        return checkEmail(value);
+      };
       return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={email}
           onChange={(_event, newValue) => {
-            userInfo.email = newValue
+            userInfo.email = newValue;
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      ))
+      ));
     },
-  }
+  };
 
-  emailColumn.onRender.displayName = 'onRenderEmailColumn'
+  emailColumn.onRender.displayName = 'onRenderEmailColumn';
 
-  const dropdownTitleStyle = [t.bgWhite, { border: '1px solid #a6a6a6' }]
+  const dropdownTitleStyle = [t.bgWhite, { border: '1px solid #a6a6a6' }];
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -155,9 +155,9 @@ export default function Table() {
       const options = [
         { key: 'true', text: 'Yes' },
         { key: 'false', text: 'No' },
-      ]
-      const { admin } = userInfo
-      const finished = isFinished(userInfo)
+      ];
+      const { admin } = userInfo;
+      const finished = isFinished(userInfo);
       return ((
         <Dropdown
           options={options}
@@ -165,16 +165,16 @@ export default function Table() {
           styles={{ title: dropdownTitleStyle }}
           defaultSelectedKey={String(toBool(admin))}
           onChange={(_event, option, _index) => {
-            userInfo.admin = option.key
+            userInfo.admin = option.key;
           }}
           onRenderTitle={options => {
-            const [{ text }] = options
-            return <span className={t.black}>{text}</span>
+            const [{ text }] = options;
+            return <span className={t.black}>{text}</span>;
           }}
         />
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -192,9 +192,9 @@ export default function Table() {
        * @type {import('office-ui-fabric-react').IDropdownOption[]}
        */
       const options = virtualClusters.map(vc => {
-        return { key: vc, text: vc }
-      })
-      const finished = isFinished(userInfo)
+        return { key: vc, text: vc };
+      });
+      const finished = isFinished(userInfo);
       return ((
         <Dropdown
           disabled={finished}
@@ -204,27 +204,27 @@ export default function Table() {
           defaultSelectedKeys={userInfo.vcs}
           onChange={(_event, option, _index) => {
             if (option.selected) {
-              userInfo.vcs.push(option.text)
+              userInfo.vcs.push(option.text);
             } else {
-              userInfo.vcs.splice(userInfo.vcs.indexOf(option.text), 1)
+              userInfo.vcs.splice(userInfo.vcs.indexOf(option.text), 1);
             }
           }}
           onRenderTitle={_options => {
             if (userInfo.vcs.length === 0) {
-              return null
+              return null;
             }
-            let innerText = userInfo.vcs[0]
+            let innerText = userInfo.vcs[0];
             if (userInfo.vcs.length > 1) {
-              innerText += ` (+${userInfo.vcs.length - 1})`
+              innerText += ` (+${userInfo.vcs.length - 1})`;
             }
-            return <span className={t.black}>{innerText}</span>
+            return <span className={t.black}>{innerText}</span>;
           }}
         />
-      ))
+      ));
     },
-  }
+  };
 
-  virtualClusterColumn.onRender.displayName = 'onRenderVirtualClusterColumn'
+  virtualClusterColumn.onRender.displayName = 'onRenderVirtualClusterColumn';
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -239,14 +239,14 @@ export default function Table() {
     isResizable: true,
 
     onRender(userInfo) {
-      const { status: { isSuccess, message } = {} } = userInfo
-      let statusText
+      const { status: { isSuccess, message } = {} } = userInfo;
+      let statusText;
       if (isSuccess === true) {
-        statusText = 'Succeeded'
+        statusText = 'Succeeded';
       } else if (isSuccess === false) {
-        statusText = 'Failed'
+        statusText = 'Failed';
       } else {
-        return undefined
+        return undefined;
       }
       return ((
         <div className={c(t.flex, t.itemsCenter, t.h100)}>
@@ -254,9 +254,9 @@ export default function Table() {
             <StatusBadge status={statusText} />
           </TooltipHost>
         </div>
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -271,8 +271,8 @@ export default function Table() {
        * @param {React.MouseEvent} event
        */
       function onClick(event) {
-        event.stopPropagation()
-        removeRow(userInfo)
+        event.stopPropagation();
+        removeRow(userInfo);
       }
       return ((
         <DefaultButton
@@ -286,9 +286,9 @@ export default function Table() {
         >
           Remove
         </DefaultButton>
-      ))
+      ));
     },
-  }
+  };
 
   const columns = [
     usernameColumn,
@@ -298,7 +298,7 @@ export default function Table() {
     adminColumn,
     virtualClusterColumn,
     actionColumn,
-  ]
+  ];
 
   return (
     <DetailsList
@@ -306,5 +306,5 @@ export default function Table() {
       selectionMode={SelectionMode.none}
       columns={columns}
     />
-  )
+  );
 }

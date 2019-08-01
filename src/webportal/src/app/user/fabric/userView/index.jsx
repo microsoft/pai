@@ -15,216 +15,216 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 import {
   Fabric,
   Stack,
   initializeIcons,
   getTheme,
-} from 'office-ui-fabric-react'
-import { debounce, findIndex } from 'lodash'
+} from 'office-ui-fabric-react';
+import { debounce, findIndex } from 'lodash';
 
-import { MaskSpinnerLoading } from '../../../components/loading'
-import { initTheme } from '../../../components/theme'
-import MessageBox from '../components/MessageBox'
+import { MaskSpinnerLoading } from '../../../components/loading';
+import { initTheme } from '../../../components/theme';
+import MessageBox from '../components/MessageBox';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
-import Context from './Context'
-import TopBar from './TopBar'
-import Table from './Table'
-import Ordering from './Ordering'
-import Filter from './Filter'
-import Pagination from './Pagination'
-import Paginator from './Paginator'
-import UserEditor from './UserEditor'
-import BatchPasswordEditor from './BatchPasswordEditor'
-import BatchVirtualClustersEditor from './BatchVirtualClustersEditor'
+import Context from './Context';
+import TopBar from './TopBar';
+import Table from './Table';
+import Ordering from './Ordering';
+import Filter from './Filter';
+import Pagination from './Pagination';
+import Paginator from './Paginator';
+import UserEditor from './UserEditor';
+import BatchPasswordEditor from './BatchPasswordEditor';
+import BatchVirtualClustersEditor from './BatchVirtualClustersEditor';
 import {
   getAllUsersRequest,
   getAllVcsRequest,
   removeUserRequest,
-} from '../conn'
+} from '../conn';
 
-initTheme()
-initializeIcons()
+initTheme();
+initializeIcons();
 
 export default function UserView() {
-  const [loading, setLoading] = useState({ show: false, text: '' })
+  const [loading, setLoading] = useState({ show: false, text: '' });
   const showLoading = text => {
-    setLoading({ show: true, text: text })
-  }
+    setLoading({ show: true, text: text });
+  };
   const hideLoading = () => {
-    setLoading({ show: false })
-  }
+    setLoading({ show: false });
+  };
 
   const [messageBox, setMessageBox] = useState({
     text: '',
     confirm: false,
     onClose: null,
-  })
+  });
   const showMessageBox = value => {
     return new Promise((resolve, reject) => {
-      setMessageBox({ text: String(value), onClose: resolve })
-    })
-  }
+      setMessageBox({ text: String(value), onClose: resolve });
+    });
+  };
   const showMessageBoxWithConfirm = value => {
     return new Promise((resolve, reject) => {
-      setMessageBox({ text: String(value), onClose: resolve, confirm: true })
-    })
-  }
+      setMessageBox({ text: String(value), onClose: resolve, confirm: true });
+    });
+  };
   const hideMessageBox = value => {
-    const { onClose } = messageBox
-    setMessageBox({ text: '' })
+    const { onClose } = messageBox;
+    setMessageBox({ text: '' });
     if (onClose) {
-      onClose(value)
+      onClose(value);
     }
-  }
+  };
 
-  const [allUsers, setAllUsers] = useState([])
+  const [allUsers, setAllUsers] = useState([]);
   const refreshAllUsers = () => {
-    setAllUsers([])
+    setAllUsers([]);
     getAllUsersRequest()
       .then(data => {
-        setAllUsers(data)
+        setAllUsers(data);
       })
       .catch(err => {
         showMessageBox(err).then(() => {
-          window.location.href = '/'
-        })
-      })
-  }
-  useEffect(refreshAllUsers, [])
+          window.location.href = '/';
+        });
+      });
+  };
+  useEffect(refreshAllUsers, []);
 
-  const [allVCs, setAllVCs] = useState([])
+  const [allVCs, setAllVCs] = useState([]);
   const refreshAllVCs = () => {
     getAllVcsRequest().then(data => {
-      setAllVCs(Object.keys(data).sort())
-    })
-  }
-  useEffect(refreshAllVCs, [])
+      setAllVCs(Object.keys(data).sort());
+    });
+  };
+  useEffect(refreshAllVCs, []);
 
   const initialFilter = useMemo(() => {
-    const filter = new Filter()
-    filter.load()
-    return filter
-  })
-  const [filter, setFilter] = useState(initialFilter)
-  useEffect(() => filter.save(), [filter])
+    const filter = new Filter();
+    filter.load();
+    return filter;
+  });
+  const [filter, setFilter] = useState(initialFilter);
+  useEffect(() => filter.save(), [filter]);
 
-  const [filteredUsers, setFilteredUsers] = useState(null)
+  const [filteredUsers, setFilteredUsers] = useState(null);
   const { current: applyFilter } = useRef(
     debounce((allUsers, /** @type {Filter} */ filter) => {
-      setFilteredUsers(filter.apply(allUsers || []))
+      setFilteredUsers(filter.apply(allUsers || []));
     }, 200),
-  )
+  );
   useEffect(() => {
-    applyFilter(allUsers, filter)
-  }, [applyFilter, allUsers, filter])
+    applyFilter(allUsers, filter);
+  }, [applyFilter, allUsers, filter]);
 
-  const [pagination, setPagination] = useState(new Pagination())
+  const [pagination, setPagination] = useState(new Pagination());
   useEffect(() => {
-    setPagination(new Pagination(pagination.itemsPerPage, 0))
-  }, [filteredUsers])
+    setPagination(new Pagination(pagination.itemsPerPage, 0));
+  }, [filteredUsers]);
 
-  const [selectedUsers, setSelectedUsers] = useState([])
-  const [allSelected, setAllSelected] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [allSelected, setAllSelected] = useState(false);
   const getSelectedUsers = () => {
     if (allSelected) {
-      return pagination.apply(ordering.apply(filteredUsers || []))
+      return pagination.apply(ordering.apply(filteredUsers || []));
     }
-    return selectedUsers
-  }
+    return selectedUsers;
+  };
 
-  const [ordering, setOrdering] = useState(new Ordering())
+  const [ordering, setOrdering] = useState(new Ordering());
 
   const createBulkUsers = () => {
-    window.location.href = '/batch-register.html'
-  }
+    window.location.href = '/batch-register.html';
+  };
 
   const removeUsers = () => {
-    const selected = getSelectedUsers()
+    const selected = getSelectedUsers();
     showMessageBoxWithConfirm(
       `Are you sure to remove ${
         selected.length === 1 ? 'the user' : 'these users'
       }?`,
     ).then(confirmed => {
       if (confirmed) {
-        showLoading('Processing...')
+        showLoading('Processing...');
         Promise.all(
           selected.map(user =>
             removeUserRequest(user.username).catch(err => err),
           ),
         ).then(results => {
-          hideLoading()
-          const errors = results.filter(result => result instanceof Error)
-          let message = `Remove ${selected.length === 1 ? 'user' : 'users'} `
+          hideLoading();
+          const errors = results.filter(result => result instanceof Error);
+          let message = `Remove ${selected.length === 1 ? 'user' : 'users'} `;
           if (errors.length === 0) {
-            message += 'successfully.'
+            message += 'successfully.';
           } else {
-            message += `with ${errors.length} failed.`
+            message += `with ${errors.length} failed.`;
             errors.forEach(error => {
-              message += `\n${String(error)}`
-            })
+              message += `\n${String(error)}`;
+            });
           }
           setTimeout(() => {
             showMessageBox(message).then(() => {
-              refreshAllUsers()
-            })
-          }, 100)
-        })
+              refreshAllUsers();
+            });
+          }, 100);
+        });
       }
-    })
-  }
+    });
+  };
 
   const [userEditor, setUserEditor] = useState({
     isOpen: false,
     isCreate: true,
     user: {},
-  })
+  });
   const addUser = () => {
-    setUserEditor({ isOpen: true, isCreate: true, user: {} })
-  }
+    setUserEditor({ isOpen: true, isCreate: true, user: {} });
+  };
   const editUser = user => {
-    setUserEditor({ isOpen: true, isCreate: false, user })
-  }
+    setUserEditor({ isOpen: true, isCreate: false, user });
+  };
   const hideAddOrEditUser = () => {
-    setUserEditor({ isOpen: false, isCreate: true, user: {} })
-  }
+    setUserEditor({ isOpen: false, isCreate: true, user: {} });
+  };
 
   const [batchPasswordEditor, setBatchPasswordEditor] = useState({
     isOpen: false,
-  })
+  });
   const showBatchPasswordEditor = () => {
     const selectedAdmin =
-      findIndex(getSelectedUsers(), user => user.admin) !== -1
+      findIndex(getSelectedUsers(), user => user.admin) !== -1;
     if (selectedAdmin) {
       showMessageBoxWithConfirm(
         'Your options include the administrator, please confirm whether to continue this operation',
       ).then(confirmed => {
         if (confirmed) {
-          setBatchPasswordEditor({ isOpen: true })
+          setBatchPasswordEditor({ isOpen: true });
         }
-      })
+      });
     } else {
-      setBatchPasswordEditor({ isOpen: true })
+      setBatchPasswordEditor({ isOpen: true });
     }
-  }
+  };
   const hideBatchPasswordEditor = () => {
-    setBatchPasswordEditor({ isOpen: false })
-  }
+    setBatchPasswordEditor({ isOpen: false });
+  };
 
   const [batchVirtualClustersEditor, setBatchVirtualClustersEditor] = useState({
     isOpen: false,
     user: {},
-  })
+  });
   const showBatchVirtualClustersEditor = () => {
-    setBatchVirtualClustersEditor({ isOpen: true })
-  }
+    setBatchVirtualClustersEditor({ isOpen: true });
+  };
   const hideBatchVirtualClustersEditor = () => {
-    setBatchVirtualClustersEditor({ isOpen: false })
-  }
+    setBatchVirtualClustersEditor({ isOpen: false });
+  };
 
   const context = {
     allUsers,
@@ -247,9 +247,9 @@ export default function UserView() {
     showBatchPasswordEditor,
     showBatchVirtualClustersEditor,
     showMessageBox,
-  }
+  };
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <Context.Provider value={context}>
@@ -317,5 +317,5 @@ export default function UserView() {
         />
       )}
     </Context.Provider>
-  )
+  );
 }

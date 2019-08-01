@@ -18,11 +18,11 @@
 export const toBool = val => {
   return (
     String(val).toLowerCase() === 'true' || String(val).toLowerCase() === 'yes'
-  )
-}
+  );
+};
 
 export const isFinished = userInfo => {
-  const { status: { isSuccess } = {} } = userInfo
-  if (isSuccess) return true
-  return false
-}
+  const { status: { isSuccess } = {} } = userInfo;
+  if (isSuccess) return true;
+  return false;
+};

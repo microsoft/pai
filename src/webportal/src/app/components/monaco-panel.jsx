@@ -15,19 +15,19 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames'
+import c from 'classnames';
 import {
   ColorClassNames,
   DefaultButton,
   Panel,
   PanelType,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import React, { useRef } from 'react'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
 
-import MonacoEditor from './monaco-editor'
+import MonacoEditor from './monaco-editor';
 
-import t from './tachyons.scss'
+import t from './tachyons.scss';
 
 const MonacoPanel = ({
   isOpen,
@@ -40,7 +40,7 @@ const MonacoPanel = ({
   schemas,
   monacoRef,
 }) => {
-  const panelRef = useRef(null)
+  const panelRef = useRef(null);
   return (
     <div>
       <Panel
@@ -96,8 +96,8 @@ const MonacoPanel = ({
         </div>
       </Panel>
     </div>
-  )
-}
+  );
+};
 
 MonacoPanel.propTypes = {
   // panel props
@@ -111,6 +111,6 @@ MonacoPanel.propTypes = {
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
   monacoRef: PropTypes.object,
-}
+};
 
-export default MonacoPanel
+export default MonacoPanel;

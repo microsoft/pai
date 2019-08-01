@@ -23,16 +23,16 @@
  * SOFTWARE.
  */
 
-import { get, isNil, isEmpty } from 'lodash'
-import { DockerInfo } from './docker-info'
-import { Completion } from './completion'
-import { Deployment } from './deployment'
+import { get, isNil, isEmpty } from 'lodash';
+import { DockerInfo } from './docker-info';
+import { Completion } from './completion';
+import { Deployment } from './deployment';
 import {
   getDefaultContainerSize,
   isDefaultContainerSize,
-} from './container-size'
-import { removeEmptyProperties } from '../utils/utils'
-import { DEFAULT_DOCKER_URI } from '../utils/constants'
+} from './container-size';
+import { removeEmptyProperties } from '../utils/utils';
+import { DEFAULT_DOCKER_URI } from '../utils/constants';
 
 export class JobTaskRole {
   constructor(props) {
@@ -47,17 +47,17 @@ export class JobTaskRole {
       containerSize,
       isContainerSizeEnabled,
       taskRetryCount,
-    } = props
-    this.name = name || ''
-    this.instances = instances || 1
-    this.dockerInfo = dockerInfo || new DockerInfo({ uri: DEFAULT_DOCKER_URI })
-    this.ports = ports || []
-    this.commands = commands || ''
-    this.completion = completion || new Completion({})
-    this.deployment = deployment || new Deployment({})
-    this.containerSize = containerSize || getDefaultContainerSize()
-    this.isContainerSizeEnabled = isContainerSizeEnabled || false
-    this.taskRetryCount = taskRetryCount || 0
+    } = props;
+    this.name = name || '';
+    this.instances = instances || 1;
+    this.dockerInfo = dockerInfo || new DockerInfo({ uri: DEFAULT_DOCKER_URI });
+    this.ports = ports || [];
+    this.commands = commands || '';
+    this.completion = completion || new Completion({});
+    this.deployment = deployment || new Deployment({});
+    this.containerSize = containerSize || getDefaultContainerSize();
+    this.isContainerSizeEnabled = isContainerSizeEnabled || false;
+    this.taskRetryCount = taskRetryCount || 0;
   }
 
   static fromProtocol(
@@ -67,23 +67,27 @@ export class JobTaskRole {
     prerequisites,
     secrets,
   ) {
-    const instances = get(taskRoleProtocol, 'instances', 1)
-    const completion = get(taskRoleProtocol, 'completion', {})
-    const dockerImage = get(taskRoleProtocol, 'dockerImage')
-    const resourcePerInstance = get(taskRoleProtocol, 'resourcePerInstance', {})
-    const commands = get(taskRoleProtocol, 'commands', [])
+    const instances = get(taskRoleProtocol, 'instances', 1);
+    const completion = get(taskRoleProtocol, 'completion', {});
+    const dockerImage = get(taskRoleProtocol, 'dockerImage');
+    const resourcePerInstance = get(
+      taskRoleProtocol,
+      'resourcePerInstance',
+      {},
+    );
+    const commands = get(taskRoleProtocol, 'commands', []);
 
-    const taskDeployment = get(deployments[0], `taskRoles.${name}`, {})
+    const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
     const dockerInfo =
       prerequisites.find(prerequisite => prerequisite.name === dockerImage) ||
-      {}
+      {};
     const ports = isNil(resourcePerInstance.ports)
       ? []
       : Object.entries(resourcePerInstance.ports).map(([key, value]) => ({
           key,
           value: value.toString(),
-        }))
-    const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0)
+        }));
+    const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
 
     const jobTaskRole = new JobTaskRole({
       name,
@@ -95,36 +99,36 @@ export class JobTaskRole {
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
       ports,
       taskRetryCount,
-    })
+    });
 
     if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
-      jobTaskRole.isContainerSizeEnabled = true
+      jobTaskRole.isContainerSizeEnabled = true;
     }
-    return jobTaskRole
+    return jobTaskRole;
   }
 
   getDockerPrerequisite() {
-    return this.dockerInfo.convertToProtocolFormat()
+    return this.dockerInfo.convertToProtocolFormat();
   }
 
   getDeployment() {
-    return this.deployment.convertToProtocolFormat()
+    return this.deployment.convertToProtocolFormat();
   }
 
   convertToProtocolFormat() {
-    const taskRole = {}
+    const taskRole = {};
     const ports = this.ports.reduce((val, x) => {
       if (typeof x.value === 'string') {
-        val[x.key] = parseInt(x.value)
+        val[x.key] = parseInt(x.value);
       } else {
-        val[x.key] = x.value
+        val[x.key] = x.value;
       }
-      return val
-    }, {})
+      return val;
+    }, {});
     const resourcePerInstance = removeEmptyProperties({
       ...this.containerSize,
       ports,
-    })
+    });
 
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
@@ -138,8 +142,8 @@ export class JobTaskRole {
             .split('\n')
             .map(line => line.trim()),
       taskRetryCount: this.taskRetryCount,
-    })
+    });
 
-    return taskRole
+    return taskRole;
   }
 }

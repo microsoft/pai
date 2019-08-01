@@ -15,27 +15,27 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react'
-import { PropTypes } from 'prop-types'
+import React from 'react';
+import { PropTypes } from 'prop-types';
 
-import { Modal, MessageBar, MessageBarButton } from 'office-ui-fabric-react'
+import { Modal, MessageBar, MessageBarButton } from 'office-ui-fabric-react';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
 function MessageBox(props) {
-  const { text, onDismiss, confirm } = props
+  const { text, onDismiss, confirm } = props;
 
   const closeModal = () => {
-    if (onDismiss) onDismiss(!confirm)
-  }
+    if (onDismiss) onDismiss(!confirm);
+  };
 
   const onClickOK = () => {
-    if (onDismiss) onDismiss(true)
-  }
+    if (onDismiss) onDismiss(true);
+  };
 
   const onClickCancel = () => {
-    if (onDismiss) onDismiss(false)
-  }
+    if (onDismiss) onDismiss(false);
+  };
 
   return (
     <Modal
@@ -69,13 +69,13 @@ function MessageBox(props) {
         </MessageBar>
       </div>
     </Modal>
-  )
+  );
 }
 
 MessageBox.propTypes = {
   text: PropTypes.string,
   onDismiss: PropTypes.func,
   confirm: PropTypes.bool,
-}
+};
 
-export default MessageBox
+export default MessageBox;

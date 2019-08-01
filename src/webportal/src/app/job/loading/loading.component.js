@@ -16,14 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-require('./loading.component.scss')
+require('./loading.component.scss');
 
 const showLoading = () => {
-  $('#mask').show()
-}
+  $('#mask').show();
+};
 
 const hideLoading = () => {
-  $('#mask').hide()
-}
+  $('#mask').hide();
+};
 
-module.exports = { showLoading, hideLoading }
+module.exports = { showLoading, hideLoading };

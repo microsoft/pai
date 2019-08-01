@@ -23,14 +23,14 @@
  * SOFTWARE.
  */
 
-import { isEmpty } from 'lodash'
-import PropTypes from 'prop-types'
-import React, { useCallback } from 'react'
-import { BasicSection } from './basic-section'
-import { FormShortSection } from './form-page'
-import { DebouncedTextField } from './controls/debounced-text-field'
+import { isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import { BasicSection } from './basic-section';
+import { FormShortSection } from './form-page';
+import { DebouncedTextField } from './controls/debounced-text-field';
 
-const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/
+const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const FormTextField = React.memo(props => {
   const {
@@ -40,21 +40,21 @@ export const FormTextField = React.memo(props => {
     sectionTooltip,
     shortStyle,
     value,
-  } = props
+  } = props;
   const _onGetErrorMessage = value => {
-    const match = TEXT_FILED_REGX.exec(value)
+    const match = TEXT_FILED_REGX.exec(value);
     if (isEmpty(match)) {
-      return 'Input is invalid'
+      return 'Input is invalid';
     }
-    return ''
-  }
+    return '';
+  };
 
   const onChangeWrapper = useCallback(
     (_, val) => {
-      onChange(val)
+      onChange(val);
     },
     [onChange],
-  )
+  );
 
   const textField = (
     <DebouncedTextField
@@ -63,7 +63,7 @@ export const FormTextField = React.memo(props => {
       onChange={onChangeWrapper}
       onGetErrorMessage={_onGetErrorMessage}
     />
-  )
+  );
 
   return (
     <BasicSection
@@ -77,8 +77,8 @@ export const FormTextField = React.memo(props => {
         textField
       )}
     </BasicSection>
-  )
-})
+  );
+});
 
 FormTextField.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
@@ -90,4 +90,4 @@ FormTextField.propTypes = {
   value: PropTypes.string,
   sectionOptional: PropTypes.bool,
   shortStyle: PropTypes.bool,
-}
+};

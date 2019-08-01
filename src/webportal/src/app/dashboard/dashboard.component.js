@@ -16,23 +16,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const dashboardComponent = require('./dashboard.component.ejs')
-const webportalConfig = require('../config/webportal.config.js')
+const dashboardComponent = require('./dashboard.component.ejs');
+const webportalConfig = require('../config/webportal.config.js');
 
 const dashboardHtml = dashboardComponent({
   grafanaUri: webportalConfig.grafanaUri,
-})
+});
 
 function resizeContentWrapper() {
-  $('#content-wrapper').css({ height: `${$(window).height()}px` })
+  $('#content-wrapper').css({ height: `${$(window).height()}px` });
 }
 
 window.onresize = function(envent) {
-  resizeContentWrapper()
-}
+  resizeContentWrapper();
+};
 
 $(document).ready(function() {
-  document.getElementById('sidebar-menu--dashboard').classList.add('active')
-  resizeContentWrapper()
-  $('#content-wrapper').html(dashboardHtml)
-})
+  document.getElementById('sidebar-menu--dashboard').classList.add('active');
+  resizeContentWrapper();
+  $('#content-wrapper').html(dashboardHtml);
+});

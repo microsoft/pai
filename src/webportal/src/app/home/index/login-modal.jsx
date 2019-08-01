@@ -15,27 +15,27 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, FontWeights } from '@uifabric/styling'
-import c from 'classnames'
+import { FontClassNames, FontWeights } from '@uifabric/styling';
+import c from 'classnames';
 import {
   Modal,
   TextField,
   PrimaryButton,
   MessageBar,
   MessageBarType,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import React, { useRef, useCallback } from 'react'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import React, { useRef, useCallback } from 'react';
 
-import t from 'tachyons-sass/tachyons.scss'
+import t from 'tachyons-sass/tachyons.scss';
 
 const LoginModal = ({ isOpen, lock, error, onDismiss, onLogin }) => {
-  const usernameRef = useRef(null)
-  const passwordRef = useRef(null)
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
   const onSubmit = useCallback(e => {
-    e.preventDefault()
-    onLogin(usernameRef.current.value, passwordRef.current.value)
-  }, [])
+    e.preventDefault();
+    onLogin(usernameRef.current.value, passwordRef.current.value);
+  }, []);
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
       <div className={c(t.pa5)} style={{ width: '24rem' }}>
@@ -85,8 +85,8 @@ const LoginModal = ({ isOpen, lock, error, onDismiss, onLogin }) => {
         </form>
       </div>
     </Modal>
-  )
-}
+  );
+};
 
 LoginModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
@@ -94,6 +94,6 @@ LoginModal.propTypes = {
   error: PropTypes.string,
   onDismiss: PropTypes.func.isRequired,
   onLogin: PropTypes.func.isRequired,
-}
+};
 
-export default LoginModal
+export default LoginModal;

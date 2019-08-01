@@ -15,9 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import PropTypes from 'prop-types'
-import { ColorClassNames, Stack } from 'office-ui-fabric-react'
-import React from 'react'
+import PropTypes from 'prop-types';
+import { ColorClassNames, Stack } from 'office-ui-fabric-react';
+import React from 'react';
 
 const Card = ({ className, style, children }) => (
   <Stack
@@ -26,12 +26,12 @@ const Card = ({ className, style, children }) => (
   >
     {children}
   </Stack>
-)
+);
 
 Card.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   children: PropTypes.node,
-}
+};
 
-export default Card
+export default Card;

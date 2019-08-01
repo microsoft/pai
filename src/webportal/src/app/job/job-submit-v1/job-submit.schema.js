@@ -44,7 +44,7 @@ const portTypeSchema = {
     },
   },
   required: ['label', 'beginAt', 'portNumber'],
-}
+};
 
 const taskRoleSchema = {
   type: 'object',
@@ -148,7 +148,7 @@ const taskRoleSchema = {
     'gpuNumber',
     'command',
   ],
-}
+};
 
 const jobSchema = {
   type: 'object',
@@ -266,6 +266,6 @@ const jobSchema = {
   },
   required: ['jobName', 'image', 'taskRoles'],
   defaultProperties: ['jobName', 'image', 'virtualCluster', 'taskRoles'],
-}
+};
 
-module.exports = jobSchema
+module.exports = jobSchema;

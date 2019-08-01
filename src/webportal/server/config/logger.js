@@ -16,9 +16,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const util = require('util')
-const winston = require('winston')
-const config = require('./index')
+const util = require('util');
+const winston = require('winston');
+const config = require('./index');
 
 const logTransports = {
   console: new winston.transports.Console({
@@ -26,17 +26,17 @@ const logTransports = {
     colorize: true,
     timestamp: () => new Date().toISOString(),
     formatter: options => {
-      const timestamp = options.timestamp()
+      const timestamp = options.timestamp();
       const level = winston.config.colorize(
         options.level,
         options.level.toUpperCase(),
-      )
-      const message = options.message ? options.message : ''
+      );
+      const message = options.message ? options.message : '';
       const meta =
         options.meta && Object.keys(options.meta).length
           ? '\nmeta = ' + JSON.stringify(options.meta, null, 2)
-          : ''
-      return util.format(timestamp, '[' + level + ']', message, meta)
+          : '';
+      return util.format(timestamp, '[' + level + ']', message, meta);
     },
   }),
   file: new winston.transports.File({
@@ -45,20 +45,20 @@ const logTransports = {
     timestamp: () => Date.now(),
     filename: 'server.log',
   }),
-}
+};
 
 // create logger
 const logger = new winston.Logger({
   level: config.logLevel,
   transports: [logTransports.console, logTransports.file],
   exitOnError: false,
-})
+});
 
 logger.stream = {
   write: (message, encoding) => {
-    logger.info(message.trim())
+    logger.info(message.trim());
   },
-}
+};
 
 // module exports
-module.exports = logger
+module.exports = logger;

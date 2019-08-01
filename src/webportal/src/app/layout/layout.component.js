@@ -16,35 +16,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-require('bootstrap')
-require('admin-lte')
-require('bootstrap/dist/css/bootstrap.min.css')
-require('admin-lte/dist/css/AdminLTE.min.css')
-require('admin-lte/dist/css/skins/_all-skins.min.css')
-require('font-awesome/css/font-awesome.min.css')
-require('./layout.component.scss')
-const userAuthComponent = require('../user/user-auth/user-auth.component.js')
-const userLogoutComponent = require('../user/user-logout/user-logout.component.js')
-const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs')
-const pluginComponent = require('./plugins.component.ejs')
-const { authnMethod } = require('../config/webportal.config.js')
+require('bootstrap');
+require('admin-lte');
+require('bootstrap/dist/css/bootstrap.min.css');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('admin-lte/dist/css/skins/_all-skins.min.css');
+require('font-awesome/css/font-awesome.min.css');
+require('./layout.component.scss');
+const userAuthComponent = require('../user/user-auth/user-auth.component.js');
+const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
+const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
+const pluginComponent = require('./plugins.component.ejs');
+const { authnMethod } = require('../config/webportal.config.js');
 
-const userLoginNavHtml = userLoginNavComponent({ cookies })
+const userLoginNavHtml = userLoginNavComponent({ cookies });
 
-window.userLogout = userLogoutComponent.userLogout
+window.userLogout = userLogoutComponent.userLogout;
 
-$('#navbar').html(userLoginNavHtml)
-userAuthComponent.checkToken()
+$('#navbar').html(userLoginNavHtml);
+userAuthComponent.checkToken();
 if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--dashboard').hide()
-  $('#sidebar-menu--vc').hide()
-  $('#sidebar-menu--cluster-view').hide()
+  $('#sidebar-menu--dashboard').hide();
+  $('#sidebar-menu--vc').hide();
+  $('#sidebar-menu--cluster-view').hide();
 }
 
 if (authnMethod === 'OIDC') {
-  $('#sidebar-menu--cluster-view--user-management').hide()
+  $('#sidebar-menu--cluster-view--user-management').hide();
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({ plugins: window.PAI_PLUGINS }))
+  $('.sidebar-menu').append(pluginComponent({ plugins: window.PAI_PLUGINS }));
 }

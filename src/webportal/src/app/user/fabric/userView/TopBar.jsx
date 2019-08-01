@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from 'react';
 
 import {
   CommandBarButton,
@@ -25,18 +25,20 @@ import {
   ColorClassNames,
   getTheme,
   TooltipHost,
-} from 'office-ui-fabric-react'
-import { PropTypes } from 'prop-types'
-import { findIndex } from 'lodash'
+} from 'office-ui-fabric-react';
+import { PropTypes } from 'prop-types';
+import { findIndex } from 'lodash';
 
-import Context from './Context'
-import Filter from './Filter'
+import Context from './Context';
+import Filter from './Filter';
 
 function FilterButton({ defaultRender: Button, ...props }) {
   const {
     subMenuProps: { items },
-  } = props
-  const checkedItems = items.filter(item => item.checked).map(item => item.text)
+  } = props;
+  const checkedItems = items
+    .filter(item => item.checked)
+    .map(item => item.text);
   const checkedText =
     checkedItems.length === 0 ? null : checkedItems.length === 1 ? (
       <strong>{checkedItems[0]}</strong>
@@ -45,20 +47,20 @@ function FilterButton({ defaultRender: Button, ...props }) {
         {checkedItems[0]}
         {` (+${checkedItems.length - 1})`}
       </strong>
-    )
-  return <Button {...props}>{checkedText}</Button>
+    );
+  return <Button {...props}>{checkedText}</Button>;
 }
 
 FilterButton.propTypes = {
   defaultRender: PropTypes.elementType.isRequired,
   subMenuProps: PropTypes.object.isRequired,
-}
+};
 
 function KeywordSearchBox() {
-  const { filter, setFilter } = useContext(Context)
+  const { filter, setFilter } = useContext(Context);
   function onKeywordChange(keyword) {
-    const { admins, virtualClusters } = filter
-    setFilter(new Filter(keyword, admins, virtualClusters))
+    const { admins, virtualClusters } = filter;
+    setFilter(new Filter(keyword, admins, virtualClusters));
   }
 
   return (
@@ -75,11 +77,11 @@ function KeywordSearchBox() {
       value={filter.keyword}
       onChange={onKeywordChange}
     />
-  )
+  );
 }
 
 function TopBar() {
-  const [active, setActive] = useState(true)
+  const [active, setActive] = useState(true);
   const {
     allVCs,
     refreshAllUsers,
@@ -92,9 +94,9 @@ function TopBar() {
     editUser,
     showBatchPasswordEditor,
     showBatchVirtualClustersEditor,
-  } = useContext(Context)
+  } = useContext(Context);
 
-  const transparentStyles = { root: { background: 'transparent' } }
+  const transparentStyles = { root: { background: 'transparent' } };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -107,7 +109,7 @@ function TopBar() {
       iconName: 'Add',
     },
     onClick: addUser,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -120,7 +122,7 @@ function TopBar() {
       iconName: 'Stack',
     },
     onClick: createBulkUsers,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -149,9 +151,9 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -164,9 +166,9 @@ function TopBar() {
       iconName: 'EditContact',
     },
     onClick: () => {
-      editUser(getSelectedUsers()[0])
+      editUser(getSelectedUsers()[0]);
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -179,7 +181,7 @@ function TopBar() {
       iconName: 'EditStyle',
     },
     onClick: showBatchPasswordEditor,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -208,9 +210,9 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -223,7 +225,7 @@ function TopBar() {
       iconName: 'Refresh',
     },
     onClick: refreshAllUsers,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -231,7 +233,7 @@ function TopBar() {
   const inputKeyword = {
     key: 'keyword',
     commandBarButtonAs: KeywordSearchBox,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -242,7 +244,7 @@ function TopBar() {
     iconProps: { iconName: 'Filter' },
     menuIconProps: { iconName: active ? 'ChevronUp' : 'ChevronDown' },
     onClick() {
-      setActive(!active)
+      setActive(!active);
     },
     onRender(item) {
       return ((
@@ -254,9 +256,9 @@ function TopBar() {
         >
           Filters
         </CommandBarButton>
-      ))
+      ));
     },
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -270,10 +272,10 @@ function TopBar() {
       iconName: 'Cancel',
     },
     onClick() {
-      setFilter(new Filter())
-      setActive(false)
+      setFilter(new Filter());
+      setActive(false);
     },
-  }
+  };
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -284,24 +286,24 @@ function TopBar() {
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
     function onClick(event, { key, checked }) {
-      event.preventDefault()
-      const { keyword, virtualClusters } = filter
-      const admins = new Set(filter.admins)
+      event.preventDefault();
+      const { keyword, virtualClusters } = filter;
+      const admins = new Set(filter.admins);
       if (checked) {
-        admins.delete(key)
+        admins.delete(key);
       } else {
-        admins.add(key)
+        admins.add(key);
       }
-      setFilter(new Filter(keyword, admins, virtualClusters))
+      setFilter(new Filter(keyword, admins, virtualClusters));
     }
 
     /**
      * @param {React.SyntheticEvent} event
      */
     function onClearClick(event) {
-      event.preventDefault()
-      const { keyword, virtualClusters } = filter
-      setFilter(new Filter(keyword, new Set(), virtualClusters))
+      event.preventDefault();
+      const { keyword, virtualClusters } = filter;
+      setFilter(new Filter(keyword, new Set(), virtualClusters));
     }
 
     /**
@@ -316,7 +318,7 @@ function TopBar() {
         canCheck: true,
         checked: filter.admins.has(key),
         onClick,
-      }
+      };
     }
 
     return {
@@ -340,7 +342,7 @@ function TopBar() {
         ]),
       },
       commandBarButtonAs: FilterButton,
-    }
+    };
   }
 
   /**
@@ -352,24 +354,24 @@ function TopBar() {
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
     function onClick(event, { key, checked }) {
-      event.preventDefault()
-      const { keyword, admins } = filter
-      const virtualClusters = new Set(filter.virtualClusters)
+      event.preventDefault();
+      const { keyword, admins } = filter;
+      const virtualClusters = new Set(filter.virtualClusters);
       if (checked) {
-        virtualClusters.delete(key)
+        virtualClusters.delete(key);
       } else {
-        virtualClusters.add(key)
+        virtualClusters.add(key);
       }
-      setFilter(new Filter(keyword, admins, virtualClusters))
+      setFilter(new Filter(keyword, admins, virtualClusters));
     }
 
     /**
      * @param {React.SyntheticEvent} event
      */
     function onClearClick(event) {
-      event.preventDefault()
-      const { keyword, admins } = filter
-      setFilter(new Filter(keyword, admins, new Set()))
+      event.preventDefault();
+      const { keyword, admins } = filter;
+      setFilter(new Filter(keyword, admins, new Set()));
     }
 
     /**
@@ -384,7 +386,7 @@ function TopBar() {
         canCheck: true,
         checked: filter.virtualClusters.has(key),
         onClick,
-      }
+      };
     }
 
     return {
@@ -408,57 +410,57 @@ function TopBar() {
         ]),
       },
       commandBarButtonAs: FilterButton,
-    }
+    };
   }
 
-  const topBarItems = []
-  const selectedUsers = getSelectedUsers()
-  const selected = selectedUsers.length > 0
-  const selectedMulti = selectedUsers.length > 1
-  const selectedAdmin = findIndex(selectedUsers, user => user.admin) !== -1
+  const topBarItems = [];
+  const selectedUsers = getSelectedUsers();
+  const selected = selectedUsers.length > 0;
+  const selectedMulti = selectedUsers.length > 1;
+  const selectedAdmin = findIndex(selectedUsers, user => user.admin) !== -1;
   if (selected) {
     if (selectedMulti) {
-      topBarItems.push(btnBatchEditPassword)
+      topBarItems.push(btnBatchEditPassword);
       if (selectedAdmin) {
         const disabledTip =
-          'Unable to do this for administrators, please make sure the multi-option does not include an administrator'
+          'Unable to do this for administrators, please make sure the multi-option does not include an administrator';
         topBarItems.push(
           Object.assign(btnBatchEditVirtualClusters, {
             disabled: true,
             disabledTip,
           }),
-        )
+        );
         topBarItems.push(
           Object.assign(btnRemove, { disabled: true, disabledTip }),
-        )
+        );
       } else {
-        topBarItems.push(btnBatchEditVirtualClusters)
-        topBarItems.push(btnRemove)
+        topBarItems.push(btnBatchEditVirtualClusters);
+        topBarItems.push(btnRemove);
       }
     } else {
-      topBarItems.push(btnEdit)
+      topBarItems.push(btnEdit);
       if (selectedAdmin) {
         topBarItems.push(
           Object.assign(btnRemove, {
             disabled: true,
             disabledTip: 'The administrator could not be removed',
           }),
-        )
+        );
       } else {
-        topBarItems.push(btnRemove)
+        topBarItems.push(btnRemove);
       }
     }
   } else {
-    topBarItems.push(btnAddUser)
-    topBarItems.push(btnCreateBulkUsers)
+    topBarItems.push(btnAddUser);
+    topBarItems.push(btnCreateBulkUsers);
   }
-  topBarItems.push(btnRefresh)
-  const topBarFarItems = [btnFilters]
+  topBarItems.push(btnRefresh);
+  const topBarFarItems = [btnFilters];
 
-  const filterBarItems = [inputKeyword]
-  const filterBarFarItems = [getBtnVirtualCluster(), getBtnAdmin(), btnClear]
+  const filterBarItems = [inputKeyword];
+  const filterBarFarItems = [getBtnVirtualCluster(), getBtnAdmin(), btnClear];
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <React.Fragment>
@@ -485,7 +487,7 @@ function TopBar() {
         />
       ) : null}
     </React.Fragment>
-  )
+  );
 }
 
-export default TopBar
+export default TopBar;

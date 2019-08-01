@@ -15,12 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, FontWeights } from '@uifabric/styling'
-import c from 'classnames'
-import { Link } from 'office-ui-fabric-react'
-import React from 'react'
+import { FontClassNames, FontWeights } from '@uifabric/styling';
+import c from 'classnames';
+import { Link } from 'office-ui-fabric-react';
+import React from 'react';
 
-import t from 'tachyons-sass/tachyons.scss'
+import t from 'tachyons-sass/tachyons.scss';
 
 const Bottom = () => (
   <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flexL)}>
@@ -135,6 +135,6 @@ const Bottom = () => (
       </Link>
     </div>
   </div>
-)
+);
 
-export default Bottom
+export default Bottom;

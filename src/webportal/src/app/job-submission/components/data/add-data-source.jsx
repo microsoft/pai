@@ -1,20 +1,20 @@
-import React, { useState } from 'react'
-import c from 'classnames'
-import { PrimaryButton } from 'office-ui-fabric-react/lib/Button'
-import PropTypes from 'prop-types'
+import React, { useState } from 'react';
+import c from 'classnames';
+import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import PropTypes from 'prop-types';
 
-import { AddHttp } from './add-http'
-import { AddLocal } from './add-local'
-import { AddGit } from './add-git'
-import { AddHDFS } from './add-hdfs'
-import { InputData } from '../../models/data/input-data'
-import { HdfsContext } from '../../models/data/hdfs-context'
+import { AddHttp } from './add-http';
+import { AddLocal } from './add-local';
+import { AddGit } from './add-git';
+import { AddHDFS } from './add-hdfs';
+import { InputData } from '../../models/data/input-data';
+import { HdfsContext } from '../../models/data/hdfs-context';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
 export const AddDataSource = props => {
-  const { dataList, setDataList } = props
-  const [dataType, setDataType] = useState()
+  const { dataList, setDataList } = props;
+  const [dataType, setDataType] = useState();
 
   const menuItems = [
     {
@@ -22,7 +22,7 @@ export const AddDataSource = props => {
       text: 'From local ( size<1G )',
       iconProps: { iconName: 'Documentation' },
       onClick: () => {
-        setDataType('local')
+        setDataType('local');
       },
     },
     {
@@ -30,7 +30,7 @@ export const AddDataSource = props => {
       text: 'From http/https source',
       iconProps: { iconName: 'InternetSharing' },
       onClick: () => {
-        setDataType('http')
+        setDataType('http');
       },
     },
     {
@@ -38,7 +38,7 @@ export const AddDataSource = props => {
       text: 'From github public repo',
       iconProps: { iconName: 'GitGraph' },
       onClick: () => {
-        setDataType('git')
+        setDataType('git');
       },
     },
     {
@@ -46,10 +46,10 @@ export const AddDataSource = props => {
       text: 'From PAI HDFS',
       iconProps: { iconName: 'Cloudy' },
       onClick: () => {
-        setDataType('hdfs')
+        setDataType('hdfs');
       },
     },
-  ]
+  ];
 
   return (
     <div>
@@ -100,10 +100,10 @@ export const AddDataSource = props => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 AddDataSource.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
-}
+};

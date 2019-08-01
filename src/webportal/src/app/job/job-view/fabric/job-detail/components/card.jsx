@@ -15,22 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import classNames from 'classnames'
-import PropTypes from 'prop-types'
-import React from 'react'
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import t from '../../../../../components/tachyons.scss'
+import t from '../../../../../components/tachyons.scss';
 
 const Card = ({ children, className, style }) => (
   <div className={classNames(className, t.bgWhite)} style={style}>
     {children}
   </div>
-)
+);
 
 Card.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   style: PropTypes.object,
-}
+};
 
-export default Card
+export default Card;

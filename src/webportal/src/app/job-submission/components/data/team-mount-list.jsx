@@ -1,23 +1,23 @@
-import React, { useLayoutEffect } from 'react'
-import c from 'classnames'
+import React, { useLayoutEffect } from 'react';
+import c from 'classnames';
 import {
   DetailsList,
   SelectionMode,
   FontClassNames,
   DetailsListLayoutMode,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
-import { dispatchResizeEvent } from '../../utils/utils'
-import t from '../../../components/tachyons.scss'
-import { InputData } from '../../models/data/input-data'
+import { dispatchResizeEvent } from '../../utils/utils';
+import t from '../../../components/tachyons.scss';
+import { InputData } from '../../models/data/input-data';
 
 export const TeamMountList = ({ dataList }) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
-    dispatchResizeEvent()
-  })
+    dispatchResizeEvent();
+  });
 
   const columes = [
     {
@@ -28,7 +28,7 @@ export const TeamMountList = ({ dataList }) => {
       onRender: (item, idx) => {
         return (
           <div className={FontClassNames.medium}>{`${item.mountPath}`}</div>
-        )
+        );
       },
     },
     {
@@ -41,7 +41,7 @@ export const TeamMountList = ({ dataList }) => {
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>{`${item.dataSource}`}</div>
-        )
+        );
       },
     },
     {
@@ -54,10 +54,10 @@ export const TeamMountList = ({ dataList }) => {
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>{`${item.sourceType}`}</div>
-        )
+        );
       },
     },
-  ]
+  ];
 
   return (
     <div className={c(t.mb2)}>
@@ -70,9 +70,9 @@ export const TeamMountList = ({ dataList }) => {
         compact
       />
     </div>
-  )
-}
+  );
+};
 
 TeamMountList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
-}
+};

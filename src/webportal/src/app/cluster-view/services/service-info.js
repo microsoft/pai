@@ -24,27 +24,27 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
     url: `${kubeURL}/api/v1/namespaces/${namespace}/pods/`,
     dataType: 'json',
     success(pods) {
-      const podsItems = pods.items
-      const nodeDic = []
+      const podsItems = pods.items;
+      const nodeDic = [];
 
       for (const pod of podsItems) {
-        const { nodeName } = pod.spec
+        const { nodeName } = pod.spec;
         if (nodeDic[nodeName] == null) {
-          nodeDic[nodeName] = []
+          nodeDic[nodeName] = [];
         }
-        nodeDic[nodeName].push(pod)
+        nodeDic[nodeName].push(pod);
       }
-      const resultDic = []
+      const resultDic = [];
       for (const node of nodeList) {
         if (nodeDic[node.metadata.name] === undefined) {
-          nodeDic[node.metadata.name] = []
+          nodeDic[node.metadata.name] = [];
         }
-        resultDic.push({ node, podList: nodeDic[node.metadata.name] })
+        resultDic.push({ node, podList: nodeDic[node.metadata.name] });
       }
-      callback(resultDic)
+      callback(resultDic);
     },
-  })
-}
+  });
+};
 
 const getServiceView = (kubeURL, namespace, callback) => {
   $.ajax({
@@ -52,14 +52,14 @@ const getServiceView = (kubeURL, namespace, callback) => {
     url: `${kubeURL}/api/v1/nodes`,
     dataType: 'json',
     success(data) {
-      const { items } = data
-      const nodeList = []
+      const { items } = data;
+      const nodeList = [];
       for (const item of items) {
-        nodeList.push(item)
+        nodeList.push(item);
       }
-      getNodePods(kubeURL, namespace, nodeList, callback)
+      getNodePods(kubeURL, namespace, nodeList, callback);
     },
-  })
-}
+  });
+};
 
-module.exports = { getServiceView }
+module.exports = { getServiceView };

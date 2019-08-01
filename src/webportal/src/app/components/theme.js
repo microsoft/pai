@@ -14,7 +14,7 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import { loadTheme, FontWeights, getTheme } from '@uifabric/styling'
+import { loadTheme, FontWeights, getTheme } from '@uifabric/styling';
 
 export function initTheme() {
   loadTheme({
@@ -64,10 +64,10 @@ export function initTheme() {
       blue: '#0071bc',
       greenLight: '#7fba00',
     },
-  })
+  });
 }
 
-const { palette } = getTheme()
+const { palette } = getTheme();
 
 export const statusColor = {
   waiting: '#fcd116',
@@ -75,4 +75,4 @@ export const statusColor = {
   running: '#0071bc',
   succeeded: '#7fba00',
   unknown: palette.neutralTertiary,
-}
+};

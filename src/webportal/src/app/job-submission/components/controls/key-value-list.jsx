@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import { camelCase, isEmpty, isNil } from 'lodash'
+import { camelCase, isEmpty, isNil } from 'lodash';
 import {
   IconButton,
   Stack,
@@ -33,18 +33,18 @@ import {
   CommandBarButton,
   getTheme,
   SelectionMode,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 import React, {
   useCallback,
   useLayoutEffect,
   useMemo,
   useState,
   useContext,
-} from 'react'
-import { DebouncedTextField } from './debounced-text-field'
-import { dispatchResizeEvent } from '../../utils/utils'
-import context from '../context'
+} from 'react';
+import { DebouncedTextField } from './debounced-text-field';
+import { dispatchResizeEvent } from '../../utils/utils';
+import context from '../context';
 
 export const KeyValueList = ({
   name,
@@ -60,70 +60,70 @@ export const KeyValueList = ({
   onValidateKey,
   onValidateValue,
 }) => {
-  columnWidth = columnWidth || 180
-  keyName = keyName || 'Key'
-  keyField = keyField || camelCase(keyName)
-  valueName = valueName || 'Value'
-  valueField = valueField || camelCase(valueName)
+  columnWidth = columnWidth || 180;
+  keyName = keyName || 'Key';
+  keyField = keyField || camelCase(keyName);
+  valueName = valueName || 'Value';
+  valueField = valueField || camelCase(valueName);
 
-  const [dupList, setDupList] = useState([])
-  const { setErrorMessage } = useContext(context)
+  const [dupList, setDupList] = useState([]);
+  const { setErrorMessage } = useContext(context);
 
   useMemo(() => {
     const keyCount = value.reduce((res, x) => {
       if (res[x[keyField]] === undefined) {
-        res[x[keyField]] = 0
+        res[x[keyField]] = 0;
       }
-      res[x[keyField]] += 1
-      return res
-    }, {})
+      res[x[keyField]] += 1;
+      return res;
+    }, {});
     const newDupList = value
       .filter(x => keyCount[x[keyField]] > 1)
-      .map(x => x[keyField])
+      .map(x => x[keyField]);
 
-    const msgId = `KeyValueList ${name}`
-    let errorMessage = ''
+    const msgId = `KeyValueList ${name}`;
+    let errorMessage = '';
     if (newDupList.length > 0) {
-      errorMessage = `${name || 'KeyValueList'} has duplicated keys.`
+      errorMessage = `${name || 'KeyValueList'} has duplicated keys.`;
     }
     if (value.some(x => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
-      errorMessage = `${name || 'KeyValueList'} has value with empty key.`
+      errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
     }
     if (!isNil(onValidateKey) || !isNil(onValidateValue)) {
       for (const item of value) {
         if (!isNil(onValidateKey)) {
-          const key = item[keyField]
-          const res = onValidateKey(key)
+          const key = item[keyField];
+          const res = onValidateKey(key);
           if (!isEmpty(res)) {
-            errorMessage = res
+            errorMessage = res;
           }
         }
         if (!isNil(onValidateValue)) {
-          const value = item[valueField]
-          const res = onValidateValue(value)
+          const value = item[valueField];
+          const res = onValidateValue(value);
           if (!isEmpty(res)) {
-            errorMessage = res
+            errorMessage = res;
           }
         }
       }
     }
     if (onError) {
-      onError(errorMessage)
+      onError(errorMessage);
     }
-    setErrorMessage(msgId, errorMessage)
-    setDupList(newDupList)
-  }, [value])
+    setErrorMessage(msgId, errorMessage);
+    setDupList(newDupList);
+  }, [value]);
 
   const onAdd = useCallback(() => {
-    onChange([...value, { [keyField]: '', [valueField]: '' }])
-  }, [onChange, value, keyField, valueField])
+    onChange([...value, { [keyField]: '', [valueField]: '' }]);
+  }, [onChange, value, keyField, valueField]);
 
   const onRemove = useCallback(
     idx => {
-      onChange([...value.slice(0, idx), ...value.slice(idx + 1)])
+      onChange([...value.slice(0, idx), ...value.slice(idx + 1)]);
     },
     [onChange, value],
-  )
+  );
 
   const onKeyChange = useCallback(
     (idx, val) => {
@@ -131,10 +131,10 @@ export const KeyValueList = ({
         ...value.slice(0, idx),
         { ...value[idx], [keyField]: val },
         ...value.slice(idx + 1),
-      ])
+      ]);
     },
     [onChange, value, keyField],
-  )
+  );
 
   const onValueChange = useCallback(
     (idx, val) => {
@@ -142,20 +142,20 @@ export const KeyValueList = ({
         ...value.slice(0, idx),
         { ...value[idx], [valueField]: val },
         ...value.slice(idx + 1),
-      ])
+      ]);
     },
     [onChange, value, valueField],
-  )
+  );
 
-  const getKey = useCallback((item, idx) => idx, [])
+  const getKey = useCallback((item, idx) => idx, []);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
-    dispatchResizeEvent()
-  })
+    dispatchResizeEvent();
+  });
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   const columns = [
     {
@@ -163,17 +163,17 @@ export const KeyValueList = ({
       name: keyName,
       minWidth: columnWidth,
       onRender: (item, idx) => {
-        let errorMessage = null
+        let errorMessage = null;
         if (dupList.includes(item[keyField])) {
-          errorMessage = 'duplicated key'
+          errorMessage = 'duplicated key';
         }
         if (isEmpty(item[keyField]) && !isEmpty(item[valueField])) {
-          errorMessage = 'empty key'
+          errorMessage = 'empty key';
         }
         if (!isNil(onValidateKey)) {
-          const res = onValidateKey(item[keyField])
+          const res = onValidateKey(item[keyField]);
           if (!isEmpty(res)) {
-            errorMessage = res
+            errorMessage = res;
           }
         }
         return (
@@ -182,7 +182,7 @@ export const KeyValueList = ({
             value={item[keyField]}
             onChange={(e, val) => onKeyChange(idx, val)}
           />
-        )
+        );
       },
     },
     {
@@ -190,11 +190,11 @@ export const KeyValueList = ({
       name: valueName,
       minWidth: columnWidth,
       onRender: (item, idx) => {
-        let errorMessage = null
+        let errorMessage = null;
         if (!isNil(onValidateValue)) {
-          const res = onValidateValue(item[valueField])
+          const res = onValidateValue(item[valueField]);
           if (!isEmpty(res)) {
-            errorMessage = res
+            errorMessage = res;
           }
         }
         return (
@@ -204,7 +204,7 @@ export const KeyValueList = ({
             type={secret && 'password'}
             onChange={(e, val) => onValueChange(idx, val)}
           />
-        )
+        );
       },
     },
     {
@@ -229,7 +229,7 @@ export const KeyValueList = ({
         </div>
       ),
     },
-  ]
+  ];
 
   return (
     <Stack gap='m'>
@@ -254,8 +254,8 @@ export const KeyValueList = ({
         </CommandBarButton>
       </div>
     </Stack>
-  )
-}
+  );
+};
 
 KeyValueList.propTypes = {
   name: PropTypes.string,
@@ -272,4 +272,4 @@ KeyValueList.propTypes = {
   // validation
   onValidateKey: PropTypes.func,
   onValidateValue: PropTypes.func,
-}
+};

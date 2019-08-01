@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
-import React from 'react'
+import React from 'react';
 import {
   DetailsList,
   CheckboxVisibility,
   Stack,
   DetailsListLayoutMode,
   SelectionMode,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { Hint } from './hint'
-import { SidebarCard } from './sidebar-card'
-import { PAI_ENV_VAR } from '../../utils/constants'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { Hint } from './hint';
+import { SidebarCard } from './sidebar-card';
+import { PAI_ENV_VAR } from '../../utils/constants';
 
 const columns = [
   {
@@ -51,7 +51,7 @@ const columns = [
     fieldName: 'desc',
     minWidth: 200,
   },
-]
+];
 
 export const EnvVar = React.memo(({ selected, onSelect }) => (
   <SidebarCard
@@ -76,9 +76,9 @@ export const EnvVar = React.memo(({ selected, onSelect }) => (
       </div>
     </Stack>
   </SidebarCard>
-))
+));
 
 EnvVar.propTypes = {
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-}
+};

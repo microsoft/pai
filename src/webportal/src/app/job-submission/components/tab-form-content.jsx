@@ -23,19 +23,19 @@
  * SOFTWARE.
  */
 
-import React from 'react'
-import PropTypes from 'prop-types'
-import { FormTextField } from './form-text-field'
-import { DockerSection } from './docker-section'
-import { FormPage } from './form-page'
-import { JobTaskRole } from '../models/job-task-role'
-import { FormSpinButton } from './form-spin-button'
-import { ContainerSizeSection } from './container-size-section'
-import { CommandSection } from './command-section'
-import { CompletionPolicy } from './task-role/completion-policy'
-import { PortsList } from './task-role/ports-list'
-import { getDefaultContainerSize } from '../models/container-size'
-import { PROTOCOL_TOOLTIPS } from '../utils/constants'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { FormTextField } from './form-text-field';
+import { DockerSection } from './docker-section';
+import { FormPage } from './form-page';
+import { JobTaskRole } from '../models/job-task-role';
+import { FormSpinButton } from './form-spin-button';
+import { ContainerSizeSection } from './container-size-section';
+import { CommandSection } from './command-section';
+import { CompletionPolicy } from './task-role/completion-policy';
+import { PortsList } from './task-role/ports-list';
+import { getDefaultContainerSize } from '../models/container-size';
+import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
 export const TabFormContent = ({
   jobTaskRole,
@@ -43,20 +43,20 @@ export const TabFormContent = ({
   advanceFlag,
 }) => {
   const _onValueChange = (propertyName, propertyValue) => {
-    const udpatedJobTaskRole = new JobTaskRole(jobTaskRole)
-    udpatedJobTaskRole[propertyName] = propertyValue
+    const udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
+    udpatedJobTaskRole[propertyName] = propertyValue;
     if (onContentChange !== undefined) {
-      onContentChange(udpatedJobTaskRole)
+      onContentChange(udpatedJobTaskRole);
     }
-  }
+  };
 
   const _onValuesChange = updateProperties => {
-    let udpatedJobTaskRole = { ...jobTaskRole, ...updateProperties }
-    udpatedJobTaskRole = new JobTaskRole(udpatedJobTaskRole)
+    let udpatedJobTaskRole = { ...jobTaskRole, ...updateProperties };
+    udpatedJobTaskRole = new JobTaskRole(udpatedJobTaskRole);
     if (onContentChange !== undefined) {
-      onContentChange(udpatedJobTaskRole)
+      onContentChange(udpatedJobTaskRole);
     }
-  }
+  };
 
   return (
     <FormPage>
@@ -120,11 +120,11 @@ export const TabFormContent = ({
         </React.Fragment>
       )}
     </FormPage>
-  )
-}
+  );
+};
 
 TabFormContent.propTypes = {
   jobTaskRole: PropTypes.instanceOf(JobTaskRole).isRequired,
   onContentChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
-}
+};

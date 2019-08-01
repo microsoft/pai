@@ -4,8 +4,8 @@ import React, {
   useEffect,
   useContext,
   useLayoutEffect,
-} from 'react'
-import c from 'classnames'
+} from 'react';
+import c from 'classnames';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -13,24 +13,24 @@ import {
   IconButton,
   FontClassNames,
   TextField,
-} from 'office-ui-fabric-react'
-import { cloneDeep } from 'lodash'
-import PropTypes from 'prop-types'
+} from 'office-ui-fabric-react';
+import { cloneDeep } from 'lodash';
+import PropTypes from 'prop-types';
 
-import { STORAGE_PREFIX } from '../../utils/constants'
-import { InputData } from '../../models/data/input-data'
-import { removePathPrefix, dispatchResizeEvent } from '../../utils/utils'
+import { STORAGE_PREFIX } from '../../utils/constants';
+import { InputData } from '../../models/data/input-data';
+import { removePathPrefix, dispatchResizeEvent } from '../../utils/utils';
 import {
   validateMountPath,
   validateHttpUrl,
   validateGitUrl,
   validateHDFSPathSync,
-} from '../../utils/validation'
-import Context from '../context'
+} from '../../utils/validation';
+import Context from '../context';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
-const DATA_ERROR_MESSAGE_ID = 'Data Section'
+const DATA_ERROR_MESSAGE_ID = 'Data Section';
 
 const checkErrorMessage = async (
   dataList,
@@ -39,49 +39,49 @@ const checkErrorMessage = async (
   dataSourceErrorMessage,
   setDataSourceErrorMessage,
 ) => {
-  const newErrorMessage = cloneDeep(containerPathErrorMessage)
-  const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage)
+  const newErrorMessage = cloneDeep(containerPathErrorMessage);
+  const newDataSourceErrorMessage = cloneDeep(dataSourceErrorMessage);
   dataList.forEach(async (dataItem, index) => {
     const validPath = validateMountPath(
       dataItem.mountPath.replace(STORAGE_PREFIX, '/'),
-    )
-    let validSource
+    );
+    let validSource;
     if (!validPath.isLegal) {
-      newErrorMessage[index] = validPath.illegalMessage
+      newErrorMessage[index] = validPath.illegalMessage;
     } else {
-      newErrorMessage[index] = null
+      newErrorMessage[index] = null;
     }
     if (dataItem.sourceType === 'git') {
-      validSource = validateGitUrl(dataItem.dataSource)
+      validSource = validateGitUrl(dataItem.dataSource);
     } else if (dataItem.sourceType === 'http') {
-      validSource = validateHttpUrl(dataItem.dataSource)
+      validSource = validateHttpUrl(dataItem.dataSource);
     } else if (dataItem.sourceType === 'hdfs') {
-      validSource = validateHDFSPathSync(dataItem.dataSource)
+      validSource = validateHDFSPathSync(dataItem.dataSource);
     }
     if (validSource && !validSource.isLegal) {
-      newDataSourceErrorMessage[index] = validSource.illegalMessage
+      newDataSourceErrorMessage[index] = validSource.illegalMessage;
     } else {
-      newDataSourceErrorMessage[index] = null
+      newDataSourceErrorMessage[index] = null;
     }
-  })
-  setContainerPathErrorMessage(newErrorMessage)
-  setDataSourceErrorMessage(newDataSourceErrorMessage)
-}
+  });
+  setContainerPathErrorMessage(newErrorMessage);
+  setDataSourceErrorMessage(newDataSourceErrorMessage);
+};
 
 export const MountList = ({ dataList, setDataList, setDataError }) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
-    dispatchResizeEvent()
-  })
+    dispatchResizeEvent();
+  });
 
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     Array(dataList.length),
-  )
+  );
   const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState(
     Array(dataList.length),
-  )
-  const { setErrorMessage } = useContext(Context)
+  );
+  const { setErrorMessage } = useContext(Context);
 
   useEffect(() => {
     checkErrorMessage(
@@ -90,29 +90,29 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
       setContainerPathErrorMessage,
       dataSourceErrorMessage,
       setDataSourceErrorMessage,
-    )
-  }, [dataList])
+    );
+  }, [dataList]);
 
   useEffect(() => {
     if (
       containerPathErrorMessage.every(element => element === null) &&
       dataSourceErrorMessage.every(element => element === null)
     ) {
-      setErrorMessage(DATA_ERROR_MESSAGE_ID, null)
+      setErrorMessage(DATA_ERROR_MESSAGE_ID, null);
       setDataError({
         customContainerPathError: false,
         customDataSourceError: false,
-      })
+      });
     } else {
       const newErrorMessage = containerPathErrorMessage.every(
         element => element === null,
       )
         ? dataSourceErrorMessage.find(element => element !== null)
-        : containerPathErrorMessage.find(element => element !== null)
+        : containerPathErrorMessage.find(element => element !== null);
       setErrorMessage(
         DATA_ERROR_MESSAGE_ID,
         `DataSectionError: ${newErrorMessage}`,
-      )
+      );
       setDataError({
         customContainerPathError: !containerPathErrorMessage.every(
           element => element === null,
@@ -120,19 +120,19 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
         customDataSourceError: !dataSourceErrorMessage.every(
           element => element === null,
         ),
-      })
+      });
     }
-  }, [containerPathErrorMessage, dataSourceErrorMessage])
+  }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
   const onRemove = useCallback(idx => {
-    setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)])
-  })
+    setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]);
+  });
 
   const onDataSourceChange = useCallback((idx, val) => {
-    const updatedDataList = cloneDeep(dataList)
-    updatedDataList[idx].dataSource = val
-    setDataList(updatedDataList)
-  })
+    const updatedDataList = cloneDeep(dataList);
+    updatedDataList[idx].dataSource = val;
+    setDataList(updatedDataList);
+  });
   const columes = [
     {
       key: 'containerPath',
@@ -146,12 +146,12 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
             value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
             errorMessage={containerPathErrorMessage[idx]}
             onChange={(_event, newValue) => {
-              const updatedDataList = cloneDeep(dataList)
-              updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`
-              setDataList(updatedDataList)
+              const updatedDataList = cloneDeep(dataList);
+              updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
+              setDataList(updatedDataList);
             }}
           />
-        )
+        );
       },
     },
     {
@@ -167,7 +167,7 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
             errorMessage={dataSourceErrorMessage[idx]}
             onChange={(e, val) => onDataSourceChange(idx, val)}
           />
-        )
+        );
       },
     },
     {
@@ -193,7 +193,7 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
         </div>
       ),
     },
-  ]
+  ];
 
   return (
     <div className={c(t.mb2)}>
@@ -206,11 +206,11 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
         compact
       />
     </div>
-  )
-}
+  );
+};
 
 MountList.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataError: PropTypes.func,
-}
+};

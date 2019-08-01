@@ -23,22 +23,22 @@
  * SOFTWARE.
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
   Stack,
   Checkbox,
   FontClassNames,
   FontWeights,
   getTheme,
-} from 'office-ui-fabric-react'
-import c from 'classnames'
-import PropTypes from 'prop-types'
-import { cloneDeep } from 'lodash'
+} from 'office-ui-fabric-react';
+import c from 'classnames';
+import PropTypes from 'prop-types';
+import { cloneDeep } from 'lodash';
 
-import { MountDirectories } from '../../models/data/mount-directories'
-import { TeamMountList } from './team-mount-list'
+import { MountDirectories } from '../../models/data/mount-directories';
+import { TeamMountList } from './team-mount-list';
 
-const { spacing } = getTheme()
+const { spacing } = getTheme();
 
 export const TeamStorage = ({
   teamConfigs,
@@ -48,21 +48,21 @@ export const TeamStorage = ({
 }) => {
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
     return mountDirs.selectedConfigs.map(element => {
-      return element.name
-    })
-  })
+      return element.name;
+    });
+  });
 
   useEffect(() => {
-    let selectedConfigs = []
+    let selectedConfigs = [];
     if (selectedConfigNames.length > 0) {
       selectedConfigs = teamConfigs.filter(element => {
-        return selectedConfigNames.includes(element.name)
-      })
+        return selectedConfigNames.includes(element.name);
+      });
     }
-    const newMountDirs = cloneDeep(mountDirs)
-    newMountDirs.selectedConfigs = selectedConfigs
-    onMountDirChange(newMountDirs)
-  }, [selectedConfigNames])
+    const newMountDirs = cloneDeep(mountDirs);
+    newMountDirs.selectedConfigs = selectedConfigs;
+    onMountDirChange(newMountDirs);
+  }, [selectedConfigNames]);
 
   const showConfigs = config => {
     return (
@@ -74,26 +74,26 @@ export const TeamStorage = ({
           selectedConfigNames.includes(config.name)
         }
         onChange={(ev, isChecked) => {
-          let newSelectedConfigNames = []
+          let newSelectedConfigNames = [];
           if (!isChecked && selectedConfigNames.includes(config.name)) {
-            const idx = selectedConfigNames.indexOf(config.name)
+            const idx = selectedConfigNames.indexOf(config.name);
             newSelectedConfigNames = [
               ...selectedConfigNames.slice(0, idx),
               ...selectedConfigNames.slice(idx + 1),
-            ]
+            ];
           } else if (isChecked && !selectedConfigNames.includes(config.name)) {
-            newSelectedConfigNames = cloneDeep(selectedConfigNames)
-            newSelectedConfigNames.push(config.name)
+            newSelectedConfigNames = cloneDeep(selectedConfigNames);
+            newSelectedConfigNames.push(config.name);
           }
-          setSelectedConfigNames(newSelectedConfigNames)
+          setSelectedConfigNames(newSelectedConfigNames);
         }}
       />
-    )
-  }
+    );
+  };
 
   const showConfigSets = () => {
     if (teamConfigs.length === 0) {
-      return null
+      return null;
     }
     return (
       <div>
@@ -110,15 +110,15 @@ export const TeamStorage = ({
           dataList={mountDirs ? mountDirs.getTeamDataList() : []}
         />
       </div>
-    )
-  }
+    );
+  };
 
-  return <div>{showConfigSets()}</div>
-}
+  return <div>{showConfigSets()}</div>;
+};
 
 TeamStorage.propTypes = {
   teamConfigs: PropTypes.array,
   defaultTeamConfigs: PropTypes.array,
   mountDirs: PropTypes.instanceOf(MountDirectories),
   onMountDirChange: PropTypes.func,
-}
+};

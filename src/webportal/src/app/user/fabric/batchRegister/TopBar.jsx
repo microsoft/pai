@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 
 import {
   DefaultButton,
@@ -23,17 +23,17 @@ import {
   CommandBar,
   getTheme,
   ColorClassNames,
-} from 'office-ui-fabric-react'
+} from 'office-ui-fabric-react';
 
-import Context from './Context'
+import Context from './Context';
 
 function TopBar() {
-  const { importFromCSV, downloadTemplate, addNew } = useContext(Context)
+  const { importFromCSV, downloadTemplate, addNew } = useContext(Context);
 
-  const { spacing } = getTheme()
-  const buttonMarginStyle = { marginRight: spacing.s1 }
+  const { spacing } = getTheme();
+  const buttonMarginStyle = { marginRight: spacing.s1 };
   const buttonNormalBackgroundStyle =
-    ColorClassNames.neutralQuaternaryBackground
+    ColorClassNames.neutralQuaternaryBackground;
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -47,7 +47,7 @@ function TopBar() {
     buttonStyles: { root: [buttonMarginStyle] },
     commandBarButtonAs: PrimaryButton,
     onClick: importFromCSV,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -61,7 +61,7 @@ function TopBar() {
     buttonStyles: { root: [buttonMarginStyle, buttonNormalBackgroundStyle] },
     commandBarButtonAs: DefaultButton,
     onClick: downloadTemplate,
-  }
+  };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -75,9 +75,9 @@ function TopBar() {
     buttonStyles: { root: [buttonMarginStyle, buttonNormalBackgroundStyle] },
     commandBarButtonAs: DefaultButton,
     onClick: addNew,
-  }
+  };
 
-  const topBarItems = [btnBrowse, btnAddNew, btnDownloadTemplate]
+  const topBarItems = [btnBrowse, btnAddNew, btnDownloadTemplate];
 
   return (
     <React.Fragment>
@@ -92,7 +92,7 @@ function TopBar() {
         }}
       />
     </React.Fragment>
-  )
+  );
 }
 
-export default TopBar
+export default TopBar;

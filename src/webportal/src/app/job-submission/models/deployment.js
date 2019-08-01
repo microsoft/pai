@@ -1,23 +1,23 @@
-import { isEmpty, isNil } from 'lodash'
-import { removeEmptyProperties } from '../utils/utils'
+import { isEmpty, isNil } from 'lodash';
+import { removeEmptyProperties } from '../utils/utils';
 
 export class Deployment {
   constructor(props) {
-    const { preCommands, postCommands } = props
-    this.preCommands = preCommands || ''
-    this.postCommands = postCommands || ''
+    const { preCommands, postCommands } = props;
+    this.preCommands = preCommands || '';
+    this.postCommands = postCommands || '';
   }
 
   static fromProtocol(deploymentProtocol) {
-    const { preCommands, postCommands } = deploymentProtocol
-    const updatedPreCommands = isNil(preCommands) ? '' : preCommands.join('\n')
+    const { preCommands, postCommands } = deploymentProtocol;
+    const updatedPreCommands = isNil(preCommands) ? '' : preCommands.join('\n');
     const updatedPostCommands = isNil(postCommands)
       ? ''
-      : postCommands.join('\n')
+      : postCommands.join('\n');
     return new Deployment({
       preCommands: updatedPreCommands,
       postCommands: updatedPostCommands,
-    })
+    });
   }
 
   convertToProtocolFormat() {
@@ -28,6 +28,6 @@ export class Deployment {
       postCommands: isEmpty(this.postCommands)
         ? []
         : this.postCommands.trim().split('\n'),
-    })
+    });
   }
 }

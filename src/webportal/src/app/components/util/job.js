@@ -15,82 +15,82 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { get, isNil } from 'lodash'
-import { Interval, DateTime } from 'luxon'
+import { get, isNil } from 'lodash';
+import { Interval, DateTime } from 'luxon';
 
 export function getHumanizedJobStateString(job) {
-  let hjss = ''
+  let hjss = '';
   if (job.state === 'JOB_NOT_FOUND') {
-    hjss = 'N/A'
+    hjss = 'N/A';
   } else if (job.state === 'WAITING') {
     if (job.executionType === 'STOP') {
-      hjss = 'Stopping'
+      hjss = 'Stopping';
     } else {
-      hjss = 'Waiting'
+      hjss = 'Waiting';
     }
   } else if (job.state === 'RUNNING') {
     if (job.executionType === 'STOP') {
-      hjss = 'Stopping'
+      hjss = 'Stopping';
     } else {
-      hjss = 'Running'
+      hjss = 'Running';
     }
   } else if (job.state === 'SUCCEEDED') {
-    hjss = 'Succeeded'
+    hjss = 'Succeeded';
   } else if (job.state === 'FAILED') {
-    hjss = 'Failed'
+    hjss = 'Failed';
   } else if (job.state === 'STOPPED') {
-    hjss = 'Stopped'
+    hjss = 'Stopped';
   } else {
-    hjss = 'Unknown'
+    hjss = 'Unknown';
   }
-  return hjss
+  return hjss;
 }
 
 export function getJobDuration(jobInfo) {
   const start =
-    get(jobInfo, 'createdTime') && DateTime.fromMillis(jobInfo.createdTime)
+    get(jobInfo, 'createdTime') && DateTime.fromMillis(jobInfo.createdTime);
   const end =
-    get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime)
+    get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime);
   if (start) {
     return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
       'days',
       'hours',
       'minutes',
       'seconds',
-    ])
+    ]);
   }
-  return null
+  return null;
 }
 
 export function getJobDurationString(jobInfo) {
-  const dur = getJobDuration(jobInfo)
+  const dur = getJobDuration(jobInfo);
   if (!isNil(dur)) {
     if (dur.days > 0) {
-      return dur.toFormat(`d'd' h'h' m'm' s's'`)
+      return dur.toFormat(`d'd' h'h' m'm' s's'`);
     }
     if (dur.hours > 0) {
-      return dur.toFormat(`h'h' m'm' s's'`)
+      return dur.toFormat(`h'h' m'm' s's'`);
     }
     if (dur.minutes > 0) {
-      return dur.toFormat(`m'm' s's'`)
+      return dur.toFormat(`m'm' s's'`);
     }
-    return dur.toFormat(`s's'`)
+    return dur.toFormat(`s's'`);
   }
-  return 'N/A'
+  return 'N/A';
 }
 
 export function getJobModifiedTime(job) {
-  const modified = job.completedTime || job.createdTime
+  const modified = job.completedTime || job.createdTime;
   if (!isNil(modified)) {
-    return DateTime.fromMillis(modified)
+    return DateTime.fromMillis(modified);
   }
-  return null
+  return null;
 }
 
 export function getJobModifiedTimeString(job) {
-  const time = getJobModifiedTime(job)
+  const time = getJobModifiedTime(job);
   if (!isNil(time)) {
-    return time.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)
+    return time.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
   }
-  return 'N/A'
+  return 'N/A';
 }

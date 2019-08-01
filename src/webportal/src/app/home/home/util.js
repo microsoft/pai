@@ -15,14 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import randomColor from 'randomcolor'
-import { statusColor } from '../../components/theme'
+import randomColor from 'randomcolor';
+import { statusColor } from '../../components/theme';
 
-export const DEFAULT_COLOR = statusColor.succeeded
+export const DEFAULT_COLOR = statusColor.succeeded;
 
 export function getVirtualClusterColor(name, info) {
   if (!info || !info.dedicated) {
-    return DEFAULT_COLOR
+    return DEFAULT_COLOR;
   }
-  return randomColor({ seed: name, luminosity: 'bright' })
+  return randomColor({ seed: name, luminosity: 'bright' });
 }

@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from 'react';
 import {
   Modal,
   FontClassNames,
@@ -26,14 +26,14 @@ import {
   Dropdown,
   mergeStyles,
   getTheme,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import c from 'classnames'
-import t from '../../../components/tachyons.scss'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import c from 'classnames';
+import t from '../../../components/tachyons.scss';
 
-import { updateUserVcRequest } from '../conn'
+import { updateUserVcRequest } from '../conn';
 
-import Context from './Context'
+import Context from './Context';
 
 export default function BatchVirtualClustersEditor({ isOpen = false, hide }) {
   const {
@@ -41,67 +41,67 @@ export default function BatchVirtualClustersEditor({ isOpen = false, hide }) {
     showMessageBox,
     refreshAllUsers,
     getSelectedUsers,
-  } = useContext(Context)
+  } = useContext(Context);
 
-  const [virtualClusters, setVirtualClusters] = useState([])
+  const [virtualClusters, setVirtualClusters] = useState([]);
 
   const handleVCsChanged = (_event, option, _index) => {
     if (option.selected) {
-      virtualClusters.push(option.text)
+      virtualClusters.push(option.text);
     } else {
-      virtualClusters.splice(virtualClusters.indexOf(option.text), 1)
+      virtualClusters.splice(virtualClusters.indexOf(option.text), 1);
     }
-    setVirtualClusters(virtualClusters.slice())
-  }
+    setVirtualClusters(virtualClusters.slice());
+  };
 
-  const [lock, setLock] = useState(false)
-  const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false)
+  const [lock, setLock] = useState(false);
+  const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
 
   const handleSubmit = async event => {
-    event.preventDefault()
-    setLock(true)
+    event.preventDefault();
+    setLock(true);
 
-    const users = getSelectedUsers()
+    const users = getSelectedUsers();
     for (let i = 0; i < users.length; i++) {
-      const user = users[i]
+      const user = users[i];
       const result = await updateUserVcRequest(user.username, virtualClusters)
         .then(() => {
-          setNeedRefreshAllUsers(true)
-          return { success: true }
+          setNeedRefreshAllUsers(true);
+          return { success: true };
         })
         .catch(err => {
-          return { success: false, message: String(err) }
-        })
+          return { success: false, message: String(err) };
+        });
       if (!result.success) {
-        await showMessageBox(result.message)
-        setLock(false)
-        return
+        await showMessageBox(result.message);
+        setLock(false);
+        return;
       }
     }
-    await showMessageBox('Update vitrual clusters successfully')
-    setLock(false)
-    hide()
-    refreshAllUsers()
-  }
+    await showMessageBox('Update vitrual clusters successfully');
+    setLock(false);
+    hide();
+    refreshAllUsers();
+  };
 
   const handleCancel = () => {
-    hide()
+    hide();
     if (needRefreshAllUsers) {
-      refreshAllUsers()
+      refreshAllUsers();
     }
-  }
+  };
 
-  const tdPaddingStyle = c(t.pa3)
-  const tdLabelStyle = c(tdPaddingStyle, t.tr)
+  const tdPaddingStyle = c(t.pa3);
+  const tdLabelStyle = c(tdPaddingStyle, t.tr);
 
   /**
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
    */
   const vcsOptions = allVCs.map(vc => {
-    return { key: vc, text: vc }
-  })
+    return { key: vc, text: vc };
+  });
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <Modal
@@ -155,10 +155,10 @@ export default function BatchVirtualClustersEditor({ isOpen = false, hide }) {
         </form>
       </div>
     </Modal>
-  )
+  );
 }
 
 BatchVirtualClustersEditor.propTypes = {
   isOpen: PropTypes.bool,
   hide: PropTypes.func,
-}
+};

@@ -15,67 +15,67 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
 import {
   Fabric,
   Stack,
   initializeIcons,
   getTheme,
-} from 'office-ui-fabric-react'
-import { countBy, findIndex } from 'lodash'
+} from 'office-ui-fabric-react';
+import { countBy, findIndex } from 'lodash';
 
-import t from '../../../components/tachyons.scss'
+import t from '../../../components/tachyons.scss';
 
-import Context from './Context'
-import BackButton from '../components/Back'
-import TopBar from './TopBar'
-import Table from './Table'
-import BottomBar from './BottomBar'
-import MessageBox from '../components/MessageBox'
-import { toBool, isFinished } from './utils'
+import Context from './Context';
+import BackButton from '../components/Back';
+import TopBar from './TopBar';
+import Table from './Table';
+import BottomBar from './BottomBar';
+import MessageBox from '../components/MessageBox';
+import { toBool, isFinished } from './utils';
 import {
   getAllUsersRequest,
   getAllVcsRequest,
   createUserRequest,
-} from '../conn'
+} from '../conn';
 
-import { MaskSpinnerLoading } from '../../../components/loading'
-import { initTheme } from '../../../components/theme'
+import { MaskSpinnerLoading } from '../../../components/loading';
+import { initTheme } from '../../../components/theme';
 
-import { checkAdmin } from '../../user-auth/user-auth.component'
+import { checkAdmin } from '../../user-auth/user-auth.component';
 
-const csvParser = require('papaparse')
-const stripBom = require('strip-bom-string')
+const csvParser = require('papaparse');
+const stripBom = require('strip-bom-string');
 
-const columnUsername = 'username'
-const columnPassword = 'password'
-const columnEmail = 'email'
-const columnAdmin = 'admin'
-const columnVC = 'virtual cluster'
+const columnUsername = 'username';
+const columnPassword = 'password';
+const columnEmail = 'email';
+const columnAdmin = 'admin';
+const columnVC = 'virtual cluster';
 
-initTheme()
-initializeIcons()
+initTheme();
+initializeIcons();
 
 export default function BatchRegister() {
-  const [userInfos, setUserInfos] = useState([])
-  const [loading, setLoading] = useState({ show: false, text: '' })
-  const [virtualClusters, setVirtualClusters] = useState([])
-  const [allUsers, setAllUsers] = useState([])
+  const [userInfos, setUserInfos] = useState([]);
+  const [loading, setLoading] = useState({ show: false, text: '' });
+  const [virtualClusters, setVirtualClusters] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const refreshAllVcs = () => {
     getAllVcsRequest().then(data => {
-      setVirtualClusters(Object.keys(data).sort())
-    })
-  }
-  useEffect(refreshAllVcs, [])
+      setVirtualClusters(Object.keys(data).sort());
+    });
+  };
+  useEffect(refreshAllVcs, []);
 
   const refreshAllUsers = () => {
     getAllUsersRequest().then(data => {
-      setAllUsers(data.map(user => user.username))
-    })
-  }
-  useEffect(refreshAllUsers, [])
+      setAllUsers(data.map(user => user.username));
+    });
+  };
+  useEffect(refreshAllUsers, []);
 
   const downloadTemplate = () => {
     const csvString = csvParser.unparse([
@@ -86,139 +86,139 @@ export default function BatchRegister() {
         [columnAdmin]: false,
         [columnVC]: 'default',
       },
-    ])
-    const universalBOM = '\uFEFF'
-    const filename = 'userinfo.csv'
+    ]);
+    const universalBOM = '\uFEFF';
+    const filename = 'userinfo.csv';
     const file = new Blob([universalBOM + csvString], {
       type: 'text/csv;charset=utf-8',
-    })
+    });
     if (window.navigator.msSaveOrOpenBlob) {
       // IE10+
-      window.navigator.msSaveOrOpenBlob(file, filename)
+      window.navigator.msSaveOrOpenBlob(file, filename);
     } else {
       // Others
-      const a = document.createElement('a')
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
       setTimeout(function() {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-      }, 0)
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
     }
-  }
+  };
 
   const checkCSVFormat = csvResult => {
-    const { fields } = csvResult.meta
+    const { fields } = csvResult.meta;
     if (fields.indexOf(columnUsername) === -1) {
-      showMessageBox('Missing column of username in the CSV file!')
-      return false
+      showMessageBox('Missing column of username in the CSV file!');
+      return false;
     }
     if (fields.indexOf(columnPassword) === -1) {
-      showMessageBox('Missing column of password in the CSV file!')
-      return false
+      showMessageBox('Missing column of password in the CSV file!');
+      return false;
     }
     if (csvResult.errors.length > 0) {
       showMessageBox(
         `Row ${csvResult.errors[0].row + 2}: ${csvResult.errors[0].message}`,
-      )
-      return false
+      );
+      return false;
     }
     if (csvResult.data.length === 0) {
-      showMessageBox('Empty CSV file')
-      return false
+      showMessageBox('Empty CSV file');
+      return false;
     }
-    return true
-  }
+    return true;
+  };
 
   const checkVCField = csvResult => {
     for (let i = 0; i < csvResult.data.length; i++) {
-      const user = csvResult.data[i]
+      const user = csvResult.data[i];
       if (user[columnVC]) {
-        const parsedVCs = user[columnVC].split(',').map(vc => vc.trim())
+        const parsedVCs = user[columnVC].split(',').map(vc => vc.trim());
         for (let j = 0; j < parsedVCs.length; j++) {
-          const vc = parsedVCs[j]
+          const vc = parsedVCs[j];
           if (vc) {
             if (virtualClusters.indexOf(vc) === -1) {
-              showMessageBox(`${vc} is not a valid virtual cluster name`)
-              return false
+              showMessageBox(`${vc} is not a valid virtual cluster name`);
+              return false;
             }
           }
         }
-        user.vcs = parsedVCs
+        user.vcs = parsedVCs;
       } else {
-        user.vcs = []
+        user.vcs = [];
       }
     }
-    return true
-  }
+    return true;
+  };
 
   const parseUserInfosFromCSV = csvContent => {
     if (!csvContent) {
-      showMessageBox('Empty CSV file')
-      hideLoading()
-      return
+      showMessageBox('Empty CSV file');
+      hideLoading();
+      return;
     }
     const csvResult = csvParser.parse(stripBom(csvContent), {
       header: true,
       skipEmptyLines: true,
-    })
+    });
     if (!checkCSVFormat(csvResult)) {
-      hideLoading()
-      return
+      hideLoading();
+      return;
     }
     if (!checkVCField(csvResult)) {
-      hideLoading()
-      return
+      hideLoading();
+      return;
     }
     if (csvResult.data) {
-      setUserInfos([])
-      setUserInfos(csvResult.data)
+      setUserInfos([]);
+      setUserInfos(csvResult.data);
     }
-    hideLoading()
-  }
+    hideLoading();
+  };
 
   const importFromCSV = () => {
     const readFile = function(e) {
-      const file = e.target.files[0]
+      const file = e.target.files[0];
       if (!file) {
-        return
+        return;
       }
-      showLoading('Uploading...')
-      const reader = new FileReader()
+      showLoading('Uploading...');
+      const reader = new FileReader();
       reader.onload = function(e) {
-        parseUserInfosFromCSV(e.target.result)
-        document.body.removeChild(fileInput)
-      }
+        parseUserInfosFromCSV(e.target.result);
+        document.body.removeChild(fileInput);
+      };
       reader.onerror = function(e) {
-        hideLoading()
-        showMessageBox('File could not be read.')
-      }
-      reader.readAsText(file)
-    }
-    const fileInput = document.createElement('input')
-    fileInput.type = 'file'
-    fileInput.style.display = 'none'
-    fileInput.onchange = readFile
-    document.body.appendChild(fileInput)
-    fileInput.click()
-  }
+        hideLoading();
+        showMessageBox('File could not be read.');
+      };
+      reader.readAsText(file);
+    };
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.style.display = 'none';
+    fileInput.onchange = readFile;
+    document.body.appendChild(fileInput);
+    fileInput.click();
+  };
 
   const submit = async () => {
-    showLoading('Processing...')
+    showLoading('Processing...');
     for (let i = 0; i < userInfos.length; i++) {
-      const userInfo = userInfos[i]
+      const userInfo = userInfos[i];
 
       if (isFinished(userInfo)) {
-        continue
+        continue;
       }
 
       const successResult = {
         isSuccess: true,
         message: `User ${userInfo[columnUsername]} created successfully`,
-      }
+      };
 
       const result = await createUserRequest(
         userInfo[columnUsername],
@@ -228,7 +228,7 @@ export default function BatchRegister() {
         userInfo.vcs,
       )
         .then(() => {
-          return successResult
+          return successResult;
         })
         .catch(err => {
           return {
@@ -236,38 +236,38 @@ export default function BatchRegister() {
             message: `User ${userInfo[columnUsername]} created failed: ${String(
               err,
             )}`,
-          }
-        })
+          };
+        });
 
-      userInfo.status = result
-      setUserInfos(userInfos.slice())
+      userInfo.status = result;
+      setUserInfos(userInfos.slice());
     }
 
-    refreshAllUsers()
-    refreshAllVcs()
-    hideLoading()
+    refreshAllUsers();
+    refreshAllVcs();
+    hideLoading();
     setTimeout(() => {
-      const finishedStatus = countBy(userInfos, 'status.isSuccess')
+      const finishedStatus = countBy(userInfos, 'status.isSuccess');
       if (finishedStatus.false) {
         showMessageBox(
           `Create users finished with ${finishedStatus.false} failed.`,
-        )
+        );
       } else {
-        showMessageBox('Create users finished.')
+        showMessageBox('Create users finished.');
       }
-    }, 100)
-  }
+    }, 100);
+  };
 
   const addNew = () => {
-    userInfos.push({ vcs: [] })
-    setUserInfos(userInfos.slice())
-  }
+    userInfos.push({ vcs: [] });
+    setUserInfos(userInfos.slice());
+  };
 
   const removeRow = userInfo => {
-    const newUserInfos = userInfos.slice()
-    newUserInfos.splice(newUserInfos.indexOf(userInfo), 1)
-    setUserInfos(newUserInfos)
-  }
+    const newUserInfos = userInfos.slice();
+    newUserInfos.splice(newUserInfos.indexOf(userInfo), 1);
+    setUserInfos(newUserInfos);
+  };
 
   const context = {
     downloadTemplate,
@@ -278,52 +278,52 @@ export default function BatchRegister() {
     virtualClusters,
     allUsers,
     submit,
-  }
+  };
 
   const showLoading = text => {
-    setLoading({ show: true, text: text })
-  }
+    setLoading({ show: true, text: text });
+  };
 
   const hideLoading = () => {
-    setLoading({ show: false })
-  }
+    setLoading({ show: false });
+  };
 
   const [messageBox, setMessageBox] = useState({
     text: '',
     confirm: false,
     onClose: null,
-  })
+  });
   const showMessageBox = value => {
     return new Promise((resolve, reject) => {
-      setMessageBox({ text: String(value), onClose: resolve })
-    })
-  }
+      setMessageBox({ text: String(value), onClose: resolve });
+    });
+  };
   const hideMessageBox = value => {
-    const { onClose } = messageBox
-    setMessageBox({ text: '' })
+    const { onClose } = messageBox;
+    setMessageBox({ text: '' });
     if (onClose) {
-      onClose(value)
+      onClose(value);
     }
-  }
+  };
 
   useEffect(() => {
     if (!checkAdmin()) {
       showMessageBox('Non-admin is not allowed to do this operation.').then(
         () => {
-          window.location.href = '/'
+          window.location.href = '/';
         },
-      )
+      );
     }
-  }, [])
+  }, []);
 
   const hideSubmit =
     findIndex(userInfos, userInfo => {
       return (
         userInfo.status === undefined || userInfo.status.isSuccess === false
-      )
-    }) === -1
+      );
+    }) === -1;
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <Context.Provider value={context}>
@@ -368,5 +368,5 @@ export default function BatchRegister() {
         />
       )}
     </Context.Provider>
-  )
+  );
 }

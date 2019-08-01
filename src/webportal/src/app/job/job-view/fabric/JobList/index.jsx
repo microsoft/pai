@@ -15,35 +15,41 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import * as querystring from 'querystring'
+import * as querystring from 'querystring';
 
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import { debounce, isEmpty, isNil } from 'lodash'
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { debounce, isEmpty, isNil } from 'lodash';
 
-import { ColorClassNames, getTheme } from '@uifabric/styling'
-import { initializeIcons } from 'office-ui-fabric-react/lib/Icons'
-import { Fabric } from 'office-ui-fabric-react/lib/Fabric'
+import { ColorClassNames, getTheme } from '@uifabric/styling';
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import {
   MessageBar,
   MessageBarType,
-} from 'office-ui-fabric-react/lib/MessageBar'
-import { Overlay } from 'office-ui-fabric-react/lib/Overlay'
-import { Stack } from 'office-ui-fabric-react/lib/Stack'
+} from 'office-ui-fabric-react/lib/MessageBar';
+import { Overlay } from 'office-ui-fabric-react/lib/Overlay';
+import { Stack } from 'office-ui-fabric-react/lib/Stack';
 
-import Context from './Context'
-import Filter from './Filter'
-import Ordering from './Ordering'
-import Pagination from './Pagination'
-import Paginator from './Paginator'
-import Table from './Table'
-import TopBar from './TopBar'
+import Context from './Context';
+import Filter from './Filter';
+import Ordering from './Ordering';
+import Pagination from './Pagination';
+import Paginator from './Paginator';
+import Table from './Table';
+import TopBar from './TopBar';
 
-import webportalConfig from '../../../../config/webportal.config'
-import userAuth from '../../../../user/user-auth/user-auth.component'
-import { initTheme } from '../../../../components/theme'
+import webportalConfig from '../../../../config/webportal.config';
+import userAuth from '../../../../user/user-auth/user-auth.component';
+import { initTheme } from '../../../../components/theme';
 
-initTheme()
-initializeIcons()
+initTheme();
+initializeIcons();
 
 function getError(error) {
   return (
@@ -52,68 +58,68 @@ function getError(error) {
         <MessageBar messageBarType={MessageBarType.blocked}>{error}</MessageBar>
       </div>
     </Overlay>
-  )
+  );
 }
 
 export default function JobList() {
-  const admin = userAuth.checkAdmin()
-  const username = cookies.get('user')
+  const admin = userAuth.checkAdmin();
+  const username = cookies.get('user');
 
-  const [allJobs, setAllJobs] = useState(null)
-  const [selectedJobs, setSelectedJobs] = useState([])
-  const [error, setError] = useState(null)
+  const [allJobs, setAllJobs] = useState(null);
+  const [selectedJobs, setSelectedJobs] = useState([]);
+  const [error, setError] = useState(null);
 
   const initialFilter = useMemo(() => {
-    const query = querystring.parse(location.search.replace(/^\?/, ''))
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (['vcName', 'status', 'user'].some(x => !isEmpty(query[x]))) {
-      const queryFilter = new Filter()
+      const queryFilter = new Filter();
       if (query.vcName) {
-        queryFilter.virtualClusters = new Set([query.vcName])
+        queryFilter.virtualClusters = new Set([query.vcName]);
       }
       if (query.status) {
-        queryFilter.statuses = new Set([query.status])
+        queryFilter.statuses = new Set([query.status]);
       }
       if (query.user) {
-        queryFilter.users = new Set([query.user])
+        queryFilter.users = new Set([query.user]);
       }
-      return queryFilter
+      return queryFilter;
     }
     const initialFilterUsers =
-      username && !admin ? new Set([username]) : undefined
-    const filter = new Filter(undefined, initialFilterUsers)
-    filter.load()
-    return filter
-  })
-  const [filter, setFilter] = useState(initialFilter)
-  const [ordering, setOrdering] = useState(new Ordering())
-  const [pagination, setPagination] = useState(new Pagination())
-  const [filteredJobs, setFilteredJobs] = useState(null)
+      username && !admin ? new Set([username]) : undefined;
+    const filter = new Filter(undefined, initialFilterUsers);
+    filter.load();
+    return filter;
+  });
+  const [filter, setFilter] = useState(initialFilter);
+  const [ordering, setOrdering] = useState(new Ordering());
+  const [pagination, setPagination] = useState(new Pagination());
+  const [filteredJobs, setFilteredJobs] = useState(null);
 
-  useEffect(() => filter.save(), [filter])
+  useEffect(() => filter.save(), [filter]);
 
   const { current: applyFilter } = useRef(
     debounce((allJobs, /** @type {Filter} */ filter) => {
       if (isNil(allJobs)) {
-        setFilteredJobs(null)
+        setFilteredJobs(null);
       } else {
-        setFilteredJobs(filter.apply(allJobs))
+        setFilteredJobs(filter.apply(allJobs));
       }
     }, 200),
-  )
+  );
 
   useEffect(() => {
-    applyFilter(allJobs, filter)
-  }, [applyFilter, allJobs, filter])
+    applyFilter(allJobs, filter);
+  }, [applyFilter, allJobs, filter]);
 
   useEffect(() => {
-    setPagination(new Pagination(pagination.itemsPerPage, 0))
-  }, [filteredJobs])
+    setPagination(new Pagination(pagination.itemsPerPage, 0));
+  }, [filteredJobs]);
 
   const stopJob = useCallback(
     (...jobs) => {
       userAuth.checkToken(token => {
         jobs.forEach(job => {
-          const { name, username } = job
+          const { name, username } = job;
           fetch(
             `${webportalConfig.restServerUri}/api/v2/user/${username}/jobs/${name}/executionType`,
             {
@@ -127,49 +133,49 @@ export default function JobList() {
           )
             .then(response => {
               if (response.ok) {
-                job.executionType = 'STOPPING'
-                delete job._statusText
-                delete job._statusIndex
-                setAllJobs(allJobs.slice())
+                job.executionType = 'STOPPING';
+                delete job._statusText;
+                delete job._statusIndex;
+                setAllJobs(allJobs.slice());
               } else {
                 return response.json().then(data => {
                   if (data.code === 'UnauthorizedUserError') {
-                    alert(data.message)
-                    userLogout()
+                    alert(data.message);
+                    userLogout();
                   } else {
-                    throw new Error(data.message)
+                    throw new Error(data.message);
                   }
-                })
+                });
               }
             })
             .catch(reason => {
-              setError(reason.message)
-              setTimeout(setError, 1000, null)
-            })
-        })
-      })
+              setError(reason.message);
+              setTimeout(setError, 1000, null);
+            });
+        });
+      });
     },
     [allJobs],
-  )
+  );
 
   const refreshJobs = useCallback(function refreshJobs() {
-    setAllJobs(null)
+    setAllJobs(null);
     fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then(response => {
         if (!response.ok) {
-          throw Error(response.message)
+          throw Error(response.message);
         } else {
-          return response.json()
+          return response.json();
         }
       })
       .then(setAllJobs)
       .catch(reason => {
-        setError(reason.message)
-        setTimeout(setError, 1000, null)
-      })
-  }, [])
+        setError(reason.message);
+        setTimeout(setError, 1000, null);
+      });
+  }, []);
 
-  useEffect(refreshJobs, [])
+  useEffect(refreshJobs, []);
 
   const context = {
     allJobs,
@@ -185,9 +191,9 @@ export default function JobList() {
     setOrdering,
     pagination,
     setPagination,
-  }
+  };
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <Context.Provider value={context}>
@@ -231,5 +237,5 @@ export default function JobList() {
         </Stack>
       </Fabric>
     </Context.Provider>
-  )
+  );
 }

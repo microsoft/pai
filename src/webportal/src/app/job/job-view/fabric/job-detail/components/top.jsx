@@ -15,10 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react'
-import { ActionButton } from 'office-ui-fabric-react/lib/Button'
+import React from 'react';
+import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 
-import t from '../../../../../components/tachyons.scss'
+import t from '../../../../../components/tachyons.scss';
 
 const Top = () => (
   <div className={t.flex}>
@@ -31,6 +31,6 @@ const Top = () => (
       </ActionButton>
     </div>
   </div>
-)
+);
 
-export default Top
+export default Top;

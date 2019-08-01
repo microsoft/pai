@@ -23,39 +23,39 @@
  * SOFTWARE.
  */
 
-import React from 'react'
-import { getTheme, Toggle, Stack } from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { BasicSection } from './basic-section'
-import { getDefaultContainerSize } from '../models/container-size'
-import { CSpinButton } from './customized-components'
-import { FormShortSection } from './form-page'
-import { PROTOCOL_TOOLTIPS } from '../utils/constants'
+import React from 'react';
+import { getTheme, Toggle, Stack } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { BasicSection } from './basic-section';
+import { getDefaultContainerSize } from '../models/container-size';
+import { CSpinButton } from './customized-components';
+import { FormShortSection } from './form-page';
+import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
-const { spacing } = getTheme()
+const { spacing } = getTheme();
 
 export const ContainerSizeSection = props => {
-  const { value, onChange, isContainerSizeEnabled, onEnable } = props
-  const { cpu, memoryMB, gpu } = value
+  const { value, onChange, isContainerSizeEnabled, onEnable } = props;
+  const { cpu, memoryMB, gpu } = value;
 
   const _onChange = (keyName, newValue) => {
     if (onChange !== undefined) {
-      onChange({ ...value, [keyName]: newValue })
+      onChange({ ...value, [keyName]: newValue });
     }
-  }
+  };
 
   const _onEnable = (_, checked) => {
     if (onEnable === undefined) {
-      return
+      return;
     }
-    onEnable(checked)
-  }
+    onEnable(checked);
+  };
 
   const _onGPUSkuChange = gpuNumber => {
     if (onChange !== undefined) {
-      onChange(getDefaultContainerSize(gpuNumber))
+      onChange(getDefaultContainerSize(gpuNumber));
     }
-  }
+  };
 
   return (
     <BasicSection
@@ -101,12 +101,12 @@ export const ContainerSizeSection = props => {
         </Stack>
       </Stack>
     </BasicSection>
-  )
-}
+  );
+};
 
 ContainerSizeSection.propTypes = {
   value: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   isContainerSizeEnabled: PropTypes.bool,
   onEnable: PropTypes.func,
-}
+};

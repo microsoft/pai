@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import React from 'react'
-import Joi from 'joi-browser'
-import { isNil } from 'lodash'
-import PropTypes from 'prop-types'
+import React from 'react';
+import Joi from 'joi-browser';
+import { isNil } from 'lodash';
+import PropTypes from 'prop-types';
 import {
   Pivot,
   PivotItem,
@@ -34,62 +34,65 @@ import {
   ActionButton,
   Stack,
   getTheme,
-} from 'office-ui-fabric-react'
-import { getFormClassNames, getTabFromStyle } from './form-style'
-import { TabFormContent } from './tab-form-content'
-import Card from '../../components/card'
-import { TooltipIcon } from './controls/tooltip-icon'
-import { PROTOCOL_TOOLTIPS } from '../utils/constants'
-import { taskRolesSchema, prerequisitesSchema } from '../models/protocol-schema'
+} from 'office-ui-fabric-react';
+import { getFormClassNames, getTabFromStyle } from './form-style';
+import { TabFormContent } from './tab-form-content';
+import Card from '../../components/card';
+import { TooltipIcon } from './controls/tooltip-icon';
+import { PROTOCOL_TOOLTIPS } from '../utils/constants';
+import {
+  taskRolesSchema,
+  prerequisitesSchema,
+} from '../models/protocol-schema';
 
-const TAB_ITEM_KEY_PREFIX = 'tabItem-'
-const tabFormStyle = getTabFromStyle()
+const TAB_ITEM_KEY_PREFIX = 'tabItem-';
+const tabFormStyle = getTabFromStyle();
 
 export class TabForm extends React.Component {
   constructor(props) {
-    super(props)
-    const { items } = props
+    super(props);
+    const { items } = props;
 
-    let selectedIndex
+    let selectedIndex;
     if (items !== undefined && items.size !== 0) {
-      selectedIndex = 0
+      selectedIndex = 0;
     }
 
     this.state = {
       selectedIndex,
-    }
+    };
   }
 
   _getItemKeyByIndex(index) {
-    return TAB_ITEM_KEY_PREFIX + index
+    return TAB_ITEM_KEY_PREFIX + index;
   }
 
   _getItemIndexByKey(key) {
-    return Number(key.substring(TAB_ITEM_KEY_PREFIX.length))
+    return Number(key.substring(TAB_ITEM_KEY_PREFIX.length));
   }
 
   _onRenderItem(itemProps, defaultRender) {
     if (itemProps === undefined || defaultRender === undefined) {
-      return null
+      return null;
     }
 
-    const { spacing, palette } = getTheme()
-    const { items } = this.props
-    const { selectedIndex } = this.state
+    const { spacing, palette } = getTheme();
+    const { items } = this.props;
+    const { selectedIndex } = this.state;
     // validation
-    const idx = this._getItemIndexByKey(itemProps.itemKey)
-    const item = items[idx]
-    const taskRolesObject = item.content.convertToProtocolFormat()
+    const idx = this._getItemIndexByKey(itemProps.itemKey);
+    const item = items[idx];
+    const taskRolesObject = item.content.convertToProtocolFormat();
     const { error: taskRoleError } = Joi.validate(
       taskRolesObject,
       taskRolesSchema,
-    )
-    const dockerObject = item.content.getDockerPrerequisite()
+    );
+    const dockerObject = item.content.getDockerPrerequisite();
     const { error: dockerError } = Joi.validate(
       dockerObject,
       prerequisitesSchema,
-    )
-    const error = taskRoleError || dockerError
+    );
+    const error = taskRoleError || dockerError;
 
     return (
       <span style={{ position: 'relative' }}>
@@ -124,73 +127,73 @@ export class TabForm extends React.Component {
           />
         </div>
       </span>
-    )
+    );
   }
 
   _onItemsChange(updatedItems) {
-    const { onItemsChange } = this.props
+    const { onItemsChange } = this.props;
     if (onItemsChange !== undefined) {
-      onItemsChange(updatedItems)
+      onItemsChange(updatedItems);
     }
   }
 
   _onItemDelete(itemKey, event) {
-    event.stopPropagation()
+    event.stopPropagation();
 
     if (itemKey === undefined) {
-      return
+      return;
     }
 
-    const itemIndex = this._getItemIndexByKey(itemKey)
-    const { items, onItemDelete } = this.props
+    const itemIndex = this._getItemIndexByKey(itemKey);
+    const { items, onItemDelete } = this.props;
     if (onItemDelete === undefined) {
-      return
+      return;
     }
-    const newSelectedIndex = onItemDelete(items, itemIndex)
+    const newSelectedIndex = onItemDelete(items, itemIndex);
     this.setState({
       selectedIndex: newSelectedIndex,
-    })
+    });
   }
 
   _onItemAdd() {
-    const { items, onItemAdd } = this.props
+    const { items, onItemAdd } = this.props;
     if (onItemAdd === undefined) {
-      return
+      return;
     }
-    const newSelectedIndex = onItemAdd(items)
+    const newSelectedIndex = onItemAdd(items);
     this.setState({
       selectedIndex: newSelectedIndex,
-    })
+    });
   }
 
   _onLinkClick(item) {
     this.setState({
       selectedIndex: this._getItemIndexByKey(item.props.itemKey),
-    })
+    });
   }
 
   _onContentChange(index, itemContent) {
-    const { items } = this.props
-    const updatedItems = [...items]
-    updatedItems[index].content = itemContent
+    const { items } = this.props;
+    const updatedItems = [...items];
+    updatedItems[index].content = itemContent;
 
-    this._onItemsChange(updatedItems)
+    this._onItemsChange(updatedItems);
   }
 
   render() {
-    let { selectedIndex } = this.state
-    const { items, advanceFlag } = this.props
+    let { selectedIndex } = this.state;
+    const { items, advanceFlag } = this.props;
 
-    const { formTabBar } = getFormClassNames()
+    const { formTabBar } = getFormClassNames();
 
     if (
       (selectedIndex === undefined && items.length) ||
       selectedIndex > items.length - 1
     ) {
-      selectedIndex = 0
+      selectedIndex = 0;
     }
 
-    const { spacing } = getTheme()
+    const { spacing } = getTheme();
 
     return (
       <Stack styles={{ root: { minHeight: 0 } }}>
@@ -248,7 +251,7 @@ export class TabForm extends React.Component {
           </Card>
         </Stack>
       </Stack>
-    )
+    );
   }
 }
 
@@ -258,4 +261,4 @@ TabForm.propTypes = {
   onItemDelete: PropTypes.func.isRequired,
   onItemsChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
-}
+};

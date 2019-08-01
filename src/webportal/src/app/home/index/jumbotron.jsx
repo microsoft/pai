@@ -15,13 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, ColorClassNames } from '@uifabric/styling'
-import c from 'classnames'
-import PropTypes from 'prop-types'
-import React from 'react'
-import styled from 'styled-components'
+import { FontClassNames, ColorClassNames } from '@uifabric/styling';
+import c from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import styled from 'styled-components';
 
-import t from 'tachyons-sass/tachyons.scss'
+import t from 'tachyons-sass/tachyons.scss';
 
 const JumbotronBackground = styled.div`
   background-image: url('/assets/img/home-background.svg');
@@ -44,7 +44,7 @@ const JumbotronBackground = styled.div`
       rgba(0, 113, 188, 0.07)
     );
   }
-`
+`;
 
 const Jumbotron = ({ showLoginModal }) => (
   <div className={c(t.flexAuto, t.relative, t.flex)}>
@@ -99,10 +99,10 @@ const Jumbotron = ({ showLoginModal }) => (
       </div>
     </div>
   </div>
-)
+);
 
 Jumbotron.propTypes = {
   showLoginModal: PropTypes.func,
-}
+};
 
-export default Jumbotron
+export default Jumbotron;

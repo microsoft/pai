@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
-import { IconButton, Stack, TextField } from 'office-ui-fabric-react'
-import { cloneDeep } from 'lodash'
-import PropTypes from 'prop-types'
+import React, { useState } from 'react';
+import { IconButton, Stack, TextField } from 'office-ui-fabric-react';
+import { cloneDeep } from 'lodash';
+import PropTypes from 'prop-types';
 
-import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants'
-import { InputData } from '../../models/data/input-data'
-import { validateMountPath, validateGitUrl } from '../../utils/validation'
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
+import { InputData } from '../../models/data/input-data';
+import { validateMountPath, validateGitUrl } from '../../utils/validation';
 
 export const AddGit = props => {
-  const { dataList, setDataList, setDataType } = props
-  const [mountPath, setMountPath] = useState()
-  const [gitUrl, setGitUrl] = useState()
+  const { dataList, setDataList, setDataType } = props;
+  const [mountPath, setMountPath] = useState();
+  const [gitUrl, setGitUrl] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
     'Path should not be empty',
-  )
+  );
   const [gitAddressErrorMessage, setGitAddressErrorMessage] = useState(
     'Git should not be empty',
-  )
+  );
 
   const submitMount = () => {
-    const newDataList = cloneDeep(dataList)
-    newDataList.push(new InputData(mountPath, gitUrl, 'git'))
-    setDataList(newDataList)
-    setDataType('none')
-  }
+    const newDataList = cloneDeep(dataList);
+    newDataList.push(new InputData(mountPath, gitUrl, 'git'));
+    setDataList(newDataList);
+    setDataType('none');
+  };
 
   return (
     <Stack horizontal horizontalAlign='space-between' gap='m'>
@@ -35,12 +35,12 @@ export const AddGit = props => {
           errorMessage={containerPathErrorMessage}
           styles={{ root: { width: 200 } }}
           onChange={(_event, newValue) => {
-            const valid = validateMountPath(`/${newValue}`)
+            const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
-              setContainerPathErrorMessage(valid.illegalMessage)
+              setContainerPathErrorMessage(valid.illegalMessage);
             } else {
-              setContainerPathErrorMessage(null)
-              setMountPath(`${STORAGE_PREFIX}${newValue}`)
+              setContainerPathErrorMessage(null);
+              setMountPath(`${STORAGE_PREFIX}${newValue}`);
             }
           }}
         />
@@ -51,12 +51,12 @@ export const AddGit = props => {
         label='Git repo address'
         errorMessage={gitAddressErrorMessage}
         onChange={(_event, newValue) => {
-          const valid = validateGitUrl(newValue)
+          const valid = validateGitUrl(newValue);
           if (!valid.isLegal) {
-            setGitAddressErrorMessage(valid.illegalMessage)
+            setGitAddressErrorMessage(valid.illegalMessage);
           } else {
-            setGitAddressErrorMessage(null)
-            setGitUrl(newValue)
+            setGitAddressErrorMessage(null);
+            setGitUrl(newValue);
           }
         }}
       />
@@ -90,16 +90,16 @@ export const AddGit = props => {
             },
           }}
           onClick={() => {
-            setDataType('none')
+            setDataType('none');
           }}
         />
       </Stack.Item>
     </Stack>
-  )
-}
+  );
+};
 
 AddGit.propTypes = {
   dataList: PropTypes.arrayOf(PropTypes.instanceOf(InputData)),
   setDataList: PropTypes.func,
   setDataType: PropTypes.func,
-}
+};

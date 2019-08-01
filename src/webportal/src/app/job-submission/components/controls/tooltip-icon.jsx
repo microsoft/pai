@@ -23,9 +23,9 @@
  * SOFTWARE.
  */
 
-import React from 'react'
-import { DirectionalHint, TooltipHost, Icon } from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import { DirectionalHint, TooltipHost, Icon } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 export const TooltipIcon = ({ content }) => {
   return (
@@ -39,12 +39,12 @@ export const TooltipIcon = ({ content }) => {
     >
       <Icon styles={{ root: { verticalAlign: 'middle' } }} iconName='Info' />
     </TooltipHost>
-  )
-}
+  );
+};
 
 TooltipIcon.propTypes = {
   content: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-}
+};

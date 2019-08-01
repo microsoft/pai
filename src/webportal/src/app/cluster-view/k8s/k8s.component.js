@@ -15,24 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const k8sComponent = require('./k8s.component.ejs')
-const webportalConfig = require('../../config/webportal.config.js')
+const k8sComponent = require('./k8s.component.ejs');
+const webportalConfig = require('../../config/webportal.config.js');
 
 const k8sDashboardHtml = k8sComponent({
   k8sDashboardUri: webportalConfig.k8sDashboardUri,
-})
+});
 
 function resizeContentWrapper() {
-  $('#content-wrapper').css({ height: `${$(window).height()}px` })
+  $('#content-wrapper').css({ height: `${$(window).height()}px` });
 }
 
 window.onresize = () => {
-  resizeContentWrapper()
-}
+  resizeContentWrapper();
+};
 
 $(document).ready(() => {
-  resizeContentWrapper()
-  $('#sidebar-menu--cluster-view').addClass('active')
-  $('#sidebar-menu--cluster-view--k8s').addClass('active')
-  $('#content-wrapper').html(k8sDashboardHtml)
-})
+  resizeContentWrapper();
+  $('#sidebar-menu--cluster-view').addClass('active');
+  $('#sidebar-menu--cluster-view--k8s').addClass('active');
+  $('#content-wrapper').html(k8sDashboardHtml);
+});

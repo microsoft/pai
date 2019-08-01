@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-import React, { useCallback } from 'react'
-import { SpinButton, Stack } from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { debounce, isNil } from 'lodash'
-import { TooltipIcon } from './controls/tooltip-icon'
+import React, { useCallback } from 'react';
+import { SpinButton, Stack } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { debounce, isNil } from 'lodash';
+import { TooltipIcon } from './controls/tooltip-icon';
 
 export const CSpinButton = props => {
   const {
@@ -39,31 +39,31 @@ export const CSpinButton = props => {
     max,
     label,
     tooltip,
-  } = props
+  } = props;
 
   const _onChange = useCallback(
     (value, operateFunc, defaultReturnValue) => {
-      let newValue = defaultReturnValue
+      let newValue = defaultReturnValue;
       if (!isNil(min)) {
-        newValue = Math.max(min, newValue)
+        newValue = Math.max(min, newValue);
       }
       if (!isNil(max)) {
-        newValue = Math.min(max, newValue)
+        newValue = Math.min(max, newValue);
       }
       if (operateFunc !== undefined) {
-        newValue = operateFunc(value)
+        newValue = operateFunc(value);
       }
       if (onChange === undefined) {
-        return newValue
+        return newValue;
       }
-      return onChange(newValue)
+      return onChange(newValue);
     },
     [onChange],
-  )
+  );
 
-  const _onIncrement = value => _onChange(value, onIncrement, +value + 1)
-  const _onDecrement = value => _onChange(value, onDecrement, +value - 1)
-  const _onValidate = value => _onChange(value, onValidate, value)
+  const _onIncrement = value => _onChange(value, onIncrement, +value + 1);
+  const _onDecrement = value => _onChange(value, onDecrement, +value - 1);
+  const _onValidate = value => _onChange(value, onValidate, value);
 
   return (
     <Stack horizontal gap='s1' verticalAlign='baseline'>
@@ -77,12 +77,12 @@ export const CSpinButton = props => {
         onValidate={debounce(_onValidate)}
       />
     </Stack>
-  )
-}
+  );
+};
 
 CSpinButton.defaultProps = {
   min: 0,
-}
+};
 
 CSpinButton.propTypes = {
   label: PropTypes.string,
@@ -96,4 +96,4 @@ CSpinButton.propTypes = {
   onIncrement: PropTypes.func,
   onDecrement: PropTypes.func,
   onValidate: PropTypes.func,
-}
+};

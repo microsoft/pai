@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import styled from 'styled-components'
-import { getTheme, FontSizes } from '@uifabric/styling'
+import styled from 'styled-components';
+import { getTheme, FontSizes } from '@uifabric/styling';
 
-const { palette } = getTheme()
+const { palette } = getTheme();
 
 export const Hint = styled.div`
   code {
@@ -39,4 +39,4 @@ export const Hint = styled.div`
     color: ${palette.redDark};
     background-color: ${palette.neutralLighter};
   }
-`
+`;

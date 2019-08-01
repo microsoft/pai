@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react'
-import { isEmpty } from 'lodash'
-import { Stack } from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { SidebarCard } from './sidebar-card'
-import { Hint } from './hint'
-import { KeyValueList } from '../controls/key-value-list'
-import { PROTOCOL_TOOLTIPS } from '../../utils/constants'
+import React, { useState } from 'react';
+import { isEmpty } from 'lodash';
+import { Stack } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { SidebarCard } from './sidebar-card';
+import { Hint } from './hint';
+import { KeyValueList } from '../controls/key-value-list';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 
 export const Secrets = React.memo(
   ({ secrets, onChange, selected, onSelect }) => {
-    const [error, setError] = useState('')
+    const [error, setError] = useState('');
     return (
       <SidebarCard
         title='Secrets'
@@ -59,13 +59,13 @@ export const Secrets = React.memo(
           </div>
         </Stack>
       </SidebarCard>
-    )
+    );
   },
-)
+);
 
 Secrets.propTypes = {
   secrets: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
-}
+};

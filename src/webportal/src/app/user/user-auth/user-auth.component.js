@@ -15,25 +15,25 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const { userLogout } = require('../user-logout/user-logout.component.js')
+const { userLogout } = require('../user-logout/user-logout.component.js');
 
 const checkToken = (callback, redirectToLogin = true) => {
   if (typeof callback === 'boolean') {
-    redirectToLogin = callback
-    callback = null
+    redirectToLogin = callback;
+    callback = null;
   }
-  const authToken = cookies.get('token')
+  const authToken = cookies.get('token');
   if (!authToken && redirectToLogin) {
-    userLogout()
+    userLogout();
   } else if (callback) {
-    callback(authToken)
+    callback(authToken);
   } else {
-    return authToken
+    return authToken;
   }
-}
+};
 
 const checkAdmin = () => {
-  return cookies.get('admin') === 'true'
-}
+  return cookies.get('admin') === 'true';
+};
 
-module.exports = { checkToken, checkAdmin }
+module.exports = { checkToken, checkAdmin };

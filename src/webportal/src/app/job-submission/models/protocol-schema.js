@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import Joi from 'joi-browser'
+import Joi from 'joi-browser';
 
 export const taskRoleSchema = Joi.object().keys({
   instances: Joi.number()
@@ -60,12 +60,12 @@ export const taskRoleSchema = Joi.object().keys({
     .items(Joi.string())
     .min(1)
     .required(),
-})
+});
 
 export const taskRolesSchema = Joi.object().pattern(
   /^[a-zA-Z_][a-zA-Z0-9_]*$/,
   taskRoleSchema.required(),
-)
+);
 
 export const prerequisitesSchema = Joi.object().keys({
   protocolVersion: [Joi.string(), Joi.number()],
@@ -90,7 +90,7 @@ export const prerequisitesSchema = Joi.object().keys({
     otherwise: Joi.string(),
   }).required(),
   version: [Joi.string(), Joi.number()],
-})
+});
 
 const deploymentSchema = Joi.object().keys({
   name: Joi.string()
@@ -109,7 +109,7 @@ const deploymentSchema = Joi.object().keys({
       }),
     )
     .required(),
-})
+});
 
 export const jobProtocolSchema = Joi.object().keys({
   protocolVersion: [Joi.string().required(), Joi.number().required()],
@@ -140,4 +140,4 @@ export const jobProtocolSchema = Joi.object().keys({
       submitFrom: Joi.string(),
     })
     .unknown(),
-})
+});

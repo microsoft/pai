@@ -15,87 +15,87 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
-import 'whatwg-fetch'
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
 
-import { FontClassNames } from '@uifabric/styling'
-import c from 'classnames'
-import { isEmpty } from 'lodash'
-import { initializeIcons } from 'office-ui-fabric-react'
-import querystring from 'querystring'
-import React, { useState, useCallback } from 'react'
-import ReactDOM from 'react-dom'
+import { FontClassNames } from '@uifabric/styling';
+import c from 'classnames';
+import { isEmpty } from 'lodash';
+import { initializeIcons } from 'office-ui-fabric-react';
+import querystring from 'querystring';
+import React, { useState, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 
-import t from 'tachyons-sass/tachyons.scss'
-import Bottom from './index/bottom'
-import { login } from './index/conn'
-import Jumbotron from './index/jumbotron'
-import LoginModal from './index/login-modal'
-import { checkToken } from '../user/user-auth/user-auth.component'
-import config from '../config/webportal.config'
+import t from 'tachyons-sass/tachyons.scss';
+import Bottom from './index/bottom';
+import { login } from './index/conn';
+import Jumbotron from './index/jumbotron';
+import LoginModal from './index/login-modal';
+import { checkToken } from '../user/user-auth/user-auth.component';
+import config from '../config/webportal.config';
 
-let loginTarget = '/home.html'
+let loginTarget = '/home.html';
 
-const query = new URLSearchParams(window.location.search)
-const from = query.get('from')
+const query = new URLSearchParams(window.location.search);
+const from = query.get('from');
 if (!isEmpty(from)) {
-  loginTarget = from
+  loginTarget = from;
 }
 
 if (config.authnMethod === 'OIDC') {
-  const expiration = 7
+  const expiration = 7;
   if (query.has('token')) {
-    cookies.set('user', query.get('user'), { expires: expiration })
-    cookies.set('token', query.get('token'), { expires: expiration })
-    cookies.set('admin', query.get('admin'), { expires: expiration })
+    cookies.set('user', query.get('user'), { expires: expiration });
+    cookies.set('token', query.get('token'), { expires: expiration });
+    cookies.set('admin', query.get('admin'), { expires: expiration });
     cookies.set('hasGitHubPAT', query.get('hasGitHubPAT'), {
       expires: expiration,
-    })
+    });
   }
 }
 
 if (checkToken(false)) {
-  window.location.replace(loginTarget)
+  window.location.replace(loginTarget);
 }
 
-initializeIcons()
+initializeIcons();
 
 const Index = () => {
-  const [loginModal, setLoginModal] = useState(false)
-  const [error, setError] = useState(null)
-  const [lock, setLock] = useState(false)
+  const [loginModal, setLoginModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [lock, setLock] = useState(false);
   const onLogin = useCallback((username, password) => {
-    setLock(true)
+    setLock(true);
     void login(username, password)
       .then(() => {
-        window.location.replace(loginTarget)
+        window.location.replace(loginTarget);
       })
       .catch(e => {
-        setError(e.message)
+        setError(e.message);
       })
       .finally(() => {
-        setLock(false)
-      })
-  }, [])
+        setLock(false);
+      });
+  }, []);
 
   const showLoginModal = useCallback(() => {
     if (config.authnMethod === 'basic') {
-      setLoginModal(true)
+      setLoginModal(true);
     } else {
       location.href = `${
         config.restServerUri
       }/api/v1/authn/oidc/login?${querystring.stringify({
         redirect_uri: new URL('/index.html', window.location.href).href,
         callback: window.location.href,
-      })}`
+      })}`;
     }
-  }, [])
+  }, []);
 
   const dismissLoginModal = useCallback(() => {
-    setLoginModal(false)
-    setError(null)
-  }, [])
+    setLoginModal(false);
+    setError(null);
+  }, []);
 
   return (
     <div
@@ -133,7 +133,7 @@ const Index = () => {
         onLogin={onLogin}
       />
     </div>
-  )
-}
+  );
+};
 
-ReactDOM.render(<Index />, document.getElementById('content'))
+ReactDOM.render(<Index />, document.getElementById('content'));

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback } from 'react';
 import {
   TextField,
   DefaultButton,
@@ -34,22 +34,22 @@ import {
   Dropdown,
   Toggle,
   getTheme,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { isEmpty } from 'lodash'
-import { DockerInfo } from '../models/docker-info'
-import { BasicSection } from './basic-section'
-import { FormShortSection } from './form-page'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { isEmpty } from 'lodash';
+import { DockerInfo } from '../models/docker-info';
+import { BasicSection } from './basic-section';
+import { FormShortSection } from './form-page';
 
-import { getDockerSectionStyle } from './form-style'
-import t from '../../components/tachyons.scss'
-import { DOCKER_OPTIONS, DEFAULT_DOCKER_URI } from '../utils/constants'
+import { getDockerSectionStyle } from './form-style';
+import t from '../../components/tachyons.scss';
+import { DOCKER_OPTIONS, DEFAULT_DOCKER_URI } from '../utils/constants';
 
-const { spacing } = getTheme()
-const dockerSectionStyle = getDockerSectionStyle()
+const { spacing } = getTheme();
+const dockerSectionStyle = getDockerSectionStyle();
 
 const AuthTextFiled = props => {
-  const { label, value, componentRef, type } = props
+  const { label, value, componentRef, type } = props;
   return (
     <Stack horizontal gap='s1'>
       <StackItem styles={{ root: [t.w30] }}>
@@ -64,60 +64,60 @@ const AuthTextFiled = props => {
         />
       </StackItem>
     </Stack>
-  )
-}
+  );
+};
 
 AuthTextFiled.propTypes = {
   value: PropTypes.string,
   label: PropTypes.string.isRequired,
   componentRef: PropTypes.object,
   type: PropTypes.string,
-}
+};
 
 function getDockerImageOptionKey(uri) {
   const dockerOption = DOCKER_OPTIONS.find(
     dockerOption => dockerOption.image === uri,
-  )
+  );
   if (isEmpty(dockerOption)) {
-    return 'customize-image'
+    return 'customize-image';
   }
-  return dockerOption.key
+  return dockerOption.key;
 }
 
 export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
-  const { uri, auth, isUseCustomizedDocker } = value
+  const { uri, auth, isUseCustomizedDocker } = value;
 
-  const nameInput = useRef(null)
-  const password = useRef(null)
-  const registryuri = useRef(null)
+  const nameInput = useRef(null);
+  const password = useRef(null);
+  const registryuri = useRef(null);
 
-  const [showAuth, setShowAuth] = useState(false)
+  const [showAuth, setShowAuth] = useState(false);
 
   const _onChange = useCallback(
     (keyName, propValue) => {
-      const updatedDockerInfo = new DockerInfo(value)
-      updatedDockerInfo[keyName] = propValue
+      const updatedDockerInfo = new DockerInfo(value);
+      updatedDockerInfo[keyName] = propValue;
       if (onValueChange !== undefined) {
-        onValueChange(updatedDockerInfo)
+        onValueChange(updatedDockerInfo);
       }
     },
     [value, onValueChange],
-  )
+  );
 
   const _onPropertiesChange = useCallback(
     updateProperties => {
-      let updatedDockerInfo = { ...value, ...updateProperties }
-      updatedDockerInfo = new DockerInfo(updatedDockerInfo)
+      let updatedDockerInfo = { ...value, ...updateProperties };
+      updatedDockerInfo = new DockerInfo(updatedDockerInfo);
       if (onValueChange !== undefined) {
-        onValueChange(updatedDockerInfo)
+        onValueChange(updatedDockerInfo);
       }
     },
     [value, onValueChange],
-  )
+  );
 
   const _onAuthClick = useCallback(() => {
-    setShowAuth(true)
-  }, [])
+    setShowAuth(true);
+  }, []);
 
   const _onAuthSubmit = useCallback(() => {
     if (
@@ -125,32 +125,32 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
       isEmpty(password.current.value) ||
       isEmpty(registryuri.current.value)
     ) {
-      alert('please input all fileds')
-      return
+      alert('please input all fileds');
+      return;
     }
 
-    setShowAuth(false)
+    setShowAuth(false);
     _onChange('auth', {
       username: nameInput.current.value,
       password: password.current.value,
       registryuri: registryuri.current.value,
-    })
-  }, [_onChange])
+    });
+  }, [_onChange]);
 
   const _onUriChange = useCallback(
     e => {
-      _onChange('uri', e.target.value)
+      _onChange('uri', e.target.value);
     },
     [_onChange],
-  )
+  );
 
   const _onDockerImageChange = useCallback(
     (_, item) => {
-      const uri = item.image
-      _onChange('uri', uri)
+      const uri = item.image;
+      _onChange('uri', uri);
     },
     [_onChange],
-  )
+  );
 
   const _onCutomizedImageEnable = useCallback(
     (_, checked) => {
@@ -158,13 +158,13 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
         _onPropertiesChange({
           uri: DEFAULT_DOCKER_URI,
           isUseCustomizedDocker: checked,
-        })
+        });
       } else {
-        _onChange('isUseCustomizedDocker', checked)
+        _onChange('isUseCustomizedDocker', checked);
       }
     },
     [_onChange, _onPropertiesChange],
-  )
+  );
 
   const _authSection = () => {
     return (
@@ -203,8 +203,8 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
           </Stack>
         </Stack>
       </Stack>
-    )
-  }
+    );
+  };
 
   return (
     <BasicSection sectionLabel='Docker image' sectionTooltip={sectionTooltip}>
@@ -245,8 +245,8 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
       )}
       {showAuth && _authSection()}
     </BasicSection>
-  )
-}
+  );
+};
 
 DockerSection.propTypes = {
   value: PropTypes.instanceOf(DockerInfo).isRequired,
@@ -256,4 +256,4 @@ DockerSection.propTypes = {
   ]),
   auth: PropTypes.object,
   onValueChange: PropTypes.func,
-}
+};

@@ -15,26 +15,28 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react';
 
-import { getTheme, ColorClassNames } from '@uifabric/styling'
-import { CommandBarButton } from 'office-ui-fabric-react/lib/Button'
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
-import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar'
-import { ContextualMenuItemType } from 'office-ui-fabric-react/lib/ContextualMenu'
+import { getTheme, ColorClassNames } from '@uifabric/styling';
+import { CommandBarButton } from 'office-ui-fabric-react/lib/Button';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
+import { ContextualMenuItemType } from 'office-ui-fabric-react/lib/ContextualMenu';
 
-import Context from './Context'
-import Filter from './Filter'
+import Context from './Context';
+import Filter from './Filter';
 
-import webportalConfig from '../../../../config/webportal.config'
+import webportalConfig from '../../../../config/webportal.config';
 
-const token = cookies.get('token')
+const token = cookies.get('token');
 /* eslint-disable react/prop-types */
 function FilterButton({ defaultRender: Button, ...props }) {
   const {
     subMenuProps: { items },
-  } = props
-  const checkedItems = items.filter(item => item.checked).map(item => item.text)
+  } = props;
+  const checkedItems = items
+    .filter(item => item.checked)
+    .map(item => item.text);
   const checkedText =
     checkedItems.length === 0 ? null : checkedItems.length === 1 ? (
       <strong>{checkedItems[0]}</strong>
@@ -43,15 +45,15 @@ function FilterButton({ defaultRender: Button, ...props }) {
         {checkedItems[0]}
         {` (+${checkedItems.length - 1})`}
       </strong>
-    )
-  return <Button {...props}>{checkedText}</Button>
+    );
+  return <Button {...props}>{checkedText}</Button>;
 }
 
 function KeywordSearchBox() {
-  const { filter, setFilter } = useContext(Context)
+  const { filter, setFilter } = useContext(Context);
   function onKeywordChange(keyword) {
-    const { users, virtualClusters, statuses } = filter
-    setFilter(new Filter(keyword, users, virtualClusters, statuses))
+    const { users, virtualClusters, statuses } = filter;
+    setFilter(new Filter(keyword, users, virtualClusters, statuses));
   }
 
   /** @type {import('office-ui-fabric-react').IStyle} */
@@ -59,7 +61,7 @@ function KeywordSearchBox() {
     backgroundColor: 'transparent',
     alignSelf: 'center',
     width: 220,
-  }
+  };
   return (
     <SearchBox
       underlined
@@ -68,14 +70,14 @@ function KeywordSearchBox() {
       value={filter.keyword}
       onChange={onKeywordChange}
     />
-  )
+  );
 }
 /* eslint-enable react/prop-types */
 
 function TopBar() {
-  const [active, setActive] = useState(true)
-  const [users, setUser] = useState(Object.create(null))
-  const [virtualClusters, setVirtualClusters] = useState(Object.create(null))
+  const [active, setActive] = useState(true);
+  const [users, setUser] = useState(Object.create(null));
+  const [virtualClusters, setVirtualClusters] = useState(Object.create(null));
 
   const statuses = {
     Waiting: true,
@@ -83,7 +85,7 @@ function TopBar() {
     Running: true,
     Stopped: true,
     Failed: true,
-  }
+  };
 
   const {
     refreshJobs,
@@ -92,7 +94,7 @@ function TopBar() {
     username,
     filter,
     setFilter,
-  } = useContext(Context)
+  } = useContext(Context);
 
   useEffect(() => {
     fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
@@ -101,41 +103,41 @@ function TopBar() {
       },
     })
       .then(response => {
-        return response.json()
+        return response.json();
       })
       .then(body => {
-        const allUsers = Object.create(null)
+        const allUsers = Object.create(null);
         body.forEach(userBody => {
-          allUsers[userBody.username] = true
-        })
-        setUser(allUsers)
+          allUsers[userBody.username] = true;
+        });
+        setUser(allUsers);
       })
       .catch(err => {
-        alert(err.message)
-      })
+        alert(err.message);
+      });
 
     fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
       .then(response => {
-        return response.json()
+        return response.json();
       })
       .then(body => {
-        const allVirtualClusters = Object.create(null)
+        const allVirtualClusters = Object.create(null);
         for (const virtualCluster of Object.keys(body)) {
-          allVirtualClusters[virtualCluster] = true
+          allVirtualClusters[virtualCluster] = true;
         }
-        setVirtualClusters(allVirtualClusters)
+        setVirtualClusters(allVirtualClusters);
 
-        const allValidVC = Object.keys(body)
-        const { keyword, users, virtualClusters, statuses } = filter
+        const allValidVC = Object.keys(body);
+        const { keyword, users, virtualClusters, statuses } = filter;
         const filterVC = new Set(
           allValidVC.filter(vc => virtualClusters.has(vc)),
-        )
-        setFilter(new Filter(keyword, users, filterVC, statuses))
+        );
+        setFilter(new Filter(keyword, users, filterVC, statuses));
       })
       .catch(err => {
-        alert(err.message)
-      })
-  }, [])
+        alert(err.message);
+      });
+  }, []);
 
   /**
    * @returns {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -152,9 +154,9 @@ function TopBar() {
         iconName: 'StopSolid',
       },
       onClick() {
-        stopJob(...selectedJobs)
+        stopJob(...selectedJobs);
       },
-    }
+    };
   }
 
   /**
@@ -171,7 +173,7 @@ function TopBar() {
         iconName: 'Add',
       },
       href: '/submit.html',
-    }
+    };
   }
 
   /**
@@ -188,7 +190,7 @@ function TopBar() {
         iconName: 'Refresh',
       },
       onClick: refreshJobs,
-    }
+    };
   }
 
   /**
@@ -198,7 +200,7 @@ function TopBar() {
     return {
       key: 'keyword',
       commandBarButtonAs: KeywordSearchBox,
-    }
+    };
   }
 
   /**
@@ -211,7 +213,7 @@ function TopBar() {
       iconProps: { iconName: 'Filter' },
       menuIconProps: { iconName: active ? 'ChevronUp' : 'ChevronDown' },
       onClick() {
-        setActive(!active)
+        setActive(!active);
       },
       onRender(item) {
         return (
@@ -223,9 +225,9 @@ function TopBar() {
           >
             Filter
           </CommandBarButton>
-        )
+        );
       },
-    }
+    };
   }
 
   /**
@@ -243,9 +245,9 @@ function TopBar() {
         iconName: 'Cancel',
       },
       onClick() {
-        setFilter(new Filter())
+        setFilter(new Filter());
       },
-    }
+    };
   }
 
   /**
@@ -257,24 +259,24 @@ function TopBar() {
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
     function onClick(event, { key, checked }) {
-      event.preventDefault()
-      const { keyword, virtualClusters, statuses } = filter
-      const users = new Set(filter.users)
+      event.preventDefault();
+      const { keyword, virtualClusters, statuses } = filter;
+      const users = new Set(filter.users);
       if (checked) {
-        users.delete(key)
+        users.delete(key);
       } else {
-        users.add(key)
+        users.add(key);
       }
-      setFilter(new Filter(keyword, users, virtualClusters, statuses))
+      setFilter(new Filter(keyword, users, virtualClusters, statuses));
     }
 
     /**
      * @param {React.SyntheticEvent} event
      */
     function onClearClick(event) {
-      event.preventDefault()
-      const { keyword, virtualClusters, statuses } = filter
-      setFilter(new Filter(keyword, new Set(), virtualClusters, statuses))
+      event.preventDefault();
+      const { keyword, virtualClusters, statuses } = filter;
+      setFilter(new Filter(keyword, new Set(), virtualClusters, statuses));
     }
 
     /**
@@ -289,11 +291,11 @@ function TopBar() {
         canCheck: true,
         checked: filter.users.has(key),
         onClick,
-      }
+      };
     }
 
     /** @type {import('office-ui-fabric-react').IContextualMenuItem[]} */
-    const subMenuItems = []
+    const subMenuItems = [];
     if (username !== undefined) {
       subMenuItems.push({
         key: username,
@@ -301,13 +303,13 @@ function TopBar() {
         canCheck: true,
         checked: filter.users.has(username),
         onClick,
-      })
+      });
     }
     subMenuItems.push(
       ...Object.keys(users)
         .filter(user => user !== username)
         .map(getItem),
-    )
+    );
     subMenuItems.push(
       {
         key: 'divider',
@@ -318,7 +320,7 @@ function TopBar() {
         text: 'Clear',
         onClick: onClearClick,
       },
-    )
+    );
 
     return {
       key: 'user',
@@ -329,7 +331,7 @@ function TopBar() {
       },
       subMenuProps: { items: subMenuItems },
       commandBarButtonAs: FilterButton,
-    }
+    };
   }
 
   /**
@@ -341,24 +343,24 @@ function TopBar() {
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
     function onClick(event, { key, checked }) {
-      event.preventDefault()
-      const { keyword, users, statuses } = filter
-      const virtualClusters = new Set(filter.virtualClusters)
+      event.preventDefault();
+      const { keyword, users, statuses } = filter;
+      const virtualClusters = new Set(filter.virtualClusters);
       if (checked) {
-        virtualClusters.delete(key)
+        virtualClusters.delete(key);
       } else {
-        virtualClusters.add(key)
+        virtualClusters.add(key);
       }
-      setFilter(new Filter(keyword, users, virtualClusters, statuses))
+      setFilter(new Filter(keyword, users, virtualClusters, statuses));
     }
 
     /**
      * @param {React.SyntheticEvent} event
      */
     function onClearClick(event) {
-      event.preventDefault()
-      const { keyword, users, statuses } = filter
-      setFilter(new Filter(keyword, users, new Set(), statuses))
+      event.preventDefault();
+      const { keyword, users, statuses } = filter;
+      setFilter(new Filter(keyword, users, new Set(), statuses));
     }
 
     /**
@@ -373,7 +375,7 @@ function TopBar() {
         canCheck: true,
         checked: filter.virtualClusters.has(key),
         onClick,
-      }
+      };
     }
 
     return {
@@ -399,7 +401,7 @@ function TopBar() {
           ]),
       },
       commandBarButtonAs: FilterButton,
-    }
+    };
   }
 
   /**
@@ -411,24 +413,24 @@ function TopBar() {
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
     function onClick(event, { key, checked }) {
-      event.preventDefault()
-      const { keyword, users, virtualClusters } = filter
-      const statuses = new Set(filter.statuses)
+      event.preventDefault();
+      const { keyword, users, virtualClusters } = filter;
+      const statuses = new Set(filter.statuses);
       if (checked) {
-        statuses.delete(key)
+        statuses.delete(key);
       } else {
-        statuses.add(key)
+        statuses.add(key);
       }
-      setFilter(new Filter(keyword, users, virtualClusters, statuses))
+      setFilter(new Filter(keyword, users, virtualClusters, statuses));
     }
 
     /**
      * @param {React.SyntheticEvent} event
      */
     function onClearClick(event) {
-      event.preventDefault()
-      const { keyword, users, virtualClusters } = filter
-      setFilter(new Filter(keyword, users, virtualClusters, new Set()))
+      event.preventDefault();
+      const { keyword, users, virtualClusters } = filter;
+      setFilter(new Filter(keyword, users, virtualClusters, new Set()));
     }
 
     /**
@@ -443,7 +445,7 @@ function TopBar() {
         canCheck: true,
         checked: filter.statuses.has(key),
         onClick,
-      }
+      };
     }
 
     return {
@@ -469,21 +471,24 @@ function TopBar() {
           ]),
       },
       commandBarButtonAs: FilterButton,
-    }
+    };
   }
 
-  const topBarItems = [selectedJobs.length ? getStop() : getNew(), getRefresh()]
-  const topBarFarItems = [getFilters()]
+  const topBarItems = [
+    selectedJobs.length ? getStop() : getNew(),
+    getRefresh(),
+  ];
+  const topBarFarItems = [getFilters()];
 
-  const filterBarItems = [getKeyword()]
+  const filterBarItems = [getKeyword()];
   const filterBarFarItems = [
     getUser(),
     getVirtualCluster(),
     getStatus(),
     getClear(),
-  ]
+  ];
 
-  const { spacing } = getTheme()
+  const { spacing } = getTheme();
 
   return (
     <React.Fragment>
@@ -510,7 +515,7 @@ function TopBar() {
         />
       ) : null}
     </React.Fragment>
-  )
+  );
 }
 
-export default TopBar
+export default TopBar;

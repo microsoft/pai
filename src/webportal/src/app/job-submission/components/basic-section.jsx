@@ -23,29 +23,29 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   Label,
   Stack,
   Icon,
   StackItem,
   FontClassNames,
-} from 'office-ui-fabric-react'
-import PropTypes from 'prop-types'
-import { FormSection } from './form-page'
-import { getFormPageSytle, getFormBasicSectionStyle } from './form-style'
-import { TooltipIcon } from './controls/tooltip-icon'
+} from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
+import { FormSection } from './form-page';
+import { getFormPageSytle, getFormBasicSectionStyle } from './form-style';
+import { TooltipIcon } from './controls/tooltip-icon';
 
-const formPageStyle = getFormPageSytle()
+const formPageStyle = getFormPageSytle();
 
 export const BasicSection = props => {
-  const { sectionLabel, sectionOptional, sectionTooltip, children } = props
-  const basicSectionStyle = getFormBasicSectionStyle(sectionOptional)
+  const { sectionLabel, sectionOptional, sectionTooltip, children } = props;
+  const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 
-  const [isSectionOn, setSectionOn] = useState(true)
+  const [isSectionOn, setSectionOn] = useState(true);
   const onToggle = () => {
-    setSectionOn(!isSectionOn)
-  }
+    setSectionOn(!isSectionOn);
+  };
 
   return (
     <FormSection>
@@ -73,12 +73,12 @@ export const BasicSection = props => {
         <Stack gap='m'>{(!sectionOptional || isSectionOn) && children}</Stack>
       </StackItem>
     </FormSection>
-  )
-}
+  );
+};
 
 BasicSection.defaultProps = {
   sectionLabel: '',
-}
+};
 
 BasicSection.propTypes = {
   sectionLabel: PropTypes.string,
@@ -88,4 +88,4 @@ BasicSection.propTypes = {
   ]),
   children: PropTypes.node,
   sectionOptional: PropTypes.bool,
-}
+};
