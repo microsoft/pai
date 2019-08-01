@@ -90,14 +90,14 @@ class TransferClient:
 
     def secret_data_prepare_v2(self, user_info_item):
         meta_dict = dict()
-        meta_dict['name'] = user_info_item['metadata']['name']
+        meta_dict['name'] = user_info_item.metadata.name
         grouplist = []
         virtual_cluster = []
-        if base64.b64decode(user_info_item['data']['admin']).decode('utf-8')== 'true':
+        if base64.b64decode(user_info_item.data['admin']).decode('utf-8')== 'true':
             grouplist.append(self.admin_group)
-        if 'virtualCluster' not in user_info_item['data']:
-            user_info_item['data']['virtualCluster'] = ''
-        for vc_name in base64.b64decode(user_info_item['data']['virtualCluster']).decode('utf-8').split(','):
+        if 'virtualCluster' not in user_info_item.data:
+            user_info_item.data['virtualCluster'] = ''
+        for vc_name in base64.b64decode(user_info_item.data['virtualCluster']).decode('utf-8').split(','):
             if vc_name == '':
               continue
             self.vc_set.add(vc_name)
@@ -106,11 +106,11 @@ class TransferClient:
         extension = {
           'virtualCluster': virtual_cluster
         }
-        if 'githubPAT' in user_info_item['data'] and user_info_item['data']['githubPAT'] != '':
-            extension['githubPAT'] = base64.b64decode(user_info_item['data']['githubPAT']).decode('utf-8')
+        if 'githubPAT' in user_info_item.data and user_info_item.data['githubPAT'] != '':
+            extension['githubPAT'] = base64.b64decode(user_info_item.data['githubPAT']).decode('utf-8')
         user_dict = {
-            'username': user_info_item['data']['username'],
-            'password': user_info_item['data']['password'],
+            'username': user_info_item.data['username'],
+            'password': user_info_item.data['password'],
             'email': '',
             'grouplist': str(base64.b64encode(json.dumps(grouplist).encode('utf-8')), 'utf-8'),
             'extension': str(base64.b64encode(json.dumps(extension).encode('utf-8')), 'utf-8'),
