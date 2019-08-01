@@ -82,7 +82,7 @@ if (launcherConfig.enabledHived) {
   for (let gpuType of Object.keys(cellTypeLeaves)) {
     resourceUnits[gpuType] = {
       cpu: parseInt(cellTypeLeaves[gpuType].cpu),
-      memory: k8s.convertMemory(cellTypeLeaves[gpuType].memory),
+      memory: k8s.convertMemoryMb(cellTypeLeaves[gpuType].memory),
       gpu: parseInt(cellTypeLeaves[gpuType].gpu),
     };
   }
