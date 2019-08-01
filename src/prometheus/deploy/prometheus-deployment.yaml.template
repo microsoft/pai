@@ -69,8 +69,10 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
-        - name: rules-volume
+        - name: alert-rules-volume
           mountPath: /etc/prometheus-alert
+        - name: record-rules-volume
+          mountPath: /etc/prometheus-record
         - name: prometheus-data
           mountPath: /prometheus-data
       imagePullSecrets:
@@ -79,9 +81,12 @@ spec:
       - name: config-volume
         configMap:
           name: prometheus-configmap
-      - name: rules-volume
+      - name: alert-rules-volume
         configMap:
           name: prometheus-alert
+      - name: record-rules-volume
+        configMap:
+          name: prometheus-record
       - name: prometheus-data
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus/data
