@@ -76,6 +76,7 @@ const GpuChart = ({style, gpuPerNode}) => {
             },
             ticks: {
               max: Math.max(...data) * 1.2,
+              min: 0,
               display: false,
             },
             gridLines: {
