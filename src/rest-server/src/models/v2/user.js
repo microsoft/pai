@@ -20,70 +20,78 @@
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
 const authConfig = require('@pai/config/authn');
+const groupModel = require('@pai/models/v2/group');
+
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
 const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
-const getUser = async (username) => {
-  try {
-    return await crudUser.read(username, crudConfig);
-  } catch (error) {
-    throw error;
+class UserModel {
+  constructor(crudConfig) {
+    this.crudConfig = crudConfig;
   }
-};
 
-const getAllUser = async () => {
-  try {
-    return await crudUser.readAll(crudConfig);
-  } catch (error) {
-    throw error;
+  async getUser(username) {
+    return await crudUser.read(username, this.crudConfig);
   }
-};
 
-const createUser = async (username, value) => {
-  try {
+  async getAllUser() {
+    return await crudUser.readAll(this.crudConfig);
+  }
+
+  async createUser(username, value) {
     return await crudUser.create(username, value, crudConfig);
-  } catch (error) {
-    throw error;
   }
-};
 
-const updateUser = async (username, value, updatePassword = false) => {
-  try {
+  async updateUser(username, value, updatePassword = false) {
     return await crudUser.update(username, value, crudConfig, updatePassword);
-  } catch (error) {
-    throw error;
   }
-};
 
-const deleteUser = async (username) => {
-  try {
+  async deleteUser(username) {
     return await crudUser.remove(username, crudConfig);
-  } catch (error) {
-    throw error;
   }
-};
+}
 
+const userModel = new UserModel(crudConfig);
+
+// it's a inplace encrypt!
 const getEncryptPassword = async (userValue) => {
-  try {
     await user.encryptUserPassword(userValue);
     return userValue;
-  } catch (error) {
-    throw error;
-  }
 };
 
 const createUserIfNonExistent = async (username, userValue) => {
   try {
-    await getUser(username);
+    await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      await createUser(username, userValue);
+      await userModel.createUser(username, userValue);
     } else {
       throw error;
     }
   }
+};
+
+const getUserGrouplist = async (username) => {
+  const userInfo = await userModel.getUser(username);
+  return userInfo.grouplist;
+};
+
+const getUserVirtualCluster = async (username) => {
+  const grouplist = await getUserGrouplist(username);
+  const virtualClusters = new Set();
+  for (const group of grouplist) {
+    const groupInfo = await groupModel.getGroup(group);
+    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.virtualClusters) {
+      virtualClusters.add(groupInfo.extension.acls.virtualClusters);
+    }
+  }
+  return [...virtualClusters];
+};
+
+const isAdmin = async (username) => {
+  const grouplist = await getUserGrouplist(username);
 };
 
 const checkUserGroup = async (username, groupname) => {

@@ -21,6 +21,23 @@ const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
 const groupModel = require('@pai/models/v2/group');
 
+const getUserGrouplist = async (username) => {
+  const userInfo = await userModel.getUser(username);
+  return userInfo.grouplist;
+};
+
+const getUserVirtualCluster = async (username) => {
+  const userInfo = await userModel.getUser(username);
+  const virtualClusters = new Set();
+  for (const group of userInfo.grouplist) {
+    const groupInfo = await groupModel.getGroup(group);
+    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.virtualClusters) {
+      virtualClusters.add(groupInfo.extension.acls.virtualClusters);
+    }
+  }
+  return [...virtualClusters];
+};
+
 const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
