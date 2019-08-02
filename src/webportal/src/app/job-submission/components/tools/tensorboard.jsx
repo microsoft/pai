@@ -1,20 +1,26 @@
 import React from 'react';
-import c from 'classnames';
 import PropTypes from 'prop-types';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isNil} from 'lodash';
 import {Hint} from '../sidebar/hint';
 import {ErrMsg} from '../sidebar/errormessage';
 import {generateDefaultTensorBoardExtras} from '../../utils/utils';
+import {TooltipIcon} from '../controls/tooltip-icon';
 import {
-  FontClassNames,
   FontWeights,
-  getTheme,
   Toggle,
-  TooltipHost,
-  Icon,
+  Stack,
+  Text,
+  FontSizes,
 } from 'office-ui-fabric-react';
 
-const {spacing} = getTheme();
+const style = {
+  headerText: {
+    root: {
+      fontSize: FontSizes.large,
+      fontWeight: FontWeights.semibold,
+    },
+  },
+};
 
 export const TensorBoard = (props) => {
   const {
@@ -43,53 +49,43 @@ export const TensorBoard = (props) => {
   };
 
   return (
-    <div>
-      <div
-        className={c(FontClassNames.mediumPlus)}
-        style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
-      >
-        <TooltipHost tooltipProps={{
-          onRenderContent: () => {
-            return (
-              <Hint>
-                You could save logs under <code>{`${defaultLogPath}`}</code> in the training script.
-                TensorBoard can only read logs from the first task role if <code>{`${defaultLogPath}`}</code> is not mounted in Data section.
-              </Hint>
-            );
-          },
-        }}
-        >
-          TensorBoard
-          <Icon iconName="Info" />
-        </TooltipHost>
-      </div>
-      <div>
-        <Toggle
-          label='Enable TensorBoard'
-          inlineLabel={true}
-          checked={extras.tensorBoard}
-          onChange={(ev, isChecked) => {
-            const updatedExtras = cloneDeep(extras);
-            if (isChecked) {
-              updatedExtras.tensorBoard = generateDefaultTensorBoardExtras();
-            } else {
-              delete updatedExtras.tensorBoard;
-            }
-            onChange(updatedExtras);
-          }}
+    <Stack gap='m' styles={{root: {height: '100%'}}}>
+      <Stack horizontal gap='s1'>
+        <Text styles={style.headerText}>TensorBoard</Text>
+        <TooltipIcon content={
+          `You should save logs under ${defaultLogPath} in the training script.
+          TensorBoard can only read logs from the first task role if ${defaultLogPath} is not mounted in Data section.`
+        }
         />
-        {detectMountPathAndMultipleTaskRoles() && (
-          <ErrMsg>
-            <div>
-              Multiple task roles were detected but not mounted <code>{defaultLogPath}</code>.
-            </div>
-            <div>
-              TensorBoard can only read logs from the first task role.
-            </div>
-          </ErrMsg>
-        )}
-      </div>
-    </div>
+      </Stack>
+      <Hint>
+        Users should save logs under <code>{`${defaultLogPath}`}</code>.
+      </Hint>
+      <Toggle
+        label='Enable TensorBoard'
+        inlineLabel={true}
+        checked={!isNil(extras.tensorBoard)}
+        onChange={(ev, isChecked) => {
+          const updatedExtras = cloneDeep(extras);
+          if (isChecked) {
+            updatedExtras.tensorBoard = generateDefaultTensorBoardExtras();
+          } else {
+            delete updatedExtras.tensorBoard;
+          }
+          onChange(updatedExtras);
+        }}
+      />
+      {detectMountPathAndMultipleTaskRoles() && (
+        <ErrMsg>
+          <div>
+            Multiple task roles were detected but not mounted <code>{defaultLogPath}</code> in Data section.
+          </div>
+          <div>
+            TensorBoard can only read logs from the first task role.
+          </div>
+        </ErrMsg>
+      )}
+    </Stack>
   );
 };
 
