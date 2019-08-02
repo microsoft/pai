@@ -42,5 +42,11 @@ if [ ! -d "$manifestpath" ]; then
 fi
 
 
-chmod u+x $scriptPath/kubelet.sh
-./$scriptPath/kubelet.sh
+cp $scriptPath/kubelet.sh /usr/bin/openpai-kubelet.sh
+chmod u+x /usr/bin/openpai-kubelet.sh
+
+cp $scriptPath/kubelet.serivce /etc/systemd/system/
+chmod 664 /etc/systemd/system/kubelet.service
+
+systemctl daemon-reload
+systemctl start kubelet
