@@ -252,7 +252,7 @@ export function generateDefaultTensorBoardExtras() {
   const tensorBoardExtras = {
     randomStr: randomStr,
     logDirectories: {
-      default: `${defaultLogPath}/$PAI_JOB_NAME`,
+      default: `${defaultLogPath}`,
     },
   };
   return tensorBoardExtras;

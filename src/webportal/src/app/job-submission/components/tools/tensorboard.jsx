@@ -52,7 +52,7 @@ export const TensorBoard = (props) => {
           onRenderContent: () => {
             return (
               <Hint>
-                You could save logs under <code>{`${defaultLogPath}/$PAI_JOB_NAME`}</code> in the training script.
+                You could save logs under <code>{`${defaultLogPath}`}</code> in the training script.
                 TensorBoard can only read logs from the first task role if <code>{`${defaultLogPath}`}</code> is not mounted in Data section.
               </Hint>
             );
