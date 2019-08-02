@@ -102,7 +102,7 @@ class ResourceGauges(object):
                 "job_name",
                 "role_name",
                 "task_index",
-                "job_instance_uid",
+                "app_id",
                 ]
         self.service_labels = ["name"]
 
@@ -513,7 +513,7 @@ class ContainerCollector(Collector):
         result_labels["task_index"] = inspect_info.task_index or "unknown"
 
         # Used to distinguage jobs/tasks with same name but different retry number
-        result_labels["job_instance_uid"] = inspect_info.job_instance_uid or "unknown"
+        result_labels["app_id"] = inspect_info.app_id or "unknown"
 
         if inspect_info.gpu_ids:
             ids = inspect_info.gpu_ids.replace("\"", "").split(",")
