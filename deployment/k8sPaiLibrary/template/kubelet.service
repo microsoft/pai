@@ -1,0 +1,46 @@
+[Unit]
+Description=kubete daemon
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=docker run \
+          --name=kubelet \
+          --volume=/etc/kubernetes:/etc/kubernetes:rw \
+          --volume=/:/rootfs:rw \
+          --volume=/sys:/sys:rw \
+          --volume=/dev:/dev:rw \
+          --volume=${DOCKER_ROOT_DIR_FOR_KUBELET}:${DOCKER_ROOT_DIR_FOR_KUBELET}:rw \
+          --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
+          --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
+          --volume=/var/run:/var/run:rw \
+          --volume=/var/log:/var/log:rw \
+          --restart=always \
+          --net=host \
+          --pid=host \
+          --privileged=true \
+          -d \
+          {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }} \
+          /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
+      --register-node=true \
+      --kubeconfig=/etc/kubernetes/config \
+      --require-kubeconfig \
+      --hostname-override={{ hostcofig['nodename'] }} \
+      --cluster-dns={{ cluster_cfg['kubernetes']['cluster-dns'] }} \
+      --cluster-domain=cluster.local  \
+      --pod-manifest-path=/etc/kubernetes/manifests \
+      --allow-privileged=true \
+      --logtostderr=true \
+      --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
+      --image-pull-progress-deadline=10m \
+      --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
+      --system-reserved=memory=3Gi \
+      --eviction-hard= \
+      --image-gc-high-threshold=100 \
+      --image-gc-low-threshold=95 \
+      --healthz-bind-address="0.0.0.0" \
+      --healthz-port="10248" \
+      --feature-gates="DevicePlugins=true,TaintBasedEvictions=true" \
+      --v=2
+ExecStop=
+Restart=on-failure
