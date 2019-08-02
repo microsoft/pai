@@ -11,3 +11,6 @@ ExecStop=-/usr/bin/docker stop kubelet
 ExecStop=-/usr/bin/docker rm kubelet
 RestartSec=5s
 Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
