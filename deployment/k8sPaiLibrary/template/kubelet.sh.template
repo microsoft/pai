@@ -64,7 +64,7 @@ docker run \
   --logtostderr=true \
   --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
   --image-pull-progress-deadline=10m \
-  --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
+  --docker-root=`docker info | grep "Docker Root Dir" | awk -F' ' '{print $NF}'` \
   --system-reserved=memory=3Gi \
   --eviction-hard= \
   --image-gc-high-threshold=100 \
