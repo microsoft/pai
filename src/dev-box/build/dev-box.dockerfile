@@ -28,6 +28,7 @@ RUN apt-get -y update && \
       gawk \
       psmisc \
       python \
+      python3 \
       python-yaml \
       python-jinja2 \
       python-paramiko \
@@ -37,7 +38,9 @@ RUN apt-get -y update && \
       python-prettytable \
       python-netifaces \
       python-dev \
+      python3-dev \
       python-pip \
+      python3-pip \
       python-mysqldb \
       openjdk-8-jre \
       openjdk-8-jdk \
