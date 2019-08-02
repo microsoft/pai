@@ -101,7 +101,8 @@ class ResourceGauges(object):
                 "username",
                 "job_name",
                 "role_name",
-                "task_index"
+                "task_index",
+                "job_instance_uid",
                 ]
         self.service_labels = ["name"]
 

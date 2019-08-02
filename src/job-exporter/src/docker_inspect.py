@@ -37,8 +37,8 @@ class InspectResult(object):
         self.job_instance_uid = job_instance_uid
 
     def __repr__(self):
-        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, pid %s" % \
-                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.pid)
+        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, job_instance_uid %s pid %s" % \
+                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.job_instance_uid, self.pid)
 
     def __eq__(self, o):
         return self.username == o.username and \
@@ -46,6 +46,7 @@ class InspectResult(object):
                 self.role_name == o.role_name and \
                 self.task_index == o.task_index and \
                 self.gpu_ids == o.gpu_ids and \
+                self.job_instance_uid == o.job_instance_uid and \
                 self.pid == o.pid
 
 
