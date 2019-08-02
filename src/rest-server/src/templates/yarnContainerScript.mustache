@@ -578,7 +578,6 @@ docker run --name $docker_name \
   --label PAI_JOB_VC_NAME={{ jobData.virtualCluster }} \
   --label PAI_USER_NAME={{ jobData.userName }} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{ taskData.name }} \
-  --label PAI_JOB_INSTANCE_UID=$APP_ID \
   --env-file $ENV_LIST \
   --entrypoint="" \
    {{ jobData.image }} \

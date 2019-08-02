@@ -59,7 +59,7 @@ class TestDockerInspect(base.TestBase):
                 "worker",
                 "0",
                 "GPU-dc0671b0-61a4-443e-f456-f8fa6359b788",
-                None,
+                "0_69c05215-46fa-11e9-8937-000d3ab38724",
                 23774)
         self.assertEqual(target_inspect_info, inspect_info)
 

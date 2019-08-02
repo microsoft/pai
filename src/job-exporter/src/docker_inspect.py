@@ -51,7 +51,7 @@ class InspectResult(object):
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
-        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME", "PAI_JOB_INSTANCE_UID"}
+        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
 
 
 def parse_docker_inspect(inspect_output):
@@ -77,6 +77,9 @@ def parse_docker_inspect(inspect_output):
                 m["PAI_TASK_INDEX"] = v
             elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all" and v != "void":
                 m["GPU_ID"] = v
+            
+            if k == "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID" or k == "APP_ID":
+                m["PAI_JOB_INSTANCE_UID"] = v
 
     pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
 
