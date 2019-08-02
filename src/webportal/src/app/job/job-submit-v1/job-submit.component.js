@@ -197,7 +197,9 @@ $(document).ready(() => {
     const jobname = query.jobname;
     if (op === 'resubmit') {
       if (type != null && username != null && jobname != null) {
-        const url = `${webportalConfig.restServerUri}/api/v1/jobs/${username}~${jobname}/config`;
+        const url = username==''
+          ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
+          : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
         $.ajax({
           url: url,
           type: 'GET',

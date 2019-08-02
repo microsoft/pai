@@ -51,7 +51,7 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/config`
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -69,7 +69,7 @@ export async function fetchRawJobConfig() {
 
 export async function fetchJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/config`
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
