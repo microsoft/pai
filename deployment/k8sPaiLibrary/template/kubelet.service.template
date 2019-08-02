@@ -10,4 +10,4 @@ ExecStart=/bin/bash /usr/bin/openpai-kubelet.sh
 ExecStop=-/usr/bin/docker stop kubelet
 ExecStop=-/usr/bin/docker rm kubelet
 RestartSec=5s
-Restart=always
+Restart=on-failure

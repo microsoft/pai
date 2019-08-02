@@ -49,4 +49,5 @@ cp $scriptPath/kubelet.service /etc/systemd/system/
 chmod 664 /etc/systemd/system/kubelet.service
 
 systemctl daemon-reload
+systemctl enable kubelet
 systemctl start kubelet
