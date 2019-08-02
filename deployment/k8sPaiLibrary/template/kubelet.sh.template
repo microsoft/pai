@@ -45,11 +45,9 @@ docker run \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
     --volume=/var/log:/var/log:rw \
-    --restart=always \
     --net=host \
     --pid=host \
     --privileged=true \
-    -d \
     {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }} \
     /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
   --register-node=true \
