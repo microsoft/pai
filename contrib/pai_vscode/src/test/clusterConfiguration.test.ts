@@ -6,7 +6,7 @@
 // tslint:disable:align
 import * as assert from 'assert';
 
-import { getSingleton } from '../common/singleton';
+import { getSingleton, waitForAllSingletonFinish } from '../common/singleton';
 import { ClusterManager } from '../pai/clusterManager';
 
 async function asyncAssertThrows(fn: (...args: any[]) => Promise<any>, message: string): Promise<void> {
@@ -26,6 +26,7 @@ async function asyncAssertDoesNotThrow(fn: (...args: any[]) => Promise<any>, mes
 
 suite('PAI Cluster Configurations', () => {
     test('Configuration Validation', async () => {
+        await waitForAllSingletonFinish();
         const clusterManager: ClusterManager = await getSingleton(ClusterManager);
         clusterManager.allConfigurations[0] = <any>{};
         await asyncAssertThrows(async () => {

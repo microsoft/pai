@@ -22,10 +22,12 @@ import qs from 'querystring';
 import {userLogout} from '../../../../user/user-logout/user-logout.component';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
+import {isJobV2} from './util';
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
+const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -100,6 +102,27 @@ export async function fetchSshInfo() {
   }
 }
 
+export function getTensorBoardUrl(jobInfo, rawJobConfig) {
+  let port = null;
+  let ip = null;
+  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
+    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+    const tensorBoardStr = `TensorBoard_${randomStr}`;
+    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
+    const obj = jobInfo.taskRoles;
+    if (obj.hasOwnProperty(tensorBoardStr)) {
+      if (obj[tensorBoardStr].taskStatuses[0].taskState === 'RUNNING') {
+        port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
+        ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
+      }
+    }
+  }
+  if (isNil(port) || isNil(ip)) {
+    return null;
+  }
+  return `http://${ip}:${port}`;
+}
+
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
@@ -123,12 +146,22 @@ export async function cloneJob(rawJobConfig) {
   // plugin
   const pluginId = get(rawJobConfig, 'extras.submitFrom');
   if (isNil(pluginId)) {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
+    if (isJobV2(rawJobConfig)) {
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+    } else {
+      window.location.href = `/submit_v1.html?${qs.stringify(query)}`;
+    }
     return;
   }
   const plugins = window.PAI_PLUGINS;
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
+    // redirect v2 job to default submission page
+    if (isJobV2(rawJobConfig)) {
+      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+      return;
+    }
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     return;
   }
@@ -192,10 +225,21 @@ export async function getContainerLog(logUrl) {
       if (pre.previousElementSibling) {
         const link = pre.previousElementSibling.getElementsByTagName('a');
         if (link.length === 1) {
-          ret.fullLogLink = link[0].href;
+          ret.fullLogLink = link[0].getAttribute('href');
           // relative link
-          if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
-            const url = new URL(ret.fullLogLink, res.url);
+          if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
+            let baseUrl = res.url;
+            // check base tag
+            const baseTags = doc.getElementsByTagName('base');
+            // There can be only one <base> element in a document.
+            if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
+              baseUrl = baseTags[0].getAttribute('href');
+              // relative base tag url
+              if (!absoluteUrlRegExp.test(baseUrl)) {
+                baseUrl = new URL(baseUrl, res.url);
+              }
+            }
+            const url = new URL(ret.fullLogLink, baseUrl);
             ret.fullLogLink = url.href;
           }
         }

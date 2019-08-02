@@ -16,6 +16,7 @@ const userAuth = require('../user/user-auth/user-auth.component');
 //
 let commonTable = null;
 let dedicateTable = null;
+let nodeListShowLength = 2;
 let isAdmin = cookies.get('admin');
 //
 
@@ -47,6 +48,17 @@ const loadData = (specifiedVc) => {
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
           {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
+          {
+            type: 'date',
+            targets: 1,
+            render: (data, type, full, meta) => {
+              if (full[1].split(',').length > nodeListShowLength) {
+                return getPartialRemarksHtml(full[1]);
+              } else {
+                return full[1];
+              }
+            },
+          },
         ],
       }).api();
       resizeContentWrapper();
@@ -58,14 +70,12 @@ const loadData = (specifiedVc) => {
 };
 
 //
-
 const formatNumber = (x, precision) => {
   const n = Math.pow(10, precision);
   return (Math.round(x * n) / n).toFixed(precision);
 };
 
 //
-
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
@@ -76,6 +86,28 @@ const resizeContentWrapper = () => {
   if (dedicateTable != null) {
     dedicateTable.columns.adjust().draw();
   }
+};
+
+//
+const nodeListShow = (nodelist, obj) => {
+  const attributes = Array.prototype.slice.call($(obj))[0].attributes;
+  if (attributes.isdetail === true) {
+    attributes.isdetail = false;
+    $(obj).html(getPartialRemarksHtml(nodelist));
+  } else {
+    attributes.isdetail = true;
+    $(obj).html(getTotalRemarksHtml(nodelist));
+  }
+};
+
+//
+const getPartialRemarksHtml = (nodelist) => {
+  return nodelist.split(',').splice(0, nodeListShowLength) + '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>';
+};
+
+//
+const getTotalRemarksHtml = (nodelist) => {
+  return nodelist.split(',').join(', ');
 };
 
 //
@@ -90,6 +122,7 @@ const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
     let vcName = $('#virtualClustersList input[name="vcname"]').val();
     let capacity = $('#virtualClustersList input[name="capacity"]').val();
+    let externalName = $('#virtualClustersList input[name="securitygroup"]').val();
     if (!vcName) {
       $('#virtualClustersList input[name="vcname"]').focus();
       return false;
@@ -98,10 +131,16 @@ const virtualClustersAdd = () => {
       $('#virtualClustersList input[name="capacity"]').focus();
       return false;
     }
+    if (!externalName && webportalConfig.authnMethod === 'OIDC') {
+      $('#virtualClustersList input[name="securitygroup"]').focus();
+      return false;
+    }
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
         'vcCapacity': capacity,
+        'externalName': externalName ? externalName : ``,
+        'description': ``,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -112,71 +151,6 @@ const virtualClustersAdd = () => {
       success: (data) => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         $('#virtualClustersList').modal('hide');
-        alert(data.message);
-      },
-      error: (xhr, textStatus, error) => {
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-        if (res.code === 'UnauthorizedUserError') {
-          userLogout();
-        }
-      },
-    });
-  });
-};
-
-//
-const addGroup = () => {
-  userAuth.checkToken((token) => {
-    let vcName = $('#virtualClustersList input[name="vcname"]').val();
-    let capacity = $('#virtualClustersList input[name="capacity"]').val();
-    if (!vcName) {
-      $('#virtualClustersList input[name="vcname"]').focus();
-      return false;
-    }
-    if (!capacity) {
-      $('#virtualClustersList input[name="capacity"]').focus();
-      return false;
-    }
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/user/create/${vcName}`,
-      data: JSON.stringify({
-        'description': `This group of the same name is created by creating a Virtual Cluster named ${vcName}`,
-        'externalName': ``,
-      }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: 'application/json; charset=utf-8',
-      type: 'PUT',
-      dataType: 'json',
-      success: (data) => {
-        alert(data.message);
-      },
-      error: (xhr, textStatus, error) => {
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-        if (res.code === 'UnauthorizedUserError') {
-          userLogout();
-        }
-      },
-    });
-  });
-};
-
-//
-const deleteGroup = (groupname) => {
-  if (name == 'default') return false;
-  userAuth.checkToken((token) => {
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/group/delete/${groupname}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: 'application/json; charset=utf-8',
-      type: 'DELETE',
-      dataType: 'json',
-      success: (data) => {
         alert(data.message);
       },
       error: (xhr, textStatus, error) => {
@@ -257,7 +231,7 @@ const editVcItemPut = (name, capacity) => {
   });
 };
 
-
+//
 const changeVcState = (name, state) => {
   if (isAdmin !== 'true') return false;
   if (name === 'default') return false;
@@ -316,13 +290,13 @@ const convertState = (name, state) => {
   return `<a ${vcStateChage} class="state-vc state-${vcState.toLowerCase()} ${vcStateOrdinary}" ${vcStateTips}>${vcState}</a>`;
 };
 
+
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
 window.changeVcState = changeVcState;
 window.convertState = convertState;
-window.addGroup = addGroup;
-window.deleteGroup = deleteGroup;
+window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
@@ -338,7 +312,6 @@ $(document).ready(() => {
   // add VC
   $(document).on('click', '#virtualClustersListAdd', () => {
     virtualClustersAdd();
-    addGroup();
   });
 
   $(document).on('click', '#virtualClustersListEdit', () => {

@@ -19,28 +19,14 @@
 const express = require('express');
 const launcherConfig = require('@pai/config/launcher');
 const token = require('@pai/middlewares/token');
-const userConfig = require('@pai/config/user');
-const userController = require('@pai/controllers/user');
-const param = require('@pai/middlewares/parameter');
+const userController = require('@pai/controllers/v2/user');
+
 
 const router = new express.Router();
 
-router.route('/')
-    /** PUT /api/v1/user - Create or update a user */
-    .put(token.check, param.validate(userConfig.userPutInputSchema), userController.update)
-
-    /** DELETE /api/v1/user - Remove a user */
-    .delete(token.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
-
-    /** Get /api/v1/user - Get user info list */
-    .get(userController.getUserList);
-
-
 router.route('/:username/')
-    .get(token.check, userController.getUserInfo);
-
-router.route('/:username/virtualClusters')
-    .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
+/** Get /api/v1/user/:username */
+  .get(token.check, userController.getUser);
 
 
 if (launcherConfig.type === 'yarn') {
@@ -52,5 +38,4 @@ if (launcherConfig.type === 'yarn') {
   });
 }
 
-// module exports
 module.exports = router;

@@ -19,6 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-npm --no-git-tag-version version $(cat ../../../version/PAI.VERSION)
+cp -arf "../../../version" "../version"
 
 popd > /dev/null

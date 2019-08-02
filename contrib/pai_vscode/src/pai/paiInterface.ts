@@ -14,6 +14,7 @@ export interface IPAICluster {
     hdfs_uri?: string;
     k8s_dashboard_uri?: string;
     web_portal_uri?: string;
+    protocol_version?: string;
 }
 
 export interface IPAITaskRole {
@@ -25,7 +26,7 @@ export interface IPAITaskRole {
     command: string;
 }
 
-export interface IPAIJobConfig {
+export interface IPAIJobConfigV1 {
     jobName: string;
     image: string;
     dataDir?: string;
@@ -52,9 +53,9 @@ export interface IPAIJobInfo {
 /**
  * OpenPAI Job Protocol.
  */
-export interface IPAIYamlJobConfig {
+export interface IPAIJobConfigV2 {
     /** Protocol version, current version is 2. */
-    protocolVersion: string;
+    protocolVersion: string | number;
     name: string;
     /** Component type, should be "job" here. */
     type: string;

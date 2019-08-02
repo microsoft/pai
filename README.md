@@ -11,6 +11,8 @@
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
+**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+
 ## Table of Contents
 
 1. [When to consider OpenPAI](#when-to-consider-openpai)
@@ -54,6 +56,7 @@ Targeting at openness and advancing state-of-art technology, [Microsoft Research
 We encourage researchers and students leverage these projects to accelerate the AI development and research.
 * [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
 * [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : An NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
+* [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) is an open source library for large scale vector approximate nearest neighbor search scenario.
 
 ## Get started
 

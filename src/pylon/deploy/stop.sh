@@ -27,5 +27,12 @@ if kubectl get service | grep -q "pylon"; then
     kubectl delete service pylon || exit $?
 fi
 
+if kubectl get configmap | grep -q "https-config"; then
+    kubectl delete configmap https-config || exit $?
+fi
+
+if kubectl get configmap | grep -q "pylon-config"; then
+    kubectl delete configmap pylon-config || exit $?
+fi
 
 popd > /dev/null

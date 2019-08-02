@@ -22,8 +22,20 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash stop.sh || exit $?
 
 echo "Delete pai-user namespace"
-if kubectl get namespace | grep -q "pai-user"; then
+if kubectl get namespace | grep -q "pai-user "; then
     kubectl delete ns pai-user || exit $?
 fi
+
+echo "Delete pai-user-v2 namespace"
+if kubectl get namespace | grep -q "pai-user-v2 "; then
+    kubectl delete ns pai-user-v2 || exit $?
+fi
+
+echo "Delete pai-group namespace"
+if kubectl get namespace | grep -q "pai-group "; then
+    kubectl delete ns pai-group || exit $?
+fi
+
+
 
 popd > /dev/null

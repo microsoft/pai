@@ -27,7 +27,6 @@ class Pylon:
         machine_list = self.cluster_configuration['machine-list']
         if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
             return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
-
         return True, None
 
     #### Generate the final service object model
@@ -38,14 +37,19 @@ class Pylon:
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
+        uriHttps = 'https://{0}'.format(master_ip)
 
         webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
-
-        return {
+        ret = {
             'port': port,
             'uri': uri,
+            'uri-https': uriHttps,
             'webhdfs-legacy-port': webhdfs_legacy_port,
         }
+        if 'ssl' in self.service_configuration:
+            ret['ssl'] = self.service_configuration['ssl']
+
+        return ret
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):

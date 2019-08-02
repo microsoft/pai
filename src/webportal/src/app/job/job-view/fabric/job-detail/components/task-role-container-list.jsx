@@ -222,7 +222,7 @@ export default class TaskRoleContainerList extends React.Component {
         maxWidth: 60,
         isResizable: true,
         onRender: (item) => {
-          const gpuAttr = !isNil(item.containerGpus) && parseGpuAttr(item.containerGpus);
+          const gpuAttr = isNil(item.containerGpus) ? null : parseGpuAttr(item.containerGpus);
           if (isNil(gpuAttr)) {
             return null;
           } else if (gpuAttr.length === 0) {
@@ -318,6 +318,13 @@ export default class TaskRoleContainerList extends React.Component {
                 menuIconProps={{iconName: 'More'}}
                 menuProps={{
                   items: [
+                    {
+                      key: 'mergedLog',
+                      name: 'Full log',
+                      iconProps: {iconName: 'TextDocument'},
+                      disabled: isNil(item.containerId),
+                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                    },
                     {
                       key: 'yarnTrackingPage',
                       name: 'Go to Yarn Tracking Page',

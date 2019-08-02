@@ -16,26 +16,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import Chart from 'chart.js';
-import 'chartjs-plugin-datalabels'; // This plugin registers itself globally
 import c from 'classnames';
 import {range} from 'lodash';
 import PropTypes from 'prop-types';
 import {Stack, FontClassNames} from 'office-ui-fabric-react';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useMemo} from 'react';
 
 import Card from './card';
-import {statusColor} from '../../components/theme';
 
 import t from '../../components/tachyons.scss';
+import {getVirtualClusterColor} from './util';
 
-const GpuChart = ({style, gpuPerNode}) => {
-  const maxVal = Math.max(...Object.values(gpuPerNode));
-  const data = Array(maxVal).fill(0);
-  for (const key of Object.keys(gpuPerNode)) {
-    if (gpuPerNode[key] > 0) {
-      data[gpuPerNode[key] - 1] += 1;
+const GpuChart = ({style, gpuPerNode, virtualClusters}) => {
+  const maxVal = useMemo(() => {
+    return Math.max(...Object.values(gpuPerNode));
+  }, [gpuPerNode]);
+
+  const dataset = useMemo(() => {
+    const processed = {};
+    const result = [];
+    // dedicated
+    for (const [name, vc] of Object.entries(virtualClusters)) {
+      if (vc.dedicated && vc.nodeList) {
+        const data = Array(maxVal).fill(0);
+        for (const node of vc.nodeList) {
+          if (gpuPerNode[node] > 0) {
+            data[gpuPerNode[node] - 1] += 1;
+            processed[node] = true;
+          }
+        }
+        result.push({
+          backgroundColor: getVirtualClusterColor(name, vc),
+          hoverBackgroundColor: getVirtualClusterColor(name, vc),
+          label: `${name} (dedicated)`,
+          data: data,
+        });
+      }
     }
-  }
+    // shared_vc
+    const data = Array(maxVal).fill(0);
+    for (const key of Object.keys(gpuPerNode)) {
+      if (gpuPerNode[key] > 0 && !processed[key]) {
+        data[gpuPerNode[key] - 1] += 1;
+      }
+    }
+    result.unshift({
+      backgroundColor: getVirtualClusterColor(),
+      hoverBackgroundColor: getVirtualClusterColor(),
+      label: 'shared_vc',
+      data: data,
+    });
+    return result;
+  }, [virtualClusters, gpuPerNode]);
+
+  const stackedData = dataset.reduce((prev, x) => {
+    for (let i = 0; i < maxVal; i++) {
+      if (x.data[i]) {
+        prev[i] += x.data[i];
+      }
+    }
+    return prev;
+  }, Array(maxVal).fill(0));
+  const height = Math.max(...stackedData);
 
   const chartRef = useRef(null);
 
@@ -44,11 +86,7 @@ const GpuChart = ({style, gpuPerNode}) => {
       type: 'bar',
       data: {
         labels: range(1, maxVal + 1),
-        datasets: [{
-          backgroundColor: statusColor.succeeded,
-          label: 'nodeCount',
-          data: data,
-        }],
+        datasets: dataset,
       },
       options: {
         responsive: true,
@@ -57,10 +95,17 @@ const GpuChart = ({style, gpuPerNode}) => {
           display: false,
         },
         tooltips: {
-          enabled: false,
+          enabled: true,
+          mode: 'index',
+          callbacks: {
+            title: (item, data) => (
+              `#GPU: ${item[0].label}`
+            ),
+          },
         },
         scales: {
           xAxes: [{
+            stacked: true,
             scaleLabel: {
               display: true,
               labelString: '#GPU',
@@ -70,25 +115,20 @@ const GpuChart = ({style, gpuPerNode}) => {
             },
           }],
           yAxes: [{
+            stacked: true,
             scaleLabel: {
               display: true,
               labelString: '#Node',
             },
             ticks: {
-              max: Math.max(...data) * 1.2,
-              min: 0,
-              display: false,
+              max: height,
+              display: true,
+              precision: 0,
             },
             gridLines: {
-              display: false,
+              display: true,
             },
           }],
-        },
-        plugins: {
-          datalabels: {
-            anchor: 'end',
-            align: 'end',
-          },
         },
       },
     });
@@ -115,6 +155,7 @@ const GpuChart = ({style, gpuPerNode}) => {
 GpuChart.propTypes = {
   style: PropTypes.object,
   gpuPerNode: PropTypes.object.isRequired,
+  virtualClusters: PropTypes.object.isRequired,
 };
 
 export default GpuChart;

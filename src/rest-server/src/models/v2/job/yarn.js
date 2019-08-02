@@ -23,7 +23,7 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModel = require('@pai/models/user');
+const userModelV2 = require('@pai/models/v2/user');
 const {protocolConvert} = require('@pai/utils/converter');
 const HDFS = require('@pai/utils/hdfs');
 const createError = require('@pai/utils/error');
@@ -34,7 +34,6 @@ const paiConfig = require('@pai/config/paiConfig');
 const launcherConfig = require('@pai/config/launcher');
 const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
-
 
 const generateFrameworkDescription = (frameworkName, userName, config) => {
   const frameworkDescription = {
@@ -266,11 +265,21 @@ async function get(frameworkName) {
   const [userName] = frameworkName.split('~');
 
   // send request to framework launcher
-  const response = await axios({
-    method: 'get',
-    url: launcherConfig.frameworkPath(frameworkName),
-    headers: launcherConfig.webserviceRequestHeaders(userName),
-  });
+  let response;
+  try {
+    response = await axios({
+      method: 'get',
+      url: launcherConfig.frameworkPath(frameworkName),
+      headers: launcherConfig.webserviceRequestHeaders(userName),
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+
   if (response.status === status('OK')) {
     return response.data;
   }
@@ -286,7 +295,10 @@ async function put(frameworkName, config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  await util.promisify(userModel.checkUserVc)(userName, virtualCluster);
+  const flag = await userModelV2.checkUserVC(userName, virtualCluster);
+  if (flag === false) {
+    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+  }
 
   // generate framework description and prepare container scripts on hdfs
   const frameworkDescription = await prepareContainerScripts(frameworkName, userName, config, rawConfig);
@@ -313,7 +325,7 @@ async function getConfig(frameworkName) {
   // try to get v2
   try {
     const res = await readFile(`/Container/${userName}/${frameworkName}/JobConfig.yaml`);
-    return yaml.safeLoad(res.content);
+    return res;
   } catch (e) {
     // pass
   }

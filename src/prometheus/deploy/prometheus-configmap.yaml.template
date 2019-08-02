@@ -28,6 +28,7 @@ data:
     # Scrape config for cluster components.
     rule_files:
       - "/etc/prometheus-alert/*.rules"
+      - "/etc/prometheus-record/*.rules"
     scrape_configs:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{ prom_info["scrape_interval"] }}s

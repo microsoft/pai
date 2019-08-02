@@ -23,8 +23,8 @@ const fs = require('fs');
 const logger = require('@pai/config/logger');
 const k8s = require('@pai/utils/k8sUtils');
 
-// define the input schema for the 'update vc' api
-const vcPutInputSchema = Joi.object().keys({
+// define the input schema for the 'create vc' api
+const vcCreateInputSchema = Joi.object().keys({
   vcCapacity: Joi.number()
     .min(0)
     .max(100)
@@ -33,6 +33,10 @@ const vcPutInputSchema = Joi.object().keys({
     .min(Joi.ref('vcCapacity'))
     .max(100)
     .optional(),
+  description: Joi.string()
+    .empty(''),
+  externalName: Joi.string()
+    .empty(''),
 }).required();
 
 // define the input schema for the 'put vc status' api
@@ -219,6 +223,7 @@ if (launcherConfig.enabledHived) {
 
 const vcExports = {
   vcPutInputSchema: vcPutInputSchema,
+  vcCreateInputSchema: vcCreateInputSchema,
   vcStatusPutInputSchema: vcStatusPutInputSchema,
 };
 

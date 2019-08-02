@@ -17,7 +17,6 @@
 
 
 // module dependencies
-const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const job = require('@pai/models/v2/job');
@@ -78,9 +77,7 @@ const execute = asyncHandler(async (req, res) => {
 const getConfig = asyncHandler(async (req, res) => {
   try {
     const data = await job.getConfig(req.params.frameworkName);
-    const type = req.accepts(['json', 'yaml']) || 'json';
-    const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
-    return res.status(200).type(type).send(body);
+    return res.status(200).type('text/yaml').send(data);
   } catch (error) {
     if (error.message.startsWith('[WebHDFS] 404')) {
       throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.params.frameworkName} is not found.`);

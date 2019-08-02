@@ -22,19 +22,14 @@ import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme} from 'off
 import React from 'react';
 
 import Card from './card';
-import {statusColor} from '../../components/theme';
+import {getVirtualClusterColor} from './util';
 
 import t from '../../components/tachyons.scss';
 
 const VirtualClusterItem = ({name, info}) => {
-  const availableGpu = Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs);
-  const percentage = availableGpu / info.resourcesTotal.GPUs;
-  let color;
-  if (availableGpu === 0) {
-    color = statusColor.failed;
-  } else {
-    color = statusColor.succeeded;
-  }
+  const availableGpu = Math.max(Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs), 0);
+  const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
+  const color = getVirtualClusterColor(name, info);
 
   const {spacing} = getTheme();
 
@@ -58,7 +53,7 @@ const VirtualClusterItem = ({name, info}) => {
           {/* vc item title */}
           <Stack.Item>
             <div className={c(ColorClassNames.neutralSecondary, FontClassNames.xLarge)}>
-              {name}
+              {info.dedicated ? `${name} (dedicated)` : name}
             </div>
           </Stack.Item>
           {/* vc item status */}
@@ -83,20 +78,17 @@ const VirtualClusterItem = ({name, info}) => {
                   marginRight: spacing.m,
                 }}
               >
-              {availableGpu === 0
-                ? <div style={{backgroundColor: color, width: '100%'}}></div>
-                : (
-                  <div className={c(t.w100, t.h100, t.flex)}>
-                    <div
-                      style={{backgroundColor: color, width: `${percentage * 100}%`}}
-                    ></div>
-                    <div
-                      className={c(ColorClassNames.neutralLightBackground)}
-                      style={{width: `${(1 - percentage) * 100}%`}}
-                    ></div>
-                  </div>
-                )
-              }
+              {(
+                <div className={c(t.w100, t.h100, t.flex)}>
+                  <div
+                    style={{backgroundColor: color, width: `${percentage * 100}%`}}
+                  ></div>
+                  <div
+                    className={c(ColorClassNames.neutralLightBackground)}
+                    style={{width: `${(1 - percentage) * 100}%`}}
+                  ></div>
+                </div>
+              )}
               </div>
             </div>
           </Stack.Item>
@@ -125,7 +117,13 @@ const VirtualCluster = ({style, userInfo, virtualClusters}) => {
         <Stack.Item styles={{root: [t.relative]}} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
             <Stack gap='l1'>
-              {vcNames.map((name) => (
+              {vcNames.sort(
+                (a, b) => {
+                  const wa = virtualClusters[a].dedicated ? 1 : 0;
+                  const wb = virtualClusters[b].dedicated ? 1 : 0;
+                  return wa - wb;
+                }
+              ).map((name) => (
                 <Stack.Item key={name}>
                   <VirtualClusterItem
                     name={name}

@@ -17,9 +17,11 @@
 
 from __future__ import absolute_import
 
-__all__ = ["AlertOperator", "KubernetesOperator", "YarnOperator", "Resource"]
+__all__ = ["AlertOperator", "KubernetesOperator", "YarnOperator", "Resource", "RestserverOperator"]
 
 
 from .alert_operator import AlertOperator
 from .kubernetes_operator import KubernetesOperator
 from .yarn_operator import YarnOperator, Resource
+from .base_operator import BaseOperator
+from .restserver_operator import RestserverOperator

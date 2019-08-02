@@ -22,6 +22,9 @@ prerequisite:
 template-list:
   - rest-server.yaml
   - start.sh
+  - configmap-create.sh
+  - auth-configmap/oidc.yaml
+  - group-configmap/group.yaml
   - job-exit-spec-config/job-exit-spec.yaml
 
 start-script: start.sh

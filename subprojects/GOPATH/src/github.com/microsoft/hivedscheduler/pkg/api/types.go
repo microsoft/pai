@@ -1,0 +1,133 @@
+// MIT License
+//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE
+
+package api
+
+import (
+	"fmt"
+)
+
+///////////////////////////////////////////////////////////////////////////////////////
+// General Types
+///////////////////////////////////////////////////////////////////////////////////////
+type (
+	CellType      string
+	CellAddress   string
+	ReservationId string
+)
+
+// Physical cluster definition
+type PhysicalClusterSpec struct {
+	CellTypes     map[CellType]CellTypeSpec `yaml:"cellTypes"`
+	PhysicalCells []PhysicalCellSpec        `yaml:"physicalCells"`
+}
+
+type CellTypeSpec struct {
+	ChildCellType   CellType `yaml:"childCellType"`
+	ChildCellNumber int32    `yaml:"childCellNumber"`
+	IsNodeLevel     bool     `yaml:"isNodeLevel"`
+}
+
+// Specify physical Cell instances.
+type PhysicalCellSpec struct {
+	CellType      CellType           `yaml:"cellType"`
+	CellAddress   CellAddress        `yaml:"cellAddress"`
+	ReservationId ReservationId      `yaml:"reservationId"`
+	CellChildren  []PhysicalCellSpec `yaml:"cellChildren,omitempty"`
+}
+
+// Virtual cluster definition
+type VirtualClusterName string
+
+type VirtualClusterSpec struct {
+	VirtualCells  []VirtualCellSpec  `yaml:"virtualCells"`
+	ReservedCells []ReservedCellSpec `yaml:"reservedCells,omitempty"`
+}
+
+type VirtualCellSpec struct {
+	CellNumber int32    `yaml:"cellNumber"`
+	CellType   CellType `yaml:"cellType"`
+}
+
+type ReservedCellSpec struct {
+	ReservationId ReservationId `yaml:"reservationId"`
+}
+
+type PodSchedulingSpec struct {
+	VirtualCluster VirtualClusterName `yaml:"virtualCluster"`
+	Priority       int32              `yaml:"priority"`
+	ReservationId  ReservationId      `yaml:"reservationId"`
+	GpuType        string             `yaml:"gpuType"`
+	GpuNumber      int32              `yaml:"gpuNumber"`
+	AffinityGroup  *AffinityGroup     `yaml:"affinityGroup"`
+}
+
+type AffinityGroup struct {
+	Name    string                `yaml:"name"`
+	Members []AffinityGroupMember `yaml:"members"`
+}
+
+type AffinityGroupMember struct {
+	PodNumber int32 `yaml:"podNumber"`
+	GpuNumber int32 `yaml:"gpuNumber"`
+}
+
+// Used to recover scheduler allocated resource
+type PodBindInfo struct {
+	// The node to bind
+	Node string `yaml:"node"`
+	// The GPUs to bind
+	GpuIsolation          []int32  `yaml:"gpuIsolation"`
+	CellChain             string   `yaml:"cellChain"`
+	PodCellLevel          int32    `yaml:"podCellLevel"`
+	PodCellGpuPlacement   Range    `yaml:"podCellGpuRange"`
+	GroupCellLevel        int32    `yaml:"groupCellLevel"`
+	GroupCellNodes        []string `yaml:"groupCellNodes"`
+	GroupCellGpuPlacement Range    `yaml:"groupCellGpuRange"`
+	VirtualCellLevel      int32    `yaml:"virtualCellLevel"`
+	VirtualCellIndex      int32    `yaml:"virtualCellIndex"`
+}
+
+type Range struct {
+	Start int32 // included
+	End   int32 // included
+}
+
+type WebServerPaths struct {
+	Paths []string `json:"paths"`
+}
+
+type WebServerError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func NewWebServerError(code int, message string) *WebServerError {
+	return &WebServerError{
+		Code:    code,
+		Message: message,
+	}
+}
+
+func (err *WebServerError) Error() string {
+	return fmt.Sprintf("Code: %v, Message: %v", err.Code, err.Message)
+}

@@ -38,6 +38,12 @@ spec:
         volumeMounts:
         - mountPath: /pai-cluster-config
           name: pai-configuration-rest-server
+{% if cluster_cfg['authentication']['OIDC'] %}
+        - mountPath: /auth-configuration
+          name: auth-configuration-rest-server
+{% endif %}
+        - mountPath: /group-configuration
+          name: group-configuration-rest-server
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
@@ -69,10 +75,19 @@ spec:
           value: "{{ cluster_cfg['rest-server']['log-manager-port'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
+        - name: WEBPORTAL_URL
+          value: "{{ cluster_cfg['webportal']['webportal-address']}}"
+{% if not cluster_cfg['authentication']['OIDC'] %}
+        - name: AUTHN_METHOD
+          value: basic
         - name: DEFAULT_PAI_ADMIN_USERNAME
           value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
         - name: DEFAULT_PAI_ADMIN_PASSWORD
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
+{% else %}
+        - name: AUTHN_METHOD
+          value: OIDC
+{% endif %}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: AZ_RDMA
@@ -112,6 +127,11 @@ spec:
       - name: pai-configuration-rest-server
         configMap:
           name: pai-configuration
+{% if cluster_cfg['authentication']['OIDC'] %}
+      - name: auth-configuration-rest-server
+        configMap:
+          name: auth-configuration
+{% endif %}
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
@@ -120,3 +140,6 @@ spec:
         configMap:
           name: hived-spec-configuration
 {%- endif %}
+      - name: group-configuration-rest-server
+        configMap:
+          name: group-configuration

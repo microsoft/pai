@@ -29,10 +29,11 @@ import styled from 'styled-components';
 import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode} from './home/conn';
+import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError} from './home/conn';
 import RecentJobList from './home/recent-job-list';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
+import {userLogout} from '../user/user-logout/user-logout.component.js';
 
 import t from '../components/tachyons.scss';
 
@@ -53,7 +54,16 @@ const Home = () => {
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
-      ]).then(() => setLoading(false)).catch(alert);
+      ]).then(() => {
+        setLoading(false);
+      }).catch((err) => {
+        if (err instanceof UnauthorizedError) {
+          alert(err);
+          userLogout();
+        } else {
+          alert(err);
+        }
+      });
     } else {
       // layout.component.js will redirect user to index page.
     }
@@ -112,7 +122,11 @@ const Home = () => {
             </ResponsiveItem>
             <ResponsiveGap />
             <ResponsiveItem>
-              <GpuChart gpuPerNode={gpuPerNode} style={{height: '100%'}} />
+              <GpuChart
+                style={{height: '100%'}}
+                gpuPerNode={gpuPerNode}
+                virtualClusters={virtualClusters}
+              />
             </ResponsiveItem>
           </ResponsiveFlexBox>
         </Stack.Item>
