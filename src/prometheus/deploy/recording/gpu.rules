@@ -1,7 +1,3 @@
-#!/bin/bash
-
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,15 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
 
-kubectl create configmap prometheus-alert --from-file=alerting --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl create configmap prometheus-record --from-file=recording --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
-
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v prometheus || exit $?
-
-popd > /dev/null
+groups:
+    - name: gpu_related
+      rules:
+      - record: node:nvidiasmi_utilization_gpu:count
+        expr: count(nvidiasmi_utilization_gpu) by (instance)

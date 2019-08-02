@@ -92,7 +92,7 @@ export class JobProtocol {
     return String(result.error || '');
   }
 
-  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets) {
+  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets, protocolExtras) {
     const parameters = removeEmptyProperties(
       jobParameters
         .reduce((res, parameter) => {
@@ -123,6 +123,7 @@ export class JobProtocol {
       deployments: deployments,
       secrets: secrets,
       defaults: defaultsField,
+      extras: protocolExtras,
     });
   }
 

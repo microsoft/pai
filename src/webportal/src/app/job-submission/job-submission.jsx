@@ -53,6 +53,7 @@ import {Parameters} from './components/sidebar/parameters';
 import {Secrets} from './components/sidebar/secrets';
 import {EnvVar} from './components/sidebar/env-var';
 import {DataComponent} from './components/data/data-component';
+import {ToolComponent} from './components/tools/tool-component';
 // models
 import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
@@ -68,13 +69,14 @@ const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
 const SIDEBAR_ENVVAR = 'envvar';
 const SIDEBAR_DATA = 'data';
+const SIDEBAR_TOOL = 'tool';
 
 const loginUser = cookies.get('user');
 
 function getChecksum(str) {
   let res = 0;
   for (const c of str) {
-    res^= c.charCodeAt(0) & 0xff;
+    res ^= c.charCodeAt(0) & 0xff;
   }
   return res.toString(16);
 }
@@ -110,6 +112,7 @@ const JobSubmission = () => {
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());
+  const [extras, setExtras] = useState({});
   const [loading, setLoading] = useState(true);
   const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
 
@@ -240,9 +243,9 @@ const JobSubmission = () => {
       if (user && jobName) {
         fetchJobConfig(user, jobName)
           .then((jobConfig) => {
-            const [jobInfo, taskRoles, parameters] = getJobComponentsFromConfig(
+            const [jobInfo, taskRoles, parameters, , extras] = getJobComponentsFromConfig(
               jobConfig,
-              {vcNames}
+              {vcNames},
             );
             jobInfo.name = generateJobName(jobInfo.name);
             if (get(jobConfig, 'extras.submitFrom')) {
@@ -252,6 +255,7 @@ const JobSubmission = () => {
             setJobTaskRoles(taskRoles);
             setParameters(parameters);
             setJobInformation(jobInfo);
+            setExtras(extras);
             setLoading(false);
           })
           .catch(alert);
@@ -269,6 +273,7 @@ const JobSubmission = () => {
   const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect]);
   const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
   const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
+  const selectTool = useCallback(() => onSelect(SIDEBAR_TOOL), [onSelect]);
 
   if (loading) {
     return <SpinnerLoading />;
@@ -332,6 +337,14 @@ const JobSubmission = () => {
                   jobName={jobInformation.name}
                   onChange={setJobData}
                 />
+                <ToolComponent
+                  selected={selected === SIDEBAR_TOOL}
+                  onSelect={selectTool}
+                  jobData={jobData}
+                  taskRoles={jobTaskRoles}
+                  extras={extras}
+                  onChange={setExtras}
+                />
               </Stack>
             </StackItem>
           </Stack>
@@ -341,6 +354,7 @@ const JobSubmission = () => {
             jobTaskRoles={jobTaskRoles}
             parameters={parameters}
             secrets={secrets}
+            extras={extras}
             advanceFlag={advanceFlag}
             onToggleAdvanceFlag={onToggleAdvanceFlag}
             jobData={jobData}
@@ -350,11 +364,13 @@ const JobSubmission = () => {
               updatedTaskRoles,
               updatedParameters,
               updatedSecrets,
+              updatedExtras,
             ) => {
               setJobInformation(updatedJobInfo);
               setJobTaskRoles(updatedTaskRoles);
               setParameters(updatedParameters);
               setSecrets(updatedSecrets);
+              setExtras(updatedExtras);
             }}
           />
         </Stack>

@@ -190,7 +190,7 @@ const updateUserExtension = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -234,7 +234,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -246,7 +246,7 @@ const updateUserGroupList = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
     const username = req.params.username;
-    const vcAndGroup = groupModel.updateVirtualClusterWithGrouplist(req.body.grouplist);
+    const vcAndGroup = await groupModel.updateVirtualClusterWithGrouplist(req.body.grouplist);
     let userValue = await userModel.getUser(username);
     userValue['grouplist'] = vcAndGroup.grouplist;
     userValue['extension']['virtualCluster'] = vcAndGroup.virtualCluster;
@@ -256,7 +256,7 @@ const updateUserGroupList = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
@@ -282,7 +282,7 @@ const addGroupIntoUserGrouplist = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
@@ -308,7 +308,7 @@ const removeGroupIntoUserGrouplist = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
@@ -334,7 +334,7 @@ const updateUserPassword = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -356,7 +356,7 @@ const updateUserEmail = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -393,7 +393,7 @@ const updateUserAdminPermission = async (req, res, next) => {
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown((error)));
   }

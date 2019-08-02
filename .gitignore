@@ -28,3 +28,5 @@ __pycache__
 *.pyproj
 *.vs
 .editorconfig
+/subprojects/GOPATH/bin/
+/subprojects/GOPATH/pkg/

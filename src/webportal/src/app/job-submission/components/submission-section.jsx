@@ -48,6 +48,7 @@ import Card from '../../components/card';
 import {
   populateProtocolWithDataCli,
   getJobComponentsFromConfig,
+  isValidUpdatedTensorBoardExtras,
 } from '../utils/utils';
 import Context from './context';
 import {BasicSection} from './basic-section';
@@ -88,6 +89,7 @@ export const SubmissionSection = (props) => {
     jobTaskRoles,
     parameters,
     secrets,
+    extras,
     onChange,
     advanceFlag,
     onToggleAdvanceFlag,
@@ -121,9 +123,11 @@ export const SubmissionSection = (props) => {
       jobTaskRoles,
       parameters,
       secrets,
+      extras,
     );
     _protocolAndErrorUpdate(protocol);
-  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol]);
+  }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol, extras]);
+
 
   const _openEditor = async (event) => {
     event.preventDefault();
@@ -134,6 +138,7 @@ export const SubmissionSection = (props) => {
       jobTaskRoles,
       parameters,
       secrets,
+      extras,
     );
     _protocolAndErrorUpdate(protocol);
     try {
@@ -160,13 +165,22 @@ export const SubmissionSection = (props) => {
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
+      updatedExtras,
     ] = getJobComponentsFromConfig(updatedJob, {vcNames});
+
+    if (extras.tensorBoard) {
+      const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
+      if (!isValidUpdatedTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
+        updatedExtras.tensorBoard = extras.tensorBoard;
+      }
+    }
 
     onChange(
       updatedJobInformation,
       updatedTaskRoles,
       updatedParameters,
       updatedSecrets,
+      updatedExtras,
     );
   };
 
@@ -224,11 +238,12 @@ export const SubmissionSection = (props) => {
       await submitJob(protocol.toYaml());
       window.location.href = `/job-detail.html?username=${user}&jobName=${
         protocol.name
-      }`;
+        }`;
     } catch (err) {
       alert(err);
     }
   };
+
 
   const widthBreakpoint = 1550;
 
@@ -283,7 +298,7 @@ export const SubmissionSection = (props) => {
         </Stack>
       </MediaQuery>
       {/* small screen - center */}
-      <MediaQuery maxWidth={widthBreakpoint-1}>
+      <MediaQuery maxWidth={widthBreakpoint - 1}>
         <Stack horizontal gap='s1' horizontalAlign='center'>
           <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
             Submit
@@ -353,6 +368,7 @@ SubmissionSection.propTypes = {
   jobTaskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   parameters: PropTypes.array.isRequired,
   secrets: PropTypes.array.isRequired,
+  extras: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
   onToggleAdvanceFlag: PropTypes.func,
