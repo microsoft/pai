@@ -204,7 +204,7 @@ const updateGrouplistWithVirtualCluster = async (grouplist, virtualCluster) => {
   try {
     let retVirtualCluster = [];
     let retGrouplist = [];
-    const groupType = getAllGroupTypeObject();
+    const groupType = await getAllGroupTypeObject();
     const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
     if (admin) {
       for (let [key, value] of Object.entries(groupType)) {
@@ -235,7 +235,7 @@ const updateVirtualClusterWithGrouplist = async (grouplist) => {
   try {
     let retVirtualCluster = [];
     let retGrouplist = [];
-    const groupType = getAllGroupTypeObject();
+    const groupType = await getAllGroupTypeObject();
     const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
     if (admin) {
       for (let [key, value] of Object.entries(groupType)) {
@@ -424,7 +424,7 @@ const groupTypeVCCheck = async () => {
     for (let groupItem of groupInfoList) {
       if (groupItem.extension.groupType && groupItem.extension.groupType === 'vc') {
         if (!vcList || !(groupItem.groupname in vcList)) {
-          deleteGroup(groupItem.groupname);
+          await deleteGroup(groupItem.groupname);
           logger.info(`Delete vc type group [${groupItem.groupname}]. Can't find it in yarn's vc list.`);
         }
       }
