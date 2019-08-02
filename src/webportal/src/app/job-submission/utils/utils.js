@@ -10,6 +10,7 @@ import {
   TEAMWISE_DATA_CMD_END,
   TENSORBOARD_CMD_START,
   TENSORBOARD_CMD_END,
+  TENSORBOARD_LOG_PATH,
   AUTO_GENERATE_NOTIFY,
 } from './constants';
 
@@ -247,12 +248,11 @@ export function createUniqueName(usedNames, namePrefix, startindex) {
 }
 
 export function generateDefaultTensorBoardExtras() {
-  const defaultLogPath = '/mnt/tensorboard';
   const randomStr = Math.random().toString(36).slice(2, 10);
   const tensorBoardExtras = {
     randomStr: randomStr,
     logDirectories: {
-      default: `${defaultLogPath}`,
+      default: `${TENSORBOARD_LOG_PATH}`,
     },
   };
   return tensorBoardExtras;

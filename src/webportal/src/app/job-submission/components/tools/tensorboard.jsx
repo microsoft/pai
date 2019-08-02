@@ -5,6 +5,7 @@ import {Hint} from '../sidebar/hint';
 import {ErrMsg} from '../sidebar/errormessage';
 import {generateDefaultTensorBoardExtras} from '../../utils/utils';
 import {TooltipIcon} from '../controls/tooltip-icon';
+import {TENSORBOARD_LOG_PATH} from '../../utils/constants';
 import {
   FontWeights,
   Toggle,
@@ -30,15 +31,13 @@ export const TensorBoard = (props) => {
     onChange,
   } = props;
 
-  const defaultLogPath = '/mnt/tensorboard';
-
   const detectMountPathAndMultipleTaskRoles = () => {
     if (!extras.tensorBoard) {
       return false;
     }
     const teamDataList = jobData.mountDirs.getTeamDataList();
     for (const teamData of teamDataList) {
-      if (teamData.mountPath === defaultLogPath) {
+      if (teamData.mountPath === TENSORBOARD_LOG_PATH) {
         return false;
       }
     }
@@ -53,13 +52,13 @@ export const TensorBoard = (props) => {
       <Stack horizontal gap='s1'>
         <Text styles={style.headerText}>TensorBoard</Text>
         <TooltipIcon content={
-          `You should save logs under ${defaultLogPath} in the training script.
-          TensorBoard can only read logs from the first task role if ${defaultLogPath} is not mounted in Data section.`
+          `You should save logs under ${TENSORBOARD_LOG_PATH} in the training script.
+          TensorBoard can only read logs from the first task role if ${TENSORBOARD_LOG_PATH} is not mounted in Data section.`
         }
         />
       </Stack>
       <Hint>
-        Users should save logs under <code>{`${defaultLogPath}`}</code>.
+        Users should save logs under <code>{`${TENSORBOARD_LOG_PATH}`}</code>.
       </Hint>
       <Toggle
         label='Enable TensorBoard'
@@ -78,7 +77,7 @@ export const TensorBoard = (props) => {
       {detectMountPathAndMultipleTaskRoles() && (
         <ErrMsg>
           <div>
-            Multiple task roles were detected but not mounted <code>{defaultLogPath}</code> in Data section.
+            Multiple task roles were detected but not mounted <code>{TENSORBOARD_LOG_PATH}</code> in Data section.
           </div>
           <div>
             TensorBoard can only read logs from the first task role.
