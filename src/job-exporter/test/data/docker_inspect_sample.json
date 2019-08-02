@@ -88,6 +88,7 @@
                 "PAI_HOSTNAME": "paigcr-a-gpu-1058",
                 "PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac",
                 "PAI_USER_NAME": "openmindstudio",
+                "PAI_JOB_INSTANCE_UID": "application_1522829300813_1943",
                 "com.nvidia.build.id": "32579957",
                 "com.nvidia.build.ref": "88bc4e08cac2668ec821eead444e5ede2cafcf25",
                 "com.nvidia.cuda.version": "8.0.61",

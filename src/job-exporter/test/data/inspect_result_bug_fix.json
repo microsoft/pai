@@ -341,6 +341,7 @@
                 "PAI_JOB_NAME": "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
                 "PAI_JOB_VC_NAME": "ml",
                 "PAI_USER_NAME": "sokoya",
+                "PAI_JOB_INSTANCE_UID": "application_1553664769226_0080",
                 "com.nvidia.build.id": "72692819",
                 "com.nvidia.build.ref": "cfd53576ae08fab120bc1b28fbdd51624c52fb2e",
                 "com.nvidia.cuda.version": "9.0.176",

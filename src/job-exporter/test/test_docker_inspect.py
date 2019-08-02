@@ -42,11 +42,12 @@ class TestDockerInspect(base.TestBase):
                 "tuner",
                 "0",
                 "0,1,",
+                "application_1522829300813_1943",
                 95539)
 
         self.assertEqual(target_inspect_info, inspect_info)
 
-    def test_parse_docker_inspect(self):
+    def test_parse_docker_inspect_kube(self):
         sample_path = "data/docker_inspect_kube_launcher_task.json"
         with open(sample_path, "r") as f:
             docker_inspect = f.read()
@@ -58,6 +59,7 @@ class TestDockerInspect(base.TestBase):
                 "worker",
                 "0",
                 "GPU-dc0671b0-61a4-443e-f456-f8fa6359b788",
+                None,
                 23774)
         self.assertEqual(target_inspect_info, inspect_info)
 
@@ -73,6 +75,7 @@ class TestDockerInspect(base.TestBase):
                 "train",
                 "0",
                 "3,2,1,0",
+                "application_1553664769226_0080",
                 30332)
         self.assertEqual(target_inspect_info, inspect_info)
 
@@ -88,6 +91,7 @@ class TestDockerInspect(base.TestBase):
                 None,
                 None,
                 "GPU-7c583998-b3ff-a885-8979-2d32d334cde4",
+                None,
                 3533)
         self.assertEqual(target_inspect_info, inspect_info)
 

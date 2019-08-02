@@ -27,13 +27,14 @@ logger = logging.getLogger(__name__)
 
 class InspectResult(object):
     """ Represents a task meta data, parsed from docker inspect result """
-    def __init__(self, username, job_name, role_name, task_index, gpu_ids, pid):
+    def __init__(self, username, job_name, role_name, task_index, gpu_ids, job_instance_uid, pid):
         self.username = username
         self.job_name = job_name
         self.role_name = role_name
         self.task_index = task_index
         self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
         self.pid = pid
+        self.job_instance_uid = job_instance_uid
 
     def __repr__(self):
         return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, pid %s" % \
@@ -49,7 +50,7 @@ class InspectResult(object):
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
-        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
+        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME", "PAI_JOB_INSTANCE_UID"}
 
 
 def parse_docker_inspect(inspect_output):
@@ -84,6 +85,7 @@ def parse_docker_inspect(inspect_output):
             m.get("PAI_CURRENT_TASK_ROLE_NAME"),
             m.get("PAI_TASK_INDEX"),
             m.get("GPU_ID"),
+            m.get("PAI_JOB_INSTANCE_UID"),
             pid)
 
 def inspect(container_id, histogram, timeout):
