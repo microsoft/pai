@@ -45,7 +45,7 @@ fi
 cp $scriptPath/kubelet.sh /usr/bin/openpai-kubelet.sh
 chmod u+x /usr/bin/openpai-kubelet.sh
 
-cp $scriptPath/kubelet.serivce /etc/systemd/system/
+cp $scriptPath/kubelet.service /etc/systemd/system/
 chmod 664 /etc/systemd/system/kubelet.service
 
 systemctl daemon-reload
