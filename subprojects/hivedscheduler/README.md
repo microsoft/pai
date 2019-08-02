@@ -8,7 +8,7 @@ A [Kubernetes Scheduler Extender](https://github.com/kubernetes/community/blob/m
 
 ## Quick Start
 1. [Run Scheduler](example/run)
-2. [Submit Workload to Schedule](example/request)
+2. [Submit Workload to Scheduler](example/request)
 
 ## Official Image
 * [DockerHub](https://hub.docker.com/u/hivedscheduler)
