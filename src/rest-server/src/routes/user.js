@@ -17,11 +17,11 @@
 
 // module dependencies
 const express = require('express');
+const launcherConfig = require('@pai/config/launcher');
 const token = require('@pai/middlewares/token');
 const userConfig = require('@pai/config/user');
 const userController = require('@pai/controllers/user');
 const param = require('@pai/middlewares/parameter');
-const jobRouter = require('@pai/routes/job');
 
 const router = new express.Router();
 
@@ -42,7 +42,15 @@ router.route('/:username/')
 router.route('/:username/virtualClusters')
     .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
 
-router.use('/:username/jobs', jobRouter);
+
+if (launcherConfig.type === 'yarn') {
+  router.use('/:username/jobs', require('@pai/routes/job'));
+} else if (launcherConfig.type === 'k8s') {
+  router.use('/:username/jobs/:jobName', (req, res) => {
+    const redirectPath = req.originalUrl.replace('/jobs/', '~').replace('/user/', '/jobs/');
+    res.redirect(redirectPath);
+  });
+}
 
 // module exports
 module.exports = router;
