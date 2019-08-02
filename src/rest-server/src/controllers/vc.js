@@ -17,7 +17,7 @@
 
 // module dependencies
 const util = require('util');
-const VirtualCluster = require('@pai/models/v1/virtual-cluster');
+const VirtualCluster = require('@pai/models/vc');
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const authConfig = require('@pai/config/authn');
