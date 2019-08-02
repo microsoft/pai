@@ -24,7 +24,6 @@ const authnRouter = require('@pai/routes/authn');
 const tokenRouter = require('@pai/routes/token');
 const userRouter = require('@pai/routes/user');
 const vcRouter = require('@pai/routes/vc');
-const userRouter = require('@pai/routes/user');
 const kubernetesProxy = require('@pai/controllers/kubernetes-proxy');
 
 const router = new express.Router();

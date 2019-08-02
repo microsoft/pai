@@ -222,7 +222,6 @@ if (launcherConfig.enabledHived) {
 }
 
 const vcExports = {
-  vcPutInputSchema,
   vcCreateInputSchema,
   vcStatusPutInputSchema,
 };
