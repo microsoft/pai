@@ -407,7 +407,7 @@ export default class Summary extends React.Component {
                 disabled={isNil(getTensorBoardUrl(jobInfo, rawJobConfig))}
                 target="_blank"
               >
-                Go to TensorBoard
+                Go to TensorBoard Page
               </Link>
             </div>
             <div>
