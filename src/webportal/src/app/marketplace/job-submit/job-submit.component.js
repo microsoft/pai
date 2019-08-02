@@ -136,7 +136,7 @@ $(document).ready(() => {
       });
     }
     if (type != null && username != null && jobname != null) {
-      const url = `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
+      const url = `${webportalConfig.restServerUri}/api/v1/jobs/${username}~${jobname}/config`;
       $.get(url, (data) => {
         if (typeof data === 'string') {
           userTemplate.updatePageFromYaml(data);

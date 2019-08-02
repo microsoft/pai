@@ -222,9 +222,9 @@ if (launcherConfig.enabledHived) {
 }
 
 const vcExports = {
-  vcPutInputSchema: vcPutInputSchema,
-  vcCreateInputSchema: vcCreateInputSchema,
-  vcStatusPutInputSchema: vcStatusPutInputSchema,
+  vcPutInputSchema,
+  vcCreateInputSchema,
+  vcStatusPutInputSchema,
 };
 
 if (launcherConfig.type === 'k8s') {

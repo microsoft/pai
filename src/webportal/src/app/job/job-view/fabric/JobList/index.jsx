@@ -110,7 +110,7 @@ export default function JobList() {
     userAuth.checkToken((token) => {
       jobs.forEach((job) => {
         const {name, username} = job;
-        fetch(`${webportalConfig.restServerUri}/api/v2/jobs/${username}~${name}/executionType`, {
+        fetch(`${webportalConfig.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -143,7 +143,7 @@ export default function JobList() {
 
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
-    fetch(`${webportalConfig.restServerUri}/api/v2/jobs`)
+    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
       .then((response) => {
         if (!response.ok) {
           throw Error(response.message);
