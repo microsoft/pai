@@ -9,7 +9,10 @@ adminGroup:
   description: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}"
   extension:
-    groupType: admin
+    acls:
+      virtualCluster: []
+      storageConfig: []
+      admin: true
 {%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
   userlist: []
 {%- else %}
@@ -24,7 +27,10 @@ defaultGroup:
   description: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
   extension:
-    groupType: vc
+    acls:
+      virtualCluster: default
+      storageConfig: []
+      admin: false
 
 grouplist:
 {%- if 'grouplist' not in cluster_cfg["authentication"]["group-manager"] %}
@@ -35,6 +41,9 @@ grouplist:
     description: "{{ group_item["description"] }}"
     externalName: "{{ group_item["externalName"] }}"
     extension:
-      groupType: vc
+      acls:
+        virtualCluster: []
+        storageConfig: []
+        admin: false
 {%- endfor %}
 {%- endif %}
