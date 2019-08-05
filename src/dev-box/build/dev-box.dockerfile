@@ -113,7 +113,11 @@ RUN mv kubectl /usr/local/bin
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
     echo y | pip install requests && \
-    echo y | pip install docopt
+    echo y | pip install docopt && \
+    echo y | pip3 uninstall requests && \
+    echo y | pip3 install requests && \
+    echo y | pip3 install docopt
+
 
 RUN rm -rf /tmp/*
 
