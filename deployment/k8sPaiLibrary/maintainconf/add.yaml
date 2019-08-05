@@ -34,6 +34,10 @@ add-worker-node:
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
       dst: add-worker-node
 
+    - name: kubelet.service
+      src: deployment/k8sPaiLibrary/template/kubelet.service.template
+      dst: add-work-node
+
 
     # List of the file
     file-list:
@@ -101,6 +105,10 @@ add-master-node-task-two:
 
     - name: docker-daemon.json
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: add-master-node-task-two
+
+    - name: kubelet.service
+      src: deployment/k8sPaiLibrary/template/kubelet.service.template
       dst: add-master-node-task-two
 
 
