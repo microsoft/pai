@@ -1,0 +1,39 @@
+# Put it directly under hivedscheduler's current working directory.
+# For the full config setting and usage, see ./pkg/api/config.go
+
+# This config is used to demonstrate basic features.
+
+kubeApiServerAddress: http://10.151.41.15:8080
+
+physicalCluster:
+  cellTypes:
+    K80-2GPU:
+      childCellType: K80
+      childCellNumber: 2
+    K80-NODE:
+      childCellType: K80-2GPU
+      childCellNumber: 2
+      isNodeLevel: true
+    3-K80-NODE:
+      childCellType: K80-NODE
+      childCellNumber: 3
+
+  physicalCells:
+  - cellType: 3-K80-NODE
+    cellChildren:
+    - cellAddress: 10.151.41.20
+    - cellAddress: 10.151.41.21
+      reservationId: VC2-K80
+    - cellAddress: 10.151.41.22
+
+virtualClusters:
+  VC1:
+    virtualCells:
+    - cellType: 3-K80-NODE.K80-NODE
+      cellNumber: 1
+  VC2:
+    virtualCells:
+    - cellType: 3-K80-NODE.K80-NODE
+      cellNumber: 1
+    reservedCells:
+    - reservationId: VC2-K80

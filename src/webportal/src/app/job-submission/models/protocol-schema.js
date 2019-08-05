@@ -78,6 +78,11 @@ const deploymentSchema = Joi.object().keys({
   })).required(),
 });
 
+const tensorBoardExtrasSchema = Joi.object().keys({
+  randomStr: Joi.string().regex(/^[a-z0-9]{8}$/).required(),
+  logDirectories: Joi.object().min(1).required(),
+});
+
 export const jobProtocolSchema = Joi.object().keys({
   protocolVersion: [Joi.string().required(), Joi.number().required()],
   name: Joi.string().required(),
@@ -100,6 +105,6 @@ export const jobProtocolSchema = Joi.object().keys({
   }),
   extras: Joi.object().keys({
     submitFrom: Joi.string(),
+    tensorBoard: tensorBoardExtrasSchema,
   }).unknown(),
 });
-

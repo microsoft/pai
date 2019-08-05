@@ -19,12 +19,15 @@ export const STORAGE_PREFIX = '/pai_data/';
 export const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 
 export const ERROR_MARGIN = 22.15;
+export const TENSORBOARD_LOG_PATH = '/mnt/tensorboard';
 // Wrap comments with `` just a workaround, we may need to change rest-server or
 // runtime to support comments in commands filed
 export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';
 export const CUSTOM_STORAGE_END = '`#CUSTOM_STORAGE_END`';
 export const TEAMWISE_DATA_CMD_START = '`#TEAMWISE_STORAGE_START`';
 export const TEAMWISE_DATA_CMD_END = '`#TEAMWISE_STORAGE_END`';
+export const TENSORBOARD_CMD_START = '`#TENSORBOARD_START`';
+export const TENSORBOARD_CMD_END = '`#TENSORBOARD_END`';
 export const AUTO_GENERATE_NOTIFY =
   '`#Auto generated code, please do not modify`';
 export const PAI_ENV_VAR = [
@@ -97,6 +100,8 @@ export const PROTOCOL_TOOLTIPS = {
   secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
   data:
     'Data section is used to generate pre-command that download/mount your data to specific path in container.',
+  tools:
+    'Tools section is used to configure the tools that are useful for jobs.',
   dockerImage: 'Please contact admin to make sure which cuda versions in docker image is supported by gpu drivers.',
 };
 

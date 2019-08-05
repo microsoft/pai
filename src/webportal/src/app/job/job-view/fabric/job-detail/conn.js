@@ -105,17 +105,19 @@ export async function fetchSshInfo() {
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
-  if (rawJobConfig.hasOwnProperty('extras') && rawJobConfig.extras.hasOwnProperty('tensorBoard')) {
+  if (rawJobConfig.extras && rawJobConfig.extras.tensorBoard) {
     const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
-    const tensorBoardStr = `TensorBoard_${randomStr}`;
     const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
-    const obj = jobInfo.taskRoles;
-    if (obj.hasOwnProperty(tensorBoardStr)) {
-      if (obj[tensorBoardStr].taskStatuses[0].taskState === 'RUNNING') {
-        port = obj[tensorBoardStr].taskStatuses[0].containerPorts[tensorBoardPortStr];
-        ip = obj[tensorBoardStr].taskStatuses[0].containerIp;
+    const taskRoles = jobInfo.taskRoles;
+    Object.keys(taskRoles).forEach((taskRoleKey) => {
+      const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
+      if (taskStatuses.taskState === 'RUNNING'
+        && taskStatuses.containerPorts
+        && taskStatuses.containerPorts.hasOwnProperty(tensorBoardPortStr)) {
+        port = taskStatuses.containerPorts[tensorBoardPortStr];
+        ip = taskStatuses.containerIp;
       }
-    }
+    });
   }
   if (isNil(port) || isNil(ip)) {
     return null;
@@ -132,7 +134,7 @@ export function getJobMetricsUrl(jobInfo) {
   } else {
     to = jobInfo.jobStatus.completedTime;
   }
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}&from=${from}&to=${to}`;
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}` : jobName}&from=${from}&to=${to}`;
 }
 
 export async function cloneJob(rawJobConfig) {
@@ -244,9 +246,11 @@ export async function getContainerLog(logUrl) {
 
 export function openJobAttemptsPage(retryCount) {
   const search = namespace ? namespace + '~' + jobName : jobName;
-  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+  const jobSessionTemplate = JSON.stringify({
+    'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
     'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
-    'abVisCols': []});
+    'abVisCols': [],
+  });
   sessionStorage.setItem('apps', jobSessionTemplate);
   window.open(config.yarnWebPortalUri);
 }

@@ -319,6 +319,13 @@ export default class TaskRoleContainerList extends React.Component {
                 menuProps={{
                   items: [
                     {
+                      key: 'mergedLog',
+                      name: 'Full log',
+                      iconProps: {iconName: 'TextDocument'},
+                      disabled: isNil(item.containerId),
+                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                    },
+                    {
                       key: 'yarnTrackingPage',
                       name: 'Go to Yarn Tracking Page',
                       iconProps: {iconName: 'Link'},

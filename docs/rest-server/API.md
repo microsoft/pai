@@ -90,6 +90,29 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
 ## API Details
 
+### `GET cluster info`
+
+Get OpenPAI cluster info.
+
+*Request*
+
+```json
+GET /api/v1/
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "name": "PAI RESTfulAPI",
+  "version": "v0.X.0",
+  "launcherType": "yarn" | "k8s",
+  "authnMethod": "basic" | "OIDC"
+}
+```
+
 ### `POST token`  (basic authentication mode only)
 
 Authenticated and get an access token in the system.
