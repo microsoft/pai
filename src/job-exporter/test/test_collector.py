@@ -57,7 +57,7 @@ class TestContainerCollector(base.TestBase):
                 "job_name": "trialslot_nnimain_d65bc5ac",
                 "role_name": "tuner",
                 "task_index": "0",
-                "app_id": "application_1522829300813_1943"}
+                "job_instance_uid": "application_1522829300813_1943"}
 
         self.assertEqual(target_labels, labels)
 
