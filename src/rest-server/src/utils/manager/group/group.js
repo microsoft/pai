@@ -29,7 +29,17 @@ const groupSchema = Joi.object().keys({
     .default(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
-    .required(),
+    .keys({
+      acls: Joi.object()
+        .pattern(/\w+/, Joi.required())
+        .keys({
+          admin: Joi.boolean().default(false),
+          virtualClusters: Joi.array().items(Joi.string()).default([]),
+        })
+        .default(),
+    })
+    .pattern(/\w+/, Joi.required())
+    .default(),
 }).required();
 
 function createGroup(value) {

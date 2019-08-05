@@ -27,33 +27,26 @@ const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
 const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
-class UserModel {
-  constructor(crudConfig) {
-    this.crudConfig = crudConfig;
-  }
+// crud user wrappers
+const getUser = async (username) => {
+  return await crudUser.read(username, this.crudConfig);
+};
 
-  async getUser(username) {
-    return await crudUser.read(username, this.crudConfig);
-  }
+const getAllUser = async () => {
+  return await crudUser.readAll(this.crudConfig);
+};
 
-  async getAllUser() {
-    return await crudUser.readAll(this.crudConfig);
-  }
+const createUser = async (username, value) => {
+  return await crudUser.create(username, value, crudConfig);
+};
 
-  async createUser(username, value) {
-    return await crudUser.create(username, value, crudConfig);
-  }
+const updateUser = async (username, value, updatePassword = false) => {
+  return await crudUser.update(username, value, crudConfig, updatePassword);
+};
 
-  async updateUser(username, value, updatePassword = false) {
-    return await crudUser.update(username, value, crudConfig, updatePassword);
-  }
-
-  async deleteUser(username) {
-    return await crudUser.remove(username, crudConfig);
-  }
-}
-
-const userModel = new UserModel(crudConfig);
+const deleteUser = async (username) => {
+  return await crudUser.remove(username, crudConfig);
+};
 
 // it's a inplace encrypt!
 const getEncryptPassword = async (userValue) => {
@@ -63,10 +56,10 @@ const getEncryptPassword = async (userValue) => {
 
 const createUserIfNonExistent = async (username, userValue) => {
   try {
-    await userModel.getUser(username);
+    await getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      await userModel.createUser(username, userValue);
+      await createUser(username, userValue);
     } else {
       throw error;
     }
@@ -74,11 +67,11 @@ const createUserIfNonExistent = async (username, userValue) => {
 };
 
 const getUserGrouplist = async (username) => {
-  const userInfo = await userModel.getUser(username);
+  const userInfo = await getUser(username);
   return userInfo.grouplist;
 };
 
-const getUserVirtualCluster = async (username) => {
+const getUserVCs = async (username) => {
   const grouplist = await getUserGrouplist(username);
   const virtualClusters = new Set();
   for (const group of grouplist) {
@@ -90,39 +83,36 @@ const getUserVirtualCluster = async (username) => {
   return [...virtualClusters];
 };
 
-const isAdmin = async (username) => {
+const checkAdmin = async (username) => {
   const grouplist = await getUserGrouplist(username);
+  let admin = false;
+  for (const group of grouplist) {
+    const groupInfo = await groupModel.getGroup(group);
+    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.admin) {
+      admin = true;
+      break;
+    }
+  }
+  return admin;
 };
 
-const checkUserGroup = async (username, groupname) => {
-  try {
-    let ret = false;
-    const userInfo = await crudUser.read(username, crudConfig);
-    if (userInfo.grouplist.includes(groupname)) {
-      ret = true;
-    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
-      // admin has the permission of all groups.
-      ret = true;
+const checkUserVC = async (username, vcname) => {
+  let accept = false;
+  const grouplist = await getUserGrouplist(username);
+  for (const group of grouplist) {
+    const groupInfo = await groupModel.getGroup(group);
+    if (groupInfo.extension && groupInfo.extension.acls) {
+      if (groupInfo.extension.acls.admin) {
+        accept = true;
+        break;
+      }
+      if (groupInfo.extension.acls.virtualClusters && groupInfo.extension.acls.virtualClusters.includes(vcname)) {
+        accept = true;
+        break;
+      }
     }
-    return ret;
-  } catch (error) {
-    throw error;
   }
-};
-
-const checkUserVC = async (username, vcName) => {
-  try {
-    let ret = false;
-    const userInfo = await crudUser.read(username, crudConfig);
-    if (userInfo.extension.virtualCluster.includes(vcName)) {
-      ret = true;
-    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
-      ret = true;
-    }
-    return ret;
-  } catch (error) {
-    throw error;
-  }
+  return accept;
 };
 
 // module exports
@@ -134,6 +124,7 @@ module.exports = {
   deleteUser,
   getEncryptPassword,
   createUserIfNonExistent,
-  checkUserGroup,
   checkUserVC,
+  getUserVCs,
+  checkAdmin,
 };
