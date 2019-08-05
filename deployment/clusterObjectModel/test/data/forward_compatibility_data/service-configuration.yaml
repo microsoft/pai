@@ -46,7 +46,7 @@ restserver:
 
 webportal:
   server-port: 9286
-
+  log-type: yarn
 
 grafana:
   grafana-port: 3000
