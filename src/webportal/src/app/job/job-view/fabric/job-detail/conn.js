@@ -215,8 +215,9 @@ export async function getContainerLog(logUrl) {
     throw new Error(`Log not available`);
   }
 
-    // Check content-type. text/html for yarn logs, text/plain for log manager logs.
-  if (contentType.indexOf('text/html') !== -1) {
+  // Check log type. The log type is in LOG_TYPE and should be yarn|log-manager.
+  const logType = process.env.LOG_TYPE;
+  if (logType === 'yarn') {
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(text, 'text/html');
@@ -250,7 +251,7 @@ export async function getContainerLog(logUrl) {
     } catch (e) {
       throw new Error(`Log not available`);
     }
-  } else if (contentType.indexOf('text/plain') !== -1) {
+  } else if (logType === 'log-manager') {
     ret.text = text;
     return ret;
   } else {
