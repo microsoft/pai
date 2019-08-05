@@ -34,7 +34,7 @@ class InspectResult(object):
         self.task_index = task_index
         self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
         self.pid = pid
-        self.job_instance_id = job_instance_id # Used to distinguish job instance with same name but defferent retry number.
+        self.job_instance_id = job_instance_id # Used to distinguish job instance with same name but different retry number.
 
     def __repr__(self):
         return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, job_instance_id %s pid %s" % \

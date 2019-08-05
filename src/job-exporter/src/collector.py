@@ -102,7 +102,7 @@ class ResourceGauges(object):
                 "job_name",
                 "role_name",
                 "task_index",
-                "job_instance_id", # Used to distinguish job instance with same name but defferent retry number.
+                "job_instance_id", # Used to distinguish job instance with same name but different retry number.
                 ]
         self.service_labels = ["name"]
 
