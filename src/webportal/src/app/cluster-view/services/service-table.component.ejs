@@ -2,6 +2,7 @@
   <thead>
     <tr>
       <th>Node Name</th>
+      <th>BMC</th>
       <th>PAI Roles</th>
       <th>Services</th>
     </tr>
@@ -12,8 +13,8 @@
       let node = data[i].node.metadata;
 %>
       <tr>
-        <td><a href="hardware/detail.html?instance=<%= node.name%>"> <%= node.name %></a></td>
-        <td>   
+        <td><a target="_blank" href="https://<%= node.labels.bmc %>"><%= node.labels.bmc %></td>
+        <td>
 <%
           for (let x in data[i].node.metadata.labels) {
             if (x.indexOf('kubernetes') == -1) {
@@ -27,10 +28,10 @@
           }
 %>
         </td>
-        
+
         <!--
         Show pods and status in the 'Services' column.
-        
+
         Design principles:
           - Green means that the service is running without warning.
           - Yellow means that the service is running with warnings.
@@ -40,7 +41,7 @@
           - Green box: Pod is in 'Running' phase and is ready, or it is in 'Succeeded' phase.
           - Yellow box (not implemented yet): Pod is in 'Running' phase and is ready, but has some warnings in the log.
           - Red box: Pod is in any of other phases (Failed, Unknown), or it is in 'Running' phase but is not ready.
-        
+
         Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
         -->
         <td class="service-td">

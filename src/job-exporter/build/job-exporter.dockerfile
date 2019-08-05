@@ -15,13 +15,23 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:3.7
+FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+
+RUN apt-get update && \
+    apt-get install -y python3-pip python3-dev && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    pip3 install --upgrade pip
 
 RUN apt-get update && apt-get install --no-install-recommends -y build-essential git && \
     git clone https://github.com/yadutaf/infilter --depth 1 && \
     cd infilter && make
 
-FROM python:3.7
+FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+
+RUN apt-get update && \
+    apt-get install -y python3-pip python3-dev curl && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    pip3 install --upgrade pip
 
 RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz \
     | tar -xzvC /usr/local && \
