@@ -33,7 +33,7 @@ const userSchema = Joi.object().keys({
   password: Joi.string()
     .empty('')
     .default(''),
-  extension: Joi.object().pattern(/\w+/, Joi.required()).required(),
+  extension: Joi.object().pattern(/\w+/, Joi.required()).default(),
 }).required();
 
 function userValidate(userValue) {

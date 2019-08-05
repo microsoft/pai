@@ -187,26 +187,13 @@ const initGrouplistInCfg = async () => {
 const createAdminUser = async () => {
   try {
     logger.info('Create admin user account configured in configuration.');
-    const groupInfoList = authConfig.groupConfig.grouplist;
-    let groupnameList = [];
-    let virtualCluster = [];
-    for (let groupItem of groupInfoList) {
-      groupnameList.push(groupItem['groupname']);
-      if (groupItem['extension']['groupType'] === 'vc') {
-        virtualCluster.push(groupItem['groupname']);
-      }
-    }
-    groupnameList.push(authConfig.groupConfig.adminGroup.groupname);
-    groupnameList.push(authConfig.groupConfig.defaultGroup.groupname);
-    virtualCluster.push(authConfig.groupConfig.defaultGroup.groupname);
+    const groupnameList = [...authConfig.groupConfig.grouplist, authConfig.groupConfig.adminGroup.groupname];
     const userValue = {
       username: secretConfig.adminName,
       email: '',
       password: secretConfig.adminPass,
       grouplist: groupnameList,
-      extension: {
-        virtualCluster: virtualCluster,
-      },
+      extension: {},
     };
     await userModel.createUserIfNonExistent(userValue.username, userValue);
     logger.info('Create admin user account successfully.');
@@ -230,9 +217,7 @@ const updateUserGroupAndVirtualCluster = async () => {
     }
     for (let userItem of userList) {
       let updateUserGrouplist = false;
-      let updateUserVirtualCluster = false;
       let userGroupList = [];
-      let userVirtualClusterList = [];
       let newUserInfo = userItem;
       for (let groupname of userItem['grouplist']) {
         if (groupnameList.includes(groupname)) {
@@ -243,20 +228,6 @@ const updateUserGroupAndVirtualCluster = async () => {
       }
       if (updateUserGrouplist) {
         newUserInfo['grouplist'] = userGroupList;
-      }
-      if (userItem['extension']['virtualCluster']) {
-        for (let virtualClusterName of userItem['extension']['virtualCluster']) {
-          if (groupnameList.includes(virtualClusterName)) {
-            userVirtualClusterList.push(virtualClusterName);
-          } else {
-            updateUserVirtualCluster = true;
-          }
-        }
-        if (updateUserVirtualCluster) {
-          newUserInfo['extension']['virtualCluster'] = userVirtualClusterList;
-        }
-      }
-      if (updateUserVirtualCluster || updateUserGrouplist) {
         updateUserList.push(newUserInfo);
       }
     }
