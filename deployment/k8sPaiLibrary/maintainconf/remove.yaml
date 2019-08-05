@@ -42,4 +42,3 @@ remove-node-from-etcd-cluster:
       dst: remove-node-from-etcd-cluster
 
 
-
