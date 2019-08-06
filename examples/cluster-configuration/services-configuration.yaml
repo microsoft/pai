@@ -30,7 +30,9 @@
 #    # If your cluster is created by Azure and the machine is rdma enabled.
 #    # Set this configuration as  "true", the rdma environment will be set into your container.
 #    az-rdma: "false"
-#
+#    # If RBAC is enabled in your cluster, you should set this value to true.
+#    # If RBAC is enabled in your cluster, please ensure the kubeconfig for paictl has enough permission.
+#    k8s-rbac: "false"
 #
 #  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 #  docker-registry:
