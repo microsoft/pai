@@ -56,7 +56,7 @@ RUN apt-get -y update && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
     pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4 &&\
-    pip3 install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4
+    pip3 install kubernetes
 
 WORKDIR /tmp
 
@@ -87,25 +87,28 @@ ENV PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bi
 
 
 # Only node manager need this.#
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz && \
-    tar xzvf docker-17.06.2-ce.tgz && \
-    mv docker/* /usr/local/bin/
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+RUN tar xzvf docker-17.06.2-ce.tgz
+RUN mv docker/* /usr/local/bin/
 
 # alert manager tool
-RUN wget https://github.com/prometheus/alertmanager/releases/download/v0.15.2/alertmanager-0.15.2.linux-amd64.tar.gz && \
-    tar xzvf alertmanager-0.15.2.linux-amd64.tar.gz && \
-    mv alertmanager-0.15.2.linux-amd64/amtool /usr/local/bin
+RUN wget https://github.com/prometheus/alertmanager/releases/download/v0.15.2/alertmanager-0.15.2.linux-amd64.tar.gz
+RUN tar xzvf alertmanager-0.15.2.linux-amd64.tar.gz
+RUN mv alertmanager-0.15.2.linux-amd64/amtool /usr/local/bin
 
 # install Azure CLI for deploy on  Azure AKS
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main" | \
-    tee /etc/apt/sources.list.d/azure-cli.list && \
-    curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    apt-get -y install apt-transport-https && \
+    tee /etc/apt/sources.list.d/azure-cli.list
+
+RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+RUN apt-get -y install apt-transport-https &&  \
     apt-get -y update && \
-    apt-get -y install azure-cli && \
-    wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
-    chmod +x kubectl && \
-    mv kubectl /usr/local/bin
+    apt-get -y install azure-cli
+
+RUN wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x kubectl
+RUN mv kubectl /usr/local/bin
 
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
@@ -115,7 +118,6 @@ RUN echo y | pip uninstall requests && \
     echo y | pip3 install requests && \
     echo y | pip3 install docopt
 
-
 RUN rm -rf /tmp/*
 
 WORKDIR /
@@ -124,3 +126,4 @@ COPY build/start-script.sh /usr/local
 RUN chmod u+x /usr/local/start-script.sh
 
 CMD ["/usr/local/start-script.sh"]
+
