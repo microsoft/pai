@@ -40,6 +40,3 @@ remove-node-from-etcd-cluster:
     - name: remove-member-from-etcd-cluster.sh
       src: deployment/k8sPaiLibrary/maintaintool/remove-member-from-etcd-cluster.sh
       dst: remove-node-from-etcd-cluster
-
-
-
