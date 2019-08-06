@@ -46,7 +46,7 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "webportal", new_configuration, "webportal")
     transform(service_configuration, "pylon", new_configuration, "pylon")
 
-    transform(service_configuration, "cluster.clusterid", new_configuration, "cluster.common.cluster-id")
+    transform(service_configuration, "cluster.cluster-id", new_configuration, "cluster.common.cluster-id")
     transform(service_configuration, "cluster.data-path", new_configuration, "cluster.common.data-path")
     transform(service_configuration, "cluster.docker-registry-info.docker-namespace",
               new_configuration, "cluster.docker-registry.namespace")
