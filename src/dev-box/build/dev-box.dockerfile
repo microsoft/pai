@@ -105,7 +105,7 @@ RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenia
     apt-get -y install azure-cli && \
     wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
     chmod +x kubectl && \
-    mv kubectl /usr/local/bin && \
+    mv kubectl /usr/local/bin
 
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
