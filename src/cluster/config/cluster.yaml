@@ -27,6 +27,9 @@ common:
   az-rdma: "false"
 
 
+  k8s-rbac: "false"
+
+
 
 # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 docker-registry:
