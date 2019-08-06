@@ -18,7 +18,7 @@
 cluster:
 
   common:
-    clusterid: pai-overwrite
+    cluster-id: pai-overwrite
 
     # HDFS, zookeeper data path on your cluster machine.
     data-path: "/datastorage"

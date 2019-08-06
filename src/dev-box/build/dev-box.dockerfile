@@ -28,6 +28,7 @@ RUN apt-get -y update && \
       gawk \
       psmisc \
       python \
+      python3 \
       python-yaml \
       python-jinja2 \
       python-paramiko \
@@ -37,7 +38,9 @@ RUN apt-get -y update && \
       python-prettytable \
       python-netifaces \
       python-dev \
+      python3-dev \
       python-pip \
+      python3-pip \
       python-mysqldb \
       openjdk-8-jre \
       openjdk-8-jdk \
@@ -52,7 +55,8 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4
+    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4 &&\
+    pip3 install kubernetes
 
 WORKDIR /tmp
 
@@ -109,7 +113,10 @@ RUN mv kubectl /usr/local/bin
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
     echo y | pip install requests && \
-    echo y | pip install docopt
+    echo y | pip install docopt && \
+    echo y | pip3 uninstall requests && \
+    echo y | pip3 install requests && \
+    echo y | pip3 install docopt
 
 RUN rm -rf /tmp/*
 
