@@ -81,7 +81,7 @@ For example, you should modify it as following.
 cluster:
 #
   common:
-#    clusterid: pai
+#    cluster-id: pai
 #
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"

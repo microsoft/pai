@@ -56,6 +56,8 @@ class Cluster:
             return False, "qos-switch is miss in service-configuration.yaml -> cluster -> common -> qos-switch"
         if "az-rdma" not in common_configuration:
             return False, "az-rdma is miss in service-configuration.yaml -> cluster -> common -> az-rdma"
+        if "k8s-rbac" not in common_configuration:
+            return False, "k8s-rbac is miss in service-configuration.yaml -> cluster -> common -> k8s-rbac"
         return True, None
 
 

@@ -1,5 +1,5 @@
 cluster:
-  clusterid: pai_ut
+  cluster-id: pai_ut
   docker-verison: 17.06.2
   data-path: "/datastorage"
   docker-registry-info:
