@@ -39,6 +39,10 @@ if kubectl get configmap | grep -q "k8s-version"; then
     kubectl delete configmap k8s-version || exit $?
 fi
 
+if kubectl get secret | grep -q "job-ssh-secret"; then
+    kubectl delete secret job-ssh-secret || exit $?
+fi
+
 if kubectl get secret | grep -q "{{ cluster_cfg['cluster']['docker-registry']['secret-name'] }}"; then
     kubectl delete secret {{ cluster_cfg['cluster']['docker-registry']['secret-name'] }} || exit $?
 fi

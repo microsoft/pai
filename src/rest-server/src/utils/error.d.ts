@@ -45,6 +45,7 @@ declare type Code =
     'RemoveRunningVcError' |
     'UnauthorizedUserError' |
     'NoEnoughQuotaError' |
+    'NotImplementedError' |
     'UnknownError';
 
 declare function createError(status: Status, code: Code, message: string): HttpError;

@@ -29,6 +29,8 @@ class RestServer:
             return False, '"default-pai-admin-username" is required in rest-server'
         if 'default-pai-admin-password' not in self.service_configuration:
             return False, '"default-pai-admin-password" is required in rest-server'
+        if 'launcher-type' in self.service_configuration and self.service_configuration['launcher-type'] not in ['yarn', 'k8s']:
+            return False, '"launcher-type" should be "yarn" or "k8s"'
         try:
             reservation_time = int(self.service_configuration['debugging-reservation-seconds'])
         except ValueError:
@@ -53,6 +55,7 @@ class RestServer:
         service_object_model['jwt-secret'] = self.service_configuration['jwt-secret']
         service_object_model['default-pai-admin-username'] = self.service_configuration['default-pai-admin-username']
         service_object_model['default-pai-admin-password'] = self.service_configuration['default-pai-admin-password']
+        service_object_model['launcher-type'] = self.service_configuration['launcher-type']
         service_object_model['github-owner'] = self.service_configuration['github-owner']
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
@@ -60,7 +63,8 @@ class RestServer:
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')
-
+        service_object_model['log-manager-port'] = self.cluster_configuration['log-manager']['port'] if 'log-manager' in self.cluster_configuration \
+            and 'port' in self.cluster_configuration['log-manager'] else self.service_configuration['log-manager-port']
         return service_object_model
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

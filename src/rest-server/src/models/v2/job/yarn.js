@@ -325,7 +325,7 @@ async function getConfig(frameworkName) {
   // try to get v2
   try {
     const res = await readFile(`/Container/${userName}/${frameworkName}/JobConfig.yaml`);
-    return res;
+    return res.content;
   } catch (e) {
     // pass
   }
