@@ -56,20 +56,18 @@ export async function getUserInfo() {
 }
 
 export async function listVirtualClusters() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/virtual-clusters`);
+  return fetchWrapper(`${config.restServerUri}/api/v2/virtual-clusters`);
 }
 
 export async function getAvailableGpuPerNode() {
-  const res = await fetch(`${config.prometheusUri}/api/v1/query?query=yarn_node_gpu_available`);
+  const res = await fetch(`${config.restServerUri}/api/v2/virtual-clusters/nodeResource`);
 
   if (res.ok) {
     const json = await res.json();
     try {
       const result = {};
-      for (const x of json.data.result) {
-        const ip = x.metric.node_ip;
-        const count = parseInt(x.value[1], 10);
-        result[ip] = count;
+      for (const ip of Object.keys(json)) {
+        result[ip] = json[ip].gpuAvaiable;
       }
       return result;
     } catch {

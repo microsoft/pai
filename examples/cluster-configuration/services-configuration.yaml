@@ -139,6 +139,9 @@ rest-server:
 #  threshold: 90
 #  interval: 60
 
+# uncomment following section if you want to customize the port of log-manager
+# log-manager:
+#  port: 9103
 
 # uncomment following section, if you want to customize the authentication solution.
 #authentication:

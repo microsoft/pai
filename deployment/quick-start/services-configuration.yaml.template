@@ -65,6 +65,8 @@ cluster:
 
 
 rest-server:
+#  # launcher type. k8s or yarn
+#  launcher-type: k8s
   # database admin username
   default-pai-admin-username: admin
   # database admin password
@@ -135,6 +137,9 @@ rest-server:
 #  threshold: 94
 #  interval: 60
 
+# uncomment following section if you want to customize the port of log-manager
+# log-manager:
+#  port: 9103
 
 # uncomment following section, if you want to customize the authentication solution.
 #authentication:

@@ -46,9 +46,21 @@ spec:
           name: group-configuration-rest-server
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+        - mountPath: /hived-spec
+          name: hived-spec-rest-server
+        - name: SCHEDULER_TYPE
+          value: hived
+        - name: LAUNCHER_RUNTIME_IMAGE
+          value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
+          value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+        - name: LAUNCHER_SCHEDULER
+          value: hivedscheduler
+{%- endif %}
         env:
         - name: LAUNCHER_TYPE
-          value: yarn
+          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
@@ -57,6 +69,8 @@ spec:
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+        - name: LOG_MANAGER_PORT
+          value: "{{ cluster_cfg['rest-server']['log-manager-port'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: WEBPORTAL_URL
@@ -119,6 +133,11 @@ spec:
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+      - name: hived-spec-rest-server
+        configMap:
+          name: hived-spec-configuration
+{%- endif %}
       - name: group-configuration-rest-server
         configMap:
           name: group-configuration
