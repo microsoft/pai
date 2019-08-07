@@ -94,6 +94,7 @@ rest-server:
 # uncomment following section if you want to customize the port of web portal
 # webportal:
 #   server-port: 9286
+#   log-type: yarn
 
 # uncomment following if you want to change customeize grafana
 # grafana:

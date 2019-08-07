@@ -62,6 +62,6 @@ drivers:
 
 webportal:
   server-port: 9286
-
+  log-type: yarn
 pylon:
   port: 80
