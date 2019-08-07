@@ -32,6 +32,10 @@ const createMiddleware = (throwErrorIfUnauthorized) => {
       console.log('test-falg');
       // eslint-disable-next-line no-console
       console.log(error);
+      if (error.name && error.name === 'TokenExpiredError') {
+        let error = createError('Unauthorized', 'UnauthorizedUserError', 'Your token is expired.');
+        return next(error);
+      }
       if (throwErrorIfUnauthorized) {
         let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');
         return next(error);
