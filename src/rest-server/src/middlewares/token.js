@@ -27,7 +27,11 @@ const createMiddleware = (throwErrorIfUnauthorized) => {
       let token = getToken(req);
       let result = jwt.verify(token, config.secret);
       req[config.userProperty] = result;
-    } catch (_) {
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('test-falg');
+      // eslint-disable-next-line no-console
+      console.log(error);
       if (throwErrorIfUnauthorized) {
         let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');
         return next(error);
