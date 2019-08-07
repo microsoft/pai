@@ -14,7 +14,7 @@ Before the PAI deploy / redeploy, you can configure the web portal plugins in th
 webportal:
   server-port: 9286
   log-type: yarn
-  
+
   plugins:
 
   - title: Marketplace
