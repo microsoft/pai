@@ -19,7 +19,6 @@
 // module dependencies
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
-const authConfig = require('@pai/config/authn');
 const groupModel = require('@pai/models/v2/group');
 
 
@@ -29,11 +28,11 @@ const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
 
 // crud user wrappers
 const getUser = async (username) => {
-  return await crudUser.read(username, this.crudConfig);
+  return await crudUser.read(username, crudConfig);
 };
 
 const getAllUser = async () => {
-  return await crudUser.readAll(this.crudConfig);
+  return await crudUser.readAll(crudConfig);
 };
 
 const createUser = async (username, value) => {
@@ -83,17 +82,26 @@ const getUserVCs = async (username) => {
   return [...virtualClusters];
 };
 
-const checkAdmin = async (username) => {
-  const grouplist = await getUserGrouplist(username);
+const checkInAdminGroup = (candidateList, allGroupInfo) => {
+  const groupMap = {};
+  for (const groupItem of allGroupInfo) {
+    groupMap[groupItem.groupname] = groupItem;
+  }
   let admin = false;
-  for (const group of grouplist) {
-    const groupInfo = await groupModel.getGroup(group);
-    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.admin) {
+  for (const groupname of candidateList) {
+    if (groupMap.hasOwnProperty(groupname) && groupMap[groupname].extension
+      && groupMap[groupname].extension.acls && groupMap[groupname].extension.acls.admin) {
       admin = true;
       break;
     }
   }
   return admin;
+};
+
+const checkAdmin = async (username) => {
+  const grouplist = await getUserGrouplist(username);
+  const groupInfo = await groupModel.getAllGroup();
+  return checkInAdminGroup(grouplist, groupInfo);
 };
 
 const checkUserVC = async (username, vcname) => {
@@ -127,4 +135,5 @@ module.exports = {
   checkUserVC,
   getUserVCs,
   checkAdmin,
+  checkInAdminGroup,
 };

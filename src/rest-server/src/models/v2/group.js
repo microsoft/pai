@@ -115,8 +115,14 @@ const updateExternalName2Groupname = async () => {
 
 // hack for basic mode, assume every vc have a group of the same name
 const virtualCluster2GroupList = async (virtualCluster) => {
-  const groupList = virtualCluster.slice(0);
-  return groupList;
+  const groupList = await getAllGroup();
+  const filterGroups = groupList.filter((groupItem) => {
+    return groupItem.extension.acls && groupItem.extension.acls.virtualClusters
+      && groupItem.extension.acls.virtualClusters.length === 1
+      && groupItem.extension.acls.virtualClusters[0] === groupItem.groupname;
+  });
+  const vcGroups = new Set(Array.from(filterGroups, (groupItem) => groupItem.groupname));
+  return virtualCluster.filter((vcname) => vcGroups.has(vcname));
 };
 
 

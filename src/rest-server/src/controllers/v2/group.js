@@ -52,7 +52,7 @@ const getGroupUserList = async (req, res, next) => {
       if (userInfo.grouplist.includes(groupname)) {
         userlist.push({
           username: userInfo.username,
-          clusterAdmin: userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname),
+          clusterAdmin: await userModel.checkAdmin(userInfo.username),
         });
       }
     }

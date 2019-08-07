@@ -70,7 +70,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.addGroupIntoUserGrouplist);
 
   router.route('/:username/group')
-    .delete(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupIntoUserGrouplist);
+    .delete(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupFromUserGrouplist);
 }
 
 router.use('/:username/jobs', jobRouter);
