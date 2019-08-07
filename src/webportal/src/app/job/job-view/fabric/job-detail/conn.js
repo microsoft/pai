@@ -38,7 +38,7 @@ export class NotFoundError extends Error {
 
 export async function fetchJobInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}`
+    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -51,7 +51,7 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/config`
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -70,7 +70,7 @@ export async function fetchRawJobConfig() {
 export async function fetchJobConfig() {
   const url = namespace
     ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
-    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -87,7 +87,7 @@ export async function fetchJobConfig() {
 
 export async function fetchSshInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/ssh`
+    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
@@ -174,7 +174,7 @@ export async function stopJob() {
   const flag = confirm(`Are you sure to stop ${jobName}?`);
   if (flag) {
     const url = namespace
-      ? `${config.restServerUri}/api/v2/user/${namespace}/jobs/${jobName}/executionType`
+      ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
     const res = await fetch(url, {
@@ -209,37 +209,51 @@ export async function getContainerLog(logUrl) {
   if (!res.ok) {
     throw new Error(res.statusText);
   }
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const content = doc.getElementsByClassName('content')[0];
-    const pre = content.getElementsByTagName('pre')[0];
-    ret.text = pre.innerText;
-    // fetch full log link
-    if (pre.previousElementSibling) {
-      const link = pre.previousElementSibling.getElementsByTagName('a');
-      if (link.length === 1) {
-        ret.fullLogLink = link[0].getAttribute('href');
-        // relative link
-        if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
-          let baseUrl = res.url;
-          // check base tag
-          const baseTags = doc.getElementsByTagName('base');
-          // There can be only one <base> element in a document.
-          if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
-            baseUrl = baseTags[0].getAttribute('href');
-            // relative base tag url
-            if (!absoluteUrlRegExp.test(baseUrl)) {
-              baseUrl = new URL(baseUrl, res.url);
+
+  const contentType = res.headers.get('content-type');
+  if (!contentType) {
+    throw new Error(`Log not available`);
+  }
+
+  // Check log type. The log type is in LOG_TYPE and should be yarn|log-manager.
+  if (config.logType === 'yarn') {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const content = doc.getElementsByClassName('content')[0];
+      const pre = content.getElementsByTagName('pre')[0];
+      ret.text = pre.innerText;
+      // fetch full log link
+      if (pre.previousElementSibling) {
+        const link = pre.previousElementSibling.getElementsByTagName('a');
+        if (link.length === 1) {
+          ret.fullLogLink = link[0].getAttribute('href');
+          // relative link
+          if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
+            let baseUrl = res.url;
+            // check base tag
+            const baseTags = doc.getElementsByTagName('base');
+            // There can be only one <base> element in a document.
+            if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
+              baseUrl = baseTags[0].getAttribute('href');
+              // relative base tag url
+              if (!absoluteUrlRegExp.test(baseUrl)) {
+                baseUrl = new URL(baseUrl, res.url);
+              }
             }
+            const url = new URL(ret.fullLogLink, baseUrl);
+            ret.fullLogLink = url.href;
           }
-          const url = new URL(ret.fullLogLink, baseUrl);
-          ret.fullLogLink = url.href;
         }
       }
+      return ret;
+    } catch (e) {
+      throw new Error(`Log not available`);
     }
+  } else if (config.logType === 'log-manager') {
+    ret.text = text;
     return ret;
-  } catch (e) {
+  } else {
     throw new Error(`Log not available`);
   }
 }

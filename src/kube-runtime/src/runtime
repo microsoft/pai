@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+# This runtime script will be executed inside task container,
+# all scripts under runtime.d will be executed in priority order.
+# User's commands will start in the end, and whole runtime script
+# will exit after user's commands exit.
+
+PAI_WORK_DIR=/usr/local/pai
+PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
+
+PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
+PAI_RUNTIME_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
+
+
+# To run runtime scripts under runtime.d in task container,
+# execute them here in priority order.
+# Here're the steps to onboard a new runtime script,
+# 1. put it under runtime.d
+# 2. give it a priority in [0, 100] and insert below in order
+# 3. add the following format block
+
+# comment for the script purpose
+# priority=value
+# ${PAI_RUNTIME_DIR}/runtime.sh >> ${PAI_RUNTIME_LOG_FILE} 2>&1
+
+
+# export runtime env variables
+# priority=0
+source ${PAI_RUNTIME_DIR}/runtime_env.sh
+
+# setup ssh
+# priority=1
+${PAI_RUNTIME_DIR}/sshd.sh >> ${PAI_RUNTIME_LOG_FILE} 2>&1
+
+# check port conflict
+python ${PAI_RUNTIME_DIR}/port.py >> ${PAI_RUNTIME_LOG_FILE} 2>&1
+
+# execute user commands
+# priority=100
+echo "[INFO] USER COMMAND START"
+# Put verbose output to runtime.log, stdout to user.pai.stdout, stderr to user.pai.stderr
+${PAI_RUNTIME_DIR}/user.sh > >(tee -a ${PAI_LOG_DIR}/user.pai.stdout ${PAI_RUNTIME_LOG_FILE}) 2> >(tee -a ${PAI_LOG_DIR}/user.pai.stderr ${PAI_RUNTIME_LOG_FILE} >&2) &
+USER_PID=$!
+
+echo "[INFO] USER COMMAND END"
+wait ${USER_PID}

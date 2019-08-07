@@ -113,6 +113,6 @@ export const updateUserAdminRequest = async (username, admin) => {
 };
 
 export const getAllVcsRequest = async () => {
-  const url = `${config.restServerUri}/api/v1/virtual-clusters`;
+  const url = `${config.restServerUri}/api/v2/virtual-clusters`;
   return await fetchWrapper(url);
 };

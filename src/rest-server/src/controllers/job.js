@@ -17,7 +17,7 @@
 
 // module dependencies
 const url = require('url');
-const Job = require('@pai/models/v1/job/yarn');
+const Job = require('@pai/models/v1/job');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 

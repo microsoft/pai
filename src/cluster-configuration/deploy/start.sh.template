@@ -22,6 +22,9 @@ pushd $(dirname "$0") > /dev/null
 #chmod u+x configmap-create.sh
 /bin/bash configmap-create.sh || exit $?
 
+# Create secret for job ssh keys
+/bin/bash secret-create.sh || exit $?
+
 kubectl apply --overwrite=true -f secret.yaml || exit $?
 
 # Label all the machines
