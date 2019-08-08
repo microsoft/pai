@@ -28,10 +28,6 @@ const createMiddleware = (throwErrorIfUnauthorized) => {
       let result = jwt.verify(token, config.secret);
       req[config.userProperty] = result;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('test-falg');
-      // eslint-disable-next-line no-console
-      console.log(error);
       if (error.name && error.name === 'TokenExpiredError') {
         let error = createError('Unauthorized', 'UnauthorizedUserError', 'Your token is expired.');
         return next(error);
