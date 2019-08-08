@@ -27,6 +27,7 @@ getTokenTemplate = JSON.stringify({
 
 const validToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
+const expireToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: '1s' });
 
 describe('user token test: post /api/v1/authn/basic/login', () => {
   afterEach(function() {
@@ -123,5 +124,22 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         done();
       });
   });
+
+  it('Case 4 (Negative): Should authenticate failed with an expired token', (done) => {
+    setTimeout(function() {
+      global.chai.request(global.server)
+        .get('/api/v2/user')
+        .set('Authorization', 'Bearer ' + expireToken)
+        .send()
+        .end((err, res) => {
+          global.chai.expect(res, 'status code').to.have.status(400);
+          global.chai.expect(res, 'response format').be.json;
+          global.chai.expect(res.body.code, 'response code').equal('NoUserError');
+          global.chai.expect(res.body.message, 'response message').equal('Your token is expired.');
+          done();
+        });
+    }, 2);
+  });
+
 
 });
