@@ -132,9 +132,9 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         .set('Authorization', 'Bearer ' + expireToken)
         .send()
         .end((err, res) => {
-          global.chai.expect(res, 'status code').to.have.status(400);
+          global.chai.expect(res, 'status code').to.have.status(401);
           global.chai.expect(res, 'response format').be.json;
-          global.chai.expect(res.body.code, 'response code').equal('NoUserError');
+          global.chai.expect(res.body.code, 'response code').equal('UnauthorizedError');
           global.chai.expect(res.body.message, 'response message').equal('Your token is expired.');
           done();
         });
