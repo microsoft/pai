@@ -21,7 +21,6 @@ const authConfig = require('@pai/config/authn');
 const secretConfig = require('@pai/config/secret');
 const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
-const userModel = require('@pai/models/v2/user');
 const logger = require('@pai/config/logger');
 const vcModel = require('@pai/models/vc');
 
@@ -49,6 +48,8 @@ const updateGroup = async (groupname, groupValue) => {
 };
 
 const deleteGroup = async (groupname) => {
+  // TODO: workaround for circular dependencies, please redesign module structure
+  const userModel = require('@pai/models/v2/user');
   const ret = await crudGroup.remove(groupname, crudConfig);
   // delete group from all user info
   logger.info('Init user list to update.');
@@ -71,6 +72,48 @@ const deleteGroup = async (groupname) => {
     logger.info('No user\' grouplist need to be updated.');
   }
   return ret;
+};
+
+const batchUpdateGroups = async (groupItems) => {
+  return await Promise.all(groupItems.map(async (groupItem) => {
+    await updateGroup(groupItem.groupname, groupItem);
+  }));
+};
+
+const getGroupVirtualCluster = async (groupname) => {
+  const groupInfo = await getGroup(groupname);
+  const virtualClusters = new Set();
+  if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.admin) {
+    Object.keys(await vcModel.prototype.getVcListAsyc()).forEach((vcname) => virtualClusters.add(vcname));
+  } else if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.virtualClusters) {
+    groupInfo.extension.acls.virtualClusters.forEach((vcname) => virtualClusters.add(vcname));
+  }
+  return [...virtualClusters];
+};
+
+const addVCintoAdminGroup = async (vcname) => {
+  const allGroups = await getAllGroup();
+  const updateGroups = [];
+  for (const groupItem of allGroups) {
+    if (groupItem.extension && groupItem.extension.acls
+      && groupItem.extension.acls.admin && !groupItem.extension.acls.virtualClusters.includes(vcname)) {
+      groupItem.extension.acls.virtualClusters.push(vcname);
+      updateGroups.push(groupItem);
+    }
+  }
+  await batchUpdateGroups(updateGroups);
+};
+
+const deleteVCfromAllGroup = async (vcname) => {
+  const allGroups = await getAllGroup();
+  const updateGroups = [];
+  for (const groupItem of allGroups) {
+    if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters.includes(vcname)) {
+      groupItem.extension.acls.virtualClusters.splice(groupItem.extension.acls.virtualClusters.indexOf(vcname), 1);
+      updateGroups.push(groupItem);
+    }
+  }
+  await batchUpdateGroups(updateGroups);
 };
 
 const getUserGrouplistFromExternal = async (username, data = {}) => {
@@ -113,7 +156,7 @@ const updateExternalName2Groupname = async () => {
   }
 };
 
-// hack for basic mode, assume every vc have a group of the same name
+// hack for basic mode, assume every vc have a same name group
 const virtualCluster2GroupList = async (virtualCluster) => {
   const groupList = await getAllGroup();
   const filterGroups = groupList.filter((groupItem) => {
@@ -178,19 +221,20 @@ const initGrouplistInCfg = async () => {
     };
     await createGroupIfNonExistent(defaultVCGroup.groupname, defaultVCGroup);
     logger.info('Create default group successfully.');
-    logger.info('Create non-admin group configured in configuration.');
+    logger.info('Create group configured in configuration.');
     for (const groupItem of authConfig.groupConfig.grouplist) {
       await createGroupIfNonExistent(groupItem.groupname, groupItem);
     }
-    logger.info('Create non-admin group successfully.');
+    logger.info('Create group successfully.');
   } catch (error) {
-    logger.error('Failed to create admin group configured in configuration.');
+    logger.error('Failed to create group configured in configuration.');
     // eslint-disable-next-line no-console
     console.log(error);
   }
 };
 
-const createAdminUser = async () => {
+const createDefaultAdminUser = async () => {
+  const userModel = require('@pai/models/v2/user');
   try {
     logger.info('Create admin user account configured in configuration.');
     const groupnameList = [...authConfig.groupConfig.grouplist, authConfig.groupConfig.adminGroup.groupname];
@@ -210,58 +254,62 @@ const createAdminUser = async () => {
   }
 };
 
-const updateUserGroupAndVirtualCluster = async () => {
-  try {
-    logger.info('Update User Grouplist at the start stage.');
-    logger.info('Init user list to update.');
-    let groupInfoList = await getAllGroup();
-    let groupnameList = [];
-    let userList = await userModel.getAllUser();
-    let updateUserList = [];
-    for (let groupItem of groupInfoList) {
-      groupnameList.push(groupItem['groupname']);
-    }
-    for (let userItem of userList) {
-      let updateUserGrouplist = false;
-      let userGroupList = [];
-      let newUserInfo = userItem;
-      for (let groupname of userItem['grouplist']) {
-        if (groupnameList.includes(groupname)) {
-          userGroupList.push(groupname);
-        } else {
-          updateUserGrouplist = true;
-        }
-      }
-      if (updateUserGrouplist) {
-        newUserInfo['grouplist'] = userGroupList;
-        updateUserList.push(newUserInfo);
-      }
-    }
-    if (updateUserList.length !== 0) {
-      logger.info('User list to be updated has been prepared.');
-      logger.info('Begin to update user\' group list.');
-      await Promise.all(updateUserList.map(async (userData) => {
-        await userModel.updateUser(userData['username'], userData);
-      }));
-      logger.info('Update group info successfully.');
-    } else {
-      logger.info('No user\' grouplist need to be updated.');
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
-  }
-};
+// const updateUserGroupAndVirtualCluster = async () => {
+//   try {
+//     logger.info('Update User Grouplist at the start stage.');
+//     logger.info('Init user list to update.');
+//     let groupInfoList = await getAllGroup();
+//     let groupnameList = [];
+//     let userList = await userModel.getAllUser();
+//     let updateUserList = [];
+//     for (let groupItem of groupInfoList) {
+//       groupnameList.push(groupItem['groupname']);
+//     }
+//     for (let userItem of userList) {
+//       let updateUserGrouplist = false;
+//       let userGroupList = [];
+//       let newUserInfo = userItem;
+//       for (let groupname of userItem['grouplist']) {
+//         if (groupnameList.includes(groupname)) {
+//           userGroupList.push(groupname);
+//         } else {
+//           updateUserGrouplist = true;
+//         }
+//       }
+//       if (updateUserGrouplist) {
+//         newUserInfo['grouplist'] = userGroupList;
+//         updateUserList.push(newUserInfo);
+//       }
+//     }
+//     if (updateUserList.length !== 0) {
+//       logger.info('User list to be updated has been prepared.');
+//       logger.info('Begin to update user\' group list.');
+//       await Promise.all(updateUserList.map(async (userData) => {
+//         await userModel.updateUser(userData['username'], userData);
+//       }));
+//       logger.info('Update group info successfully.');
+//     } else {
+//       logger.info('No user\' grouplist need to be updated.');
+//     }
+//   } catch (error) {
+//     // eslint-disable-next-line no-console
+//     console.log(error);
+//   }
+// };
 
-const groupTypeVCCheck = async () => {
+const checkGroupVCAvailable = async () => {
   try {
     const groupInfoList = await getAllGroup();
     const vcList = await vcModel.prototype.getVcListAsyc();
+    const vcSet = new Set(Object.keys(vcList));
     for (let groupItem of groupInfoList) {
-      if (groupItem.extension.groupType && groupItem.extension.groupType === 'vc') {
-        if (!vcList || !(groupItem.groupname in vcList)) {
-          await deleteGroup(groupItem.groupname);
-          logger.info(`Delete vc type group [${groupItem.groupname}]. Can't find it in yarn's vc list.`);
+      if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters) {
+        const checkedVCs = groupItem.extension.acls.virtualClusters.filter((vcname) => vcSet.has(vcname));
+        if (checkedVCs.length !== groupItem.extension.acls.virtualClusters.length) {
+          logger.info(`Update group: [${groupItem.groupname}] vc list. 
+          old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
+          groupItem.extension.acls.virtualClusters = checkedVCs;
+          await updateGroup(groupItem.groupname, groupItem);
         }
       }
     }
@@ -272,18 +320,23 @@ const groupTypeVCCheck = async () => {
 };
 
 const groupAndUserDataInit = async () => {
+  // init configuration groups
   await initGrouplistInCfg();
-  await groupTypeVCCheck();
+  // delete non-exist vc group
+  await checkGroupVCAvailable();
   if (authConfig.authnMethod !== 'OIDC') {
-    await createAdminUser();
+    // create default admin user
+    await createDefaultAdminUser();
   } else {
+    // read all groupname and their external name
     await updateGroup2ExnternalMapper();
   }
-  await updateUserGroupAndVirtualCluster();
+  // update user info with the newest grouplist
+  // await updateUserGroupAndVirtualCluster();
 };
 
 if (config.env !== 'test') {
-  groupAndUserDataInit();
+  groupAndUserDataInit().catch((err) => logger.error(err));
   if (authConfig.authnMethod === 'OIDC') {
     setInterval(async function() {
       await updateGroup2ExnternalMapper();
@@ -297,7 +350,10 @@ module.exports = {
   deleteGroup,
   createGroup,
   updateGroup,
+  getGroupVirtualCluster,
   virtualCluster2GroupList,
   getUserGrouplistFromExternal,
   updateExternalName2Groupname,
+  addVCintoAdminGroup,
+  deleteVCfromAllGroup,
 };

@@ -43,7 +43,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     // mock for case 1 username=tokentest
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
-      .twice()
+      .times(3)
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -59,6 +59,67 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         },
         'type': 'Opaque'
     });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .reply(200, {
+        'kind': 'SecretList',
+        'apiVersion': 'v1',
+        'metadata': {
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+          'resourceVersion': '1062682'
+        },
+        'items': [
+          {
+            'metadata': {
+              'name': 'cantest001',
+            },
+            'data': {
+              'groupname': 'ZGVmYXVsdA==',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test',
+            },
+            'data': {
+              'groupname': 'dmMx',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test_1',
+            },
+            'data': {
+              'groupname': 'dmMy',
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'pai_test_2',
+            },
+            'data': {
+              'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+              'description': 'dGVzdA==',
+              'externalName': 'MTIzNA==',
+              'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+            },
+            'type': 'Opaque'
+          },
+        ]
+      });
 
     nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
@@ -82,7 +143,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
   // Positive cases
   //
 
-  it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
+  it('Case 1 (Positive): Return valid token with right username and password', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)

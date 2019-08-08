@@ -19,7 +19,6 @@
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const userModel = require('@pai/models/v2/user');
-const authConfig = require('@pai/config/authn');
 
 const getGroup = async (req, res, next) => {
   try {

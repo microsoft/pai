@@ -60,7 +60,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(token.check, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
 
   router.route('/:username/admin')
-  /** Update /api/v2/user/:username/email */
+  /** Update /api/v2/user/:username/admin */
     .put(token.check, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
 
   router.route('/:username/grouplist')

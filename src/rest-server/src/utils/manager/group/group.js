@@ -45,7 +45,7 @@ const groupSchema = Joi.object().keys({
 function createGroup(value) {
   const res = groupSchema.validate(value);
   if (res['error']) {
-    throw new Error('Group schema error\n${error}');
+    throw new Error(`Group schema error\n${res['error']}`);
   }
   return res['value'];
 }

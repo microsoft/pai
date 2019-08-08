@@ -28,12 +28,10 @@ const getUserGrouplist = async (username) => {
 
 const getUserVirtualCluster = async (username) => {
   const userInfo = await userModel.getUser(username);
-  const virtualClusters = new Set();
+  let virtualClusters = new Set();
   for (const group of userInfo.grouplist) {
-    const groupInfo = await groupModel.getGroup(group);
-    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.virtualClusters) {
-      virtualClusters.add(groupInfo.extension.acls.virtualClusters);
-    }
+    const groupVCs = await groupModel.getGroupVirtualCluster(group);
+    virtualClusters = new Set([...virtualClusters, ...groupVCs]);
   }
   return [...virtualClusters];
 };
@@ -192,8 +190,16 @@ const updateUserVirtualCluster = async (req, res, next) => {
       if (grouplist.length !== req.body.virtualCluster.length) {
         next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found: ${grouplist}`));
       }
-      let userInfo = await userModel.getUser(username);
-      if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      let userInfo;
+      try {
+         userInfo = await userModel.getUser(username);
+      } catch (error) {
+        if (error.status === 404) {
+          return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+        }
+        return next(createError.unknown((error)));
+      }
+      if (await userModel.checkAdmin(username)) {
         next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
       }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
@@ -208,9 +214,6 @@ const updateUserVirtualCluster = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
-    if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
-    }
     return next(createError.unknown((error)));
   }
 };
@@ -286,7 +289,15 @@ const updateUserPassword = async (req, res, next) => {
     const username = req.params.username;
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
-    let userValue = await userModel.getUser(username);
+    let userValue;
+    try {
+      userValue = await userModel.getUser(username);
+    } catch (error) {
+      if (error.status === 404) {
+        return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      }
+      return next(createError.unknown((error)));
+    }
     let newUserValue = JSON.parse(JSON.stringify(userValue));
     newUserValue['password'] = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
@@ -300,9 +311,6 @@ const updateUserPassword = async (req, res, next) => {
       next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
     }
   } catch (error) {
-    if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
-    }
     return next(createError.unknown((error)));
   }
 };
@@ -336,33 +344,43 @@ const updateUserAdminPermission = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     } else {
-      let userInfo = await userModel.getUser(username);
+      let userInfo;
+      try {
+        userInfo = await userModel.getUser(username);
+      } catch (error) {
+        if (error.status === 404) {
+          return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+        }
+        return next(createError.unknown((error)));
+      }
       const existed = await userModel.checkAdmin(username);
       let newGrouplist = [];
       if (!existed && admin) {
-        // non-admin -> admin
+        // non-admin -> admin, add into adminGroup
+        newGrouplist = [...userInfo.grouplist, authConfig.groupConfig.adminGroup.groupname];
+        userInfo.grouplist = newGrouplist;
+      } else if (existed && !admin) {
+        // admin -> non-admin, remove all admin group
         const groupInfoList = await groupModel.getAllGroup();
-        let groupnameList = [];
-        for (let groupItem of groupInfoList) {
-          groupnameList.push(groupItem['groupname']);
-          if (groupItem['extension']['groupType'] === 'vc') {
-            virtualCluster.push(groupItem['groupname']);
+        const group2admin = {};
+        for (const groupItem of groupInfoList) {
+          group2admin[groupItem.groupname] = groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.admin;
+        }
+        for (const groupname of userInfo.grouplist) {
+          if (!group2admin[groupname]) {
+            newGrouplist.push(groupname);
           }
         }
-        userInfo['grouplist'] = groupnameList;
-      } else if (existed && !admin) {
-        // admin -> non-admin
-        userInfo['grouplist'].splice(userInfo['grouplist'].indexOf(authConfig.groupConfig.adminGroup.groupname), 1);
+      } else {
+        newGrouplist = userInfo.grouplist;
       }
+      userInfo.grouplist = newGrouplist;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user admin permission successfully.',
       });
     }
   } catch (error) {
-    if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
-    }
     return next(createError.unknown((error)));
   }
 };
@@ -371,8 +389,7 @@ const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
-      const userInfo = await userModel.getUser(username);
-      if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      if (await userModel.checkAdmin(username)) {
         return next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
       }
       await userModel.deleteUser(username);
