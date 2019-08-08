@@ -34,8 +34,11 @@ const tokenPostInputSchema = Joi.object().keys({
     .default(24 * 60 * 60),
 }).required();
 
+const tokenExpireTime = process.env.JWT_TOKEN_EXPIRE_TIME ? process.env.JWT_TOKEN_EXPIRE_TIME : '7d';
+
 // module exports
 module.exports = {
+  tokenExpireTime: tokenExpireTime,
   secret: config.jwtSecret,
   userProperty: 'user',
   tokenPostInputSchema: tokenPostInputSchema,
