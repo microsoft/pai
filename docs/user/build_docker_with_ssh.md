@@ -19,7 +19,7 @@ docker login
 ```
 
 4. Build and push the image with the following commands:
-```
+```bash
  docker build -f example.Dockerfile -t <Your Docker ID>/pytorch-py36-cu90-ssh .
  docker push <Your Docker ID>/pytorch-py36-cu90-ssh
 ```
