@@ -152,9 +152,10 @@ class JobDetail extends React.Component {
       return Object.entries(jobConfig.taskRoles).map(([name, taskConfig]) => {
         // dummy tasks
         let dummyTaskInfo = null;
-        if (taskConfig && taskConfig.instances) {
+        if (taskConfig) {
+          const instances = isNil(taskConfig.instances)? 1: taskConfig.instances;
           dummyTaskInfo = {
-            taskStatuses: Array.from({length: taskConfig.instances}, (v, idx) => ({
+            taskStatuses: Array.from({length: instances}, (v, idx) => ({
               taskState: 'Waiting',
             })),
           };

@@ -354,7 +354,7 @@ export default class TaskRoleContainerList extends React.Component {
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
-    const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
+    const status = taskInfo.taskStatuses;
     return (
       <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
         <ThemeProvider theme={theme}>
