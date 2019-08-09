@@ -97,7 +97,7 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 
   If an appropriate Docker image isn't found, you could [build a Docker image](../job_docker_env.md) by your self.
 
-  Note, **if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI**. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image. Please refer to [this tutorial](build_docker_with_ssh.md) for details.
+  **Important note**: if you'd like to ssh to the docker within OpenPAI, make sure *openssh-server* and *curl* packages are included by the docker image. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image. Please refer to [this tutorial](../job_docker_env.md#enable-ssh-for-your-image) for details.
 
 ## Manage Your Data
 
