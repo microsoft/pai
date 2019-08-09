@@ -61,7 +61,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
 
 提交 V2 job:
-可通过以下步骤创建 V2 Job 配置，并提交到 OpenPAI。
+可通过以下步骤创建 Job V2 配置，并提交到 OpenPAI。
 
 1. Make sure the value of 'protocol_version' property in cluster configuration is '2'. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/microsoft/pai/blob/master/docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file).
