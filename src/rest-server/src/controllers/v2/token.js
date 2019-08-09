@@ -25,6 +25,8 @@ const querystring = require('querystring');
 
 function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
   return new Promise((res, rej) => {
+    // eslint-disable-next-line no-console
+    console.log(`exp time ${expiration}`);
     jwt.sign({
       username: userInfo.username,
       admin: admin,
