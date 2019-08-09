@@ -1,6 +1,6 @@
 # Build Docker Images with SSH
 
-In OpenPAI, if a Docker image doesn't have openssh-server and curl packages, the SSH feature will not work for it. To build a new image with SSH, please follow the following steps:
+In OpenPAI, if a Docker image doesn't have openssh-server and curl packages, the SSH feature will not work for it. To build a new image with SSH, please follow the steps below:
 
 1. [Install Docker](https://docs.docker.com/install/)
 
