@@ -23,7 +23,7 @@ const userModel = require('@pai/models/v2/user');
 const authConfig = require('@pai/config/authn');
 const querystring = require('querystring');
 
-function jwtSignPromise(userInfo, admin, expiration = 7 * 24 * 60 * 60) {
+function jwtSignPromise(userInfo, admin, expiration = '7d') {
   return new Promise((res, rej) => {
     // eslint-disable-next-line no-console
     console.log(`exp time ${expiration}`);
