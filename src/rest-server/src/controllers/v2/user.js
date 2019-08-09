@@ -56,7 +56,7 @@ const getAllUser = async (req, res, next) => {
     const allVClist = Object.keys(await vcModel.prototype.getVcListAsyc());
     const groupMap = {};
     for (const groupItem of groupInfo) {
-      groupMap[groupItem.username] = groupInfo;
+      groupMap[groupItem.groupname] = groupItem;
     }
 
     const retUserList = await Promise.all(userList.map(async (userItem) => {
