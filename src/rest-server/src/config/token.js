@@ -35,8 +35,6 @@ const tokenPostInputSchema = Joi.object().keys({
 }).required();
 
 const tokenExpireTime = process.env.JWT_TOKEN_EXPIRE_TIME ? process.env.JWT_TOKEN_EXPIRE_TIME : '7d';
-// eslint-disable-next-line no-console
-console.log(tokenExpireTime);
 
 // module exports
 module.exports = {

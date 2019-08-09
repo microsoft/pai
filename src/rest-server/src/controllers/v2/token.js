@@ -25,8 +25,6 @@ const querystring = require('querystring');
 
 function jwtSignPromise(userInfo, admin, expiration = '7d') {
   return new Promise((res, rej) => {
-    // eslint-disable-next-line no-console
-    console.log(`exp time ${expiration}`);
     jwt.sign({
       username: userInfo.username,
       admin: admin,
@@ -47,8 +45,6 @@ const get = async (req, res, next) => {
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
     }
-    // eslint-disable-next-line no-console
-    console.log(`exp time ${tokenConfig.tokenExpireTime}`);
     const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
     return res.status(200).json({
       user: userInfo.username,
@@ -75,7 +71,7 @@ const getAAD = async (req, res, next) => {
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
     }
-    const token = await jwtSignPromise(userInfo, admin);
+    const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
     return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
