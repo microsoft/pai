@@ -51,9 +51,9 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 提交 V1 Job:
 可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
 
-1. Make sure the value of 'protocol_version' property in cluster configuration is '1'. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
+1. Make sure the value of ```protocol_version``` property in cluster configuration is ```'1'```. Double click ```Create Job Config...``` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
-3. Right click on the created job configuration file, then click on *Submit Job to PAI Cluster*. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+3. Right click on the created job configuration file, then click on ```Submit Job to PAI Cluster```. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
 
       If there are multiple OpenPAI clusters, you need to choose one.
 
@@ -63,9 +63,9 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 提交 V2 job:
 可通过以下步骤创建 Job V2 配置，并提交到 OpenPAI。
 
-1. Make sure the value of 'protocol_version' property in cluster configuration is '2'. Double click *Create Job Config...* in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
+1. Make sure the value of ```protocol_version``` property in cluster configuration is ```'2'```. Double click ```Create Job Config...``` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/microsoft/pai/blob/master/docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file).
-3. Right click on the created job v2 configuration file, then click on *Submit Job to PAI Cluster*. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+3. Right click on the created job v2 configuration file, then click on ```Submit Job to PAI Cluster```. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
 
     If there are multiple OpenPAI clusters, you need to choose one.
 
