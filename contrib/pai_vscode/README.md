@@ -124,7 +124,7 @@ There are two parts in the side bar.
 | Name                            | Description                               |
 | ------------------------------- | ----------------------------------------- |
 | PAI: Add PAI Cluster            | Add a new OpenPAI cluster                 |
-| PAI: Open Dashboard             | View OpenPAI cluster in browser           |
+| PAI: Open Website               | View OpenPAI cluster in browser           |
 | PAI: Submit Job to PAI Cluster  | Submit an OpenPAI job                     |
 | PAI: Create PAI Job Config File | Create an OpenPAI configuration file      |
 | PAI: Simulate PAI Job Running   | Generate Docker file for local simulation |
