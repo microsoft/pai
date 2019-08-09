@@ -50,6 +50,7 @@ If REST Server is deployed by [pai management tool][pai-management], configurati
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9186.
 * `jwt-secret`: A random secret token for user authorization, keep it secret to users.
+* `jwt-expire-time`: String that repesents a timespan eg: "1d", "20h".
 * `default-pai-admin-username`: The username of default user. REST Server will auto generate it
   after the first start of service.
 * `default-pai-admin-password`: The password of default user.
