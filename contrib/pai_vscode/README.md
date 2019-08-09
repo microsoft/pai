@@ -47,6 +47,7 @@ After added a cluster configuration, you can find the cluster in *PAI CLUSTER EX
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
 Submit V1 job:
+
 You can create a job configuration and submit to OpenPAI as below steps.
 
 1. Make sure the value of ```protocol_version``` property in cluster configuration is ```'1'```. Double click ```Create Job Config...``` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
@@ -59,6 +60,7 @@ You can create a job configuration and submit to OpenPAI as below steps.
     ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
 
 Submit V2 job:
+
 You can create a job v2 configuration and submit to OpenPAI as below steps.
 
 1. Make sure the value of ```protocol_version``` property in cluster configuration is ```'2'```. Double click ```Create Job Config...``` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
