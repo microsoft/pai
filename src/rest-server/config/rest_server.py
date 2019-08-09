@@ -53,6 +53,7 @@ class RestServer:
         service_object_model['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
         service_object_model['server-port'] = server_port
         service_object_model['jwt-secret'] = self.service_configuration['jwt-secret']
+        service_object_model['jwt-expire-time'] = self.service_configuration['jwt-expire-time']
         service_object_model['default-pai-admin-username'] = self.service_configuration['default-pai-admin-username']
         service_object_model['default-pai-admin-password'] = self.service_configuration['default-pai-admin-password']
         service_object_model['launcher-type'] = self.service_configuration['launcher-type']

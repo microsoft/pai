@@ -17,6 +17,7 @@ other config fields are optional, includes:
 - `server-port: 9186` The port REST server service will listen
 - `launcher-type: yarn` The launcher type of REST server, should be "yarn" or "k8s". Default is "yarn"
 - `jwt-secret: pai-secret` The secret key of JSON web token
+- `jwt-expire-time` The expire time for a signed jwt token.
 - `github-owner: Microsoft` The marketplace repo owner in GitHub
 - `github-repository: pai` The marketplace repo name
 - `github-path: marketplace` The marketpalce path in the repo
@@ -32,6 +33,7 @@ rest-server:
     server-port: 9186
     launcher-type: yarn
     jwt-secret: pai-secret
+    jwt-expire-time: '7d'
     default-pai-admin-username: pai-admin
     default-pai-admin-password: pai-admin-password
     github-owner: Microsoft
@@ -71,6 +73,12 @@ rest-server:
     <td>rest-server.jwt-secret</td>
     <td>com["rest-server"]["jwt-secret"]</td>
     <td>cluster_cfg["rest-server"]["jwt-secret"]</td>
+    <td>String</td>
+</tr>
+<tr>
+    <td>rest-server.jwt-expire-time</td>
+    <td>com["rest-server"]["jwt-expire-time"]</td>
+    <td>cluster_cfg["rest-server"]["jwt-expire-time"]</td>
     <td>String</td>
 </tr>
 <tr>
