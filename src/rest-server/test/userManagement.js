@@ -232,6 +232,66 @@ const groupResponse = {
   ]
 };
 
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'cantest001',
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test',
+  },
+  'data': {
+    'groupname': 'dmMx',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc2GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_1',
+  },
+  'data': {
+    'groupname': 'dmMy',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+  },
+  'type': 'Opaque'
+};
+
+const adminGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_2',
+  },
+  'data': {
+    'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+  },
+  'type': 'Opaque'
+};
+
 //
 // Get a valid token that expires in 60 seconds.
 //
@@ -345,11 +405,17 @@ describe('Add new user: post /api/v2/user', () => {
         'code': 409
       });
 
-    // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
       .times(4)
-      .reply(200, groupResponse);
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .times(4)
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .times(4)
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
 });
 
   //
@@ -450,7 +516,7 @@ describe('update user: put /api/v2/user', () => {
     // mock for case1 username=update_user.
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572')
-      .times(3)
+      .times(2)
       .reply(200,  {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -549,11 +615,15 @@ describe('update user: put /api/v2/user', () => {
       'code': 404
     });
 
-    // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
-      .times(2)
-      .reply(200, groupResponse);
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
   });
 
   //
@@ -709,9 +779,14 @@ describe('delete user : delete /api/v2/user', () => {
       });
 
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
-      .times(1)
-      .reply(200, groupResponse);
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
 
     // mock for case3 username=non_exist.
     nock(apiServerRootUri)
@@ -1001,11 +1076,19 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'type': 'Opaque'
       });
 
-    // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
       .times(8)
-      .reply(200, groupResponse);
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .times(8)
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .times(8)
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .times(8)
+      .reply(200, adminGroupSchema);
   });
 
   //

@@ -11,7 +11,6 @@ adminGroup:
   extension:
     acls:
       virtualCluster: []
-      storageConfig: []
       admin: true
 {%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
   userlist: []
@@ -29,7 +28,6 @@ defaultGroup:
   extension:
     acls:
       virtualCluster: default
-      storageConfig: []
       admin: false
 
 grouplist:
@@ -43,7 +41,6 @@ grouplist:
     extension:
       acls:
         virtualCluster: []
-        storageConfig: []
         admin: false
 {%- endfor %}
 {%- endif %}

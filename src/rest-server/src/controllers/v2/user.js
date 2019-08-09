@@ -20,17 +20,13 @@ const userModel = require('@pai/models/v2/user');
 const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
 const groupModel = require('@pai/models/v2/group');
+const vcModel = require('@pai/models/vc');
 
-const getUserGrouplist = async (username) => {
-  const userInfo = await userModel.getUser(username);
-  return userInfo.grouplist;
-};
-
-const getUserVirtualCluster = async (username) => {
+const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
   let virtualClusters = new Set();
   for (const group of userInfo.grouplist) {
-    const groupVCs = await groupModel.getGroupVirtualCluster(group);
+    const groupVCs = await groupModel.getGroupVCs(group);
     virtualClusters = new Set([...virtualClusters, ...groupVCs]);
   }
   return [...virtualClusters];
@@ -40,8 +36,9 @@ const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
-    userInfo['admin'] = await userModel.checkAdmin(userInfo.username);
-    userInfo['virtualCluster'] = await getUserVirtualCluster(userInfo.username);
+    const groupItems = await groupModel.getListGroup(userInfo.grouplist);
+    userInfo['admin'] = groupModel.getAdminWithGroupinfo(groupItems);
+    userInfo['virtualCluster'] = await groupModel.getVCsWithGroupinfo(groupItems);
     delete userInfo['password'];
     return res.status(200).json(userInfo);
   } catch (error) {
@@ -55,13 +52,21 @@ const getUser = async (req, res, next) => {
 const getAllUser = async (req, res, next) => {
   try {
     const userList = await userModel.getAllUser();
-    let retUserList = [];
-    for (let userItem of userList) {
-      userItem['admin'] = await userModel.checkAdmin(userItem.username);
-      userItem['virtualCluster'] = await getUserVirtualCluster(userItem.username);
-      delete userItem['password'];
-      retUserList.push(userItem);
+    const groupInfo = await groupModel.getAllGroup();
+    const allVClist = Object.keys(await vcModel.prototype.getVcListAsyc());
+    const groupMap = {};
+    for (const groupItem of groupInfo) {
+      groupMap[groupItem.username] = groupInfo;
     }
+
+    const retUserList = await Promise.all(userList.map(async (userItem) => {
+      const groupItems = Array.from(userItem.grouplist, (groupname) => groupMap[groupname]);
+      const admin = groupModel.getAdminWithGroupinfo(groupItems);
+      userItem.admin = admin;
+      userItem.virtualCluster = admin ? allVClist : await groupModel.getVCsWithGroupinfo(groupItems);
+      delete userItem.password;
+      return userItem;
+    }));
     return res.status(200).json(retUserList);
   } catch (error) {
     return next(createError.unknown(error));
@@ -185,10 +190,15 @@ const updateUserExtension = async (req, res, next) => {
 const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    let grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
     if (req.user.admin) {
+      let grouplist;
+      try {
+        grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+      } catch (error) {
+        return next(createError('Bad Request', 'NoVirtualClusterError', `Try to update nonexist: ${req.body.virtualCluster}`));
+      }
       if (grouplist.length !== req.body.virtualCluster.length) {
-        next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found: ${grouplist}`));
+        return next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found: ${grouplist}`));
       }
       let userInfo;
       try {
@@ -200,7 +210,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
         return next(createError.unknown((error)));
       }
       if (await userModel.checkAdmin(username)) {
-        next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
+        return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
       }
       if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
         grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
@@ -353,22 +363,17 @@ const updateUserAdminPermission = async (req, res, next) => {
         }
         return next(createError.unknown((error)));
       }
-      const existed = await userModel.checkAdmin(username);
+      const groupInfo = await groupModel.getListGroup(userInfo.grouplist);
+      const existed = groupModel.getAdminWithGroupinfo(groupInfo);
       let newGrouplist = [];
       if (!existed && admin) {
         // non-admin -> admin, add into adminGroup
         newGrouplist = [...userInfo.grouplist, authConfig.groupConfig.adminGroup.groupname];
-        userInfo.grouplist = newGrouplist;
       } else if (existed && !admin) {
         // admin -> non-admin, remove all admin group
-        const groupInfoList = await groupModel.getAllGroup();
-        const group2admin = {};
-        for (const groupItem of groupInfoList) {
-          group2admin[groupItem.groupname] = groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.admin;
-        }
-        for (const groupname of userInfo.grouplist) {
-          if (!group2admin[groupname]) {
-            newGrouplist.push(groupname);
+        for (const groupItem of groupInfo) {
+          if (!groupModel.getAdminWithGroupinfo([groupItem])) {
+            newGrouplist.push(groupItem.groupname);
           }
         }
       } else {
@@ -421,7 +426,7 @@ const checkUserPassword = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.status && error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+      return next(createError('Bad Request', 'NoUserError', `User ${req.body.username} is not found.`));
     }
     return next(createError.unknown((error)));
   }
@@ -444,6 +449,5 @@ module.exports = {
   updateUserPassword,
   createUser,
   checkUserPassword,
-  getUserGrouplist,
-  getUserVirtualCluster,
+  getUserVCs,
 };

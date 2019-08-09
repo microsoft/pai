@@ -47,7 +47,7 @@ const deleteUser = async (username) => {
   return await crudUser.remove(username, crudConfig);
 };
 
-// it's a inplace encrypt!
+// it's an inplace encrypt!
 const getEncryptPassword = async (userValue) => {
     await user.encryptUserPassword(userValue);
     return userValue;
@@ -65,62 +65,19 @@ const createUserIfNonExistent = async (username, userValue) => {
   }
 };
 
-const getUserGrouplist = async (username) => {
-  const userInfo = await getUser(username);
-  return userInfo.grouplist;
-};
-
 const getUserVCs = async (username) => {
-  const grouplist = await getUserGrouplist(username);
-  const virtualClusters = new Set();
-  for (const group of grouplist) {
-    const groupInfo = await groupModel.getGroup(group);
-    if (groupInfo.extension && groupInfo.extension.acls && groupInfo.extension.acls.virtualClusters) {
-      virtualClusters.add(groupInfo.extension.acls.virtualClusters);
-    }
-  }
-  return [...virtualClusters];
-};
-
-const checkInAdminGroup = (candidateList, allGroupInfo) => {
-  const groupMap = {};
-  for (const groupItem of allGroupInfo) {
-    groupMap[groupItem.groupname] = groupItem;
-  }
-  let admin = false;
-  for (const groupname of candidateList) {
-    if (groupMap.hasOwnProperty(groupname) && groupMap[groupname].extension
-      && groupMap[groupname].extension.acls && groupMap[groupname].extension.acls.admin) {
-      admin = true;
-      break;
-    }
-  }
-  return admin;
+  const userItem = await getUser(username);
+  return groupModel.getGroupsVCs(userItem.grouplist);
 };
 
 const checkAdmin = async (username) => {
-  const grouplist = await getUserGrouplist(username);
-  const groupInfo = await groupModel.getAllGroup();
-  return checkInAdminGroup(grouplist, groupInfo);
+  const userItem = await getUser(username);
+  return groupModel.getGroupsAdmin(userItem.grouplist);
 };
 
 const checkUserVC = async (username, vcname) => {
-  let accept = false;
-  const grouplist = await getUserGrouplist(username);
-  for (const group of grouplist) {
-    const groupInfo = await groupModel.getGroup(group);
-    if (groupInfo.extension && groupInfo.extension.acls) {
-      if (groupInfo.extension.acls.admin) {
-        accept = true;
-        break;
-      }
-      if (groupInfo.extension.acls.virtualClusters && groupInfo.extension.acls.virtualClusters.includes(vcname)) {
-        accept = true;
-        break;
-      }
-    }
-  }
-  return accept;
+  const userVCs = await getUserVCs(username);
+  return userVCs.includes(vcname);
 };
 
 // module exports
@@ -135,5 +92,4 @@ module.exports = {
   checkUserVC,
   getUserVCs,
   checkAdmin,
-  checkInAdminGroup,
 };

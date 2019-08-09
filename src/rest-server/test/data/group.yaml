@@ -14,7 +14,7 @@ defaultGroup:
   externalName: ''
   extension:
     acls:
-      virtualClusters: 'default'
+      virtualClusters: ['default']
 
 grouplist:
 - groupname: 'testGroup'
@@ -22,4 +22,4 @@ grouplist:
   externalName: ''
   extension:
     acls:
-      virtualClusters: 'testGroup'
+      virtualClusters: ['testGroup']

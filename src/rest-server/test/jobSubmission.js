@@ -285,7 +285,9 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
       .reply(200, user1Schema)
       .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
-      .reply(200, defaultGroupSchema);
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -314,13 +316,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     }
   };
 
-  const prepareNockForCaseP02 = (namespace, jobName) => {
-    prepareNockForCaseP01(namespace, jobName);
-    // vc1 group schema
-    nock(global.apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets/766331')
-      .reply(200, vc1GroupSchema);
-  };
+  const prepareNockForCaseP02 = prepareNockForCaseP01;
 
   const prepareNockForCaseP03 = prepareNockForCaseP01;
 
@@ -374,7 +370,9 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
       .reply(200, user1Schema)
       .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
-      .reply(200, defaultGroupSchema);
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -496,7 +494,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       });
   });
 
-  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+  it('[P-04] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
       .put('/api/v2/user/user1/jobs/new_job')
@@ -695,7 +693,10 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
       .reply(200, user1Schema)
       .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
-      .reply(200, defaultGroupSchema);
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
+
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')

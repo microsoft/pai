@@ -20,6 +20,66 @@ getTokenTemplate = JSON.stringify({
   'password': '{{password}}'
 });
 
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'cantest001',
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test',
+  },
+  'data': {
+    'groupname': 'dmMx',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc2GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_1',
+  },
+  'data': {
+    'groupname': 'dmMy',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+  },
+  'type': 'Opaque'
+};
+
+const adminGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_2',
+  },
+  'data': {
+    'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+  },
+  'type': 'Opaque'
+};
+
 
 //
 // Get a valid token that expires in 60 seconds.
@@ -61,65 +121,14 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     });
 
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-          'resourceVersion': '1062682'
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'cantest001',
-            },
-            'data': {
-              'groupname': 'ZGVmYXVsdA==',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
-            },
-            'type': 'Opaque'
-          },
-          {
-            'metadata': {
-              'name': 'pai_test',
-            },
-            'data': {
-              'groupname': 'dmMx',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
-            },
-            'type': 'Opaque'
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_1',
-            },
-            'data': {
-              'groupname': 'dmMy',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
-            },
-            'type': 'Opaque'
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_2',
-            },
-            'data': {
-              'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
-            },
-            'type': 'Opaque'
-          },
-        ]
-      });
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
 
     nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
@@ -136,7 +145,6 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
       },
       'code': 404
     });
-
   });
 
   //
