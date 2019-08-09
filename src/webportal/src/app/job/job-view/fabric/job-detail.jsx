@@ -153,7 +153,7 @@ class JobDetail extends React.Component {
         // dummy tasks
         let dummyTaskInfo = null;
         if (taskConfig) {
-          const instances = isNil(taskConfig.instances)? 1: taskConfig.instances;
+          const instances = isNil(taskConfig.instances) ? 1 : taskConfig.instances;
           dummyTaskInfo = {
             taskStatuses: Array.from({length: instances}, (v, idx) => ({
               taskState: 'Waiting',
