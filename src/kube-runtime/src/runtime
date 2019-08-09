@@ -46,19 +46,23 @@ PAI_RUNTIME_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
 # priority=0
 source ${PAI_RUNTIME_DIR}/runtime_env.sh
 
-# setup ssh
-# priority=1
-${PAI_RUNTIME_DIR}/sshd.sh >> ${PAI_RUNTIME_LOG_FILE} 2>&1
-
 # check port conflict
 python ${PAI_RUNTIME_DIR}/port.py >> ${PAI_RUNTIME_LOG_FILE} 2>&1
+
+
+# Put verbose output to user.pai.all, stdout to user.pai.stdout, stderr to user.pai.stderr
+
+# execute preCommands
+${PAI_RUNTIME_DIR}/precommands.sh > >(tee -a ${PAI_LOG_DIR}/user.pai.stdout ${PAI_RUNTIME_LOG_FILE}) 2> >(tee -a ${PAI_LOG_DIR}/user.pai.stderr ${PAI_RUNTIME_LOG_FILE} >&2)
 
 # execute user commands
 # priority=100
 echo "[INFO] USER COMMAND START"
-# Put verbose output to runtime.log, stdout to user.pai.stdout, stderr to user.pai.stderr
 ${PAI_RUNTIME_DIR}/user.sh > >(tee -a ${PAI_LOG_DIR}/user.pai.stdout ${PAI_RUNTIME_LOG_FILE}) 2> >(tee -a ${PAI_LOG_DIR}/user.pai.stderr ${PAI_RUNTIME_LOG_FILE} >&2) &
 USER_PID=$!
 
 echo "[INFO] USER COMMAND END"
 wait ${USER_PID}
+
+# execute postCommands
+${PAI_RUNTIME_DIR}/postcommands.sh > >(tee -a ${PAI_LOG_DIR}/user.pai.stdout ${PAI_RUNTIME_LOG_FILE}) 2> >(tee -a ${PAI_LOG_DIR}/user.pai.stderr ${PAI_RUNTIME_LOG_FILE} >&2)
