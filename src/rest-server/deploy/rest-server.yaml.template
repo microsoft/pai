@@ -73,6 +73,8 @@ spec:
           value: "{{ cluster_cfg['rest-server']['log-manager-port'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
+        - name: JWT_TOKEN_EXPIRE_TIME
+          value: {{ cluster_cfg['rest-server']['jwt-expire-time'] }}
         - name: WEBPORTAL_URL
           value: "{{ cluster_cfg['webportal']['webportal-address']}}"
 {% if not cluster_cfg['authentication']['OIDC'] %}
