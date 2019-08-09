@@ -32,7 +32,7 @@
   - [Job Workflow](#job-workflow)
   - [Reference](#reference)
 
-This document is a tutorial for job submission on OpenPAI. Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
 There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
 
@@ -97,7 +97,7 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 
   If an appropriate Docker image isn't found, you could [build a Docker image](../job_docker_env.md) by your self.
 
-  Note, if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image.
+  Note, **if a Docker image doesn't include *openssh-server* and *curl* packages, it cannot use SSH feature of OpenPAI**. If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image. Please refer to [this tutorial](build_docker_with_ssh.md) for details.
 
 ## Manage Your Data
 
