@@ -47,6 +47,8 @@ const get = async (req, res, next) => {
     if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
       admin = true;
     }
+    // eslint-disable-next-line no-console
+    console.log(`exp time ${tokenConfig.tokenExpireTime}`);
     const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
     return res.status(200).json({
       user: userInfo.username,
