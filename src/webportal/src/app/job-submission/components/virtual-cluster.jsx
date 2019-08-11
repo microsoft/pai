@@ -24,7 +24,7 @@ export const VirtualCluster = React.memo((props) => {
 
   const vcIndex = options.findIndex((value)=> value.text === virtualCluster);
   return (
-    <BasicSection sectionLabel={'Virutual cluster'}>
+    <BasicSection sectionLabel={'Virtual cluster'}>
       <FormShortSection>
         <Dropdown
           placeholder='Select an option'
