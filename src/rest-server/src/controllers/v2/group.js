@@ -19,6 +19,7 @@
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const userModel = require('@pai/models/v2/user');
+const common = require('@pai/utils/common');
 
 const getGroup = async (req, res, next) => {
   try {
@@ -103,6 +104,29 @@ const updateGroupExtension = async (req, res, next) => {
   }
 };
 
+const updateGroupExtensionAttr = async (req, res, next) => {
+  try {
+    const groupname = req.params.groupname;
+    const attrs = req.params[0].split('/');
+    const updateData = req.body.data;
+    if (req.user.admin) {
+      const groupInfo = await groupModel.getGroup(groupname);
+      groupInfo.extension = common.assignValueByKeyarray(groupInfo.extension, attrs, updateData);
+      await groupModel.updateGroup(groupname, groupInfo);
+      return res.status(201).json({
+        message: 'Update group extension data successfully.',
+      });
+    } else {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoGroupError', `Group ${req.params.groupname} is not found.`));
+    }
+    return next(createError.unknown((error)));
+  }
+};
+
 const updateGroupDescription = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -167,4 +191,5 @@ module.exports = {
   updateGroupDescription,
   updateGroupExternalName,
   deleteGroup,
+  updateGroupExtensionAttr,
 };
