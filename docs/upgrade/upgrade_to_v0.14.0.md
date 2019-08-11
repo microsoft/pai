@@ -62,7 +62,7 @@ There should be four files under the `<path_of_config>`:
 3. `kubernetes-configuration.yaml`
 4. `services-configuration.yaml`
 
-> If you were asked to input cluster id, you could run ```./paictl.py config get-id``` to get it.
+> Whenever you were asked to input the cluster id, you could run ```./paictl.py config get-id``` to get it.
 
 ### Change PAI Cluster Version
 
