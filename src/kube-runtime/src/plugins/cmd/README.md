@@ -1,7 +1,7 @@
-# Sshd plugin
+# Cmd plugin
 
 ## Goal
-The sshd plugin offers ssh connection between containers. Use ${taskrole}-${index} to connect to other job container. 
+The cmd plugin offers user to execute pre-commands or post-commands
 
 ## Schema
 ```
@@ -9,6 +9,8 @@ extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: cmd
       parameters:
-        precommands: List
-        postcommands: List
+        precommands:
+          - pre-cmd
+        postcommands:
+          - post-cmd
 ```
