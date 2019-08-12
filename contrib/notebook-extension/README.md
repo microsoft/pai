@@ -20,7 +20,7 @@ jupyter nbextension install openpai_submitter
 jupyter nbextension enable openpai_submitter/main
 ```
 
-After installation, you should add description of your PAI cluster. Create a file located at ~/.openpai/clusters.yaml. If you are using Windows, the corresponding path is "C:\\Users\\<your user name>\\.openpai\\clusters.yaml". Then add the following content in it:
+After installation, you should add description of your PAI cluster. Create a file located at ~/.openpai/clusters.yaml. If you are using Windows, the corresponding path is "C:\\Users\\<your user name>\.openpai\\clusters.yaml". Then add the following content in it:
 ```YAML
 - cluster_alias: <the-name-of-cluster>
   pai_uri: http://<the-ip-of-cluster>
@@ -34,7 +34,7 @@ After installation, you should add description of your PAI cluster. Create a fil
 ```
 The cluster alias is a cluster name chosen by you, and the default port for web_hdfs_uri is 50070 (If this port doesn't work for you, please ask your administrator for the right WebHDFS URI). Multiple clusters can be added using the same pattern.
 
-Now you can use the command below to list your clusters"
+Now you can use the command below to list your clusters:
 ```bash
 opai cluster list
 ```
