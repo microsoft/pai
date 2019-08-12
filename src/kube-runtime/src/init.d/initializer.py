@@ -27,11 +27,14 @@ import argparse
 import json
 import yaml
 import subprocess
+from shutil import copyfile
 
 logger = logging.getLogger(__name__)
 
-def run_script(script_path, parameters):
-    proc = subprocess.Popen([script_path, "{}".format(parameters)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def run_script(script_path, parameters, output_paths):
+    args = [script_path, "{}".format(parameters)]
+    args += output_paths
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = proc.stdout.readline()
         if not line:
@@ -72,7 +75,8 @@ def init_plugins(jobconfig, commands, work_dir):
 
     current_taskrole_name = os.environ.get("FC_TASKROLE_NAME")
 
-    for plugin in jobconfig["extras"]["com.microsoft.pai.runtimeplugin"]:
+    for index in range(len(jobconfig["extras"]["com.microsoft.pai.runtimeplugin"])):
+        plugin = jobconfig["extras"]["com.microsoft.pai.runtimeplugin"][index]
         # Check taskroles
         if "taskroles" in plugin and current_taskrole_name not in plugin["taskroles"]:
             continue
@@ -81,21 +85,29 @@ def init_plugins(jobconfig, commands, work_dir):
         plugin_base_path = "{}/plugins/{}".format(work_dir, plugin_name)
 
         parameters = plugin.get("parameters", "")
+        output_paths = []
 
         with open("{}/desc.yaml".format(plugin_base_path), "r") as f:
             plugin_desc = yaml.load(f)
 
+        # Inject call to runtime. Consider plugin call sequence, first in pre-script last in post-script
+        if 'pre-template' in plugin_desc:
+            dest_path = "{}/runtime.d/pre{}.sh".format(work_dir, index)
+            copyfile("{}/{}".format(plugin_base_path, plugin_desc['pre-template']), dest_path)
+            os.chmod(dest_path, 0o777)
+            commands[0].append(dest_path)
+            output_paths.append(dest_path)
+
+        if 'post-template' in plugin_desc:
+            dest_path = "{}/runtime.d/post{}.sh".format(work_dir, index)
+            copyfile("{}/{}".format(plugin_base_path, plugin_desc['post-template']), dest_path)
+            os.chmod(dest_path, 0o777)
+            commands[1].insert(0, dest_path)
+            output_paths.append(dest_path)
+
         # Run init script
         if 'init-script' in plugin_desc:
-            run_script("{}/{}".format(plugin_base_path, plugin_desc['init-script']), parameters)
-
-        # Inject call to runtime. Consider plugin call sequence, first in pre-script last in post-script
-        
-        if 'pre-script' in plugin_desc:
-            commands[0].append("{}/{}".format(plugin_base_path, plugin_desc['pre-script']))
-
-        if 'post-script' in plugin_desc:
-            commands[1].insert(0, "{}/{}".format(plugin_base_path, plugin_desc['post-script']))
+            run_script("{}/{}".format(plugin_base_path, plugin_desc['init-script']), parameters, output_paths)
 
 
 if __name__ == "__main__":
@@ -119,9 +131,7 @@ if __name__ == "__main__":
     init_deployment(jobconfig, commands)
 
     with open("{}/runtime.d/precommands.sh".format(PAI_WORK_DIR), 'a+') as f:
-        f.write("\n")
         f.write("\n".join(commands[0]))
 
     with open("{}/runtime.d/postcommands.sh".format(PAI_WORK_DIR), 'a+') as f:
-        f.write("\n")
         f.write("\n".join(commands[1]))

@@ -17,3 +17,4 @@
 
 init-script: init.py
 pre-template: pre.sh
+post-template: post.sh
