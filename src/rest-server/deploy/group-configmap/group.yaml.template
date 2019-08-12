@@ -12,14 +12,6 @@ adminGroup:
     acls:
       virtualClusters: []
       admin: true
-{%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
-  userlist: []
-{%- else %}
-  userlist:
-{%- for usernameValue in cluster_cfg["authentication"]["group-manager"]["admin-group"]["userlist"] %}
-    - {{ usernameValue }}
-{%- endfor %}
-{%- endif %}
 
 defaultGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["groupname"] }}"
@@ -27,7 +19,7 @@ defaultGroup:
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
   extension:
     acls:
-      virtualClusters: default
+      virtualClusters: ["default"]
       admin: false
 
 grouplist:
