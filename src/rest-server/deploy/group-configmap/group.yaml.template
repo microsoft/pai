@@ -10,7 +10,7 @@ adminGroup:
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}"
   extension:
     acls:
-      virtualCluster: []
+      virtualClusters: []
       admin: true
 {%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
   userlist: []
@@ -27,7 +27,7 @@ defaultGroup:
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
   extension:
     acls:
-      virtualCluster: default
+      virtualClusters: default
       admin: false
 
 grouplist:
@@ -40,7 +40,7 @@ grouplist:
     externalName: "{{ group_item["externalName"] }}"
     extension:
       acls:
-        virtualCluster: []
+        virtualClusters: []
         admin: false
 {%- endfor %}
 {%- endif %}

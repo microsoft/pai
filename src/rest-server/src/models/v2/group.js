@@ -274,7 +274,9 @@ const createDefaultAdminUser = async () => {
   const userModel = require('@pai/models/v2/user');
   try {
     logger.info('Create admin user account configured in configuration.');
-    const groupnameList = [...authConfig.groupConfig.grouplist, authConfig.groupConfig.adminGroup.groupname];
+    const groupnameList = Array.from(authConfig.groupConfig.grouplist, (groupItem) => groupItem.groupname);
+    groupnameList.push(authConfig.groupConfig.defaultGroup.groupname);
+    groupnameList.push(authConfig.groupConfig.adminGroup.groupname);
     const userValue = {
       username: secretConfig.adminName,
       email: '',
