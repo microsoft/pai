@@ -18,7 +18,7 @@ In this steps, passoword will be asked. You can just skip it with an empty value
 ##### 3. Generate certificate request
 
 ```bash
-SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswa1rp/OU=iTranswarp/CN=$DOMAIN"
+SUBJECT="/C=US/ST=Washington/CN=$DOMAIN"
 openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csr
 ```
 
