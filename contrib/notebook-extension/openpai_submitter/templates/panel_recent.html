@@ -1,0 +1,41 @@
+<div id="openpai-panel-recent">
+    <div class="openpai-panel-header">
+        <img src="" class="openpai-logo openpai-inline" />
+        <h3 class="openpai-header-text openpai-inline">Recent Jobs</h3>
+        <a id="close-panel-recent-button" class="openpai-float-right openpai-button" href="#">[close]</a>
+        <span class="openpai-float-right">&nbsp;&nbsp;</span>
+        <a id="refresh-panel-recent-button" class="openpai-float-right openpai-button" href="#">[refresh]</a>
+    </div>
+    
+    <div class="openpai-panel-body">
+        <fieldset class="openpai-fieldset">
+            <div id="panel-recent-table-wrapper" style="display: none">
+            <div class="openpai-float-right" id="openpai-hide-jobs-toggle">
+                <label class="switch">
+                  <input type="checkbox" checked id="openpai-if-hide-jobs">
+                  <span class="slider round"></span>
+                </label>
+                <span>Hide Completed Jobs</span>
+            </div>
+            <table id="recent-jobs" class="display order-column nowrap" data-page-length="5">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Cluster</th>
+                        <th>VC</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                        <th>Notebook</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-jobs-body">
+                </tbody>
+            </table>
+            </div>
+             <div id="panel-recent-information-wrapper">
+                <span id="panel-recent-information">The panel is not ready. Please wait.</span>
+            </div>
+        </fieldset>
+    </div>
+</div>
