@@ -1,6 +1,6 @@
 # Use Docker to Package the Job Environment Dependencies
 
-The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance.
+The system launches a deep learning job in one or more Docker containers. A Docker image is required in advance.
 The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
 
 To build a base Docker image, for example [Dockerfile.build.base](../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
