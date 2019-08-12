@@ -1,0 +1,10 @@
+[Unit]
+Description=run chkha every 10s
+
+[Timer]
+OnUnitActiveSec=10s
+OnBootSec=10s
+Unit=chkha.service
+
+[Install]
+WantedBy=multi-user.target
