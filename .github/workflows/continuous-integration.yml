@@ -27,7 +27,8 @@ jobs:
     - name: yarn install and test
       run: |
         cd src/rest-server
-        yarn install --frozen-lockfiles --ignore-engines
+        yarn config set ignore-engines true
+        yarn install --frozen-lockfiles
         yarn test
 
   webportal:
@@ -48,6 +49,7 @@ jobs:
     - name: yarn install, build and test
       run: |
         cd src/webportal
-        yarn install --frozen-lockfiles --ignore-engines
+        yarn config set ignore-engines true
+        yarn install --frozen-lockfiles
         yarn build
         yarn test
