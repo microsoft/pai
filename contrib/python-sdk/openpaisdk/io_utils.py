@@ -5,7 +5,7 @@ from webbrowser import open_new_tab
 from contextlib import contextmanager
 import json
 import yaml
-from openpaisdk import __logger__, __local_default_file__, __global_default_file__
+from openpaisdk import __logger__, __local_default_file__, __global_default_file__, __flags__
 from urllib.request import urlopen
 from urllib.parse import urlparse, urlsplit
 from urllib.request import urlretrieve
@@ -184,6 +184,8 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
 
 
 def to_screen(s, **kwargs):
+    if __flags__.disable_to_screen:
+        return
     if isinstance(s, str):
         print(s, **kwargs, flush=True)
     else:
