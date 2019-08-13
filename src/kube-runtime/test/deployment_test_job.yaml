@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: sshd_test_job
+name: deployment_test_job
 type: job
 version: 1
 contributor: OpenPAI

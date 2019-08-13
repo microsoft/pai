@@ -18,7 +18,7 @@
 
 FROM python:2.7-alpine3.8
 
-RUN pip install yaml
+RUN pip install pyaml
 
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 
