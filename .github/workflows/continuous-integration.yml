@@ -94,7 +94,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [8, 10]
+        node: [8, lts]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
@@ -116,7 +116,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [8, 10]
+        node: [8, lts]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
@@ -139,7 +139,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [10]
+        node: [lts]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
