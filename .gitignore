@@ -30,3 +30,4 @@ __pycache__
 .editorconfig
 /subprojects/GOPATH/bin/
 /subprojects/GOPATH/pkg/
+*.egg-info/
