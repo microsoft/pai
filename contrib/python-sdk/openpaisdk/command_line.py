@@ -6,13 +6,13 @@ from openpaisdk import __logger__, __cluster_config_file__
 from openpaisdk.cli_arguments import cli_add_arguments, append_options_to_list
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
-from openpaisdk.io_utils import get_defaults, update_default
+from openpaisdk.io_utils import get_defaults, update_default, browser_open, to_screen
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested, run_command
 from uuid import uuid4 as randstr
 
 
-def extract_args(args: argparse.Namespace, ignore_list: list = ["scene", "action"], get_list: list = []):
+def extract_args(args: argparse.Namespace, get_list: list = None, ignore_list: list = ["scene", "action"]):
     if get_list:
         return {k: getattr(args, k) for k in get_list}
     return {k: v for k, v in vars(args).items() if k not in ignore_list}
@@ -130,18 +130,28 @@ class ActionFactoryForJob(ActionFactory):
 
     def do_action_list(self, args):
         client = self.__clusters__.get_client(args.cluster_alias)
-        jobs = client.rest_api_jobs(args.job_name, args.query, user=args.user)
         if not args.job_name:
+            jobs = client.rest_api_job_list(user=args.user)
             return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
-        return jobs
+        else:
+            jobs = client.rest_api_job_info(args.job_name, args.query, user=args.user)
+            return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
-            parser, ['--cluster-alias', '--preview', '--update', 'config'])
+            parser, ['--cluster-alias', '--virtual-cluster', '--preview', '--update', 'config'])
 
     def check_arguments_submit(self, args):
         assert args.config, "please specify a job config file (json or yaml format)"
         assert os.path.isfile(args.config), "%s cannot be read" % args.config
+
+    def submit_it(self, args):
+        if args.preview:
+            return self.__job__.validate().get_config()
+        result = self.__job__.submit(args.cluster_alias, args.virtual_cluster)
+        if "job_link" in result and not getattr(args, 'no_browser', False):
+            browser_open(result["job_link"])
+        return result
 
     def do_action_submit(self, args):
         # key-value pair in --update option would support nested key, e.g. defaults->virtualCluster=<your-virtual-cluster>
@@ -150,70 +160,60 @@ class ActionFactoryForJob(ActionFactory):
             for s in args.update:
                 key, value = s.split("=")
                 Nested(self.__job__.protocol).set(key, value)
-        if args.preview:
-            return self.__job__.validate().get_config()
-        return self.__job__.submit(args.cluster_alias)
+        return self.submit_it(args)
 
-    def define_arguments_sub(self, parser: argparse.ArgumentParser):
+    def define_essentials(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, [
             '--job-name',
-            '--cluster-alias',
-            '--virtual-cluster',
-            '--workspace', '--sources', '--python', '--pip-installs',
-            '--image',
-            '--cpu', '--gpu', '--memoryMB',
-            '--preview',
-            '--enable-sdk',
-            '--cmd-sep',
-            'commands'
+            '--cluster-alias', '--virtual-cluster', '--workspace', # for cluster
+            '--sources', '--pip-installs', # for sdk_template
+            '--image', '--cpu', '--gpu', '--memoryMB',
+            '--preview', '--no-browser',
+            '--python',
         ])
 
-    def check_arguments_sub(self, args):
-        append_options_to_list(args, ["sources", "pip_installs"])
-        if args.sources or args.pip_installs:
-            if not args.enable_sdk:
-                __logger__.warn(
-                    "upload local file requires --enable-sdk, assert automatically")
-                args.enable_sdk = True
+    def check_essentials(self, args):
+        args.sources = [] if not args.sources else args.sources
+        args.pip_installs = [] if not args.pip_installs else args.pip_installs
         if args.sources:
             assert args.workspace, "must specify --workspace if --sources used"
             for s in args.sources:
                 assert os.path.isfile(s), "file %s not found" % s
         assert args.image, "must specify a docker image"
-        args.job_name = args.job_name.replace("$uuid$", randstr().hex)
+        if args.job_name:
+            args.job_name = args.job_name.replace("$", randstr().hex)
+
+    def define_arguments_sub(self, parser: argparse.ArgumentParser):
+        self.define_essentials(parser)
+        cli_add_arguments(parser, [
+            'commands'
+        ])
+
+    def check_arguments_sub(self, args):
+        self.check_essentials(args)
 
     def do_action_sub(self, args):
-        self.__job__.new(args.job_name)
-        if args.enable_sdk:
-            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(
-                args, get_list=["workspace", "sources", "python", "pip_installs"]))
-        return self.__job__.one_liner(
-            commands=" ".join(args.commands).split(args.cmd_sep),
+        self.__job__.new(args.job_name).one_liner(
+            commands=" ".join(args.commands),
             image=args.image,
-            resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
+            resources=extract_args(args, ["gpu", "cpu", "memoryMB"]),
             cluster=extract_args(
-                args, get_list=["cluster_alias", "virtual_cluster", "workspace"]),
-            sources=args.sources,
-            submit=not args.preview, enable_sdk=args.enable_sdk
+                args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            sources=args.sources, pip_installs=args.pip_installs,
         )
+        self.__job__.protocol["parameters"]["python_path"] = args.python
+        return self.submit_it(args)
 
     def define_arguments_notebook(self, parser: argparse.ArgumentParser):
+        self.define_essentials(parser)
         cli_add_arguments(parser, [
-            '--job-name',
-            '--cluster-alias',
-            '--virtual-cluster',
-            '--workspace', '--sources', '--python', '--pip-installs',
-            '--image',
-            '--cpu', '--gpu', '--memoryMB',
-            '--preview',
             '--interactive',
             '--token',
-            '--cmd-sep',
             'notebook'
         ])
 
     def check_arguments_notebook(self, args):
-        append_options_to_list(args, ["sources", "pip_installs"])
+        self.check_essentials(args)
         assert args.notebook or args.interactive, "must specify a notebook name unless in interactive mode"
         if not args.job_name:
             assert args.notebook or args.interactive, "must specify a notebook if no job name defined"
@@ -221,25 +221,34 @@ class ActionFactoryForJob(ActionFactory):
                 0] + "_" + randstr().hex if args.notebook else "jupyter_server_{}".format(randstr().hex)
         if args.interactive and not args.token:
             __logger__.warn("no authentication token is set")
-        args.pip_installs = args.pip_installs + ["jupyter"]
-        args.sources = args.sources + [args.notebook]
-        assert args.image, "must specify a docker image"
 
     def do_action_notebook(self, args):
-        self.__job__.new(args.job_name)
-        if getattr(args, "enable_sdk", True):
-            self.__job__.deployment_for_sdk([args.cluster_alias], **extract_args(
-                args, get_list=["workspace", "sources", "python", "pip_installs"]))
-        return self.__job__.from_notebook(
-            nb_file=args.notebook,
+        self.__job__.new(args.job_name).from_notebook(
+            nb_file=args.notebook, interactive_mode=args.interactive, token=args.token,
             image=args.image,
-            resources=extract_args(args, get_list=["gpu", "cpu", "memoryMB"]),
-            cluster=extract_args(
-                args, get_list=["cluster_alias", "virtual_cluster", "workspace"]),
-            submit=not args.preview,
-            interactive_mode=args.interactive, token=args.token,
+            cluster=extract_args(args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            resources=extract_args(args, ["gpu", "cpu", "memoryMB"]),
+            sources=args.sources, pip_installs=args.pip_installs,
         )
+        self.__job__.protocol["parameters"]["python_path"] = args.python
+        result = self.submit_it(args)
+        if not args.preview:
+            self.__job__.connect_jupyter()
+        return result
 
+    def define_arguments_connect(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(parser, ['--cluster-alias'])
+        parser.add_argument('job_name', help="job name to connect")
+
+    def check_arguments_connect(self, args):
+        assert args.cluster_alias, "must specify a cluster"
+        assert args.job_name, "must specify a job name"
+
+    def do_action_connect(self, args):
+        client = self.__clusters__.get_client(args.cluster_alias)
+        to_screen("retrieving job config from cluster")
+        job_config = client.rest_api_job_info(args.job_name, 'config')
+        return self.__job__.new(**job_config).select_cluster(args.cluster_alias).connect_jupyter()
 
 class ActionFactoryForStorage(ActionFactory):
 
@@ -307,6 +316,7 @@ __cli_structure__ = {
             "submit": "submit the job from a config file",
             "sub": "generate a config file from commands, and then `submit` it",
             "notebook": "run a jupyter notebook remotely",
+            "connect": "connect to an existing job",
         }
     },
     "storage": {

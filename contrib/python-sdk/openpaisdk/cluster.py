@@ -5,10 +5,19 @@ from copy import deepcopy
 
 from openpaisdk import __cluster_config_file__, __logger__
 from openpaisdk.cli_arguments import get_args
-from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.io_utils import from_file, to_file, to_screen
 from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import get_response
+from openpaisdk.utils import get_response, na
+
+
+def get_cluster(alias: str, fname: str = __cluster_config_file__, get_client: bool = True):
+    """the generalized function call to load cluster
+    return cluster client if assert get_client else return config"""
+    if get_client:
+        return ClusterList().load(fname).get_client(alias)
+    else:
+        return ClusterList().load(fname).select(alias)
 
 
 class Cluster:
@@ -128,12 +137,6 @@ class ClusterList:
         return dic
 
 
-states_successful, states_failed, states_unfinished = [
-    "SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
-states_completed = states_successful + states_failed
-states_valid = states_completed + states_unfinished
-
-
 class ClusterClient:
     """A wrapper of cluster to access the REST APIs"""
 
@@ -193,15 +196,23 @@ class ClusterClient:
         job_list = self.rest_api_jobs(job_name)
         return [j['name'] for j in job_list] if name_only else job_list
 
-    def rest_api_jobs(self, job_name: str = None, info: str = None, user: str = None):
+    def rest_api_job_list(self, user: str = None):
+        if user is None:
+            pth = '{}/rest-server/api/v1/jobs'.format(self.pai_uri)
+        else:
+            pth = '{}/rest-server/api/v1/user/{}/jobs'.format(
+                self.pai_uri, user)
+        return get_response(pth, headers={}, method='GET').json()
+
+    def rest_api_job_info(self, job_name: str = None, info: str = None, user: str = None):
         user = self.user if user is None else user
-        pth = '{}/rest-server/api/v1/user/{}/jobs'.format(self.pai_uri, user)
-        if job_name:
-            pth = pth + '/' + job_name
-            if info:
-                assert info in [
-                    'config', 'ssh'], ('unsupported query information', info)
-                pth = pth + '/' + info
+        assert job_name, "please specify a job to query"
+        pth = '{}/rest-server/api/v1/user/{}/jobs/{}'.format(
+            self.pai_uri, user, job_name)
+        if info:
+            assert info in [
+                'config', 'ssh'], ('unsupported query information', info)
+            pth = pth + '/' + info
         return get_response(pth, headers={}, method='GET').json()
 
     def rest_api_token(self, expiration=3600):
@@ -237,9 +248,29 @@ class ClusterClient:
                 allowed_status=[202, 201]
             )
 
+    def rest_api_execute_job(self, job_name: str, e_type: str = "STOP"):
+        assert e_type in [
+            "START", "STOP"], "unsupported execute type {}".format(e_type)
+        return get_response(
+            "{}/rest-server/api/v1/user/{}/jobs/{}/executionType".format(
+                self.pai_uri, self.user, job_name),
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+            },
+            body={
+                "value": e_type
+            },
+            method="PUT",
+            allowed_status=[200, 202],
+        ).json()
+
     def rest_api_virtual_clusters(self):
         return get_response(
             '{}/rest-server/api/v1/virtual-clusters'.format(self.pai_uri),
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+                'Content-Type': 'application/json',
+            },
             method='GET',
             allowed_status=[200]
         ).json()
@@ -253,47 +284,6 @@ class ClusterClient:
                 'Content-Type': 'text/yaml',
             },
         ).json()
-
-    def wait(self, jobs: list, t_sleep: float = 10, timeout: float = 3600, exit_states: list = None):
-        exit_states = states_completed if not exit_states else exit_states
-        assert isinstance(jobs, list), "input should be a list of job names"
-
-        t = 0
-        while True:
-            states = [self.rest_api_jobs(j)["jobStatus"].get(
-                "state", None) for j in jobs]
-            assert all(
-                s in states_valid for s in states), "unknown states founded in %s" % states
-            if all(s in exit_states for s in states) or t >= timeout:
-                break
-            else:
-                time.sleep(t_sleep)
-                t = t + t_sleep
-                print('.', end='', flush=True)
-        print('.', flush=True)
-        return states
-
-    def logs(self, job_name: str, task_role: str = 'main', index: int = 0, log_type: str = 'stdout'):
-        assert log_type in [
-            "stdout", "stderr"], "now only support stdout and stderr, not %s" % log_type
-        try:
-            self.wait([job_name], exit_states=states_completed +
-                      states_unfinished)
-            info = self.jobs(job_name)
-            container = info['taskRoles'][task_role]['taskStatuses'][index]
-            container_id = container['containerId']
-            if info['jobStatus']['state'] in states_completed:
-                path_fmt = "http://{ip}:8188/ws/v1/applicationhistory/containers/{container_id}/logs/{stream}?redirected_from_node=true"
-                ip = re.search('://([\d.]+)/yarn',
-                               container['containerLog']).group(1)
-            else:
-                ip = container['containerIp']
-                path_fmt = "http://{ip}:8042/ws/v1/node/containers/{container_id}/logs/{stream}"
-            path = path_fmt.format(
-                ip=ip, container_id=container_id, stream=log_type)
-            return get_response(path, method="GET").content
-        except:
-            return None
 
     def virtual_cluster_available_resources(self):
         vc_info = self.rest_api_virtual_clusters()

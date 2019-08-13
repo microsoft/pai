@@ -3,6 +3,8 @@ common functions to
 """
 import importlib
 import os
+import functools
+import time
 from typing import Union
 from copy import deepcopy
 from requests import Response, request
@@ -10,13 +12,13 @@ from requests_toolbelt.utils import dump
 
 import subprocess
 from openpaisdk import __logger__
-from openpaisdk.io_utils import safe_chdir
+from openpaisdk.io_utils import safe_chdir, to_screen
 
 
 class OrganizedList:
 
     @staticmethod
-    def filter(lst: iter, key: str=None, target=None, getter=dict.get):
+    def filter(lst: iter, key: str = None, target=None, getter=dict.get):
         m = [(i, x) for i, x in enumerate(lst) if getter(x, key) == target]
         return {
             "matches": [x[1] for x in m],
@@ -25,13 +27,13 @@ class OrganizedList:
 
     @staticmethod
     def as_dict(lst: list, key: str, getter=dict.get):
-        return {getter(x, key):x for x in lst}
+        return {getter(x, key): x for x in lst}
 
     @staticmethod
     def add(lst: list, key: str, elem: dict, getter=dict.get) -> bool:
         "return True if update an existing elements, else return False"
         target = getter(elem, key)
-        m = OrganizedList.filter(lst, key, target) # type: dict, matches
+        m = OrganizedList.filter(lst, key, target)  # type: dict, matches
         updated = False
         for x in m["matches"]:
             x.update(elem)
@@ -51,7 +53,8 @@ class OrganizedList:
     def delete(lst: list, key: str, target, getter=dict.get) -> list:
         indexes = OrganizedList.filter(lst, key, target, getter)["indexes"]
         if not indexes:
-            __logger__.warn("element with %s = %s cannot be deleted due to non-existence", key, target)
+            __logger__.warn(
+                "element with %s = %s cannot be deleted due to non-existence", key, target)
             return False
         for index in sorted(indexes, reverse=True):
             del lst[index]
@@ -60,7 +63,7 @@ class OrganizedList:
 
 class Nested:
 
-    def __init__(self, t, sep: str=":"):
+    def __init__(self, t, sep: str = ":"):
         self.__sep__ = sep
         self.content = t
 
@@ -94,18 +97,56 @@ class Nested:
 
 
 def getobj(name: str):
-    mod_name, func_name = name.rsplit('.',1)
+    mod_name, func_name = name.rsplit('.', 1)
     mod = importlib.import_module(mod_name)
     return getattr(mod, func_name)
 
 
+class RestSrvError(Exception):
+    "Error type for Rest server not response as expected"
+
+    pass
+
+
+class NotReadyError(Exception):
+    pass
+
+
+class Retry:
+
+    def __init__(self, max_try: int = 10, t_sleep: float = 10, timeout: float = 600, silent: bool = True):
+        self.max_try = max_try
+        self.t_sleep = t_sleep
+        self.timeout = timeout
+        if self.timeout:
+            assert self.t_sleep, "must specify a period to sleep if timeout is set"
+        self.silent = silent
+
+    def retry(self, f_exit, func, *args, **kwargs):
+        t, i = 0, 0
+        while True:
+            try:
+                x = func(*args, **kwargs)
+                if f_exit(x):
+                    return x
+            except NotReadyError as identifier:
+                __logger__.debug("condition not satisfied", identifier)
+            if not self.silent:
+                to_screen("not ready yet: {}".format(x))
+            i, t = i + 1, t + self.t_sleep
+            if self.max_try and i >= self.max_try or self.timeout and t >= self.timeout:
+                return None
+            if self.t_sleep:
+                time.sleep(self.t_sleep)
+
+
 def get_response(
-    path: str,
-    headers: dict = {'Content-Type': 'application/json'},
-    body: dict = dict(),
-    method: str = 'POST',
-    allowed_status=[200],  # type: list[int]
-    max_try: int=1) -> Response:
+        path: str,
+        headers: dict = {'Content-Type': 'application/json'},
+        body: dict = dict(),
+        method: str = 'POST',
+        allowed_status=[200],  # type: list[int]
+        max_try: int = 1) -> Response:
     """
     Send request to REST server and get the response.
 
@@ -129,7 +170,8 @@ def get_response(
     while num < max_try:
         num += 1
         response = request(method, path, **dic)
-        __logger__.debug('----------Response-------------\n%s', dump.dump_all(response).decode('utf-8'))
+        __logger__.debug('----------Response-------------\n%s',
+                         dump.dump_all(response).decode('utf-8'))
         if response.status_code in allowed_status:
             successful = True
             break
@@ -137,11 +179,22 @@ def get_response(
     return response
 
 
-def run_command(commands, # type: Union[list, str]
-                cwd=None, # type: str
+def run_command(commands,  # type: Union[list, str]
+                cwd=None,  # type: str
                 ):
-    command = commands if isinstance(commands,str) else " ".join(commands)
+    command = commands if isinstance(commands, str) else " ".join(commands)
     with safe_chdir(cwd):
         rtn_code = os.system(command)
         if rtn_code:
             raise subprocess.CalledProcessError(rtn_code, commands)
+
+
+def find(fmt: str, s: str, g: int = 1, func=None):
+    import re
+    func = na(func, re.match)
+    m = func(fmt, s)
+    return m.group(g) if m else None
+
+
+def na(a, default):
+    return a if a is not None else default

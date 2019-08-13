@@ -4,6 +4,7 @@ import shutil
 from webbrowser import open_new_tab
 from contextlib import contextmanager
 import json
+import yaml
 from openpaisdk import __logger__, __local_default_file__, __global_default_file__
 from urllib.request import urlopen
 from urllib.parse import urlparse, urlsplit
@@ -136,11 +137,10 @@ def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
 
 
 @contextmanager
-def safe_open(filename: str, mode: str='r', **kwargs):
-    "if directory of filename doesnot exist, create it first"
-    args = dict(kwargs)
-    args.update({'file':filename, 'mode':mode})
-    fn = file_func(args, func=open, tester='file')
+def safe_open(filename: str, mode: str='r', func=open, **kwargs):
+    "if directory of filename does not exist, create it first"
+    mkdir_for(filename)
+    fn = func(filename, mode=mode, **kwargs)
     yield fn
     fn.close()
 
@@ -181,3 +181,10 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
     with safe_open(fname, 'w') as fp:
         fmt.dump(obj, fp, **dic)
         __logger__.debug("serialize object to file %s", fname)
+
+
+def to_screen(s, **kwargs):
+    if isinstance(s, str):
+        print(s, **kwargs, flush=True)
+    else:
+        print(yaml.dump(s, default_flow_style=False, **kwargs), flush=True)
