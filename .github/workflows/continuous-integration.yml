@@ -65,7 +65,7 @@ jobs:
         python -m unittest discover .
     - name: Test yarn exporter
       run: |
-        cd cd src/yarn-exporter/test
+        cd src/yarn-exporter/test
         python -m unittest discover .
 
   framework-launcher:
