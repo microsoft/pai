@@ -291,18 +291,21 @@ class Job:
         return self
 
     def from_notebook(self,
-                      nb_file: str, interactive_mode: bool=True, token: str="abcd",
+                      nb_file: str, mode: str="interactive", token: str="abcd",
                       image: str=None, cluster: dict=None, resources: dict=None,
                       sources: list = None, pip_installs: list = None
                       ):
+        """
+        mode: interactive / silent / script
+        """
         if not nb_file:
-            interactive_mode, nb_file = True, ""
+            mode, nb_file = "interactive", ""
         else:
             assert os.path.isfile(nb_file), "cannot read the ipython notebook {}".format(nb_file)
             sources = na(sources, [])
             sources.append(nb_file)
         self.protocol["parameters"]["notebook_file"] = os.path.splitext(os.path.basename(nb_file))[0] if nb_file else ""
-        if interactive_mode:
+        if mode == "interactive":
             resources.setdefault("ports", {})["jupyter"] = 1
             self.protocol["secrets"]["token"] = token
             cmds = [
@@ -313,7 +316,7 @@ class Job:
                     "--allow-root --NotebookApp.file_to_run=<% $parameters.notebook_file %>.ipynb",
                 ]),
             ]
-        else:
+        elif mode == "silent":
             cmds = [
                 " ".join([
                     "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
@@ -321,8 +324,14 @@ class Job:
                 ]),
                 "opai storage upload <% $parameters.notebook_file %>.html <% $secrets.work_directory %>/output/<% $parameters.notebook_file %>.html",
             ]
+        else:
+            cmds = [
+                "jupyter nbconvert --to script <% $parameters.notebook_file %>.ipynb --output openpai_submitter_entry",
+                "ipython openpai_submitter_entry.py"
+            ]
         self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
-        self.add_tag(__internal_tags__["interactive_nb" if interactive_mode else "batch_nb"])
+        mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "python_script"}
+        self.add_tag(__internal_tags__[mode_to_tag[mode]])
         return self
 
     def interpret_sdk_plugin(self):
@@ -503,6 +512,7 @@ __internal_tags__ = {
     "one_liner": 'py-sdk-one-liner',
     "interactive_nb": 'py-sdk-notebook-interactive',
     "batch_nb": 'py-sdk-notebook-batch',
+    "python_script": 'py-sdk-python-script',
 }
 
 
