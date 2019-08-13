@@ -26,3 +26,7 @@ if os.path.isfile(os.path.join(__cache__, 'debug_enable')):
     __logger__.setLevel(level=logging.DEBUG)
 else:
     __logger__.setLevel(level=logging.INFO)
+
+
+class __flags__(object):
+    disable_to_screen = False  # A flag to disable to_screen output
