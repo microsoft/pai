@@ -464,7 +464,7 @@ class Job:
         if self.has_tag(__internal_tags__["batch_nb"]):
             return self.connect_jupyter_batch()
         if self.has_tag(__internal_tags__["interactive_nb"]):
-            return self.connect_jupyter_interactve()
+            return self.connect_jupyter_interactive()
 
     def connect_jupyter_batch(self):
         state = self.wait()
@@ -478,7 +478,7 @@ class Job:
         browser_open(local_path)
         return
 
-    def connect_jupyter_interactve(self, status: dict=None):
+    def connect_jupyter_interactive(self, status: dict=None):
         "get the url of notebook if ready"
         status = na(status, self.status())
         state = self.state(status)

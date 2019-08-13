@@ -20,7 +20,10 @@ def get_notebook_path():
     for ss in servers:
         response = requests.get(urljoin(ss['url'], 'api/sessions'),
                                 params={'token': ss.get('token', '')})
-        for nn in json.loads(response.text):
+        info =  json.loads(response.text)
+        if isinstance(info, dict) and info['message'] == 'Forbidden':
+            continue
+        for nn in info:
             if nn['kernel']['id'] == kernel_id:
                 relative_path = nn['notebook']['path']
                 return os.path.join(ss['notebook_dir'], relative_path)
