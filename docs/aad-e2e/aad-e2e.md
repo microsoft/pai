@@ -1,4 +1,12 @@
-### Deploy OpenPAI depending on Azure Active Directory
+### Integrate Azure Active Directory (AAD) with OpenPAI
+
+Start from version 0.15 OpenPAI can be configured to use Azure Active Directory (AAD) for user authentication. In this configuration, you can sign in to an OpenPAI cluster by using your AAD authentication token.
+
+This document will cover how to set up the integration step by step.
+#### Note
+
+- If integrate AAD with OpenPAI, the user management will be taken over by AAD. The local user data will be useless
+- You won't be able to manage the user information in OpenPAI's webportal 
 
 #### [Pylon] Prepare your certificate for https, self-sign cert as an example
 
