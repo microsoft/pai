@@ -10,15 +10,12 @@ This extension requires **Python 3+** and Jupyter Notebook to work. Make sure yo
 
 Please use the following commands to install this extension (the [Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) will be installed at the same time):
 ```bash
-pip install --upgrade pip
-pip install -U "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdirectory=contrib/python-sdk"
-pip install jupyter_contrib_nbextensions
-jupyter contrib nbextension install --user
 git clone -b notebook-extension https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
-jupyter nbextension install openpai_submitter
-jupyter nbextension enable openpai_submitter/main
+python setup.py
 ```
+
+Make sure you are in the correct `python` environment, and upgrade `pip` (by `pip install --upgrade pip`) if necessary.
 
 After installation, you should add description of your PAI cluster. Create a file located at ~/.openpai/clusters.yaml. If you are using Windows, the corresponding path is "C:\\Users\\<your user name>\.openpai\\clusters.yaml". Then add the following content in it:
 ```YAML
