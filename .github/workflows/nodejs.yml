@@ -24,12 +24,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: ${{ matrix.node_version }}
-    - name: Change directory to rest server
-      run: cd src/rest-server
-    - name: Install
-      run: yarn install --frozen-lockfiles
-    - name: Test
-      run: yarn test
+    - name: yarn install and test
+      run: |
+        cd src/rest-server
+        yarn install --frozen-lockfiles --ignore-engines
+        yarn test
 
   webportal:
     name: CI for webportal on node ${{ matrix.node_version }} and ${{ matrix.os }}
@@ -46,11 +45,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: ${{ matrix.node_version }}
-    - name: Change directory to webportal
-      run: cd src/webportal
-    - name: Install
-      run: yarn install --frozen-lockfiles
-    - name: Build
-      run: yarn build
-    - name: Test
-      run: yarn test
+    - name: yarn install, build and test
+      run: |
+        cd src/webportal
+        yarn install --frozen-lockfiles --ignore-engines
+        yarn build
+        yarn test
