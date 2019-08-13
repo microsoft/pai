@@ -240,3 +240,7 @@ After start rest-server, please ensure that the following task is successfully e
 <div  align="center">
 <img src="image/admin_vc_deleted.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
+
+##### If test failed
+
+Pls try to delete the rest-server, and then try to deploy it again. If fail again, pls provide detail infomation and create issue ticket in github.
