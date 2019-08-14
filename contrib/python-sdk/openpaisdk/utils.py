@@ -30,24 +30,19 @@ class OrganizedList:
         return {getter(x, key): x for x in lst}
 
     @staticmethod
-    def add(lst: list, key: str, elem: dict, getter=dict.get) -> bool:
+    def add(lst: list, key: str, elem: dict, getter=dict.get, silent: bool = False) -> bool:
         "return True if update an existing elements, else return False"
         target = getter(elem, key)
         m = OrganizedList.filter(lst, key, target)  # type: dict, matches
-        updated = False
         for x in m["matches"]:
             x.update(elem)
-            updated = True
-        if not updated:
-            lst.append(elem)
-        return updated
-
-    @staticmethod
-    def notified_add(lst: list, key: str, elem: dict, getter=dict.get) -> str:
-        if OrganizedList.add(lst, key, elem, getter):
-            return "%s = %s already exists, update it" % (key, elem[key])
-        else:
-            return "%s = %s added" % (key, elem[key])
+            if not silent:
+                to_screen("%s = %s already exists, update it" % (key, elem[key]))
+            return lst
+        lst.append(elem)
+        if not silent:
+            to_screen("%s = %s added" % (key, elem[key]))
+        return lst
 
     @staticmethod
     def delete(lst: list, key: str, target, getter=dict.get) -> list:

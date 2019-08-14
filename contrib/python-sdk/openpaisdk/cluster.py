@@ -20,51 +20,6 @@ def get_cluster(alias: str, fname: str = __cluster_config_file__, get_client: bo
         return ClusterList().load(fname).select(alias)
 
 
-class Cluster:
-
-    @staticmethod
-    def new(c_dic: dict):
-        dic = {
-            "storages": [],
-            "default_storage_alias": None,
-        }
-        dic.update(c_dic)
-        return dic
-
-    @staticmethod
-    def make_string(pth: str, target: str, iters=(list, dict)):
-        flag = True
-        assert isinstance(target, iters), "not supported type %s (%s)" % (
-            pth, type(target))
-        for i in (target.keys() if isinstance(target, dict) else range(len(target))):
-            pth_next = "%s[%s]" % (pth, i)
-            if isinstance(target[i], iters):
-                flag = flag and Cluster.make_string(pth_next, target[i])
-            elif not (target[i] is None or isinstance(target[i], str)):
-                __logger__.warn(
-                    'only string is allowed in the cluster configuration, %s is %s, replace it by str()', pth_next, type(target[i]))
-                target[i] = str(target[i])
-                flag = False
-        return flag
-
-    @staticmethod
-    def attach_storage(c_dic: dict, storage: dict):
-        if "user" in storage and not storage["user"]:
-            storage["user"] = c_dic["user"]
-        return ol.notified_add(c_dic["storages"], "storage_alias", storage)
-
-    @staticmethod
-    def validate(cluster: dict):
-        assert isinstance(
-            cluster, dict), "cluster configuration should be a dict"
-        assert isinstance(["storages"], list), "storages should be a list"
-        Cluster.make_string(cluster["cluster_alias"], cluster)
-        assert cluster["pai_uri"].startswith("http://") or cluster["pai_uri"].startswith(
-            "https://"), "pai_uri should be a uri starting with http(s)://"
-        assert cluster["user"], "cluster should have a cluster"
-        return cluster
-
-
 class ClusterList:
     """Data structure corresponding to the contents of ~/.openpai/clusters.yaml
     We use an OrganizedList to handle the operations to this class
@@ -73,16 +28,8 @@ class ClusterList:
     def __init__(self, clusters: list = None):
         self.clusters = clusters if clusters else []
 
-    @staticmethod
-    def validate(clusters: list):
-        assert isinstance(
-            clusters, list), "contents in %s should be a list" % __cluster_config_file__
-        [Cluster.validate(c) for c in clusters]
-        return clusters
-
     def load(self, fname: str = __cluster_config_file__):
         self.clusters = from_file(fname, default=[])
-        ClusterList.validate(self.clusters)
         return self
 
     def save(self):
@@ -93,13 +40,17 @@ class ClusterList:
         lst = deepcopy(self.clusters)
         for dic in lst:
             dic["password"] = "******"
+            dic["token"] = "******"
         return lst
 
     def add(self, cluster: dict):
-        return ol.notified_add(self.clusters, "cluster_alias", Cluster.validate(Cluster.new(cluster)))
+        cfg = Cluster().load(**cluster).check().config
+        ol.add(self.clusters, "cluster_alias", cfg)
+        return self
 
     def delete(self, alias: str):
-        return ol.delete(self.clusters, "cluster_alias", alias)
+        ol.delete(self.clusters, "cluster_alias", alias)
+        return self
 
     def select(self, alias: str = None):
         """return the cluster configuration (dict) with its alias equal to specified one
@@ -116,15 +67,8 @@ class ClusterList:
                              alias, list(dic.keys()), __cluster_config_file__)
         return dic[alias]
 
-    def attach_storage(self, alias: str, storage: dict, as_default: bool = False):
-        cluster = self.select(alias)
-        result = Cluster.attach_storage(cluster, storage)
-        if as_default:
-            cluster["default_storage_alias"] = storage["storage_alias"]
-        return result
-
     def get_client(self, alias: str):
-        return ClusterClient(**self.select(alias))
+        return Cluster(**self.select(alias))
 
     def available_resources(self):
         dic = {}
@@ -137,24 +81,55 @@ class ClusterList:
         return dic
 
 
-class ClusterClient:
+class Cluster:
     """A wrapper of cluster to access the REST APIs"""
 
-    def __init__(self, pai_uri: str = None, user: str = None, password: str = None, storages: list = [], default_storage_alias: str = None, **kwargs):
-        __logger__.debug('creating cluster from info %s', get_args())
-        self.pai_uri = pai_uri
-        self.user = user
-        self.password = password
-        self.storages = storages
-        self.default_storage_alias = default_storage_alias
-        self.storage_clients = {}
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-        for cfg in storages:
-            self.add_storage(**cfg)
-        if len(storages) == 1:
-            self.default_storage_alias = storages[0]["storage_alias"]
-        self.__token = dict(token=None, time_stamp=None, expiration=3600)
+    def __init__(self, toke_expiration: int = 3600):
+        # ! currently sdk will not handle toke refreshing
+        self.config = {}
+        self.__token_expire = toke_expiration
+        self.__token = None
+
+    def load(self, cluster_alias: str = None, pai_uri: str = None, user: str = None, password: str = None, token: str = None, **kwargs):
+        self.config.update(get_args())
+        # validate
+        assert self.alias, "cluster must have an alias"
+        assert self.user, "must specify a user name"
+        assert re.match("^(http|https)://(.*[^/])$",
+                        self.pai_uri), "pai_uri should be a uri in the format of http(s)://x.x.x.x"
+        return self
+
+    @property
+    def alias(self):
+        return self.config["cluster_alias"]
+
+    @property
+    def pai_uri(self):
+        return self.config["pai_uri"].strip("/")
+
+    @property
+    def user(self):
+        return self.config["user"]
+
+    @property
+    def password(self):
+        return str(self.config["password"])
+
+    @property
+    def token(self):
+        if self.config["token"]:
+            return str(self.config["token"])
+        if not self.__token:
+            self.__token = self.rest_api_token(self.__token_expire)
+        return self.__token
+
+    def check(self):
+        cluster_info = self.rest_api_cluster_info()
+        self.config.update(cluster_info)
+        #! will check authentication types according to AAD enabled or not
+        self.config["virtual_clusters"] = self.virtual_clusters()
+        to_screen("succeeded to connect cluster {}".format(self.alias))
+        return self
 
     def get_storage(self, alias: str = None):
         if len(self.storage_clients) == 0:
@@ -171,15 +146,6 @@ class ClusterClient:
             protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
         return self
 
-    @property
-    def token(self):
-        current_time = time.time()
-        if not self.__token["token"] or not self.__token["time_stamp"] or current_time - self.__token["time_stamp"] >= 0.9 * self.__token["expiration"]:
-            self.__token["token"] = self.rest_api_token(
-                self.__token["expiration"])
-            self.__token["time_stamp"] = time.time()
-        return self.__token["token"]
-
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
 
@@ -195,6 +161,22 @@ class ClusterClient:
 
         job_list = self.rest_api_jobs(job_name)
         return [j['name'] for j in job_list] if name_only else job_list
+
+    def rest_api_cluster_info(self):
+        # ! currently this is a fake
+        return {
+            "pylon_enabled": True,
+            "aad_enabled": False,
+            "storages": {
+                "builtin": {
+                    "protocol": "hdfs",
+                    "ports": {
+                        "webhdfs": "webhdfs",
+                        "native": 9000,
+                    }
+                }
+            }
+        }
 
     def rest_api_job_list(self, user: str = None):
         if user is None:
@@ -284,6 +266,13 @@ class ClusterClient:
                 'Content-Type': 'text/yaml',
             },
         ).json()
+
+    def virtual_clusters(self, user_info: dict = None):
+        user_info = na(user_info, self.rest_api_user())
+        my_virtual_clusters = user_info["virtualCluster"]
+        if isinstance(my_virtual_clusters, str):
+            my_virtual_clusters = my_virtual_clusters.split(",")
+        return my_virtual_clusters
 
     def virtual_cluster_available_resources(self):
         vc_info = self.rest_api_virtual_clusters()

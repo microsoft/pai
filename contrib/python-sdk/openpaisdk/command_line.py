@@ -70,11 +70,11 @@ class ActionFactoryForCluster(ActionFactory):
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
             parser, ['--cluster-alias', '--pai-uri', '--user', '--password'])
+        parser.add_argument('--token', help="authentication token")
 
     def check_arguments_add(self, args):
-        if not args.pai_uri.startswith("http://") or not args.pai_uri.startswith("https://"):
-            __logger__.warn("pai-uri not starts with http:// or https://")
-        assert args.user and args.cluster_alias, "must specify an cluster-alias and user name"
+        assert args.cluster_alias or args.pai_uri or args.user, "must specify cluster-alias, pai-uri, user"
+        assert args.password or args.token, "please add an authentication credential, password or token"
 
     def do_action_add(self, args):
         return self.__clusters__.add(extract_args(args))
@@ -97,24 +97,6 @@ class ActionFactoryForCluster(ActionFactory):
         update_default('cluster-alias', args.cluster_alias,
                        is_global=args.is_global)
 
-    def define_arguments_attach_hdfs(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, [
-                          '--cluster-alias', '--default', '--storage-alias', '--web-hdfs-uri', '--user'])
-
-    def check_arguments_attach_hdfs(self, args):
-        assert args.cluster_alias and args.storage_alias, "must specify valid cluster-alias and storage-alias"
-        if not args.web_hdfs_uri.startswith("http://") or not args.web_hdfs_uri.startswith("https://"):
-            __logger__.warn("web-hdfs-uri not starts with http:// or https://")
-
-    def do_action_attach_hdfs(self, args):
-        elem = {
-            "storage_alias": args.storage_alias,
-            "protocol": "webHDFS",
-            "web_hdfs_uri": args.web_hdfs_uri,
-            "user": args.user,
-        }
-        return self.__clusters__.attach_storage(args.cluster_alias, elem, as_default=args.default)
-
 
 class ActionFactoryForJob(ActionFactory):
 
@@ -134,7 +116,8 @@ class ActionFactoryForJob(ActionFactory):
             jobs = client.rest_api_job_list(user=args.user)
             return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
         else:
-            jobs = client.rest_api_job_info(args.job_name, args.query, user=args.user)
+            jobs = client.rest_api_job_info(
+                args.job_name, args.query, user=args.user)
             return jobs
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
@@ -165,8 +148,8 @@ class ActionFactoryForJob(ActionFactory):
     def define_essentials(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, [
             '--job-name',
-            '--cluster-alias', '--virtual-cluster', '--workspace', # for cluster
-            '--sources', '--pip-installs', # for sdk_template
+            '--cluster-alias', '--virtual-cluster', '--workspace',  # for cluster
+            '--sources', '--pip-installs',  # for sdk_template
             '--image', '--cpu', '--gpu', '--memoryMB',
             '--preview', '--no-browser',
             '--python',
@@ -226,7 +209,8 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.new(args.job_name).from_notebook(
             nb_file=args.notebook, interactive_mode=args.interactive, token=args.token,
             image=args.image,
-            cluster=extract_args(args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            cluster=extract_args(
+                args, ["cluster_alias", "virtual_cluster", "workspace"]),
             resources=extract_args(args, ["gpu", "cpu", "memoryMB"]),
             sources=args.sources, pip_installs=args.pip_installs,
         )
@@ -249,6 +233,7 @@ class ActionFactoryForJob(ActionFactory):
         to_screen("retrieving job config from cluster")
         job_config = client.rest_api_job_info(args.job_name, 'config')
         return self.__job__.new(**job_config).select_cluster(args.cluster_alias).connect_jupyter()
+
 
 class ActionFactoryForStorage(ActionFactory):
 

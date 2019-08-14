@@ -28,14 +28,14 @@ def get_per_folder_defaults():
     return {}
 
 
-def get_defaults(global_only: bool=False):
+def get_defaults(global_only: bool = False):
     dic = get_global_defaults()
     if not global_only:
         dic.update(get_per_folder_defaults())
     return dic
 
 
-def update_default(key: str, value: str=None, is_global: bool=False, to_delete: bool=False):
+def update_default(key: str, value: str = None, is_global: bool = False, to_delete: bool = False):
     filename = __global_default_file__ if is_global else __local_default_file__
     dic = get_global_defaults() if is_global else get_per_folder_defaults()
     if to_delete:
@@ -64,7 +64,8 @@ def return_default_if_error(func):
         except Exception as identifier:
             if default == "==FATAL==":
                 __logger__.error('Error: %s', identifier, exc_info=True)
-            __logger__.warn('error occurs when reading %s (%s), return default (%s)', args, identifier, default)
+            __logger__.warn(
+                'error occurs when reading %s (%s), return default (%s)', args, identifier, default)
             return default
     return f
 
@@ -83,6 +84,7 @@ def from_yaml_file(fname: str, **kwargs):
         kwargs.setdefault('Loader', yaml.FullLoader)
         return yaml.load(fp, **kwargs)
 
+
 def get_url_filename_from_server(url):
     try:
         blah = urlopen(url).info()['Content-Disposition']
@@ -93,7 +95,7 @@ def get_url_filename_from_server(url):
         return None
 
 
-def web_download_to_folder(url: str, folder: str, filename: str=None):
+def web_download_to_folder(url: str, folder: str, filename: str = None):
     if not filename:
         split = urlsplit(url)
         filename = split.path.split("/")[-1]
@@ -107,7 +109,7 @@ def web_download_to_folder(url: str, folder: str, filename: str=None):
         __logger__.error("failed to download", exc_info=True)
 
 
-def from_file(fname: str, default={}, fmt: str=None, **kwargs):
+def from_file(fname: str, default={}, fmt: str = None, **kwargs):
     if fmt == "json" or os.path.splitext(fname)[1] in __json_exts__:
         return from_json_file(fname, default=default, **kwargs)
     if fmt == "yaml" or os.path.splitext(fname)[1] in __yaml_exts__:
@@ -121,7 +123,7 @@ def mkdir_for(pth: str):
     return d
 
 
-def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
+def file_func(kwargs: dict, func=shutil.copy2, tester: str = 'dst'):
     try:
         return func(**kwargs)
     except IOError as identifier:
@@ -137,7 +139,7 @@ def file_func(kwargs: dict, func=shutil.copy2, tester: str='dst'):
 
 
 @contextmanager
-def safe_open(filename: str, mode: str='r', func=open, **kwargs):
+def safe_open(filename: str, mode: str = 'r', func=open, **kwargs):
     "if directory of filename does not exist, create it first"
     mkdir_for(filename)
     fn = func(filename, mode=mode, **kwargs)
@@ -146,7 +148,7 @@ def safe_open(filename: str, mode: str='r', func=open, **kwargs):
 
 
 @contextmanager
-def safe_chdir(pth:str):
+def safe_chdir(pth: str):
     "safely change directory to pth, and then go back"
     currdir = os.getcwd()
     try:
@@ -162,7 +164,7 @@ def safe_chdir(pth:str):
 
 def safe_copy(src: str, dst: str):
     "if directory of filename doesnot exist, create it first"
-    return file_func({'src':src, 'dst':dst})
+    return file_func({'src': src, 'dst': dst})
 
 
 def to_file(obj, fname: str, fmt=None, **kwargs):
