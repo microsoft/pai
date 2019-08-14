@@ -125,14 +125,14 @@ class Cluster:
 
     def check(self):
         cluster_info = self.rest_api_cluster_info()
+        cluster_info["virtual_clusters"] = self.virtual_clusters()
         self.config.update(cluster_info)
-        #! will check authentication types according to AAD enabled or not
-        self.config["virtual_clusters"] = self.virtual_clusters()
+        # ! will check authentication types according to AAD enabled or not
         to_screen("succeeded to connect cluster {}".format(self.alias))
         return self
 
     def get_storage(self, alias: str = None):
-        #! every cluster should have a builtin storage
+        # ! every cluster should have a builtin storage
         storage_cfg = self.config.get("storages", {}).get(na(alias, "builtin"), None)
         assert storage_cfg, alias
         if storage_cfg["protocol"] == "hdfs":
@@ -287,10 +287,5 @@ class Cluster:
         return dic
 
     def available_resources(self):
-        my_virtual_clusters = self.rest_api_user()["virtualCluster"]
-        if isinstance(my_virtual_clusters, str):
-            my_virtual_clusters = my_virtual_clusters.split(",")
-        __logger__.debug("user %s belongs to %s",
-                         self.user, my_virtual_clusters)
         resources = self.virtual_cluster_available_resources()
-        return {k: v for k, v in resources.items() if k in my_virtual_clusters}
+        return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
