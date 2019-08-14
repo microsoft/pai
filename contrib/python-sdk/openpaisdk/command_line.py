@@ -103,22 +103,30 @@ class ActionFactoryForJob(ActionFactory):
     # basic commands
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['--cluster-alias', '--user'])
-        parser.add_argument('job_name', metavar='job name', nargs='?')
-        parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
-
-    def check_arguments_list(self, args):
-        if args.query:
-            assert args.job_name, "must specify a job name"
 
     def do_action_list(self, args):
         client = self.__clusters__.get_client(args.cluster_alias)
-        if not args.job_name:
-            jobs = client.rest_api_job_list(user=args.user)
-            return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
-        else:
-            jobs = client.rest_api_job_info(
-                args.job_name, args.query, user=args.user)
-            return jobs
+        if not args.user:
+            args.user = client.user
+            to_screen("if not set, only your job will be listed, user `--user __all__` to list jobs of all users")
+        if args.user == '__all__':
+            args.user = None
+        jobs = client.rest_api_job_list(user=args.user)
+        return ["%s [%s]" % (j["name"], j.get("state", "UNKNOWN")) for j in jobs]
+
+    def define_arguments_status(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(parser, ['--cluster-alias', '--user'])
+        parser.add_argument('job_name', help='job name')
+        parser.add_argument('query', nargs='?', choices=['config', 'ssh'])
+
+    def check_arguments_status(self, args):
+        assert args.job_name, "must specify a job name"
+
+    def do_action_status(self, args):
+        client = self.__clusters__.get_client(args.cluster_alias)
+        if not args.user:
+            args.user = client.user
+        return client.rest_api_job_info(args.job_name, args.query, user=args.user)
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
@@ -298,6 +306,7 @@ __cli_structure__ = {
         "factory": ActionFactoryForJob,
         "actions": {
             "list": "list existing jobs",
+            "status": "query the status of a job",
             "submit": "submit the job from a config file",
             "sub": "generate a config file from commands, and then `submit` it",
             "notebook": "run a jupyter notebook remotely",

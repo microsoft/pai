@@ -68,7 +68,7 @@ class ClusterList:
         return dic[alias]
 
     def get_client(self, alias: str):
-        return Cluster(**self.select(alias))
+        return Cluster().load(**self.select(alias))
 
     def available_resources(self):
         dic = {}
@@ -132,19 +132,17 @@ class Cluster:
         return self
 
     def get_storage(self, alias: str = None):
-        if len(self.storage_clients) == 0:
-            return None
-        return self.storage_clients[alias if alias else self.default_storage_alias]
-
-    def add_storage(self, protocol: str = None, storage_alias: str = None, **kwargs):
-        "initialize the connection information"
-        func = 'add_storage_%s' % protocol.lower()
-        return getattr(self, func)(storage_alias, **kwargs)
-
-    def add_storage_webhdfs(self, storage_alias, web_hdfs_uri: str, **kwargs):
-        self.storage_clients[storage_alias] = Storage(
-            protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
-        return self
+        #! every cluster should have a builtin storage
+        storage_cfg = self.config.get("storages", {}).get(na(alias, "builtin"), None)
+        assert storage_cfg, alias
+        if storage_cfg["protocol"] == "hdfs":
+            uri = storage_cfg.get("uri", self.pai_uri).strip("/")
+            if self.config.get("pylon_enabled", True):
+                uri += "/webhdfs"
+            else:
+                uri += ":%d" % storage_cfg.get("ports", {}).get("webhdfs", 50070)
+            return Storage(protocol='webHDFS', url=uri, user=storage_cfg.get('user', self.user))
+        raise NotImplementedError
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)

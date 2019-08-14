@@ -31,3 +31,5 @@ __pycache__
 /subprojects/GOPATH/bin/
 /subprojects/GOPATH/pkg/
 *.egg-info/
+.openpai/
+.ipynb_checkpoints/
