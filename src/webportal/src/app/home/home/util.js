@@ -16,8 +16,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {statusColor} from '../../components/theme';
+import {mergeStyles} from 'office-ui-fabric-react';
 
 export const SHARED_VC_COLOR = statusColor.succeeded;
 export const DEDICATED_VC_COLOR = statusColor.running;
 export const BREAKPOINT1 = 1400;
 export const BREAKPOINT2 = 1650;
+
+export const zeroPaddingClass = mergeStyles({
+  paddingTop: '0px !important',
+  paddingLeft: '0px !important',
+  paddingRight: '0px !important',
+  paddingBottom: '0px !important',
+});
+

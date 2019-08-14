@@ -27,6 +27,7 @@ import {getHumanizedJobStateString} from '../../components/util/job';
 
 import t from '../../components/tachyons.scss';
 
+const isAdmin = cookies.get('admin') === 'true';
 const StatusItem = ({className, icon, name, count, link}) => {
   const {spacing} = getTheme();
   return (
@@ -90,7 +91,7 @@ const JobStatus = ({className, jobs}) => {
       <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
-            My job status
+            {isAdmin ? 'Job Status' : 'My job status'}
           </div>
         </Stack.Item>
         <Stack.Item>
