@@ -330,7 +330,7 @@ class Job:
                 "ipython --no-term-title openpai_submitter_entry.py"
             ]
         self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
-        mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "python_script"}
+        mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "script_nb"}
         self.add_tag(__internal_tags__[mode_to_tag[mode]])
         return self
 
@@ -512,7 +512,7 @@ __internal_tags__ = {
     "one_liner": 'py-sdk-one-liner',
     "interactive_nb": 'py-sdk-notebook-interactive',
     "batch_nb": 'py-sdk-notebook-batch',
-    "python_script": 'py-sdk-python-script',
+    "script_nb": 'py-sdk-notebook-script',
 }
 
 
