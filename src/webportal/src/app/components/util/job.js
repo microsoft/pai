@@ -92,3 +92,13 @@ export function getJobModifiedTimeString(job) {
     return 'N/A';
   }
 }
+
+export function filterAbnormalJobs(jobs) {
+  const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
+  const abnormalJobs = jobs.filter(
+    (job) =>
+      job.state === 'RUNNING' &&
+      Date.now() - job.createdTime > MIN_ABNORMAL_JOB_DURATION_MILLISECOND
+  );
+  return abnormalJobs;
+}

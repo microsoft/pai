@@ -18,6 +18,7 @@
 import querystring from 'querystring';
 
 import config from '../../config/webportal.config';
+import { async } from 'regenerator-runtime';
 
 const username = cookies.get('user');
 const token = cookies.get('token');
@@ -45,6 +46,10 @@ async function fetchWrapper(...args) {
 
 export async function listJobs() {
   return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
+}
+
+export async function listAllJobs() {
+  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`);
 }
 
 export async function getUserInfo() {
