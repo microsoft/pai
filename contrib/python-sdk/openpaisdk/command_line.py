@@ -8,7 +8,7 @@ from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
 from openpaisdk.io_utils import get_defaults, update_default, browser_open, to_screen
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import Nested, run_command
+from openpaisdk.utils import Nested, run_command, na
 from uuid import uuid4 as randstr
 
 
@@ -213,6 +213,12 @@ class ActionFactoryForJob(ActionFactory):
         if args.interactive and not args.token:
             __logger__.warn("no authentication token is set")
 
+    def connect_notebook(self):
+        result = self.__job__.wait()
+        if result.get("notebook", None) is not None:
+            browser_open(result["notebook"])
+        return result
+
     def do_action_notebook(self, args):
         self.__job__.new(args.job_name).from_notebook(
             nb_file=args.notebook, interactive_mode=args.interactive, token=args.token,
@@ -225,7 +231,7 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.protocol["parameters"]["python_path"] = args.python
         result = self.submit_it(args)
         if not args.preview:
-            self.__job__.connect_jupyter()
+            result.update(na(self.connect_notebook(), {}))
         return result
 
     def define_arguments_connect(self, parser: argparse.ArgumentParser):
@@ -237,10 +243,9 @@ class ActionFactoryForJob(ActionFactory):
         assert args.job_name, "must specify a job name"
 
     def do_action_connect(self, args):
-        client = self.__clusters__.get_client(args.cluster_alias)
         to_screen("retrieving job config from cluster")
-        job_config = client.rest_api_job_info(args.job_name, 'config')
-        return self.__job__.new(**job_config).select_cluster(args.cluster_alias).connect_jupyter()
+        self.__job__.load(job_name=args.job_name, cluster_alias=args.cluster_alias)
+        return self.connect_notebook()
 
 
 class ActionFactoryForStorage(ActionFactory):

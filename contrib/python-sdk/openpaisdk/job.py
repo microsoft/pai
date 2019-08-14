@@ -3,6 +3,7 @@ import os
 import re
 import time
 import functools
+import pathlib
 from typing import Union
 from copy import deepcopy
 from html2text import html2text
@@ -160,7 +161,7 @@ class Job:
     def set_param(self, key, value, field: str="parameters"):
         self.protocol.setdefault(field, {})[key] = value
 
-    def secrect(self, key, default=None):
+    def secret(self, key, default=None):
         return self.param(key, default, "secrets")
 
     def set_secret(self, key, value):
@@ -362,7 +363,7 @@ class Job:
     @property
     def client(self):
         if self._client is None:
-            alias = self.secrect("cluster_alias")
+            alias = self.secret("cluster_alias")
             if alias:
                 self._client = get_cluster(alias)
         return self._client
@@ -378,7 +379,7 @@ class Job:
 
     # methods only for SDK-enabled jobs
     def submit(self, cluster_alias: str = None, virtual_cluster: str = None):
-        cluster_alias = na(cluster_alias, self.secrect("cluster_alias", None))
+        cluster_alias = na(cluster_alias, self.secret("cluster_alias", None))
         self.select_cluster(cluster_alias, virtual_cluster)
         self.validate().local_process()
         to_screen("submit job %s to cluster %s" % (self.name, cluster_alias))
@@ -401,9 +402,15 @@ class Job:
         for normal job, wait until completed"""
         exit_states = __job_states__["completed"]
         repeater = Retry(timeout=timeout, t_sleep=t_sleep, silent=silent)
-        if self.has_tag(__internal_tags__["interactive_nb"]) or self.has_tag(__internal_tags__["batch_nb"]):
-            to_screen("{} is recognized to be a jupyter notebook job".format(self.name))
-            to_screen("notebook job needs to be RUNNING state and the kernel started")
+        interactive_nb = self.has_tag(__internal_tags__["interactive_nb"])
+        batch_nb = self.has_tag(__internal_tags__["batch_nb"])
+        if interactive_nb or batch_nb:
+            if interactive_nb:
+                to_screen("{} is recognized to be an interactive jupyter notebook job".format(self.name))
+                to_screen("notebook job needs to be RUNNING state and the kernel started")
+            if batch_nb:
+                to_screen("{} is recognized to be a silent jupyter notebook job".format(self.name))
+                to_screen("notebook job needs to be SUCCEEDED state and the output is ready")
             return repeater.retry(
                 lambda x: x.get('state', None) in exit_states or x.get("notebook", None) is not None,
                 self.connect_jupyter
@@ -477,17 +484,18 @@ class Job:
         if self.has_tag(__internal_tags__["interactive_nb"]):
             return self.connect_jupyter_interactive()
 
-    def connect_jupyter_batch(self):
-        state = self.wait()
-        if state != "SUCCEEDED":
-            __logger__.warn("job %s failed", self.name)
-            return
-        html_file = self.protocol["parameters"]["notebook_file"] + ".html"
-        local_path = Job.job_cache_file(self.name, os.path.join('output', html_file))
-        remote_path = '{}/output/{}'.format(self.protocol["secrets"]["work_directory"], html_file)
-        self.client.get_storage().download(remote_path=remote_path, local_path=local_path)
-        browser_open(local_path)
-        return
+    def connect_jupyter_batch(self, status: dict = None):
+        "fetch the html result if ready"
+        status = na(status, self.status())
+        state = self.state(status)
+        url = None
+        if state in __job_states__["successful"]:
+            html_file = self.param("notebook_file") + ".html"
+            local_path = html_file
+            remote_path = '{}/output/{}'.format(self.secret("work_directory"), html_file)
+            self.client.get_storage().download(remote_path=remote_path, local_path=local_path)
+            url = pathlib.Path(os.path.abspath(html_file)).as_uri()
+        return dict(state=state, notebook=url)
 
     def connect_jupyter_interactive(self, status: dict=None):
         "get the url of notebook if ready"
