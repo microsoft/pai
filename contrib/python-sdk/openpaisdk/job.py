@@ -470,6 +470,8 @@ class Job:
         return self
 
     def connect_jupyter(self):
+        if self.has_tag(__internal_tags__["script_nb"]):
+            return self.connect_jupyter_script()
         if self.has_tag(__internal_tags__["batch_nb"]):
             return self.connect_jupyter_batch()
         if self.has_tag(__internal_tags__["interactive_nb"]):
@@ -506,6 +508,10 @@ class Job:
                     break
         return dict(state=state, notebook=url)
 
+    def connect_jupyter_script(self):
+        status = self.status()
+        state = self.state(status)
+        return dict(state=state, notebook=None)
 
 __internal_tags__ = {
     "sdk": "py-sdk",

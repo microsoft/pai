@@ -23,7 +23,7 @@ class openpai_ext_Storage(object):
                     'code': 0,
                     'message': ret,
                 }
-            ))
+            ), flush=True)
             openpai_ext_buffer_lock.release()
         
         return func_wrapper

@@ -60,7 +60,7 @@ function (requirejs, $, Jupyter, events, config) {
           }
           console.error('[openpai submitter] Unknown token', token)
         }
-        // console.log('[openpai submitter] [code return]:', msg)
+        console.log('[openpai submitter] [code return]:', msg)
         if (msg.msg_type === 'error') {
           reject(msg.content.evalue)
         } else if (msg.content.name !== 'stdout') {
@@ -103,7 +103,7 @@ function (requirejs, $, Jupyter, events, config) {
       }
     ).then(
       function () {
-        // console.log('[openpai submitter] [code executed]:' + code)
+        console.log('[openpai submitter] [code executed]:' + code)
         return new Promise(
           function (resolve, reject) {
             /* replace <openpai_token> with real token */
@@ -136,8 +136,8 @@ function (requirejs, $, Jupyter, events, config) {
                 (ctx) => executePromise(codeMain, 'openpai_ext_interface.zip_and_upload("<openpai_token>",' + JSON.stringify(ctx) + ')'),
     submit_job:
                 (ctx) => executePromise(codeMain, 'openpai_ext_interface.submit_job("<openpai_token>",' + JSON.stringify(ctx) + ')'),
-    detect_notebook:
-                (ctx) => executePromise(codeMain, 'openpai_ext_interface.detect_notebook("<openpai_token>",' + JSON.stringify(ctx) + ')'),
+    wait_jupyter:
+                (ctx) => executePromise(codeMain, 'openpai_ext_interface.wait_jupyter("<openpai_token>",' + JSON.stringify(ctx) + ')'),
     detect_jobs:
                 (jobsCtx) => executePromise(codeMain, 'openpai_ext_interface.detect_jobs("<openpai_token>",' + JSON.stringify(jobsCtx) + ')'),
 
