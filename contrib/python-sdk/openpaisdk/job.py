@@ -327,7 +327,7 @@ class Job:
         else:
             cmds = [
                 "jupyter nbconvert --to script <% $parameters.notebook_file %>.ipynb --output openpai_submitter_entry",
-                "ipython openpai_submitter_entry.py"
+                "ipython --no-term-title openpai_submitter_entry.py"
             ]
         self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
         mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "python_script"}
