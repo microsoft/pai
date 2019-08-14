@@ -45,7 +45,7 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/:username/virtualcluster')
   /** Update /api/v2/user/:username/virtualcluster */
-    .put(token.check, param.validate(userInputSchema.userVirutalClusterUpdateInputSchema), userController.updateUserVirtualCluster);
+    .put(token.check, param.validate(userInputSchema.userVirtualClusterUpdateInputSchema), userController.updateUserVirtualCluster);
 
   router.route('/:username/password')
   /** Update /api/v2/user/:username/password */
