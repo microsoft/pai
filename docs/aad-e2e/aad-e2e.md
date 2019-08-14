@@ -5,8 +5,7 @@ Start from version 0.15 OpenPAI can be configured to use Azure Active Directory 
 This document will cover how to set up the integration step by step.
 #### Note
 
-- If integrate AAD with OpenPAI, the user management will be taken over by AAD. The local user data will be useless
-- You won't be able to manage the user information in OpenPAI's webportal 
+Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, Instead of using built-n user managed webportal, OpenPAI will switch to use (and only use) AAD as user authentication mechanism. 
 
 #### [Pylon] Prepare your certificate for https, self-sign cert as an example
 
