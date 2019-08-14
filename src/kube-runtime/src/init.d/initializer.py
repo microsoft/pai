@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def run_script(script_path, parameters, output_paths):
     args = [script_path, "{}".format(parameters)]
     args += output_paths
-    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while True:
         line = proc.stdout.readline()
         if not line:
