@@ -265,7 +265,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       set(STATUS.SUBMITTING_1)
       /* get some basic */
       var submittingCtx = {
-        form: $('#submit-form-menu').val(), // file | notebook
+        form: $('#submit-form-menu').val(), // file | notebook | silent
         type: info['type'], // quick | edit
         cluster: info['cluster'],
         vc: info['vc'],
@@ -281,13 +281,8 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
 
       console.log('[openpai submitter] submitting ctx:', submittingCtx)
       showInformation('')
-      if (submittingCtx['type'] === 'edit')
-        appendInformation('Uploading files and generating config...' + getLoadingImg('loading-stage-1'))
-      else{
-        if (submittingCtx['stage_num'] === 1)
-          appendInformation('Uploading files and submitting the job...' + getLoadingImg('loading-stage-1'))
-        else
-          appendInformation('Stage 1 / 2 : Uploading files and submitting the job...' + getLoadingImg('loading-stage-1'))
+      if (submittingCtx['type'] === 'edit') { appendInformation('Uploading files and generating config...' + getLoadingImg('loading-stage-1')) } else {
+        if (submittingCtx['stage_num'] === 1) { appendInformation('Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) } else { appendInformation('Stage 1 / 2 : Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) }
       }
       var promiseSubmitting = Jupyter.notebook.save_notebook()
         .then(
@@ -322,6 +317,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                   time: submissionTime,
                   jobname: ctx['jobname'],
                   joblink: ctx['joblink'],
+                  form: ctx['form'],
                   state: 'WAITING'
                 }
               )
@@ -347,10 +343,15 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         promiseSubmitting = promiseSubmitting.then(
           function (ctx) {
             appendInformation('<br><br>')
-            appendInformation('Stage 2 / 2: Wait until the notebook is ready...' + getLoadingImg('loading-stage-2'))
+            if (ctx['form'] === 'notebook') { appendInformation('Stage 2 / 2: Wait until the notebook is ready...' + getLoadingImg('loading-stage-2')) } else { appendInformation('Stage 2 / 2: Wait until the result is ready...' + getLoadingImg('loading-stage-2')) }
             appendInformation('<br>')
-            appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
+            if (ctx['form'] === 'notebook') {
+              appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
                                   ' this submitter, and <b>the notebook URL will be shown here once it is prepared.</b></p><br>')
+            } else {
+              appendInformation('<p id="text-notebook-show">Note: The notebook will run in the background. You can safely close' +
+                                  ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
+            }
             appendInformation('<p id="text-clear-info-force">If you don\'t want to wait, you can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new session.</p>')
             var cancelThis
             var promise = Promise.race([
@@ -376,7 +377,10 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             $('#loading-stage-2').remove()
             $('#text-notebook-show').hide()
             $('#text-clear-info-force').hide()
-            appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
+            if (ctx['form'] === 'notebook') 
+              appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
+            else
+              appendInformation('The result file link is (please copy it to your clipboard and paste it to a new page) : <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
             return new Promise((resolve, reject) => resolve(ctx))
           })
       }

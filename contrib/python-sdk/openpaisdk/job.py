@@ -328,7 +328,9 @@ class Job:
         else:
             cmds = [
                 "jupyter nbconvert --to script <% $parameters.notebook_file %>.ipynb --output openpai_submitter_entry",
-                "ipython --no-term-title --no-color-info openpai_submitter_entry.py"
+                "echo ======================== Python Script Starts ========================",
+                # execute notebook by iPython. To remove color information, we use "--no-term-title" and sed below
+                """ipython --no-term-title openpai_submitter_entry.py | sed -r "s/\\x1B\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" | tr -dc '[[:print:]]\\n'""",
             ]
         self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
         mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "script_nb"}
