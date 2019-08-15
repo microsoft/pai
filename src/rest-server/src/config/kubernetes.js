@@ -20,6 +20,7 @@ const assert = require('assert');
 const {readFileSync} = require('fs');
 const path = require('path');
 const config = Object.create(null);
+const logger = require('@pai/config/logger');
 const apiserverConfig = config.apiserver = Object.create(null);
 
 const {
@@ -57,7 +58,7 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
     apiserverConfig.token = readFileSync(tokenPath, 'ascii');
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('failed to init rbac config. Please check your clusters\' config');
+    logger.info('failed to init rbac config. Please check your clusters\' config');
     process.exit(1);
   }
 }
