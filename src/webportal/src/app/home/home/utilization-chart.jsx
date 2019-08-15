@@ -30,9 +30,10 @@ export const UtilizationChart = ({percentage}) => {
   const chartRef = useRef(null);
 
   let usageColor = palette.green;
-  if (percentage > 0.1) {
+  if (percentage > 0.1 && percentage <= 0.9) {
     usageColor = palette.yellow;
-  } else if (percentage > 0.9) {
+  }
+  if (percentage > 0.9) {
     usageColor = palette.red;
   }
 
@@ -50,6 +51,9 @@ export const UtilizationChart = ({percentage}) => {
       color: {
         pattern: [usageColor, palette.neutralLight],
       },
+      padding: {
+        bottom: 0,
+      },
       donut: {
         label: {
             show: false,
@@ -63,6 +67,13 @@ export const UtilizationChart = ({percentage}) => {
       },
       tooltip: {
         show: false,
+      },
+      onrendered: () => {
+        const d3Donuts = d3.selectAll('.c3-chart-arcs').nodes();
+        d3Donuts.forEach((node) => {
+          // TODO: hardcode here, change it when has better solution
+          node.setAttribute('transform', 'translate('+45+','+43+')');
+        });
       },
     });
     chart.resize();

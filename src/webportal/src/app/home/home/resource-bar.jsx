@@ -11,14 +11,20 @@ import {
 } from 'office-ui-fabric-react';
 import React from 'react';
 
-const {spacing, palette} = getTheme();
+const {palette} = getTheme();
 
 export const ResourceBar = ({name, percentage, tailInfo, barHeight}) => {
   let barColor = palette.green;
+  let fontColor = palette.black;
   if (percentage > 0.1) {
     barColor = palette.yellow;
-  } else if (percentage > 0.9) {
+  }
+  if (percentage > 0.9) {
     barColor = palette.red;
+  }
+
+  if (percentage >= 1) {
+    fontColor = palette.white;
   }
 
   const curBarHeigh = isNil(barHeight) ? '14px': barHeight;
@@ -28,7 +34,7 @@ export const ResourceBar = ({name, percentage, tailInfo, barHeight}) => {
       <StackItem styles={{root: {width: 50}}} align='center'>
         <Text variant={FontSizes.xSmall}>{name}</Text>
       </StackItem>
-      <StackItem grow>
+      <StackItem grow styles={{root: {position: 'relative'}}}>
         <Stack horizontal styles={{root: {height: '100%', width: '100%'}}}>
           <StackItem grow={percentage * 100}>
             <div
@@ -37,17 +43,29 @@ export const ResourceBar = ({name, percentage, tailInfo, barHeight}) => {
                 width: '100%',
                 height: '100%',
               }}
-            />
-            </StackItem>
-            <StackItem grow={(1 - percentage) * 100}>
-            <div
-              className={c(ColorClassNames.neutralLightBackground)}
-              style={{width: '100%', textAlign: 'right', height: '100%', fontSize: FontSizes.small, color: palette.black}}
             >
-              {tailInfo}
             </div>
             </StackItem>
+            <StackItem grow={(1 - percentage) * 100}>
+              <div
+                className={c(ColorClassNames.neutralLightBackground)}
+                style={{width: '100%', height: '100%'}}
+              />
+            </StackItem>
           </Stack>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              fontSize: FontSizes.small,
+              color: fontColor,
+              textAlign: 'right',
+            }}>
+            {tailInfo}
+          </div>
       </StackItem>
     </Stack>
   );

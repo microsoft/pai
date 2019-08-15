@@ -19,24 +19,23 @@ import c from 'classnames';
 import PropTypes from 'prop-types';
 import {
   Stack,
-  FontClassNames,
   getTheme,
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
   DefaultButton,
   StackItem,
+  Text,
 } from 'office-ui-fabric-react';
 import React from 'react';
 
 import Card from '../../components/card';
 import {UtilizationChart} from './utilization-chart';
 import {zeroPaddingClass} from './util';
+import {Header} from './header';
 
 import t from '../../components/tachyons.scss';
 import {ResourceBar} from './resource-bar';
-
-const {spacing} = getTheme();
 
 const getResouceUtilization = (used, total) => {
   if (Math.abs(total) < 1e-5) {
@@ -52,7 +51,11 @@ const vcListColumns = [
     name: 'Name',
     isResizable: true,
     onRender(vc) {
-      return vc.name;
+      return (
+        <Stack verticalAlign='center' verticalFill>
+          <Text variant='large'>{vc.name}</Text>
+        </Stack>
+      );
     },
   },
   {
@@ -60,6 +63,7 @@ const vcListColumns = [
     minWidth: 150,
     name: 'Utilization',
     isResizable: true,
+    className: zeroPaddingClass,
     onRender(vc) {
       const {resourcesUsed, resourcesTotal} = vc;
 
@@ -92,7 +96,7 @@ const vcListColumns = [
     onRender(vc) {
       const {resourcesUsed, resourcesTotal} = vc;
       return (
-        <Stack gap="s1">
+        <Stack gap="s1" verticalAlign='center' verticalFill>
           <StackItem>
             <ResourceBar
               name={'Memory'}
@@ -134,7 +138,11 @@ const vcListColumns = [
     isResizable: true,
     onRender(vc) {
       const bounsEnabled = (vc.maxCapacity > vc.capacity) || vc.capacity === 100;
-      return bounsEnabled ? 'Enabled' : 'Disabled';
+      return (
+        <Stack verticalAlign='center' verticalFill>
+          <Text variant='large'>{bounsEnabled ? 'Enabled' : 'Disabled'}</Text>
+        </Stack>
+      );
     },
   },
   {
@@ -142,9 +150,12 @@ const vcListColumns = [
     minWidth: 100,
     name: 'Action',
     isResizable: true,
-    className: zeroPaddingClass,
-    onRender() {
-      return <DefaultButton text={'View jobs'}/>;
+    onRender(vc) {
+      return (
+        <Stack verticalAlign='center' verticalFill>
+          <DefaultButton text={'View jobs'} href={'/job-list.html?vcName=' + vc.name}/>
+        </Stack>
+      );
     },
   },
 ];
@@ -160,12 +171,16 @@ const VirtualClusterStatistics = ({style, virtualClusters}) => {
     <Card className={t.ph5} style={{paddingRight: spacing.m, ...style}}>
       <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
-          <div className={FontClassNames.mediumPlus}>
-            {`Virtual clusters (${vcNames.length})`}
-          </div>
+          <Header
+            headerName={`Virtual clusters (${vcNames.length})`}
+            linkHref={'/virtual-clusters.html'}
+            linkName={'View all'}
+            showLink={true}/>
         </Stack.Item>
         <Stack.Item styles={{root: [t.relative]}} grow>
-          <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
+          <div
+            className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}
+          >
             <DetailsList
               columns={vcListColumns}
               disableSelectionZone
