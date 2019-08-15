@@ -8,19 +8,13 @@ adminGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["groupname"] }}"
   description: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}"
-  extension:
-    acls:
-      virtualClusters: []
-      admin: true
+  extension: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["extension"] }}
 
 defaultGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["groupname"] }}"
   description: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
-  extension:
-    acls:
-      virtualClusters: ["default"]
-      admin: false
+  extension: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["extension"] }}
 
 grouplist:
 {%- if 'grouplist' not in cluster_cfg["authentication"]["group-manager"] %}
@@ -30,9 +24,6 @@ grouplist:
   - groupname: "{{ group_item["groupname"] }}"
     description: "{{ group_item["description"] }}"
     externalName: "{{ group_item["externalName"] }}"
-    extension:
-      acls:
-        virtualClusters: []
-        admin: false
+    extension: {{ group_item["extension"] }}
 {%- endfor %}
 {%- endif %}

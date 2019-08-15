@@ -55,6 +55,13 @@ group-manager:
     # If ms-graph, please fill email alias (email nick name)
     # If winbind server, fill the format from your winbind server.
     externalName: ""
+    extension:
+      # Group role and acls
+      # acls.virtualClusters is a list of group available VCs, by default it's an empty list
+      # acls.admin is group permission, admin group have privilege to access all VCs and permission to operate system
+      acls:
+        virtualClusters: []
+        admin: true
 
   # Group for default vc.
   # For yarn default queue hack.
@@ -62,6 +69,10 @@ group-manager:
     groupname: default
     description: "group for default vc"
     externalName: ""
+    extension:
+      acls:
+        virtualClusters: ["default"]
+        admin: false
 
   # If the following groups are not in the data store, it will be created by default.
   grouplist:

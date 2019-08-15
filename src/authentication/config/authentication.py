@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import re
+import json
 
 class Authentication:
 
@@ -31,16 +32,41 @@ class Authentication:
         if "group-manager" in service_configuration:
             self.service_configuration["group-manager"] = service_configuration["group-manager"]
 
-    def validation_pre(self):
+    def validate_group_schema(self, groupitem):
         pattern = re.compile("^[A-Za-z0-9_]+$")
-        if bool(pattern.match(self.service_configuration['group-manager']['admin-group']['groupname'])) is False:
+        if bool(pattern.match(groupitem['groupname'])) is False:
             return False, "group name should only contain alpha-numeric and underscore characters"
-        if bool(pattern.match(self.service_configuration['group-manager']['default-group']['groupname'])) is False:
-            return False, "group name should only contain alpha-numeric and underscore characters"
+        if 'acls' in groupitem['extension']:
+            if 'virtualClusters' in groupitem['extension']['acls'] \
+                    and not isinstance(groupitem['extension']['acls']['virtualClusters'], list):
+                return False, "group.extension.acls.virtualClusters should be list"
+            if 'admin' in groupitem['extension']['acls'] \
+                    and not isinstance(groupitem['extension']['acls']['admin'], bool):
+                return False, "group.extension.acls.admin should be bool"
+        return True, None
+
+    def defaulting_group_schema(self, groupitem, virtualClusters=[], admin=False):
+        if 'extension' not in groupitem:
+            groupitem['extension'] = {}
+        if 'acls' not in groupitem['extension']:
+            groupitem['extension']['acls'] = {}
+        if 'virtualClusters' not in groupitem['extension']['acls']:
+            groupitem['extension']['acls']['virtualClusters'] = virtualClusters
+        if 'admin' not in groupitem['extension']['acls']:
+            groupitem['extension']['acls']['admin'] = admin
+
+    def validation_pre(self):
+        validated, error_info = self.validate_group_schema(self.service_configuration['group-manager']['admin-group'])
+        if not validated:
+            return False, error_info
+        validated, error_info = self.validate_group_schema(self.service_configuration['group-manager']['default-group'])
+        if not validated:
+            return False, error_info
         if 'grouplist' in self.service_configuration['group-manager']:
             for groupConfig in self.service_configuration['group-manager']['grouplist']:
-                if bool(pattern.match(groupConfig['groupname'])) is False:
-                    return False, "group name should only contain alpha-numeric and underscore characters"
+                validated, error_info = self.validate_group_schema(groupConfig)
+                if not validated:
+                    return False, error_info
         if self.service_configuration["OIDC"] is False:
             return True, None
         if "OIDC-type" not in self.service_configuration:
@@ -55,6 +81,16 @@ class Authentication:
         return True, None
 
     def run(self):
+        self.defaulting_group_schema(self.service_configuration['group-manager']['admin-group'], admin=True)
+        self.service_configuration['group-manager']['admin-group']['extension'] = json.dumps(
+            self.service_configuration['group-manager']['admin-group']['extension'])
+        self.defaulting_group_schema(self.service_configuration['group-manager']['default-group'], virtualClusters=['default'])
+        self.service_configuration['group-manager']['default-group']['extension'] = json.dumps(
+            self.service_configuration['group-manager']['default-group']['extension'])
+        if 'grouplist' in self.service_configuration['group-manager']:
+            for groupConfig in self.service_configuration['group-manager']['grouplist']:
+                self.defaulting_group_schema(groupConfig)
+                groupConfig['extension'] = json.dumps(groupConfig['extension'])
         return self.service_configuration
 
     def validation_post(self, cluster_object_model):
