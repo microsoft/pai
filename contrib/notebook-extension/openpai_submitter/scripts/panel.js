@@ -286,11 +286,30 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       }
       var promiseSubmitting = Jupyter.notebook.save_notebook()
         .then(
-          () => Interface.submit_job(submittingCtx)
+          function(){
+            appendInformation('<p id="text-clear-info-force"><br><br> Click <a href="#" id="openpai-clear-info-force">[here]</a> to cancel this job.</p>')
+            var cancelThis
+            var promise = Promise.race([
+              Interface.submit_job(submittingCtx),
+              new Promise(function (resolve, reject) {
+                cancelThis = reject
+              })
+            ])
+            $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
+              if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+                $('#openpai-clear-info-force').remove()
+                cancelThis('cancelled')
+                set(STATUS.NOT_READY)
+                send(MSG.INIT_OK)
+              }
+            })
+            return promise
+          }
         )
         .then(
           function (ctx) {
             set(STATUS.SUBMITTING_2)
+            $('#text-clear-info-force').remove()
             $('#loading-stage-1').remove()
             appendInformation('<br>')
             submittingCtx = ctx
@@ -362,6 +381,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             ])
             $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
               if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+                $('#text-clear-info-force').remove()
                 cancelThis('cancelled')
                 set(STATUS.NOT_READY)
                 send(MSG.INIT_OK)
