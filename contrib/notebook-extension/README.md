@@ -42,9 +42,9 @@ There are other ways to manage the clusters, see the [documentation of SDK](../p
 
 ## Quick Start
 
-Once installed, the extension will add two buttons on the notebook page, namely <img src="./docs_img/submit-button.png" style="height:20px;width:25px"> and <img src="./docs_img/job-button.png" style="height:20px;width:25px">.
+Once installed, the extension will add two buttons on the notebook page, namely <img src="./docs_img/submit-button.png" height="25" width="25"> and <img src="./docs_img/job-button.png" height="25" width="25">.
 
-Button <img src="./docs_img/submit-button.png" style="height:20px;width:25px"> is designed for job submission. You can click it and the detailed cluster information will be loaded. Then click ***Quick Submit***. The extension will do the following work for you:
+Button <img src="./docs_img/submit-button.png" height="25" width="25"> is designed for job submission. You can click it and the detailed cluster information will be loaded. Then click ***Quick Submit***. The extension will do the following work for you:
 
 - Pack all files in current folder as a .zip file, and upload it to the cluster by WebHDFS.
 - Generate job settings automatically, then submit it.
@@ -58,7 +58,7 @@ You can safely close the page when the extension is waiting. Once the notebook i
 
 ![](docs_img/submitter-2.gif)
 
-**Note: The waiting process will take 5 to 10 minutes.** If you are not willing to wait, you could probably click the bottom link on the submitter to start a new session. The submitted job will not lose, you can click <img src="./docs_img/job-button.png" style="height:20px;width:25px"> to find it.
+**Note: The waiting process will take 5 to 10 minutes.** If you are not willing to wait, you could probably click the bottom link on the submitter to start a new session. The submitted job will not lose, you can click <img src="./docs_img/job-button.png" height="25" width="25"> to find it.
 
 ### Submit as Interactive Notebook v.s. Python File
 
@@ -79,7 +79,7 @@ Only the pre-defined resource and docker image settings are available, when you 
 ## Job Management
 ![](docs_img/recent-jobs.gif)
 
-Clicking <img src="./docs_img/job-button.png" style="height:20px;width:25px"> will open the *Recent Jobs* panel. **This panel records all jobs submitted by this extension on this machine** (If a job is submitted in a different way, it won't show up). The panel will show some basic information about your jobs. Also, it will show notebook URL **when the job is submitted as an interactive notebook, and the notebook is ready.** The panel will not show completed jobs by default, but you can use the upper-right toggle to find all jobs.
+Clicking <img src="./docs_img/job-button.png"  height="20" width="25"> will open the *Recent Jobs* panel. **This panel records all jobs submitted by this extension on this machine** (If a job is submitted in a different way, it won't show up). The panel will show some basic information about your jobs. Also, it will show notebook URL **when the job is submitted as an interactive notebook, and the notebook is ready.** The panel will not show completed jobs by default, but you can use the upper-right toggle to find all jobs.
 
 ## How to Update or Uninstall
 
@@ -98,6 +98,7 @@ jupyter nbextension disable openpai_submitter/main
 
 ## Known Issues
 - This extension is not compatible with *Variable Inspector*.
+- This extension is not compatible with AdBlock.
 
 ## Feedback
 
