@@ -20,7 +20,8 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to list existing clusters](#how-to-list-existing-clusters)
     - [How to open and edit the cluster configuration file](#how-to-open-and-edit-the-cluster-configuration-file)
   - [How to check the available resources of clusters](#how-to-check-the-available-resources-of-clusters)
-    - [How to add / delete a cluster](#how-to-add--delete-a-cluster)
+    - [How to add a cluster](#how-to-add-a-cluster)
+    - [How to delete a cluster](#how-to-delete-a-cluster)
     - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
   - [Job operations](#job-operations)
     - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
@@ -77,17 +78,25 @@ python -c "from openpaisdk import __version__; print(__version__)"
 
 Please store the list of your clusters in `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the list.
 
-```yaml
-- cluster_alias: cluster-for-test
+```YAML
+- cluster_alias: <your-cluster-alias>
   pai_uri: http://x.x.x.x
-  user: myuser
-  password: mypassword
-  default_storage_alias: hdfs
-  storages:
-  - protocol: webHDFS
-    storage_alias: hdfs
-    web_hdfs_uri: http://x.x.x.x:port
-
+  user: <your-user-name>
+  password: <your-password>
+  token: <your-authen-token> # if Azure AD is enabled, must use token for authentication
+  pylon_enabled: true
+  aad_enabled: false
+  storages: # a cluster may have multiple storages
+    builtin: # storage alias, every cluster would always have a builtin storage
+      protocol: hdfs
+      uri: http://x.x.x.x # if not specified, use <pai_uri>
+      ports:
+        native: 9000 # used for hdfs-mount
+        webhdfs: webhdfs # used for webhdfs REST API wrapping
+  virtual_clusters:
+  - <your-virtual-cluster-1>
+  - <your-virtual-cluster-2>
+  - ...
 ```
 
 Now below command shows all your clusters would be displayed.
@@ -106,8 +115,9 @@ This section will brief you how to leverage the CLI tool (prefixed by `opai`) to
 | `opai cluster resources`   | list available resources of every cluster (GPUs/vCores/Memory per virtual cluster) |
 | `opai cluster edit`        | open `~/.openpai/clusters.yaml` for your editing                                   |
 | `opai cluster add`         | add a cluster                                                                      |
-| `opai cluster attach-hdfs` | attach a `hdfs` storage through `WebHDFS`                                          |
-| `opai job list`            | list all jobs of current user (in a given cluster)                                 |
+| `opai job list`            | list all jobs of given user (in a given cluster)                                   |
+| `opai job status`          | query the status of a job                                                          |
+| `opai job stop`            | stop a job                                                                         |
 | `opai job submit`          | submit a given job config file to cluster                                          |
 | `opai job sub`             | shortcut to generate job config and submit from a given command                    |
 | `opai job notebook`        | shortcut to run a local notebook remotely                                          |
@@ -164,16 +174,29 @@ cfg = from_file(__cluster_config_file__, default=[])
 ClusterList(cfg).available_resources()
 ```
 
-### How to add / delete a cluster
+### How to add a cluster
 
 User can use `add` and `delete` command to add (or delete) a clusters from the clusters file.
 
 ```bash
-opai cluster add --cluster-alias <cluster-alias> --pai-uri http://x.x.x.x --user myuser --password mypassword
-opai cluster delete <cluster-alias>
+# for user/password authentication
+opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
+# for Azure AD authentication
+opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --toke <token>
 ```
 
-After adding a cluster, user may add more information (such as storage info) to it.
+On receiving the add command, the CLI will try to connect the cluster, and get basic configuration from it.
+
+User can also add it by `python` binding as below.
+
+
+### How to delete a cluster
+
+Delete a cluster by calling its alias.
+
+```bash
+opai cluster delete <cluster-alias>
+```
 
 ### How to access storages of a cluster
 

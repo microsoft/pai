@@ -8,62 +8,39 @@
 
 This extension requires **Python 3+** and Jupyter Notebook to work. Make sure you are using Jupyter Notebook with a Python 3 kernel.
 
-Please use the following commands to install this extension (the [Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) will be installed at the same time):
+Please use the following commands to install this extension (Make sure you are in the correct `python` environment).
+
 ```bash
+pip install --upgrade pip
 git clone -b notebook-extension https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
-python setup.py
+python setup.py # add --user to avoid permission issues if necessary
 ```
 
-Make sure you are in the correct `python` environment, and upgrade `pip` (by `pip install --upgrade pip`) if necessary.
+This extension leverage the [`Python` SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) as the low level implementation. It will also be installed in above commands (use `-i` in of `setup.py` to avoid isntalling SDK).
 
-After installation, you should add description of your PAI cluster. Create a file located at `~/.openpai/clusters.yaml`. If you are using Windows, the corresponding path is `C:\\Users\\<your user name>\\.openpai\\clusters.yaml`. To add a new cluster information, leverage below `opai` command
-
-```bash
-opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> [--password <password>] [--toke <token>]
-```
-
-Or use the `python` binding as below
+Before starting, user needs to give the basic information of the clusters. User could run below `python` codes anywhere (e.g. in a notebook cell). During execution of this snippet of code, the extension will try to connect the cluster and fetch its basic configuration.
 
 ```python
 from openpaisdk.core import ClusterList
+
+# to add a cluster
 cluster_cfg = {
-    "cluster_alias": ...,
+    "cluster_alias": ..., # each cluster mush have an unique alias
     "pai_uri": ...,
     "user": ...,
-    "password": ...
+    # for user/password authentication
+    "password": ...,
+    # for Azure AD authentication
+    "token": ...,
 }
 ClusterList().load().add(cluster_cfg).save()
+
+# to delete a cluster
+ClusterList().load().delete(cluster_alias).save()
 ```
 
-After adding the cluster, the content following content will be added in `~/.openpai/clusters.yaml`:
-
-```YAML
-- cluster_alias: <your-cluster-alias>
-  pai_uri: http://x.x.x.x
-  user: <your-user-name>
-  password: <your-password>
-  token: <your-authen-token> # if Azure AD is enabled, must use token for authentication
-  pylon_enabled: true
-  aad_enabled: false
-  storages: # a cluster may have multiple storages
-    builtin: # storage alias, every cluster would always have a builtin storage
-      protocol: hdfs
-      uri: http://x.x.x.x # if not specified, use <pai_uri>
-      ports:
-        native: 9000 # used for hdfs-mount
-        webhdfs: webhdfs # used for webhdfs REST API wrapping
-  virtual_clusters:
-  - <your-virtual-cluster-1>
-  - <your-virtual-cluster-2>
-  - ...
-```
-The cluster alias is a cluster name chosen by you, and the default port for web_hdfs_uri is 50070 (If this port doesn't work for you, please ask your administrator for the right WebHDFS URI). Multiple clusters can be added using the same pattern.
-
-Now you can use the command below to list your clusters:
-```bash
-opai cluster list
-```
+There are other ways to manage the clusters, see the [documentation of SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk).
 
 ## Quick Start
 
