@@ -18,7 +18,7 @@
 
 const assert = require('assert');
 const {readFileSync} = require('fs');
-const path = require('path')
+const path = require('path');
 const config = Object.create(null);
 const apiserverConfig = config.apiserver = Object.create(null);
 
