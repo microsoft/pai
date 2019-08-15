@@ -229,8 +229,7 @@ class Cluster:
             )
 
     def rest_api_execute_job(self, job_name: str, e_type: str = "STOP"):
-        assert e_type in [
-            "START", "STOP"], "unsupported execute type {}".format(e_type)
+        assert e_type in ["START", "STOP"], "unsupported execute type {}".format(e_type)
         return get_response(
             "{}/rest-server/api/v1/user/{}/jobs/{}/executionType".format(
                 self.pai_uri, self.user, job_name),

@@ -128,6 +128,17 @@ class ActionFactoryForJob(ActionFactory):
             args.user = client.user
         return client.rest_api_job_info(args.job_name, args.query, user=args.user)
 
+    def define_arguments_stop(self, parser: argparse.ArgumentParser):
+        cli_add_arguments(parser, ['--cluster-alias'])
+        parser.add_argument('job_name', help='job name')
+
+    def check_arguments_stop(self, args):
+        assert args.job_name, "must specify a job name"
+
+    def do_action_stop(self, args):
+        client = self.__clusters__.get_client(args.cluster_alias)
+        return client.rest_api_execute_job(args.job_name, "STOP")
+
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
             parser, ['--cluster-alias', '--virtual-cluster', '--preview', '--update', 'config'])
@@ -312,6 +323,7 @@ __cli_structure__ = {
         "actions": {
             "list": "list existing jobs",
             "status": "query the status of a job",
+            "stop": "stop the job",
             "submit": "submit the job from a config file",
             "sub": "generate a config file from commands, and then `submit` it",
             "notebook": "run a jupyter notebook remotely",

@@ -209,9 +209,9 @@ class Job:
         "generate the job template for a sdk-submitted job"
         # secrets
         clusters = [get_cluster(alias, get_client=False) for alias in cluster_alias_lst]
-        self.protocol["secrets"]["clusters"] = json.dumps(clusters)
-        self.protocol["secrets"]["cluster_alias"] = cluster_alias_lst[0] if cluster_alias_lst else None
-        self.protocol["secrets"]["work_directory"] = '{}/jobs/{}'.format(workspace, self.name) if workspace else None
+        self.set_secret("clusters", json.dumps(clusters))
+        self.set_param("cluster_alias", cluster_alias_lst[0] if cluster_alias_lst else None)
+        self.set_param("work_directory", '{}/jobs/{}'.format(workspace, self.name) if workspace else None)
 
         # parameters
         self.protocol["parameters"]["python_path"] = "python"
@@ -249,7 +249,7 @@ class Job:
                         "mkdir %s" % c_dir,
                         "echo \"write config to {}\"".format(c_file),
                         "echo <% $secrets.clusters %> > {}".format(c_file),
-                        "opai cluster select <% $secrets.cluster_alias %>",
+                        "opai cluster select <% $parameters.cluster_alias %>",
                     ]
                 }
             }
@@ -261,7 +261,7 @@ class Job:
                 "plugin": "container.preCommands",
                 "parameters": {
                     "commands": [
-                        "opai storage download <% $secrets.work_directory %>/source/{} {}".format(a_file, a_file),
+                        "opai storage download <% $parameters.work_directory %>/source/{} {}".format(a_file, a_file),
                         "tar xvfz {}".format(a_file)
                     ]
                 }
@@ -323,7 +323,7 @@ class Job:
                     "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
                     "--to html --execute <% $parameters.notebook_file %>.ipynb",
                 ]),
-                "opai storage upload <% $parameters.notebook_file %>.html <% $secrets.work_directory %>/output/<% $parameters.notebook_file %>.html",
+                "opai storage upload <% $parameters.notebook_file %>.html <% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
             ]
         else:
             cmds = [
@@ -450,7 +450,7 @@ class Job:
     def plugin_uploadFiles(self, plugin: dict):
         import tarfile
         to_screen("archiving and uploading ...")
-        work_directory = self.protocol.get("secrets", {}).get("work_directory", None)
+        work_directory = self.param("work_directory")
         assert work_directory, "must specify a storage to upload"
         with safe_open(self.temp_archive, "w:gz", func=tarfile.open) as fn:
             for src in plugin["parameters"]["files"]:
