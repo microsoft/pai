@@ -369,7 +369,26 @@ In some cases, there are more than one `python` environments in a docker image. 
 clusters = ClusterList().load() # defaultly loaded from "~/.openpai/clusters.yaml"
 ```
 
-User `add`, `delete` methods to update clusters, `select` and `get_client` methods to select one from multiple clusters
+User `add`, `delete` methods to update clusters, `select` and `get_client` methods to select one from multiple clusters.
+
+To add a cluster:
+```python
+cluster_cfg = {
+    "cluster_alias": ..., # each cluster mush have an unique alias
+    "pai_uri": ...,
+    "user": ...,
+    # for user/password authentication
+    "password": ...,
+    # for Azure AD authentication
+    "token": ...,
+}
+ClusterList().load().add(cluster_cfg).save()
+```
+
+To delete a cluster:
+```python
+ClusterList().load().delete(cluster_alias).save()
+```
 
 - [x] the `Cluster` class has methods to query and submit jobs
 

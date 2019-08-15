@@ -17,30 +17,28 @@ cd pai/contrib/notebook-extension
 python setup.py # add --user to avoid permission issues if necessary
 ```
 
-This extension leverage the [`Python` SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) as the low level implementation. It will also be installed in above commands (use `-i` in of `setup.py` to avoid isntalling SDK).
+This extension leverage the [`Python` SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) as the low level implementation. It will also be installed in above commands (use `-i` in of `setup.py` to avoid installing SDK).
 
-Before starting, user needs to give the basic information of the clusters. User could run below `python` codes anywhere (e.g. in a notebook cell). During execution of this snippet of code, the extension will try to connect the cluster and fetch its basic configuration.
-
-```python
-from openpaisdk.core import ClusterList
-
-# to add a cluster
-cluster_cfg = {
-    "cluster_alias": ..., # each cluster mush have an unique alias
-    "pai_uri": ...,
-    "user": ...,
-    # for user/password authentication
-    "password": ...,
-    # for Azure AD authentication
-    "token": ...,
-}
-ClusterList().load().add(cluster_cfg).save()
-
-# to delete a cluster
-ClusterList().load().delete(cluster_alias).save()
+Before starting, user needs to give the basic information of the clusters. If you log in to your cluster by user/password, you can use the following command to add your cluster. The <cluster-alias> is a cluster name chosen by you.
+```bash
+# for user/password authentication
+opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
+```
+If you log in to your cluster by Azure AD authentication, the following command is for you to add the cluster:
+```bash
+# for Azure AD authentication
+opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --toke <token>
 ```
 
-There are other ways to manage the clusters, see the [documentation of SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk).
+Now you can use the command `opai cluster list` to list all clusters.
+
+The following command is used to delete one of your clusters:
+```bash
+# Delete a cluster by calling its alias.
+opai cluster delete <cluster-alias>
+```
+
+There are other ways to manage the clusters, see the [documentation of SDK](../python-sdk).
 
 ## Quick Start
 
