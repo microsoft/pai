@@ -32,26 +32,10 @@ import React from 'react';
 import Card from '../../components/card';
 import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
 import {zeroPaddingClass} from './util';
+import {Header} from './header';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
-
-const Header = ({jobs}) => (
-  <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
-    <div>
-      Abnormal jobs
-    </div>
-    {!isEmpty(jobs) && (
-      <div>
-        <Link href={`/job-list.html`}>All Jobs</Link>
-      </div>
-    )}
-  </div>
-);
-
-Header.propTypes = {
-  jobs: PropTypes.array.isRequired,
-};
 
 const jobListColumns = [
   {
@@ -178,7 +162,11 @@ const AbnormalJobList = ({className, jobs}) => {
     <Card className={c(className, t.ph5)}>
       <Stack styles={{root: [className]}} gap='l1'>
         <Stack.Item>
-          <Header jobs={jobs} />
+          <Header
+            headerName='Abnormal jobs'
+            linkName='All jobs'
+            linkHref='/job-list.html'
+            showLink={true} />
         </Stack.Item>
         <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
           <Content jobs={jobs} />
