@@ -208,6 +208,11 @@ const generateTaskRole = (taskRole, labels, config) => {
       count: ports[port],
     };
   }
+  // get shared memory size
+  let shmMB = 512;
+  if ('extraContainerOptions' in config.taskRoles[taskRole]) {
+    shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
+  }
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -280,6 +285,10 @@ const generateTaskRole = (taskRole, labels, config) => {
               },
               volumeMounts: [
                 {
+                  name: 'dshm',
+                  mountPath: '/dev/shm',
+                },
+                {
                   name: 'pai-vol',
                   mountPath: '/usr/local/pai',
                 },
@@ -297,6 +306,13 @@ const generateTaskRole = (taskRole, labels, config) => {
             },
           ],
           volumes: [
+            {
+              name: 'dshm',
+              emptyDir: {
+                medium: 'Memory',
+                sizeLimit: `${shmMB}Mi`,
+              },
+            },
             {
               name: 'pai-vol',
               emptyDir: {},
