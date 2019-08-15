@@ -37,8 +37,8 @@ const getUser = async (req, res, next) => {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
     const groupItems = await groupModel.getListGroup(userInfo.grouplist);
-    userInfo['admin'] = groupModel.getAdminWithGroupinfo(groupItems);
-    userInfo['virtualCluster'] = await groupModel.getVCsWithGroupinfo(groupItems);
+    userInfo['admin'] = groupModel.getAdminWithGroupInfo(groupItems);
+    userInfo['virtualCluster'] = await groupModel.getVCsWithGroupInfo(groupItems);
     delete userInfo['password'];
     return res.status(200).json(userInfo);
   } catch (error) {
@@ -61,9 +61,9 @@ const getAllUser = async (req, res, next) => {
 
     const retUserList = await Promise.all(userList.map(async (userItem) => {
       const groupItems = Array.from(userItem.grouplist, (groupname) => groupMap[groupname]);
-      const admin = groupModel.getAdminWithGroupinfo(groupItems);
+      const admin = groupModel.getAdminWithGroupInfo(groupItems);
       userItem.admin = admin;
-      userItem.virtualCluster = admin ? allVClist : await groupModel.getVCsWithGroupinfo(groupItems);
+      userItem.virtualCluster = admin ? allVClist : await groupModel.getVCsWithGroupInfo(groupItems);
       delete userItem.password;
       return userItem;
     }));
@@ -364,7 +364,7 @@ const updateUserAdminPermission = async (req, res, next) => {
         return next(createError.unknown((error)));
       }
       const groupInfo = await groupModel.getListGroup(userInfo.grouplist);
-      const existed = groupModel.getAdminWithGroupinfo(groupInfo);
+      const existed = groupModel.getAdminWithGroupInfo(groupInfo);
       let newGrouplist = [];
       if (!existed && admin) {
         // non-admin -> admin, add into adminGroup
@@ -372,7 +372,7 @@ const updateUserAdminPermission = async (req, res, next) => {
       } else if (existed && !admin) {
         // admin -> non-admin, remove all admin group
         for (const groupItem of groupInfo) {
-          if (!groupModel.getAdminWithGroupinfo([groupItem])) {
+          if (!groupModel.getAdminWithGroupInfo([groupItem])) {
             newGrouplist.push(groupItem.groupname);
           }
         }

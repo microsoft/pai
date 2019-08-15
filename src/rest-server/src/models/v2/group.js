@@ -84,7 +84,7 @@ const batchUpdateGroups = async (groupItems) => {
   }));
 };
 
-const getVCsWithGroupinfo = async (groupItems) => {
+const getVCsWithGroupInfo = async (groupItems) => {
   let virtualClusters = new Set();
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
@@ -100,15 +100,15 @@ const getVCsWithGroupinfo = async (groupItems) => {
 
 const getGroupVCs = async (groupname) => {
   const groupItem = await getGroup(groupname);
-  return getVCsWithGroupinfo([groupItem]);
+  return getVCsWithGroupInfo([groupItem]);
 };
 
 const getGroupsVCs = async (grouplist) => {
   const groupItems = await getListGroup(grouplist);
-  return getVCsWithGroupinfo(groupItems);
+  return getVCsWithGroupInfo(groupItems);
 };
 
-const getAdminWithGroupinfo = (groupItems) => {
+const getAdminWithGroupInfo = (groupItems) => {
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.admin) {
       return true;
@@ -119,12 +119,12 @@ const getAdminWithGroupinfo = (groupItems) => {
 
 const getGroupAdmin = async (groupname) => {
   const groupItem = await getGroup(groupname);
-  return getAdminWithGroupinfo([groupItem]);
+  return getAdminWithGroupInfo([groupItem]);
 };
 
 const getGroupsAdmin = async (grouplist) => {
   const groupItems = await getListGroup(grouplist);
-  return getAdminWithGroupinfo(groupItems);
+  return getAdminWithGroupInfo(groupItems);
 };
 
 const addVCintoAdminGroup = async (vcname) => {
@@ -401,8 +401,8 @@ module.exports = {
   deleteVCfromAllGroup,
   getGroupAdmin,
   getGroupsAdmin,
-  getAdminWithGroupinfo,
+  getAdminWithGroupInfo,
   getGroupVCs,
   getGroupsVCs,
-  getVCsWithGroupinfo,
+  getVCsWithGroupInfo,
 };
