@@ -36,7 +36,7 @@ class Authentication:
         pattern = re.compile("^[A-Za-z0-9_]+$")
         if bool(pattern.match(groupitem['groupname'])) is False:
             return False, "group name should only contain alpha-numeric and underscore characters"
-        if 'acls' in groupitem['extension']:
+        if 'extension' in groupitem and 'acls' in groupitem['extension']:
             if 'virtualClusters' in groupitem['extension']['acls'] \
                     and not isinstance(groupitem['extension']['acls']['virtualClusters'], list):
                 return False, "group.extension.acls.virtualClusters should be list"

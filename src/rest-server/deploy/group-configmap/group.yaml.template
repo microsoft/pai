@@ -14,7 +14,7 @@ defaultGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["groupname"] }}"
   description: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
-  extension: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["extension"] }}
+  extension: {{ cluster_cfg["authentication"]["group-manager"]["default-group"]["extension"] }}
 
 grouplist:
 {%- if 'grouplist' not in cluster_cfg["authentication"]["group-manager"] %}
