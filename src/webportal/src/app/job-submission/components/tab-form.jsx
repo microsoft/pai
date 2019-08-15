@@ -158,7 +158,7 @@ export class TabForm extends React.Component {
 
   render() {
     let {selectedIndex} = this.state;
-    const {items, advanceFlag} = this.props;
+    const {items, advanceFlag, isSingle} = this.props;
 
     const {formTabBar} = getFormClassNames();
 
@@ -171,42 +171,44 @@ export class TabForm extends React.Component {
 
     return (
       <Stack styles={{root: {minHeight: 0}}}>
-        <Stack className={formTabBar} horizontal>
-          <Stack.Item styles={tabFormStyle.tabWapper}>
-            <Pivot
-              onLinkClick={this._onLinkClick.bind(this)}
-              styles={{
-                text: tabFormStyle.tab.text,
-                root: tabFormStyle.tab.root,
-                link: [{margin: 0, padding: 0}],
-                linkIsSelected: [{margin: 0, padding: 0}],
-              }}
-              selectedKey={this._getItemKeyByIndex(selectedIndex)}
-            >
-            {items.map((item, idx) => (
-              <PivotItem
-                key={this._getItemKeyByIndex(idx)}
-                itemKey={this._getItemKeyByIndex(idx)}
-                headerText={item.headerText}
-                onRenderItemLink={this._onRenderItem.bind(this)}
+        {!isSingle &&
+          <Stack className={formTabBar} horizontal>
+            <Stack.Item styles={tabFormStyle.tabWapper}>
+              <Pivot
+                onLinkClick={this._onLinkClick.bind(this)}
+                styles={{
+                  text: tabFormStyle.tab.text,
+                  root: tabFormStyle.tab.root,
+                  link: [{margin: 0, padding: 0}],
+                  linkIsSelected: [{margin: 0, padding: 0}],
+                }}
+                selectedKey={this._getItemKeyByIndex(selectedIndex)}
+              >
+              {items.map((item, idx) => (
+                <PivotItem
+                  key={this._getItemKeyByIndex(idx)}
+                  itemKey={this._getItemKeyByIndex(idx)}
+                  headerText={item.headerText}
+                  onRenderItemLink={this._onRenderItem.bind(this)}
+                />
+              ))}
+              </Pivot>
+            </Stack.Item>
+            <Stack.Item disableShrink>
+              <ActionButton
+                styles={{root: {padding: `0 ${spacing.l1}`}}}
+                iconProps={{iconName: 'CircleAddition'}}
+                text='Add new task role'
+                onClick={this._onItemAdd.bind(this)}
               />
-            ))}
-            </Pivot>
-          </Stack.Item>
-          <Stack.Item disableShrink>
-            <ActionButton
-              styles={{root: {padding: `0 ${spacing.l1}`}}}
-              iconProps={{iconName: 'CircleAddition'}}
-              text='Add new task role'
-              onClick={this._onItemAdd.bind(this)}
-            />
-          </Stack.Item>
-          <Stack.Item disableShrink align='stretch'>
-            <Stack verticalAlign='center' styles={{root: {height: '100%'}}}>
-              <TooltipIcon content={PROTOCOL_TOOLTIPS.taskRole} />
-            </Stack>
-          </Stack.Item>
-        </Stack>
+            </Stack.Item>
+            <Stack.Item disableShrink align='stretch'>
+              <Stack verticalAlign='center' styles={{root: {height: '100%'}}}>
+                <TooltipIcon content={PROTOCOL_TOOLTIPS.taskRole} />
+              </Stack>
+            </Stack.Item>
+          </Stack>
+        }
         <Stack styles={{root: {minHeight: 0, overflowY: 'auto'}}}>
           <Card style={{padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`}}>
             {!isNil(selectedIndex) && (
@@ -215,6 +217,7 @@ export class TabForm extends React.Component {
                 jobTaskRole={items[selectedIndex].content}
                 onContentChange={this._onContentChange.bind(this, selectedIndex)}
                 advanceFlag={advanceFlag}
+                isSingle={isSingle}
               />
             )}
           </Card>
@@ -230,4 +233,5 @@ TabForm.propTypes = {
   onItemDelete: PropTypes.func.isRequired,
   onItemsChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
+  isSingle: PropTypes.bool,
 };

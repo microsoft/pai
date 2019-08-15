@@ -88,6 +88,7 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
       onItemDelete={_onItemDelete}
       onItemsChange={_onItemChange}
       advanceFlag={advanceFlag}
+      isSingle={true}
     />
   );
 });
