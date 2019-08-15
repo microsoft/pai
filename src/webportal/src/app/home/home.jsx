@@ -37,7 +37,6 @@ import {BREAKPOINT1} from './home/util';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
 import {userLogout} from '../user/user-logout/user-logout.component.js';
-import {filterAbnormalJobs} from '../components/util/job';
 
 import t from '../components/tachyons.scss';
 
@@ -55,9 +54,7 @@ const Home = () => {
   useEffect(() => {
     if (!isEmpty(cookies.get('user'))) {
       Promise.all([
-        isAdmin ? listAllJobs().then((jobs) => {
-          setJobs(filterAbnormalJobs(jobs));
-        }) : listJobs().then(setJobs),
+        isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),

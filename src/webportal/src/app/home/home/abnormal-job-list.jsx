@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {isEmpty} from 'lodash';
 import {
   Link,
   Stack,
@@ -25,151 +24,219 @@ import {
   DetailsListLayoutMode,
   SelectionMode,
   DefaultButton,
+  CommandButton,
+  getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 
 import Card from '../../components/card';
-import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
+import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString} from '../../components/util/job';
 import {zeroPaddingClass} from './util';
 import {Header} from './header';
+import userAuth from '../../user/user-auth/user-auth.component';
+import webportalConfig from '../../config/webportal.config';
+import {filterAbnormalJobs} from '../../components/util/job';
+
+// Move it to common folder
+import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
-const jobListColumns = [
-  {
-    key: 'name',
-    minWidth: 200,
-    name: 'Name',
-    fieldName: 'name',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender(job) {
-      const {legacy, name, namespace, username} = job;
-      const href = legacy
-        ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
-      return <Link href={href}>{name}</Link>;
+const {spacing} = getTheme();
+
+const AbnormalJobList = ({jobs}) => {
+  const jobListColumns = [
+    {
+      key: 'name',
+      minWidth: 200,
+      name: 'Name',
+      fieldName: 'name',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+      onRender(job) {
+        const {legacy, name, namespace, username} = job;
+        const href = legacy
+          ? `/job-detail.html?jobName=${name}`
+          : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+        return <Link href={href}>{name}</Link>;
+      },
     },
-  },
-  {
-    key: 'modified',
-    minWidth: 150,
-    name: 'Date Modified',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender(job) {
-      return getJobModifiedTimeString(job);
+    {
+      key: 'gpuCount',
+      minWidth: 60,
+      name: 'GPUs',
+      fieldName: 'totalGpuNumber',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
     },
-  },
-  {
-    key: 'duration',
-    minWidth: 120,
-    name: 'Duration',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender(job) {
-      return getJobDurationString(job);
+    {
+      key: 'modified',
+      minWidth: 150,
+      name: 'Date Modified',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+      onRender(job) {
+        return getJobModifiedTimeString(job);
+      },
     },
-  },
-  {
-    key: 'virtualCluster',
-    minWidth: 100,
-    name: 'Virtual Cluster',
-    fieldName: 'virtualCluster',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-  },
-  {
-    key: 'status',
-    minWidth: 100,
-    name: 'Status',
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
-    onRender(job) {
-      return <StatusBadge status={getHumanizedJobStateString(job)} />;
+    {
+      key: 'user',
+      minWidth: 60,
+      name: 'User',
+      fieldName: 'username',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
     },
-  },
-  {
-    key: 'action',
-    minWidth: 100,
-    name: 'Action',
-    headerClassName: FontClassNames.medium,
-    className: zeroPaddingClass,
-    isResizable: true,
-    onRender(job) {
-      return (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          data-selection-disabled
-        >
-          <DefaultButton
-            iconProps={{iconName: 'StopSolid'}}
-            styles={{
-              root: {backgroundColor: '#e5e5e5'},
-              rootFocused: {backgroundColor: '#e5e5e5'},
-              rootDisabled: {backgroundColor: '#eeeeee'},
-              rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-              icon: {fontSize: 12},
+    {
+      key: 'duration',
+      minWidth: 120,
+      name: 'Duration',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+      onRender(job) {
+        return getJobDurationString(job);
+      },
+    },
+    {
+      key: 'virtualCluster',
+      minWidth: 100,
+      name: 'Virtual Cluster',
+      fieldName: 'virtualCluster',
+      className: FontClassNames.mediumPlus,
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+    },
+    {
+      key: 'status',
+      minWidth: 100,
+      name: 'Status',
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+      onRender(job) {
+        return <StatusBadge status={getHumanizedJobStateString(job)} />;
+      },
+    },
+    {
+      key: 'action',
+      minWidth: 100,
+      name: 'Action',
+      headerClassName: FontClassNames.medium,
+      className: zeroPaddingClass,
+      isResizable: true,
+      onRender(job) {
+        return (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
+            data-selection-disabled
           >
-            Stop
-          </DefaultButton>
-        </div>
-      );
+            <DefaultButton
+              iconProps={{iconName: 'StopSolid'}}
+              styles={{
+                root: {backgroundColor: '#e5e5e5'},
+                rootFocused: {backgroundColor: '#e5e5e5'},
+                rootDisabled: {backgroundColor: '#eeeeee'},
+                rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+                icon: {fontSize: 12},
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                stopJob(job);
+              }}
+            >
+              Stop
+            </DefaultButton>
+          </div>
+        );
+      },
     },
-  },
-];
+  ];
 
-const Content = ({jobs}) => {
-  if (true && isEmpty(jobs)) {
-    return;
-  }
+  const stopJob = useCallback((job) => {
+    userAuth.checkToken((token) => {
+      const {name, username} = job;
+      fetch(`${webportalConfig.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({value: 'STOP'}),
+      })
+      .then((response) => {
+        if (response.ok) {
+          job.executionType = 'STOP';
+          const copyJobs = [...abnormalJobs];
+          setAbnormalJobs(copyJobs);
+        } else {
+          return response.json().then((data) => {
+            if (data.code === 'UnauthorizedUserError') {
+              alert(data.message);
+              userLogout();
+            } else {
+              throw new Error(data.message);
+            }
+          });
+        }
+      }).catch(alert);
+    });
+  }, [abnormalJobs]);
 
-  const items = jobs
-    .slice()
-    .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
-    .slice(0, 10);
+  const refreshJobs = useCallback(() => {
+    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.message);
+        } else {
+          return response.json();
+        }
+      })
+      .then((jobs) => {
+        setAbnormalJobs(filterAbnormalJobs(jobs));
+      })
+      .catch(alert);
+  }, []);
+
+  const [abnormalJobs, setAbnormalJobs] = useState(filterAbnormalJobs(jobs));
+
   return (
-    <div className={c(t.h100, t.overflowYAuto)}>
-      <DetailsList
-        columns={jobListColumns}
-        disableSelectionZone
-        items={items}
-        layoutMode={DetailsListLayoutMode.justified}
-        selectionMode={SelectionMode.none}
-      />
-    </div>
-  );
-};
-
-Content.propTypes = {
-  jobs: PropTypes.array.isRequired,
-};
-
-const AbnormalJobList = ({className, jobs}) => {
-  return (
-    <Card className={c(className, t.ph5)}>
-      <Stack styles={{root: [className]}} gap='l1'>
+    <Card className={c(t.h100, t.ph5)}>
+      <Stack gap='l1' styles={{root: [t.h100]}}>
         <Stack.Item>
           <Header
             headerName='Abnormal jobs'
             linkName='All jobs'
             linkHref='/job-list.html'
-            showLink={true} />
+            showLink={true}>{
+              <Stack horizontal gap='s1'>
+                <TooltipIcon content={'The job is treaded as an abnormal job if running more than 5 days and GPU usage is low'}/>
+                <CommandButton
+                   iconProps={{iconName: 'Refresh'}}
+                   styles={{flexContainer: {paddingTop: spacing.s2}, root: {height: '100%'}}}
+                   onClick={refreshJobs}
+                />
+              </Stack>}
+            </Header>
         </Stack.Item>
-        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
-          <Content jobs={jobs} />
+        <Stack.Item styles={{root: {overflow: 'auto', height: '500px'}}}>
+          <DetailsList
+            columns={jobListColumns}
+            disableSelectionZone
+            items={abnormalJobs}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            />
         </Stack.Item>
       </Stack>
     </Card>
@@ -177,7 +244,6 @@ const AbnormalJobList = ({className, jobs}) => {
 };
 
 AbnormalJobList.propTypes = {
-  className: PropTypes.string,
   jobs: PropTypes.array.isRequired,
 };
 
