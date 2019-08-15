@@ -21,15 +21,19 @@ import PropTypes from 'prop-types';
 import {
   Link,
   FontClassNames,
+  Stack,
 } from 'office-ui-fabric-react';
 import React from 'react';
 
 import t from '../../components/tachyons.scss';
 
-export const Header = ({headerName, linkName, linkHref, showLink}) => (
+export const Header = ({headerName, linkName, linkHref, showLink, children}) => (
   <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
     <div>
-      {headerName}
+      <Stack horizontal gap='s1'>
+        <div>{headerName}</div>
+        {children}
+      </Stack>
     </div>
     {showLink && (
       <div>
@@ -44,4 +48,5 @@ Header.propTypes = {
   linkName: PropTypes.string,
   linkHref: PropTypes.string.isRequired,
   showLink: PropTypes.bool.isRequired,
+  children: PropTypes.object,
 };

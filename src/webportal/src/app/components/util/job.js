@@ -18,6 +18,8 @@
 import {get, isNil} from 'lodash';
 import {Interval, DateTime} from 'luxon';
 
+const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
+
 export function getHumanizedJobStateString(job) {
   let hjss = '';
   if (job.state === 'JOB_NOT_FOUND') {
@@ -94,7 +96,6 @@ export function getJobModifiedTimeString(job) {
 }
 
 export function filterAbnormalJobs(jobs) {
-  const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
   const abnormalJobs = jobs.filter(
     (job) =>
       job.state === 'RUNNING' &&
