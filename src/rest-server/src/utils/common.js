@@ -15,6 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+/**
+ * @function assignValueByKeyarray - assign a value by a key array in a nested obj.
+ * @async
+ * @param {Object} obj - origin nested object.
+ * @param {Array} keyarray - a group of keys indexing the updated attribute, [key_a, key_b, key_c] means the updated
+ *                attribute is obj[key_a][key_b][key_c], will create attribute if not exist.
+ * @param {Any} value - new value assigned to the attribute
+ * @return {Object} Updated nested object
+ */
+
 const assignValueByKeyarray = (obj, keyarray, value) => {
   if (keyarray.length === 0) {
     return value;

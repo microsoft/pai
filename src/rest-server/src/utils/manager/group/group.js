@@ -39,7 +39,7 @@ const groupSchema = Joi.object().keys({
         .default(),
     })
     .pattern(/\w+/, Joi.required())
-    .default(),
+    .required(),
 }).required();
 
 function createGroup(value) {

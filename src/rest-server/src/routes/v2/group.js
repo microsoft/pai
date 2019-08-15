@@ -38,7 +38,7 @@ router.route('/:groupname/extension')
 
 router.route('/:groupname/extension/*')
 /** Put /api/v2/group/:groupname/extension/:attribute */
-  .put(token.check, groupController.updateGroupExtensionAttr);
+  .put(token.check, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
 
 router.route('/:groupname/description')
 /** Put /api/v2/group/:groupname/description */
