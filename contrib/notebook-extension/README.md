@@ -60,15 +60,18 @@ You can safely close the page when the extension is waiting. Once the notebook i
 
 **Note: The waiting process will take 5 to 10 minutes.** If you are not willing to wait, you could probably click the bottom link on the submitter to start a new session. The submitted job will not lose, you can click <img src="./docs_img/job-button.png" height="25" width="25"> to find it.
 
-### Submit as Interactive Notebook v.s. Python File
+### Submit as Interactive Notebook v.s. Python Script v.s. Silent Notebbook
 
 You can submit jobs in two ways:
 - as an ***interactive notebook***
-- as a ***.py file***
+- as a ***Python Script (.py file)***
+- as a ***silent notebook***
 
-It is easy to understand the differences. The interactive mode is a quick way for you to submit the notebook you work on locally to the cluster. The notebook will stay the same but have access to GPU resource on cluster. This mode is mainly designed for experimenting and debugging.
+The interactive mode is a quick way for you to submit the notebook you work on locally to the cluster. The notebook will stay the same but have access to GPU resource on cluster. This mode is mainly designed for experimenting and debugging.
 
-On the other hand, submitting the job as a Python file will firstly convert the notebook to a Python script, then execute the script directly. This mode is a good way for deployment and batch submitting.
+On the other hand, submitting the job as a .py file will firstly convert the notebook to a Python script, then execute the script directly. This mode is a good way for deployment and batch submitting.
+
+If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get matplotlib plot or other graph of your notebook.
 
 <img src="docs_img/submit-form.png" style="width:65%;" />
 
