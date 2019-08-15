@@ -232,7 +232,7 @@ class ActionFactoryForJob(ActionFactory):
 
     def do_action_notebook(self, args):
         self.__job__.new(args.job_name).from_notebook(
-            nb_file=args.notebook, interactive_mode=args.interactive, token=args.token,
+            nb_file=args.notebook, mode="interactive" if args.interactive else "silent", token=args.token,
             image=args.image,
             cluster=extract_args(
                 args, ["cluster_alias", "virtual_cluster", "workspace"]),

@@ -123,6 +123,8 @@ class Retry:
             try:
                 x = func(*args, **kwargs)
                 if f_exit(x):
+                    if not self.silent:
+                        to_screen("ready: {}".format(x))
                     return x
             except NotReadyError as identifier:
                 __logger__.debug("condition not satisfied", identifier)
