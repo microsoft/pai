@@ -219,7 +219,9 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             }
             if (jobStatusFinished.indexOf(record['state']) >= 0) {
               item['state'] = record['state']
-              item['notebook_url'] = '-'
+              if (record['form'] !== 'silent') { item['notebook_url'] = '-' } else {
+                if ((record['notebook_url'] === undefined) || (record['notebook_url'] === '-')) { item['notebook_url'] = '-' } else { item['notebook_url'] = '<a data-path="' + record['notebook_url'] + '" href="#"><i class="silent-link item_icon notebook_icon icon-fixed-width openpai-table-button"></i></a>' }
+              }
             } else {
               item['state'] = '<span class="datatable-status" data-jobname="' + record['jobname'] +
                       '" data-cluster="' + record['cluster'] + '" data-vc="' + record['vc'] +
@@ -263,10 +265,18 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               }],
               initComplete: function () {
                 set(STATUS.READY_LOADING)
+                $('body').off('click', '.silent-link').on('click', '.silent-link', function (e) {
+                  var url = $(e.target).parent().data('path')
+                  Utils.copy_to_clipboard(url).then(
+                    () => alert('The result file link has been copied to your clipboard! Please paste it to a new page.')
+                  ).catch(
+                    () => alert('Failed to copy the file link. Please find the file manually. Location: ' + url)
+                  )
+                })
                 var jobsFinished = []
                 var jobsUnfinished = []
                 for (var item of jobData) {
-                  if (item['state'] in jobStatusFinished) { jobsFinished.push(item) } else { jobsUnfinished.push(item) }
+                  if (jobStatusFinished.indexOf(item['state']) >= 0) { jobsFinished.push(item) } else { jobsUnfinished.push(item) }
                 }
                 /* Only detect unfinished jobs */
                 Interface.detect_jobs(jobsUnfinished)
@@ -277,7 +287,9 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                     for (var item of jobsUnfinished) {
                       var originalData = $('#recent-jobs').DataTable().row('#openpai-job-' + item['jobname']).data()
                       originalData['state'] = item['state']
-                      if (item['notebook_url'] !== undefined && item['notebook_url'] !== '-') { originalData['notebook_url'] = '<a href="' + item['notebook_url'] + '" target="_blank"><i class="item_icon notebook_icon icon-fixed-width openpai-table-button"></i></a>' } else { originalData['notebook_url'] = '-' }
+                      if (item['notebook_url'] !== undefined && item['notebook_url'] !== '-') {
+                        if (item['form'] === 'notebook') { originalData['notebook_url'] = '<a href="' + item['notebook_url'] + '" target="_blank"><i class="item_icon notebook_icon icon-fixed-width openpai-table-button"></i></a>' } else { originalData['notebook_url'] = '<a data-path="' + item['notebook_url'] + '" href="#"><i class="silent-link item_icon notebook_icon icon-fixed-width openpai-table-button"></i></a>' }
+                      } else { originalData['notebook_url'] = '-' }
                       $('#recent-jobs').DataTable().row('#openpai-job-' + item['jobname']).data(originalData)
                     }
                     set(STATUS.SHOWING_INFO)

@@ -48,7 +48,6 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     }
 
     var status
-    var submittingCtx
     var panelRecent
 
     set(STATUS.NOT_READY)
@@ -265,8 +264,8 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       }
       set(STATUS.SUBMITTING_1)
       /* get some basic */
-      submittingCtx = {
-        form: $('#submit-form-menu').val(), // file | notebook
+      var submittingCtx = {
+        form: $('#submit-form-menu').val(), // file | notebook | silent
         type: info['type'], // quick | edit
         cluster: info['cluster'],
         vc: info['vc'],
@@ -276,30 +275,23 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         docker_image: $('#docker-image-menu').val(),
         notebook_name: Jupyter.notebook.notebook_name
       }
-      if (submittingCtx['type'] === 'edit') { submittingCtx['stage_num'] = 2 } else {
-        if (submittingCtx['form'] === 'file') { submittingCtx['stage_num'] = 2 } else { submittingCtx['stage_num'] = 3 }
+      if (submittingCtx['type'] === 'edit') { submittingCtx['stage_num'] = 1 } else {
+        if (submittingCtx['form'] === 'file') { submittingCtx['stage_num'] = 1 } else { submittingCtx['stage_num'] = 2 }
       }
 
       console.log('[openpai submitter] submitting ctx:', submittingCtx)
       showInformation('')
-      appendInformation('Stage 1 / ' + submittingCtx['stage_num'] + ': Zip files and upload to cluster storage...' + getLoadingImg('loading-stage-1'))
+      if (submittingCtx['type'] === 'edit') { appendInformation('Uploading files and generating config...' + getLoadingImg('loading-stage-1')) } else {
+        if (submittingCtx['stage_num'] === 1) { appendInformation('Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) } else { appendInformation('Stage 1 / 2 : Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) }
+      }
       var promiseSubmitting = Jupyter.notebook.save_notebook()
         .then(
-          () => Interface.zip_and_upload(submittingCtx)
+          () => Interface.submit_job(submittingCtx)
         )
         .then(
           function (ctx) {
             set(STATUS.SUBMITTING_2)
-            submittingCtx = ctx
             $('#loading-stage-1').remove()
-            appendInformation('<br><br>')
-            if (ctx['type'] === 'quick') { appendInformation('Stage 2 / ' + ctx['stage_num'] + ': Submit job to cluster...' + getLoadingImg('loading-stage-2')) } else { appendInformation('Stage 2 / ' + ctx['stage_num'] + ': Generate config...' + getLoadingImg('loading-stage-2')) }
-            return Interface.submit_job(ctx)
-          })
-        .then(
-          function (ctx) {
-            set(STATUS.SUBMITTING_3)
-            $('#loading-stage-2').remove()
             appendInformation('<br>')
             submittingCtx = ctx
             if (ctx['type'] === 'quick') {
@@ -325,6 +317,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                   time: submissionTime,
                   jobname: ctx['jobname'],
                   joblink: ctx['joblink'],
+                  form: ctx['form'],
                   state: 'WAITING'
                 }
               )
@@ -337,30 +330,32 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                 var element = document.createElement('a')
                 element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
                 element.setAttribute('download', filename)
-
                 element.style.display = 'none'
                 document.body.appendChild(element)
-
                 element.click()
-
                 document.body.removeChild(element)
               }
-              download(ctx['jobname'] + '.json', JSON.stringify(ctx['job_config']))
+              download(ctx['jobname'] + '.yaml', ctx['job_config'])
             }
           }
         )
-      if (submittingCtx['stage_num'] === 3) {
+      if (submittingCtx['stage_num'] === 2) {
         promiseSubmitting = promiseSubmitting.then(
           function (ctx) {
             appendInformation('<br><br>')
-            appendInformation('Stage 3 / 3: Wait until the notebook is ready...' + getLoadingImg('loading-stage-3'))
+            if (ctx['form'] === 'notebook') { appendInformation('Stage 2 / 2: Wait until the notebook is ready...' + getLoadingImg('loading-stage-2')) } else { appendInformation('Stage 2 / 2: Wait until the result is ready...' + getLoadingImg('loading-stage-2')) }
             appendInformation('<br>')
-            appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
+            if (ctx['form'] === 'notebook') {
+              appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
                                   ' this submitter, and <b>the notebook URL will be shown here once it is prepared.</b></p><br>')
+            } else {
+              appendInformation('<p id="text-notebook-show">Note: The notebook will run in the background. You can safely close' +
+                                  ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
+            }
             appendInformation('<p id="text-clear-info-force">If you don\'t want to wait, you can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new session.</p>')
             var cancelThis
             var promise = Promise.race([
-              Interface.detect_notebook(ctx),
+              Interface.wait_jupyter(ctx),
               new Promise(function (resolve, reject) {
                 cancelThis = reject
               })
@@ -379,10 +374,13 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             if (!($('#openpai-panel-wrapper').is(':visible'))) {
               togglePanel()
             }
-            $('#loading-stage-3').remove()
+            $('#loading-stage-2').remove()
             $('#text-notebook-show').hide()
             $('#text-clear-info-force').hide()
-            appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
+            if (ctx['form'] === 'notebook') 
+              appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
+            else
+              appendInformation('The result file link is (please copy it to your clipboard and paste it to a new page) : <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
             return new Promise((resolve, reject) => resolve(ctx))
           })
       }
