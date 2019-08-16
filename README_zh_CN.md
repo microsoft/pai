@@ -115,7 +115,7 @@ Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resource
 
 ### 提交训练作业
 
-Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+Follow [the job submission tutorial](docs/user/job_submission.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### 客户端
 
