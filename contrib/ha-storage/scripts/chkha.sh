@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #constants
-source ../.env
+source .env
 resource="drbdha"
 _smb_name="paismb"
 hostname=$(hostname)

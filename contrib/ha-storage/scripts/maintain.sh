@@ -3,7 +3,7 @@
 STATE=${1}
 
 # constants
-source ../.env
+source .env
 resource="drbdha"
 logpath=${LOG_PATH}/actions.log
 hostname=$(hostname)
