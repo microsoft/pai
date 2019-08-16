@@ -41,9 +41,39 @@ class Sample:
         self._network_receive = network_receive
         self._network_transmit = network_transmit
 
+    def get_cpu_usage(self):
+        return self._cpu_usage
+
+    def get_gpu_usage(self):
+        return self._gpu_usage
+
+    def get_mem_used(self):
+        return self._mem_used
+
+    def get_mem_total(self):
+        return self._mem_total
+
+    def get_gpu_mem_used(self):
+        return self._gpu_mem_used
+
+    def get_gpu_mem_total(self):
+        return self._gpu_men_total
+
+    def get_read_bytes(self):
+        return self._read_bytes
+
+    def get_write_bytes(self):
+        return self._write_bytes
+
+    def get_network_receive(self):
+        return self._network_receive
+
+    def get_network_transmit(self):
+        return self._network_transmit
+
 
 # To get the CPU running time of system from being booted
-def getSystemCPUTicks():
+def get_System_CPU_Ticks():
     with open('/proc/stat', 'r') as f:
         for line in f.readlines():
             if line.startswith("cpu "):
@@ -51,15 +81,15 @@ def getSystemCPUTicks():
                 if len(items) < 8:
                     return -1
 
-                totalClockTicks = 0
+                total_Clock_Ticks = 0
                 for item in items[1:8]:
-                    totalClockTicks += int(item)
-                return totalClockTicks
+                    total_Clock_Ticks += int(item)
+                return total_Clock_Ticks
     return -1
 
 
 # To get the CPU running time of container from being booted
-def getContainerCPUTicks(filelist):
+def get_Container_CPU_Ticks(filelist):
     # docker_cpu_path = "/sys/fs/cgroup/cpuacct/docker/" + str(container_id) + "*/cpuacct.stat"
     user_time = 0
     system_time = 0
@@ -77,21 +107,21 @@ def getContainerCPUTicks(filelist):
     return user_time + system_time
 
 
-def getCPUPercent(filelist, period):
-    sys_ticks = getSystemCPUTicks()
-    container_ticks = getContainerCPUTicks(filelist)
+def get_CPU_Percent(filelist, period):
+    sys_ticks = get_System_CPU_Ticks()
+    container_ticks = get_Container_CPU_Ticks(filelist)
     time.sleep(period)
 
-    onlineCPUs = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
-    sysDelta = getSystemCPUTicks() - sys_ticks
-    containerDelta = getContainerCPUTicks(filelist) - container_ticks
+    online_CPUs = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
+    sys_Delta = get_System_CPU_Ticks() - sys_ticks
+    container_Delta = get_Container_CPU_Ticks(filelist) - container_ticks
 
-    cpuPercent = (containerDelta * 1.0) / sysDelta * onlineCPUs * 100.0
+    cpu_Percent = (container_Delta * 1.0) / sys_Delta * online_CPUs * 100.0
     # return cpuPercent
-    return [containerDelta, sysDelta, onlineCPUs, cpuPercent]
+    return [container_Delta, sys_Delta, online_CPUs, cpu_Percent]
 
 
-def getGpuUtilization(gpu_idx):
+def get_Gpu_Utilization(gpu_idx):
     try:
         handle = nvmlDeviceGetHandleByIndex(gpu_idx)
         util = nvmlDeviceGetUtilizationRates(handle)
@@ -103,7 +133,7 @@ def getGpuUtilization(gpu_idx):
     return util
 
 
-def getGpuMemory(gpu_idx):
+def get_Gpu_Memory(gpu_idx):
     try:
         handle = nvmlDeviceGetHandleByIndex(gpu_idx)
         mem = nvmlDeviceGetMemoryInfo(handle)
@@ -113,7 +143,7 @@ def getGpuMemory(gpu_idx):
     return mem
 
 
-def getMemoryPercent(filelist):
+def get_Memory_Percent(filelist):
     # docker_memory_used_path = "/sys/fs/cgroup/memory/docker/" + str(container_id) + "*/memory.usage_in_bytes"
     total_memory_path = "/proc/meminfo"
 
@@ -133,10 +163,9 @@ def getMemoryPercent(filelist):
     return [memory_docker_used, total_memory]
 
 
-def getDiskReadBytes(filelist):
+def get_Disk_Read_Bytes(filelist):
     # docker_disk_path = "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes"
     read_bytes = 0
-    write_bytes = 0
     for filename in filelist:
         with open(filename, 'r') as f:
             for line in f:
@@ -148,7 +177,7 @@ def getDiskReadBytes(filelist):
     return read_bytes
 
 
-def getDiskWriteBytes(filelist):
+def get_Disk_Write_Bytes(filelist):
     # docker_disk_path = "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes"
     write_bytes = 0
     for filename in filelist:
@@ -162,7 +191,7 @@ def getDiskWriteBytes(filelist):
     return write_bytes
 
 
-def getNetworkBytes(filename):
+def get_Network_Bytes(filename):
     receive_bytes, transmit_bytes = 0, 0
     with open(filename, 'r') as f:
         for line in f:
@@ -176,53 +205,51 @@ def getNetworkBytes(filename):
 
 
 # The analyze function
-def AnalyzeSamples(sample_list):
-    if len(sample_list) == 0:
-        return
+def Analyze_Samples(sample_list):
     count = len(sample_list)
-    min_cpu, min_cpu_idx = sample_list[0]._cpu_usage, 0
-    max_cpu, max_cpu_idx = sample_list[0]._cpu_usage, 0
-    min_gpu, min_gpu_idx = sample_list[0]._gpu_usage, 0
-    max_gpu, max_gpu_idx = sample_list[0]._gpu_usage, 0
-    min_mem, min_mem_idx = sample_list[0]._mem_used, 0
-    max_mem, max_mem_idx = sample_list[0]._mem_used, 0
-    max_read, max_read_idx = sample_list[0]._read_bytes, 0
+    min_cpu, min_cpu_idx = sample_list[0].get_cpu_usage(), 0
+    max_cpu, max_cpu_idx = sample_list[0].get_cpu_usage(), 0
+    min_gpu, min_gpu_idx = sample_list[0].get_gpu_usage(), 0
+    max_gpu, max_gpu_idx = sample_list[0].get_gpu_usage(), 0
+    min_mem, min_mem_idx = sample_list[0].get_mem_used(), 0
+    max_mem, max_mem_idx = sample_list[0].get_mem_used(), 0
+    max_read, max_read_idx = sample_list[0].get_read_bytes(), 0
     sum_cpu, sum_gpu, sum_mem, sum_read = 0, 0, 0, 0
     cpu_when_gpu_low = list()
     mem_when_gpu_low = list()
     disk_read_when_gpu_low = list()
     for i in range(1, count):
-        if sample_list[i]._cpu_usage < min_cpu:
-            min_cpu = sample_list[i]._cpu_usage
+        if sample_list[i].get_cpu_usage() < min_cpu:
+            min_cpu = sample_list[i].get_cpu_usage()
             min_cpu_idx = i
-        if sample_list[i]._cpu_usage > max_cpu:
-            max_cpu = sample_list[i]._cpu_usage
+        if sample_list[i].get_cpu_usage() > max_cpu:
+            max_cpu = sample_list[i].get_cpu_usage()
             max_cpu_idx = i
-        if sample_list[i]._gpu_usage < min_gpu:
-            min_gpu = sample_list[i]._gpu_usage
+        if sample_list[i].get_gpu_usage() < min_gpu:
+            min_gpu = sample_list[i].get_gpu_usage()
             min_gpu_idx = i
-        if sample_list[i]._gpu_usage > max_gpu:
-            max_gpu = sample_list[i]._gpu_usage
+        if sample_list[i].get_gpu_usage() > max_gpu:
+            max_gpu = sample_list[i].get_gpu_usage()
             max_gpu_idx = i
-        if sample_list[i]._mem_used < min_mem:
-            min_mem = sample_list[i]._mem_used
+        if sample_list[i].get_mem_used() < min_mem:
+            min_mem = sample_list[i].get_mem_used()
             min_mem_idx = i
-        if sample_list[i]._mem_used > max_mem:
-            max_mem = sample_list[i]._mem_used
+        if sample_list[i].get_mem_used() > max_mem:
+            max_mem = sample_list[i].get_mem_used()
             max_mem_idx = i
-        if sample_list[i]._read_bytes > max_read:
-            max_read = sample_list[i]._read_bytes
+        if sample_list[i].get_read_bytes() > max_read:
+            max_read = sample_list[i].get_read_bytes()
             max_read_idx = i
 
-        if sample_list[i]._gpu_usage <= 10:
-            cpu_when_gpu_low.append(sample_list[i]._cpu_usage)
-            mem_when_gpu_low.append(sample_list[i]._mem_used)
-            disk_read_when_gpu_low.append(sample_list[i]._read_bytes)
+        if sample_list[i].get_gpu_usage() <= 10:
+            cpu_when_gpu_low.append(sample_list[i].get_cpu_usage())
+            mem_when_gpu_low.append(sample_list[i].get_mem_used())
+            disk_read_when_gpu_low.append(sample_list[i].get_read_bytes())
 
-        sum_cpu += sample_list[i]._cpu_usage
-        sum_gpu += sample_list[i]._gpu_usage
-        sum_mem += sample_list[i]._mem_used
-        sum_read += sample_list[i]._read_bytes
+        sum_cpu += sample_list[i].get_cpu_usage()
+        sum_gpu += sample_list[i].get_gpu_usage()
+        sum_mem += sample_list[i].get_mem_used()
+        sum_read += sample_list[i].get_read_bytes()
 
     length_gpu_low = len(cpu_when_gpu_low)
     if length_gpu_low == 0:
@@ -239,7 +266,7 @@ def AnalyzeSamples(sample_list):
             sum(disk_read_when_gpu_low) / length_gpu_low]
 
 
-def Start_Sample(container_id, container_pid, period, flag, one_duration, dir, gpu_id):
+def Start_Sample(container_id, period, one_duration, dir, gpu_id, *container_pid):
     if not os.path.exists('./' + dir):
         os.mkdir(dir)
     realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w', newline=''))
@@ -263,36 +290,36 @@ def Start_Sample(container_id, container_pid, period, flag, one_duration, dir, g
     print(
         "max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low\tavg_mem_when_gpu_low\tavg_io_when_gpu_low")
 
-    if flag == 0:
+    if container_pid:
         Container_CPU_filelist = glob.glob("/sys/fs/cgroup/cpuacct/docker/" + str(container_id) + "*/cpuacct.stat")
         Container_MEM_filelist = glob.glob(
             "/sys/fs/cgroup/memory/docker/" + str(container_id) + "*/memory.usage_in_bytes")
         Container_BLK_filelist = glob.glob(
             "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes")
-        Container_NET_file = "/proc/" + str(container_pid) + "/net/dev"
-    elif flag == 1:
+        Container_NET_file = "/proc/" + str(container_pid[0]) + "/net/dev"
+    else:
         Container_CPU_filelist.append("/sys/fs/cgroup/cpuacct/cpuacct.stat")
         Container_MEM_filelist.append("/sys/fs/cgroup/memory/memory.usage_in_bytes")
         Container_BLK_filelist.append("/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes")
         Container_NET_file = "/proc/net/dev"
     while True:
         # 1st info about I/O and network
-        read_bytes1 = getDiskReadBytes(Container_BLK_filelist)
-        write_bytes1 = getDiskWriteBytes(Container_BLK_filelist)
-        [network_receive1, network_transmit1] = getNetworkBytes(Container_NET_file)
+        read_bytes1 = get_Disk_Read_Bytes(Container_BLK_filelist)
+        write_bytes1 = get_Disk_Write_Bytes(Container_BLK_filelist)
+        [network_receive1, network_transmit1] = get_Network_Bytes(Container_NET_file)
 
         # CPU usage will cost time('period') running
-        cpu_usage = getCPUPercent(Container_CPU_filelist, period)[-1]
-        [mem_used, mem_total] = getMemoryPercent(Container_MEM_filelist)
+        cpu_usage = get_CPU_Percent(Container_CPU_filelist, period)[-1]
+        [mem_used, mem_total] = get_Memory_Percent(Container_MEM_filelist)
 
         # 2nd info about I/O and network, calculate how many bytes used in this period
-        read_bytes2 = getDiskReadBytes(Container_BLK_filelist)
-        write_bytes2 = getDiskWriteBytes(Container_BLK_filelist)
-        [network_receive2, network_transmit2] = getNetworkBytes(Container_NET_file)
+        read_bytes2 = get_Disk_Read_Bytes(Container_BLK_filelist)
+        write_bytes2 = get_Disk_Write_Bytes(Container_BLK_filelist)
+        [network_receive2, network_transmit2] = get_Network_Bytes(Container_NET_file)
 
         # get the usage of the first GPU to analyze
-        gpu_util = getGpuUtilization(gpu_id[0])
-        gpu_mem = getGpuMemory(gpu_id[0])
+        gpu_util = get_Gpu_Utilization(gpu_id[0])
+        gpu_mem = get_Gpu_Memory(gpu_id[0])
 
         sample_list.append(
             Sample(cpu_usage, gpu_util.gpu, mem_used, mem_total, gpu_mem.used, gpu_mem.total, read_bytes2 - read_bytes1,
@@ -304,34 +331,32 @@ def Start_Sample(container_id, container_pid, period, flag, one_duration, dir, g
                               network_receive2 - network_receive1, network_transmit2 - network_transmit1]
         # the real-time file will log the information of all the GPUs that the model use
         for i in range(len(gpu_id)):
-            str_write_realtime.append(getGpuUtilization(gpu_id[i]).gpu)
-            str_write_realtime.append(getGpuMemory(gpu_id[i]).used)
+            str_write_realtime.append(get_Gpu_Utilization(gpu_id[i]).gpu)
+            str_write_realtime.append(get_Gpu_Memory(gpu_id[i]).used)
         realtime_log.writerow(str_write_realtime)
 
         if len(sample_list) > one_duration / period:
-            analyze_log.writerow(AnalyzeSamples(sample_list))
+            analyze_log.writerow(Analyze_Samples(sample_list))
             sample_list = list()
 
 
 # prepare for the args
-parser = argparse.ArgumentParser(description='The Profiler to collect the hardware information')
+parser = argparse.ArgumentParser(description='The profiler to collect the hardware information')
 parser.add_argument('--container_id', '-i', help='The SHA of the docker container', required=True)
 parser.add_argument('--container_pid', '-p', help='The pid of the docker container', required=True)
-parser.add_argument('--Sample_period', help='The period of the CPU usage collecting', required=True, type=float)
-parser.add_argument('--Host_Docker', help='Whether the profiler running on host or docker', required=True)
-parser.add_argument('--Duration', help='The duration of sampling the data once', required=True, type=float)
+parser.add_argument('--sample_period', help='The period of the CPU usage collecting', required=True, type=float)
+parser.add_argument('--host_docker', help='Whether the profiler running on host or docker', required=True)
+parser.add_argument('--duration', help='The duration of sampling the data once', required=True, type=float)
 parser.add_argument('--output_dir', '-o', help='The output directory to store the files', required=True)
-parser.add_argument('--GPU_INDEX', '-g', help='Which GPUS the deep learning model is using', required=True)
+parser.add_argument('--gpu_index', '-g', help='Which GPUS the deep learning model is using', required=True)
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    # whether the profiler running on host or docker
-    flag = -1
-    if args.Host_Docker == 'Host':
-        flag = 0
-    else:
-        flag = 1
     # get the GPU INDEX
-    GPU_INDEX = list(map(int, args.GPU_INDEX.split(',')))
-    Start_Sample(args.container_id, args.container_pid, args.Sample_period, flag, args.Duration, args.output_dir,
-                 GPU_INDEX)
+    GPU_INDEX = list(map(int, args.gpu_index.split(',')))
+    # whether the profiler running on host or docker
+    if args.host_docker == 'Host':
+        Start_Sample(args.container_id, args.sample_period, args.duration, args.output_dir, GPU_INDEX,
+                     args.container_pid)
+    else:
+        Start_Sample(args.container_id, args.sample_period, args.duration, args.output_dir, GPU_INDEX)
