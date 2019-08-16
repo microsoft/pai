@@ -122,6 +122,7 @@ const virtualClustersAdd = () => {
   userAuth.checkToken((token) => {
     let vcName = $('#virtualClustersList input[name="vcname"]').val();
     let capacity = $('#virtualClustersList input[name="capacity"]').val();
+    let externalName = $('#virtualClustersList input[name="securitygroup"]').val();
     if (!vcName) {
       $('#virtualClustersList input[name="vcname"]').focus();
       return false;
@@ -130,11 +131,15 @@ const virtualClustersAdd = () => {
       $('#virtualClustersList input[name="capacity"]').focus();
       return false;
     }
+    if (!externalName && webportalConfig.authnMethod === 'OIDC') {
+      $('#virtualClustersList input[name="securitygroup"]').focus();
+      return false;
+    }
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
         'vcCapacity': capacity,
-        'externalName': ``,
+        'externalName': externalName ? externalName : ``,
         'description': ``,
       }),
       headers: {
