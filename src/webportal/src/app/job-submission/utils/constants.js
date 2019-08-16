@@ -103,6 +103,8 @@ export const PROTOCOL_TOOLTIPS = {
   tools:
     'Tools section is used to configure the tools that are useful for jobs.',
   dockerImage: 'Please contact admin to make sure which cuda versions in docker image is supported by gpu drivers.',
+  teamStorage:
+    'Team share storage is external storage defined by cluster admin. Select an element means the external storage will be mount to \'path\' and user can treat it as local path.',
 };
 
 export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.
