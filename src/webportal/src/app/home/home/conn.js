@@ -19,7 +19,7 @@ import querystring from 'querystring';
 
 import config from '../../config/webportal.config';
 import {isNil} from 'lodash';
-import {MIN_ABNORMAL_JOB_DURATION_MILLISECOND, isLongRunJob} from '../../components/util/job';
+import {isLongRunJob} from '../../components/util/job';
 
 const username = cookies.get('user');
 const token = cookies.get('token');
