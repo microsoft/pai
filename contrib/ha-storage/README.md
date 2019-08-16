@@ -21,27 +21,28 @@ Tested OS:
 ```
 ha-storage
 ├── README.md
-├── DRBD                         # DRBD conf files
-│   ├── drbdha.res
+├── .env.template                        # env file
+├── DRBD                                 # DRBD conf files
+│   ├── drbdha.res.template
 │   └── global_common.conf
-├── others                       # An automatic failover demo (not recommended)
-│   ├── keepalived               # Keepalived conf files
+├── others                               # An automatic failover demo (not recommended)
+│   ├── keepalived                       # Keepalived conf files
 │   │   ├── BACKUP
-│   │   │   └── keepalived.conf
+│   │   │   └── keepalived.conf.template
 │   │   └── MASTER
-│   │       └── keepalived.conf
-│   └── scripts                  # Keepalived maintenance scripts
+│   │       └── keepalived.conf.template
+│   └── scripts                          # Keepalived maintenance scripts
 │       ├── checkservices.sh
 │       ├── notify.sh
-│       └── sendemail.py
-├── scripts                      # Maintenance scripts
-│   ├── chkha.sh                 # Check DRBD, NFS and SMB status
-│   ├── copy.sh                  # Copy conf files and scripts to specific folders
-│   ├── maintain.sh              # Switch host role (MASTER or BACKUP)
-│   └── sendha.py                # Send warning emails
-└── services                     # Systemd service conf files
-    ├── chkha.service            # Status check service
-    └── chkha.timer              # Timer of chkha.service
+│       └── sendemail.py.template
+├── scripts                              # Maintenance scripts
+│   ├── chkha.sh                         # Check DRBD, NFS and SMB status
+│   ├── copy.sh                          # Copy conf files and scripts to specific folders
+│   ├── maintain.sh                      # Switch host role (MASTER or BACKUP)
+│   └── sendha.py.template               # Send warning emails
+└── services                             # Systemd service conf files
+    ├── chkha.service                    # Status check service
+    └── chkha.timer                      # Timer of chkha.service
 ```
 
 ## 3. Deployment
@@ -57,7 +58,23 @@ ha-storage
 
 ### 3.2 Prepare
 
-In this sub-section, you will copy conf files, scripts, and services to specific folders. Please modify these files according to your environment before copying.
+In this sub-section, you will copy conf files, scripts, and services to specific folders. Please modify the ```.env.template``` first and rename it to ```.env```.
+
+```sh
+export DRBD_DEVICE=""      # DRBD device name such as "/dev/drbd0"
+export DISK=""             # Disk name such as "/dev/sda1"
+export MASTER_HOSTNAME=""  # Master (primary DRBD host) hostname
+export MASTER_IP=""        # Master host ip
+export BACKUP_HOSTNAME=""  # Backup (secondary DRBD host) hostname
+export BACKUP_IP=""        # Backup host ip
+export LOG_PATH=""         # log path
+export MOUNT_PATH=""       # mount point of DRBD device
+export SMTP_HOST=""        # smtp host to send emails
+export SMTP_PORT=""        # smtp host port
+export SMTP_USER=""        # smtp host user
+export SMTP_PASS=""        # smtp host password
+export SMTP_RECIPIENT=""   # Who receives the email
+```
 
 ```sh
 # copy files

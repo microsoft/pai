@@ -29,12 +29,12 @@ def geneMessage(subject, role):
 
 
 def sendMail(subject, role):
-    smtpHost = '*'
-    smtpPort = *
-    smtpUser = '*'
-    smtpPassword='*'
+    smtpHost = '${SMTP_HOST}'
+    smtpPort = ${SMTP_PORT}
+    smtpUser = '${SMTP_USER}'
+    smtpPassword = '${SMTP_PASS}'
     sender = smtpUser
-    receivers = ['*']
+    receivers = ['${SMTP_RECIPIENT}']
     message = geneMessage(subject, role)
     message['From'] = sender
     message['To'] = receivers[0]
