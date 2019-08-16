@@ -30,7 +30,8 @@ import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
 import VirtualClusterStatistics from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, listAbnormalJobs} from './home/conn';
+import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, getLowGpuJobInfos, listAllJobs} from './home/conn';
+import {listAbnormalJobs} from '../components/util/job';
 import RecentJobList from './home/recent-job-list';
 import AbnormalJobList from './home/abnormal-job-list';
 import {BREAKPOINT1} from './home/util';
@@ -49,15 +50,16 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [gpuPerNode, setGpuPerNode] = useState(null);
+  const [lowGpuJobInfo, setLowGpuJobInfo] = useState(null);
   const isAdmin = cookies.get('admin') === 'true';
 
   useEffect(() => {
-    // $(window).on('load', () => {debugger
-    //   $('body').layout('resetHeight', false);
-    // });
     if (!isEmpty(cookies.get('user'))) {
+      if (isAdmin) {
+        getLowGpuJobInfos().then(setLowGpuJobInfo).catch(alert);
+      }
       Promise.all([
-        isAdmin ? listAbnormalJobs().then(setJobs) : listJobs().then(setJobs),
+        isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -160,7 +162,7 @@ const Home = () => {
         {/* recent jobs */}
         <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
           {isAdmin ? (
-            <AbnormalJobList className={c(t.h100)} jobs={jobs} />
+            <AbnormalJobList className={c(t.h100)} jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
           ) : (
             <RecentJobList className={c(t.h100)} jobs={jobs} />
           )}
