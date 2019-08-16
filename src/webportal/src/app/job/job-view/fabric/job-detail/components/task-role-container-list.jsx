@@ -125,10 +125,10 @@ export default class TaskRoleContainerList extends React.Component {
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
       const res = [];
-      res.push('This job does not contain SSH info.')
-      res.push('Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n')
-      res.push('Solution 1: Use one of the recommended docker images on the submission page.')
-      res.push('Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.')
+      res.push('This job does not contain SSH info.');
+      res.push('Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n');
+      res.push('Solution 1: Use one of the recommended docker images on the submission page.');
+      res.push('Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.');
       this.setState({
         monacoProps: {value: res.join('\n')},
         monacoTitle: `SSH to ${id}`,
