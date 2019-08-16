@@ -104,3 +104,35 @@ export function isLongRunJob(job) {
 export function isLowGpuUsageJob(job) {
   return !isNil(job.gpuUsage) && Number(job.gpuUsage) < 10;
 }
+
+export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
+  const allRuuingJobs = allJobs.filter((job) => job.state === 'RUNNING');
+  const longRunJobs = allRuuingJobs.filter(isLongRunJob);
+
+  // Get low GPU usage jobs
+  const lowGpuUsageJobs = allRuuingJobs.reduce((acc, cur)=>{
+    const gpuUsageInfo = lowGpuJobsInfo.find((info) => info.jobName === cur.name);
+    if (isNil(gpuUsageInfo)) {
+      return acc;
+    }
+    const lowGpuUsageJob = {...cur};
+    lowGpuUsageJob['gpuUsage'] = gpuUsageInfo.gpuUsage;
+    acc.push(lowGpuUsageJob);
+    return acc;
+  }, []);
+
+  // Merge long run jobs and low GPU usage jobs
+  const abnormalJobs = [...longRunJobs];
+  abnormalJobs.forEach((job) => {
+    const lowGpuUsagejob = lowGpuUsageJobs.find((lowGpuUsageJob) => lowGpuUsageJob.name === job.name);
+    if (!isNil(lowGpuUsagejob)) {
+      job['gpuUsage'] = lowGpuUsagejob.gpuUsage;
+    }
+  });
+  lowGpuUsageJobs.forEach((lowGpuUsageJob) => {
+    if (isNil(abnormalJobs.find((job) => job.name === lowGpuUsageJob.name))) {
+      abnormalJobs.push(lowGpuUsageJob);
+    }
+  });
+  return abnormalJobs;
+}
