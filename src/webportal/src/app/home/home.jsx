@@ -30,7 +30,7 @@ import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
 import VirtualClusterStatistics from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, listAllJobs} from './home/conn';
+import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, listAbnormalJobs} from './home/conn';
 import RecentJobList from './home/recent-job-list';
 import AbnormalJobList from './home/abnormal-job-list';
 import {BREAKPOINT1} from './home/util';
@@ -52,9 +52,12 @@ const Home = () => {
   const isAdmin = cookies.get('admin') === 'true';
 
   useEffect(() => {
+    // $(window).on('load', () => {debugger
+    //   $('body').layout('resetHeight', false);
+    // });
     if (!isEmpty(cookies.get('user'))) {
       Promise.all([
-        isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
+        isAdmin ? listAbnormalJobs().then(setJobs) : listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -105,7 +108,7 @@ const Home = () => {
     const ResponsiveWidthItem = styled.div`
     width: 66%;
     height: auto;
-    @media screen and (max-width: ${BREAKPOINT1}px) {
+    @media screen and (max-width: 1400px) {
       width: 100%;
       height: 320px;
     }
@@ -114,8 +117,8 @@ const Home = () => {
     return (
       <Stack
         styles={{root: [t.w100, t.h100L, {minWidth: 500}]}}
-        padding="l2"
-        gap="l2"
+        padding='l2'
+        gap='l2'
       >
         {/* top */}
         <Stack.Item>

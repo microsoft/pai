@@ -24,7 +24,6 @@ import {
   DetailsListLayoutMode,
   SelectionMode,
   DefaultButton,
-  CommandButton,
   getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
@@ -36,7 +35,7 @@ import {zeroPaddingClass} from './util';
 import {Header} from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
 import webportalConfig from '../../config/webportal.config';
-import {filterAbnormalJobs} from '../../components/util/job';
+import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -44,7 +43,7 @@ import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
-const {spacing} = getTheme();
+const {palette} = getTheme();
 
 const AbnormalJobList = ({jobs}) => {
   const jobListColumns = [
@@ -66,12 +65,18 @@ const AbnormalJobList = ({jobs}) => {
     },
     {
       key: 'gpuCount',
-      minWidth: 60,
+      minWidth: 150,
       name: 'GPUs',
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
       headerClassName: FontClassNames.medium,
       isResizable: true,
+      onRender(job) {
+        if (isLowGpuUsageJob(job)) {
+          return (<div style={{color: palette.red}}>{`count: ${job.totalGpuNumber}  usage: ${job.gpuUsage}%`}</div>);
+        }
+        return job.totalGpuNumber;
+      },
     },
     {
       key: 'modified',
@@ -101,6 +106,9 @@ const AbnormalJobList = ({jobs}) => {
       headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
+        if (isLongRunJob(job)) {
+          return (<div style={{color: palette.red}}>{getJobDurationString(job)}</div>);
+        }
         return getJobDurationString(job);
       },
     },
@@ -193,22 +201,7 @@ const AbnormalJobList = ({jobs}) => {
     });
   }, [abnormalJobs]);
 
-  const refreshJobs = useCallback(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
-      .then((response) => {
-        if (!response.ok) {
-          throw Error(response.message);
-        } else {
-          return response.json();
-        }
-      })
-      .then((jobs) => {
-        setAbnormalJobs(filterAbnormalJobs(jobs));
-      })
-      .catch(alert);
-  }, []);
-
-  const [abnormalJobs, setAbnormalJobs] = useState(filterAbnormalJobs(jobs));
+  const [abnormalJobs, setAbnormalJobs] = useState(jobs);
 
   return (
     <Card className={c(t.h100, t.ph5)}>
@@ -219,17 +212,11 @@ const AbnormalJobList = ({jobs}) => {
             linkName='All jobs'
             linkHref='/job-list.html'
             showLink={true}>{
-              <Stack horizontal gap='s1'>
-                <TooltipIcon content={'The job is treaded as an abnormal job if running more than 5 days and GPU usage is low'}/>
-                <CommandButton
-                   iconProps={{iconName: 'Refresh'}}
-                   styles={{flexContainer: {paddingTop: spacing.s2}, root: {height: '100%'}}}
-                   onClick={refreshJobs}
-                />
-              </Stack>}
+                <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
+              }
             </Header>
         </Stack.Item>
-        <Stack.Item styles={{root: {overflow: 'auto', height: '500px'}}}>
+        <Stack.Item styles={{root: {overflow: 'auto'}}} grow>
           <DetailsList
             columns={jobListColumns}
             disableSelectionZone

@@ -18,7 +18,7 @@
 import {get, isNil} from 'lodash';
 import {Interval, DateTime} from 'luxon';
 
-const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
+export const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
 
 export function getHumanizedJobStateString(job) {
   let hjss = '';
@@ -95,11 +95,10 @@ export function getJobModifiedTimeString(job) {
   }
 }
 
-export function filterAbnormalJobs(jobs) {
-  const abnormalJobs = jobs.filter(
-    (job) =>
-      job.state === 'RUNNING' &&
-      Date.now() - job.createdTime > MIN_ABNORMAL_JOB_DURATION_MILLISECOND
-  );
-  return abnormalJobs;
+export function isLongRunJob(job) {
+  return (Date.now() - job.createdTime) > MIN_ABNORMAL_JOB_DURATION_MILLISECOND;
+}
+
+export function isLowGpuUsageJob(job) {
+  return !isNil(job.gpuUsage) && Number(job.gpuUsage) < 10;
 }
