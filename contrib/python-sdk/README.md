@@ -341,7 +341,7 @@ Some commonly used default variables includes
 - `cluster-alias=<cluster-alias>`
 - `image=<docker-image>`
 - `workspace=<workspace>`
-- `sdk-branch=<sdk-branch-tag>` which branch to use when install the sdk in job container
+- `container-sdk-branch=<container-sdk-branch-tag>` which branch to use when install the sdk in job container
 
 ### How to install a different version of SDK
 
@@ -353,7 +353,7 @@ pip install -U "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisd
 
 To debug a local update, just use `pip install -U your/path/to/setup.py`.
 
-For jobs submitted by the SDK or command line tool, the version specified by `opai set sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
+For jobs submitted by the SDK or command line tool, the version specified by `opai set container-sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
 
 ### How to specify the `python` environment I want to use in the job container
 
@@ -433,7 +433,7 @@ If there are functions requests not included, please open an issue for feature r
 For users those want to improve the functions themselves, you may create the branch of `OpenPAI` project, and make modifications locally. And then set your own branch to the SDK installation source by
 
 ```bash
-opai set sdk-branch=<your/branch>
+opai set container-sdk-branch=<your/branch>
 ```
 
 Then the `pip install` command in the job container would use `<your/branch>` . User may check the generated job config to check.

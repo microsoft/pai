@@ -8,7 +8,7 @@ from typing import Union
 from copy import deepcopy
 from html2text import html2text
 
-from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __sdk_branch__, __cache__, __version__
+from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __container_sdk_branch__, __cache__, __version__
 from openpaisdk import get_install_uri
 from openpaisdk.cli_arguments import get_args
 from openpaisdk.io_utils import from_file, to_file, get_defaults, to_screen, safe_open, browser_open
@@ -227,7 +227,7 @@ class Job:
         self.add_tag(__internal_tags__["sdk"])
 
         # sdk.plugins
-        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("sdk-branch", __sdk_branch__)))
+        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("container-sdk-branch", __container_sdk_branch__)))
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
 

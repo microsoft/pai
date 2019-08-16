@@ -60,8 +60,8 @@ class openpai_ext_Interface(object):
         from openpaisdk.io_utils import from_file as openpai_ext_from_file
         from openpaisdk.cluster import ClusterList as openpai_ext_ClusterList
         from openpaisdk.io_utils import get_defaults, update_default
-        if get_defaults().get('sdk-branch') != 'notebook-extension':
-            update_default('sdk-branch', 'notebook-extension')
+        if get_defaults().get('container-sdk-branch') != 'notebook-extension':
+            update_default('container-sdk-branch', 'notebook-extension')
         self.cll = openpai_ext_ClusterList(
             openpai_ext_from_file(openpai_ext_config, default=[])
         )
