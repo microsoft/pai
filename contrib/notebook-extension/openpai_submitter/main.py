@@ -50,7 +50,8 @@ class openpai_ext_Thread(openpai_ext_threading.Thread):
             ret = self.target(*self.args, **self.kwargs)
             self.success_handler(ret)
         except Exception as e:
-            self.err_handler(e)
+            import traceback
+            self.err_handler(traceback.format_exc())
 
 class openpai_ext_Interface(object):
 
@@ -126,6 +127,7 @@ class openpai_ext_Interface(object):
         from openpaisdk.core import Job
         job = Job(ctx['jobname']).load(cluster_alias=ctx['cluster'])
         ret = job.wait()
+        ret = job.connect_jupyter()  # ret will be None if run in silent mode and without this
         ctx['state'] = ret['state']
         if ret['notebook'] is None:
             ctx['notebook_url'] = '-'
