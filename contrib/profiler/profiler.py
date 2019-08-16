@@ -76,7 +76,7 @@ class Sample:
 def get_System_CPU_Ticks():
     with open('/proc/stat', 'r') as f:
         for line in f.readlines():
-            if line.startswith("cpu "):
+            if line.startswith('cpu '):
                 items = line.split()
                 if len(items) < 8:
                     return -1
@@ -90,7 +90,7 @@ def get_System_CPU_Ticks():
 
 # To get the CPU running time of container from being booted
 def get_Container_CPU_Ticks(filelist):
-    # docker_cpu_path = "/sys/fs/cgroup/cpuacct/docker/" + str(container_id) + "*/cpuacct.stat"
+    # docker_cpu_path = '/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat'
     user_time = 0
     system_time = 0
     for filename in filelist:
@@ -144,8 +144,8 @@ def get_Gpu_Memory(gpu_idx):
 
 
 def get_Memory_Percent(filelist):
-    # docker_memory_used_path = "/sys/fs/cgroup/memory/docker/" + str(container_id) + "*/memory.usage_in_bytes"
-    total_memory_path = "/proc/meminfo"
+    # docker_memory_used_path = '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes'
+    total_memory_path = '/proc/meminfo'
 
     memory_docker_used = 0.0
     total_memory = 1.0
@@ -164,7 +164,7 @@ def get_Memory_Percent(filelist):
 
 
 def get_Disk_Read_Bytes(filelist):
-    # docker_disk_path = "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes"
+    # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     read_bytes = 0
     for filename in filelist:
         with open(filename, 'r') as f:
@@ -178,7 +178,7 @@ def get_Disk_Read_Bytes(filelist):
 
 
 def get_Disk_Write_Bytes(filelist):
-    # docker_disk_path = "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes"
+    # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     write_bytes = 0
     for filename in filelist:
         with open(filename, 'r') as f:
@@ -255,7 +255,7 @@ def Analyze_Samples(sample_list):
     if length_gpu_low == 0:
         length_gpu_low = 1
 
-    print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" %
+    print('%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f' %
           (max_gpu, sum_gpu / count, max_cpu, sum_cpu / count, max_mem, sum_mem / count, max_read, sum_read,
            sum(cpu_when_gpu_low) / length_gpu_low,
            sum(mem_when_gpu_low) / length_gpu_low,
@@ -288,20 +288,20 @@ def Start_Sample(container_id, period, one_duration, dir, gpu_id, *container_pid
     Container_NET_file = ''
 
     print(
-        "max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low\tavg_mem_when_gpu_low\tavg_io_when_gpu_low")
+        'max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
 
     if container_pid:
-        Container_CPU_filelist = glob.glob("/sys/fs/cgroup/cpuacct/docker/" + str(container_id) + "*/cpuacct.stat")
+        Container_CPU_filelist = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
         Container_MEM_filelist = glob.glob(
-            "/sys/fs/cgroup/memory/docker/" + str(container_id) + "*/memory.usage_in_bytes")
+            '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')
         Container_BLK_filelist = glob.glob(
-            "/sys/fs/cgroup/blkio/docker/" + str(container_id) + "*/blkio.throttle.io_service_bytes")
-        Container_NET_file = "/proc/" + str(container_pid[0]) + "/net/dev"
+            '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
+        Container_NET_file = '/proc/' + str(container_pid[0]) + '/net/dev'
     else:
-        Container_CPU_filelist.append("/sys/fs/cgroup/cpuacct/cpuacct.stat")
-        Container_MEM_filelist.append("/sys/fs/cgroup/memory/memory.usage_in_bytes")
-        Container_BLK_filelist.append("/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes")
-        Container_NET_file = "/proc/net/dev"
+        Container_CPU_filelist.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
+        Container_MEM_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
+        Container_BLK_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
+        Container_NET_file = '/proc/net/dev'
     while True:
         # 1st info about I/O and network
         read_bytes1 = get_Disk_Read_Bytes(Container_BLK_filelist)
