@@ -60,7 +60,7 @@ const vcListColumns = [
   },
   {
     key: 'utilization',
-    minWidth: 150,
+    minWidth: 100,
     name: 'Utilization',
     isResizable: true,
     className: zeroPaddingClass,
@@ -133,7 +133,7 @@ const vcListColumns = [
   },
   {
     key: 'bonus',
-    minWidth: 100,
+    minWidth: 60,
     name: 'Bonus',
     isResizable: true,
     onRender(vc) {

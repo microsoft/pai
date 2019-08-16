@@ -18,7 +18,8 @@
 import querystring from 'querystring';
 
 import config from '../../config/webportal.config';
-import { async } from 'regenerator-runtime';
+import {isNil} from 'lodash';
+import {MIN_ABNORMAL_JOB_DURATION_MILLISECOND, isLongRunJob} from '../../components/util/job';
 
 const username = cookies.get('user');
 const token = cookies.get('token');
@@ -46,10 +47,6 @@ async function fetchWrapper(...args) {
 
 export async function listJobs() {
   return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
-}
-
-export async function listAllJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`);
 }
 
 export async function getUserInfo() {
@@ -83,3 +80,55 @@ export async function getAvailableGpuPerNode() {
     throw new Error(json.error);
   }
 }
+
+export async function listAbnormalJobs() {
+  const prometheusQuery = `avg(avg_over_time(task_gpu_percent[10m]) < 10) by (job_name)`;
+  const results = await Promise.all([
+    fetchWrapper(`${config.restServerUri}/api/v1/jobs`),
+    fetch(`${config.prometheusUri}/api/v1/query?query=${encodeURIComponent(prometheusQuery)}`),
+  ]);
+  const allRuuingJobs = results[0].filter((job) => job.state === 'RUNNING');
+  const longRunJobs = allRuuingJobs.filter(isLongRunJob);
+
+  if (!results[1].ok) {
+    return longRunJobs;
+  }
+
+  const json = await results[1].json();
+  const gpuUsageInfos = json.data.result.map((keyValuePair) => {
+    const frameworkName = keyValuePair.metric.job_name;
+    const jobNameBeginIndex = frameworkName.indexOf('~');
+    return {
+      jobName: frameworkName.slice(jobNameBeginIndex + 1),
+      gpuUsage: keyValuePair.value[1],
+    };
+  });
+
+  // Get low GPU usage jobs
+  const lowGpuUsageJobs = allRuuingJobs.reduce((acc, cur)=>{
+    const gpuUsageInfo = gpuUsageInfos.find((info) => info.jobName === cur.name);
+    if (isNil(gpuUsageInfo)) {
+      return acc;
+    }
+    const lowGpuUsageJob = {...cur};
+    lowGpuUsageJob['gpuUsage'] = gpuUsageInfo.gpuUsage;
+    acc.push(lowGpuUsageJob);
+    return acc;
+  }, []);
+
+  // Merge long run jobs and low GPU usage jobs
+  const abnormalJobs = [...longRunJobs];
+  abnormalJobs.forEach((job) => {
+    const lowGpuUsagejob = lowGpuUsageJobs.find((lowGpuUsageJob) => lowGpuUsageJob.name === job.name);
+    if (!isNil(lowGpuUsagejob)) {
+      job['gpuUsage'] = lowGpuUsagejob.gpuUsage;
+    }
+  });
+  lowGpuUsageJobs.forEach((lowGpuUsageJob) => {
+    if (isNil(abnormalJobs.find((job) => job.name === lowGpuUsageJob.name))) {
+      abnormalJobs.push(lowGpuUsageJob);
+    }
+  });
+  return abnormalJobs;
+}
+
