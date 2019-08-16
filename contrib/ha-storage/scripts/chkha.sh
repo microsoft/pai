@@ -1,9 +1,7 @@
 #!/bin/bash
 
 #constants
-logpath="/var/log/drbdha"
-mountpath="/data/share/drbdha"
-drbddev="/dev/drbd0"
+source ../.env
 resource="drbdha"
 _smb_name="paismb"
 hostname=$(hostname)
@@ -16,7 +14,7 @@ error="error"
 
 writelogs() {
   local curtime=$(date "+%F-%H:%M:%S")
-  echo "${curtime} [${hostname}] $@" &>> "${logpath}/actions.log"
+  echo "${curtime} [${hostname}] $@" &>> "${LOG_PATH}/actions.log"
 }
 
 checkDRBD() {

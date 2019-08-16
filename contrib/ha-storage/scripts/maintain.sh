@@ -3,10 +3,9 @@
 STATE=${1}
 
 # constants
-logpath='/var/log/drbdha/actions.log'
-drbddev='/dev/drbd0'
-mountpath='/data/share/drbdha'
-resource='drbdha'
+source ../.env
+resource="drbdha"
+logpath=${LOG_PATH}/actions.log
 hostname=$(hostname)
 _docker_adm='/usr/bin/docker'
 _docker_name='paismb'
@@ -63,12 +62,12 @@ stop_nfs() {
 }
 
 mount_mountpath() {
-  ${_mount} ${drbddev} ${mountpath}  &>> $logpath
+  ${_mount} ${DRBD_DEVICE} ${MOUNT_PATH}  &>> $logpath
   writelogs 'mounted'
 }
 
 umount_mountpath() {
-  ${_umount} ${mountpath}  &>> $logpath
+  ${_umount} ${MOUNT_PATH}  &>> $logpath
   writelogs 'unmounted'
 }
 

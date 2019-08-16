@@ -1,0 +1,4 @@
+# dotenv environment variables file
+.env
+.sendha.py
+.drbdha.res
