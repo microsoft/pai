@@ -49,6 +49,11 @@ spec:
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - mountPath: /hived-spec
           name: hived-spec-rest-server
+{%- endif %}
+        env:
+        - name: LAUNCHER_TYPE
+          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - name: SCHEDULER_TYPE
           value: hived
         - name: LAUNCHER_RUNTIME_IMAGE
@@ -58,9 +63,6 @@ spec:
         - name: LAUNCHER_SCHEDULER
           value: hivedscheduler
 {%- endif %}
-        env:
-        - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
@@ -94,18 +96,6 @@ spec:
           value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
         - name: DEBUGGING_RESERVATION_SECONDS
           value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
-{% if cluster_cfg['rest-server']['github-owner'] %}
-        - name: GITHUB_OWNER
-          value: {{ cluster_cfg['rest-server']['github-owner'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-repository'] %}
-        - name: GITHUB_REPOSITORY
-          value: {{ cluster_cfg['rest-server']['github-repository'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-path'] %}
-        - name: GITHUB_PATH
-          value: {{ cluster_cfg['rest-server']['github-path'] }}
-{% endif %}
 {% if cluster_cfg['layout']['kubernetes']['api-servers-url'].startswith('https://') %}
         - name: K8S_APISERVER_CA_FILE
           value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt

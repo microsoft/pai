@@ -55,7 +55,7 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4 &&\
+    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4 future &&\
     pip3 install kubernetes
 
 WORKDIR /tmp
@@ -125,5 +125,4 @@ WORKDIR /
 COPY build/start-script.sh /usr/local
 RUN chmod u+x /usr/local/start-script.sh
 
-CMD ["/usr/local/start-script.sh"]
-
+ENTRYPOINT ["/usr/local/start-script.sh"]

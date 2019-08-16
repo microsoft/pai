@@ -118,7 +118,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-singlebox \
-  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > SINGLE_BOX_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} nofetch > SINGLE_BOX_DEV_BOX.txt
 
 sudo docker exec $(cat SINGLE_BOX_DEV_BOX.txt) rm -rf /pai
 sudo docker cp ${WORKSPACE} $(cat SINGLE_BOX_DEV_BOX.txt):/pai
@@ -208,7 +208,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-cluster \
-  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > CLUSTER_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} nofetch > CLUSTER_DEV_BOX.txt
 
 sudo docker exec $(cat CLUSTER_DEV_BOX.txt) rm -rf /pai
 sudo docker cp ${WORKSPACE} $(cat CLUSTER_DEV_BOX.txt):/pai
