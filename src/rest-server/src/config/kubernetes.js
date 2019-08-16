@@ -57,9 +57,8 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
     // Will be a string since http header can only receive a string.
     apiserverConfig.token = readFileSync(tokenPath, 'ascii');
   } catch (error) {
-    // eslint-disable-next-line no-console
-    logger.info('failed to init rbac config. Please check your clusters\' config');
-    process.exit(1);
+    logger.error('failed to init rbac config. Please check your clusters\' config');
+    throw error;
   }
 }
 
