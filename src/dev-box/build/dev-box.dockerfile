@@ -125,5 +125,4 @@ WORKDIR /
 COPY build/start-script.sh /usr/local
 RUN chmod u+x /usr/local/start-script.sh
 
-CMD ["/usr/local/start-script.sh"]
-
+ENTRYPOINT ["/usr/local/start-script.sh"]
