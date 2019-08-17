@@ -1,0 +1,6 @@
+out
+node_modules
+*.log
+!.vscode/
+.vscode/extensions.json
+.vscode/settings.json
