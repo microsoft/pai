@@ -12,6 +12,14 @@ import { expect } from 'chai';
 import { JobClient } from '../../src/client/jobClient'
 import { IPAICluster } from '../../src/models/cluster'
 
+const testUri = 'openpai-js-sdk.test/rest-server';
+const cluster: IPAICluster = {
+    password: 'test',
+    rest_server_uri: testUri,
+    username: 'test'
+};
+const jobClient = new JobClient(cluster);
+
 chai.use(dirtyChai);
 
 describe('List jobs', () => {
@@ -20,7 +28,7 @@ describe('List jobs', () => {
         "completedTime": 1563499887777,
         "createdTime": 1563499625106,
         "executionType": "STOP",
-        "name": "sklearn-mnist_2019-07-19_01-26-40",
+        "name": "sklearn-mnist",
         "retries": 0,
         "retryDetails": {
             "platform": 0,
@@ -32,19 +40,10 @@ describe('List jobs', () => {
         "totalGpuNumber": 0,
         "totalTaskNumber": 1,
         "totalTaskRoleNumber": 1,
-        "username": "core",
+        "username": "test",
         "virtualCluster": "default"
     }];
-
-    const testUri = 'openpai-js-sdk.test/rest-server';
     nock(`http://${testUri}`).get(`/api/v1/jobs`).reply(200, response);
-
-    const cluster: IPAICluster = {
-        password: 'test',
-        rest_server_uri: testUri,
-        username: 'test'
-    };
-    const jobClient = new JobClient(cluster);
 
     it('should return a list of jobs', async () => {
         const result = await jobClient.list();
