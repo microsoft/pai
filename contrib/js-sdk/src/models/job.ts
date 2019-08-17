@@ -42,14 +42,14 @@ export interface IJobConfig {
     /** Component type, should be "job" here. */
     type: string;
     /** Component version, Default is latest. */
-    version?: string;
+    version?: string | number;
     contributor?: string;
     description?: string;
 
     /** Each item is the protocol for data, script, dockerimage, or output type. */
     prerequisites?: Array<{
         /** If omitted, follow the protocolVersion in root. */
-        protocolVersion?: string;
+        protocolVersion?: string | number;
         name: string;
         /** Component type. Must be one of the following: data, script, dockerimage, or output. Prerequisites.type cannot be "job". */
         type: string;

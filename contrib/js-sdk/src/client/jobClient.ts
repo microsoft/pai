@@ -4,11 +4,12 @@
  * @author Microsoft
  */
 
+import * as yaml from 'js-yaml';
 import * as request from 'request-promise-native';
 
 import { Util } from '../commom/util';
 import { IPAICluster } from '../models/cluster';
-import { IJobStatusV1 } from '../models/job';
+import { IJobConfig, IJobStatusV1 } from '../models/job';
 
 /**
  * OpenPAI Job client.
@@ -26,5 +27,16 @@ export class JobClient {
     public async list(): Promise<IJobStatusV1[]> {
         const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/jobs`);
         return await request.get(url);
+    }
+
+    /**
+     * Get job config, will call /api/v2/jobs/{userName}~{jobName}/config.
+     * @param userName The user name.
+     * @param jobName The job name.
+     */
+    public async get(userName: string, jobName: string): Promise<IJobConfig> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/jobs/${userName}~${jobName}/config`);
+        const res = await request.get(url);
+        return yaml.safeLoad(res);
     }
 }
