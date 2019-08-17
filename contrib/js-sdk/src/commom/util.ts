@@ -4,13 +4,13 @@
  * @author Microsoft
  */
 
- /**
-  * Utility class.
-  */
+/**
+ * Utility class.
+ */
 class UtilClass {
     public fixUrl(url: string): string {
         if (!/^[a-zA-Z]+?\:\/\//.test(url)) {
-            url = 'http://' + url;
+            url = `http://${url}`;
         }
         return url;
     }

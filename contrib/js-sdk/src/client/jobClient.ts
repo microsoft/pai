@@ -24,7 +24,7 @@ export class JobClient {
      * List jobs, will call /api/v1/jobs
      */
     public async list(): Promise<IJobStatusV1[]> {
-        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/v1/jobs`);
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/jobs`);
         return await request.get(url);
     }
 }

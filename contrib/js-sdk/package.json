@@ -9,7 +9,7 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts"
   },
   "homepage": "https://github.com/Microsoft/pai",
   "repository": {
@@ -24,9 +24,16 @@
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.2.0",
+    "@types/dirty-chai": "^2.0.1",
     "@types/mocha": "^5.2.7",
+    "@types/nock": "^10.0.3",
     "@types/request-promise-native": "^1.0.16",
+    "chai": "^4.2.0",
+    "dirty-chai": "^2.0.1",
+    "mocha": "^6.2.0",
+    "nock": "^10.0.6",
     "prettier": "^1.18.2",
+    "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.5.3"
