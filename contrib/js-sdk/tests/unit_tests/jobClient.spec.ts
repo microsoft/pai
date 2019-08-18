@@ -13,17 +13,18 @@ import { expect } from 'chai';
 import { JobClient } from '../../src/client/jobClient'
 import { IPAICluster } from '../../src/models/cluster'
 import { testJobConfig } from '../common/test_data/testJobConfig';
-import { testJobInfo } from '../common/test_data/testJobInfo';
+import { testJobFrameworkInfo } from '../common/test_data/testJobFrameworkInfo';
 import { testJobList } from '../common/test_data/testJobList';
 import { testJobSshInfo } from '../common/test_data/testJobSshInfo';
+import { testJobStatus } from '../common/test_data/testJobStatus';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 const realUri = '10.151.40.234/rest-server';
 
 const cluster: IPAICluster = {
-    password: 'PhillyOnAzure001',
+    password: 'test',
     rest_server_uri: testUri,
-    username: 'core'
+    username: 'test'
 };
 const jobClient = new JobClient(cluster);
 
@@ -50,15 +51,27 @@ describe('List jobs with query', () => {
     }).timeout(10000);
 });
 
-describe('Get job info', () => {
-    const response = testJobInfo;
+describe('Get job status', () => {
+    const response = testJobStatus;
+    const userName = 'core';
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
+    nock(`http://${testUri}`).get(`/api/v2/user/${userName}/jobs/${jobName}`).reply(200, response);
+
+    it('should return the job status', async () => {
+        const result = await jobClient.get(userName, jobName);
+        expect(result).to.be.eql(response);
+    });
+})
+
+describe('Get job framework information', () => {
+    const response = testJobFrameworkInfo;
     const userName = 'core';
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
     nock(`http://${testUri}`).get(`/api/v2/jobs/${userName}~${jobName}`).reply(200, response);
 
 
-    it('should return the job information', async () => {
-        const result = await jobClient.get(userName, jobName);
+    it('should return the job framework info', async () => {
+        const result = await jobClient.getFrameworkInfo(userName, jobName);
         expect(result).to.be.eql(response);
     });
 })
@@ -88,7 +101,7 @@ describe('Submit a job', () => {
     })
 });
 
-describe('Get job ssh infomation', () => {
+describe('Get job ssh infomation with user name and job name', () => {
     const response = testJobSshInfo;
     const userName = 'core';
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
@@ -98,4 +111,43 @@ describe('Get job ssh infomation', () => {
         const result = await jobClient.getSshInfo(userName, jobName);
         expect(result).to.be.eql(response);
     });
+});
+
+describe('Get job ssh infomation with job name', () => {
+    const response = testJobSshInfo;
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
+    nock(`http://${testUri}`).get(`/api/v1/jobs/${jobName}/ssh`).reply(200, response);
+
+    it('should return the job ssh info', async() => {
+        const result = await jobClient.getSshInfo(jobName);
+        expect(result).to.be.eql(response);
+    });
+});
+
+describe('Start a job', () => {
+    const response = {
+        "message": "execute job tensorflow_serving_mnist_2019_6585ba19 successfully"
+    };
+    const userName = 'core';
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
+    nock(`http://${testUri}`).put(`/api/v1/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
+
+    it('should start the job', async() => {
+        const result = await jobClient.execute(userName, jobName, 'START');
+        expect(result).to.be.eql(response);
+    })
+});
+
+describe('Stop a job', () => {
+    const response = {
+        "message": "execute job tensorflow_serving_mnist_2019_6585ba19 successfully"
+    };
+    const userName = 'core';
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
+    nock(`http://${testUri}`).put(`/api/v1/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
+
+    it('should stop the job', async() => {
+        const result = await jobClient.execute(userName, jobName, 'STOP');
+        expect(result).to.be.eql(response);
+    })
 });

@@ -6,11 +6,13 @@
 
 import { JobClient } from './client/jobClient';
 import { IPAICluster } from './models/cluster';
-import { IJobConfig, IJobStatusV1 } from './models/job';
+import { IJobConfig, IJobFrameworkInfo, IJobInfo, IJobSshInfo } from './models/job';
 
 export {
     JobClient,
     IPAICluster,
     IJobConfig,
-    IJobStatusV1
+    IJobInfo,
+    IJobFrameworkInfo,
+    IJobSshInfo
 };

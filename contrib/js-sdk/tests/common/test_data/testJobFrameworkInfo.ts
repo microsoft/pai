@@ -4,9 +4,9 @@
  * @author Microsoft
  */
 
-import { IJobInfo } from '../../../src/models/job';
+import { IJobFrameworkInfo } from '../../../src/models/job';
 
-export const testJobInfo: IJobInfo = {
+export const testJobFrameworkInfo: IJobFrameworkInfo = {
     "summarizedFrameworkInfo": {
         "frameworkName": "core~tensorflow_serving_mnist_2019_6585ba19",
         "frameworkVersion": 10,

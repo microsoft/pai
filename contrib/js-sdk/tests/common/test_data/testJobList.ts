@@ -4,9 +4,9 @@
  * @author Microsoft
  */
 
-import { IJobStatusV1 } from '../../../src/models/job';
+import { IJobInfo } from '../../../src/models/job';
 
-export const testJobList: IJobStatusV1[] = [{
+export const testJobList: IJobInfo[] = [{
     "appExitCode": 0,
     "completedTime": 1563499887777,
     "createdTime": 1563499625106,

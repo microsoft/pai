@@ -5,9 +5,9 @@
  */
 
 /**
- * OpenPAI Job Status V1.
+ * OpenPAI Job Info.
  */
-export interface IJobStatusV1 {
+export interface IJobInfo {
     name: string;
     username: string;
     state: 'WAITING' | 'RUNNING' | 'SUCCEEDED' | 'STOPPED' | 'FAILED' | 'UNKNOWN';
@@ -33,9 +33,18 @@ export interface IJobStatusV1 {
 }
 
 /**
- * OpenPAI Job Infomation.
+ * OpenPAI Job status.
  */
-export interface IJobInfo {
+export interface IJobStatus {
+    name?: string;
+    jobStatus?: any | null;
+    taskRoles?: any | null;
+}
+
+/**
+ * OpenPAI Job Framework Infomation.
+ */
+export interface IJobFrameworkInfo {
     summarizedFrameworkInfo?: any | null;
     aggregatedFrameworkRequest?: any | null;
     aggregatedFrameworkStatus?: any | null;
