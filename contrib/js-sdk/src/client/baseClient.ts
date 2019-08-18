@@ -7,7 +7,7 @@
 import * as request from 'request-promise-native';
 
 import { Util } from '../commom/util';
-import { IPAICluster } from '../models/cluster';
+import { IPAICluster, IPAIClusterInfo } from '../models/cluster';
 import { ITokenItem } from '../models/token';
 
 export class OpenPAIBaseClient {
@@ -41,5 +41,14 @@ export class OpenPAIBaseClient {
             }
         }
         return this.cacheToken!.token;
+    }
+
+    /**
+     * Get OpenPAI cluster info, will call /api/v1.
+     */
+    public async getClusterInfo(): Promise<IPAIClusterInfo> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/`);
+        const res = await request.get(url);
+        return JSON.parse(res);
     }
 }

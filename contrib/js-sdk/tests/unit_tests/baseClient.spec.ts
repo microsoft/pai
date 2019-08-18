@@ -35,3 +35,18 @@ describe('Get token', () => {
         expect(result).to.be.a('string');
     });
 });
+
+describe('Get cluster info', () => {
+    const response = {
+        authnMethod: "basic",
+        launcherType: "yarn",
+        name: "PAI RESTful API",
+        version: "v0.14.0"
+    };
+    nock(`http://${testUri}`).get(`/api/v1/`).reply(200, response);
+
+    it('should return the cluster info', async () => {
+        const result = await baseClient.getClusterInfo();
+        expect(result).to.be.eql(response);
+    });
+});
