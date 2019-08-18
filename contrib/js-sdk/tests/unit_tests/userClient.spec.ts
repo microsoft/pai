@@ -8,7 +8,6 @@ import * as chai from 'chai';
 import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
-
 import { expect } from 'chai';
 import { UserClient } from '../../src/client/userClient'
 import { IPAICluster } from '../../src/models/cluster'
@@ -26,6 +25,7 @@ const cluster: IPAICluster = {
 const userClient = new UserClient(cluster);
 
 chai.use(dirtyChai);
+nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, 'token');
 
 describe('Get user infomation', () => {
     const response = testUserInfo;
@@ -38,19 +38,18 @@ describe('Get user infomation', () => {
     });
 });
 
-describe('Get all users', () => {
+describe('List all users', () => {
     const response = testAllUsers;
     nock(`http://${testUri}`).get(`/api/v2/user/`).reply(200, response);
 
-    it('should return the user info', async () => {
-        const result = await userClient.getAll();
+    it('should return all users', async () => {
+        const result = await userClient.list();
         expect(result).is.not.empty();
     });
 });
 
 describe('Create a new user', () => {
     const response = { "message": "User is created successfully" };
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).post(`/api/v2/user/`).reply(201, response);
 
     it('should create a new user', async () => {
@@ -62,7 +61,6 @@ describe('Create a new user', () => {
 describe('Update user extension data', () => {
     const response = { "message": "Update user extension data successfully." };
     const userName = 'core11';
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/extension`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -74,10 +72,9 @@ describe('Update user extension data', () => {
 describe('Delete a user', () => {
     const response = { "message": "user is removed successfully" };
     const userName = 'core11';
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).delete(`/api/v2/user/${userName}`).reply(200, response);
 
-    it('should update successfully', async () => {
+    it('should delete successfully', async () => {
         const result = await userClient.delete(userName);
         expect(result).to.be.eql(response);
     });
@@ -86,7 +83,6 @@ describe('Delete a user', () => {
 describe('Update user virtualCluster data', () => {
     const response = { "message": "Update user virtualCluster data successfully." };
     const userName = 'core11';
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/virtualcluster`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -99,7 +95,6 @@ describe('Update user password', () => {
     const response = { "message": "update user password successfully." };
     const userName = 'core11';
     const newPassword = 'newPassword';
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/password`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -111,7 +106,6 @@ describe('Update user email', () => {
     const response = { "message": "Update user email data successfully." };
     const userName = 'core11';
     const newEmail = 'new@email.test';
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/email`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -124,7 +118,6 @@ describe('Update user admin permission', () => {
     const response = { "message": "Update user admin permission successfully." };
     const userName = 'core11';
     const newAdminPermission = false;
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/admin`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -137,7 +130,6 @@ describe('Update user group list', () => {
     const userName = 'core11';
     const newGroupList = ['newGroup1', 'newGroup2'];
     const response = { "message": "update user grouplist successfully." };
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/grouplist`).reply(201, response);
 
     it('should update successfully', async () => {
@@ -150,10 +142,9 @@ describe('Add new group into user group list', () => {
     const userName = 'core11';
     const groupName = 'testGroup';
     const response = { "message": `User ${userName} is added into group ${groupName}` };
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).put(`/api/v2/user/${userName}/group`).reply(201, response);
 
-    it('should update successfully', async () => {
+    it('should add successfully', async () => {
         const result = await userClient.addGroup(userName, groupName);
         expect(result).to.be.eql(response);
     });
@@ -163,10 +154,9 @@ describe('Remove group from user group list', () => {
     const userName = 'core11';
     const groupName = 'testGroup';
     const response = { "message": `User ${userName} is removed from group ${groupName}` };
-    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
     nock(`http://${testUri}`).delete(`/api/v2/user/${userName}/group`).reply(201, response);
 
-    it('should update successfully', async () => {
+    it('should remove successfully', async () => {
         const result = await userClient.removeGroup(userName, groupName);
         expect(result).to.be.eql(response);
     });

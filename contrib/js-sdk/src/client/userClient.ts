@@ -41,7 +41,7 @@ export class UserClient extends OpenPAIBaseClient {
      * Get all users.
      * @param token Specific an access token (optional).
      */
-    public async getAll(token?: string): Promise<IUserInfo[]> {
+    public async list(token?: string): Promise<IUserInfo[]> {
         const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/user/`);
         if(token === undefined) {
             token = await super.token();

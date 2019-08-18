@@ -4,10 +4,11 @@
  * @author Microsoft
  */
 
-import { UserClient } from '..';
 import { IPAICluster } from '../models/cluster';
 import { OpenPAIBaseClient } from './baseClient';
 import { JobClient } from './jobClient';
+import { UserClient} from './userClient';
+import { VirtualClusterClient } from './virtualClusterClient';
 
 /**
  * OpenPAI Client.
@@ -23,9 +24,15 @@ export class OpenPAIClient extends OpenPAIBaseClient {
      */
     public user: UserClient;
 
+    /**
+     * OpenPAI Virtual Cluster Client.
+     */
+    public virtualCluster: VirtualClusterClient;
+
     constructor(cluster: IPAICluster) {
         super(cluster);
         this.job = new JobClient(cluster);
         this.user = new UserClient(cluster);
+        this.virtualCluster = new VirtualClusterClient(cluster);
     }
 }

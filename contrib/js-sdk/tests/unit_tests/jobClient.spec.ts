@@ -8,7 +8,6 @@ import * as chai from 'chai';
 import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
-
 import { expect } from 'chai';
 import { JobClient } from '../../src/client/jobClient'
 import { IPAICluster } from '../../src/models/cluster'
