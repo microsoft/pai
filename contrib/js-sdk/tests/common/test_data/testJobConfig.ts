@@ -13,7 +13,7 @@ export const testJobConfig: IJobConfig = {
         "and use the standard tensorflow_model_server to serve it on OpenPAI.\n" +
         "This example uses the simple Softmax Regression model introduced in the TensorFlow tutorial for handwritten image (MNIST data) classification.\n" +
         "Reference https://www.tensorflow.org/tfx/serving/serving_basic.\n",
-    "name": "tensorflow_serving_mnist_2019_6585ba19",
+    "name": "tensorflow_serving_mnist_2019_6585ba19_test",
     "parameters": {
         "modelPath": "/tmp/mnist_model"
     },

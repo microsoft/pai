@@ -43,6 +43,27 @@ export class JobClient extends OpenPAIBaseClient {
     }
 
     /**
+     * Delete a job, will call /api/v2/user/{userName}/jobs/{jobName}.
+     * @param userName The user name.
+     * @param jobName The job name.
+     * @param token Specific an access token (optional).
+     */
+    public async delete(userName: string, jobName: string, token?: string): Promise<IJobStatus> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/user/${userName}/jobs/${jobName}`);
+        if(token === undefined) {
+            token = await super.token();
+        }
+        const res = await request.delete(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            timeout: OpenPAIBaseClient.TIMEOUT
+        });
+        return JSON.parse(res);
+    }
+
+    /**
      * Get job framework info, will call /api/v2/jobs/{userName}~{jobName}.
      * @param userName The user name.
      * @param jobName The job name.

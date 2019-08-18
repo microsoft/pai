@@ -150,3 +150,17 @@ describe('Stop a job', () => {
         expect(result).to.be.eql(response);
     })
 });
+
+describe('Delete a job', () => {
+    const response = {
+        "message": "deleted job tensorflow_serving_mnist_2019_6585ba19_test successfully"
+    };
+    const userName = 'core';
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19_test';
+    nock(`http://${testUri}`).delete(`/api/v2/user/${userName}/jobs/${jobName}`).reply(201, response);
+
+    it('should delete the job', async() => {
+        const result = await jobClient.delete(userName, jobName);
+        expect(result).to.be.eql(response);
+    })
+});
