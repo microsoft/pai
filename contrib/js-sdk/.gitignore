@@ -1,4 +1,5 @@
 out
+lib
 node_modules
 *.log
 !.vscode/

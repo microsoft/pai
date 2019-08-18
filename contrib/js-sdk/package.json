@@ -2,9 +2,10 @@
   "name": "openpai-js-sdk",
   "version": "0.0.0",
   "description": "The `Javascript` SDK for `OpenPAI`",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "out/**/*"
+    "lib/**/*"
   ],
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
