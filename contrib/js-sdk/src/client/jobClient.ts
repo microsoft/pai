@@ -72,7 +72,7 @@ export class JobClient extends OpenPAIBaseClient {
      * @param token Specific an access token (optional).
      */
     public async execute(userName: string, jobName: string, type: 'START' | 'STOP', token?: string): Promise<any> {
-        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/user/${userName}/jobs/${jobName}/executionType`);
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/user/${userName}/jobs/${jobName}/executionType`);
         if(token === undefined) {
             token = await super.token();
         }

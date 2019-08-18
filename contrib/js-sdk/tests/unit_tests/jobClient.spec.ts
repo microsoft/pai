@@ -129,7 +129,7 @@ describe('Start a job', () => {
     };
     const userName = 'core';
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
-    nock(`http://${testUri}`).put(`/api/v1/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
+    nock(`http://${testUri}`).put(`/api/v2/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
 
     it('should start the job', async() => {
         const result = await jobClient.execute(userName, jobName, 'START');
@@ -143,7 +143,7 @@ describe('Stop a job', () => {
     };
     const userName = 'core';
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
-    nock(`http://${testUri}`).put(`/api/v1/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
+    nock(`http://${testUri}`).put(`/api/v2/user/${userName}/jobs/${jobName}/executionType`).reply(200, response);
 
     it('should stop the job', async() => {
         const result = await jobClient.execute(userName, jobName, 'STOP');
