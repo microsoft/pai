@@ -209,3 +209,11 @@ export interface IJobConfig {
         submitFrom?: string;
     };
 }
+
+/**
+ * OpenPAI Job SSH Information.
+ */
+export interface IJobSshInfo {
+    containers?: any | null;
+    keyPair?: any | null;
+}

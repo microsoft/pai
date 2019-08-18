@@ -15,6 +15,7 @@ import { IPAICluster } from '../../src/models/cluster'
 import { testJobConfig } from '../common/test_data/testJobConfig';
 import { testJobInfo } from '../common/test_data/testJobInfo';
 import { testJobList } from '../common/test_data/testJobList';
+import { testJobSshInfo } from '../common/test_data/testJobSshInfo';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 const realUri = '10.151.40.234/rest-server';
@@ -85,4 +86,16 @@ describe('Submit a job', () => {
     it('should submit a job without exception', async() => {
         await jobClient.submit(jobConfig);
     })
-})
+});
+
+describe('Get job ssh infomation', () => {
+    const response = testJobSshInfo;
+    const userName = 'core';
+    const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
+    nock(`http://${testUri}`).get(`/api/v1/user/${userName}/jobs/${jobName}/ssh`).reply(200, response);
+
+    it('should return the job ssh info', async() => {
+        const result = await jobClient.getSshInfo(userName, jobName);
+        expect(result).to.be.eql(response);
+    });
+});

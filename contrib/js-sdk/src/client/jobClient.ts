@@ -9,7 +9,7 @@ import * as request from 'request-promise-native';
 
 import { Util } from '../commom/util';
 import { IPAICluster } from '../models/cluster';
-import { IJobConfig, IJobInfo, IJobStatusV1 } from '../models/job';
+import { IJobConfig, IJobInfo, IJobStatusV1, IJobSshInfo } from '../models/job';
 import { OpenPAIBaseClient } from './baseClient';
 
 /**
@@ -72,5 +72,16 @@ export class JobClient extends OpenPAIBaseClient {
                 timeout: OpenPAIBaseClient.TIMEOUT
             }
         );
+    }
+
+    /**
+     * Get job SSH infomation.
+     * @param userName The user name.
+     * @param jobName The job name.
+     */
+    public async getSshInfo(userName: string, jobName: string): Promise<IJobSshInfo> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/user/${userName}/jobs/${jobName}/ssh`);
+        const res = await request.get(url);
+        return JSON.parse(res);
     }
 }
