@@ -7,8 +7,8 @@
         "strict": true,
         "lib": [
             "es2019"
-        ],
+        ]
     },
-    "include": ["src"],
+    "include": ["src", "tests/unit_tests/global.d.ts"],
     "exclude": ["node_modules", "tests", "out"]
 }

@@ -33,6 +33,15 @@ export interface IJobStatusV1 {
 }
 
 /**
+ * OpenPAI Job Infomation.
+ */
+export interface IJobInfo {
+    summarizedFrameworkInfo?: any | null;
+    aggregatedFrameworkRequest?: any | null;
+    aggregatedFrameworkStatus?: any | null;
+}
+
+/**
  * OpenPAI Job Config Protocol.
  */
 export interface IJobConfig {
