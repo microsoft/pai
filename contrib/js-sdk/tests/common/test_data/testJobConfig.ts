@@ -4,7 +4,7 @@
  * @author Microsoft
  */
 
-import { IJobConfig } from '../../../src/models/job';
+import { IJobConfig, IJobConfigV1 } from '../../../src/models/job';
 
 export const testJobConfig: IJobConfig = {
     "contributor": "OpenPAI",
@@ -50,3 +50,48 @@ export const testJobConfig: IJobConfig = {
     "type": "job",
     "version": 1
 };
+
+export const testJobConfigV1: IJobConfigV1 = {
+    // Name for the job, need to be unique
+    "jobName": "test_job_20190819",
+
+    // URL pointing to the Docker image for all tasks in the job
+    "image": "aiplatform/pai.build.base",
+
+    // Code directory existing on HDFS.
+    // Full HDFS path will be exported as an environment variable $PAI_CODE_DIR.
+    "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USER_NAME/$PAI_JOB_NAME",
+
+    // Data directory existing on HDFS.
+    // Full HDFS path will be exported as an environment variable $PAI_DATA_DIR.
+    "dataDir": "$PAI_DEFAULT_FS_URI/Data/$PAI_JOB_NAME",
+
+    // Output directory on HDFS, $PAI_DEFAULT_FS_URI/Output/$jobName will be used if
+    // not specified.
+    // Full HDFS path will be exported as an environment variable $PAI_OUTPUT_DIR.
+    "outputDir": "$PAI_DEFAULT_FS_URI/Output/$PAI_JOB_NAME",
+
+    // List of taskRole, one task role at least
+    "taskRoles": [
+        {
+            // Name for the task role, need to be unique with other roles
+            "name": "task",
+
+            // Number of tasks for the task role, no less than 1
+            "taskNumber": 1,
+
+            // CPU number for one task in the task role, no less than 1
+            "cpuNumber": 1,
+
+            // GPU number for one task in the task role, no less than 0
+            "gpuNumber": 0,
+
+            // Memory for one task in the task role, no less than 100
+            "memoryMB": 1000,
+
+            // Executable command for tasks in the task role, can not be empty
+            // ** PLEASE CHANGE MANUALLY **
+            "command": "python $PAI_JOB_NAME/<start up script>"
+        }
+    ]
+}

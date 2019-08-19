@@ -11,7 +11,7 @@ import * as nock from 'nock';
 import { expect } from 'chai';
 import { JobClient } from '../../src/client/jobClient';
 import { IPAICluster } from '../../src/models/cluster';
-import { testJobConfig } from '../common/test_data/testJobConfig';
+import { testJobConfig, testJobConfigV1 } from '../common/test_data/testJobConfig';
 import { testJobFrameworkInfo } from '../common/test_data/testJobFrameworkInfo';
 import { testJobList } from '../common/test_data/testJobList';
 import { testJobSshInfo } from '../common/test_data/testJobSshInfo';
@@ -93,10 +93,24 @@ describe('Submit a job', () => {
         token: 'eyJhb...'
     };
     nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
-    nock(`http://${testUri}`).post(`/api/v2/jobs`).reply(200);
+    nock(`http://${testUri}`).post(`/api/v2/jobs`).reply(202);
 
     it('should submit a job without exception', async() => {
         await jobClient.submit(jobConfig);
+    })
+});
+
+describe('Submit a v1 job', () => {
+    const jobConfigV1 = testJobConfigV1;
+    const response = {
+        token: 'eyJhb...'
+    };
+    const userName = 'core';
+    nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, response);
+    nock(`http://${testUri}`).post(`/api/v1/user/${userName}/jobs`).reply(202);
+
+    it('should submit the job without exception', async() => {
+        await jobClient.submitV1(userName, jobConfigV1);
     })
 });
 
