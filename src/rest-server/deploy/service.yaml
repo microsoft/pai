@@ -22,6 +22,7 @@ prerequisite:
 template-list:
   - rest-server.yaml
   - start.sh
+  - stop.sh
   - configmap-create.sh
   - auth-configmap/oidc.yaml
   - group-configmap/group.yaml
