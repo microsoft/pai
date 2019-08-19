@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-class K8sDashboard(object):
+class K8SDashboard(object):
 
     def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.cluster_conf = cluster_conf
