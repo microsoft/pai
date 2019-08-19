@@ -111,16 +111,16 @@ spec:
     spec:
       hostNetwork: true
       nodeSelector:
-        kubernetes.io/hostname: {{ cluster_cfg['kubernetes']['dashboard-host'] }}
+        kubernetes.io/hostname: {{ cluster_cfg['k8s-dashboard']['dashboard-host'] }}
       containers:
       - name: kubernetes-dashboard-openpai
-        image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kubernetes-dashboard-amd64:{{ cluster_cfg['kubernetes']['dashboard-version'] }}
+        image: k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
         command:
           - /dashboard
           - --insecure-bind-address=0.0.0.0
         args:
           - --insecure-port=9090
-          - --apiserver-host={{ cluster_cfg['kubernetes']['api-servers-url'] }}
+          - --apiserver-host={{ cluster_cfg['k8s-dashboard']['api-servers-url'] }}
         volumeMounts:
           - name: kubernetes-dashboard-certs-openpai
             mountPath: /certs
