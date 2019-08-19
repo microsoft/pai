@@ -1,5 +1,5 @@
 import c from 'classnames';
-import React, {useContext, useMemo, useLayoutEffect} from 'react';
+import React, {useState, useContext, useMemo, useLayoutEffect} from 'react';
 import {ColumnActionsMode, DefaultButton, FontClassNames, Link, mergeStyles, Selection, ShimmeredDetailsList, Icon, ColorClassNames, FontSizes, FontWeights} from 'office-ui-fabric-react';
 import {isNil} from 'lodash';
 import {DateTime} from 'luxon';
@@ -10,6 +10,7 @@ import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
 import {getJobDurationString} from '../../../../components/util/job';
+import StopJobConfirm from './StopJobConfirm';
 
 import t from '../../../../components/tachyons.scss';
 
@@ -21,7 +22,9 @@ const zeroPaddingClass = mergeStyles({
 });
 
 export default function Table() {
-  const {stopJob, filteredJobs, setSelectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
+  const {stopJob, filteredJobs, setSelectedJobs, selectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
+  const [hideDialog, setHideDialog] = useState(true);
+  const [currentJob, setCurrentJob] = useState(null);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
@@ -185,13 +188,14 @@ export default function Table() {
       /**
        * @param {React.MouseEvent} event
        */
-      function onClick(event) {
+      function showDialog(event) {
         event.stopPropagation();
-        stopJob(job);
+        setHideDialog(false);
+        setCurrentJob(job);
       }
 
       const statusText = getStatusText(job);
-      const disabled = statusText !== 'Waiting' && statusText !== 'Running';
+      const disabled = selectedJobs.length === 0 ? statusText !== 'Waiting' && statusText !== 'Running' : statusText !== 'Waiting' && statusText !== 'Running' || !selectedJobs.includes(job);
       return (
         <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}} data-selection-disabled>
           <DefaultButton
@@ -204,7 +208,7 @@ export default function Table() {
               icon: {fontSize: 12},
             }}
             disabled={disabled}
-            onClick={onClick}
+            onClick={showDialog}
           >
             Stop
           </DefaultButton>
@@ -245,14 +249,23 @@ export default function Table() {
   } else {
     const items = pagination.apply(ordering.apply(filteredJobs || []));
     return (
-      <ShimmeredDetailsList
-        items={items}
-        setKey="key"
-        columns={columns}
-        enableShimmer={isNil(filteredJobs)}
-        shimmerLines={pagination.itemsPerPage}
-        selection={selection}
-      />
+      <div>
+        <ShimmeredDetailsList
+          items={items}
+          setKey="key"
+          columns={columns}
+          enableShimmer={isNil(filteredJobs)}
+          shimmerLines={pagination.itemsPerPage}
+          selection={selection}
+        />
+        <StopJobConfirm
+          hideDialog={hideDialog}
+          setHideDialog={setHideDialog}
+          currentJob={currentJob}
+          selectedJobs={selectedJobs}
+          stopJob={stopJob}
+        />
+      </div>
     );
   }
 }

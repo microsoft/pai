@@ -37,6 +37,7 @@ import {printDateTime, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {getJobDurationString, getHumanizedJobStateString} from '../../../../../components/util/job';
+import StopJobConfirm from '../../JobList/StopJobConfirm';
 
 const StoppableStatus = [
   'Running',
@@ -64,6 +65,7 @@ export default class Summary extends React.Component {
       monacoProps: null,
       modalTitle: '',
       autoReloadInterval: 10 * 1000,
+      hideDialog: true,
     };
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
@@ -71,6 +73,8 @@ export default class Summary extends React.Component {
     this.showExitDiagnostics = this.showExitDiagnostics.bind(this);
     this.showEditor = this.showEditor.bind(this);
     this.showJobConfig = this.showJobConfig.bind(this);
+    this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
+    this.setHideDialog = this.setHideDialog.bind(this);
   }
 
   onChangeInterval(e, item) {
@@ -89,6 +93,14 @@ export default class Summary extends React.Component {
       monacoProps: props,
       modalTitle: title,
     });
+  }
+
+  showStopJobConfirm() {
+    this.setState({hideDialog: false});
+  }
+
+  setHideDialog() {
+    this.setState({hideDialog: true});
   }
 
   showExitDiagnostics() {
@@ -267,7 +279,7 @@ export default class Summary extends React.Component {
   }
 
   render() {
-    const {autoReloadInterval, modalTitle, monacoProps} = this.state;
+    const {autoReloadInterval, modalTitle, monacoProps, hideDialog} = this.state;
     const {className, jobInfo, reloading, onStopJob, onReload} = this.props;
     const {rawJobConfig} = this.context;
     const hintMessage = this.renderHintMessage();
@@ -419,11 +431,17 @@ export default class Summary extends React.Component {
                 />
               </span>
               <span className={c(t.ml2)}>
-                <DefaultButton
-                  text='Stop'
-                  onClick={onStopJob}
-                  disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo.jobStatus))}
-                />
+              <DefaultButton
+                className={c(t.ml2)}
+                text='Stop'
+                onClick={this.showStopJobConfirm}
+                disabled={!StoppableStatus.includes(getHumanizedJobStateString(jobInfo.jobStatus))}
+              />
+              <StopJobConfirm
+                hideDialog={hideDialog}
+                setHideDialog={this.setHideDialog}
+                stopJob={onStopJob}
+              />
               </span>
             </div>
           </div>
