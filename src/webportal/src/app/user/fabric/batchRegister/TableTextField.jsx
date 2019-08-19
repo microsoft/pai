@@ -20,10 +20,12 @@ import {PropTypes} from 'prop-types';
 import {TextField, Stack, IconButton, TooltipHost} from 'office-ui-fabric-react';
 import {getTheme} from '@uifabric/styling';
 
+import CustomPassword from '../components/CustomPassword';
+
 import Context from './Context';
 
 export default function TableTextField(props) {
-  const {onGetErrorMessage, styles, ...otherProps} = props;
+  const {onGetErrorMessage, styles, customPasswordStyle, ...otherProps} = props;
   const {readOnly, defaultValue} = props;
   const [customErrorMessage, setCustomErrorMessage] = useState();
   const {allUsers} = useContext(Context);
@@ -58,11 +60,18 @@ export default function TableTextField(props) {
   return (
     <Stack horizontal >
       <Stack.Item grow>
-        <TextField
-          styles={textFiedlStyle}
-          {...otherProps}
-          onGetErrorMessage={_getErrorMessage}
-        />
+        {customPasswordStyle ?
+          <CustomPassword
+            styles={textFiedlStyle}
+            {...otherProps}
+            onGetErrorMessage={_getErrorMessage}
+          /> :
+          <TextField
+            styles={textFiedlStyle}
+            {...otherProps}
+            onGetErrorMessage={_getErrorMessage}
+          />
+        }
       </Stack.Item>
       <Stack.Item >
         {showError && (
@@ -84,4 +93,5 @@ TableTextField.propTypes = {
   styles: PropTypes.object,
   defaultValue: PropTypes.string,
   readOnly: PropTypes.bool,
+  customPasswordStyle: PropTypes.bool,
 };
