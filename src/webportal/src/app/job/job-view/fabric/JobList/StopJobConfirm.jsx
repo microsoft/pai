@@ -18,6 +18,7 @@ import React from 'react';
 import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import {Dialog, DialogFooter} from 'office-ui-fabric-react/lib/Dialog';
 import {Icon} from 'office-ui-fabric-react/lib/Icon';
+import PropTypes from 'prop-types';
 import t from '../../../../components/tachyons.scss';
 import c from 'classnames';
 
@@ -49,13 +50,13 @@ export default function StopJobConfirm(props) {
       }}
       modalProps={{
         styles: {
-          main: { maxWidth: 500 },
+          main: {maxWidth: 500},
         },
       }}
     >
       <div className={c(t.fw4)}>
         <span>Are you sure you want to stop the selected job(s)?</span>
-        <p>Stopping job(s) will release all the allocated resources for the job(s) and can't be undone.</p>
+        <p>Stopping job(s) will release all the allocated resources for the job(s) and can&lsquo;t be undone.</p>
       </div>
       <DialogFooter>
         <PrimaryButton onClick={onStopJob} text="Confirm" />
@@ -64,3 +65,11 @@ export default function StopJobConfirm(props) {
     </Dialog>
   );
 }
+
+StopJobConfirm.propTypes = {
+  hideDialog: PropTypes.bool.isRequired,
+  setHideDialog: PropTypes.func.isRequired,
+  currentJob: PropTypes.object,
+  selectedJobs: PropTypes.array,
+  stopJob: PropTypes.func.isRequired,
+};
