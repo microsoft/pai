@@ -49,6 +49,11 @@ spec:
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - mountPath: /hived-spec
           name: hived-spec-rest-server
+{%- endif %}
+        env:
+        - name: LAUNCHER_TYPE
+          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - name: SCHEDULER_TYPE
           value: hived
         - name: LAUNCHER_RUNTIME_IMAGE
@@ -58,9 +63,6 @@ spec:
         - name: LAUNCHER_SCHEDULER
           value: hivedscheduler
 {%- endif %}
-        env:
-        - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI

@@ -19,9 +19,15 @@
 
 pushd $(dirname "$0") > /dev/null
 
-cd  /pai
-git fetch --tags
-TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') && git checkout $TAG
+if [[ $# -eq 0 ]]; then
+  echo "Fetch latest release code"
+  cd /pai
+  git fetch --tags
+  TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') && git checkout $TAG
+else
+  echo "Skip fetching latest release code"
+fi
+
 /bin/bash
 
 popd > /dev/null

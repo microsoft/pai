@@ -66,6 +66,7 @@
     "js-yaml": "~3.13.1",
     "json-editor": "~0.7.28",
     "json-loader": "~0.5.7",
+    "jsonwebtoken": "^8.5.1",
     "luxon": "^1.11.3",
     "markdown-loader": "~2.0.1",
     "marked": "~0.3.9",
