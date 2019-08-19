@@ -10,6 +10,9 @@ import { Util } from '../commom/util';
 import { IPAICluster, IPAIClusterInfo } from '../models/cluster';
 import { ITokenItem } from '../models/token';
 
+/**
+ * OpenPAI basic client.
+ */
 export class OpenPAIBaseClient {
     protected static readonly TIMEOUT: number = 60 * 1000;
     protected cluster: IPAICluster;

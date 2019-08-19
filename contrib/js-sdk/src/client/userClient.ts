@@ -12,7 +12,7 @@ import { IUserInfo } from '../models/user';
 import { OpenPAIBaseClient } from './baseClient';
 
 /**
- * OpenPAI Job client.
+ * OpenPAI User client.
  */
 export class UserClient extends OpenPAIBaseClient {
     constructor(cluster: IPAICluster) {

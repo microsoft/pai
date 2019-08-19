@@ -9,8 +9,8 @@ import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
 import { expect } from 'chai';
-import { VirtualClusterClient } from '../../src/client/virtualClusterClient'
-import { IPAICluster } from '../../src/models/cluster'
+import { VirtualClusterClient } from '../../src/client/virtualClusterClient';
+import { IPAICluster } from '../../src/models/cluster';
 import { testAllVirtualClusters } from '../common/test_data/testAllVirtualClusters';
 import { testNodeResources } from '../common/test_data/testNodeResources';
 import { testVirtualClusters } from '../common/test_data/testVirtualCluster';
@@ -26,7 +26,7 @@ const cluster: IPAICluster = {
 const virtualClusterClient = new VirtualClusterClient(cluster);
 
 chai.use(dirtyChai);
-nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, 'token');
+nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
 
 describe('List all virtual clusters', () => {
     const response = testAllVirtualClusters;

@@ -9,8 +9,8 @@ import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
 import { expect } from 'chai';
-import { UserClient } from '../../src/client/userClient'
-import { IPAICluster } from '../../src/models/cluster'
+import { UserClient } from '../../src/client/userClient';
+import { IPAICluster } from '../../src/models/cluster';
 import { testAllUsers } from '../common/test_data/testAllUsers';
 import { testUserInfo } from '../common/test_data/testUserInfo';
 
@@ -25,7 +25,7 @@ const cluster: IPAICluster = {
 const userClient = new UserClient(cluster);
 
 chai.use(dirtyChai);
-nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, 'token');
+nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
 
 describe('Get user infomation', () => {
     const response = testUserInfo;
