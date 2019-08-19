@@ -12,3 +12,13 @@ export interface IAuthnInfo {
     loginURI: string;
     loginURIMethod: 'get' | 'post';
 }
+
+/**
+ * OpenPAI authn basic login information.
+ */
+export interface ILoginInfo {
+    admin: boolean;
+    hasGitHubPAT: boolean;
+    token: string;
+    user: string;
+}

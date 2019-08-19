@@ -7,7 +7,7 @@
 import * as request from 'request-promise-native';
 
 import { Util } from '../commom/util';
-import { IAuthnInfo } from '../models/authn';
+import { IAuthnInfo, ILoginInfo } from '../models/authn';
 import { IPAICluster } from '../models/cluster';
 import { OpenPAIBaseClient } from './baseClient';
 
@@ -31,5 +31,23 @@ export class AuthnClient extends OpenPAIBaseClient {
         }
 
         return this.authnInfo!;
+    }
+
+    /**
+     * Basic login.
+     */
+    public async login(): Promise<ILoginInfo> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/basic/login`);
+        const res = await request.post(url, {
+            form: {
+                expiration: 4000,
+                password: this.cluster.password,
+                username: this.cluster.username
+            },
+            json: true,
+            timeout: OpenPAIBaseClient.TIMEOUT
+        });
+
+        return res;
     }
 }

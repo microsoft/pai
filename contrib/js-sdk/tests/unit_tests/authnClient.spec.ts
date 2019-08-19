@@ -10,7 +10,7 @@ import * as nock from 'nock';
 
 import { expect } from 'chai';
 import { AuthnClient } from '../../src/client/authnClient';
-import { IAuthnInfo } from '../../src/models/authn';
+import { IAuthnInfo, ILoginInfo } from '../../src/models/authn';
 import { IPAICluster } from '../../src/models/cluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
@@ -28,14 +28,29 @@ nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
 
 describe('Get authn infomation', () => {
     const response: IAuthnInfo = {
-        "authn_type": "basic",
-        "loginURI": "/api/v1/authn/basic/login",
-        "loginURIMethod": "post"
+        'authn_type': 'basic',
+        'loginURI': '/api/v1/authn/basic/login',
+        'loginURIMethod': 'post'
     };
     nock(`http://${testUri}`).get(`/api/v1/authn/info`).reply(200, response);
 
     it('should return the user info', async () => {
         const result = await authnClient.info();
+        expect(result).to.be.eql(response);
+    });
+});
+
+describe('Basic login', () => {
+    const response = {
+        'admin': true,
+        'hasGitHubPAT': false,
+        'token': 'token',
+        'user': 'test'
+    };
+    nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, response);
+
+    it('should return the login info', async () => {
+        const result = await authnClient.login();
         expect(result).to.be.eql(response);
     });
 });
