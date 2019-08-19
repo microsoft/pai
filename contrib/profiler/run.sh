@@ -25,34 +25,34 @@ fi
 
 param_num=$#
 
-container_id=$1
+CONTAINER_ID=$1
 GPU_INDEX=$2
-container_pid=0
-Host_Docker=Host
-if grep -q $container_id /proc/1/cgroup
+CONTAINER_PID=0
+HOST_DOCKER=Host
+if grep -q $CONTAINER_ID /proc/1/cgroup
 then
-    Host_Docker=Docker
+    HOST_DOCKER=Docker
 else
-    container_pid=`docker inspect -f {{.State.Pid}} $container_id`
+    CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
 fi
 
-Duration=10
+DURATION=10
 
-Sample_period=0.03
+SAMPLE_PERIOD=0.03
 if [ $param_num -ge 3 ];then
-    Sample_period=$3
+    SAMPLE_PERIOD=$3
 fi
 
-output_dir=./Profiling_dir
+OUTPUT_DIR=./Profiling_dir
 if [ $param_num -ge 4 ];then
-    output_dir=$4
+    OUTPUT_DIR=$4
 fi
 
-echo 'container_id:' $container_id
-echo 'container_pid:' $container_pid
-echo 'sample_period:' $Sample_period
-echo 'host_docker:' $Host_Docker
-echo 'duration:' $Duration
-echo 'output_dir:' $output_dir
+echo 'container_id:' $CONTAINER_ID
+echo 'container_pid:' $CONTAINER_PID
+echo 'sample_period:' $SAMPLE_PERIOD
+echo 'host_docker:' $HOST_DOCKER
+echo 'duration:' $DURATION
+echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $container_id --container_pid $container_pid --sample_period $Sample_period --host_docker $Host_Docker --duration $Duration --output_dir $output_dir --gpu_index $GPU_INDEX
+exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --host_docker $HOST_DOCKER --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
