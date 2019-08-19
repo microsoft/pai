@@ -87,7 +87,7 @@ jobs:
       run: |
         cd subprojects/frameworklauncher/yarn
         mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-        mvn clean test jacoco:report
+        mvn clean test jacoco:report coveralls:report
 
   rest-server:
     name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
@@ -104,12 +104,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: ${{ matrix.node }}
-    - name: yarn install and test
+    - name: yarn install and test, coveralls
       run: |
         cd src/rest-server
         yarn config set ignore-engines true
         yarn install --frozen-lockfiles
         yarn test
+        yarn run coveralls
 
   webportal:
     name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
