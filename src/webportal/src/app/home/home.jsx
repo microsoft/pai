@@ -110,7 +110,7 @@ const Home = () => {
     const ResponsiveWidthItem = styled.div`
     width: 66%;
     height: auto;
-    @media screen and (max-width: 1400px) {
+    @media screen and (max-width: ${BREAKPOINT1}px) {
       width: 100%;
       height: 320px;
     }

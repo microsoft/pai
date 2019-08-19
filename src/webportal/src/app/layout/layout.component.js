@@ -25,6 +25,11 @@ require('admin-lte/dist/css/skins/_all-skins.min.css');
 require('font-awesome/css/font-awesome.min.css');
 require('./layout.component.scss');
 const jwt = require('jsonwebtoken');
+
+const ReactDOM = require('react-dom');
+const React = require('react');
+const alerts = require('./alerts.jsx');
+
 const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
@@ -49,6 +54,8 @@ if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
 }
 
+const notificationButtonContainer = document.getElementById('notification-button');
+ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
 if (authnMethod === 'OIDC') {
   $('#sidebar-menu--cluster-view--user-management').hide();

@@ -47,7 +47,8 @@ const getResouceUtilization = (used, total) => {
 const vcListColumns = [
   {
     key: 'name',
-    minWidth: 100,
+    minWidth: 60,
+    maxWidth: 100,
     name: 'Name',
     isResizable: true,
     onRender(vc) {
@@ -60,7 +61,8 @@ const vcListColumns = [
   },
   {
     key: 'utilization',
-    minWidth: 100,
+    minWidth: 80,
+    maxWidth: 80,
     name: 'Utilization',
     isResizable: true,
     className: zeroPaddingClass,
@@ -90,7 +92,7 @@ const vcListColumns = [
   },
   {
     key: 'detail',
-    minWidth: 300,
+    minWidth: 250,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
@@ -147,7 +149,7 @@ const vcListColumns = [
   },
   {
     key: 'action',
-    minWidth: 100,
+    minWidth: 80,
     name: 'Action',
     isResizable: true,
     onRender(vc) {
