@@ -15,39 +15,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const Joi = require('joi');
+/**
+ * @function assignValueByKeyarray - assign a value by a key array in a nested obj.
+ * @async
+ * @param {Object} obj - origin nested object.
+ * @param {Array} keyarray - a group of keys indexing the updated attribute, [key_a, key_b, key_c] means the updated
+ *                attribute is obj[key_a][key_b][key_c], will create attribute if not exist.
+ * @param {Any} value - new value assigned to the attribute
+ * @return {Object} Updated nested object
+ */
 
-const groupSchema = Joi.object().keys({
-  groupname: Joi.string()
-    .regex(/^[A-Za-z0-9_]+$/, 'groupname')
-    .required(),
-  description: Joi.string()
-    .empty('')
-    .default(''),
-  externalName: Joi.string()
-    .empty('')
-    .default(''),
-  extension: Joi.object()
-    .pattern(/\w+/, Joi.required())
-    .keys({
-      acls: Joi.object()
-        .pattern(/\w+/, Joi.required())
-        .keys({
-          admin: Joi.boolean().default(false),
-          virtualClusters: Joi.array().items(Joi.string()).default([]),
-        })
-        .default(),
-    })
-    .pattern(/\w+/, Joi.required())
-    .required(),
-}).required();
-
-function createGroup(value) {
-  const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error(`Group schema error\n${res['error']}`);
+const assignValueByKeyarray = (obj, keyarray, value) => {
+  if (keyarray.length === 0) {
+    return value;
   }
-  return res['value'];
-}
+  const originObj = obj;
+  const lastKeyIndex = keyarray.length - 1;
+  for (const key of keyarray.slice(0, lastKeyIndex)) {
+    if (!(key in obj)) {
+      obj[key] = {};
+    }
+    obj = obj[key];
+  }
+  obj[keyarray[lastKeyIndex]] = value;
+  return originObj;
+};
 
-module.exports = {createGroup};
+// module exports
+module.exports = {
+  assignValueByKeyarray,
+};

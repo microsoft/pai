@@ -18,7 +18,9 @@
 
 const assert = require('assert');
 const {readFileSync} = require('fs');
+const path = require('path');
 const config = Object.create(null);
+const logger = require('@pai/config/logger');
 const apiserverConfig = config.apiserver = Object.create(null);
 
 const {
@@ -27,15 +29,37 @@ const {
   K8S_APISERVER_TOKEN_FILE,
 } = process.env;
 
-apiserverConfig.uri = K8S_APISERVER_URI;
+if (process.env.RBAC_IN_CLUSTER === 'false') {
+  apiserverConfig.uri = K8S_APISERVER_URI;
+  // Should be empty
+  if (K8S_APISERVER_CA_FILE) {
+    // Will be a buffer since SSL context can receive a buffer.
+    apiserverConfig.ca = readFileSync(K8S_APISERVER_CA_FILE);
+  }
+  if (K8S_APISERVER_TOKEN_FILE) {
+    // Will be a string since http header can only receive a string.
+    apiserverConfig.token = readFileSync(K8S_APISERVER_TOKEN_FILE, 'ascii');
+  }
+} else {
+  const root = process.env.KUBERNETES_CLIENT_SERVICEACCOUNT_ROOT || '/var/run/secrets/kubernetes.io/serviceaccount/';
+  // By default, in rbac enabled k8s, the caPath and tokenPath is a fixed value. However, from the perspective of flexibility,
+  // user can custom the following 2 files' path in the future.
+  const caPath = K8S_APISERVER_CA_FILE || path.join(root, 'ca.crt');
+  const tokenPath = K8S_APISERVER_TOKEN_FILE || path.join(root, 'token');
+  const host = process.env.KUBERNETES_SERVICE_HOST;
+  const port = process.env.KUBERNETES_SERVICE_PORT;
 
-if (K8S_APISERVER_CA_FILE) {
-  // Will be a buffer since SSL context can receive a buffer.
-  apiserverConfig.ca = readFileSync(K8S_APISERVER_CA_FILE);
-}
-if (K8S_APISERVER_TOKEN_FILE) {
-  // Will be a string since http header can only receive a string.
-  apiserverConfig.token = readFileSync(K8S_APISERVER_TOKEN_FILE, 'ascii');
+  apiserverConfig.uri = K8S_APISERVER_URI ? K8S_APISERVER_URI : `https://${host}:${port}`;
+
+  try {
+    // Will be a buffer since SSL context can receive a buffer.
+    apiserverConfig.ca = readFileSync(caPath);
+    // Will be a string since http header can only receive a string.
+    apiserverConfig.token = readFileSync(tokenPath, 'ascii');
+  } catch (error) {
+    logger.error('failed to init rbac config. Please check your clusters\' config');
+    throw error;
+  }
 }
 
 assert(apiserverConfig.uri, 'K8S_APISERVER_URI should be set in environments');
