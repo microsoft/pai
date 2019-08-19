@@ -55,7 +55,7 @@ apt-get -y install \
       realpath \
       net-tools
 
-pip install --upgrade python-etcd docker kubernetes paramiko GitPython
+pip install --upgrade python-etcd docker kubernetes paramiko==2.6.0 GitPython
 python -m easy_install --upgrade pyOpenSSL
 
 # replace version number to latest, like v0.9.5.
