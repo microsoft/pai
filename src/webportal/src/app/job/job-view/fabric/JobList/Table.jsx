@@ -24,7 +24,7 @@ const zeroPaddingClass = mergeStyles({
 export default function Table() {
   const {stopJob, filteredJobs, setSelectedJobs, selectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
   const [hideDialog, setHideDialog] = useState(true);
-  const [currentJob, setCurrentJob] = useState(null);
+  const [currentJob, setCurrentJob] = useState([]);
 
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
@@ -191,7 +191,7 @@ export default function Table() {
       function showDialog(event) {
         event.stopPropagation();
         setHideDialog(false);
-        setCurrentJob(job);
+        setCurrentJob([job]);
       }
 
       const statusText = getStatusText(job);
@@ -262,7 +262,6 @@ export default function Table() {
           hideDialog={hideDialog}
           setHideDialog={setHideDialog}
           currentJob={currentJob}
-          selectedJobs={selectedJobs}
           stopJob={stopJob}
         />
       </div>

@@ -14,24 +14,30 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import React from 'react';
+import React, {useContext} from 'react';
 import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
 import {Dialog, DialogFooter} from 'office-ui-fabric-react/lib/Dialog';
 import {Icon} from 'office-ui-fabric-react/lib/Icon';
+import {getStatusText} from './utils';
 import PropTypes from 'prop-types';
+import Context from './Context';
 import t from '../../../../components/tachyons.scss';
 import c from 'classnames';
 
 export default function StopJobConfirm(props) {
-  const {hideDialog, setHideDialog, currentJob, selectedJobs, stopJob} = props;
+  const {hideDialog, setHideDialog, currentJob, stopJob} = props;
+  const {selectedJobs} = useContext(Context);
 
   function onStopJob() {
     setHideDialog(true);
     if (selectedJobs || currentJob) {
-      stopJob(selectedJobs.length === 0 ? currentJob : selectedJobs);
-      return;
+      const willStopedJobs = selectedJobs.filter((job) => {
+        return getStatusText(job) === 'Waiting' || getStatusText(job) === 'Running';
+      });
+      stopJob(willStopedJobs.length === 0 ? currentJob : willStopedJobs);
+    } else {
+      stopJob();
     }
-    stopJob();
   }
 
   function closeDialog() {
@@ -69,7 +75,6 @@ export default function StopJobConfirm(props) {
 StopJobConfirm.propTypes = {
   hideDialog: PropTypes.bool.isRequired,
   setHideDialog: PropTypes.func.isRequired,
-  currentJob: PropTypes.object,
-  selectedJobs: PropTypes.array,
+  currentJob: PropTypes.array,
   stopJob: PropTypes.func.isRequired,
 };

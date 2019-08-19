@@ -106,7 +106,7 @@ export default function JobList() {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
   }, [filteredJobs]);
 
-  const stopJob = useCallback((...jobs) => {
+  const stopJob = useCallback((jobs) => {
     userAuth.checkToken((token) => {
       jobs.forEach((job) => {
         const {name, username} = job;
