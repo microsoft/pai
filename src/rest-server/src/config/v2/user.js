@@ -24,7 +24,7 @@ const userExtensionUpdateInputSchema = Joi.object().keys({
 }).required();
 
 // define the input schema for the 'update user virtualCluster' api
-const userVirutalClusterUpdateInputSchema = Joi.object().keys({
+const userVirtualClusterUpdateInputSchema = Joi.object().keys({
   virtualCluster: Joi.array().items(Joi.string()).required(),
 });
 
@@ -80,7 +80,7 @@ const userCreateInputSchema = Joi.object().keys({
 // module exports
 module.exports = {
   userExtensionUpdateInputSchema,
-  userVirutalClusterUpdateInputSchema,
+  userVirtualClusterUpdateInputSchema,
   userGrouplistUpdateInputSchema,
   userPasswordUpdateInputSchema,
   userEmailUpdateInputSchema,

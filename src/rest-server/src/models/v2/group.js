@@ -23,10 +23,18 @@ const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const vcModel = require('@pai/models/vc');
+const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
-const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI);
+let optionConfig = {};
+if (k8sConfig.ca) {
+  optionConfig.k8sAPIServerCaFile = k8sConfig.ca;
+}
+if (k8sConfig.token) {
+  optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
+}
+const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
 
 let externalName2Groupname = {};
 

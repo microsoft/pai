@@ -14,7 +14,7 @@
     "paiext.container.hdfs.back": "后退至集群选择",
     "paiext.container.hdfs.delete": "删除",
     "paiext.container.hdfs.mkdir": "新建文件夹",
-    "paiext.cluster.dashboard.open": "打开仪表板",
+    "paiext.cluster.dashboard.open": "打开网站页面",
     "paiext.cluster.job.list": "在浏览器里打开任务列表",
     "paiext.cluster.job.submit": "在 PAI 集群上提交任务",
     "paiext.cluster.job.create-config": "创建 PAI 任务配置文件",
