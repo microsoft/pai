@@ -26,7 +26,7 @@ index a044cb6..819c496 100644
    //containername
    public static final String DOCKER_IMAGE_PATTERN =
 -    "^(([\\w\\.-]+)(:\\d+)*\\/)?[\\w\\.:-]+$";
-+          "^(([a-zA-Z0-9.-]+)(:\d+)?/)?([a-z0-9_./-]+)(:[\w.-]+)?$";
++          "^(([a-zA-Z0-9.-]+)(:\\d+)?/)?([a-z0-9_./-]+)(:[\\w.-]+)?$";
 
    private final FileContext lfs;
    private final Pattern dockerImagePattern;
