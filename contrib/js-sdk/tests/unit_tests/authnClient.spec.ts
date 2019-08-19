@@ -10,7 +10,7 @@ import * as nock from 'nock';
 
 import { expect } from 'chai';
 import { AuthnClient } from '../../src/client/authnClient';
-import { IAuthnInfo, ILoginInfo } from '../../src/models/authn';
+import { IAuthnInfo } from '../../src/models/authn';
 import { IPAICluster } from '../../src/models/cluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
