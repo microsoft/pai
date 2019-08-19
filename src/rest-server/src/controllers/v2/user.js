@@ -69,7 +69,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
       if (grouplist && grouplist.length === 0) {
-        return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+        return next(createError('Forbidden', 'ForbiddenUserError', `User ${userData.username} is not in configured groups.`));
       }
     }
     const admin = grouplist.includes(authConfig.groupConfig.adminGroup.groupname);
