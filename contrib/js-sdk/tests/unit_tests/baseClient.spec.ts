@@ -9,8 +9,8 @@ import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
 import { expect } from 'chai';
-import { OpenPAIBaseClient } from '../../src/client/baseClient'
-import { IPAICluster } from '../../src/models/cluster'
+import { OpenPAIBaseClient } from '../../src/client/baseClient';
+import { IPAICluster } from '../../src/models/cluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 

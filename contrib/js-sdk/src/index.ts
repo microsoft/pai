@@ -4,10 +4,12 @@
  * @author Microsoft
  */
 
+import { AuthnClient } from './client/authnClient';
 import { JobClient } from './client/jobClient';
 import { OpenPAIClient } from './client/openPAIClient';
 import { UserClient } from './client/userClient';
 import { VirtualClusterClient } from './client/virtualClusterClient';
+import { IAuthnInfo, ILoginInfo } from './models/authn';
 import { IPAICluster } from './models/cluster';
 import { IJobConfig, IJobFrameworkInfo, IJobInfo, IJobSshInfo } from './models/job';
 import { ITokenItem } from './models/token';
@@ -19,6 +21,7 @@ export {
     JobClient,
     UserClient,
     VirtualClusterClient,
+    AuthnClient,
     IPAICluster,
     IJobConfig,
     IJobInfo,
@@ -27,5 +30,7 @@ export {
     IUserInfo,
     ITokenItem,
     IVirtualCluster,
-    INodeResource
+    INodeResource,
+    IAuthnInfo,
+    ILoginInfo
 };
