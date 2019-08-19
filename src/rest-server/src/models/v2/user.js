@@ -20,10 +20,18 @@
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
 const authConfig = require('@pai/config/authn');
+const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
-const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI);
+let optionConfig = {};
+if (k8sConfig.ca) {
+  optionConfig.k8sAPIServerCaFile = k8sConfig.ca;
+}
+if (k8sConfig.token) {
+  optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
+}
+const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
 
 const getUser = async (username) => {
   try {
