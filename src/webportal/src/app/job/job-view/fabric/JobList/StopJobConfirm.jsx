@@ -42,8 +42,8 @@ export default function StopJobConfirm(props) {
     <Dialog
       hidden={hideDialog}
       onDismiss={closeDialog}
-      minWidth='400'
-      maxWidth='500'
+      minWidth={400}
+      maxWidth={500}
       dialogContentProps={{
         showCloseButton: false,
         title: <span className={c(t.flex)}><Icon iconName='Info'/>&nbsp;Stop job(s)</span>,
