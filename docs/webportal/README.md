@@ -42,6 +42,7 @@ If web portal is deployed within PAI cluster, the following config field could b
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9286.
 
+* `log-type`: String. The type of job logs, could be yarn or log-manager. The default value is yarn.
 ---
 
 If web portal is deployed as a standalone service, the following environment variables must be configured:

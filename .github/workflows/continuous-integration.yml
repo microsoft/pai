@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  deployment:
+    name: Test deployment on python-${{ matrix.python }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python: [2.7]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Python ${{ matrix.python }}
+      uses: actions/setup-python@v1
+      with:
+        version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install paramiko pyyaml jinja2 python-etcd kubernetes
+    - name: Test with unittest
+      run: |
+        python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
+        python -m unittest deployment.clusterObjectModel.test.test_template_generate
+        python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
+        cd deployment
+        python -m unittest discover test
+
+  exporters:
+    name: Test exporters on python-${{ matrix.python }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python: [3.6]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Python ${{ matrix.python }}
+      uses: actions/setup-python@v1
+      with:
+        version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install paramiko pyyaml requests prometheus_client twisted
+    - name: Test watchdog
+      run: |
+        cd src/watchdog/test
+        python -m unittest discover .
+    - name: Test job exporter
+      run: |
+        cd src/job-exporter/test
+        python -m unittest discover .
+    - name: Test yarn exporter
+      run: |
+        cd src/yarn-exporter/test
+        python -m unittest discover .
+
+  framework-launcher:
+    name: Test framework launcher on java-${{ matrix.java }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        java: [1.8]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use JDK ${{ matrix.java }}
+      uses: actions/setup-java@v1
+      with:
+        version: ${{ matrix.java }}
+    - name: mvn install and test
+      run: |
+        cd subprojects/frameworklauncher/yarn
+        mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+        mvn clean test jacoco:report
+
+  rest-server:
+    name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [8, 10]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Node ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        version: ${{ matrix.node }}
+    - name: yarn install and test
+      run: |
+        cd src/rest-server
+        yarn config set ignore-engines true
+        yarn install --frozen-lockfiles
+        yarn test
+
+  webportal:
+    name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [8, 10]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Node ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        version: ${{ matrix.node }}
+    - name: yarn install, build and test
+      run: |
+        cd src/webportal
+        yarn config set ignore-engines true
+        yarn install --frozen-lockfiles
+        yarn build
+        yarn test
+
+  webportal-plugins:
+    name: Test webportal plugins on node-${{ matrix.node }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [10]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Node ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        version: ${{ matrix.node }}
+    - name: Test contrib/submit-simple-job
+      run: |
+        cd contrib/submit-simple-job
+        npm install
+        npm test
+    - name: Test contrib/submit-job-v2
+      run: |
+        cd contrib/submit-job-v2
+        yarn install --frozen-lockfiles
+        yarn build
+    - name: Test contrib/marketplace
+      run: |
+        cd contrib/marketplace
+        yarn install --frozen-lockfiles
+        yarn build
