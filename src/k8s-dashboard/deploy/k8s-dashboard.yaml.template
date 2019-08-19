@@ -29,6 +29,7 @@ type: Opaque
 ---
 
 # ------------------- Dashboard Service Account ------------------- #
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -40,6 +41,7 @@ metadata:
 ---
 
 # ------------------- Dashboard Role & Role Binding ------------------- #
+
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
