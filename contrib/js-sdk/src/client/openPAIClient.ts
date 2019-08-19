@@ -9,6 +9,7 @@ import { OpenPAIBaseClient } from './baseClient';
 import { JobClient } from './jobClient';
 import { UserClient} from './userClient';
 import { VirtualClusterClient } from './virtualClusterClient';
+import { AuthnClient } from '..';
 
 /**
  * OpenPAI Client.
@@ -29,10 +30,16 @@ export class OpenPAIClient extends OpenPAIBaseClient {
      */
     public virtualCluster: VirtualClusterClient;
 
+    /**
+     * OpenPAI Authn Client.
+     */
+    public authn: AuthnClient;
+
     constructor(cluster: IPAICluster) {
         super(cluster);
         this.job = new JobClient(cluster);
         this.user = new UserClient(cluster);
         this.virtualCluster = new VirtualClusterClient(cluster);
+        this.authn = new AuthnClient(cluster);
     }
 }

@@ -9,8 +9,8 @@ import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
 import { expect } from 'chai';
-import { JobClient } from '../../src/client/jobClient'
-import { IPAICluster } from '../../src/models/cluster'
+import { JobClient } from '../../src/client/jobClient';
+import { IPAICluster } from '../../src/models/cluster';
 import { testJobConfig } from '../common/test_data/testJobConfig';
 import { testJobFrameworkInfo } from '../common/test_data/testJobFrameworkInfo';
 import { testJobList } from '../common/test_data/testJobList';
