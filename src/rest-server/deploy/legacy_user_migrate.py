@@ -138,6 +138,60 @@ class TransferClient:
         post_data_dict['data'] = group_dict
         return post_data_dict
 
+    def load_v2_groups(self):
+        ns_pai_group_list = self.list_all_secrets_from_namespace(self.secret_ns_group_v2)
+        decode_group_list = []
+        vc_set = set()
+        for group in ns_pai_group_list:
+            meta_dict = dict()
+            meta_dict['name'] = bytes.fromhex(group.metadata.name).decode('utf-8')
+            group_dict = {
+                'groupname': str(base64.b64decode(group.data['groupname'].encode('utf-8')), 'utf-8'),
+                'description': str(base64.b64decode(group.data['description'].encode('utf-8')), 'utf-8'),
+                'externalName': str(base64.b64decode(group.data['externalName'].encode('utf-8')), 'utf-8'),
+                'extension': json.loads(str(base64.b64decode(group.data['extension'].encode('utf-8')), 'utf-8')),
+            }
+            decode_group_list.append({
+                'metadata': meta_dict,
+                'data': group_dict,
+            })
+            if group_dict['extension'].get('groupType') == 'vc':
+                vc_set.add(group_dict['groupname'])
+        return decode_group_list, vc_set
+
+    def convert_v2_group(self, data_dict, all_vcs):
+        extension_dict = data_dict['data']['extension']
+        if 'acls' in extension_dict:
+            return data_dict, False
+
+        extension_dict['acls'] = {
+            'admin': False,
+            'virtualClusters': [],
+        }
+        if 'groupType' in extension_dict:
+            if extension_dict['groupType'] == 'admin':
+                extension_dict['acls']['admin'] = True
+                extension_dict['acls']['virtualClusters'].extend(all_vcs)
+            elif extension_dict['groupType'] == 'vc':
+                extension_dict['acls']['virtualClusters'].append(data_dict['data']['groupname'])
+
+        return data_dict, True
+
+    def update_v2_group(self, data_dict):
+        post_data_dict = {
+            'metadata': {
+                'name': data_dict['metadata']['name'].encode('utf-8').hex()
+            },
+            'data': {
+                'groupname': str(base64.b64encode(data_dict['data']['groupname'].encode('utf-8')), 'utf-8'),
+                'description': str(base64.b64encode(data_dict['data']['description'].encode('utf-8')), 'utf-8'),
+                'externalName': str(base64.b64encode(data_dict['data']['externalName'].encode('utf-8')), 'utf-8'),
+                'extension': str(base64.b64encode(json.dumps(data_dict['data']['extension']).encode('utf-8')), 'utf-8'),
+            }
+
+        }
+        self.replace_secret_in_namespace(post_data_dict, self.secret_ns_group_v2)
+
     def list_all_secrets_from_namespace(self, namespace):
         if self.in_cluster:
             config.load_incluster_config()
@@ -175,6 +229,25 @@ class TransferClient:
             sys.exit(1)
         return False
 
+    def replace_secret_in_namespace(self, payload, namespace):
+        if self.in_cluster:
+            config.load_incluster_config()
+        else:
+            config.load_kube_config(config_file="~/.kube/config")
+        try:
+            api_instance = client.CoreV1Api()
+            meta_data = client.V1ObjectMeta()
+            meta_data.name = payload['metadata']['name']
+            body = client.V1Secret(
+              metadata=meta_data,
+              data=payload['data']
+            )
+            # don't use patch, which can't handle empty string: https://github.com/kubernetes/kubernetes/issues/37216
+            api_instance.replace_namespaced_secret(payload['metadata']['name'], namespace, body)
+        except ApiException as e:
+            logger.error("Exception when calling CoreV1Api->patch_namespaced_secret: %s\n" % e)
+            sys.exit(1)
+
     def create_secret_in_namespace_if_not_exist(self, payload, namespace):
         if self.in_cluster:
             config.load_incluster_config()
@@ -195,7 +268,7 @@ class TransferClient:
                     )
                     api_instance.create_namespaced_secret(namespace, body)
                 except ApiException as create_e:
-                    logger.error("Exception when calling CoreV1Api->create_namespaced_secret: %s\n" % e)
+                    logger.error("Exception when calling CoreV1Api->create_namespaced_secret: %s\n" % create_e)
                     sys.exit(1)
             else:
                 logger.error("Exception when calling CoreV1Api->read_namespaced_secret: %s\n" % e)
@@ -295,32 +368,39 @@ def main():
     transferCli = TransferClient(etcd_uri, args.k8sUri.replace('http://',''), admin_group_name, in_cluster)
 
     if transferCli.check_transfer_flag() is False and in_cluster is False:
-      etcd_user_list = transferCli.etcd_data_parse()
-      if etcd_user_list:
-          transferCli.prepare_secret_base_path()
-          for user in etcd_user_list:
-              secret_post_data = transferCli.secret_data_prepare(user)
-              transferCli.create_secret_user(secret_post_data)
-      else:
-          logger.info("No legacy data found")
-      http_post(transferCli.etcd_conn, transferCli.flag_path)
-      logger.info('Legacy user data transfer from etcd to kubernetes secret (pai-user namespace) successfully')
+        etcd_user_list = transferCli.etcd_data_parse()
+        if etcd_user_list:
+            transferCli.prepare_secret_base_path()
+            for user in etcd_user_list:
+                secret_post_data = transferCli.secret_data_prepare(user)
+                transferCli.create_secret_user(secret_post_data)
+        else:
+            logger.info("No legacy data found")
+        http_post(transferCli.etcd_conn, transferCli.flag_path)
+        logger.info('Legacy user data transfer from etcd to kubernetes secret (pai-user namespace) successfully')
     else:
-      logger.info("Etcd data has already been transferred to k8s secret")
+        logger.info("Etcd data has already been transferred to k8s secret")
 
     res = transferCli.prepare_secret_base_path_v2()
     if res[0] == 1 and res[1] == 1:
-      ns_pai_user_list = transferCli.namespace_v1_data_prepare()
-      for user in ns_pai_user_list:
-          secret_post_data = transferCli.secret_data_prepare_v2(user)
-          transferCli.create_secret_user_v2(secret_post_data)
-      vc_set = transferCli.vc_set
-      for vc in vc_set:
-          secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
-          transferCli.create_secret_group_v2(secret_post_data)
-      logger.info('Legacy user data transfer from namespace v1 to namespace v2 successfully')
+        ns_pai_user_list = transferCli.namespace_v1_data_prepare()
+        for user in ns_pai_user_list:
+            secret_post_data = transferCli.secret_data_prepare_v2(user)
+            transferCli.create_secret_user_v2(secret_post_data)
+        vc_set = transferCli.vc_set
+        for vc in vc_set:
+            secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
+            transferCli.create_secret_group_v2(secret_post_data)
+        logger.info('Legacy user data transfer from namespace v1 to namespace v2 successfully')
     else:
-      logger.info("Legacy data has already been transferred from v1 to v2. Skip it.")
+        logger.info("Legacy data has already been transferred from v1 to v2. Skip it.")
+
+    group_list, vc_set = transferCli.load_v2_groups()
+    for group in group_list:
+        data_dict, updated = transferCli.convert_v2_group(group, vc_set)
+        if updated:
+            transferCli.update_v2_group(data_dict)
+
 
 if __name__ == "__main__":
     main()
