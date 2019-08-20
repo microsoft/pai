@@ -50,4 +50,43 @@ export class AuthnClient extends OpenPAIBaseClient {
 
         return res;
     }
+
+    /**
+     * OpenID Connect login.
+     */
+    public async oidcLogin(queryString?: string): Promise<any> {
+        const url = queryString ?
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/login?${queryString}`) :
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/login`);
+        const res = await request.get(url);
+
+        return res;
+    }
+
+    /**
+     * OpenID Connect logout.
+     */
+    public async oidcLogout(queryString?: string): Promise<any> {
+        const url = queryString ?
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/logout?${queryString}`) :
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/logout`);
+        const res = await request.get(url);
+
+        return res;
+    }
+
+    /**
+     * OpenID Connect return.
+     */
+    public async oidcReturn(queryString?: string): Promise<any> {
+        const url = queryString ?
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/return?${queryString}`) :
+            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/return`);
+        const info = await this.info();
+
+        const res = info.loginURIMethod === 'get' ?
+            await request.get(url) : await request.post(url);
+
+        return res;
+    }
 }

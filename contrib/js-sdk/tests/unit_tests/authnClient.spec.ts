@@ -15,10 +15,11 @@ import { IPAICluster } from '../../src/models/cluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 const realUri = '10.151.40.234/rest-server';
+const aadUri = '10.151.40.254/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',
-    rest_server_uri: testUri,
+    rest_server_uri: aadUri,
     username: 'test'
 };
 const authnClient = new AuthnClient(cluster);
@@ -53,4 +54,20 @@ describe('Basic login', () => {
         const result = await authnClient.login();
         expect(result).to.be.eql(response);
     });
+});
+
+describe('OIDC login', () => {
+    it('should return something', async () => {
+        const result = await authnClient.oidcLogin();
+
+        expect(result).to.be.a('string');
+    })
+});
+
+describe('OIDC logout', () => {
+    it('should return something', async () => {
+        const result = await authnClient.oidcLogout();
+
+        expect(result).to.be.a('string');
+    })
 });
