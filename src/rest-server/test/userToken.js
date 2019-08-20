@@ -32,7 +32,7 @@ const defaultGroupSchema = {
     'externalName': 'MTIzNA==',
     'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc1GroupSchema = {
@@ -45,9 +45,9 @@ const vc1GroupSchema = {
     'groupname': 'dmMx',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc2GroupSchema = {
@@ -60,9 +60,9 @@ const vc2GroupSchema = {
     'groupname': 'dmMy',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const adminGroupSchema = {
@@ -75,9 +75,9 @@ const adminGroupSchema = {
     'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 

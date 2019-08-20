@@ -178,7 +178,7 @@ const groupResponse = {
   'apiVersion': 'v1',
   'metadata': {
     'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-    'resourceVersion': '1062682'
+    'resourceVersion': '1062682',
   },
   'items': [
     {
@@ -191,7 +191,7 @@ const groupResponse = {
         'externalName': 'MTIzNA==',
         'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -201,9 +201,9 @@ const groupResponse = {
         'groupname': 'dmMx',
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -213,9 +213,9 @@ const groupResponse = {
         'groupname': 'dmMy',
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -225,11 +225,11 @@ const groupResponse = {
         'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
-  ]
+  ],
 };
 
 const defaultGroupSchema = {
@@ -244,7 +244,7 @@ const defaultGroupSchema = {
     'externalName': 'MTIzNA==',
     'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc1GroupSchema = {
@@ -257,9 +257,9 @@ const vc1GroupSchema = {
     'groupname': 'dmMx',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc2GroupSchema = {
@@ -272,9 +272,9 @@ const vc2GroupSchema = {
     'groupname': 'dmMy',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const adminGroupSchema = {
@@ -287,9 +287,9 @@ const adminGroupSchema = {
     'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 //
@@ -319,8 +319,8 @@ describe('Add new user: post /api/v2/user', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -338,7 +338,7 @@ describe('Add new user: post /api/v2/user', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30='
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -353,7 +353,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
       })
       .reply(200, {
@@ -372,7 +372,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -387,7 +387,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'NGY3YzdlMDBlNzU3YzUzZjYwOTI1YTE5OWVlOTZjODMxMjlmMzgwYjRjMmQ2NzA5OWM3OThhNDg2ZjQ2ZGY4NjlmZjMxYWVkODZiOTg2NGIyMTI2OWZkYmM2YTkzMjNiZDY5MWZhNGZkN2JjZTAyNWE0M2ZlZGM5N2I2NWU0ZjQ=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
       })
       .reply(409, {
@@ -414,7 +414,7 @@ describe('Add new user: post /api/v2/user', () => {
       .get('/api/v1/namespaces/pai-group/secrets/766332')
       .times(4)
       .reply(200, vc2GroupSchema)
-      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570');
 });
 
   //
@@ -903,7 +903,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
          'email': 'dGVzdEBwYWkuY29t',
          'extension': 'e30=',
-       }
+       },
      })
     .reply(200, {
       'kind': 'Secret',
@@ -948,14 +948,14 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-user-v2/secrets/7465737433', {
-        'metadata':{'name':'7465737433'},
+        'metadata': {'name': '7465737433'},
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'dGVzdDM=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
-        }
+        },
        })
       .reply(200, {
         'kind': 'Secret',
@@ -966,7 +966,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
@@ -1028,7 +1028,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'reason': 'NotFound',
         'details': {
           'name': '6e6f6e5f6578697374',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
         'code': 404,
       });

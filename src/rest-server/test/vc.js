@@ -925,7 +925,7 @@ const clusterNodeResponse = {
     },
 };
 
-const getK8sSecretsListResponse = {
+/* const getK8sSecretsListResponse = {
   'kind': 'SecretList',
   'apiVersion': 'v1',
   'metadata': {
@@ -947,14 +947,14 @@ const getK8sSecretsListResponse = {
       'type': 'Opaque',
     },
   ],
-};
+}; */
 
 const k8sGroupReponse = {
   'kind': 'SecretList',
   'apiVersion': 'v1',
   'metadata': {
     'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-    'resourceVersion': '1062682'
+    'resourceVersion': '1062682',
   },
   'items': [
     {
@@ -967,7 +967,7 @@ const k8sGroupReponse = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default'], admin: false}})).toString('base64'), // {"acls":{"admin":false,"virtualClusters":["default"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -979,7 +979,7 @@ const k8sGroupReponse = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64'),
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -991,7 +991,7 @@ const k8sGroupReponse = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['c'], admin: false}})).toString('base64'),
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -1003,9 +1003,9 @@ const k8sGroupReponse = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c'], admin: true}})).toString('base64'),
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
-  ]
+  ],
 };
 
 const k8sGroupReponseForDeletion = {
@@ -1013,7 +1013,7 @@ const k8sGroupReponseForDeletion = {
   'apiVersion': 'v1',
   'metadata': {
     'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-    'resourceVersion': '1062682'
+    'resourceVersion': '1062682',
   },
   'items': [
     {
@@ -1026,7 +1026,7 @@ const k8sGroupReponseForDeletion = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default'], admin: false}})).toString('base64'), // {"acls":{"admin":false,"virtualClusters":["default"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -1038,7 +1038,7 @@ const k8sGroupReponseForDeletion = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['c'], admin: false}})).toString('base64'),
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -1050,9 +1050,9 @@ const k8sGroupReponseForDeletion = {
         'externalName': 'MTIzNA==',
         'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c'], admin: true}})).toString('base64'),
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
-  ]
+  ],
 };
 
 
@@ -1205,8 +1205,8 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'acls':{'virtualClusters':['b'],'admin':false}})).toString('base64')}`
-        }
+          'extension': `${Buffer.from(JSON.stringify({'acls': {'virtualClusters': ['b'], 'admin': false}})).toString('base64')}`,
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -1223,19 +1223,19 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'acls':{'virtualClusters':['b'],'admin':false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({'acls': {'virtualClusters': ['b'], 'admin': false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
     nock(apiServerRootUri)
       .put(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('adminGroup').toString('hex')}`, {
-        'metadata':{'name': Buffer.from('adminGroup').toString('hex')},
+        'metadata': {'name': Buffer.from('adminGroup').toString('hex')},
         'data': {
           'groupname': Buffer.from('adminGroup').toString('base64'),
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
           'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c', 'b'], admin: true}})).toString('base64'),
-        }
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -1285,7 +1285,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1318,7 +1318,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1396,7 +1396,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['b'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['b'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1432,7 +1432,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1481,7 +1481,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1513,7 +1513,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('dedicated_vc').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['dedicated_vc'], admin: false}})).toString('base64')}`
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['dedicated_vc'], admin: false}})).toString('base64')}`,
         },
         'type': 'Opaque',
       });
@@ -1727,13 +1727,13 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       });
     nock(apiServerRootUri)
       .put(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('adminGroup').toString('hex')}`, {
-        'metadata':{'name': Buffer.from('adminGroup').toString('hex')},
+        'metadata': {'name': Buffer.from('adminGroup').toString('hex')},
         'data': {
           'groupname': Buffer.from('adminGroup').toString('base64'),
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
           'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'c'], admin: true}})).toString('base64'),
-        }
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -1744,7 +1744,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'groupname': Buffer.from('adminGroup').toString('base64'),
@@ -1752,7 +1752,7 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
           'externalName': 'MTIzNA==',
           'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'c'], admin: true}})).toString('base64'),
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     chai.request(server)
