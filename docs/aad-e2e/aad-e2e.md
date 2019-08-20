@@ -195,8 +195,8 @@ After start rest-server, please ensure that the following task is successfully e
 - Every group have an `acls` in extension field.
 
 <div  align="center">
-<img src="image/admin_group_detail.png" alt="paictl overview picture" style="float: left; margin-right: 10px;" />
-<img src="image/default_group_detail.png" alt="paictl overview picture" style="float: right; margin-right: 10px;" />
+<img src="image/admin_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Please Login through OpenPAI's webportal, then pls check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
@@ -205,10 +205,10 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please check the created user data. If the user is admin (in admin group), you should check whether in extension.virtualCluster has all vc. 
+- please check the created user data. There should be an empty extension and a non-empty grouplist. 
 
 <div  align="center">
-<img src="image/vc_check.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - please submit a test job in default vc, and then submit the same job to another vc. 
