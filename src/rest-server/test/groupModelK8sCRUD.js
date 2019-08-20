@@ -125,7 +125,12 @@ describe('Group model k8s secret get function test', () => {
       groupname: 'paitest',
       description: 'test',
       externalName: '1234',
-      extension: {},
+      extension: {
+        acls: {
+          admin: false,
+          virtualClusters: [],
+        },
+      },
     });
   });
 });
@@ -148,7 +153,7 @@ describe('Group model k8s secret set function test', () => {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30=',
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbXX19',
         },
       })
       .reply(200, {
@@ -166,7 +171,7 @@ describe('Group model k8s secret set function test', () => {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30=',
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbXX19',
         },
         'type': 'Opaque',
       });
@@ -179,7 +184,7 @@ describe('Group model k8s secret set function test', () => {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30=',
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbXX19',
         },
       })
       .reply(200, {
@@ -197,7 +202,7 @@ describe('Group model k8s secret set function test', () => {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30=',
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbXX19',
         },
         'type': 'Opaque',
       });

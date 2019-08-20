@@ -173,6 +173,124 @@ const nodeResponse = {
       },
     };
 
+const groupResponse = {
+  'kind': 'SecretList',
+  'apiVersion': 'v1',
+  'metadata': {
+    'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+    'resourceVersion': '1062682'
+  },
+  'items': [
+    {
+      'metadata': {
+        'name': 'cantest001',
+      },
+      'data': {
+        'groupname': 'ZGVmYXVsdA==',
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test',
+      },
+      'data': {
+        'groupname': 'dmMx',
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_1',
+      },
+      'data': {
+        'groupname': 'dmMy',
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_2',
+      },
+      'data': {
+        'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+      },
+      'type': 'Opaque'
+    },
+  ]
+};
+
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'cantest001',
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test',
+  },
+  'data': {
+    'groupname': 'dmMx',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque'
+};
+
+const vc2GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_1',
+  },
+  'data': {
+    'groupname': 'dmMy',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+  },
+  'type': 'Opaque'
+};
+
+const adminGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_2',
+  },
+  'data': {
+    'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+  },
+  'type': 'Opaque'
+};
 
 //
 // Get a valid token that expires in 60 seconds.
@@ -182,7 +300,7 @@ const validToken = global.jwt.sign({username: 'new_user', admin: true}, process.
 const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
 // const invalidToken = '';
 
-describe('Add new user: put /api/v2/user', () => {
+describe('Add new user: post /api/v2/user', () => {
   after(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -200,9 +318,9 @@ describe('Add new user: put /api/v2/user', () => {
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
-        },
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
+          'extension': 'e30='
+        }
       })
       .reply(200, {
         'kind': 'Secret',
@@ -219,8 +337,8 @@ describe('Add new user: put /api/v2/user', () => {
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
+          'extension': 'e30='
         },
         'type': 'Opaque',
       });
@@ -233,9 +351,9 @@ describe('Add new user: put /api/v2/user', () => {
         'data': {
           'username': 'bm9uX2FkbWlu',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+          'extension': 'e30='
         },
       })
       .reply(200, {
@@ -252,9 +370,9 @@ describe('Add new user: put /api/v2/user', () => {
         'data': {
           'username': 'bm9uX2FkbWlu',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+          'extension': 'e30='
         },
         'type': 'Opaque',
       });
@@ -269,7 +387,7 @@ describe('Add new user: put /api/v2/user', () => {
           'password': 'NGY3YzdlMDBlNzU3YzUzZjYwOTI1YTE5OWVlOTZjODMxMjlmMzgwYjRjMmQ2NzA5OWM3OThhNDg2ZjQ2ZGY4NjlmZjMxYWVkODZiOTg2NGIyMTI2OWZkYmM2YTkzMjNiZDY5MWZhNGZkN2JjZTAyNWE0M2ZlZGM5N2I2NWU0ZjQ=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+          'extension': 'e30='
         },
       })
       .reply(409, {
@@ -286,69 +404,17 @@ describe('Add new user: put /api/v2/user', () => {
         'code': 409,
       });
 
-
-    // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
       .times(4)
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-          'resourceVersion': '1062682',
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'cantest001',
-            },
-            'data': {
-              'groupname': 'ZGVmYXVsdA==',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test',
-            },
-            'data': {
-              'groupname': 'dmMx',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_1',
-            },
-            'data': {
-              'groupname': 'dmMy',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_2',
-            },
-            'data': {
-              'groupname': 'YWRtaW5Hcm91cA==',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJhZG1pbiJ9',
-            },
-            'type': 'Opaque',
-          },
-        ],
-      });
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .times(4)
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .times(4)
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
 });
 
   //
@@ -458,7 +524,7 @@ describe('update user: put /api/v2/user', () => {
         'data': {
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'dXBkYXRlX3VzZXI=',
-            'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+            'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
             'email': 'dGVzdEBwYWkuY29t',
             'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
@@ -471,7 +537,7 @@ describe('update user: put /api/v2/user', () => {
       'data': {
         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
         'username': 'dXBkYXRlX3VzZXI=',
-        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
        },
@@ -490,7 +556,7 @@ describe('update user: put /api/v2/user', () => {
       'data': {
         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
         'username': 'dXBkYXRlX3VzZXI=',
-        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
       },
@@ -504,7 +570,7 @@ describe('update user: put /api/v2/user', () => {
       'data': {
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
          'username': 'dXBkYXRlX3VzZXI=',
-         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
          'email': 'dGVzdEBwYWkuY29t',
          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
        },
@@ -521,9 +587,9 @@ describe('update user: put /api/v2/user', () => {
           'creationTimestamp': '2018-12-07T02:21:42Z',
       },
       'data': {
-        'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
+        'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
         'username': 'dXBkYXRlX3VzZXI=',
-        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+        'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
         'email': 'dGVzdEBwYWkuY29t',
         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
       },
@@ -546,6 +612,16 @@ describe('update user: put /api/v2/user', () => {
       },
       'code': 404,
     });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
   });
 
   //
@@ -661,6 +737,11 @@ describe('delete user : delete /api/v2/user', () => {
       });
 
     nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .times(1)
+      .reply(200, groupResponse);
+
+    nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e')
       .reply(200, {
         'kind': 'Status',
@@ -692,6 +773,16 @@ describe('delete user : delete /api/v2/user', () => {
         },
         'type': 'Opaque',
       });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
 
     // mock for case3 username=non_exist.
     nock(apiServerRootUri)
@@ -786,6 +877,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
     // mock for case1 username=test
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/74657374')
+      .times(2)
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -794,10 +886,10 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         },
         'data': {
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'username': 'cGFpdGVzdA==',
+            'username': 'dGVzdA==',
             'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
             'email': 'dGVzdEBwYWkuY29t',
-            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+            'extension': 'e30=',
         },
         'type': 'Opaque',
     });
@@ -807,11 +899,11 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
       'metadata': {'name': '74657374'},
       'data': {
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-         'username': 'cGFpdGVzdA==',
+         'username': 'dGVzdA==',
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
          'email': 'dGVzdEBwYWkuY29t',
-         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-       },
+         'extension': 'e30=',
+       }
      })
     .reply(200, {
       'kind': 'Secret',
@@ -826,15 +918,67 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
       },
       'data': {
         'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-        'username': 'cGFpdGVzdA==',
+        'username': 'dGVzdA==',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
+        'extension': 'e30=',
       },
       'type': 'Opaque',
     });
 
-    // mock for case2 username=test2
+    // mock for case2 username=test3
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737433')
+      .times(2)
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '7465737433',
+        },
+        'data': {
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
+          'username': 'dGVzdDM=',
+          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'e30=',
+        },
+        'type': 'Opaque',
+      });
+
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user-v2/secrets/7465737433', {
+        'metadata':{'name':'7465737433'},
+        'data': {
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'dGVzdDM=',
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'e30=',
+        }
+       })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '7465737433',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'dGVzdDM=',
+          'grouplist': 'WyJkZWZhdWx0Il0=',
+          'email': 'dGVzdEBwYWkuY29t',
+          'extension': 'e30=',
+        },
+        'type': 'Opaque',
+      });
+
+    // mock for case3 username=test2
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7465737432')
       .reply(200, {
@@ -845,61 +989,10 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'username': 'cGFpdGVzdA==',
+          'username': 'dGVzdDI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-        },
-        'type': 'Opaque',
-      });
-
-    // mock for case3 username=test3
-    nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737433')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7465737433',
-        },
-        'data': {
-          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
-          'username': 'dGVzdHVzZXIz',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
-          'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
-        },
-        'type': 'Opaque',
-      });
-
-    nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user-v2/secrets/7465737433', {
-        'metadata': {'name': '7465737433'},
-        'data': {
-           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-           'username': 'dGVzdHVzZXIz',
-          'grouplist': 'WyJkZWZhdWx0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
-         },
-       })
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-            'name': '7465737433',
-            'namespace': 'pai-user',
-            'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
-            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
-            'resourceVersion': '1115478',
-            'creationTimestamp': '2018-12-07T02:21:42Z',
-        },
-        'data': {
-            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'username': 'dGVzdHVzZXIz',
-          'grouplist': 'WyJkZWZhdWx0Il0=',
-          'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -915,10 +1008,10 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
-          'username': 'dGVzdHVzZXIz',
+          'username': 'dGVzdGludmFsaWQ=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -934,27 +1027,27 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'message': 'secrets \'6e6f6e5f6578697374\' not found',
         'reason': 'NotFound',
         'details': {
-            'name': '6e6f6e5f6578697374',
-            'kind': 'secrets',
+          'name': '6e6f6e5f6578697374',
+          'kind': 'secrets'
         },
         'code': 404,
       });
 
     // mock for case6 username=test6
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/test6')
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7465737436')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
-          'name': 'test6',
+          'name': '7465737436',
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'username': 'cGFpdGVzdA==',
+          'username': 'dGVzdDY=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0Il19',
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
@@ -962,6 +1055,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
     // mock for case7 username=test7
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7465737437')
+      .times(2)
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -970,76 +1064,27 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'username': 'cGFpdGVzdA==',
+          'username': 'dGVzdDc=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+          'extension': 'e30=',
         },
         'type': 'Opaque',
       });
 
-    // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets')
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
       .times(8)
-      .reply(200, {
-        'kind': 'SecretList',
-        'apiVersion': 'v1',
-        'metadata': {
-          'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-          'resourceVersion': '1062682',
-        },
-        'items': [
-          {
-            'metadata': {
-              'name': 'cantest001',
-            },
-            'data': {
-              'groupname': 'ZGVmYXVsdA==',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test',
-            },
-            'data': {
-              'groupname': 'dmMx',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_1',
-            },
-            'data': {
-              'groupname': 'dmMy',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJ2YyJ9',
-            },
-            'type': 'Opaque',
-          },
-          {
-            'metadata': {
-              'name': 'pai_test_2',
-            },
-            'data': {
-              'groupname': 'YWRtaW5Hcm91cA==',
-              'description': 'dGVzdA==',
-              'externalName': 'MTIzNA==',
-              'extension': 'eyJncm91cFR5cGUiOiJhZG1pbiJ9',
-            },
-            'type': 'Opaque',
-          },
-        ],
-      });
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .times(8)
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .times(8)
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .times(8)
+      .reply(200, adminGroupSchema);
   });
 
   //
@@ -1053,7 +1098,6 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   //
   // Positive cases
   //
-
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
       .put('/api/v2/user/test/virtualcluster')
@@ -1067,7 +1111,22 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
       });
   });
 
-  it('Case 2 (Positive): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
+  it('Case 2 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v2/user/test3/virtualcluster')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send({'virtualCluster': []})
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('Update user virtualCluster data successfully.');
+        done();
+      });
+  });
+
+
+  // Negative cases
+  it('Case 3 (Negative): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
     global.chai.request(global.server)
       .put('/api/v2/user/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1080,26 +1139,9 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
       });
   });
 
-  it('Case 3 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
-    global.chai.request(global.server)
-      .put('/api/v2/user/test3/virtualcluster')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send( {'virtualCluster': []})
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('Update user virtualCluster data successfully.');
-        done();
-      });
-  });
-
-
-  // Negative cases
-
-
   it('Case 4 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/testinvalid/virtualcluster')
+      .put('/api/v2/user/test_invalid/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
       .send({'virtualCluster': ['non_exist_vc']})
       .end((err, res) => {
@@ -1112,14 +1154,14 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 
   it('Case 5 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-    .put('/api/v2/user/non_exist/virtualcluster')
-    .set('Authorization', 'Bearer ' + validToken)
-    .send({'virtualCluster': ['default']})
-    .end((err, res) => {
-      global.chai.expect(res, 'status code').to.have.status(404);
-      global.chai.expect(res, 'response format').be.json;
-      global.chai.expect(res.body.code, 'response code').equal('NoUserError');
-      done();
+      .put('/api/v2/user/non_exist/virtualcluster')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send({'virtualCluster': ['default']})
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(404);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
+        done();
     });
   });
 
@@ -1127,7 +1169,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
     global.chai.request(global.server)
       .put('/api/v2/user/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send( {'virtualCluster': ['default']})
+      .send({'virtualCluster': ['default']})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
@@ -1138,9 +1180,9 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 
   it('Case 7 (Negative): should fail to update admin virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v2/user/test7/virtualCluster')
+      .put('/api/v2/user/test7/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
-      .send( {'virtualCluster': ['default']} )
+      .send({'virtualCluster': ['default']})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
@@ -1149,7 +1191,6 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
       });
   });
 });
-
 
 describe('get user info list : get /api/v1/user', () => {
   afterEach(() => {

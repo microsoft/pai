@@ -115,6 +115,11 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
   for (let i of Object.keys(frameworkDescription.taskRoles)) {
     tasksNumber += frameworkDescription.taskRoles[i].taskNumber;
   }
+  // get shared memory size
+  let shmMB = 512;
+  if ('extraContainerOptions' in config.taskRoles[taskRole]) {
+    shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
+  }
   const yarnContainerScript = mustache.render(yarnContainerScriptTemplate, {
     idx: taskRole,
     jobData: {
@@ -131,7 +136,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
       cpuNumber: frameworkDescription.taskRoles[taskRole].taskService.resource.cpuNumber,
       memoryMB: frameworkDescription.taskRoles[taskRole].taskService.resource.memoryMB,
       gpuNumber: frameworkDescription.taskRoles[taskRole].taskService.resource.gpuNumber,
-      shmMB: 512,
+      shmMB,
       minFailedTaskCount: frameworkDescription.taskRoles[taskRole].applicationCompletionPolicy.minFailedTaskCount,
       minSucceededTaskCount: frameworkDescription.taskRoles[taskRole].applicationCompletionPolicy.minSucceededTaskCount,
     },

@@ -949,6 +949,112 @@ const getK8sSecretsListResponse = {
   ],
 };
 
+const k8sGroupReponse = {
+  'kind': 'SecretList',
+  'apiVersion': 'v1',
+  'metadata': {
+    'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+    'resourceVersion': '1062682'
+  },
+  'items': [
+    {
+      'metadata': {
+        'name': 'cantest001',
+      },
+      'data': {
+        'groupname': Buffer.from('default').toString('base64'),
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default'], admin: false}})).toString('base64'), // {"acls":{"admin":false,"virtualClusters":["default"]}}
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test',
+      },
+      'data': {
+        'groupname': Buffer.from('a').toString('base64'),
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64'),
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_1',
+      },
+      'data': {
+        'groupname': Buffer.from('c').toString('base64'),
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['c'], admin: false}})).toString('base64'),
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_2',
+      },
+      'data': {
+        'groupname': Buffer.from('adminGroup').toString('base64'), // adminGroup
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c'], admin: true}})).toString('base64'),
+      },
+      'type': 'Opaque'
+    },
+  ]
+};
+
+const k8sGroupReponseForDeletion = {
+  'kind': 'SecretList',
+  'apiVersion': 'v1',
+  'metadata': {
+    'selfLink': '/api/v1/namespaces/pai-group/secrets/',
+    'resourceVersion': '1062682'
+  },
+  'items': [
+    {
+      'metadata': {
+        'name': 'cantest001',
+      },
+      'data': {
+        'groupname': Buffer.from('default').toString('base64'),
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default'], admin: false}})).toString('base64'), // {"acls":{"admin":false,"virtualClusters":["default"]}}
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_1',
+      },
+      'data': {
+        'groupname': Buffer.from('c').toString('base64'),
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['c'], admin: false}})).toString('base64'),
+      },
+      'type': 'Opaque'
+    },
+    {
+      'metadata': {
+        'name': 'pai_test_2',
+      },
+      'data': {
+        'groupname': Buffer.from('adminGroup').toString('base64'), // adminGroup
+        'description': 'dGVzdA==',
+        'externalName': 'MTIzNA==',
+        'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c'], admin: true}})).toString('base64'),
+      },
+      'type': 'Opaque'
+    },
+  ]
+};
+
 
 // test
 describe('VC API  Get /api/v1/virtual-clusters', () => {
@@ -1075,8 +1181,8 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets')
-      .reply(200, getK8sSecretsListResponse);
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .reply(200, k8sGroupReponse);
     nock(apiServerRootUri)
       .get(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('b').toString('hex')}`)
       .reply(404, {
@@ -1099,8 +1205,8 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
-        },
+          'extension': `${Buffer.from(JSON.stringify({'acls':{'virtualClusters':['b'],'admin':false}})).toString('base64')}`
+        }
       })
       .reply(200, {
         'kind': 'Secret',
@@ -1117,38 +1223,36 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({'acls':{'virtualClusters':['b'],'admin':false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
     nock(apiServerRootUri)
-      .put('/api/v1/namespaces/pai-user-v2/secrets/70616974657374', {
-        'metadata': {'name': '70616974657374'},
+      .put(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('adminGroup').toString('hex')}`, {
+        'metadata':{'name': Buffer.from('adminGroup').toString('hex')},
         'data': {
-          'username': 'cGFpdGVzdA==',
-          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0=',
-        },
+          'groupname': Buffer.from('adminGroup').toString('base64'),
+          'description': 'dGVzdA==',
+          'externalName': 'MTIzNA==',
+          'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c', 'b'], admin: true}})).toString('base64'),
+        }
       })
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
-          'name': '70616974657374',
-          'namespace': 'pai-user-v2',
-          'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/70616974657374',
+          'name': '657869737475736572',
+          'namespace': 'pai-group',
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
           'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
-          'username': 'cGFpdGVzdA==',
-          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXQ==',
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMyIiwidmMzIiwiYWRtaW5Hcm91cCIsImIiXX0=',
+          'groupname': Buffer.from('adminGroup').toString('base64'),
+          'description': 'dGVzdA==',
+          'externalName': 'MTIzNA==',
+          'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'a', 'c', 'b'], admin: true}})).toString('base64'),
         },
         'type': 'Opaque',
       });
@@ -1181,7 +1285,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1214,7 +1318,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1292,7 +1396,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('b').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['b'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1328,7 +1432,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1346,7 +1450,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
       });
   });
 
-  it('[Negative] should not update vc if  vcname contains illegal character', (done) => {
+  it('[Negative] should not update vc if vcname contains illegal character', (done) => {
     nock.cleanAll();
     chai.request(server)
       .put('/api/v1/virtual-clusters/aaa%20bbb')
@@ -1377,7 +1481,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('a').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['a'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1409,7 +1513,7 @@ describe('VC API PUT /api/v1/virtual-clusters', () => {
           'groupname': `${Buffer.from('dedicated_vc').toString('base64')}`,
           'description': `${Buffer.from('').toString('base64')}`,
           'externalName': `${Buffer.from('').toString('base64')}`,
-          'extension': `${Buffer.from(JSON.stringify({'groupType': 'vc'})).toString('base64')}`,
+          'extension': `${Buffer.from(JSON.stringify({acls: {virtualClusters: ['dedicated_vc'], admin: false}})).toString('base64')}`
         },
         'type': 'Opaque',
       });
@@ -1606,6 +1710,9 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
         ],
       });
     nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets')
+      .reply(200, k8sGroupReponseForDeletion);
+    nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-group/secrets/61')
       .reply(200, {
         'kind': 'Status',
@@ -1617,6 +1724,35 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
           'kind': 'secrets',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
         },
+      });
+    nock(apiServerRootUri)
+      .put(`/api/v1/namespaces/pai-group/secrets/${Buffer.from('adminGroup').toString('hex')}`, {
+        'metadata':{'name': Buffer.from('adminGroup').toString('hex')},
+        'data': {
+          'groupname': Buffer.from('adminGroup').toString('base64'),
+          'description': 'dGVzdA==',
+          'externalName': 'MTIzNA==',
+          'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'c'], admin: true}})).toString('base64'),
+        }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': '657869737475736572',
+          'namespace': 'pai-group',
+          'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+          'groupname': Buffer.from('adminGroup').toString('base64'),
+          'description': 'dGVzdA==',
+          'externalName': 'MTIzNA==',
+          'extension': Buffer.from(JSON.stringify({acls: {virtualClusters: ['default', 'c'], admin: true}})).toString('base64'),
+        },
+        'type': 'Opaque'
       });
 
     chai.request(server)

@@ -169,6 +169,52 @@ const nodeResponse = {
   },
 };
 
+const user1Schema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '7573657231', // user1
+  },
+  'data': {
+    'email': '',
+    'extension': 'e30=', // {}
+    'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=', // ["default","vc1"]
+    'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
+    'username': 'dXNlcjE=', // user1
+  },
+  'type': 'Opaque',
+};
+
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '64656661756c74', // default
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==', // default
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque',
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '766331', // vc1
+  },
+  'data': {
+    'groupname': 'dmMx', // vc1
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque',
+};
+
 describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
@@ -237,21 +283,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque',
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -332,21 +368,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque',
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -405,21 +431,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-            'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque',
-    });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
   };
 
   const prepareNockForCaseN08 = prepareNockForCaseN03;
@@ -430,7 +446,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[P-01] Submit a job to the default vc', (done) => {
     prepareNockForCaseP01('user1', 'new_job');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'});
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job', 'virtualCluster': 'default'});
     global.chai.request(global.server)
       .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -447,8 +463,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[P-02] Submit a job to a valid virtual cluster', (done) => {
     prepareNockForCaseP02('user1', 'new_job_in_vc1');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1'});
-    jobConfig['virtualCluster'] = 'vc1';
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1', 'virtualCluster': 'vc1'});
     global.chai.request(global.server)
       .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -479,7 +494,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       });
   });
 
-  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+  it('[P-04] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
       .put('/api/v2/user/user1/jobs/new_job')
@@ -676,21 +691,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque',
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
