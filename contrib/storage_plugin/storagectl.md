@@ -75,7 +75,7 @@ python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_
 - -s defines config useable servers.
 - If -d is set, means mount config storage by default.
 - -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
-    - [Job Environment Varialbes](/docs/job_tutorial.md#environment-variables) can be referenced In PATH. Please use '' to quote job environment variables to avoid refernce to local variables in dev-box. 
+    - [Job Environment Varialbes](https://github.com/microsoft/pai/blob/master/docs/job_tutorial.md#environment-variables) can be referenced In PATH. Please use '' to quote job environment variables to avoid refernce to local variables in dev-box. 
 
 For example, suppose we have set config using:
 ```
