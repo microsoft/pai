@@ -20,7 +20,7 @@ const userModel = require('@pai/models/v2/user');
 const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
 const groupModel = require('@pai/models/v2/group');
-const vcModel = require('@pai/models/vc');
+const vcModel = require('@pai/models/v2/virtual-cluster');
 
 const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
@@ -53,7 +53,7 @@ const getAllUser = async (req, res, next) => {
   try {
     const userList = await userModel.getAllUser();
     const groupInfo = await groupModel.getAllGroup();
-    const allVClist = Object.keys(await vcModel.prototype.getVcListAsyc());
+    const allVClist = Object.keys(await vcModel.list());
     const groupMap = {};
     for (const groupItem of groupInfo) {
       groupMap[groupItem.groupname] = groupItem;
