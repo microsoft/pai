@@ -19,7 +19,7 @@ const aadUri = '10.151.40.254/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',
-    rest_server_uri: aadUri,
+    rest_server_uri: testUri,
     username: 'test'
 };
 const authnClient = new AuthnClient(cluster);
@@ -58,6 +58,7 @@ describe('Basic login', () => {
 
 describe('OIDC login', () => {
     it('should return something', async () => {
+        nock(`http://${testUri}`).get(`/api/v1/authn/oidc/login`).reply(200, 'test');
         const result = await authnClient.oidcLogin();
 
         expect(result).to.be.a('string');
@@ -66,6 +67,7 @@ describe('OIDC login', () => {
 
 describe('OIDC logout', () => {
     it('should return something', async () => {
+        nock(`http://${testUri}`).get(`/api/v1/authn/oidc/logout`).reply(200, 'test');
         const result = await authnClient.oidcLogout();
 
         expect(result).to.be.a('string');
