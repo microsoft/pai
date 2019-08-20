@@ -70,14 +70,16 @@ class ClusterList:
         return Cluster().load(**self.select(alias))
 
     def available_resources(self):
-        dic = {}
-        for cluster in self.clusters:
-            try:
-                a = cluster["cluster_alias"]
-                dic[a] = self.get_client(a).available_resources()
-            except Exception as identifier:
-                __logger__.exception(identifier)
-        return dic
+        "concurrent version to get available resources"
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            aliases = self.aliases
+            ret = executor.map(Cluster.available_resources, (self.get_client(a) for a in aliases))
+            return {a: r for a, r in zip(aliases, ret) if r is not None}
+
+    @property
+    def aliases(self):
+        return [c["cluster_alias"] for c in self.clusters]
 
 
 class Cluster:
@@ -280,11 +282,13 @@ class Cluster:
                     k: max(0, int(total[k] - used[k])) for k in total
                 }
             else:
-                # return -1 if the REST api not supported
+                   # return -1 if the REST api not supported
                 dic[key] = dict(GPUs=-1, memory=-1, vCores=-1)
         return dic
 
     def available_resources(self):
-        # return {k: dict(GPUs='-', memory='-', vCores='-') for k in self.config["virtual_clusters"]}
-        resources = self.virtual_cluster_available_resources()
-        return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
+        try:
+            resources = self.virtual_cluster_available_resources()
+            return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
+        except:
+            return None

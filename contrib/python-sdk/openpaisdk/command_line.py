@@ -59,17 +59,23 @@ class ActionFactoryForCluster(ActionFactory):
     def define_arguments_list(self, parser):
         cli_add_arguments(parser, [])
 
+    @staticmethod
+    def tabulate_resources(dic: dict):
+        to_screen([
+            [c, v, i["GPUs"], i["vCores"], i["memory"]] for c in dic.keys() for v, i in dic[c].items()
+        ], is_table=True, headers=["cluster", "virtual-cluster", "GPUs", "vCores", "memory"])
+        return dic
+
     def do_action_list(self, args):
         info = self.__clusters__.tell()
-        to_screen([
-            [c, v, i["GPUs"], i["vCores"], i["memory"]] for c in info.keys() for v, i in info[c].items()
-        ], is_table=True, headers=["cluster", "virtual-cluster", "GPUs", "vCores", "memory"])
+        ActionFactoryForCluster.tabulate_resources(info)
 
     def define_arguments_resources(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, [])
 
     def do_action_resources(self, args):
-        return self.__clusters__.available_resources()
+        r = self.__clusters__.available_resources()
+        ActionFactoryForCluster.tabulate_resources(r)
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
