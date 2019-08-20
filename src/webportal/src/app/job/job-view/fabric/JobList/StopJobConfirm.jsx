@@ -34,7 +34,7 @@ export default function StopJobConfirm(props) {
       const willStopedJobs = selectedJobs.filter((job) => {
         return getStatusText(job) === 'Waiting' || getStatusText(job) === 'Running';
       });
-      stopJob(willStopedJobs.length === 0 ? currentJob : willStopedJobs);
+      willStopedJobs.length === 0 ? stopJob(currentJob) : stopJob(...willStopedJobs);
     } else {
       stopJob();
     }
@@ -75,6 +75,6 @@ export default function StopJobConfirm(props) {
 StopJobConfirm.propTypes = {
   hideDialog: PropTypes.bool.isRequired,
   setHideDialog: PropTypes.func.isRequired,
-  currentJob: PropTypes.array,
+  currentJob: PropTypes.object,
   stopJob: PropTypes.func.isRequired,
 };
