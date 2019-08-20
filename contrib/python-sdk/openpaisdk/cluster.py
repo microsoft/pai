@@ -36,12 +36,11 @@ class ClusterList:
         to_file(self.clusters, __cluster_config_file__)
 
     def tell(self):
-        """return the content of clusters, but hide the password"""
-        lst = deepcopy(self.clusters)
-        for dic in lst:
-            dic["password"] = "******"
-            dic["token"] = "******"
-        return lst
+        return {
+            c["cluster_alias"]: {
+                v: dict(GPUs='-', memory='-', vCores='-') for v in c["virtual_clusters"]
+            } for c in self.clusters
+        }
 
     def add(self, cluster: dict):
         cfg = Cluster().load(**cluster).check().config
@@ -286,5 +285,6 @@ class Cluster:
         return dic
 
     def available_resources(self):
+        # return {k: dict(GPUs='-', memory='-', vCores='-') for k in self.config["virtual_clusters"]}
         resources = self.virtual_cluster_available_resources()
         return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}

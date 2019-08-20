@@ -16,37 +16,14 @@ __yaml_exts__ = ['.yaml', '.yml']
 __json_exts__ = ['.json', '.jsn']
 
 
-def get_global_defaults():
-    if os.path.isfile(__global_default_file__):
-        return from_file(__global_default_file__, default="==FATAL==")
-    return {}
-
-
-def get_per_folder_defaults():
-    if os.path.isfile(__local_default_file__):
-        return from_file(__local_default_file__, default="==FATAL==")
-    return {}
-
-
-def get_defaults(global_only: bool = False):
-    dic = get_global_defaults()
-    if not global_only:
-        dic.update(get_per_folder_defaults())
-    return dic
-
-
-def update_default(key: str, value: str = None, is_global: bool = False, to_delete: bool = False):
-    filename = __global_default_file__ if is_global else __local_default_file__
-    dic = get_global_defaults() if is_global else get_per_folder_defaults()
-    if to_delete:
-        if key not in dic:
-            __logger__.warn("key %s not found in %s, ignored", key, filename)
-            return
-        del dic[key]
-    else:
-        __logger__.info("key %s updated to %s in %s", key, value, filename)
-        dic[key] = value
-    to_file(dic, filename)
+def listdir(path):
+    assert os.path.isdir(path), "{} is not a valid path of directory".format(path)
+    root, dirs, files = next(os.walk(path))
+    return {
+        "root": root,
+        "dirs": dirs,
+        "files": files
+    }
 
 
 def browser_open(url: str):
@@ -185,7 +162,14 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
         __logger__.debug("serialize object to file %s", fname)
 
 
-def to_screen(s, **kwargs):
+def to_screen(s, is_warn: bool = False, is_table: bool = False, **kwargs):
+    if is_table:
+        from tabulate import tabulate
+        print(tabulate(s, **kwargs), flush=True)
+        return
+    if is_warn:
+        __logger__.warn(s)
+        return
     if __flags__.disable_to_screen:
         return
     if isinstance(s, str):

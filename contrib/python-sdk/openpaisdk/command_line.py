@@ -6,7 +6,8 @@ from openpaisdk import __logger__, __cluster_config_file__
 from openpaisdk.cli_arguments import cli_add_arguments, append_options_to_list
 from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
 from openpaisdk.core import pprint
-from openpaisdk.io_utils import get_defaults, update_default, browser_open, to_screen
+from openpaisdk.defaults import read_defaults, update_default
+from openpaisdk.io_utils import browser_open, to_screen
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested, run_command, na
 from uuid import uuid4 as randstr
@@ -27,7 +28,7 @@ class ActionFactoryForDefault(ActionFactory):
 
     def do_action_set(self, args):
         if not args.contents:
-            return get_defaults(global_only=args.is_global)
+            return read_defaults(global_only=args.is_global)
         for kv in args.contents:
             key, value = kv.split('=')
             assert key is not None and value is not None, "must specify a key=value pair"
@@ -59,7 +60,10 @@ class ActionFactoryForCluster(ActionFactory):
         cli_add_arguments(parser, [])
 
     def do_action_list(self, args):
-        return ol.as_dict(self.__clusters__.tell(), "cluster_alias")
+        info = self.__clusters__.tell()
+        to_screen([
+            [c, v, i["GPUs"], i["vCores"], i["memory"]] for c in info.keys() for v, i in info[c].items()
+        ], is_table=True, headers=["cluster", "virtual-cluster", "GPUs", "vCores", "memory"])
 
     def define_arguments_resources(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, [])
@@ -69,8 +73,7 @@ class ActionFactoryForCluster(ActionFactory):
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
-            parser, ['--cluster-alias', '--pai-uri', '--user', '--password'])
-        parser.add_argument('--token', help="authentication token")
+            parser, ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token'])
 
     def check_arguments_add(self, args):
         assert args.cluster_alias or args.pai_uri or args.user, "must specify cluster-alias, pai-uri, user"
@@ -130,14 +133,15 @@ class ActionFactoryForJob(ActionFactory):
 
     def define_arguments_stop(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['--cluster-alias'])
-        parser.add_argument('job_name', help='job name')
+        parser.add_argument('job_names', nargs='+', help='job name')
 
     def check_arguments_stop(self, args):
-        assert args.job_name, "must specify a job name"
+        assert args.job_names, "must specify a job name"
 
     def do_action_stop(self, args):
         client = self.__clusters__.get_client(args.cluster_alias)
-        return client.rest_api_execute_job(args.job_name, "STOP")
+        for job_name in args.job_names:
+            to_screen(client.rest_api_execute_job(job_name, "STOP"))
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
@@ -210,7 +214,7 @@ class ActionFactoryForJob(ActionFactory):
         self.define_essentials(parser)
         cli_add_arguments(parser, [
             '--interactive',
-            '--token',
+            '--notebook-token',
             'notebook'
         ])
 

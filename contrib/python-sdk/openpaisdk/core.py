@@ -1,6 +1,5 @@
 from openpaisdk.cluster import ClusterList, Cluster
 from openpaisdk.job import Job
-from openpaisdk.io_utils import get_defaults
 from uuid import uuid4 as randstr
 import os
 import json

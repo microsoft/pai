@@ -11,7 +11,8 @@ from html2text import html2text
 from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __container_sdk_branch__, __cache__, __version__
 from openpaisdk import get_install_uri
 from openpaisdk.cli_arguments import get_args
-from openpaisdk.io_utils import from_file, to_file, get_defaults, to_screen, safe_open, browser_open
+from openpaisdk.io_utils import from_file, to_file, to_screen, safe_open, browser_open
+from openpaisdk.defaults import get_defaults, __default_job_resources__
 from openpaisdk.utils import find, na, get_response, NotReadyError, Retry
 from openpaisdk.cluster import get_cluster
 
@@ -75,9 +76,6 @@ class Job:
 
     def __init__(self, name: str=None, **kwargs):
         self.protocol = dict()  # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
-        self.default_resouces = {
-            "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
-        }
         self._client = None  # cluster client
         self.new(name, **kwargs)
 
@@ -227,7 +225,7 @@ class Job:
         self.add_tag(__internal_tags__["sdk"])
 
         # sdk.plugins
-        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("container-sdk-branch", __container_sdk_branch__)))
+        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("container-sdk-branch")))
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
 
@@ -236,7 +234,7 @@ class Job:
             plugins.append({
                 "plugin": "local.uploadFiles",
                 "parameters": {
-                    "files": sources,
+                    "files": list(set([os.path.relpath(s) for s in sources])),
                 },
             })
 
@@ -290,9 +288,14 @@ class Job:
             "protocolVersion": "2",
             "uri": image,
         })
+        resources_dic = dict(__default_job_resources__)
+        resources_dic.update(resources)
+        mem = resources_dic.get("memoryMB", None)
+        if mem and str(mem).endswith('G'):
+            resources_dic["memoryMB"] = 1024 * int(mem[:-1])
         self.protocol.setdefault("taskRoles", {})["main"] = {
             "dockerImage": "docker_image",
-            "resourcePerInstance": resources if resources else self.default_resouces,
+            "resourcePerInstance": resources_dic,
             "commands": commands if isinstance(commands, list) else [commands]
         }
         self.add_tag(__internal_tags__["one_liner"])
@@ -466,7 +469,7 @@ class Job:
             for src in plugin["parameters"]["files"]:
                 src = os.path.relpath(src)
                 if os.path.dirname(src) != "":
-                    __logger__.warn("files not in current folder may cause wrong location in the container, please check it {}".format(src))
+                    __logger__.warn("files not in current folder may cause wrong location when unarchived in the container, please check it {}".format(src))
                 fn.add(src)
                 to_screen("{} archived and wait to be uploaded".format(src))
         self.client.get_storage().upload(
