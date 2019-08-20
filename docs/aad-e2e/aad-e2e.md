@@ -226,13 +226,13 @@ After start rest-server, please ensure that the following task is successfully e
 </div>
 
 <div  align="center">
-<img src="image/add_vc_new_group.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/test_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After creating the new vc, pls check whether the new group is added into admin's grouplist and extension.virtualCluster.
+- After creating the new vc, pls check whether the new vc is available for admin at home page.
 
 <div  align="center">
-<img src="image/admin_new_vc.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/admin_home.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Delete the test vc, then pls check whether the corresponding group is deleted.
@@ -241,10 +241,10 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/vc_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After deleting the vc, pls check whether the group is removed from admin's grouplist and extension.virtualCluster
+- After deleting the vc, pls check whether the group is removed from `pai-group` secrets.
 
 <div  align="center">
-<img src="image/admin_vc_deleted.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/group_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### If test failed
