@@ -924,7 +924,7 @@ Status: 500
 }
 ```
 
-### `PUT group extension` (administrator only)
+### `POST group extension` (administrator only)
 
 Admin can change a group's extension.
 
@@ -1065,7 +1065,7 @@ Status: 500
 }
 ```
 
-### `PUT group description` (administrator only)
+### `POST group description` (administrator only)
 
 Admin can change a group's description.
 
@@ -1127,7 +1127,7 @@ Status: 500
 }
 ```
 
-### `PUT group externalname` (administrator only)
+### `POST group externalname` (administrator only)
 
 Admin can change a group's externalname, and bind it with another external group.
 
