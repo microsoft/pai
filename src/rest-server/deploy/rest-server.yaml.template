@@ -146,3 +146,6 @@ spec:
       - name: group-configuration-rest-server
         configMap:
           name: group-configuration
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] == 'true' %}
+      serviceAccountName: rest-server-openpai
+{% endif %}

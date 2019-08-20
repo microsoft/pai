@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,38 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary"
+class K8SDashboard(object):
 
-# When changing the patch id, please update it.
-patchId="12940533-12933562-docker_executor-12944563-fix1-20190819"
+    def __init__(self, cluster_conf, service_conf, default_service_conf):
+        self.cluster_conf = cluster_conf
 
-hadoopBinaryPath="${hadoopBinaryDir}/hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}/${patchId}-done"
+    def validation_pre(self):
+        return True, None
 
+    def validation_post(self, conf):
+        return True, None
 
-echo "Hadoop binary path: ${hadoopBinaryDir}"
+    def run(self):
+        com_k8s_dashboard = {}
 
-[[ -f ${cacheVersion} ]] && [[ -f ${hadoopBinaryPath} ]] && [[ ${cacheVersion} -ot ${hadoopBinaryPath} ]] &&
-{
-    echo "Hadoop ai with patch ${patchId} has been built"
-    echo "Skip this build precess"
-    exit 0
-}
+        com_k8s_dashboard['api-servers-url'] = self.cluster_conf['kubernetes']['api-servers-url']
 
-[[ ! -f "${hadoopBinaryPath}" ]] ||
-{
-
-    rm -rf ${hadoopBinaryPath}
-
-}
-
-rm ${hadoopBinaryDir}/*-done
-touch ${cacheVersion}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
-
-popd > /dev/null
+        machine_list = self.cluster_conf['machine-list']
+        master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        com_k8s_dashboard['dashboard-host'] = master_ip
+        return com_k8s_dashboard
