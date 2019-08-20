@@ -33,6 +33,11 @@ const groupExternalNameUpdateInputSchema = Joi.object().keys({
   externalName: Joi.string().empty(''),
 });
 
+// define the input schema for the 'update group extension attr' api
+const groupExtensionAttrUpdateInputSchema = Joi.object().keys({
+  data: Joi.any().required(),
+});
+
 // define the input schema for the 'create group' api
 const groupCreateInputSchema = Joi.object().keys({
   groupname: Joi.string()
@@ -44,7 +49,7 @@ const groupCreateInputSchema = Joi.object().keys({
     .empty(''),
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
-    .default({}),
+    .default(),
 });
 
 // module exports
@@ -53,4 +58,5 @@ module.exports = {
   groupDescriptionUpdateInputSchema,
   groupExternalNameUpdateInputSchema,
   groupCreateInputSchema,
+  groupExtensionAttrUpdateInputSchema,
 };

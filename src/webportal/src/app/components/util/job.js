@@ -36,6 +36,8 @@ export function getHumanizedJobStateString(job) {
     }
   } else if (job.state === 'COMPLETING') {
     hjss = 'Completing';
+  } else if (job.state === 'RETRY_PENDING') {
+    hjss = 'RetryPending';
   } else if (job.state === 'SUCCEEDED') {
     hjss = 'Succeeded';
   } else if (job.state === 'FAILED') {
