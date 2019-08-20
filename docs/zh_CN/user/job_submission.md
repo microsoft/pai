@@ -66,7 +66,7 @@ The following process submits a model training job implemented by TensorFlow on 
 
 4. Specify the resources you need. By default only gpu number could be set. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "ufoym/deepo:tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/). If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
+5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "openpai/tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/). If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
   
     <img src="imgs/submit_hello_world_3.png" width="60%" height="60%" alt="hello_world3" />
 
@@ -94,7 +94,7 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
   
     OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
   
-    The hub.docker.com is a public Docker repository. And the [ufoym/deepo](https://hub.docker.com/r/ufoym/deepo) on hub.docker.com is recommended for deep learning. In the hello-world example, it uses a TensorFlow image, *ufoym/deepo:tensorflow-py36-cu90*, in ufoym/deepo. You can also set your own image from private repository by toggling custom button.
+    The hub.docker.com is a public Docker repository. In the hello-world example, it uses a TensorFlow image, *openpai/tensorflow-py36-cu90*. You can also set your own image from private repository by toggling custom button.
   
     If an appropriate Docker image isn't found, you could [build a Docker image](../job_docker_env.md) by your self.
   
