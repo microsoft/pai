@@ -17,12 +17,21 @@
 
 
 // module dependencies
-const yaml = require('js-yaml');
 const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const job = require('@pai/models/v2/job');
 const createError = require('@pai/utils/error');
 
+
+const list = asyncHandler(async (req, res) => {
+  const data = await job.list();
+  res.json(data);
+});
+
+const get = asyncHandler(async (req, res) => {
+  const data = await job.get(req.params.frameworkName);
+  res.json(data);
+});
 
 const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
@@ -46,12 +55,29 @@ const update = asyncHandler(async (req, res) => {
   });
 });
 
+const execute = asyncHandler(async (req, res) => {
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  const data = await job.get(req.params.frameworkName);
+  if ((data.jobStatus.username === userName) || admin) {
+    await job.execute(req.params.frameworkName, req.body.value);
+    res.status(status('Accepted')).json({
+      status: status('Accepted'),
+      message: `Execute job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to execute job ${req.params.frameworkName}.`
+    );
+  }
+});
+
 const getConfig = asyncHandler(async (req, res) => {
   try {
     const data = await job.getConfig(req.params.frameworkName);
-    const type = req.accepts(['json', 'yaml']) || 'json';
-    const body = type === 'json' ? JSON.stringify(data) : yaml.safeDump(data);
-    return res.status(200).type(type).send(body);
+    return res.status(200).type('text/yaml').send(data);
   } catch (error) {
     if (error.message.startsWith('[WebHDFS] 404')) {
       throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.params.frameworkName} is not found.`);
@@ -61,8 +87,17 @@ const getConfig = asyncHandler(async (req, res) => {
   }
 });
 
+const getSshInfo = asyncHandler(async (req, res) => {
+  const data = await job.getSshInfo(req.params.frameworkName);
+  res.json(data);
+});
+
 // module exports
 module.exports = {
+  list,
+  get,
   update,
+  execute,
   getConfig,
+  getSshInfo,
 };

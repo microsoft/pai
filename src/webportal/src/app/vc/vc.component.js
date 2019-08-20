@@ -134,6 +134,8 @@ const virtualClustersAdd = () => {
       url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
       data: JSON.stringify({
         'vcCapacity': capacity,
+        'externalName': ``,
+        'description': ``,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -282,6 +284,7 @@ const convertState = (name, state) => {
   }
   return `<a ${vcStateChage} class="state-vc state-${vcState.toLowerCase()} ${vcStateOrdinary}" ${vcStateTips}>${vcState}</a>`;
 };
+
 
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;

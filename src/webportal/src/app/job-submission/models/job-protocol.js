@@ -25,7 +25,7 @@
 
 import {jobProtocolSchema} from '../models/protocol-schema';
 
-import {get, isEmpty} from 'lodash';
+import {get, isEmpty, cloneDeep} from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
 import {removeEmptyProperties} from '../utils/utils';
@@ -53,7 +53,6 @@ export class JobProtocol {
   static fromYaml(protocolYaml) {
     try {
       const jobProtocol = yaml.safeLoad(protocolYaml);
-      // Need to validate the protocol here.
       return new JobProtocol(jobProtocol);
     } catch (e) {
       alert(e.message);
@@ -69,12 +68,31 @@ export class JobProtocol {
     }
   }
 
+  static safePruneProtocol(protocol) {
+    const prunedProtocol= removeEmptyProperties(protocol);
+    const taskRoles = cloneDeep(prunedProtocol.taskRoles);
+    Object.keys(taskRoles).forEach((taskRoleName) => {
+      const taskRoleContent = taskRoles[taskRoleName];
+      if (isEmpty(taskRoleContent.commands)) {
+        return;
+      }
+      taskRoleContent.commands = taskRoleContent.commands.filter(
+        (line) => !isEmpty(line),
+      );
+    });
+    prunedProtocol.taskRoles = taskRoles;
+    return prunedProtocol;
+  }
+
   static validateFromObject(protocol) {
-    const result = Joi.validate(removeEmptyProperties(protocol), jobProtocolSchema);
+    const result = Joi.validate(
+      JobProtocol.safePruneProtocol(protocol),
+      jobProtocolSchema,
+    );
     return String(result.error || '');
   }
 
-  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets) {
+  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets, protocolExtras) {
     const parameters = removeEmptyProperties(
       jobParameters
         .reduce((res, parameter) => {
@@ -86,13 +104,15 @@ export class JobProtocol {
     const deployName = get(this, 'defaults.deployment', 'defaultDeployment');
     deployments = isEmpty(deployments) ? [] : [{name: deployName, taskRoles: deployments}];
 
-    const prerequisites = TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles);
+    const prerequisites = this.prerequisites
+      .filter((prerequisite) => prerequisite.type !== 'dockerimage')
+      .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles));
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
     const secrets = removeEmptyProperties(jobSecrets.reduce((res, secret) => {
       res[secret.key] = secret.value;
       return res;
     }, {}));
-    const defaultsField = removeEmptyProperties(jobBasicInfo.getDefaults());
+    const defaultsField = {...this.defaults, ...removeEmptyProperties(jobBasicInfo.getDefaults())};
 
     return new JobProtocol({
       ...this,
@@ -103,6 +123,7 @@ export class JobProtocol {
       deployments: deployments,
       secrets: secrets,
       defaults: defaultsField,
+      extras: protocolExtras,
     });
   }
 
@@ -123,7 +144,7 @@ export class JobProtocol {
 
   toYaml() {
     try {
-      return yaml.safeDump(removeEmptyProperties(this));
+      return yaml.safeDump(JobProtocol.safePruneProtocol(this));
     } catch (e) {
       alert(e.message);
     }

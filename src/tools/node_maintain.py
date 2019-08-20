@@ -27,7 +27,7 @@ import sys
 from utility import log
 log.setup_logging()
 
-from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator, Resource
+from operator_wrapper import AlertOperator, KubernetesOperator, YarnOperator, Resource, RestserverOperator
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +220,7 @@ def normalize_percentage(queues_info):
 
 def add_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
+    restserver_operator = RestserverOperator(args.restserver_ip)
     vc_name = args.vc_name
     nodes = args.nodes
 
@@ -235,6 +236,7 @@ def add_dedicate_vc(args):
     if vc_name in queues_info:
         logger.warning("Virtual cluster already exists: {}. Adding node to it".format(vc_name))
     else:
+        restserver_operator.add_vc(vc_name)
         yarn_operator.add_dedicated_queue(vc_name)
 
     nodes_info = yarn_operator.get_nodes_info()
@@ -282,6 +284,7 @@ def add_dedicate_vc(args):
 
 def remove_dedicate_vc(args):
     yarn_operator = YarnOperator(args.resource_manager_ip)
+    restserver_operator = RestserverOperator(args.restserver_ip)
     vc_name = args.vc_name
     nodes = args.nodes
     remove_queue_flag = nodes is None
@@ -330,12 +333,19 @@ def remove_dedicate_vc(args):
             logger.warning("Virtual cluster not found: {}.".format(vc_name))
         else:
             yarn_operator.remove_dedicated_queue(vc_name)
+            restserver_operator.delete_vc(vc_name)
 
         logger.info("Removing cluster label...")
         if vc_name not in yarn_operator.get_cluster_labels():
             logger.warning("Cluster label not found: {}".format(vc_name))
         else:
             yarn_operator.remove_cluster_label(vc_name)
+
+def setup_user(args):
+    username = args.username
+    password = args.password
+    RestserverOperator.setup_user(username, password)
+    logger.info("Setup user done")
 
 
 def setup_parser():
@@ -352,8 +362,19 @@ def setup_parser():
                                help="specify kubernetes api-server ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-ip",
                                help="specify prometheus ip separately, by default it's master node ip")
+    parent_parser.add_argument("--restserver-ip",
+                               help="specify restserver ip separately, by default it's master node ip")
     parent_parser.add_argument("--prometheus-port", default=9091,
                                help="specify prometheus port, by default it's 9091")
+
+    # setup restserver user
+    user_parser = sub_parser.add_parser("user", help="query prometheus alerts")
+    user_subparsers = user_parser.add_subparsers(dest="action")
+
+    parser_set = user_subparsers.add_parser("set", parents=[parent_parser], help="print current gpu alerts")
+    parser_set.add_argument("-u", "--username", required=True)
+    parser_set.add_argument("-p", "--password", required=True)
+    parser_set.set_defaults(func=setup_user)
 
     # prometheus operator parser
     prometheus_parser = sub_parser.add_parser("badgpus", help="query prometheus alerts")
@@ -411,6 +432,7 @@ def main():
     args.resource_manager_ip = args.resource_manager_ip or args.master_ip
     args.api_server_ip = args.api_server_ip or args.master_ip
     args.prometheus_ip = args.prometheus_ip or args.master_ip
+    args.restserver_ip = args.restserver_ip or args.master_ip
     try:
         args.func(args)
     except Exception as e:

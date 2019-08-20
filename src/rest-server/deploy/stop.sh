@@ -19,13 +19,32 @@
 
 pushd $(dirname "$0") > /dev/null
 
+if kubectl get daemonset | grep -q "rest-server-ds"; then
+    kubectl delete ds rest-server-ds || exit $?
+fi
+
+if kubectl get configmap | grep -q "auth-configuration"; then
+    kubectl delete configmap auth-configuration || exit $?
+fi
+
 if kubectl get configmap | grep -q "job-exit-spec-configuration"; then
     kubectl delete configmap job-exit-spec-configuration || exit $?
 fi
 
+if kubectl get configmap | grep -q "group-configuration"; then
+    kubectl delete configmap group-configuration || exit $?
+fi
 
-if kubectl get daemonset | grep -q "rest-server-ds"; then
-    kubectl delete ds rest-server-ds || exit $?
+if kubectl get ClusterRoleBinding | grep "rest-server-openpai"; then
+    kubectl delete ClusterRoleBinding rest-server-openpai || exit $?
+fi
+
+if kubectl get ClusterRole | grep "rest-server-openpai"; then
+    kubectl delete ClusterRole rest-server-openpai || exit $?
+fi
+
+if kubectl get ServiceAccount | grep "rest-server-openpai"; then
+    kubectl delete ServiceAccount rest-server-openpai || exit $?
 fi
 
 popd > /dev/null

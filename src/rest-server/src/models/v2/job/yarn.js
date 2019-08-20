@@ -23,7 +23,7 @@ const status = require('statuses');
 const keygen = require('ssh-keygen');
 const mustache = require('mustache');
 const yaml = require('js-yaml');
-const userModel = require('@pai/models/user');
+const userModelV2 = require('@pai/models/v2/user');
 const {protocolConvert} = require('@pai/utils/converter');
 const HDFS = require('@pai/utils/hdfs');
 const createError = require('@pai/utils/error');
@@ -34,7 +34,6 @@ const paiConfig = require('@pai/config/paiConfig');
 const launcherConfig = require('@pai/config/launcher');
 const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
-
 
 const generateFrameworkDescription = (frameworkName, userName, config) => {
   const frameworkDescription = {
@@ -116,6 +115,11 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
   for (let i of Object.keys(frameworkDescription.taskRoles)) {
     tasksNumber += frameworkDescription.taskRoles[i].taskNumber;
   }
+  // get shared memory size
+  let shmMB = 512;
+  if ('extraContainerOptions' in config.taskRoles[taskRole]) {
+    shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
+  }
   const yarnContainerScript = mustache.render(yarnContainerScriptTemplate, {
     idx: taskRole,
     jobData: {
@@ -132,7 +136,7 @@ const generateYarnContainerScript = (frameworkName, userName, config, frameworkD
       cpuNumber: frameworkDescription.taskRoles[taskRole].taskService.resource.cpuNumber,
       memoryMB: frameworkDescription.taskRoles[taskRole].taskService.resource.memoryMB,
       gpuNumber: frameworkDescription.taskRoles[taskRole].taskService.resource.gpuNumber,
-      shmMB: 512,
+      shmMB,
       minFailedTaskCount: frameworkDescription.taskRoles[taskRole].applicationCompletionPolicy.minFailedTaskCount,
       minSucceededTaskCount: frameworkDescription.taskRoles[taskRole].applicationCompletionPolicy.minSucceededTaskCount,
     },
@@ -296,7 +300,10 @@ async function put(frameworkName, config, rawConfig) {
   // check user vc
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  await util.promisify(userModel.checkUserVc)(userName, virtualCluster);
+  const flag = await userModelV2.checkUserVC(userName, virtualCluster);
+  if (flag === false) {
+    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+  }
 
   // generate framework description and prepare container scripts on hdfs
   const frameworkDescription = await prepareContainerScripts(frameworkName, userName, config, rawConfig);
@@ -323,7 +330,7 @@ async function getConfig(frameworkName) {
   // try to get v2
   try {
     const res = await readFile(`/Container/${userName}/${frameworkName}/JobConfig.yaml`);
-    return yaml.safeLoad(res.content);
+    return res.content;
   } catch (e) {
     // pass
   }

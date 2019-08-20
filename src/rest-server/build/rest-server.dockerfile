@@ -32,6 +32,8 @@ ENV NODE_ENV=production \
 
 COPY . .
 
+RUN yarn --no-git-tag-version --new-version version \
+    "$(cat version/PAI.VERSION)"
 RUN yarn install
 
 RUN dos2unix src/templates/*

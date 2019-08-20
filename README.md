@@ -11,6 +11,8 @@
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
+**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+
 ## Table of Contents
 
 1. [When to consider OpenPAI](#when-to-consider-openpai)
@@ -119,7 +121,7 @@ Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resource
 
 ### Submit training jobs
 
-Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+Follow [the job submission tutorial](docs/user/job_submission.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### Client tool
 

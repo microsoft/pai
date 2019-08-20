@@ -31,7 +31,11 @@ These applications include but not limited to:
 FrameworkLauncher Natively Supports YARN:
 [YARN FrameworkLauncher](yarn/README.md).
 
+Note, it **ALSO** includes scheduling features, such as Topology-Aware Gpu Scheduling.
+
 ## Kubernetes FrameworkLauncher
 
 FrameworkLauncher Natively Supports Kubernetes:
 [Kubernetes FrameworkController](https://github.com/Microsoft/frameworkcontroller).
+
+Note, it does **NOT** includes scheduling features, for the scheduling counterpart, we have already splitted it to another dedicated project: [HivedScheduler](https://github.com/microsoft/pai/tree/master/subprojects/hivedscheduler), and you can directly leverage it with the [Kubernetes FrameworkController](https://github.com/Microsoft/frameworkcontroller).

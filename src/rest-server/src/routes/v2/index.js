@@ -18,8 +18,11 @@
 
 // module dependencies
 const express = require('express');
+const userRouter = require('@pai/routes/v2/user');
+const groupRouter = require('@pai/routes/v2/group');
 const controller = require('@pai/controllers/v2');
 const jobRouter = require('@pai/routes/v2/job');
+const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
 
 
 const router = new express.Router();
@@ -28,6 +31,11 @@ router.route('/')
   .all(controller.index);
 
 router.use('/jobs', jobRouter);
+router.use('/virtual-clusters', virtualClusterRouter);
+
+router.use('/user', userRouter);
+
+router.use('/group', groupRouter);
 
 // module exports
 module.exports = router;

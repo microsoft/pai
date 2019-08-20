@@ -124,8 +124,13 @@ export default class TaskRoleContainerList extends React.Component {
     const {sshInfo} = this.context;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
+      const res = [];
+      res.push('This job does not contain SSH info.');
+      res.push('Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n');
+      res.push('Solution 1: Use one of the recommended docker images on the submission page.');
+      res.push('Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.');
       this.setState({
-        monacoProps: {value: 'This job does not contain SSH info.'},
+        monacoProps: {value: res.join('\n')},
         monacoTitle: `SSH to ${id}`,
       });
     } else {
@@ -296,7 +301,7 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{iconName: 'TextDocument'}}
                 text='Stdout'
                 onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
-                disabled={isNil(item.containerId)}
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
@@ -307,7 +312,7 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{iconName: 'Error'}}
                 text='Stderr'
                 onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
-                disabled={isNil(item.containerId)}
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
@@ -318,6 +323,13 @@ export default class TaskRoleContainerList extends React.Component {
                 menuIconProps={{iconName: 'More'}}
                 menuProps={{
                   items: [
+                    {
+                      key: 'mergedLog',
+                      name: 'Full log',
+                      iconProps: {iconName: 'TextDocument'},
+                      disabled: isNil(item.containerId),
+                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                    },
                     {
                       key: 'yarnTrackingPage',
                       name: 'Go to Yarn Tracking Page',
@@ -347,7 +359,7 @@ export default class TaskRoleContainerList extends React.Component {
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
-    const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
+    const status = taskInfo.taskStatuses;
     return (
       <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
         <ThemeProvider theme={theme}>

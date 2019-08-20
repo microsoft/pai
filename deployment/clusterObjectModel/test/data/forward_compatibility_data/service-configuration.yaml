@@ -1,5 +1,5 @@
 cluster:
-  clusterid: pai_ut
+  cluster-id: pai_ut
   docker-verison: 17.06.2
   data-path: "/datastorage"
   docker-registry-info:
@@ -46,7 +46,7 @@ restserver:
 
 webportal:
   server-port: 9286
-
+  log-type: yarn
 
 grafana:
   grafana-port: 3000

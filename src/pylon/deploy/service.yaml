@@ -21,6 +21,7 @@ prerequisite:
 template-list:
   - pylon.yaml
   - start.sh
+  - pylon-config/run.sh
 
 start-script: start.sh
 stop-script: stop.sh

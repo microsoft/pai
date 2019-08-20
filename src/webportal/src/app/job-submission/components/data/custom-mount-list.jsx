@@ -130,9 +130,9 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
   const columes = [
     {
       key: 'containerPath',
-      name: 'Container Path',
+      name: 'Container path',
       headerClassName: FontClassNames.medium,
-      minWidth: 200,
+      minWidth: 180,
       onRender: (item, idx) => {
         return (
           <TextField
@@ -150,9 +150,9 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
     },
     {
       key: 'dataSource',
-      name: 'Data Source',
+      name: 'Data source',
       headerClassName: FontClassNames.medium,
-      minWidth: 230,
+      minWidth: 200,
       onRender: (item, idx) => {
         return (
           <TextField
@@ -169,6 +169,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
       name: 'Remove',
       minWidth: 50,
       style: {padding: 0},
+      headerClassName: FontClassNames.medium,
       onRender: (item, idx) => (
         <div
           style={{

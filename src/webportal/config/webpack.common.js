@@ -245,7 +245,7 @@ const config = (env, argv) => ({
       contextRegExp: /js-yaml/,
     }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'yaml'],
+      languages: ['json', 'yaml', 'shell'],
       features: ['suggest', 'hover'],
     }),
     new CopyWebpackPlugin([
@@ -349,6 +349,18 @@ const config = (env, argv) => ({
         parallel: true,
       }),
     ],
+    splitChunks: {
+      name: false,
+      cacheGroups: {
+        vendors: {
+          chunks: 'all',
+          minSize: 0,
+          minChunks: 2,
+          maxAsyncRequests: Infinity,
+          maxInitialRequests: Infinity,
+        },
+      },
+    },
   },
   node: {
     fs: 'empty',

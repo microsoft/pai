@@ -47,6 +47,9 @@ master-deployment:
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
       dst: master-deployment
 
+    - name: kubelet.service
+      src: deployment/k8sPaiLibrary/template/kubelet.service.template
+      dst: master-deployment
 
     file-list:
     - name: docker-ce-install.sh
@@ -80,6 +83,9 @@ worker-deployment:
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
       dst: worker-deployment
 
+    - name: kubelet.service
+      src: deployment/k8sPaiLibrary/template/kubelet.service.template
+      dst: worker-deployment
 
     file-list:
     - name: docker-ce-install.sh
@@ -121,6 +127,9 @@ proxy-deployment:
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
       dst: proxy-deployment
 
+    - name: kubelet.service
+      src: deployment/k8sPaiLibrary/template/kubelet.service.template
+      dst: proxy-deployment
 
     file-list:
     - name: docker-ce-install.sh
