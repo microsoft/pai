@@ -192,6 +192,13 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/group-created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
+- Every group have an `acls` in extension field.
+
+<div  align="center">
+<img src="image/admin_group_detail.png" alt="paictl overview picture" style="float: left; margin-right: 10px;" />
+<img src="image/default_group_detail.png" alt="paictl overview picture" style="float: right; margin-right: 10px;" />
+</div>
+
 - Please Login through OpenPAI's webportal, then pls check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
 
 <div  align="center">
