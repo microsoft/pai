@@ -1,23 +1,23 @@
 import c from 'classnames';
-import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, initializeIcons, PanelType} from 'office-ui-fabric-react';
+import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, initializeIcons, PanelType, Stack, StackItem} from 'office-ui-fabric-react';
 import React, {useCallback, useState, useEffect} from 'react';
 
 import {initTheme} from '../components/theme';
-
 import config from '../config/webportal.config';
 
 initTheme();
 initializeIcons();
 
 const theme = getTheme();
-const {palette, semanticColors} = theme;
+const {palette, semanticColors, spacing} = theme;
 
 const classNames = mergeStyleSets({
   itemCell: [
     getFocusStyle(theme, {inset: -1}),
     {
       minHeight: 54,
-      padding: 10,
+      paddingBottom: 10,
+      paddingTop: 10,
       boxSizing: 'border-box',
       borderBottom: `1px solid ${semanticColors.bodyDivider}`,
       display: 'flex',
@@ -33,7 +33,7 @@ export const NotificationButton = () => {
   const [alertItems, setAlertItems] = useState([]);
 
   useEffect(() => {
-    const alertsUrl = `${config.alertManagerUri}/api/v1/alerts?silenced=false&inhibited=false`;
+    const alertsUrl = `${config.alertManagerUri}/api/v1/alerts?silenced=false`;
     fetch(alertsUrl).then((res) => {
       if (!res.ok) {
         throw Error('Failed to get alert infos');
@@ -51,27 +51,69 @@ export const NotificationButton = () => {
 
   const open = useCallback(() => {
     setPanelOpened(true);
-  });
+  }, []);
   const close = useCallback(() => {
     setPanelOpened(false);
   }, [setAlertItems]);
 
+  const renderNavigationContent = useCallback((props, defaultRender) => {
+    return (
+      <Stack
+        horizontal
+        styles={{
+          root: {
+            width: '100%',
+            paddingTop: spacing.m,
+            paddingLeft: spacing.m,
+            borderBottom: `1px solid ${semanticColors.bodyDivider}`,
+          },
+        }}
+      >
+        <StackItem grow>
+          <span>Alert</span>
+        </StackItem>
+        <StackItem>{defaultRender(props)}</StackItem>
+      </Stack>
+    );
+  }, []);
+
   return (
     <React.Fragment>
-      <i className={c('fa fa-bell-o')} style={{fontSize: '16px'}} onClick={open}></i>
+      <i
+        className={c('fa fa-bell-o')}
+        style={{fontSize: '16px'}}
+        onClick={open}
+      />
+      <span
+        style={{
+          height: '10px',
+          width: '10px',
+          backgroundColor: palette.red,
+          borderRadius: '50%',
+          display: 'inline-block',
+          position: 'relative',
+          top: '-8px',
+          left: '-7px',
+          visibility: alertItems.length > 0 ? 'visible' : 'hidden',
+        }}
+      />
       <Panel
         isOpen={panelOpened}
         isLightDismiss={true}
         onDismiss={close}
-        type={PanelType.medium}
-        headerText={'Alerts'}>
-        <List items={alertItems} onRenderCell={(item) => {
-          return (
-             <div className={classNames.itemCell} data-is-focusable={true}>
-               {item.annotations.summary}
-            </div>
-          );
-        }}/>
+        type={PanelType.smallFixedFar}
+        onRenderNavigationContent={renderNavigationContent}
+      >
+        <List
+          items={alertItems}
+          onRenderCell={(item) => {
+            return (
+              <div className={classNames.itemCell} data-is-focusable={true}>
+                {item.annotations.summary}
+              </div>
+            );
+          }}
+        />
       </Panel>
     </React.Fragment>
   );
