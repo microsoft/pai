@@ -19,7 +19,7 @@
 // module dependencies
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
-const authConfig = require('@pai/config/authn');
+const groupModel = require('@pai/models/v2/group');
 const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
@@ -33,53 +33,31 @@ if (k8sConfig.token) {
 }
 const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
 
+// crud user wrappers
 const getUser = async (username) => {
-  try {
-    return await crudUser.read(username, crudConfig);
-  } catch (error) {
-    throw error;
-  }
+  return await crudUser.read(username, crudConfig);
 };
 
 const getAllUser = async () => {
-  try {
-    return await crudUser.readAll(crudConfig);
-  } catch (error) {
-    throw error;
-  }
+  return await crudUser.readAll(crudConfig);
 };
 
 const createUser = async (username, value) => {
-  try {
-    return await crudUser.create(username, value, crudConfig);
-  } catch (error) {
-    throw error;
-  }
+  return await crudUser.create(username, value, crudConfig);
 };
 
 const updateUser = async (username, value, updatePassword = false) => {
-  try {
-    return await crudUser.update(username, value, crudConfig, updatePassword);
-  } catch (error) {
-    throw error;
-  }
+  return await crudUser.update(username, value, crudConfig, updatePassword);
 };
 
 const deleteUser = async (username) => {
-  try {
-    return await crudUser.remove(username, crudConfig);
-  } catch (error) {
-    throw error;
-  }
+  return await crudUser.remove(username, crudConfig);
 };
 
+// it's an inplace encrypt!
 const getEncryptPassword = async (userValue) => {
-  try {
     await user.encryptUserPassword(userValue);
     return userValue;
-  } catch (error) {
-    throw error;
-  }
 };
 
 const createUserIfNonExistent = async (username, userValue) => {
@@ -94,35 +72,19 @@ const createUserIfNonExistent = async (username, userValue) => {
   }
 };
 
-const checkUserGroup = async (username, groupname) => {
-  try {
-    let ret = false;
-    const userInfo = await crudUser.read(username, crudConfig);
-    if (userInfo.grouplist.includes(groupname)) {
-      ret = true;
-    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
-      // admin has the permission of all groups.
-      ret = true;
-    }
-    return ret;
-  } catch (error) {
-    throw error;
-  }
+const getUserVCs = async (username) => {
+  const userItem = await getUser(username);
+  return groupModel.getGroupsVCs(userItem.grouplist);
 };
 
-const checkUserVC = async (username, vcName) => {
-  try {
-    let ret = false;
-    const userInfo = await crudUser.read(username, crudConfig);
-    if (userInfo.extension.virtualCluster.includes(vcName)) {
-      ret = true;
-    } else if (userInfo.grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
-      ret = true;
-    }
-    return ret;
-  } catch (error) {
-    throw error;
-  }
+const checkAdmin = async (username) => {
+  const userItem = await getUser(username);
+  return groupModel.getGroupsAdmin(userItem.grouplist);
+};
+
+const checkUserVC = async (username, vcname) => {
+  const userVCs = await getUserVCs(username);
+  return userVCs.includes(vcname);
 };
 
 // module exports
@@ -134,6 +96,7 @@ module.exports = {
   deleteUser,
   getEncryptPassword,
   createUserIfNonExistent,
-  checkUserGroup,
   checkUserVC,
+  getUserVCs,
+  checkAdmin,
 };

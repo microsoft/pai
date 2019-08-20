@@ -39,7 +39,7 @@ const userSchema = Joi.object().keys({
 function userValidate(userValue) {
   const res = userSchema.validate(userValue);
   if (res['error']) {
-    throw new Error('User schema error\n${error}');
+    throw new Error(`User schema error\n${res['error']}`);
   }
   return res['value'];
 }

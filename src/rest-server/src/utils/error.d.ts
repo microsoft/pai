@@ -38,6 +38,7 @@ declare type Code =
     'NoJobConfigError' |
     'NoJobSshInfoError' |
     'NoUserError' |
+    'NoGroupError' |
     'NoVirtualClusterError' |
     'ReadOnlyJobError' |
     'RemoveAdminError' |
