@@ -74,19 +74,4 @@ export class AuthnClient extends OpenPAIBaseClient {
 
         return res;
     }
-
-    /**
-     * OpenID Connect return.
-     */
-    public async oidcReturn(queryString?: string): Promise<any> {
-        const url = queryString ?
-            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/return?${queryString}`) :
-            Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/oidc/return`);
-        const info = await this.info();
-
-        const res = info.loginURIMethod === 'get' ?
-            await request.get(url) : await request.post(url);
-
-        return res;
-    }
 }
