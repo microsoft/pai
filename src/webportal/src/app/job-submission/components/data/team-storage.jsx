@@ -44,7 +44,6 @@ import PropTypes from 'prop-types';
 import {cloneDeep} from 'lodash';
 
 import {MountDirectories} from '../../models/data/mount-directories';
-import {TeamMountList} from './team-mount-list';
 import {dispatchResizeEvent} from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
