@@ -24,7 +24,7 @@ const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
-const userModelV2 = require('@pai/models/v2/user');
+const userModel = require('@pai/models/v2/user');
 
 
 const convertName = (name) => {
@@ -508,7 +508,7 @@ const put = async (frameworkName, config, rawConfig) => {
 
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
-  const flag = await userModelV2.checkUserVC(userName, virtualCluster);
+  const flag = await userModel.checkUserVC(userName, virtualCluster);
   if (flag === false) {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }
