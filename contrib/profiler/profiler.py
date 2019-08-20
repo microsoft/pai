@@ -4,10 +4,10 @@
 # MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above
+# copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -82,10 +82,10 @@ def get_system_cpu_ticks():
                 if len(items) < 8:
                     return -1
 
-                total_Clock_Ticks = 0
+                total_clock_ticks = 0
                 for item in items[1:8]:
-                    total_Clock_Ticks += int(item)
-                return total_Clock_Ticks
+                    total_clock_ticks += int(item)
+                return total_clock_ticks
     return -1
 
 
@@ -113,13 +113,13 @@ def get_cpu_percent(filelist, period):
     container_ticks = get_container_cpu_ticks(filelist)
     time.sleep(period)
 
-    online_CPUs = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
-    sys_Delta = get_system_cpu_ticks() - sys_ticks
+    online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
+    sys_delta = get_system_cpu_ticks() - sys_ticks
     container_Delta = get_container_cpu_ticks(filelist) - container_ticks
 
-    cpu_Percent = (container_Delta * 1.0) / sys_Delta * online_CPUs * 100.0
+    cpu_percent = (container_Delta * 1.0) / sys_delta * online_cpus * 100.0
     # return cpuPercent
-    return [container_Delta, sys_Delta, online_CPUs, cpu_Percent]
+    return [container_Delta, sys_delta, online_cpus, cpu_percent]
 
 
 def get_gpu_utilization(gpu_idx):
@@ -283,40 +283,41 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
                           'avg_cpu_gpu_low', 'avg_mem_gpu_low', 'avg_IO_gpu_low'])
     nv.nvmlInit()
     sample_list = list()
-    Container_CPU_filelist = list()
-    Container_MEM_filelist = list()
-    Container_BLK_filelist = list()
-    Container_NET_file = ''
+    container_cpu_filelist = list()
+    container_mem_filelist = list()
+    container_blk_filelist = list()
+    # container_net_file = ''
 
     print(
-        'max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
+        'max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low'
+        '\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
 
     if container_pid:
-        Container_CPU_filelist = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
-        Container_MEM_filelist = glob.glob(
+        container_cpu_filelist = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
+        container_mem_filelist = glob.glob(
             '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')
-        Container_BLK_filelist = glob.glob(
+        container_blk_filelist = glob.glob(
             '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
-        Container_NET_file = '/proc/' + str(container_pid[0]) + '/net/dev'
+        container_net_file = '/proc/' + str(container_pid[0]) + '/net/dev'
     else:
-        Container_CPU_filelist.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
-        Container_MEM_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
-        Container_BLK_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
-        Container_NET_file = '/proc/net/dev'
+        container_cpu_filelist.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
+        container_mem_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
+        container_blk_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
+        container_net_file = '/proc/net/dev'
     while True:
         # 1st info about I/O and network
-        read_bytes1 = get_disk_read_bytes(Container_BLK_filelist)
-        write_bytes1 = get_disk_write_bytes(Container_BLK_filelist)
-        [network_receive1, network_transmit1] = get_network_bytes(Container_NET_file)
+        read_bytes1 = get_disk_read_bytes(container_blk_filelist)
+        write_bytes1 = get_disk_write_bytes(container_blk_filelist)
+        [network_receive1, network_transmit1] = get_network_bytes(container_net_file)
 
         # CPU usage will cost time('period') running
-        cpu_usage = get_cpu_percent(Container_CPU_filelist, period)[-1]
-        [mem_used, mem_total] = get_memory_percent(Container_MEM_filelist)
+        cpu_usage = get_cpu_percent(container_cpu_filelist, period)[-1]
+        [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
 
         # 2nd info about I/O and network, calculate how many bytes used in this period
-        read_bytes2 = get_disk_read_bytes(Container_BLK_filelist)
-        write_bytes2 = get_disk_write_bytes(Container_BLK_filelist)
-        [network_receive2, network_transmit2] = get_network_bytes(Container_NET_file)
+        read_bytes2 = get_disk_read_bytes(container_blk_filelist)
+        write_bytes2 = get_disk_write_bytes(container_blk_filelist)
+        [network_receive2, network_transmit2] = get_network_bytes(container_net_file)
 
         # get the usage of the first GPU to analyze
         gpu_util = get_gpu_utilization(gpu_id[0])
