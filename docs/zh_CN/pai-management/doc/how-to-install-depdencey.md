@@ -36,7 +36,6 @@ apt-get -y install \
       python \
       python-yaml \
       python-jinja2 \
-      python-paramiko \
       python-urllib3 \
       python-tz \
       python-nose \
@@ -56,7 +55,8 @@ apt-get -y install \
       realpath \
       net-tools
 
-pip install python-etcd docker kubernetes GitPython
+pip install --upgrade python-etcd docker kubernetes paramiko==2.6.0 GitPython
+python -m easy_install --upgrade pyOpenSSL
 
 # replace version number to latest, like v0.9.5.
 git clone -b v0.x.y https://github.com/Microsoft/pai.git
