@@ -31,7 +31,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   it('[P-01] should delete job by admin', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test_user',
@@ -62,7 +62,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   it('[P-02] should delete own job', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',
@@ -93,7 +93,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   it('[N-01] should forbid non-admin delete other\'s job', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',
@@ -140,7 +140,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
 });
 
 describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
-  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+  // const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
   const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
 
   afterEach(function() {
@@ -153,7 +153,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
   it('[P] should firbid delete job without namespace', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job')
-      .reply(200, 
+      .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
           'userName': 'test',

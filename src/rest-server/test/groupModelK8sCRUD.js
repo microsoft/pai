@@ -23,14 +23,13 @@ const groupK8sCRUDConfig = groupK8sCRUD.initConfig(process.env.K8S_APISERVER_URI
 describe('Group model k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 return all groupinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-group/secrets')
@@ -39,7 +38,7 @@ describe('Group model k8s secret get function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-          'resourceVersion': '1062682'
+          'resourceVersion': '1062682',
         },
         'items': [
           {
@@ -52,7 +51,7 @@ describe('Group model k8s secret get function test', () => {
               'externalName': 'MTIzNA==',
               'extension': 'e30=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
           {
             'metadata': {
@@ -62,11 +61,11 @@ describe('Group model k8s secret get function test', () => {
               'groupname': 'cGFpdGVzdA==',
               'description': 'dGVzdA==',
               'externalName': 'MTIzNA==',
-              'extension': 'e30='
+              'extension': 'e30=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
-        ]
+        ],
       });
 
     // mock for case3 groupname=paitest
@@ -82,9 +81,9 @@ describe('Group model k8s secret get function test', () => {
           'groupname': 'cGFpdGVzdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case2 groupname=non_exist
@@ -99,16 +98,16 @@ describe('Group model k8s secret get function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': 'nonexist',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 
   // positive test case
   // get exist single key value pair
   it('Should return whole group list.', async () => {
-    const res = await groupK8sCRUD.readAll(groupK8sCRUDConfig)
+    const res = await groupK8sCRUD.readAll(groupK8sCRUDConfig);
     return expect(res).to.have.lengthOf(2);
   });
 
@@ -134,8 +133,8 @@ describe('Group model k8s secret get function test', () => {
 describe('Group model k8s secret set function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
@@ -144,13 +143,13 @@ describe('Group model k8s secret set function test', () => {
     // Mock for case2 groupname=existuser
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-group/secrets/657869737475736572', {
-        'metadata':{'name':'657869737475736572'},
+        'metadata': {'name': '657869737475736572'},
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -161,15 +160,15 @@ describe('Group model k8s secret set function test', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'groupname': 'ZXhpc3R1c2Vy',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // Mock for case1 groupname=newuser
@@ -180,8 +179,8 @@ describe('Group model k8s secret set function test', () => {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -192,15 +191,15 @@ describe('Group model k8s secret set function test', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/6e657775736572',
           'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
           'resourceVersion': '1116114',
-          'creationTimestamp': '2018-12-07T02:29:47Z'
+          'creationTimestamp': '2018-12-07T02:29:47Z',
         },
         'data': {
           'groupname': 'bmV3dXNlcg==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
   });
 
@@ -233,14 +232,13 @@ describe('Group model k8s secret set function test', () => {
 describe('User Model k8s secret delete function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 username=existuser
     nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-group/secrets/657869737475736572')
@@ -252,8 +250,8 @@ describe('User Model k8s secret delete function test', () => {
         'details': {
           'name': '657869737475736572',
           'kind': 'secrets',
-          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
-        }
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+        },
       });
 
     // Mock for case2 username=nonexistuser
@@ -268,9 +266,9 @@ describe('User Model k8s secret delete function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': '6e6f6e657869737475736572',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 

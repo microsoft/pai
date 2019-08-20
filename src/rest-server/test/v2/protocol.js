@@ -191,7 +191,7 @@ const validprotocolObjs = {
         'entrypoint': 'exit',
       },
     },
-    "deployments": {},
+    'deployments': {},
   },
 };
 
@@ -344,7 +344,7 @@ taskRoles:
 additionalProp: value
   `,
 
-  'should NOT have additional properties': `
+  '*should NOT have additional properties': `
 protocolVersion: 2
 name: caffe_mnist
 type: job
@@ -496,6 +496,9 @@ describe('API v2 Unit Tests: protocol', () => {
   it('test protocol schema for invalid protocol', () => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
       const invalidprotocolObj = yaml.safeLoad(invalidProtocolYAMLs[invalidMessage]);
+      if (invalidMessage[0] === '*') {
+        invalidMessage = invalidMessage.slice(1);
+      }
       expect(protocolSchema.validate(invalidprotocolObj)).to.be.false;
       expect(protocolSchema.validate.errors[0].message).to.equal(invalidMessage);
     }
@@ -516,6 +519,9 @@ describe('API v2 Unit Tests: protocol', () => {
         const errMessage = JSON.parse(err.message);
         if (invalidMessage !== 'should be equal to one of the allowed values') {
           expect(errMessage).to.have.lengthOf(1);
+        }
+        if (invalidMessage[0] === '*') {
+          invalidMessage = invalidMessage.slice(1);
         }
         expect(errMessage[0].message).to.equal(invalidMessage);
       }
