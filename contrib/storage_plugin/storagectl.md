@@ -73,14 +73,13 @@ python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_
 ```
 - GROUP_NAME means All members of GROUP_NAME can use this config.
 - -s defines config useable servers.
-- -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
-    - In PATH, %USER indicates current PAI user
-    - In PATH, %JOB indicates current job name
 - If -d is set, means mount config storage by default.
+- -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
+    - [Job Environment Varialbes](docs/job_tutorial.md) can be referenced In PATH. Please use '' to quote job environment variables to avoid refernce to local variables in dev-box. 
 
 For example, suppose we have set config using:
 ```
-python storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER users/%USER/jobs/%job
+python storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER 'users/${PAI_USER_NAME}/jobs/${PAI_JOB_NAME}'
 ```
 If current user is 'paiuser' and current job is 'job-TEST'. This config will mount SAMPLE_SERVER/users/paiuser/jobs/job-TEST to /mnt/job
 

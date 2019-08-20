@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React from 'react';
-import {Modal, FontClassNames, DefaultButton, DetailsList, DetailsListLayoutMode, SelectionMode, Stack, StackItem, mergeStyles, getTheme} from 'office-ui-fabric-react';
+import {Dialog, DialogType, FontClassNames, DetailsList, DetailsListLayoutMode, FontWeights, Link, SelectionMode} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
@@ -26,30 +26,12 @@ export default function TeamDetail({isOpen = false, config, servers=[], hide}) {
     hide();
   };
 
-  const {spacing} = getTheme();
   const usedServers = servers.filter((server) => {
     const mountInfo = config.mountInfos.find((info) => info.server === server.spn);
     return mountInfo !== undefined;
   });
 
   const columes = [
-    {
-      key: 'name',
-      name: 'Name',
-      headerClassName: FontClassNames.medium,
-      minWidth: 180,
-      onRender: (item, idx) => {
-        if (idx === 0) {
-          return (
-              <div className={FontClassNames.medium}>
-                {config.name}
-              </div>
-            );
-        } else {
-          return undefined;
-        }
-      },
-    },
     {
       key: 'containerPath',
       name: 'Path',
@@ -64,30 +46,27 @@ export default function TeamDetail({isOpen = false, config, servers=[], hide}) {
       },
     },
     {
-      key: 'server',
-      name: 'Storage Server',
-      headerClassName: FontClassNames.medium,
-      minWidth: 150,
-      onRender: (item) => {
-        // const serverInfo = usedServers.find((server) => server.spn === item.server);
-        return (
-          <div className={FontClassNames.medium}>
-            {`${item.server}`}
-          </div>
-        );
-      },
+        key: 'serverType',
+        name: 'Server Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 80,
+        onRender: (item) => {
+          const serverInfo = usedServers.find((server) => server.spn === item.server);
+          return (
+            <div className={FontClassNames.medium}>
+              {`${serverInfo.type}`}
+            </div>
+          );
+        },
     },
     {
       key: 'serverPath',
-      name: 'Server Path',
+      name: 'Server Path(Server Root Path as bold)',
       headerClassName: FontClassNames.medium,
-      minWidth: 100,
+      minWidth: 400,
       onRender: (item) => {
-        return (
-          <div className={FontClassNames.medium}>
-            {`${item.path}`}
-          </div>
-        );
+        const serverInfo = usedServers.find((server) => server.spn === item.server);
+        return SERVER_PATH[serverInfo.type](serverInfo, item);
       },
     },
     {
@@ -95,7 +74,6 @@ export default function TeamDetail({isOpen = false, config, servers=[], hide}) {
       name: 'Permission',
       headerClassName: FontClassNames.medium,
       minWidth: 80,
-      // eslint-disable-next-line react/display-name
       onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>
@@ -107,45 +85,44 @@ export default function TeamDetail({isOpen = false, config, servers=[], hide}) {
   ];
 
   return (
-    <Modal
-      isOpen={isOpen}
-      isBlocking={true}
-      containerClassName={mergeStyles({width: '800px', minWidth: '450px'})}
+    <Dialog
+      hidden={!isOpen}
+      onDismiss={handleCancel}
+      dialogContentProps={{
+        type: DialogType.normal,
+        title: (<span className={c(FontClassNames.xLarge)}><b>Team Storage Detail</b></span>),
+      }}
+      minWidth={900}
+      modalProps={{
+        isBlocking: false,
+        styles: {main: {maxWidth: 900}},
+      }}
     >
+      <div>
+        Team storage <b>{config.name}</b> is configured for group <b>{config.gpn}</b>. For more details, please contact the cluster admin.<br/>
+      </div>
       <div className={c(t.pa4)}>
-        <div className={c(FontClassNames.large)}>Team Storage Detail</div>
-        <div style={{margin: `${spacing.l1} 0px`}}>
+        <div className={c(FontClassNames.xLarge)}><b>How to upload data</b></div>
         <div>
-            {`This storage is configured for group '${config.gpn}'. 
-            You can access this storage because you are a member of the group. 
-            For more details, please contact the cluster admin.`}
-        </div>
-        </div>
-
-        <div className={c(FontClassNames.mediumPlus)}>How to upload data</div>
-        <div style={{margin: `${spacing.l1} 0px`}}>
-          <div>Please upload data to corresponding path on storage server before use. Different server types require different upload methods.</div>
+          Please upload data to corresponding <b>server path</b> before use. Different server types require different upload methods.<br/>
         </div>
         <div>
         {usedServers.map((server) => {
             return (
             <div key={server.spn}>
-                {server.spn}({server.type}): {NAS_TIPS[server.type]}
+                {NAS_TIPS[server.type]}
             </div>
             );
         })}
         </div>
-
-        <div style={{margin: `${spacing.l1}`}}></div>
-        <div className={c(FontClassNames.mediumPlus)}>How to use data in your code</div>
-        <div style={{margin: `${spacing.l1} 0px`}}>
+        <br/>
+        <div className={c(FontClassNames.xLarge)}><b>How to use data</b></div>
         <div>
-            {`By checking the storage name, the external storage will be automatically mount to the path of your job environment.
-            Please treat them as local path.`}
+            By selecting team storage, the <b>Server Path</b> will be automatically mounted to <b>Path</b> when job runs.
+            Please treat it as local folder.<br/>
         </div>
-        </div>
-
-        <div className={c(FontClassNames.mediumPlus)}>Details</div>
+        <br/>
+        <div className={c(FontClassNames.xLarge)}><b>Details</b></div>
         <DetailsList
           columns={columes}
           disableSelectionZone
@@ -154,18 +131,8 @@ export default function TeamDetail({isOpen = false, config, servers=[], hide}) {
           layoutMode={DetailsListLayoutMode.fixedColumns}
           compact
         />
-
-        <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
-        <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
-            <StackItem>
-            <DefaultButton onClick={handleCancel}>
-            Close
-            </DefaultButton>
-            </StackItem>
-        </Stack>
-        </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 
@@ -178,9 +145,108 @@ TeamDetail.propTypes = {
 
 
 export const NAS_TIPS = {
-    nfs: 'To upload data to a NFS server, please mount the path to local path then copy data.',
-    samba: 'Use smbclient or cifs to mount remote path to local then upload. If you are using windows, you can access Samba server directly through file explorer.',
-    azurefile: 'Use Microsoft Azure Storage Explorer(https://azure.microsoft.com/en-us/features/storage-explorer/) to upload data to AzureFile. Ask cluster admin for access key.',
-    azureblog: 'Use Microsoft Azure Storage Explorer(https://azure.microsoft.com/en-us/features/storage-explorer/) to upload data to AzureBlob. Ask cluster admin for access key.',
-    hdfs: 'Use fuse to mount HDFS to local then upload. Or use webhdfs to upload data directly.',
+    nfs: (
+        <div>
+            <b>NFS</b><br/>
+            Mount <b>Server Path</b> to local then copy data. For example:<br/>
+            <div className={c(FontClassNames.small)} style={{marginLeft: '24px'}}>
+            apt-get update && apt-get install -y nfs-common<br/>
+            mount -t nfs4 <b>[Server Path]</b> /mnt<br/>
+            cp <b>[local data]</b> /mnt/<br/>
+            umount -l /mnt<br/>
+            </div>
+            <br/>
+        </div>
+        ),
+    samba: (
+        <div>
+            <b>Samba</b><br/>
+            Mount <b>Server Path</b> to local then copy data. For example:<br/>
+            <div className={c(FontClassNames.small)} style={{marginLeft: '24px'}}>
+            apt-get update && apt-get install -y cifs-utils<br/>
+            mount -t cifs //<b>[Server Path]</b> /mnt<br/>
+            cp <b>[local data]</b> /mnt/<br/>
+            umount -l /mnt<br/>
+            </div>
+            In windows, Samba server can be accessed directly through file explorer. Add prefix {'\\\\'} to <b>Server Path</b> {'and convert all "/"s to "\\"'} then open in file explorer.<br/>
+        </div>
+        ),
+   azurefile: (
+        <div>
+            <b>AzureFile</b><br/>
+        {'Download '}
+        <Link
+        href='https://azure.microsoft.com/en-us/features/storage-explorer/'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+        >
+            {'Microsoft Azure Storage Explorer '}
+        </Link>
+        to upload data to AzureFile. Use [Server Root Path] and ask cluster admin for golden key to access storage.<br/>
+        </div>
+        ),
+   azureblob: (
+        <div>
+        <b>AzureBlob</b><br/>
+        {'Download '}
+        <Link
+        href='https://azure.microsoft.com/en-us/features/storage-explorer/'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+        >
+            {'Microsoft Azure Storage Explorer '}
+        </Link>
+        to upload data to AzureBlob. Use [Server Root Path] and ask cluster admin for golden key to access storage.<br/>
+        </div>
+        ),
+    hdfs: (
+        <div>
+        <b>HDFS</b><br/>
+            {'Use '}
+        <Link
+        href='https://github.com/microsoft/hdfs-mount'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+        >
+            {'hdfs-mount '}
+        </Link>
+            {'mount HDFS to local then upload. Or use '}
+        <Link
+        href='https://hadoop.apache.org/docs/r1.0.4/webhdfs.html'
+        target='_blank'
+        style={{fontWeight: FontWeights.semibold}}
+        >
+            {'WebHDFS '}
+        </Link>
+            {'to upload data directly.'}<br/>
+        </div>
+        ),
   };
+
+export const SERVER_PATH = {
+    nfs: (server, mountInfo) => (
+        <div className={FontClassNames.medium}>
+        <b>{`${server.address}:${server.rootPath}`}</b>{`/${mountInfo.path}`}
+        </div>
+        ),
+    samba: (server, mountInfo) => (
+        <div className={FontClassNames.medium}>
+        <b>{`${server.address}/${server.rootPath}`}</b>{server.rootPath.length === 0 ? '' : '/' + mountInfo.path}
+        </div>
+        ),
+    azurefile: (server, mountInfo) => (
+        <div className={FontClassNames.medium}>
+        <b>{`${server.dataStore}/${server.fileShare}`}</b>{`/${mountInfo.path}`}
+        </div>
+        ),
+    azureblob: (server, mountInfo) => (
+        <div className={FontClassNames.medium}>
+        <b>{`${server.dataStore}/${server.containerName}`}</b>{`/${mountInfo.path}`}
+        </div>
+        ),
+    hdfs: (server, mountInfo) => (
+        <div className={FontClassNames.medium}>
+        <b>{`${server.namenode}:${server.port}`}</b>{`/${mountInfo.path}`}
+        </div>
+        ),
+};

@@ -95,7 +95,7 @@ export const TeamStorage = ({
       key: 'name',
       name: 'Name',
       headerClassName: FontClassNames.medium,
-      minWidth: 180,
+      minWidth: 160,
       onRender: (item, idx) => {
         return (
           <Checkbox
@@ -165,7 +165,7 @@ export const TeamStorage = ({
       key: 'detail',
       name: 'Detail',
       headerClassName: FontClassNames.medium,
-      minWidth: 50,
+      minWidth: 70,
       // eslint-disable-next-line react/display-name
       onRender: (item) => {
         /**
