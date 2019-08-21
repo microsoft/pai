@@ -36,6 +36,7 @@ sudo docker run -itd \
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
+pip install future
 cd /pai
 
 # setup kubernetes environments

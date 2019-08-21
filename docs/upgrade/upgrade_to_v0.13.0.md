@@ -1,4 +1,4 @@
-# Upgrade to v0.13
+# Upgrade to v0.13.0
 
 We have test the upgrade process against v0.8 and later.
 It takes hours or more, depends on the number of nodes in the cluster and the internet network speed.
