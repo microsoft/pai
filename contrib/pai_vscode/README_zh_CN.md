@@ -100,24 +100,24 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 本机模拟与在 OpenPAI 集群中运行相近，但仍有些区别，因此有些问题无法通过模拟来发现。 比如：
 
-- The job may need much more memory or distributed environments. It cannot be simulated locally.
-- The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
-- The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
-- Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
+- Job 可能需要大量的内存或分布式的环境。 无法在本机进行模拟。
+- Job 可能需要 GPU，但本机可能没有。 同时，可能需要更多的代码逻辑来处理这种情况。 如果使用 TensorFlow，可能还需要不同的 Docker 映像。 这是因为 TensorFlow 在 GPU 和非 GPU 场景下需要不同的运行包。
+- Job 可能会在本地运行很长的时间。 在大多数情况下，本机的算力都远低于 OpenPAI 集群中的服务器。 如果需要端到端的模拟 Job，则需要减少迭代次数来更快的获得结果。
+- 本机可能无法访问一些存储。 OpenPAI 集群有可能部署在私有环境中，因此本机可能无法访问一些集群的存储。
 
 ## 参考
 
 ### GUI
 
-The client has two GUI parts. First is the *PAI CLUSTER EXPLORER* in explorer and used in above introduction. Second can be opened by the icon in activity bar.
+客户端有两部分用户界面。 首先是资源管理器中的 *PAI CLUSTER EXPLORER*，在上述章节已介绍过。 可通过活动栏中图标打开第二部分。
 
 ![activity bar](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/activity_bar.png)
 
-There are two parts in the side bar.
+打开后可看到两个部分。
 
 - HDFS Explorer
   
-      You can view, upload and download folder and files of the OpenPAI cluster storage.
+      可查看、上传或下载 OpenPAI 集群存储中的文件。
       
 
 - Job List
