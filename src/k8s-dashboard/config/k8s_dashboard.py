@@ -33,6 +33,9 @@ class K8SDashboard(object):
         com_k8s_dashboard['api-servers-url'] = self.cluster_conf['kubernetes']['api-servers-url']
 
         machine_list = self.cluster_conf['machine-list']
-        master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-        com_k8s_dashboard['dashboard-host'] = master_ip
+        master_nodename = [host['nodename'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        com_k8s_dashboard['dashboard-host'] = master_nodename
+        master_address = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        com_k8s_dashboard['dashboard-ip'] = master_address
+
         return com_k8s_dashboard
