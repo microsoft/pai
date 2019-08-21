@@ -26,7 +26,6 @@ import { testAllUsers } from '../common/test_data/testAllUsers';
 import { testUserInfo } from '../common/test_data/testUserInfo';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
-const realUri = '10.151.40.234/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',

@@ -29,7 +29,6 @@ import { testJobSshInfo } from '../common/test_data/testJobSshInfo';
 import { testJobStatus } from '../common/test_data/testJobStatus';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
-const realUri = '10.151.40.234/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',

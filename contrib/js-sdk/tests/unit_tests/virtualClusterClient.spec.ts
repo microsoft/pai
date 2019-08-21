@@ -27,7 +27,6 @@ import { testNodeResources } from '../common/test_data/testNodeResources';
 import { testVirtualClusters } from '../common/test_data/testVirtualCluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
-const realUri = '10.151.40.234/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',

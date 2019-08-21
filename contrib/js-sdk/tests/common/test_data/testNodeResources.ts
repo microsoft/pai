@@ -18,87 +18,87 @@
 import { INodeResource } from '../../../src/models/virtualCluster';
 
 export const testNodeResources: { [id: string]: INodeResource } = {
-	"10.151.40.235": {
+	"0.0.0.35": {
 		"gpuTotal": 1,
 		"gpuUsed": 1,
 		"gpuAvaiable": 0
 	},
-	"10.151.40.226": {
+	"0.0.0.26": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.239": {
+	"0.0.0.39": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.230": {
+	"0.0.0.30": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.242": {
+	"0.0.0.42": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.227": {
+	"0.0.0.27": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.236": {
+	"0.0.0.36": {
 		"gpuTotal": 1,
 		"gpuUsed": 1,
 		"gpuAvaiable": 0
 	},
-	"10.151.40.228": {
+	"0.0.0.28": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.233": {
+	"0.0.0.33": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.224": {
+	"0.0.0.24": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.229": {
+	"0.0.0.29": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.237": {
+	"0.0.0.37": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.241": {
+	"0.0.0.41": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.232": {
+	"0.0.0.32": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.231": {
+	"0.0.0.31": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4
 	},
-	"10.151.40.238": {
+	"0.0.0.38": {
 		"gpuTotal": 4,
 		"gpuUsed": 1,
 		"gpuAvaiable": 3
 	},
-	"10.151.40.240": {
+	"0.0.0.40": {
 		"gpuTotal": 4,
 		"gpuUsed": 0,
 		"gpuAvaiable": 4

@@ -34,7 +34,7 @@ export const testJobStatus: IJobStatus = {
 		"completedTime": null,
 		"appId": "application_1565337391589_0002",
 		"appProgress": 0,
-		"appTrackingUrl": "http://10.151.40.234/yarn/10.151.40.234:8088/proxy/application_1565337391589_0002/",
+		"appTrackingUrl": "http://0.0.0.34/yarn/0.0.0.34:8088/proxy/application_1565337391589_0002/",
 		"appLaunchedTime": 1565337476313,
 		"appCompletedTime": null,
 		"appExitCode": null,
@@ -61,14 +61,14 @@ export const testJobStatus: IJobStatus = {
 					"taskIndex": 0,
 					"taskState": "RUNNING",
 					"containerId": "container_e34_1565337391589_0002_01_000002",
-					"containerIp": "10.151.40.238",
+					"containerIp": "0.0.0.38",
 					"containerPorts": {
 						"ssh": "34235",
 						"http": "34236",
 						"model_server": "34237"
 					},
 					"containerGpus": 8,
-					"containerLog": "http://10.151.40.234/yarn/10.151.40.238:8042/node/containerlogs/container_e34_1565337391589_0002_01_000002/core/",
+					"containerLog": "http://0.0.0.34/yarn/0.0.0.38:8042/node/containerlogs/container_e34_1565337391589_0002_01_000002/core/",
 					"containerExitCode": null
 				}
 			]

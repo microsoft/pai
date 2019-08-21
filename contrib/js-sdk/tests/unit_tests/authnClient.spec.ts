@@ -25,8 +25,6 @@ import { IAuthnInfo } from '../../src/models/authn';
 import { IPAICluster } from '../../src/models/cluster';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
-const realUri = '10.151.40.234/rest-server';
-const aadUri = '10.151.40.254/rest-server';
 
 const cluster: IPAICluster = {
     password: 'test',
