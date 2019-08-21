@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Submit Jobs on OpenPAI
+# 在 OpenPAI 上提交作业
 
 - [Submit Jobs on OpenPAI](#submit-jobs-on-openpai) 
   - [Submit a Hello World Job](#submit-a-hello-world-job)
@@ -32,13 +32,13 @@
   - [Job Workflow](#job-workflow)
   - [Reference](#reference)
 
-This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
 
-## Submit a Hello World Job
+## 提交 Hello World Job
 
-The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.
+**Job** 在 OpenPAI 中定义了在指定的环境中如何执行命令。 作业可以在单个节点上运行，也可以以分布式方式运行。
 
 The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) include more details about this job config.
 
@@ -114,7 +114,7 @@ Once your OpenPAI admin has set up Team-wise storage for your group, you can fin
 
 Note: Using Team-wise storage will inject code to commands with comments. Please do not modify the auto-generated codes.
 
-### Additional Data Sources
+### 其它数据源
 
 Besides Team Storage, OpenPAI also supports local files, http/https files, git repository, and PAI HDFS as additional data sources. Click the button **Add data source** to choose one kind of data source and fill in the path information in the text box. For example, the following setting will copy the HDFS folder "/foo/bar" to "/pai_data/mydata". You can access the folder with "/pai_data/mydata/bar" in your commands.
 
@@ -177,6 +177,6 @@ After receiving job configuration, OpenPAI processes it as below steps:
 
 When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
 
-## Reference
+## 参考
 
-- [Troubleshooting job failure](troubleshooting_job.md)
+- [调研 Job 错误](troubleshooting_job.md)
