@@ -40,6 +40,9 @@ class synchronization:
         # External storage configuration data
         self.external_storage_configuration = None
 
+        # The config list which should be pushed into cluster.
+        self.config_push_list = None
+
         if "local_conf_path" in kwargs and kwargs["local_conf_path"] != None:
             self.local_conf_path = kwargs["local_conf_path"]
 
@@ -48,6 +51,16 @@ class synchronization:
 
         if "pai_cluster_configuration_path" in kwargs and kwargs["pai_cluster_configuration_path"] != None:
             self.pai_cluster_configuration_path = kwargs["pai_cluster_configuration_path"]
+
+        if "config_push_list" in kwargs and kwargs["config_push_list"] != None:
+            self.config_push_list = kwargs["config_push_list"]
+        else:
+            self.config_push_list = [
+                "k8s-role-definition.yaml",
+                "kubernetes-configuration.yaml",
+                "layout.yaml",
+                "services-configuration.yaml"
+            ]
 
 
 
@@ -70,7 +83,7 @@ class synchronization:
             config_format_check = ServiceConfigUpdate(configuration_path)
             config_format_check.run()
 
-            conf_uploader = upload_configuration(configuration_path, self.kube_config_path)
+            conf_uploader = upload_configuration(configuration_path, self.kube_config_path, self.config_push_list)
             conf_uploader.run()
             self.logger.info("Cluster Configuration synchronization from external storage is successful.")
 
