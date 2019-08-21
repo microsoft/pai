@@ -2,7 +2,7 @@
 
 ## 1. Job config file
 
-    Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
+Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
 
 ## 2. Authentication
 
