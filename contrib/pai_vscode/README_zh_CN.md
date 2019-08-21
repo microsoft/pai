@@ -52,28 +52,28 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
 
-1. 确保集群配置中的 `protocol_version` 属性的值为 `'1'`。 Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
+1. 确保集群配置中的 `protocol_version` 属性的值为 `'1'`。 在 OpenPAI cluster Explorer 中双击 `Create Job Config...`，并指定文件名和路径来创建 Job 配置文件。
 2. 根据需要更新 Job 配置。 如果不熟悉配置文件，可参考[这里](https://github.com/Microsoft/pai/blob/master/docs/zh_CN/user/training.md)。
-3. Right click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+3. 右击创建的 Job 配置文件，然后点击 `Submit Job to PAI Cluster`。 客户端会将文件上传到 OpenPAI 并创建 Job。 完成后，在右下角会有通知，可点击打开 Job 详情页面。
   
-      If there are multiple OpenPAI clusters, you need to choose one.
+      如果有多个 OpenPAI 集群，需要选择其中一个。
       
-      This animation shows above steps.
-      ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
+      此动画显示了上述步骤。
+      ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
       
 
-Submit V2 job:
+提交 v2 Job：
 
-You can create a job v2 configuration and submit to OpenPAI as below steps.
+可通过以下步骤创建 v2 Job 配置，并提交到 OpenPAI。
 
-1. Make sure the value of `protocol_version` property in cluster configuration is `'2'`. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
-2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/microsoft/pai/blob/master/docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file).
-3. Right click on the created job v2 configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+1. 确保集群配置中的 `protocol_version` 属性的值为 `'2'`。 在 OpenPAI cluster Explorer 中双击 `Create Job Config...`，并指定文件名和路径来创建 Job 配置文件。
+2. 根据需要更新 Job 配置。 如果不熟悉配置文件，可参考[这里](https://github.com/microsoft/pai/blob/master/docs/zh_CN/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file)。
+3. 右击创建的 Job v2 配置文件，然后点击 `Submit Job to PAI Cluster`。 客户端会将文件上传到 OpenPAI 并创建 Job。 完成后，在右下角会有通知，可点击打开 Job 详情页面。
   
-      If there are multiple OpenPAI clusters, you need to choose one.
+      如果有多个 OpenPAI 集群，需要选择其中一个。
       
-      This animation shows above steps.
-      ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
+      此动画显示了上述步骤。
+      ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
       
 
 ## 本机模拟
@@ -94,7 +94,7 @@ As it needs sometime to wait job starting in OpenPAI cluster, local simulation c
 
 3. you can click on *Simulate first task in VS Code terminal* to simulate directly, or *Reveal in Explorer* to view created docker files and start simulation manually.
 
-This animation shows above steps. ![simulate job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
+此动画显示了上述步骤。 ![simulate job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
 ### 局限性
 
