@@ -52,7 +52,6 @@ docker run \
     /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
   --register-node=true \
   --kubeconfig=/etc/kubernetes/config \
-  --require-kubeconfig \
   --hostname-override={{ hostcofig['nodename'] }} \
   --cluster-dns={{ cluster_cfg['kubernetes']['cluster-dns'] }} \
   --cluster-domain=cluster.local  \
