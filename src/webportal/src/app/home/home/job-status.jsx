@@ -103,7 +103,7 @@ const JobStatus = ({className, jobs}) => {
               count={waiting}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Waiting',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -113,7 +113,7 @@ const JobStatus = ({className, jobs}) => {
               count={running}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Running',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -123,7 +123,7 @@ const JobStatus = ({className, jobs}) => {
               count={stopped}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Stopped',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -133,7 +133,7 @@ const JobStatus = ({className, jobs}) => {
               count={failed}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Failed',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -142,7 +142,7 @@ const JobStatus = ({className, jobs}) => {
               count={succeeded}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Succeeded',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
           </div>
