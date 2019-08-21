@@ -68,7 +68,7 @@ describe('JobDetail API /api/v2/user/:username/jobs/:jobName', () => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
         expect(res.body).to.have.property('name', 'test_job');
-        expect(res.body).to.nested.include({ 'jobStatus.virtualCluster': 'vc3' });
+        expect(res.body).to.nested.include({'jobStatus.virtualCluster': 'vc3'});
         done();
       });
   });

@@ -24,7 +24,6 @@ describe('Get job config: GET /api/v2/user/:username/jobs/:jobName/config', () =
   });
 
   before(() => {
-
     //
     // Mock FrameworkLauncher
     //
@@ -178,7 +177,6 @@ describe('Get job config: GET /api/v1/jobs/:jobName/config', () => {
   });
 
   before(() => {
-
     //
     // Mock FrameworkLauncher
     //
