@@ -6,7 +6,7 @@
 
 OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
-**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) 已发布！**
 
 ## 目录
 
@@ -29,40 +29,40 @@ OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理�
 
 ## 特点
 
-The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
+OpenPAI 的设计成熟可靠。在微软的大规模部署中，得到了多年持续运行的验证。
 
 ### 易于部署
 
-OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
+OpenPAI 是全栈的解决方案。 不仅支持本地、公有云及混合云中的部署，还支持单机试用的部署。
 
 ### 支持流行的 AI 框架以及异构的硬件
 
-Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
+OpenPAI 提供了预构建的支持主流 AI 框架的 Docker。 支持添加异构硬件。 支持分布式训练, 如分布式 TensorFlow。
 
 ### 全栈解决方案、易于扩展
 
-OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
+OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
 
 ## 相关项目
 
-Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) had also released few other open source projects.
+聚焦于开放和最前沿的技术，[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/company/introduction.aspx)还发布了其它一些开源项目。
 
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 * [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
-* [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) is an open source library for large scale vector approximate nearest neighbor search scenario.
+* [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) 是用于大规模向量的最近邻搜索场景的开源库。
 
 ## 入门
 
-OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
+OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 通过 Docker 技术，硬件计算资源与软件相分离。这样，用户能轻松的进行分布式计算，在不同的深度学习框架间切换，也能在完全一致的环境中重复运行 Job。
 
-As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
+作为平台，OpenPAI 需要[部署](#部署)后才能使用。 OpenPAI 也支持单机部署。
 
-If the cluster is ready, learn from [train models](#train-models) about how to use it.
+部署完成后，可参考[训练模型](#训练模型)。
 
 ## 部署
 
-Follow this part to check prerequisites, deploy and validate an OpenPAI cluster. More servers can be added as needed after initial deployed.
+根据以下内容来检查先决条件，部署并验证 OpenPAI 集群。 More servers can be added as needed after initial deployed.
 
 It's highly recommended to try OpenPAI on server(s), which has no usage and service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
