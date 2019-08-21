@@ -75,6 +75,7 @@ const config = (env, argv) => ({
   output: {
     path: helpers.root('dist'),
     filename: 'scripts/[name].bundle.js',
+    jsonpFunction: 'webportalWebpackJsonp',
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
