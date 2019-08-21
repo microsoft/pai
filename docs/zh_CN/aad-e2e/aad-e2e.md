@@ -195,16 +195,22 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/group-created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
+- Every group have an `acls` in extension field.
+
+<div  align="center">
+  <img src="image/admin_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" /> <img src="image/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+</div>
+
 - Please Login through OpenPAI's webportal, then pls check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
 
 <div  align="center">
 <img src="image/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please check the created user data. If the user is admin (in admin group), you should check whether in extension.virtualCluster has all vc. 
+- please check the created user data. There should be an empty extension and a non-empty grouplist. 
 
 <div  align="center">
-<img src="image/vc_check.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - please submit a test job in default vc, and then submit the same job to another vc.
@@ -222,13 +228,13 @@ After start rest-server, please ensure that the following task is successfully e
 </div>
 
 <div  align="center">
-<img src="image/add_vc_new_group.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/test_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After creating the new vc, pls check whether the new group is added into admin's grouplist and extension.virtualCluster.
+- After creating the new vc, pls check whether the new vc is available for admin at home page.
 
 <div  align="center">
-<img src="image/admin_new_vc.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/admin_home.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Delete the test vc, then pls check whether the corresponding group is deleted.
@@ -237,10 +243,10 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/vc_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After deleting the vc, pls check whether the group is removed from admin's grouplist and extension.virtualCluster
+- After deleting the vc, pls check whether the group is removed from `pai-group` secrets.
 
 <div  align="center">
-<img src="image/admin_vc_deleted.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="image/group_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### If test failed
