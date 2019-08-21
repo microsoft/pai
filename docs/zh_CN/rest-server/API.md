@@ -1,104 +1,115 @@
 # Quick Start
 
-1. Job config file
-    
+## 1. Job config file
+
     Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
+    
 
-2. Authentication
-    
-    ##### a. Basic Mode, user account and password
-    
-    HTTP POST your username and password to get an access token from:
+## 2. Authentication
 
-        http://restserver/api/v1/token
-        ```
-        For example, with [curl](https://curl.haxx.se/), you can execute below command line:
-        ```sh
-        curl -H "Content-Type: application/x-www-form-urlencoded" \
-             -X POST http://restserver/api/v1/token \
-             -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
-        ```
+### a. Basic Mode, user account and password
+
+HTTP POST your username and password to get an access token from:
+
+```bash
+http://restserver/api/v1/token
+```
+
+For example, with [curl](https://curl.haxx.se/), you can execute below command line:
+
+```sh
+curl -H "Content-Type: application/x-www-form-urlencoded" \
+      -X POST http://restserver/api/v1/token \
+      -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
+```
+
+### b. Azure AD - OIDC mode
+
+#### I. Login - get AuthCode
+
+HTTP GET the redirect URL of Azure AD for authentication:
+
+```url
+http://restserver/api/v1/authn/oidc/login
+```
+
+#### II. Login - get token with AuthCode
+
+HTTP POST the token from AAD (AccessToken, IDToken, RefreshToken) to get OpenPAI's access token. Web-browser will call this API automatically after the step I.
+
+```url
+HTTP://restserver/api/v1/authn/oidc/return
+```
+
+#### III. Logout
+
+HTTP GET the redirect URL of Azure AD to sign out the authentication:
+
+```url
+http://restserver/api/v1/authn/oidc/login 
+```
+
+## 3. Submit a job
+
+HTTP POST the config file as json with access token in header to:
+
+```bash
+http://restserver/api/v1/user/:username/jobs
+```
+
+For example, you can execute below command line:
+
+```sh
+curl -H "Content-Type: application/json" \
+      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+      -X POST http://restserver/api/v1/user/:username/jobs \
+      -d @exampleJob.json
+```
+
+## 4. Monitor the job
+
+Check the list of jobs at:
+
+    http://restserver/api/v1/jobs
     
-        ##### b. Azure AD - OIDC mode
+
+or
+
+    http://restserver/api/v1/user/:username/jobs
     
-        ###### I. Login - get AuthCode
+
+Check your exampleJob status at:
+
+    http://restserver/api/v1/user/:username/jobs/exampleJob
     
-        HTTP GET the redirect URL of Azure AD for authentication:
+
+Get the job config JSON content:
+
+    http://restserver/api/v1/user/:username/jobs/exampleJob/config
     
-        ```
-        http://restserver/api/v1/authn/oidc/login
-        ```
+
+Get the job's SSH info:
+
+    http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
     
-        ###### II. Login - get token with AuthCode
-    
-        HTTP POST the token from AAD (AccessToken, IDToken, RefreshToken) to get OpenPAI's access token. Web-browser will call this API automatically after the step I.
-    
-        ```
-        HTTP://restserver/api/v1/authn/oidc/return
-        ```
-    
-        ###### III. Logout
-    
-        HTTP GET the redirect URL of Azure AD to sign out the authentication:
-    
-        ```
-        http://restserver/api/v1/authn/oidc/login 
-        ```   
-    
-    3. Submit a job
-    
-        HTTP POST the config file as json with access token in header to:
-        ```
-        http://restserver/api/v1/user/:username/jobs
-        ```
-        For example, you can execute below command line:
-        ```sh
-        curl -H "Content-Type: application/json" \
-             -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-             -X POST http://restserver/api/v1/user/:username/jobs \
-             -d @exampleJob.json
-        ```
-    
-    4. 监控 Job
-    
-        查看 Job 列表：
-        ```
-        http://restserver/api/v1/jobs
-        ```
-        或
-        ```
-        http://restserver/api/v1/user/:username/jobs
-        ```
-        查看 Job 状态：
-        ```
-        http://restserver/api/v1/user/:username/jobs/exampleJob
-        ```
-        获取 Job 配置内容：
-        ```
-        http://restserver/api/v1/user/:username/jobs/exampleJob/config
-        ```
-        获取 Job 的 SSH 信息：
-        ```
-        http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
-        ```
-    
-    # RestAPI
-    
-    ## Root URI
-    
-    在 [services-configuration.yaml](。。、../../examples/cluster-configuration/services-configuration.yaml) 中配置 RESTful 服务器的端口。
-    
-    ## API Details
-    
-    ### `GET cluster info`
-    
-    Get OpenPAI cluster info.
-    
-    *Request*
-    
-    ```json
-    GET /api/v1/
-    
+
+# RestAPI
+
+## Root URI
+
+Configure the rest server port in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
+
+## API Details
+
+### `GET cluster info`
+
+Get OpenPAI cluster info.
+
+*Request*
+
+```json
+GET /api/v1/
+```
 
 *Response if succeeded*
 
@@ -928,7 +939,7 @@ Admin can change a group's extension.
 
 *Request*
 
-    POST /api/v2/group/:groupname/extension
+    PUT /api/v2/group/:groupname/extension
     Authorization: Bearer <ACCESS_TOKEN>
     
 
@@ -1067,7 +1078,7 @@ Admin can change a group's description.
 
 *Request*
 
-    POST /api/v2/group/:groupname/description
+    PUT /api/v2/group/:groupname/description
     Authorization: Bearer <ACCESS_TOKEN>
     
 
@@ -1128,7 +1139,7 @@ Admin can change a group's externalname, and bind it with another external group
 
 *Request*
 
-    POST /api/v2/group/:groupname/externalname
+    PUT /api/v2/group/:groupname/externalname
     Authorization: Bearer <ACCESS_TOKEN>
     
 
@@ -2118,6 +2129,6 @@ Status: 500
 
 ## About legacy jobs
 
-从此版本开始，会启用 [Framework ACL](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL_zh_CN.md#Framework_ACL) ，Job 的命名空间会包含创建者的用户名。 jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version, jobs will have a namespace with job-creater's username. However there were still some jobs created before the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped, but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
 
 In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced job as soon as possible.
