@@ -171,31 +171,28 @@ export async function cloneJob(rawJobConfig) {
 }
 
 export async function stopJob() {
-  const flag = confirm(`Are you sure to stop ${jobName}?`);
-  if (flag) {
-    const url = namespace
-      ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/executionType`
-      : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
-    const token = checkToken();
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        value: 'STOP',
-      }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      return json;
-    } else if (res.code === 'UnauthorizedUserError') {
-      alert(res.message);
-      userLogout();
-    } else {
-      throw new Error(json.message);
-    }
+  const url = namespace
+    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/executionType`
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
+  const token = checkToken();
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      value: 'STOP',
+    }),
+  });
+  const json = await res.json();
+  if (res.ok) {
+    return json;
+  } else if (res.code === 'UnauthorizedUserError') {
+    alert(res.message);
+    userLogout();
+  } else {
+    throw new Error(json.message);
   }
 }
 

@@ -17,11 +17,11 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Submit Jobs on OpenPAI
+# 在 OpenPAI 上提交作业
 
-- [Submit Jobs on OpenPAI](#submit-jobs-on-openpai) 
-  - [Submit a Hello World Job](#submit-a-hello-world-job)
-  - [Learn the Hello World Job](#learn-the-hello-world-job)
+- [在 OpenPAI 上提交作业](#submit-jobs-on-openpai) 
+  - [提交 Hello World Job](#submit-a-hello-world-job)
+  - [理解 Hello World Job](#learn-the-hello-world-job)
   - [Manage Your Data](#manage-your-data) 
     - [Make Use of Team-wise Storage](#make-use-of-team-wise-storage)
     - [Additional Data Sources](#additional-data-sources)
@@ -32,13 +32,13 @@
   - [Job Workflow](#job-workflow)
   - [Reference](#reference)
 
-This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
+This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. 如果还没安装 OpenPAI 集群，参考[这里](../../../README_zh_CN.md#部署)进行部署。
 
 There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
 
-## Submit a Hello World Job
+## 提交 Hello World Job
 
-The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.
+**Job** 在 OpenPAI 中定义了在指定的环境中如何执行命令。 作业可以在单个节点上运行，也可以以分布式方式运行。
 
 The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) include more details about this job config.
 
@@ -72,25 +72,25 @@ The following process submits a model training job implemented by TensorFlow on 
 
 6. Click **Submit** to kick off your first OpenPAI job!
 
-## Learn the Hello World Job
+## 理解 Hello World Job
 
 The Hello World job is set to download the CIFAR-10 dataset and train a simple model with 1,000 steps. Here are some detailed explanations about configs on the submission page:
 
-- **Job name** is the name of current job. It must be unique in each user account. A meaningful name helps manage jobs well.
+- **Job name** 是当前 Job 的名称。 在每个用户账号中，其必需是唯一的。 有意义的名称有助于管理 Job。
 
 - **Task role name** defines names of different roles in a job.
   
-    For single server jobs, there is only one role in taskRoles.
+    对于单机运行的 Job，在 taskRoles 中只有一个角色。
   
-    For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration. The names of task roles can be used in environment variables in distributed jobs.
+    对于分布式的 Job，taskRoles 中可能会有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 There are two task roles in the corresponding job configuration. The names of task roles can be used in environment variables in distributed jobs.
 
-- **Instances** is the number of instances of this task role. In single server jobs, it should be 1. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.
+- **Instances** is the number of instances of this task role. In single server jobs, it should be 1. 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 这表示 worker 角色会被实例化出 8 个 Docker 容器。
 
-- **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, MB of memory, and the number of CPU cores.
+- **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. 它们指定了相应的硬件资源，包括 CPU 核数量，内存（MB），以及 GPU 数量。
 
-- **Command** is the commands to run in this task role. It can be multiple lines. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress. If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
+- **Command** 是此任务角色要运行的命令。 支持多行。 例如，在 hello-world Job 中，命令会从 GitHub 中克隆代码，下载数据，然后执行训练过程。 If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
 
-- **Docker image**
+- **Docker 映像**
   
     OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
   
@@ -100,11 +100,11 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
   
     **Important Note: if you'd like to ssh to the docker within OpenPAI, make sure *openssh-server* and *curl* packages are included by the docker image.** If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image. Please refer to [this tutorial](../job_docker_env.md#enable-ssh-for-your-image) for details.
 
-## Manage Your Data
+## 管理数据
 
-Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
+大多数模型训练以及其它类型的 Job 都需要在运行环境内外间传输文件。 这些文件包括数据集、代码、脚本、训练好的模型等等。
 
-### Make Use of Team-wise Storage
+### 使用团队存储
 
 OpenPAI admin can define Team-wise Storage through [Team-wise Storage Plugin](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). It can support multiple NAS file systems like NFS, Samba, HDFS, Azurefile and Azureblob.
 
@@ -114,7 +114,7 @@ Once your OpenPAI admin has set up Team-wise storage for your group, you can fin
 
 Note: Using Team-wise storage will inject code to commands with comments. Please do not modify the auto-generated codes.
 
-### Additional Data Sources
+### 其它数据源
 
 Besides Team Storage, OpenPAI also supports local files, http/https files, git repository, and PAI HDFS as additional data sources. Click the button **Add data source** to choose one kind of data source and fill in the path information in the text box. For example, the following setting will copy the HDFS folder "/foo/bar" to "/pai_data/mydata". You can access the folder with "/pai_data/mydata/bar" in your commands.
 
@@ -177,6 +177,6 @@ After receiving job configuration, OpenPAI processes it as below steps:
 
 When a job is submitted to OpenPAI, the job's status changes from waiting, to running, then succeeded or failed. The status may display as stopped if the job is interrupted by user or system.
 
-## Reference
+## 参考
 
-- [Troubleshooting job failure](troubleshooting_job.md)
+- [调研 Job 错误](troubleshooting_job.md)

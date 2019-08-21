@@ -52,4 +52,4 @@ Finally, build and push the image with the following commands:
  docker push <Your Docker ID>/pytorch-py36-cu90-ssh
 ```
 
-Now you can use "\<your docker id\>/pytorch-py36-cu90-ssh" in OpenPAI, and it is SSH enabled.
+Now you can use "\<Your Docker ID\>/pytorch-py36-cu90-ssh" in OpenPAI, and it is SSH enabled.

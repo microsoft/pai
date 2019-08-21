@@ -92,7 +92,7 @@ pip3 install -r $PAI_DIR/src/tools/reports_requirements.txt
 
 ## How to Setup
 
-The [script](../../src/tools/reports.py) has thress actions, `refresh`, `report` and `serve`.
+[脚本](../../../src/tools/reports.py)有三个操作，`refresh`, `report` 和 `serve`。
 
 The `refresh` action will tries to collect data from hadoop-resource-manager and framework-launcher, and save the data in sqlite3 DB for future process. The script needs to save data because hadoop-resource-manager will not retain job info too long, if we do not fetch them and save somewhere, we will not be able to generate correct report. We recommend admin run this script every 10 minutes using CRON job.
 
@@ -102,7 +102,7 @@ The `serve` action will start a http server so outside world can query report th
 
 Both `serve` and `report` will need `refresh` being called periodically to fetch data from underlaying source.
 
-First, log into the node you choose, put the [script](../../src/tools/reports.py) somewhere, for example, I put it in directory `/home/core/report`, edit the crontab using
+首先登录到节点中，将[脚本](../../../src/tools/reports.py)上传的某处，例如：`/home/core/report`，使用命令编辑 crontab
 
 ```sh
 crontab -e
