@@ -1,14 +1,14 @@
 # OpenPAI JS SDK
 
-The `Javascript` SDK for `OpenPAI`.
+The `JavaScript` SDK for `OpenPAI`.
 
 ## Installation
 
 ```bash
-npm install --save npm install yiyione/pai#openpai-js-sdk
+npm install --save yiyione/pai#openpai-js-sdk
 ```
 
-## Restful APIs
+## RESTful APIs
 
 Initialize the `openPAIClient`
 
