@@ -8,23 +8,13 @@ adminGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["groupname"] }}"
   description: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["externalName"] }}"
-  extension:
-    groupType: admin
-{%- if 'userlist' not in cluster_cfg["authentication"]["group-manager"]["admin-group"] %}
-  userlist: []
-{%- else %}
-  userlist:
-{%- for usernameValue in cluster_cfg["authentication"]["group-manager"]["admin-group"]["userlist"] %}
-    - {{ usernameValue }}
-{%- endfor %}
-{%- endif %}
+  extension: {{ cluster_cfg["authentication"]["group-manager"]["admin-group"]["extension"] }}
 
 defaultGroup:
   groupname: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["groupname"] }}"
   description: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["description"] }}"
   externalName: "{{ cluster_cfg["authentication"]["group-manager"]["default-group"]["externalName"] }}"
-  extension:
-    groupType: vc
+  extension: {{ cluster_cfg["authentication"]["group-manager"]["default-group"]["extension"] }}
 
 grouplist:
 {%- if 'grouplist' not in cluster_cfg["authentication"]["group-manager"] %}
@@ -34,7 +24,6 @@ grouplist:
   - groupname: "{{ group_item["groupname"] }}"
     description: "{{ group_item["description"] }}"
     externalName: "{{ group_item["externalName"] }}"
-    extension:
-      groupType: vc
+    extension: {{ group_item["extension"] }}
 {%- endfor %}
 {%- endif %}

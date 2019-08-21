@@ -22,7 +22,7 @@ pushd $(dirname "$0") > /dev/null
 hadoopBinaryDir="/hadoop-binary"
 
 # When changing the patch id, please update it.
-patchId="12940533-12933562-docker_executor-12944563-fix1-20190627"
+patchId="12940533-12933562-docker_executor-12944563-fix1-20190819"
 
 hadoopBinaryPath="${hadoopBinaryDir}/hadoop-2.9.0.tar.gz"
 cacheVersion="${hadoopBinaryDir}/${patchId}-done"

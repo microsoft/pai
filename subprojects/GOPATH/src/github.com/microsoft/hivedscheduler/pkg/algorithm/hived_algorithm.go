@@ -673,7 +673,7 @@ func getCellViewForPodPlacement(fullCellList ChainCellList) ChainCellList {
 		for _, c := range fullCellList[l] {
 			cc := c.(*PhysicalCell)
 			if !cc.HasPod() {
-				if p := cc.GetParent().(*PhysicalCell); p == nil || l == top || p.HasPod() {
+				if p := cc.GetParent(); p == nil || l == top || p.(*PhysicalCell).HasPod() {
 					cellView[l] = append(cellView[l], cc)
 				}
 			}

@@ -5,7 +5,7 @@ index 96f6c57..1b89e90 100644
 @@ -1544,6 +1544,14 @@ public static boolean isAclEnabled(Configuration conf) {
    public static final String NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME =
      NM_PREFIX + "docker-container-executor.image-name";
- 
+
 +  /** The Docker run option(For DockerContainerExecutor).*/
 +  public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_OPTION =
 +          NM_PREFIX + "docker-container-executor.exec-option";
@@ -26,8 +26,8 @@ index a044cb6..819c496 100644
    //containername
    public static final String DOCKER_IMAGE_PATTERN =
 -    "^(([\\w\\.-]+)(:\\d+)*\\/)?[\\w\\.:-]+$";
-+          "^(([\\w\\.-]+)(:\\d+)*\\/)?([\\w\\.-]+\\/)?[\\w\\.:-]+$";
- 
++          "^(([a-zA-Z0-9.-]+)(:\\d+)?/)?([a-z0-9_./-]+)(:[\\w.-]+)?$";
+
    private final FileContext lfs;
    private final Pattern dockerImagePattern;
 @@ -127,7 +127,12 @@ public void init() throws IOException {
@@ -45,7 +45,7 @@ index a044cb6..819c496 100644
          "Invalid docker exec path: " + dockerExecutor);
      }
 @@ -181,8 +186,11 @@ public int launchContainer(ContainerStartContext ctx) throws IOException {
- 
+
      //Variables for the launch environment can be injected from the command-line
      //while submitting the application
 -    String containerImageName = container.getLaunchContext().getEnvironment()

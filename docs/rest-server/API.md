@@ -931,7 +931,7 @@ Admin can change a group's extension.
 *Request*
 
 ```
-POST /api/v2/group/:groupname/extension
+PUT /api/v2/group/:groupname/extension
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -990,6 +990,81 @@ Status: 500
 }
 ```
 
+### `PUT group extension attribute` (administrator only)
+
+Admin can change a specific attribute in a nested group extension. Admin could change group acl by this api.
+
+*Request*
+
+```
+PUT /api/v2/group/:groupname/extension/path/to/attr
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Body*
+
+```json
+{
+  "data": [...] | {...} | boolean etc.
+}
+```
+
+*Example*
+```
+Update group available virtualClusters
+PUT /api/v2/group/:groupname/extension/acls/virtualClusters
+Authorization: Bearer <ACCESS_TOKEN>
+Body {"data": ["vc1", "vc2"]}
+
+Update group admin privilege
+PUT /api/v2/group/:groupname/extension/acls/admin
+Authorization: Bearer <ACCESS_TOKEN>
+Body {"data": true/false}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Update group extension data successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
 ### `PUT group description` (administrator only)
 
 Admin can change a group's description.
@@ -997,7 +1072,7 @@ Admin can change a group's description.
 *Request*
 
 ```
-POST /api/v2/group/:groupname/description
+PUT /api/v2/group/:groupname/description
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -1059,7 +1134,7 @@ Admin can change a group's externalname, and bind it with another external group
 *Request*
 
 ```
-POST /api/v2/group/:groupname/externalname
+PUT /api/v2/group/:groupname/externalname
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 

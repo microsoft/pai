@@ -50,7 +50,7 @@ const decodeName = (name, labels) => {
   }
 };
 
-const convertState = (state, exitCode) => {
+const convertState = (state, exitCode, retryDelaySec) => {
   switch (state) {
     case 'AttemptCreationPending':
     case 'AttemptCreationRequested':
@@ -61,8 +61,13 @@ const convertState = (state, exitCode) => {
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
-    case 'AttemptCompleted':
       return 'COMPLETING';
+    case 'AttemptCompleted':
+      if (retryDelaySec == null) {
+        return 'COMPLETING';
+      } else {
+        return 'RETRY_PENDING';
+      }
     case 'Completed':
       if (exitCode === 0) {
         return 'SUCCEEDED';
@@ -81,7 +86,11 @@ const convertFrameworkSummary = (framework) => {
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-    state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
+    state: convertState(
+      framework.status.state,
+      completionStatus ? completionStatus.code : null,
+      framework.status.retryPolicyStatus.retryDelaySec,
+    ),
     subState: framework.status.state,
     executionType: framework.spec.executionType.toUpperCase(),
     retries: framework.status.retryPolicyStatus.totalRetriedCount,
@@ -90,6 +99,7 @@ const convertFrameworkSummary = (framework) => {
       platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
       resource: 0,
     },
+    retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
     createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: completionStatus ? completionStatus.code : null,
@@ -124,7 +134,11 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
-    taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
+    taskState: convertState(
+      taskStatus.state,
+      completionStatus ? completionStatus.code : null,
+      taskStatus.retryPolicy.retryDelaySec,
+    ),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
@@ -140,7 +154,11 @@ const convertFrameworkDetail = async (framework) => {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-      state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
+      state: convertState(
+        framework.status.state,
+        completionStatus ? completionStatus.code : null,
+        framework.status.retryPolicyStatus.retryDelaySec,
+      ),
       subState: framework.status.state,
       executionType: framework.spec.executionType.toUpperCase(),
       retries: framework.status.retryPolicyStatus.totalRetriedCount,
@@ -149,6 +167,7 @@ const convertFrameworkDetail = async (framework) => {
         platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
         resource: 0,
       },
+      retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
       createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
       completedTime: new Date(framework.status.completionTime).getTime(),
       appId: framework.status.attemptStatus.instanceUID,
@@ -207,6 +226,11 @@ const generateTaskRole = (taskRole, labels, config) => {
       start: Math.floor((Math.random() * 20000) + 20000),
       count: ports[port],
     };
+  }
+  // get shared memory size
+  let shmMB = 512;
+  if ('extraContainerOptions' in config.taskRoles[taskRole]) {
+    shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
   const frameworkTaskRole = {
     name: convertName(taskRole),
@@ -280,6 +304,10 @@ const generateTaskRole = (taskRole, labels, config) => {
               },
               volumeMounts: [
                 {
+                  name: 'dshm',
+                  mountPath: '/dev/shm',
+                },
+                {
                   name: 'pai-vol',
                   mountPath: '/usr/local/pai',
                 },
@@ -297,6 +325,13 @@ const generateTaskRole = (taskRole, labels, config) => {
             },
           ],
           volumes: [
+            {
+              name: 'dshm',
+              emptyDir: {
+                medium: 'Memory',
+                sizeLimit: `${shmMB}Mi`,
+              },
+            },
             {
               name: 'pai-vol',
               emptyDir: {},

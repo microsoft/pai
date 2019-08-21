@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const { protocolConvert } = require('@pai/utils/converter');
+const {protocolConvert} = require('@pai/utils/converter');
 
 
 const jobConfigs = {
@@ -114,7 +114,7 @@ deployments:
       worker:
         preCommands:
           - 'echo "[WARNING] Compatibility mode for v1 job, please use protocol config instead."'
-default:
+defaults:
   virtualCluster: default
   deployment: default
   `,
@@ -194,7 +194,7 @@ deployments:
           - export PAI_CODE_DIR=<% $script.uri %>
           - export env1=value1
           - export env2=value2
-default:
+defaults:
   virtualCluster: vc
   deployment: default
 parameters:

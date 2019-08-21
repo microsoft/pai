@@ -35,5 +35,16 @@ if kubectl get configmap | grep -q "group-configuration"; then
     kubectl delete configmap group-configuration || exit $?
 fi
 
+if kubectl get ClusterRoleBinding | grep "rest-server-openpai"; then
+    kubectl delete ClusterRoleBinding rest-server-openpai || exit $?
+fi
+
+if kubectl get ClusterRole | grep "rest-server-openpai"; then
+    kubectl delete ClusterRole rest-server-openpai || exit $?
+fi
+
+if kubectl get ServiceAccount | grep "rest-server-openpai"; then
+    kubectl delete ServiceAccount rest-server-openpai || exit $?
+fi
 
 popd > /dev/null
