@@ -121,6 +121,7 @@ const getVcList = async () => {
         cpu: 0,
         gpu: 0,
       },
+      dedicated: false,
     };
   }
 
