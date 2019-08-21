@@ -1,6 +1,6 @@
 # Upgrade to v0.14.0
 
-Please check the [release note](../../RELEASE_NOTE.md#july-2019-version-0140) for the new features in v0.14.0. The upgrade process will take hours depends on the number of nodes in the cluster and the internet network speed. During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
+有关 v0.14.0 的新功能，查看 [发行说明](../../../RELEASE_NOTE.md#july-2019-version-0140) 。升级过程需要数小时，具体取决于集群的节点数量和网络速度。 During the upgrade, running jobs will fail. And jobs will automatically retry after the upgrade have done.
 
 Table of Contents
 
