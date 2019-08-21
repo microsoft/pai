@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {get, isNil} from 'lodash';
+import {get, isNil, cloneDeep} from 'lodash';
 import {Interval, DateTime} from 'luxon';
 
 export const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
@@ -122,7 +122,7 @@ export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
   }, []);
 
   // Merge long run jobs and low GPU usage jobs
-  const abnormalJobs = [...longRunJobs];
+  const abnormalJobs = cloneDeep(longRunJobs);
   abnormalJobs.forEach((job) => {
     const lowGpuUsagejob = lowGpuUsageJobs.find((lowGpuUsageJob) => lowGpuUsageJob.name === job.name);
     if (!isNil(lowGpuUsagejob)) {

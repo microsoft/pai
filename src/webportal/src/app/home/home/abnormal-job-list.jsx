@@ -34,8 +34,8 @@ import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateStri
 import {zeroPaddingClass} from './util';
 import {Header} from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
-import webportalConfig from '../../config/webportal.config';
 import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
+import {stopJob} from './conn';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -160,7 +160,7 @@ const AbnormalJobList = ({jobs}) => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                stopJob(job);
+                stopAbnormalJob(job);
               }}
             >
               Stop
@@ -171,32 +171,12 @@ const AbnormalJobList = ({jobs}) => {
     },
   ];
 
-  const stopJob = useCallback((job) => {
-    userAuth.checkToken((token) => {
-      const {name, username} = job;
-      fetch(`${webportalConfig.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({value: 'STOP'}),
-      })
-      .then((response) => {
-        if (response.ok) {
-          job.executionType = 'STOP';
-          const copyJobs = [...abnormalJobs];
-          setAbnormalJobs(copyJobs);
-        } else {
-          return response.json().then((data) => {
-            if (data.code === 'UnauthorizedUserError') {
-              alert(data.message);
-              userLogout();
-            } else {
-              throw new Error(data.message);
-            }
-          });
-        }
+  const stopAbnormalJob = useCallback((job) => {
+    userAuth.checkToken(() => {
+      stopJob(job).then(() => {
+        job.executionType = 'STOP';
+        const copyJobs = [...abnormalJobs];
+        setAbnormalJobs(copyJobs);
       }).catch(alert);
     });
   }, [abnormalJobs]);

@@ -1,12 +1,8 @@
 import c from 'classnames';
-import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, initializeIcons, PanelType, Stack, StackItem} from 'office-ui-fabric-react';
+import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, PanelType, Stack, StackItem} from 'office-ui-fabric-react';
 import React, {useCallback, useState, useEffect} from 'react';
 
-import {initTheme} from '../components/theme';
 import config from '../config/webportal.config';
-
-initTheme();
-initializeIcons();
 
 const theme = getTheme();
 const {palette, semanticColors, spacing} = theme;

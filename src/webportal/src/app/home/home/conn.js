@@ -102,3 +102,22 @@ export async function getLowGpuJobInfos() {
   return lowGpuJobInfos;
 }
 
+export async function stopJob(job) {
+  const {name, username} = job;
+  const res = await fetch(`${config.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({value: 'STOP'}),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    if (json.code === 'UnauthorizedUserError') {
+      throw new UnauthorizedError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
+  }
+}
