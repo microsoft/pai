@@ -22,7 +22,7 @@ const secretConfig = require('@pai/config/secret');
 const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
-const vcModel = require('@pai/models/vc');
+const vcModel = require('@pai/models/v2/virtual-cluster');
 const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
@@ -97,7 +97,7 @@ const getVCsWithGroupInfo = async (groupItems) => {
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
       if (groupItem.extension.acls.admin) {
-        return Object.keys(await vcModel.prototype.getVcListAsyc());
+        return Object.keys(await vcModel.list());
       } else if (groupItem.extension.acls.virtualClusters) {
         virtualClusters = new Set([...virtualClusters, ...groupItem.extension.acls.virtualClusters]);
       }
@@ -349,7 +349,7 @@ const createDefaultAdminUser = async () => {
 const deleteNonexistVCs = async () => {
   try {
     const groupInfoList = await getAllGroup();
-    const vcList = await vcModel.prototype.getVcListAsyc();
+    const vcList = await vcModel.list();
     const vcSet = new Set(Object.keys(vcList));
     for (let groupItem of groupInfoList) {
       if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters) {

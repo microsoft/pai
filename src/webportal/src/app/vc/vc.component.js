@@ -23,7 +23,7 @@ let isAdmin = cookies.get('admin');
 const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
-    url: webportalConfig.restServerUri + '/api/v1/virtual-clusters',
+    url: webportalConfig.restServerUri + '/api/v2/virtual-clusters',
     success: function(data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
@@ -131,7 +131,7 @@ const virtualClustersAdd = () => {
       return false;
     }
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${vcName}`,
+      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${vcName}`,
       data: JSON.stringify({
         'vcCapacity': capacity,
         'externalName': ``,
@@ -166,7 +166,7 @@ const deleteVcItem = (name) => {
   if (!res) return false;
   userAuth.checkToken((token) => {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${name}`,
+      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -200,7 +200,7 @@ const editVcItem = (name, capacity) => {
 const editVcItemPut = (name, capacity) => {
   userAuth.checkToken((token) => {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${name}`,
+      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       data: JSON.stringify({
         'vcCapacity': parseInt(capacity),
       }),
@@ -234,7 +234,7 @@ const changeVcState = (name, state) => {
     const res = confirm(`Do you want to ${state.toLowerCase() == 'running' ? 'stop' : 'activate'} ${name}?`);
     if (!res) return false;
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/virtual-clusters/${$.trim(name)}/status`,
+      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${$.trim(name)}/status`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
