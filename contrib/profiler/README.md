@@ -18,8 +18,8 @@ Please use the shell file 'run.sh' to start the Profiler.
 The first argument is the SHA of your docker container where your model is running on.
 The second argument is the index of GPU that your model will use.(If there are several GPUs used, please use the ',' to separated)
 
-Such as `'./run.sh 32f4 1,2,3'` if your container's SHA contains `'32f4'` and the GPU INDEX `1,2 and 3` will be used to train.
+Such as `./run.sh 32f4 1,2,3` if your container's SHA contains `32f4` and the GPU INDEX `1,2 and 3` will be used to train.
 
 Also you can add the third argument to set the period of the sampling, and add the fourth argument to set the directory to store the output data.
 
-Such as `'./run.sh 32f4 1,2,3 0.02 My_Data'`, then the Profiler will collect the information each `0.02s` and store the log file at `./My_Data`
+Such as `/run.sh 32f4 1,2,3 0.02 My_Data`, then the Profiler will collect the information each `0.02s` and store the log file at `./My_Data`
