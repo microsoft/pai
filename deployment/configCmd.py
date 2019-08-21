@@ -141,7 +141,7 @@ class ConfigCmd():
         mutually_update_option = push_parser.add_mutually_exclusive_group()
         mutually_update_option.add_argument("-p", "--cluster-conf-path", dest="cluster_conf_path", default=None, help="the path of directory which stores the cluster configuration.")
         mutually_update_option.add_argument("-e", "--external-storage-conf-path", dest="external_storage_conf_path",  default=None, help="the path of external storage configuration.")
-        mutually_update_option.add_argument("-m", "--push-mode", dest="push_mode", default="all", choices=['all', 'service'], help="the mode to push configuration. service mode won't push the k8s related configuration." )
+        push_parser.add_argument("-m", "--push-mode", dest="push_mode", default="all", choices=['all', 'service'], help="the mode to push configuration. service mode won't push the k8s related configuration." )
         push_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
         push_parser.set_defaults(handler=self.push_configuration)
 
