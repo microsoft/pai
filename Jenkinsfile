@@ -118,7 +118,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-singlebox \
-  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > SINGLE_BOX_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} nofetch > SINGLE_BOX_DEV_BOX.txt
 
 sudo docker exec $(cat SINGLE_BOX_DEV_BOX.txt) rm -rf /pai
 sudo docker cp ${WORKSPACE} $(cat SINGLE_BOX_DEV_BOX.txt):/pai
@@ -159,13 +159,13 @@ sleep 6s
 
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 # Step 4. Start all PAI services
 # start pai services
 ./paictl.py service start << EOF
-openpai-test
+pai
 EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
@@ -208,7 +208,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-cluster \
-  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > CLUSTER_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} nofetch > CLUSTER_DEV_BOX.txt
 
 sudo docker exec $(cat CLUSTER_DEV_BOX.txt) rm -rf /pai
 sudo docker cp ${WORKSPACE} $(cat CLUSTER_DEV_BOX.txt):/pai
@@ -249,13 +249,13 @@ sleep 6s
 
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 # Step 4. Start all PAI services
 # start pai services
 ./paictl.py service start << EOF
-openpai-test
+pai
 EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
@@ -322,7 +322,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$SINGLE_BOX_URL/rest-server/api/v1/token \
+$SINGLE_BOX_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",
@@ -335,7 +335,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/ \
+$SINGLE_BOX_URL/rest-server/api/v2/user/admin/jobs/ \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -354,7 +354,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/ \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
+curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v2/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
@@ -420,7 +420,7 @@ set -ex
 sleep 60
 TOKEN=$(
 curl --silent --verbose \
-$CLUSTER_URL/rest-server/api/v1/token \
+$CLUSTER_URL/rest-server/api/v1/authn/basic/login \
 --header 'Content-Type: application/json' \
 --data '{
 "username": "admin",
@@ -433,7 +433,7 @@ $CLUSTER_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$CLUSTER_URL/rest-server/api/v1/user/admin/jobs \
+$CLUSTER_URL/rest-server/api/v2/user/admin/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -452,7 +452,7 @@ $CLUSTER_URL/rest-server/api/v1/user/admin/jobs \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
+curl --silent --verbose $CLUSTER_URL/rest-server/api/v2/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
@@ -524,12 +524,12 @@ cd /pai
 
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 ./paictl.py service delete << EOF
 Y
-openpai-test
+pai
 EOF
 
 # clean k8s
@@ -558,12 +558,12 @@ cd /pai
 
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
-openpai-test
+pai
 EOF
 
 ./paictl.py service delete << EOF
 Y
-openpai-test
+pai
 EOF
 
 # clean k8s

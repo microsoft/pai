@@ -25,7 +25,7 @@ import ReactMonacoEditor from 'react-monaco-editor';
 import {monacoHack} from './monaco-hack.scss';
 import t from './tachyons.scss';
 
-const MonacoEditor = ({className, style, monacoProps, completionItems, schemas}) => {
+const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, monacoRef}) => {
   // monaco variables
   const monaco = useRef(null);
   const editor = useRef(null);
@@ -102,8 +102,12 @@ const MonacoEditor = ({className, style, monacoProps, completionItems, schemas})
           // save monaco context
           editor.current = e;
           monaco.current = m;
+          if (!isNil(monacoRef)) {
+            monacoRef.current = m;
+          }
+
           // completion provider
-          for (const lang of ['json', 'yaml', 'plaintext']) {
+          for (const lang of ['json', 'yaml', 'plaintext', 'shell']) {
             monaco.current.languages.registerCompletionItemProvider(lang, {
               provideCompletionItems() {
                 return completionList.current;
@@ -129,6 +133,7 @@ MonacoEditor.propTypes = {
   monacoProps: PropTypes.object,
   schemas: PropTypes.array,
   completionItems: PropTypes.arrayOf(PropTypes.string),
+  monacoRef: PropTypes.object,
 };
 
 export default MonacoEditor;

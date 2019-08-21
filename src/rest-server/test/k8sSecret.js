@@ -16,27 +16,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-const dbUtility = require('../src/util/dbUtil');
 const util = require('util');
+const dbUtility = require('@pai/utils/dbUtil');
 
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': 'pai-user',
   'requestConfig': {
     baseURL: process.env.K8S_APISERVER_URI + '/api/v1/namespaces/',
-    maxRedirects: 0
+    maxRedirects: 0,
   },
 });
 describe('k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 return all userinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user/secrets/')
@@ -45,7 +44,7 @@ describe('k8s secret get function test', () => {
         'apiVersion': 'v1',
         'metadata': {
             'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-            'resourceVersion': '1062682'
+            'resourceVersion': '1062682',
         },
         'items': [
             {
@@ -56,9 +55,9 @@ describe('k8s secret get function test', () => {
                     'admin': 'ZmFsc2U=',
                     'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
                     'username': 'Y2FudGVzdDAwMQ==',
-                    'virtualCluster': 'ZGVmYXVsdA=='
+                    'virtualCluster': 'ZGVmYXVsdA==',
                 },
-                'type': 'Opaque'
+                'type': 'Opaque',
             },
             {
                 'metadata': {
@@ -68,11 +67,11 @@ describe('k8s secret get function test', () => {
                     'admin': 'dHJ1ZQ==',
                     'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
                     'username': 'cGFpdGVzdA==',
-                    'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+                    'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
                 },
-                'type': 'Opaque'
+                'type': 'Opaque',
             },
-        ]
+        ],
     });
 
     // mock for case3 username=paitest
@@ -88,9 +87,9 @@ describe('k8s secret get function test', () => {
             'admin': 'dHJ1ZQ==',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
             'username': 'cGFpdGVzdA==',
-            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
     });
 
 
@@ -106,12 +105,11 @@ describe('k8s secret get function test', () => {
         'reason': 'NotFound',
         'details': {
             'name': 'nonexist',
-            'kind': 'secrets'
+            'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
     });
-
 
 
   // positive test case
@@ -119,7 +117,7 @@ describe('k8s secret get function test', () => {
   it('should return whole user list', (done) => {
     const dbGet = util.callbackify(db.get.bind(db));
     dbGet('', null, (err, res) => {
-      expect(res).to.have.lengthOf(2)
+      expect(res).to.have.lengthOf(2);
       done();
     });
   });
@@ -131,7 +129,7 @@ describe('k8s secret get function test', () => {
     dbGet('non_exist', null, (err, res) => {
       expect(err.status).to.be.equal(404);
       done();
-    })
+    });
   });
 
   // positive test case
@@ -145,34 +143,32 @@ describe('k8s secret get function test', () => {
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
         admin: 'true',
         virtualCluster: 'default,vc2,vc3',
-        githubPAT: ''
-      }])
+        githubPAT: '',
+      }]);
       done();
     });
   });
-
 });
 
 describe('k8s secret set function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case2 username=existuser
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-user/secrets/657869737475736572', {
-        'metadata':{'name':'657869737475736572'},
+        'metadata': {'name': '657869737475736572'},
         'data': {
            'admin': 'ZmFsc2U=',
            'password': 'cGFpNjY2',
-           'username': 'ZXhpc3R1c2Vy'
-         }
+           'username': 'ZXhpc3R1c2Vy',
+         },
        })
       .reply(200, {
         'kind': 'Secret',
@@ -183,14 +179,14 @@ describe('k8s secret set function test', () => {
             'selfLink': '/api/v1/namespaces/pai-user/secrets/657869737475736572',
             'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
             'resourceVersion': '1115478',
-            'creationTimestamp': '2018-12-07T02:21:42Z'
+            'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'cGFpNjY2',
-            'username': 'ZXhpc3R1c2Vy'
+            'username': 'ZXhpc3R1c2Vy',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // Mock for case2 username=newuser
@@ -200,8 +196,8 @@ describe('k8s secret set function test', () => {
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'cGFpNjY2',
-          'username': 'bmV3dXNlcg=='
-        }
+          'username': 'bmV3dXNlcg==',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -212,14 +208,14 @@ describe('k8s secret set function test', () => {
             'selfLink': '/api/v1/namespaces/pai-user/secrets/6e657775736572',
             'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
             'resourceVersion': '1116114',
-            'creationTimestamp': '2018-12-07T02:29:47Z'
+            'creationTimestamp': '2018-12-07T02:29:47Z',
         },
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'cGFpNjY2',
-            'username': 'bmV3dXNlcg=='
+            'username': 'bmV3dXNlcg==',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
   });
 
@@ -230,11 +226,11 @@ describe('k8s secret set function test', () => {
       'username': 'newuser',
       'password': 'pai666',
       'admin': false,
-      'modify': false
-    }
+      'modify': false,
+    };
     dbSet('newuser', updateUser, null, (err, res) => {
-      expect(err).to.be.null
-      expect(res, 'status').to.have.status(200)
+      expect(err).to.be.null;
+      expect(res, 'status').to.have.status(200);
       done();
     });
   });
@@ -246,12 +242,12 @@ describe('k8s secret set function test', () => {
       'username': 'existuser',
       'password': 'pai666',
       'admin': false,
-      'modify': false
-    }
-    options = {'update': true}
+      'modify': false,
+    };
+    const options = {'update': true};
     dbSet('existuser', updateUser, options, (err, res) => {
-      expect(err).to.be.null
-      expect(res, 'status').to.have.status(200)
+      expect(err).to.be.null;
+      expect(res, 'status').to.have.status(200);
       done();
     });
   });
@@ -260,14 +256,13 @@ describe('k8s secret set function test', () => {
 describe('k8s secret delete function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 username=existuser
     nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-user/secrets/657869737475736572')
@@ -279,8 +274,8 @@ describe('k8s secret delete function test', () => {
         'details': {
             'name': '657869737475736572',
             'kind': 'secrets',
-            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
-        }
+            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+        },
       });
 
     // Mock for case2 username=nonexistuser
@@ -295,9 +290,9 @@ describe('k8s secret delete function test', () => {
       'reason': 'NotFound',
       'details': {
           'name': '6e6f6e657869737475736572',
-          'kind': 'secrets'
+          'kind': 'secrets',
       },
-      'code': 404
+      'code': 404,
     });
   });
 
@@ -305,8 +300,8 @@ describe('k8s secret delete function test', () => {
   it('should delete an exist user successfully', (done) => {
     const dbDelete = util.callbackify(db.delete.bind(db));
     dbDelete('existuser', (err, res) => {
-      expect(err).to.be.null
-      expect(res, 'status').to.have.status(200)
+      expect(err).to.be.null;
+      expect(res, 'status').to.have.status(200);
       done();
     });
   });
@@ -314,7 +309,7 @@ describe('k8s secret delete function test', () => {
   it('should failed to delete an non-exist user', (done) => {
     const dbDelete = util.callbackify(db.delete.bind(db));
     dbDelete('nonexistuser', (err, res) => {
-      expect(err, 'status').to.have.status(404)
+      expect(err, 'status').to.have.status(404);
       done();
     });
   });

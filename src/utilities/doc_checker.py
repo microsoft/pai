@@ -65,6 +65,9 @@ def check_all(doc_root):
         for name in files:
             if name.endswith(".md"):
                 path = os.path.join(root, name)
+                if "/vendor/" in path:
+                    # ignore 3rd party markdown check
+                    continue
 
                 md = markdown.Markdown(extensions=[LinkCheckerExtension(root, name)])
                 with codecs.open(path, "r", "utf-8") as f:

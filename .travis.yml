@@ -73,7 +73,7 @@ matrix:
       install:
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
       script:
-        - mvn clean test jacoco:report coveralls:report
+        - mvn clean test jacoco:report
 
     - language: java
       jdk: openjdk8
@@ -82,7 +82,7 @@ matrix:
       install:
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
       script:
-        - mvn clean test jacoco:report coveralls:report
+        - mvn clean test jacoco:report
 
     - language: node_js
       node_js: lts/carbon
@@ -93,7 +93,6 @@ matrix:
         - yarn install
       script:
         - npm test
-        - npm run coveralls
 
     - language: node_js
       node_js: lts/dubnium
@@ -104,7 +103,6 @@ matrix:
         - yarn install --ignore-engines
       script:
         - npm test
-        - npm run coveralls
 
     - language: node_js
       node_js: lts/carbon
@@ -131,12 +129,6 @@ matrix:
       before_install: cd contrib/submit-simple-job
       install: npm install
       script: npm test
-
-    - language: node_js
-      node_js: node
-      before_install: cd contrib/submit-nfs-job
-      install: yarn --frozen-lockfiles
-      script: yarn build
 
     - language: node_js
       node_js: lts/dubnium

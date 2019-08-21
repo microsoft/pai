@@ -8,7 +8,6 @@
   <title><%= htmlWebpackPlugin.options.title %></title>
 
   <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
-
 </head>
 
 <body class="hold-transition skin-blue fixed sidebar-mini">
@@ -51,7 +50,7 @@
               <span>Dashboard</span>
             </a>
           </li>
-          <li id="sidebar-menu--submit-job">
+          <li id="sidebar-menu--job-submission">
             <a href="/submit.html">
               <i class="fa fa-plus-circle"></i>
               <span>Submit Job</span>
@@ -100,30 +99,14 @@
               </li>
             </ul>
           </li>
-          <li class="treeview" id="sidebar-menu--documents">
-            <a href="">
-              <i class="fa fa-book"></i>
-              <span>Documents</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li id="sidebar-menu--documents--getting-started">
-                <a href="/docs.html">
-                  <span>&bull;&nbsp;&nbsp;&nbsp; Getting Started</span>
-                </a>
-              </li>
-            </ul>
-          </li>
           <li id="sidebar-menu--feedback">
-            <a href="https://github.com/Microsoft/pai/issues/new?title=[Feedback%20v<%=
+            <a href="https://github.com/Microsoft/pai/issues/new?title=[Feedback%20<%=
               encodeURIComponent(htmlWebpackPlugin.options.version)
             %>]" target="_blank">
               <i class="fa fa-comments"></i>
               <span>Feedback</span>
               <span class="pull-right-container">
-                <small class="label pull-right bg-blue">v<%= htmlWebpackPlugin.options.version %></small>
+                <small class="label pull-right bg-blue"><%= htmlWebpackPlugin.options.version %></small>
               </span>
             </a>
           </li>

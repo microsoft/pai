@@ -16,10 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const axios = require('axios');
+const {Agent} = require('https');
 const Joi = require('joi');
 const yaml = require('js-yaml');
+const {get} = require('lodash');
 const fs = require('fs');
-const logger = require('./logger');
+const logger = require('@pai/config/logger');
+const {apiserver} = require('@pai/config/kubernetes');
 
 let paiMachineList = [];
 try {
@@ -32,6 +36,7 @@ try {
 
 let paiConfigData = {
     machineList: paiMachineList,
+    version: null,
     debuggingReservationSeconds: Number(process.env.DEBUGGING_RESERVATION_SECONDS || '604800'),
 };
 
@@ -39,6 +44,7 @@ let paiConfigData = {
 // define the schema for pai configuration
 const paiConfigSchema = Joi.object().keys({
     machineList: Joi.array(),
+    version: Joi.string().allow(null),
     debuggingReservationSeconds: Joi.number().integer().positive(),
 }).required();
 
@@ -48,5 +54,34 @@ if (error) {
     throw new Error(`config error\n${error}`);
 }
 paiConfigData = value;
+
+const fetchPAIVersion = async () => {
+    try {
+        const res = await axios.request({
+            url: '/api/v1/namespaces/default/configmaps/pai-version',
+            baseURL: apiserver.uri,
+            maxRedirects: 0,
+            httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+            headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
+        });
+
+        const version = get(res.data, 'data["PAI.VERSION"]');
+        if (version) {
+            return version.trim();
+        } else {
+            return null;
+        }
+    } catch (err) {
+        throw err;
+    }
+};
+
+fetchPAIVersion().then(
+    (res) => {
+        paiConfigData.version = res;
+    }
+).catch(() => {
+    logger.warn('Unable to load pai version from config map.');
+});
 
 module.exports = paiConfigData;

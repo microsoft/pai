@@ -1,71 +1,148 @@
 <section class='content-header'>
   <%= breadcrumb({ breadcrumbTitle: "Virtual Clusters" }) %>
 </section>
-
 <section class='content'>
-  <div class='box'>
-    <div class='box-body'>
-      <% if (isAdmin === 'true') { %>
-      <button class="btn btn-success btn-lg add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Virtual Cluster</button>
-      <% } %>
-      <table id='vc-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Capacity</th>
-            <th>Utilization</th>
-            <th>Memory</th>
-            <th>CPUs</th>
-            <th>GPUs</th>
-            <th>Active Jobs</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let vcName in data) { %>
-            <% if (specifiedVc && vcName !== specifiedVc) continue; %>
-              <tr>
-                <td>
-                  <a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a>
-                </td>
-                <td>
-                  <%= formatNumber(data[vcName]['capacity'], 2) %> %
-                </td>
-                <td>
-                  <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['memory'] %> MB
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['vCores'] %>
-                </td>
-                <td>
-                  <%= data[vcName]['resourcesUsed']['GPUs'] %>
-                </td>
-                <td>
-                  <%= data[vcName]['numJobs'] %>
-                </td>
-                <td width="8%">
-                  <%= convertState(vcName, data[vcName]['status']) %>
-                </td>
-                <td>
-                  <a href="job-list.html?vcName=<%= vcName %>">View Jobs</a>
-                  &nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
-                  <% if (isAdmin === 'true') { %>
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    <a onclick="deleteVcItem('<%= vcName %>')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Delete</a>
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    <a onclick="editVcItem('<%= vcName %>', '<%= formatNumber(data[vcName]['capacity'], 2) %> %')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Edit</a>
-                  <% } %>
-                </td>
-              </tr>
-              <% } %>
-        </tbody>
-      </table>
-    </div>
+  <div>
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#sharedvc" role="tab" data-toggle="tab">Shared VC</a></li>
+      <li role="presentation"><a href="#dedicatedvc" role="tab" data-toggle="tab">Dedicated VC</a></li>
+    </ul>
+  </div>
+  <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active box" id="sharedvc">
+          <div class='box-body'>
+            <div class="message-text">Shared VCs share the physical cluster's GPU, CPU and Memory resources by percentage. It provides cluster the flexibility to allocate resources in different nodes in a transparent manner. We support users to add new shared VC from WebUI, the new shared VC's capacity will be allocated from the current default shared VC.</div>
+              <% if (isAdmin === 'true') { %>
+                <button class="btn btn-success btn-xl add-vc-btn" id="virtualClustersBtn" onclick="virtualClusterShow()">Add Shared VC</button>
+                <% } %>
+                <table id='common-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Capacity</th>
+                      <th title="Bonus is an ability to use other shared VCs' resource">Bonus</th>
+                      <th>Utilization</th>
+                      <th>Memory</th>
+                      <th>CPUs</th>
+                      <th>GPUs</th>
+                      <th>Active Jobs</th>
+                      <th>State</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (let vcName in data) { %>
+                      <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+                        <% if (data[vcName]['dedicated'] === false) { %>
+                        <tr>
+                          <td>
+                            <%= vcName %>
+                          </td>
+                          <td>
+                            <%= formatNumber(data[vcName]['capacity'], 2) %> %
+                          </td>
+                          <td>
+                            <%= data[vcName]['capacity'] < data[vcName]['maxCapacity'] || data[vcName]['maxCapacity'] === 100 ? 'enabled' : 'disabled' %>
+                          </td>
+                          <td>
+                            <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
+                          </td>
+                          <td>
+                            <%= Math.floor(data[vcName]['resourcesUsed']['memory']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['memory']) %> MB
+                          </td>
+                          <td>
+                            <%= Math.floor(data[vcName]['resourcesUsed']['vCores']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['vCores']) %>
+                          </td>
+                          <td>
+                            <%= Math.floor(data[vcName]['resourcesUsed']['GPUs']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['GPUs']) %>
+                          </td>
+                          <td>
+                            <%= data[vcName]['numJobs'] %>
+                          </td>
+                          <td width="8%">
+                            <%= convertState(vcName, data[vcName]['status']) %>
+                          </td>
+                          <td>
+                            <a href="job-list.html?vcName=<%= vcName %>">View Jobs</a>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;
+                            <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
+                            <% if (isAdmin === 'true') { %>
+                              &nbsp;&nbsp;|&nbsp;&nbsp;
+                              <a onclick="deleteVcItem('<%= vcName %>')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Delete</a>
+                              &nbsp;&nbsp;|&nbsp;&nbsp;
+                              <a onclick="editVcItem('<%= vcName %>', '<%= formatNumber(data[vcName]['capacity'], 2) %> %')" class="<%= vcName === 'default' ? 'default' : 'item-btn' %>">Edit</a>
+                            <% } %>
+                          </td>
+                        </tr>
+                        <% } %>
+                      <% } %>
+                  </tbody>
+                </table>
+          </div>
+        </div>
+      <div role="tabpanel" class="tab-pane box" id="dedicatedvc">
+          <div class='box-body'>
+            <div class="message-text">Dedicated VCs are designed for jobs need dedicated compute resource, a dedicated VC is binding to 1 or more physical nodes. When creating a dedicated VC, currently only supported in <a href="https://github.com/microsoft/pai/blob/master/docs/tools/dedicated_vc.md" class="ms-Link">cmdline tool</a>, we will allocate the nodes from the Shared VC pool and isolate these node(s) for jobs submitting to this new created dedicated VC only. Once the dedicated VC is created, shared VCs are no longer allowed to use compute resources on this dedicated VC.</div>
+              <table id='dedicated-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>NodeList</th>
+                    <th>Utilization</th>
+                    <th>Memory</th>
+                    <th>CPUs</th>
+                    <th>GPUs</th>
+                    <th>Active Jobs</th>
+                    <th>State</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% for (let vcName in data) { %>
+                    <% if (specifiedVc && vcName !== specifiedVc) continue; %>
+                      <% if (data[vcName]['dedicated'] === true) { %>
+                      <tr>
+                        <td>
+                          <%= vcName %>
+                        </td>
+                        <% if (data[vcName]['nodeList'].length > 2) { %>
+                        <td class="nodelist" style="word-wrap:break-word;" width="16%" onclick="nodeListShow('<%= data[vcName]['nodeList'] %>', this)">
+                            <%= data[vcName]['nodeList'] %>
+                        <% } else { %>
+                        <td width="16%">
+                          <%= data[vcName]['nodeList'] %>
+                        <% } %>
+                        </td>
+                        <td>
+                          <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
+                        </td>
+                        <td>
+                          <%= Math.floor(data[vcName]['resourcesUsed']['memory']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['memory']) %> MB
+                        </td>
+                        <td>
+                          <%= Math.floor(data[vcName]['resourcesUsed']['vCores']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['vCores']) %>
+                        </td>
+                        <td>
+                          <%= Math.floor(data[vcName]['resourcesUsed']['GPUs']) %> / <%= Math.floor(data[vcName]['resourcesTotal']['GPUs']) %>
+                        </td>
+                        <td>
+                          <%= data[vcName]['numJobs'] %>
+                        </td>
+                        <td width="8%">
+                          <%= convertState(vcName, data[vcName]['status']) %>
+                        </td>
+                        <td>
+                          <a href="job-list.html?vcName=<%= vcName %>">View Jobs</a>
+                          &nbsp;&nbsp;|&nbsp;&nbsp;
+                          <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
+                        </td>
+                      </tr>
+                      <% } %>
+                    <% } %>
+                </tbody>
+              </table>
+          </div>
+        </div>
   </div>
   <%= modal({'vcDefault': data.default}) %>
 </section>

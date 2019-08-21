@@ -33,7 +33,7 @@ import Summary from './job-detail/components/summary';
 import {SpinnerLoading} from '../../../components/loading';
 import TaskRole from './job-detail/components/task-role';
 import {fetchJobConfig, fetchJobInfo, fetchSshInfo, stopJob, NotFoundError, fetchRawJobConfig} from './job-detail/conn';
-import {getHumanizedJobStateString} from './job-detail/util';
+import {getHumanizedJobStateString} from '../../../components/util/job';
 
 initializeIcons();
 
@@ -138,7 +138,7 @@ class JobDetail extends React.Component {
   renderTaskRoles() {
     const {jobConfig, jobInfo} = this.state;
     if (!isEmpty(jobInfo.taskRoles)) {
-      const failedTaskRole = getHumanizedJobStateString(jobInfo) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
+      const failedTaskRole = getHumanizedJobStateString(jobInfo.jobStatus) === 'Failed' && get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
       return Object.keys(jobInfo.taskRoles).map((name) => (
         <TaskRole
           key={name}
@@ -152,9 +152,10 @@ class JobDetail extends React.Component {
       return Object.entries(jobConfig.taskRoles).map(([name, taskConfig]) => {
         // dummy tasks
         let dummyTaskInfo = null;
-        if (taskConfig && taskConfig.instances) {
+        if (taskConfig) {
+          const instances = isNil(taskConfig.instances) ? 1 : taskConfig.instances;
           dummyTaskInfo = {
-            taskStatuses: Array.from({length: taskConfig.instances}, (v, idx) => ({
+            taskStatuses: Array.from({length: instances}, (v, idx) => ({
               taskState: 'Waiting',
             })),
           };

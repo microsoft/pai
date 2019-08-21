@@ -24,6 +24,7 @@ import time
 import errno
 import logging
 import logging.config
+import yaml
 
 from pprint import pprint
 
@@ -59,6 +60,14 @@ def read_file_from_path(file_path):
     with open(file_path, "r") as fin:
         file_data = fin.read().decode('utf-8')
     return file_data
+
+
+def load_yaml_config(config_path):
+
+    with open(config_path, "r") as f:
+        cluster_data = yaml.load(f)
+
+    return cluster_data
 
 
 def write_generated_file(generated_file, file_path):

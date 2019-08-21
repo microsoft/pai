@@ -20,8 +20,8 @@
 describe('API endpoint /api/v1', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
@@ -52,8 +52,8 @@ describe('API endpoint /api/v1', () => {
       .get('/api/v1')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
-        expect(res.text, 'response text').to.be.a('string');
-        expect(res.text, 'response text').equal('<pre>PAI RESTful API</pre>');
+        expect(res, 'response format').be.json;
+        expect(JSON.stringify(res.body), 'response body content').include('name');
         done();
       });
   });

@@ -18,23 +18,18 @@
 import c from 'classnames';
 import {isNil} from 'lodash';
 import PropTypes from 'prop-types';
-import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme} from 'office-ui-fabric-react';
+import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme, FontWeights} from 'office-ui-fabric-react';
 import React from 'react';
 
-import Card from './card';
-import {statusColor} from '../../components/theme';
+import Card from '../../components/card';
 
 import t from '../../components/tachyons.scss';
+import {DEDICATED_VC_COLOR, SHARED_VC_COLOR} from './util';
 
-const VirtualClusterItem = ({name, info, totalGpu}) => {
-  const availableGpu = Math.floor(totalGpu * info.maxCapacity / 100) - info.resourcesUsed.GPUs;
-  const percentage = availableGpu / totalGpu;
-  let color;
-  if (availableGpu === 0) {
-    color = statusColor.failed;
-  } else {
-    color = statusColor.succeeded;
-  }
+const VirtualClusterItem = ({name, info}) => {
+  const availableGpu = Math.max(Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs), 0);
+  const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
+  const color = info.dedicated ? DEDICATED_VC_COLOR : SHARED_VC_COLOR;
 
   const {spacing} = getTheme();
 
@@ -42,61 +37,55 @@ const VirtualClusterItem = ({name, info, totalGpu}) => {
     <Stack
       horizontal
       verticalAlign='center'
-      padding='s1 0'
-      gap='l1'
     >
       <Stack.Item>
         <PersonaCoin
           text={name}
-          coinSize={80}
+          coinSize={48}
         />
       </Stack.Item>
       <Stack.Item grow>
         <Stack
-          gap='l1'
+          padding='l1'
+          gap='s1'
         >
-          {/* vc item title */}
-          <Stack.Item>
-            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.xLarge)}>
-              {name}
+          {/* vc item text */}
+          <Stack horizontal horizontalAlign='space-between' gap='s1'>
+            {/* title */}
+            <div className={c(FontClassNames.mediumPlus)}>
+              {info.dedicated ? `${name} (dedicated)` : name}
             </div>
-          </Stack.Item>
-          {/* vc item status */}
-          <Stack.Item>
-            <div className={c(t.flex, t.itemsCenter)}>
+            {/* available count */}
+            <Stack horizontal gap='s1' horizontalAlign='end' styles={{root: {minWidth: 120}}}>
               <div
-                className={FontClassNames.xLarge}
-                style={{color, width: '20px', marginRight: spacing.l1}}
+                className={FontClassNames.mediumPlus}
+                style={{color, fontWeight: FontWeights.semibold}}
               >
                 {availableGpu}
               </div>
               <div
-                className={c(ColorClassNames.neutralSecondary, FontClassNames.large)}
-                style={{marginRight: spacing.l2}}
+                className={FontClassNames.mediumPlus}
               >
                 GPU Available
               </div>
-              <div
-                className={t.flexAuto}
-                style={{
-                  height: spacing.s1,
-                  marginRight: spacing.m,
-                }}
-              >
-              {availableGpu === 0
-                ? <div style={{backgroundColor: color, width: '100%'}}></div>
-                : (
-                  <div className={c(t.w100, t.h100, t.flex)}>
-                    <div
-                      style={{backgroundColor: color, width: `${percentage * 100}%`}}
-                    ></div>
-                    <div
-                      className={c(ColorClassNames.neutralLightBackground)}
-                      style={{width: `${(1 - percentage) * 100}%`}}
-                    ></div>
-                  </div>
-                )
-              }
+            </Stack>
+          </Stack>
+          {/* vc item gpu available bar */}
+          <Stack.Item>
+            <div
+              className={t.flexAuto}
+              style={{
+                height: spacing.m,
+              }}
+            >
+              <div className={c(t.w100, t.h100, t.flex)}>
+                <div
+                  style={{backgroundColor: color, width: `${percentage * 100}%`}}
+                ></div>
+                <div
+                  className={c(ColorClassNames.neutralLightBackground)}
+                  style={{width: `${(1 - percentage) * 100}%`}}
+                ></div>
               </div>
             </div>
           </Stack.Item>
@@ -109,14 +98,13 @@ const VirtualClusterItem = ({name, info, totalGpu}) => {
 VirtualClusterItem.propTypes = {
   name: PropTypes.string.isRequired,
   info: PropTypes.object.isRequired,
-  totalGpu: PropTypes.number.isRequired,
 };
 
-const VirtualCluster = ({style, userInfo, virtualClusters, totalGpu}) => {
-  const vcNames = userInfo.virtualCluster.split(',').filter((name) => !isNil(virtualClusters[name]));
+const VirtualCluster = ({style, userInfo, virtualClusters}) => {
+  const vcNames = userInfo.virtualCluster.filter((name) => !isNil(virtualClusters[name]));
   const {spacing} = getTheme();
   return (
-    <Card style={{paddingRight: spacing.m, ...style}}>
+    <Card className={t.ph5} style={{paddingRight: spacing.m, ...style}}>
       <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
@@ -125,13 +113,18 @@ const VirtualCluster = ({style, userInfo, virtualClusters, totalGpu}) => {
         </Stack.Item>
         <Stack.Item styles={{root: [t.relative]}} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
-            <Stack gap='l1'>
-              {vcNames.map((name) => (
+            <Stack>
+              {vcNames.sort(
+                (a, b) => {
+                  const wa = virtualClusters[a].dedicated ? 1 : 0;
+                  const wb = virtualClusters[b].dedicated ? 1 : 0;
+                  return wa - wb;
+                }
+              ).map((name) => (
                 <Stack.Item key={name}>
                   <VirtualClusterItem
                     name={name}
                     info={virtualClusters[name]}
-                    totalGpu={totalGpu}
                   />
                 </Stack.Item>
               ))}
@@ -147,7 +140,6 @@ VirtualCluster.propTypes = {
   style: PropTypes.object,
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
-  totalGpu: PropTypes.number.isRequired,
 };
 
 export default VirtualCluster;

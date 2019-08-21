@@ -18,11 +18,11 @@
 
 // module dependencies
 const express = require('express');
-const token = require('../middlewares/token');
-const jobController = require('../controllers/job');
-const jobParam = require('../middlewares/job');
-const jobConfig = require('../config/job');
-const param = require('../middlewares/parameter');
+const token = require('@pai/middlewares/token');
+const jobController = require('@pai/controllers/job');
+const jobParam = require('@pai/middlewares/job');
+const jobConfig = require('@pai/config/job');
+const param = require('@pai/middlewares/parameter');
 
 
 const router = new express.Router({mergeParams: true});
@@ -32,14 +32,14 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(token.check, jobParam.submission, jobController.init, jobController.update);
+    .post(token.check, jobParam.submission, jobController.init, jobController.updateAsync);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(token.check, jobParam.submission, jobController.update)
+    .put(token.check, jobParam.submission, jobController.updateAsync)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(token.check, jobController.remove);

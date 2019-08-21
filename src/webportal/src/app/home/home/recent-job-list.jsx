@@ -21,7 +21,7 @@ import {Link, PrimaryButton, DefaultButton, Stack, getTheme, FontClassNames, Det
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import Card from './card';
+import Card from '../../components/card';
 import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
 
 import t from '../../components/tachyons.scss';
@@ -72,7 +72,7 @@ const DummyContent = () => {
             <DefaultButton
               text='Tutorial'
               styles={{root: [{width: 120}]}}
-              href='https://github.com/Microsoft/pai/blob/master/docs/user/training.md'
+              href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
               target='_blank'
             />
           </Stack.Item>
@@ -166,7 +166,7 @@ const Content = ({jobs}) => {
 
 const RecentJobList = ({className, jobs}) => {
   return (
-    <Card className={c(t.h100)}>
+    <Card className={c(t.h100, t.ph5)}>
       <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
           <Header jobs={jobs} />

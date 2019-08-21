@@ -18,8 +18,8 @@
 
 const jwt = require('jsonwebtoken');
 
-const config = require('../config/token');
-const createError = require('../util/error');
+const config = require('@pai/config/token');
+const createError = require('@pai/utils/error');
 
 const createMiddleware = (throwErrorIfUnauthorized) => {
   return function(req, _, next) {
@@ -27,7 +27,11 @@ const createMiddleware = (throwErrorIfUnauthorized) => {
       let token = getToken(req);
       let result = jwt.verify(token, config.secret);
       req[config.userProperty] = result;
-    } catch (_) {
+    } catch (error) {
+      if (error.name && error.name === 'TokenExpiredError') {
+        let error = createError('Unauthorized', 'UnauthorizedUserError', 'Your token is expired.');
+        return next(error);
+      }
       if (throwErrorIfUnauthorized) {
         let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');
         return next(error);

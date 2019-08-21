@@ -46,6 +46,7 @@ class TestContainerCollector(base.TestBase):
                 "tuner",
                 "0",
                 "0,1,",
+                "application_1522829300813_1943",
                 12345)
 
         gpu_ids, labels = ContainerCollector.parse_from_labels(inspect_result, None)
@@ -55,7 +56,8 @@ class TestContainerCollector(base.TestBase):
                 "username": "openmindstudio",
                 "job_name": "trialslot_nnimain_d65bc5ac",
                 "role_name": "tuner",
-                "task_index": "0"}
+                "task_index": "0",
+                "job_instance_id": "application_1522829300813_1943"}
 
         self.assertEqual(target_labels, labels)
 

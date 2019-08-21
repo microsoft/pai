@@ -4,7 +4,7 @@
        <div class="modal-content">
          <div class="modal-header">
            <h3 class="modal-title" id="virtualClustersAddTitle">
-             Add New Virtual Cluster
+             Add New Shared VC
            </h3>
            <h5 class="modal-title">The capacity of new virtual cluster will be split from the "default" virtual cluster</h5>
          </div>
@@ -17,7 +17,7 @@
                <input name="capacity" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
              </div>
              <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListAdd">
-               Add Virtual Cluster
+               Add Shared VC
              </button>
            </div>
          </div>
@@ -30,32 +30,32 @@
 
 <!-- Modal component for vc edit -->
 <div class="modal fade" id="virtualClustersEdit" tabindex="-1" role="dialog" aria-labelledby="virtualClustersEditTitle">
-   <div class="modal-dialog">
-     <div class="modal-content">
-       <div class="modal-header">
-         <h3 class="modal-title" id="virtualClustersEditTitle">
-           Edit Virtual Cluster
-         </h3>
-       </div>
-       <div class="modal-body">
-         <div class="modal-vc-content">
-           <div class="form-group edit-group">
-             <label for="editName" class="edit-group-item">Name</label>
-             <input id="editName" name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name" readonly>
-           </div>
-           <div class="form-group edit-group">
-             <label for="editCapacity" class="edit-group-item">Capacity</label>
-             <input id="editCapacity" name="capacityEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
-           </div>
-           <div class="remarks">The new capacity can be set in range of 0%~<%= vcDefault.capacity %>%, the variation will be split from or return to default virtual cluster.</div>
-           <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListEdit">
-             Update Virtual Cluster
-           </button>
-         </div>
-       </div>
-       <div class="modal-footer">
-         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-       </div>
-     </div>
-   </div>
- </div>
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="virtualClustersEditTitle">
+        Edit Virtual Cluster
+      </h3>
+    </div>
+    <div class="modal-body">
+      <div class="modal-vc-content">
+        <div class="form-group edit-group">
+          <label for="editName" class="edit-group-item">Name</label>
+          <input id="editName" name="nameEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Name" readonly>
+        </div>
+        <div class="form-group edit-group">
+          <label for="editCapacity" class="edit-group-item">Capacity</label>
+          <input id="editCapacity" name="capacityEdit" class="add-vc-fild form-control" placeholder="Virtual Cluster Capacity">
+        </div>
+        <div class="remarks">The new capacity can be set in range of 0%~<%= vcDefault.capacity %>%, the variation will be split from or return to default virtual cluster.</div>
+        <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListEdit">
+          Update Virtual Cluster
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>
+</div>

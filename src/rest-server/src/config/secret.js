@@ -20,13 +20,23 @@
 const Joi = require('joi');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
+const authnConfig = require('@pai/config/authn');
 
-let userSecretConfig = {
-  apiServerUri: process.env.K8S_APISERVER_URI,
-  paiUserNameSpace: 'pai-user',
-  adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
-  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
-};
+let userSecretConfig = {};
+
+if (authnConfig.authnMethod !== 'OIDC') {
+  userSecretConfig = {
+    apiServerUri: process.env.K8S_APISERVER_URI,
+    paiUserNameSpace: 'pai-user',
+    adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
+    adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
+  };
+} else {
+  userSecretConfig = {
+    apiServerUri: process.env.K8S_APISERVER_URI,
+    paiUserNameSpace: 'pai-user',
+  };
+}
 
 userSecretConfig.requestConfig = () => {
   const config = {
@@ -45,21 +55,34 @@ userSecretConfig.requestConfig = () => {
   return config;
 };
 
-const userSecretConfigSchema = Joi.object().keys({
-  apiServerUri: Joi.string()
-    .required(),
-  paiUserNameSpace: Joi.string()
-    .default('pai-user'),
-  adminName: Joi.string()
-    .token()
-    .required(),
-  adminPass: Joi.string()
-    .min(6)
-    .required(),
-  requestConfig: Joi.func()
-    .arity(0)
-    .required(),
-}).required();
+let userSecretConfigSchema = {};
+if (authnConfig.authnMethod !== 'OIDC') {
+  userSecretConfigSchema = Joi.object().keys({
+    apiServerUri: Joi.string()
+      .required(),
+    paiUserNameSpace: Joi.string()
+      .default('pai-user'),
+    adminName: Joi.string()
+      .regex(/^[\w.-]+$/, 'username')
+      .required(),
+    adminPass: Joi.string()
+      .min(6)
+      .required(),
+    requestConfig: Joi.func()
+      .arity(0)
+      .required(),
+  }).required();
+} else {
+  userSecretConfigSchema = Joi.object().keys({
+    apiServerUri: Joi.string()
+      .required(),
+    paiUserNameSpace: Joi.string()
+      .default('pai-user'),
+    requestConfig: Joi.func()
+      .arity(0)
+      .required(),
+  }).required();
+}
 
 const {error, value} = Joi.validate(userSecretConfig, userSecretConfigSchema);
 if (error) {

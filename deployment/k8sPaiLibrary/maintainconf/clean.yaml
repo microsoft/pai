@@ -22,4 +22,3 @@ clean:
     - name: kubernetes-cleanup.sh
       src: deployment/k8sPaiLibrary/template/kubernetes-cleanup.sh.template
       dst: clean
-

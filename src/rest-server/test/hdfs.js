@@ -18,14 +18,14 @@
 describe('The HDFS module', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
-  const Hdfs = require('../src/util/hdfs');
+  const Hdfs = require('../src/utils/hdfs');
   const hdfs = new Hdfs(global.webhdfsUri);
-  
+
   //
   // Positive cases
   //
@@ -93,7 +93,7 @@ describe('The HDFS module', () => {
         307,
         null,
         {
-          'X-Location': global.webhdfsUri + '/webhdfs/v1/redirected' + path + '?op=CREATE'
+          'X-Location': global.webhdfsUri + '/webhdfs/v1/redirected' + path + '?op=CREATE',
         }
       );
     global.nock(global.webhdfsUri)
@@ -139,7 +139,7 @@ describe('The HDFS module', () => {
         307,
         null,
         {
-          'X-Location': global.webhdfsUri + '/webhdfs/v1/redirected' + path + '?op=OPEN'
+          'X-Location': global.webhdfsUri + '/webhdfs/v1/redirected' + path + '?op=OPEN',
         }
       );
     global.nock(global.webhdfsUri)

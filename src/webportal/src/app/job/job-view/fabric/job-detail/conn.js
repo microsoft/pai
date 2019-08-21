@@ -22,10 +22,12 @@ import qs from 'querystring';
 import {userLogout} from '../../../../user/user-logout/user-logout.component';
 import {checkToken} from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
+import {isJobV2} from './util';
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
+const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -36,7 +38,7 @@ export class NotFoundError extends Error {
 
 export async function fetchJobInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -49,7 +51,7 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/config`
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -68,7 +70,7 @@ export async function fetchRawJobConfig() {
 export async function fetchJobConfig() {
   const url = namespace
     ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
-    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -85,7 +87,7 @@ export async function fetchJobConfig() {
 
 export async function fetchSshInfo() {
   const url = namespace
-    ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/ssh`
+    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
@@ -100,6 +102,29 @@ export async function fetchSshInfo() {
   }
 }
 
+export function getTensorBoardUrl(jobInfo, rawJobConfig) {
+  let port = null;
+  let ip = null;
+  if (rawJobConfig.extras && rawJobConfig.extras.tensorBoard) {
+    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
+    const taskRoles = jobInfo.taskRoles;
+    Object.keys(taskRoles).forEach((taskRoleKey) => {
+      const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
+      if (taskStatuses.taskState === 'RUNNING'
+        && taskStatuses.containerPorts
+        && taskStatuses.containerPorts.hasOwnProperty(tensorBoardPortStr)) {
+        port = taskStatuses.containerPorts[tensorBoardPortStr];
+        ip = taskStatuses.containerIp;
+      }
+    });
+  }
+  if (isNil(port) || isNil(ip)) {
+    return null;
+  }
+  return `http://${ip}:${port}`;
+}
+
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
@@ -109,7 +134,7 @@ export function getJobMetricsUrl(jobInfo) {
   } else {
     to = jobInfo.jobStatus.completedTime;
   }
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}`: jobName}&from=${from}&to=${to}`;
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}` : jobName}&from=${from}&to=${to}`;
 }
 
 export async function cloneJob(rawJobConfig) {
@@ -123,12 +148,22 @@ export async function cloneJob(rawJobConfig) {
   // plugin
   const pluginId = get(rawJobConfig, 'extras.submitFrom');
   if (isNil(pluginId)) {
-    window.location.href = `/submit.html?${qs.stringify(query)}`;
+    if (isJobV2(rawJobConfig)) {
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+    } else {
+      window.location.href = `/submit_v1.html?${qs.stringify(query)}`;
+    }
     return;
   }
   const plugins = window.PAI_PLUGINS;
   const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
   if (pluginIndex === -1) {
+    // redirect v2 job to default submission page
+    if (isJobV2(rawJobConfig)) {
+      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      window.location.href = `/submit.html?${qs.stringify(query)}`;
+      return;
+    }
     alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
     return;
   }
@@ -139,7 +174,7 @@ export async function stopJob() {
   const flag = confirm(`Are you sure to stop ${jobName}?`);
   if (flag) {
     const url = namespace
-      ? `${config.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/executionType`
       : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     const token = checkToken();
     const res = await fetch(url, {
@@ -174,35 +209,62 @@ export async function getContainerLog(logUrl) {
   if (!res.ok) {
     throw new Error(res.statusText);
   }
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const content = doc.getElementsByClassName('content')[0];
-    const pre = content.getElementsByTagName('pre')[0];
-    ret.text = pre.innerText;
-    // fetch full log link
-    if (pre.previousElementSibling) {
-      const link = pre.previousElementSibling.getElementsByTagName('a');
-      if (link.length === 1) {
-        ret.fullLogLink = link[0].href;
-        // relative link
-        if (ret.fullLogLink && ret.fullLogLink.startsWith('/')) {
-          const url = new URL(ret.fullLogLink, res.url);
-          ret.fullLogLink = url.href;
+
+  const contentType = res.headers.get('content-type');
+  if (!contentType) {
+    throw new Error(`Log not available`);
+  }
+
+  // Check log type. The log type is in LOG_TYPE and should be yarn|log-manager.
+  if (config.logType === 'yarn') {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const content = doc.getElementsByClassName('content')[0];
+      const pre = content.getElementsByTagName('pre')[0];
+      ret.text = pre.innerText;
+      // fetch full log link
+      if (pre.previousElementSibling) {
+        const link = pre.previousElementSibling.getElementsByTagName('a');
+        if (link.length === 1) {
+          ret.fullLogLink = link[0].getAttribute('href');
+          // relative link
+          if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
+            let baseUrl = res.url;
+            // check base tag
+            const baseTags = doc.getElementsByTagName('base');
+            // There can be only one <base> element in a document.
+            if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
+              baseUrl = baseTags[0].getAttribute('href');
+              // relative base tag url
+              if (!absoluteUrlRegExp.test(baseUrl)) {
+                baseUrl = new URL(baseUrl, res.url);
+              }
+            }
+            const url = new URL(ret.fullLogLink, baseUrl);
+            ret.fullLogLink = url.href;
+          }
         }
       }
+      return ret;
+    } catch (e) {
+      throw new Error(`Log not available`);
     }
+  } else if (config.logType === 'log-manager') {
+    ret.text = text;
     return ret;
-  } catch (e) {
+  } else {
     throw new Error(`Log not available`);
   }
 }
 
 export function openJobAttemptsPage(retryCount) {
   const search = namespace ? namespace + '~' + jobName : jobName;
-  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+  const jobSessionTemplate = JSON.stringify({
+    'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
     'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
-    'abVisCols': []});
+    'abVisCols': [],
+  });
   sessionStorage.setItem('apps', jobSessionTemplate);
   window.open(config.yarnWebPortalUri);
 }

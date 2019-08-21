@@ -16,8 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const VirtualCluster = require('../models/vc');
-const createError = require('../util/error');
+const util = require('util');
+const VirtualCluster = require('@pai/models/vc');
+const createError = require('@pai/utils/error');
+const groupModel = require('@pai/models/v2/group');
+const authConfig = require('@pai/config/authn');
 
 /**
  * Validation, not allow operation to "default" vc.
@@ -66,29 +69,62 @@ const get = (req, res, next) => {
   });
 };
 
-
 /**
- * Add a vc.
+ *  Add a vc and add a group, async solution
  */
-const update = (req, res, next) => {
-  const vcName = req.params.vcName;
-  const vcCapacity = parseInt(req.body.vcCapacity);
-  const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
-  if (req.user.admin) {
-    VirtualCluster.prototype.updateVc(vcName, vcCapacity, vcMaxCapacity, (err) => {
-      if (err) {
-        return next(createError.unknown(err));
-      } else {
-        return res.status(201).json({
-          message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
-        });
+const update = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+    }
+    if (req.params.vcName === authConfig.groupConfig.defaultGroup.groupname) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
+    }
+    let operationType = 'update';
+    try {
+      const groupInfo = await groupModel.getGroup(req.params.vcName);
+      if (!groupInfo.extension.acls || groupInfo.extension.acls.virtualClusters.length !== 1 || !groupInfo.extension.acls.virtualClusters.includes(req.params.vcName)) {
+        return next(createError('Conflict', 'ConflictVcError', `Group name ${req.params.vcName} already exists.`));
       }
+    } catch (error) {
+      if (error.status !== 404) {
+        return next(createError.unknown((error)));
+      } else {
+        operationType = 'create';
+      }
+    }
+    const vcName = req.params.vcName;
+    const vcCapacity = parseInt(req.body.vcCapacity);
+    const vcMaxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : vcCapacity;
+    await util.promisify(VirtualCluster.prototype.updateVc).apply(VirtualCluster.prototype, [vcName, vcCapacity, vcMaxCapacity]);
+    if (operationType === 'update') {
+      return res.status(201).json({
+        message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
+      });
+    }
+    const groupname = req.params.vcName;
+    const extension = {
+      acls: {
+        virtualClusters: [req.params.vcName],
+      },
+    };
+    const externalName = req.body.externalName;
+    const description = req.body.description;
+    const groupValue = {
+      groupname: groupname,
+      description: description,
+      externalName: externalName,
+      extension: extension,
+    };
+    await groupModel.createGroup(groupname, groupValue);
+    await groupModel.addVCintoAdminGroup(req.params.vcName);
+    return res.status(201).json({
+      message: `create vc: ${vcName} to capacity: ${vcCapacity} successfully`,
     });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  } catch (error) {
+    return next(createError.unknown((error)));
   }
 };
-
 
 /**
  * Update vc status, changing a vc from running to stopped a vc will only prevent new job in this vc.
@@ -125,24 +161,29 @@ const updateStatus = (req, res, next) => {
   }
 };
 
-
 /**
- * Remove a vc.
+ *  Remove a vc and remove a group, async solution.
  */
-const remove = (req, res, next) => {
-  const vcName = req.params.vcName;
-  if (req.user.admin) {
-    VirtualCluster.prototype.removeVc(vcName, (err) => {
-      if (err) {
-        return next(createError.unknown(err));
-      } else {
-        return res.status(201).json({
-          message: `remove vc: ${vcName} successfully`,
-        });
-      }
+const remove = async (req, res, next) => {
+  try {
+    if (!req.user.admin) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+    }
+    if (req.params.vcName === authConfig.groupConfig.adminGroup.groupname) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `The name '${req.params.vcName}' is occupied by admin group.`));
+    }
+    if (req.params.vcName === authConfig.groupConfig.defaultGroup.groupname) {
+      return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
+    }
+    const vcName = req.params.vcName;
+    await util.promisify(VirtualCluster.prototype.removeVc).apply(VirtualCluster.prototype, [vcName]);
+    await groupModel.deleteGroup(vcName);
+    await groupModel.deleteVCfromAllGroup(vcName);
+    return res.status(201).json({
+      message: `Remove vc: ${vcName} successfully`,
     });
-  } else {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  } catch (error) {
+    return next(createError.unknown((error)));
   }
 };
 

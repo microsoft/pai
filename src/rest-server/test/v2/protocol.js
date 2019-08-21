@@ -18,8 +18,8 @@
 
 // module dependencies
 const yaml = require('js-yaml');
-const protocolSchema = require('../../src/config/v2/protocol');
-const protocolMiddleware = require('../../src/middlewares/v2/protocol');
+const protocolSchema = require('@pai/config/v2/protocol');
+const protocolMiddleware = require('@pai/middlewares/v2/protocol');
 
 
 const validprotocolObjs = {
@@ -49,7 +49,7 @@ const validprotocolObjs = {
       'train': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'caffe_example',
         'resourcePerInstance': {
@@ -122,7 +122,7 @@ const validprotocolObjs = {
       'worker': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'pytorch_example',
         'script': 'pytorch_example',
@@ -177,7 +177,7 @@ const validprotocolObjs = {
       'train': {
         'instances': 1,
         'completion': {
-          'minSucceededTaskCount': 1,
+          'minSucceededInstances': 1,
         },
         'dockerImage': 'secret_example',
         'resourcePerInstance': {
@@ -191,7 +191,7 @@ const validprotocolObjs = {
         'entrypoint': 'exit',
       },
     },
-    "deployments": {},
+    'deployments': {},
   },
 };
 
@@ -214,7 +214,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -262,7 +262,7 @@ taskRoles:
   worker:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: pytorch_example
     script: pytorch_example
     resourcePerInstance:
@@ -303,7 +303,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -333,7 +333,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -344,7 +344,7 @@ taskRoles:
 additionalProp: value
   `,
 
-  'should NOT have additional properties': `
+  '*should NOT have additional properties': `
 protocolVersion: 2
 name: caffe_mnist
 type: job
@@ -362,7 +362,7 @@ taskRoles:
   invalid-name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -405,7 +405,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -433,7 +433,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -460,7 +460,7 @@ taskRoles:
   valid_name:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: caffe_example
     resourcePerInstance:
       cpu: 4
@@ -496,6 +496,9 @@ describe('API v2 Unit Tests: protocol', () => {
   it('test protocol schema for invalid protocol', () => {
     for (let invalidMessage of Object.keys(invalidProtocolYAMLs)) {
       const invalidprotocolObj = yaml.safeLoad(invalidProtocolYAMLs[invalidMessage]);
+      if (invalidMessage[0] === '*') {
+        invalidMessage = invalidMessage.slice(1);
+      }
       expect(protocolSchema.validate(invalidprotocolObj)).to.be.false;
       expect(protocolSchema.validate.errors[0].message).to.equal(invalidMessage);
     }
@@ -516,6 +519,9 @@ describe('API v2 Unit Tests: protocol', () => {
         const errMessage = JSON.parse(err.message);
         if (invalidMessage !== 'should be equal to one of the allowed values') {
           expect(errMessage).to.have.lengthOf(1);
+        }
+        if (invalidMessage[0] === '*') {
+          invalidMessage = invalidMessage.slice(1);
         }
         expect(errMessage[0].message).to.equal(invalidMessage);
       }

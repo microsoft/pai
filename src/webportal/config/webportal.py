@@ -35,7 +35,8 @@ class Webportal:
         machine_list = self.cluster_configuration['machine-list']
         if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
             return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
-
+        if self.service_configuration['log-type'] not in ['yarn', 'log-manager']:
+            return False, '"log-type" should be yarn or log-manager'
         return True, None
 
     #### Generate the final service object model
@@ -57,12 +58,15 @@ class Webportal:
         machine_list = self.cluster_configuration['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         server_port = self.service_configuration['server-port']
+        log_type = self.service_configuration['log-type']
         uri = 'http://{0}:{1}'.format(master_ip, server_port)
         plugins = self.service_configuration['plugins']
         return {
             'server-port': server_port,
+            'log-type': log_type,
             'uri': uri,
             'plugins': json.dumps([apply_config(plugin) for plugin in plugins]),
+            'webportal-address': master_ip,
         }
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

@@ -21,6 +21,18 @@ option=$1
 
 apt-get install -y gawk
 
+
+if [ -f "/etc/systemd/system/kubelet.service" ]; then
+    systemctl stop kubelet
+    systemctl disable kubelet
+    rm -f /etc/systemd/system/kubelet.service
+    rm -f /usr/bin/openpai-kubelet.sh
+    systemctl daemon-reload
+    systemctl reset-failed
+fi
+
+
+
 docker stop kubelet
 docker rm kubelet
 

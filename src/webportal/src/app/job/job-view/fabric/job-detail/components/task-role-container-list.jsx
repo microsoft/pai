@@ -16,10 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, ColorClassNames, FontClassNames} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames, FontSizes} from '@uifabric/styling';
 import c from 'classnames';
-import {capitalize, isEmpty, isNil} from 'lodash';
-import {CommandBarButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {capitalize, isEmpty, isNil, flatten} from 'lodash';
+import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint, Icon} from 'office-ui-fabric-react';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -124,8 +124,13 @@ export default class TaskRoleContainerList extends React.Component {
     const {sshInfo} = this.context;
     const containerSshInfo = sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (!containerSshInfo) {
+      const res = [];
+      res.push('This job does not contain SSH info.');
+      res.push('Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n');
+      res.push('Solution 1: Use one of the recommended docker images on the submission page.');
+      res.push('Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.');
       this.setState({
-        monacoProps: {value: 'This job does not contain SSH info.'},
+        monacoProps: {value: res.join('\n')},
         monacoTitle: `SSH to ${id}`,
       });
     } else {
@@ -155,10 +160,10 @@ export default class TaskRoleContainerList extends React.Component {
     const columns = [
       {
         key: 'number',
-        name: 'Number',
+        name: 'No.',
         headerClassName: FontClassNames.medium,
         minWidth: 50,
-        maxWidth: 80,
+        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return !isNil(idx) && (
@@ -205,15 +210,10 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: (item) => {
           const ports = item.containerPorts;
           return !isNil(ports) && (
-            <div className={c(t.flex, t.itemsCenter)}>
-              {
-                Object.keys(ports).map((key, idx) => (
-                  <div className={c(idx !== 0 && t.ml3)} key={key}>
-                    <span>{`${key}:`}</span>
-                    <span className={t.ml2}>{ports[key]}</span>
-                  </div>
-                ))
-              }
+            <div className={c(t.truncate)}>
+              {flatten(Object.keys(ports).map(
+                (key, idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`}></span>, `${key}: ${ports[key]}`]
+              ))}
             </div>
           );
         },
@@ -223,18 +223,43 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'GPUs',
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
-        minWidth: 60,
-        maxWidth: 120,
+        minWidth: 40,
+        maxWidth: 60,
         isResizable: true,
         onRender: (item) => {
-          const gpuAttr = item.containerGpus;
-          return !isNil(gpuAttr) && (
-            <div>
-              {parseGpuAttr(gpuAttr).map((x) => (
-                <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
-              ))}
-            </div>
-          );
+          const gpuAttr = isNil(item.containerGpus) ? null : parseGpuAttr(item.containerGpus);
+          if (isNil(gpuAttr)) {
+            return null;
+          } else if (gpuAttr.length === 0) {
+            return <div>0</div>;
+          } else {
+            return (
+              <div>
+                <TooltipHost
+                  calloutProps={{
+                    isBeakVisible: false,
+                  }}
+                  tooltipProps={{
+                    onRenderContent: () => (
+                      <div>
+                        {gpuAttr.map((x) => (
+                          <span className={t.mr2} key={`gpu-${x}`}>{`#${x}`}</span>
+                        ))}
+                      </div>
+                    ),
+                  }}
+                  directionalHint={DirectionalHint.topLeftEdge}
+                >
+                  <div>
+                    <span>
+                      {gpuAttr.length}
+                      <Icon iconName='Info' styles={{root: [{fontSize: FontSizes.small, verticalAlign: 'bottom'}, t.ml2, ColorClassNames.neutralSecondary]}} />
+                    </span>
+                  </div>
+                </TooltipHost>
+              </div>
+            );
+          }
         },
       },
       {
@@ -254,7 +279,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 300,
         maxWidth: 340,
         onRender: (item) => (
-          <div className={c(t.h100, t.flex, t.justifyCenter, t.itemsCenter)}>
+          <div className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}>
             <div className={c(t.flex, t.h3)}>
               <CommandBarButton
                 className={c(FontClassNames.mediumPlus)}
@@ -276,7 +301,7 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{iconName: 'TextDocument'}}
                 text='Stdout'
                 onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
-                disabled={isNil(item.containerId)}
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
@@ -287,7 +312,7 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{iconName: 'Error'}}
                 text='Stderr'
                 onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
-                disabled={isNil(item.containerId)}
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
@@ -298,6 +323,13 @@ export default class TaskRoleContainerList extends React.Component {
                 menuIconProps={{iconName: 'More'}}
                 menuProps={{
                   items: [
+                    {
+                      key: 'mergedLog',
+                      name: 'Full log',
+                      iconProps: {iconName: 'TextDocument'},
+                      disabled: isNil(item.containerId),
+                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                    },
                     {
                       key: 'yarnTrackingPage',
                       name: 'Go to Yarn Tracking Page',
@@ -327,7 +359,7 @@ export default class TaskRoleContainerList extends React.Component {
   render() {
     const {monacoTitle, monacoProps, monacoFooterButton, logUrl} = this.state;
     const {className, style, taskInfo} = this.props;
-    const status = isNil(taskInfo) ? this.generateDummyTasks() : taskInfo.taskStatuses;
+    const status = taskInfo.taskStatuses;
     return (
       <div className={className} style={{backgroundColor: theme.palette.white, ...style}}>
         <ThemeProvider theme={theme}>

@@ -1,0 +1,25 @@
+groupDataSource: 'basic'
+
+adminGroup:
+  groupname: 'adminGroup'
+  description: 'group for admin'
+  externalName: ''
+  extension:
+    acls:
+      admin: true
+
+defaultGroup:
+  groupname: 'default'
+  description: 'group for default vc.'
+  externalName: ''
+  extension:
+    acls:
+      virtualClusters: ['default']
+
+grouplist:
+- groupname: 'testGroup'
+  description: 'group for test'
+  externalName: ''
+  extension:
+    acls:
+      virtualClusters: ['testGroup']

@@ -39,7 +39,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: mxnet_example
     data: mnist_data
     resourcePerInstance:

@@ -46,6 +46,7 @@ If REST Server is deployed by [pai management tool](../pai-management), configur
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9186.
 * `jwt-secret`: A random secret token for user authorization, keep it secret to users.
+* `jwt-expire-time`: String that repesents a timespan eg: "1d", "20h".
 * `default-pai-admin-username`: The username of default user. REST Server will auto generate it after the first start of service.
 * `default-pai-admin-password`: The password of default user.
 
@@ -58,6 +59,7 @@ If REST Server is deployed manually, the following fields should be configured a
 * `WEBHDFS_URI`: URI endpoint of WebHDFS
 * `YARN_URI`: URI endpoint of Apache Hadoop YARN
 * `ETCD_URI`: URI endpoints of ectd, could be multiple and separated by comma(`,`)
+* `LOG_MANAGER_PORT`: The port of log manager.
 * `JWT_SECRET`: A random secret token for user authorization, keep it secret to users.
 * `DEFAULT_PAI_ADMIN_USERNAME`: The username of default user. REST Server will auto generate it after the first start of service.
 * `DEFAULT_PAI_ADMIN_PASSWORD`: The password of default user.

@@ -169,6 +169,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
     public onDidChangeTreeData: Event<ITreeData> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
 
     private clusters: IClusterData[] = [];
+    private clusterLoadError: boolean[] = [];
     private readonly treeView: TreeView<ITreeData>;
     private refreshTimer: NodeJS.Timer | undefined;
 
@@ -204,6 +205,9 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                 jobs: [],
                 shownAmount: settings.get<number>(SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE)!
             }));
+            if (this.clusterLoadError.length !== this.clusters.length) {
+                this.clusterLoadError = new Array(this.clusters.length).fill(false);
+            }
             this.onDidChangeTreeDataEmitter.fire();
             if (reload) {
                 void this.reloadJobs();
@@ -337,7 +341,8 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
         if (this.refreshTimer) {
             clearTimeout(this.refreshTimer);
         }
-        const clusters: IClusterData[] = index !== -1 ? [this.clusters[index]] : this.clusters;
+
+        const clusters: IClusterData[] = index !== -1 ? [this.clusters[index]] : this.clusters ;
         await Promise.all(clusters.map(async cluster => {
             cluster.loadingState = LoadingState.Loading;
             this.onDidChangeTreeDataEmitter.fire(cluster);
@@ -347,8 +352,12 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
                     { json: true }
                 );
                 cluster.loadingState = LoadingState.Finished;
+                this.clusterLoadError[cluster.index] = false;
             } catch (e) {
-                Util.err('treeview.joblist.error', [e.message || e]);
+                if (!this.clusterLoadError[cluster.index]) {
+                    Util.err('treeview.joblist.error', [e.message || e]);
+                    this.clusterLoadError[cluster.index] = true;
+                }
                 cluster.loadingState = LoadingState.Error;
             }
             this.onDidChangeTreeDataEmitter.fire(cluster);

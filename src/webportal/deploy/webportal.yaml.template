@@ -40,6 +40,8 @@ spec:
           value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
+        - name: LOG_TYPE
+          value: {{ cluster_cfg['webportal']['log-type'] }}
         - name: YARN_WEB_PORTAL_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
         - name: GRAFANA_URI
@@ -50,6 +52,13 @@ spec:
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: EXPORTER_PORT
           value: "{{ cluster_cfg['node-exporter']['port'] }}"
+{% if not cluster_cfg['authentication']['OIDC'] %}
+        - name: AUTHN_METHOD
+          value: basic
+{% else %}
+        - name: AUTHN_METHOD
+          value: OIDC
+{% endif %}
         - name: PROM_SCRAPE_TIME
           value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
         - name: WEBPORTAL_PLUGINS

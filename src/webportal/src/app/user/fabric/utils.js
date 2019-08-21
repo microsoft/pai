@@ -17,7 +17,7 @@
 
 const Joi = require('joi-browser');
 
-const usernameSchema = Joi.string().token().required();
+const usernameSchema = Joi.string().regex(/^[\w.-]+$/, 'username').required();
 export const checkUsername = (value) => {
   const {error} = Joi.validate(value, usernameSchema);
   if (error) {
@@ -32,6 +32,16 @@ export const checkPassword = (value) => {
   const {error} = Joi.validate(value, passwordSchema);
   if (error) {
     return error.message.replace('"value"', 'Password');
+  } else {
+    return error;
+  }
+};
+
+const emailSchema = Joi.string().email().empty('');
+export const checkEmail = (value) => {
+  const {error} = Joi.validate(value, emailSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Email');
   } else {
     return error;
   }

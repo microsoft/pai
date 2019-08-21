@@ -15,7 +15,207 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Submit job: POST /api/v1/user/:username/jobs', () => {
+const schedulerResponse = {
+  'scheduler': {
+    'schedulerInfo': {
+      'queues': {
+        'queue': [
+          {
+            'queueName': 'default',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            'absoluteCapacity': 30.000002,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
+                {
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
+            },
+            'resources': {
+              'resourceUsagesByPartition': [
+                {
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            'queueName': 'vc1',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            'capacity': 50.000002,
+            'absoluteCapacity': 0,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
+                {
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
+            },
+            'resources': {
+              'resourceUsagesByPartition': [
+                {
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            'queueName': 'vc2',
+            'state': 'RUNNING',
+            'type': 'capacitySchedulerLeafQueueInfo',
+            'capacity': 19.999996,
+            'absoluteCapacity': 0,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
+                {
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
+            },
+            'resources': {
+              'resourceUsagesByPartition': [
+                {
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      'type': 'capacityScheduler',
+      'usedCapacity': 0.0,
+    },
+  },
+};
+
+const nodeResponse = {
+  'nodes': {
+    'node': [
+      {
+        'rack': '/default-rack',
+        'state': 'RUNNING',
+        'id': '10.151.40.132:8041',
+        'nodeHostName': '10.151.40.132',
+        'nodeHTTPAddress': '10.151.40.132:8042',
+        'numContainers': 2,
+        'usedMemoryMB': 3072,
+        'availMemoryMB': 205824,
+        'usedVirtualCores': 2,
+        'availableVirtualCores': 22,
+        'usedGPUs': 1,
+        'availableGPUs': 3,
+        'availableGPUAttribute': 14,
+        'nodeLabels': [
+          'test_vc',
+        ],
+      },
+      {
+        'rack': '/default-rack',
+        'state': 'RUNNING',
+        'id': '10.151.40.131:8041',
+        'nodeHostName': '10.151.40.131',
+        'nodeHTTPAddress': '10.151.40.131:8042',
+        'numContainers': 2,
+        'usedMemoryMB': 3072,
+        'availMemoryMB': 205824,
+        'usedVirtualCores': 2,
+        'availableVirtualCores': 22,
+        'usedGPUs': 1,
+        'availableGPUs': 3,
+        'availableGPUAttribute': 14,
+      },
+    ],
+  },
+};
+
+const user1Schema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '7573657231', // user1
+  },
+  'data': {
+    'email': '',
+    'extension': 'e30=', // {}
+    'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=', // ["default","vc1"]
+    'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
+    'username': 'dXNlcjE=', // user1
+  },
+  'type': 'Opaque',
+};
+
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '64656661756c74', // default
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==', // default
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque',
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '766331', // vc1
+  },
+  'data': {
+    'groupname': 'dmMx', // vc1
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque',
+};
+
+describe('Submit job: POST /api/v2/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -78,6 +278,22 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         200,
         {}
       );
+    //
+    // Mock k8s secret return result
+    //
+    nock(global.apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     // Add OS platform check
     // Since ssh-keygen package only works for Linux
@@ -146,6 +362,23 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         {}
       );
     }
+
+    //
+    // Mock k8s secret return result
+    //
+    nock(global.apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
   };
 
   const prepareNockForCaseN03 = () => {
@@ -174,42 +407,10 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
-  }
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
+  };
 
   const prepareNockForCaseN06 = (namespace, jobName) => {
     global.nock(global.launcherWebserviceUri)
@@ -221,112 +422,23 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     //
     // Mock k8s secret return result
     //
     nock(global.apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-            'name': '7573657231',
-        },
-        'data': {
-            'admin': 'ZmFsc2U=',
-            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'username': 'dXNlcjE=',
-            'virtualCluster': 'ZGVmYXVsdCx2YzE='
-        },
-        'type': 'Opaque'
-    });
-  }
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
+  };
 
-  const prepareNockForCaseN08 = (namespace, jobName) => {
-      global.nock(global.launcherWebserviceUri)
-        .get(`/v1/Frameworks/${namespace}~${jobName}`)
-        .reply(
-          404,
-          {}
-        );
-
-    nock(yarnUri)
-      .get('/ws/v1/cluster/scheduler')
-      .reply(200, {
-        'scheduler': {
-          'schedulerInfo': {
-            'queues': {
-              'queue': [
-                {
-                  'queueName': 'default',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc1',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                },
-                {
-                  'queueName': 'vc2',
-                  'state': 'RUNNING',
-                  'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                }
-              ]
-            },
-            'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
-      });
-  }
-
-  const prepareNockForCaseN09 = prepareNockForCaseN03;
-
+  const prepareNockForCaseN08 = prepareNockForCaseN03;
 
   //
   // Positive cases
@@ -334,15 +446,15 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
   it('[P-01] Submit a job to the default vc', (done) => {
     prepareNockForCaseP01('user1', 'new_job');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'});
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job', 'virtualCluster': 'default'});
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.name, 'response job name').equal('new_job');
         done();
@@ -351,16 +463,15 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
   it('[P-02] Submit a job to a valid virtual cluster', (done) => {
     prepareNockForCaseP02('user1', 'new_job_in_vc1');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1'});
-    jobConfig['virtualCluster'] = 'vc1';
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1', 'virtualCluster': 'vc1'});
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
       .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job_in_vc1');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job_in_vc1');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.name, 'response job name').equal('new_job_in_vc1');
         done();
@@ -370,29 +481,29 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[P-03] Submit a job using PUT method', (done) => {
     prepareNockForCaseP03('user1', 'new_job');
     global.chai.request(global.server)
-      .put('/api/v1/user/user1/jobs/new_job')
+      .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.name, 'response job name').equal('new_job');
         done();
       });
   });
 
-  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+  it('[P-04] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
-      .put('/api/v1/user/user1/jobs/new_job')
+      .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
-        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v1/user/user1/jobs/new_job');
+        global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job');
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
         done();
@@ -405,7 +516,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
   it('[N-01] Invalid token', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + invalidToken)
       .send({})
       .end((err, res) => {
@@ -418,13 +529,13 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
   it('[N-02] Schema checking failed', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body, 'response body content').include({ code: 'InvalidParametersError' });
+        global.chai.expect(res.body, 'response body content').include({code: 'InvalidParametersError'});
         done();
       });
   });
@@ -432,7 +543,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[N-03] Duplicated job name', (done) => {
     prepareNockForCaseN03();
     global.chai.request(global.server)
-      .post('/api/v1/user/test/jobs')
+      .post('/api/v2/user/test/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
@@ -445,7 +556,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 
   it('[N-04] Cannot connect to Launcher', (done) => {
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'another_new_job'})))
       .end((err, res) => {
@@ -460,7 +571,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[N-05] Failed to submit a job to non-exist virtual cluster.', (done) => {
     prepareNockForCaseN05('user1', 'new_job_queue_vc_non_exist');
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
       .end((err, res) => {
@@ -474,7 +585,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
   it('[N-06] Failed to submit a job to no access right virtual cluster.', (done) => {
     prepareNockForCaseN06('user1', 'new_job_vc_no_right');
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
@@ -489,7 +600,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
     const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_minFailedTaskCount'}));
     jobConfig.taskRoles[0].minFailedTaskCount = 2;
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
+      .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(jobConfig)
       .end((err, res) => {
@@ -500,24 +611,10 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
       });
   });
 
-  it('[N-08] should submit job failed when db does not have vc field', (done) => {
-    prepareNockForCaseN08('user1', 'new_job_vc_not_found');
+  it('[N-08] Duplicated job name using PUT method', (done) => {
+    prepareNockForCaseN08();
     global.chai.request(global.server)
-      .post('/api/v1/user/user1/jobs')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response error code').equal('UnknownError');
-        done();
-      });
-  });
-
-  it('[N-09] Duplicated job name using PUT method', (done) => {
-    prepareNockForCaseN09();
-    global.chai.request(global.server)
-      .put('/api/v1/user/test/jobs/job1')
+      .put('/api/v2/user/test/jobs/job1')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
@@ -527,7 +624,6 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         done();
       });
   });
-
 });
 
 describe('Submit job: POST /api/v1/jobs', () => {
@@ -590,6 +686,22 @@ describe('Submit job: POST /api/v1/jobs', () => {
         200,
         {}
       );
+    //
+    // Mock k8s secret return result
+    //
+    nock(global.apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, schedulerResponse)
+      .get('/ws/v1/cluster/nodes')
+      .reply(200, nodeResponse);
 
     // Add OS platform check
     // Since ssh-keygen package only works for Linux

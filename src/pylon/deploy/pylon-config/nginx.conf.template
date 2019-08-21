@@ -1,0 +1,118 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+worker_processes  1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include            mime.types;
+  default_type       application/octet-stream;
+  sendfile           on;
+  keepalive_timeout  65;
+
+  # Use the DNS of the host machine as nginx's resolver.
+  # TODO: Find a better way to avoid setting this manually.
+  #       For example, install a dnsmasq so that the resolver here
+  #       can be simply set to 127.0.0.1.
+  resolver 127.0.0.1;
+
+  # Turn gzip on
+  map $request_uri $routing_accept_encoding {
+    default "";
+    ~*/static "gzip";
+  }
+
+  # Add proxy etag to upstream etag
+  map $http_if_none_match $request_if_none_match {
+    volatile;
+
+    ~^(W/)?"(.+)\|{{PYLON_CONF_ETAG}}"$ $1"$2";
+  }
+
+  map $upstream_http_etag $response_etag {
+    volatile;
+
+    ~^(W/)?"(.+)"$ $1"$2|{{PYLON_CONF_ETAG}}";
+  }
+
+  server {
+    listen      80;
+    server_name localhost;
+    client_max_body_size 0; # Disable checking of client request body size.
+    client_body_buffer_size 256M;
+    proxy_connect_timeout 60m;
+    proxy_send_timeout 60m;
+    proxy_read_timeout 60m;
+    send_timeout 60m;
+
+    include location.conf;
+  }
+
+  {% if AUTH_MODE %}
+  # proxy https://x.x.x.x/rest-server/auth/oidc/return to http://x.x.x.x/rest-server/auth/oidc/return
+  server {
+    listen  443 ssl;
+    server_name  localhost;
+
+    ssl on;
+    ssl_certificate /root/{{CRT_NAME}};
+    ssl_certificate_key /root/{{KEY_NAME}};
+
+    ssl_session_timeout 40m;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_verify_client off;
+
+    include location.conf;
+
+  }
+  {% endif %}
+
+  {% if WEBHDFS_LEGACY_PORT %}
+  # Proxy 50070 to webhdfs for backward compatibility
+  server {
+    listen       {{WEBHDFS_LEGACY_PORT}};
+    server_name  localhost;
+
+    client_header_buffer_size 1m;
+    client_header_timeout 1m;
+
+    client_body_buffer_size 256m;
+    client_max_body_size 262144m;
+    client_body_timeout 1h;
+
+    location / {
+      proxy_pass  {{WEBHDFS_URI}};
+      proxy_http_version 1.1;
+
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+      proxy_pass_header Date;
+
+      proxy_buffer_size 256m;
+      proxy_buffers 8 256m;
+
+      proxy_connect_timeout 1m;
+      proxy_send_timeout 1h;
+    }
+  }
+  {% endif %}
+}

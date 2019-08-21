@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const protocolSecret = require('../src/util/protocolSecret');
+const protocolSecret = require('@pai/utils/protocolSecret');
 
 const protocolYAMLs = {
   secrets_example: `
@@ -45,7 +45,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -71,7 +71,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -108,7 +108,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4
@@ -134,7 +134,7 @@ taskRoles:
   train:
     instances: 1
     completion:
-      minSucceededTaskCount: 1
+      minSucceededInstances: 1
     dockerImage: secret_example
     resourcePerInstance:
       cpu: 4

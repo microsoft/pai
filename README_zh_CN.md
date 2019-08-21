@@ -6,6 +6,8 @@
 
 OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
+**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+
 ## 目录
 
 1. [适用场景](#适用场景)
@@ -27,41 +29,42 @@ OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理�
 
 ## 特点
 
-OpenPAI 的设计成熟可靠。在微软的大规模部署中，得到了多年持续运行的验证。
+The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
 
 ### 易于部署
 
-OpenPAI 是全栈的解决方案。 不仅支持本地、公有云及混合云中的部署，还支持单机试用的部署。
+OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
 
 ### 支持流行的 AI 框架以及异构的硬件
 
-OpenPAI 提供了预构建的支持主流 AI 框架的 Docker。 支持添加异构硬件。 支持分布式训练, 如分布式 TensorFlow。
+Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
 
 ### 全栈解决方案、易于扩展
 
-OpenPAI 是一个支持深度学习，通过虚拟集群管理，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
+OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate.
 
 ## 相关项目
 
-聚焦于开放和最前沿的技术，[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/company/introduction.aspx)还发布了其它一些开源项目。
+Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) had also released few other open source projects.
 
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 * [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
+* [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) is an open source library for large scale vector approximate nearest neighbor search scenario.
 
 ## 入门
 
-OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 通过 Docker 技术，硬件计算资源与软件相分离。这样，用户能轻松的进行分布式计算，在不同的深度学习框架间切换，也能在完全一致的环境中重复运行 Job。
+OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
 
-作为平台，OpenPAI 需要[部署](#部署)后才能使用。 OpenPAI 也支持单机部署。
+As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
 
-部署完成后，可参考[训练模型](#训练模型)。
+If the cluster is ready, learn from [train models](#train-models) about how to use it.
 
 ## 部署
 
-根据以下内容来检查先决条件，部署并验证 OpenPAI 集群。 初次部署完成后，还可以根据需要添加新的服务器。
+Follow this part to check prerequisites, deploy and validate an OpenPAI cluster. More servers can be added as needed after initial deployed.
 
-强烈建议在空闲的服务器上安装 OpenPAI。 有关硬件规范，参考[这里](https://github.com/Microsoft/pai/wiki/Resource-Requirement)。
+It's highly recommended to try OpenPAI on server(s), which has no usage and service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
 
 ### 先决条件和准备工作
 
@@ -76,53 +79,53 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 ### 部署
 
-对于小于 50 台服务器的中小型集群，参考[使用默认设置部署](#使用默认配置部署)，用最简单的方式来部署 OpoenPAI。 在默认配置的基础上，可针对不同的硬件环境和使用场景来定制优化部署方案。
+The [Deploy with default configuration](#Deploy-with-default-configuration) part is minimum steps to deploy an OpenPAI cluster, and it's suitable for most small and middle size clusters within 50 servers. Base on the default configuration, the customized deployment can optimize the cluster for different hardware environments and use scenarios.
 
 #### 使用默认配置部署
 
-对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/zh_CN/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/zh_CN/pai-management/doc/single-box.md)。
+For a small or medium size cluster, which is less than 50 servers, it's recommended to [deploy with default configuration](docs/pai-management/doc/distributed-deploy.md). if there is only one powerful server, refer to [deploy OpenPAI as a single box](docs/pai-management/doc/single-box.md).
 
-对于大型集群，仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#自定义部署)。
+For a large size cluster, this section is still needed to generate default configuration, then [customize the deployment](#customize-deployment).
 
 #### 自定义部署
 
-由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来修改。 参考[自定义部署](docs/zh_CN/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
+As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be optimized. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
 
 ### 验证部署
 
-部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/zh_CN/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/zh_CN/user/training.md) 进行端到端的验证。
+After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a hello-world job](docs/user/training.md) and check if it works end-to-end.
 
 ### 培训用户
 
-OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后再开始执行。 这和每个人在自己的服务器上运行是不同的。 用户可能会觉得，与在自己的机器上训练相比，这样无法管理计算资源，而且还需要学习如何使用 OpenPAI。 但通过 OpenPAI 来共享资源能够提高资源利用率，并显著节省维护运行的时间。
+The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
 
-对于 OpenPAI 的管理员来说，部署成功只是第一步，而第二步是让用户理解 OpenPAI 带来的好处，并学会使用它。 用户可从[训练模型](#训练模型)开始学习如何使用。 虽然下面训练模型的章节覆盖了各种场景下的方案，但用户通常不需要了解所有的方法。 因此，管理员可以根据用户的实际场景来创建更简单的文档。
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users can learn from [Train models](#train-models). But below section of training models is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
 
 ### 常见问答
 
-如果在部署过程中遇到问题，先查看[这里](docs/zh_CN/faq.md#deploy-and-maintenance-related-faqs)。
+If there is any question during deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
 
-如果还不能解决问题，通过[这里](#寻求帮助)来讨论或者提交问题。
+If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
 
 ## 训练模型
 
-与所有计算平台一样，OpenPAI 是提高生产力的工具，最大限度地利用资源。 因此，在进行模型训练时，推荐直接将任务提交到 OpenPAI，并让其分配资源来运行。 如果 Job 太多，一些 Job 会排队等待资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
+As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. If there are too many jobs, some jobs may be queued until enough resource available. This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
 
-注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接，详情参考[这里](examples/jupyter/README.md)。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
+Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### 提交训练作业
 
-参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
+Follow [the job submission tutorial](docs/user/job_submission.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### 客户端
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt_zh_CN.md) 是推荐的 OpenPAI 客户端工具，其基于图形界面，易于使用。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ### 调研 Job 错误
 
-Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
+Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH for debugging.
 
-有关调研 Job 错误的详细信息参考[这里](docs/zh_CN/user/troubleshooting_job.md)。
+Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure.
 
 ## 运维管理
 
@@ -150,15 +153,15 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 贡献者许可协议
 
-本项目欢迎任何贡献和建议。 大多数贡献都需要你同意参与者许可协议（CLA），来声明你有权，并实际上授予我们有权使用你的贡献。 有关详细信息，请访问 https://cla.microsoft.com。
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
-当你提交拉取请求时，CLA 机器人会自动检查你是否需要提供 CLA，并修饰这个拉取请求（例如，标签、注释）。 只需要按照机器人提供的说明进行操作即可。 CLA 只需要同意一次，就能应用到所有的代码仓库上。
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
-该项目采用了 [ Microsoft 开源行为准则 ](https://opensource.microsoft.com/codeofconduct/)。 有关详细信息，请参阅[行为守则常见问题解答](https://opensource.microsoft.com/codeofconduct/faq/)或联系 opencode@microsoft.com 咨询问题或评论。
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
 
 ### 征集意见建议
 
-当前，正在进行一些主要功能的改进和重构，如果熟悉这些功能，可在相应的讨论区中参与设计评审和讨论。
+We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
 
 * OpenPAI 虚拟集群设计。 [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
 * OpenPAI 协议设计。 [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
@@ -171,6 +174,6 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 贡献者
 
-OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
+One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
 OpenPAI 采用开放的形式来合作。 由[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/company/introduction.aspx) AI 平台团队联合设计开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。

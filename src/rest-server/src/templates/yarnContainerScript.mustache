@@ -32,6 +32,7 @@ RUNTIME_DOCKER_ERR_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.error
 RUNTIME_DOCKER_LOG=$LAUNCHER_LOG_DIR/runtime.docker.pai.log
 USER_STDOUT=$LAUNCHER_LOG_DIR/user.pai.stdout
 USER_STDERR=$LAUNCHER_LOG_DIR/user.pai.stderr
+USER_LOG_ALL=$LAUNCHER_LOG_DIR/user.pai.all
 DISK_CLEANER_ERROR_FILE=$LAUNCHER_LOG_DIR/diskCleaner.pai.error
 RUNTIME_AGG_ERROR_FILE=$LAUNCHER_LOG_DIR/runtime.pai.agg.error
 
@@ -137,7 +138,7 @@ function printf_file_tail_with_shift()
   local file_content=$(tail -c "$tail_char_num" "$file_name")
   while IFS= read -r line
   do
-    line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r')
+    line=$(echo $line | sed -e 's/^[[:blank:]]*//' | tr -d '\n\r' | tr -cd '[:print:]')
     echo "$shift_space$line"
   done < <(printf '%s\n' "$file_content")
 }
@@ -258,7 +259,7 @@ function exit_handler()
   # After all necessary steps, do a best effort kill here
   pid=$(docker inspect --format={{{ inspectPidFormat }}} $docker_name 2>/dev/null)
   if [[ -n "$pid" && "$pid" -gt 0 ]]; then
-    kill -15 $pid &&\
+    kill -15 $(ps -s $pid -o pid=) &&\
       printf "[DEBUG] Docker container $docker_name killed successfully." ||\
       printf "[DEBUG] Try to kill the container $docker_name but failed. Maybe it has already exited."
   fi
@@ -510,11 +511,12 @@ fi
 # Prepare docker debug log
 log_dir="tmp/pai-root/log"
 mkdir -p $log_dir
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $LAUNCHER_LOG_DIR/runtime.docker.pai.error
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $LAUNCHER_LOG_DIR/runtime.docker.pai.log
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stderr $LAUNCHER_LOG_DIR/user.pai.stderr
-ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stdout $LAUNCHER_LOG_DIR/user.pai.stdout
-ln -s $LAUNCHER_LOG_DIR/diskCleaner.pai.error /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.error $RUNTIME_DOCKER_ERR_LOG
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/runtime.docker.pai.log $RUNTIME_DOCKER_LOG
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stderr $USER_STDERR
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.stdout $USER_STDOUT
+ln -s /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/user.pai.all $USER_LOG_ALL
+ln -s $DISK_CLEANER_ERROR_FILE /$LOCAL_DIRS/$CONTAINER_ID/$log_dir/diskCleaner.pai.error
 
 # copy the hadoop configuration file
 hadoop_config_dir="hadoop_config"

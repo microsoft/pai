@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
 //
@@ -17,15 +18,19 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
-const tokenController = require('../controllers/token');
-const param = require('../middlewares/parameter');
+const tokenConfig = require('@pai/config/token');
+const param = require('@pai/middlewares/parameter');
+const userController = require('@pai/controllers/v2/user');
+const tokenV2Controller = require('@pai/controllers/v2/token');
+const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 
-router.route('/')
-    /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+if (authnConfig.authnMethod !== 'OIDC') {
+  router.route('/')
+  /** POST /api/v1/token - Return a token if username and password is correct */
+    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get);
+}
 
 // module exports
 module.exports = router;

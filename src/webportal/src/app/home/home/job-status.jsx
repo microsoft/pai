@@ -22,7 +22,7 @@ import querystring from 'querystring';
 import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme} from 'office-ui-fabric-react';
 import React from 'react';
 
-import Card from './card';
+import Card from '../../components/card';
 import {getHumanizedJobStateString} from '../../components/util/job';
 
 import t from '../../components/tachyons.scss';
@@ -80,13 +80,13 @@ const JobStatus = ({className, jobs}) => {
   let succeeded = 0;
   if (!isEmpty(jobs)) {
     waiting = jobs.filter((x) => getHumanizedJobStateString(x) === 'Waiting').length;
-    running = jobs.filter((x) => ['Running', 'Stopping'].includes(getHumanizedJobStateString(x))).length;
+    running = jobs.filter((x) => ['Running', 'Stopping', 'Completing', 'RetryPending'].includes(getHumanizedJobStateString(x))).length;
     stopped = jobs.filter((x) => getHumanizedJobStateString(x) === 'Stopped').length;
     failed = jobs.filter((x) => getHumanizedJobStateString(x) === 'Failed').length;
     succeeded = jobs.filter((x) => getHumanizedJobStateString(x) === 'Succeeded').length;
   }
   return (
-    <Card className={className}>
+    <Card className={c(className, t.ph5)}>
       <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
