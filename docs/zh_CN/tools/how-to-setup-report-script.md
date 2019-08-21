@@ -102,7 +102,7 @@ The `serve` action will start a http server so outside world can query report th
 
 Both `serve` and `report` will need `refresh` being called periodically to fetch data from underlaying source.
 
-First, log into the node you choose, put the [script](../../src/tools/reports.py) somewhere, for example, I put it in directory `/home/core/report`, edit the crontab using
+首先登录到节点中，将[脚本](../../../src/tools/reports.py)上传的某处，例如：`/home/core/report`，使用命令编辑 crontab
 
 ```sh
 crontab -e
