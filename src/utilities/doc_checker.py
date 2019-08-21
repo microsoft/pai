@@ -71,6 +71,7 @@ def check_all(doc_root):
 
                 md = markdown.Markdown(extensions=[LinkCheckerExtension(root, name)])
                 with codecs.open(path, "r", "utf-8") as f:
+                    print "analyzing", path
                     md.convert(f.read())
                 has_error = has_error or md.treeprocessors.get("link_checker").has_error
     return has_error
