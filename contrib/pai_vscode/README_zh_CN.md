@@ -78,15 +78,15 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 ## 本机模拟
 
-As it needs sometime to wait job starting in OpenPAI cluster, local simulation can help identifying and debugging most code, environment and configuration issues quickly.
+在 OpenPAI 集群中运行 Job 需要额外花费一些时间，因此在本机模拟可以更快的找到代码，以及环境和配置的问题。
 
 ### 先决条件
 
-[Docker](https://docs.docker.com/install/) MUST be installed to use local simulation.
+必须安装 [Docker](https://docs.docker.com/install/) 才能使用本机模拟。
 
 ### 步骤
 
-1. As submit a job, you can right click a configuration file to find local simulation.
+1. 与提交 Job 一样，可右击配置文件来找到本机模拟功能。
 2. Click *Simulate PAI Job Running*, after a while below notification shows.
   
       ![simulate running](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate_running.png)
