@@ -122,53 +122,53 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 - Job List
   
-      You can view jobs in OpenPAI cluster. The lists refresh periodically, and the icon shows the status of each job. You can open a job in browser with double clicking it.
+      可查看 OpenPAI 集群中的 Job。 列表会定期刷新，前面的图标显示了 Job 的状态。 可双击 Job 在浏览器中查看。
       
 
 ![job list](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
 
-### Command Palette
+### 命令面板
 
-| Name                            | Description                               |
-| ------------------------------- | ----------------------------------------- |
-| PAI: Add PAI Cluster            | Add a new OpenPAI cluster                 |
-| PAI: Open Website               | View OpenPAI cluster in browser           |
-| PAI: Submit Job to PAI Cluster  | Submit an OpenPAI job                     |
-| PAI: Create PAI Job Config File | Create an OpenPAI configuration file      |
-| PAI: Simulate PAI Job Running   | Generate Docker file for local simulation |
+| 名称                              | 说明                  |
+| ------------------------------- | ------------------- |
+| PAI: Add PAI Cluster            | 添加新的 OpenPAI 集群     |
+| PAI: Open Website               | 在浏览器中查看 OpenPAI 集群  |
+| PAI: Submit Job to PAI Cluster  | 提交 OpenPAI Job      |
+| PAI: Create PAI Job Config File | 创建 OpenPAI 配置文件     |
+| PAI: Simulate PAI Job Running   | 生成 Docker 文件并进行本机模拟 |
 
 ### PAI Cluster Explorer
 
-| Name                    | Description                                   |
-| ----------------------- | --------------------------------------------- |
-| Open Web Portal...      | Browse to OpenPAI's web portal                |
-| List Jobs...            | Open PAI's job list page in VS Code           |
-| Create Job Config...    | Create an OpenPAI configuration file          |
-| Submit Job...           | Submit an OpenPAI job                         |
-| Simulate Job Running... | Generate Docker file for local simulation     |
-| Edit Configuration...   | Edit OpenPAI cluster configuration            |
-| Open HDFS...            | Open HDFS storage explorer of OpenPAI cluster |
+| 名称                      | 说明                        |
+| ----------------------- | ------------------------- |
+| Open Web Portal...      | 浏览 OpenPAI 的门户网站          |
+| List Jobs...            | 列出 Job                    |
+| Create Job Config...    | 创建 OpenPAI 配置文件           |
+| Submit Job...           | 提交 OpenPAI Job            |
+| Simulate Job Running... | 生成 Docker 文件并进行本机模拟       |
+| Edit Configuration...   | 编辑 OpenPAI 集群配置           |
+| Open HDFS...            | 打开 OpenPAI 集群的 HDFS 存储管理器 |
 
 ### Settings
 
-| 标识                               | 说明                                                      |
-| -------------------------------- | ------------------------------------------------------- |
-| pai.job.upload.enabled           | Whether will upload files to codeDir of configuration   |
-| pai.job.upload.exclude           | Excluded files and folders for uploading                |
-| pai.job.upload.include           | Included files and folders for uploading                |
-| pai.job.generateJobName.enabled  | Whether add a random suffix to job name when submitting |
-| pai.job.jobList.recentJobsLength | The number in *Recent Submitted Jobs from VS Code*      |
-| pai.job.jobList.allJobsPageSize  | The page size of the *All Jobs* list                    |
-| pai.job.jobList.refreshInterval  | The refresh interval of job list (in seconds)           |
-| pai.hdfs.location                | Where HDFS storage will be shown                        |
+| 标识                               | 说明                                         |
+| -------------------------------- | ------------------------------------------ |
+| pai.job.upload.enabled           | 是否将文件上载到配置的 codeDir                        |
+| pai.job.upload.exclude           | 上载时排除的文件和文件夹                               |
+| pai.job.upload.include           | 上载时包含的文件和文件夹                               |
+| pai.job.generateJobName.enabled  | 是否在提交时为 Job 名称添加随机后缀                       |
+| pai.job.jobList.recentJobsLength | *Recent Submitted Jobs from VS Code* 显示的数量 |
+| pai.job.jobList.allJobsPageSize  | *All Jobs* 的页面条数                           |
+| pai.job.jobList.refreshInterval  | Job 列表的刷新间隔（秒）                             |
+| pai.hdfs.location                | 显示 HDFS 存储的位置                              |
 
 ## 问题和建议
 
-Submit at [GitHub](https://github.com/Microsoft/pai/issues)
+提交到 [GitHub](https://github.com/Microsoft/pai/issues)
 
 ## 贡献
 
-https://github.com/Microsoft/pai#how-to-contribute
+https://github.com/microsoft/pai/blob/master/README_zh_CN.md#参与贡献
 
 ## 许可证
 
