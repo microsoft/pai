@@ -87,18 +87,18 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 ### 步骤
 
 1. 与提交 Job 一样，可右击配置文件来找到本机模拟功能。
-2. Click *Simulate PAI Job Running*, after a while below notification shows.
+2. 点击 *Simulate PAI Job Running*，过一小会儿，就会看到如下的通知。
   
       ![simulate running](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate_running.png)
       
 
-3. you can click on *Simulate first task in VS Code terminal* to simulate directly, or *Reveal in Explorer* to view created docker files and start simulation manually.
+3. 可点击 *Simulate first task in VS Code terminal* 直接模拟运行，或点击 *Reveal in Explorer* 来查看创建的 Docker 文件，并手动运行模拟。
 
 此动画显示了上述步骤。 ![simulate job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/simulate-job.gif)
 
 ### 局限性
 
-As local simulation is a close but still different environment with OpenPAI cluster, there are some issues cannot be found by simulation. Some examples,
+本机模拟与在 OpenPAI 集群中运行相近，但仍有些区别，因此有些问题无法通过模拟来发现。 比如：
 
 - The job may need much more memory or distributed environments. It cannot be simulated locally.
 - The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
