@@ -135,7 +135,7 @@ A: If default Docker cache path is set to a disk with small disk space, the path
 
 3. Change the Docker cache path on OpenPAI node using data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)
 
-4. Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. See sample [layout.yaml](../examples/cluster-configuration/layout.yaml#L55)
+4. Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. 参考示例：[layout.yaml](../../examples/cluster-configuration/layout.yaml#L55)
 
 5. Restart k8s cluster with updated config.  
         sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config
