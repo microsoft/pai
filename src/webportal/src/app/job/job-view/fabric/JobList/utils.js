@@ -38,6 +38,9 @@ function generateStatus(job) {
   } else if (job.state === 'COMPLETING') {
     job._statusText = 'Completing';
     job._statusIndex = 2;
+  } else if (job.state === 'RETRY_PENDING') {
+    job._statusText = 'RetryPending';
+    job._statusIndex = 2;
   } else if (job.state === 'SUCCEEDED') {
     job._statusText = 'Succeeded';
     job._statusIndex = 3;

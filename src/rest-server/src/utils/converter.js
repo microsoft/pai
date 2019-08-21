@@ -56,7 +56,7 @@ const protocolConvert = async (jobConfig, submission=false) => {
         taskRoles: {},
       },
     ],
-    default: {
+    defaults: {
       virtualCluster: jobConfig.virtualCluster || 'default',
       deployment: 'default',
     },

@@ -342,7 +342,7 @@ class Job {
   putJobExecutionType(name, namespace, data, next) {
     const frameworkName = namespace ? `${namespace}~${name}` : name;
     unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
-      .headers(launcherConfig.webserviceRequestHeaders(namespace))
+      .headers(launcherConfig.webserviceRequestHeaders(data.username))
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
@@ -350,7 +350,7 @@ class Job {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(frameworkName))
-            .headers(launcherConfig.webserviceRequestHeaders(namespace))
+            .headers(launcherConfig.webserviceRequestHeaders(data.username))
             .send({'executionType': data.value})
             .end((requestRes) => {
               if (requestRes.status !== 202) {

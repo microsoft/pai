@@ -15,35 +15,94 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-getTokenTemplate = JSON.stringify({
+const getTokenTemplate = JSON.stringify({
   'username': '{{username}}',
-  'password': '{{password}}'
+  'password': '{{password}}',
 });
+
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'cantest001',
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque',
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test',
+  },
+  'data': {
+    'groupname': 'dmMx',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque',
+};
+
+const vc2GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_1',
+  },
+  'data': {
+    'groupname': 'dmMy',
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+  },
+  'type': 'Opaque',
+};
+
+const adminGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': 'pai_test_2',
+  },
+  'data': {
+    'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+  },
+  'type': 'Opaque',
+};
 
 
 //
 // Get a valid token that expires in 60 seconds.
 //
 
-const validToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
-const invalidToken = '';
-const expireToken = global.jwt.sign({ username: 'test_user', admin: true }, process.env.JWT_SECRET, { expiresIn: '1s' });
+const validToken = global.jwt.sign({username: 'test_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
+// const invalidToken = '';
+const expireToken = global.jwt.sign({username: 'test_user', admin: true}, process.env.JWT_SECRET, {expiresIn: '1s'});
 
 describe('user token test: post /api/v1/authn/basic/login', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // mock for case 1 username=tokentest
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
-      .twice()
+      .times(3)
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
@@ -55,10 +114,20 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
             'username': 'dG9rZW50ZXN0',
             'grouplist': 'WyJhZG1pbkdyb3VwIl0=',
             'extension': 'e30=',
-            'email': 'dGVzdEBwYWkuY29t'
+            'email': 'dGVzdEBwYWkuY29t',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
     });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766332')
+      .reply(200, vc2GroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .reply(200, adminGroupSchema);
 
     nock(apiServerRootUri)
     .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
@@ -71,23 +140,22 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
       'reason': 'NotFound',
       'details': {
           'name': 'nonexist',
-          'kind': 'secrets'
+          'kind': 'secrets',
       },
-      'code': 404
+      'code': 404,
     });
-
   });
 
   //
   // Positive cases
   //
 
-  it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
+  it('Case 1 (Positive): Return valid token with right username and password', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': '123456' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'tokentest', 'password': '123456'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
@@ -103,7 +171,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'tokentest', 'password': 'abcdef' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'tokentest', 'password': 'abcdef'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -116,7 +184,7 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'nonexist', 'password': 'abcdef' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'nonexist', 'password': 'abcdef'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -139,6 +207,4 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         });
     }, 2);
   });
-
-
 });
