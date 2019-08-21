@@ -20,7 +20,7 @@ Python_Version=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
 if [ $Python_Version -eq 3 ];then
     pip install nvidia-ml-py3
 elif [ $Python_Version -eq 2 ];then
-    pip install nvidia-ml-py2
+    pip install nvidia-ml-py
 fi
 
 param_num=$#

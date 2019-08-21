@@ -270,8 +270,8 @@ def analyze_samples(sample_list):
 def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid):
     if not os.path.exists('./' + dir):
         os.mkdir(dir)
-    realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w', newline=''))
-    analyze_log = csv.writer(open('./' + dir + '/analyze_result.csv', 'w', newline=''))
+    realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w'))  # , newline=''))
+    analyze_log = csv.writer(open('./' + dir + '/analyze_result.csv', 'w'))  # , newline=''))
 
     str_write_realtime = ['cpu_usage', 'mem_used', 'IO_read', 'IO_write', 'network_receive', 'network_transmit']
     for i in range(len(gpu_id)):
