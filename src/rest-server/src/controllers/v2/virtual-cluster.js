@@ -27,7 +27,7 @@ const authConfig = require('@pai/config/authn');
 const validate = (req, res, next, virtualClusterName) => {
   if (! /^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
     throw createError('Bad Request', 'InvalidParametersError', 'VC name should only contain alpha-numeric and underscore characters');
-  } else if (virtualCluster === 'default' && req.method !== 'GET') {
+  } else if (virtualClusterName === 'default' && req.method !== 'GET') {
     throw createError('Forbidden', 'ForbiddenUserError', 'Update operation to default vc isn\'t allowed');
   } else {
     return next();
@@ -80,7 +80,7 @@ const update = asyncHandler(async (req, res) => {
   const maxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : capacity;
   await virtualCluster.update(virtualClusterName, capacity, maxCapacity);
   if (operationType === 'update') {
-    return res.status('Created').json({
+    return res.status(status('Created')).json({
       status: status('Created'),
       message: `Update virtual cluster ${virtualClusterName} to capacity ${capacity} successfully.`,
     });
@@ -101,7 +101,7 @@ const update = asyncHandler(async (req, res) => {
   };
   await groupModel.createGroup(groupname, groupValue);
   await groupModel.addVCintoAdminGroup(virtualClusterName);
-  return res.status('Created').json({
+  return res.status(status('Created')).json({
     status: status('Created'),
     message: `Create virtual cluster ${virtualClusterName} to capacity ${capacity} successfully.`,
   });
@@ -109,22 +109,22 @@ const update = asyncHandler(async (req, res) => {
 
 const updateStatus = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
-  const status = req.body.vcStatus;
+  const vcStatus = req.body.vcStatus;
   if (req.user.admin) {
-    if (status === 'stopped') {
+    if (vcStatus === 'stopped') {
       await virtualCluster.stop(virtualClusterName);
-      res.status('Created').json({
+      res.status(status('Created')).json({
         status: status('Created'),
         message: `Stop virtual cluster ${virtualClusterName} successfully.`,
       });
-    } else if (status === 'running') {
+    } else if (vcStatus === 'running') {
       await virtualCluster.activate(virtualClusterName);
-      res.status('Created').json({
+      res.status(status('Created')).json({
         status: status('Created'),
         message: `Activate virtual cluster ${virtualClusterName} successfully.`,
       });
     } else {
-      throw createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${status}`);
+      throw createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${vcStatus}`);
     }
   } else {
     throw createError('Forbidden', 'ForbiddenUserError', 'Non-admin is not allowed to do this operation.');
@@ -145,7 +145,7 @@ const remove = asyncHandler(async (req, res) => {
   await virtualCluster.remove(virtualClusterName);
   await groupModel.deleteGroup(virtualClusterName);
   await groupModel.deleteVCfromAllGroup(virtualClusterName);
-  res.status('Created').json({
+  res.status(status('Created')).json({
     status: status('Created'),
     message: `Remove virtual cluster ${virtualClusterName} successfully.`,
   });

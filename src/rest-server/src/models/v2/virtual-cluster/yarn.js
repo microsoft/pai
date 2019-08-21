@@ -23,13 +23,6 @@ const xml2js = require('xml2js');
 const yarnConfig = require('@pai/config/yarn');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
-const dbUtility = require('@pai/utils/dbUtil');
-const secretConfig = require('@pai/config/secret');
-
-const db = dbUtility.getStorageObject('UserSecret', {
-  'paiUserNameSpace': secretConfig.paiUserNameSpace,
-  'requestConfig': secretConfig.requestConfig(),
-});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
@@ -313,22 +306,6 @@ class VirtualCluster {
             if (err) {
               return callback(err);
             } else {
-              // update admin users' permission
-              try {
-                const userList = await db.get('', null);
-                for (const user of userList) {
-                  if (user.admin === 'true') {
-                    const vc = user.virtualCluster.trim().split(',');
-                    if (!vc.find((x) => x === vcName)) {
-                      vc.push(vcName);
-                    }
-                    user.virtualCluster = vc.join(',');
-                    await db.set(user.username, user, {update: true});
-                  }
-                }
-              } catch (e) {
-                return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
-              }
               return callback(null);
             }
           });
@@ -465,19 +442,6 @@ class VirtualCluster {
                     }
                   });
                 } else {
-                  // update permission
-                  try {
-                    const userList = await db.get('', null);
-                    for (const user of userList) {
-                      const vc = user.virtualCluster.trim().split(',');
-                      if (vc.find((x) => x === vcName)) {
-                        user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
-                        await db.set(user.username, user, {update: true});
-                      }
-                    }
-                  } catch (e) {
-                    return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
-                  }
                   return callback(null);
                 }
               });

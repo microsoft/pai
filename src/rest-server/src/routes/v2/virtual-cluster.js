@@ -19,7 +19,8 @@
 const express = require('express');
 const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/virtual-cluster');
-
+const param = require('@pai/middlewares/parameter');
+const vcConfig = require('@pai/config/vc');
 
 const router = new express.Router();
 
@@ -35,13 +36,13 @@ router.route('/:virtualClusterName')
   /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
   .get(controller.get)
   /** PUT /api/v2/virtual-clusters/:virtualClusterName - Create a virtual cluster */
-  .put(token.check, controller.update)
+  .put(token.check, param.validate(vcConfig.vcCreateInputSchema), controller.update)
   /** DELETE /api/v2/virtual-clusters/:virtualClusterName - Remove a virtual cluster */
   .delete(token.check, controller.remove);
 
 router.route('/:virtualClusterName/status')
   /** PUT /api/v2/virtual-clusters/:virtualClusterName - Change virtual cluster status (running or stopped) */
-  .put(token.check, controller.updateStatus);
+  .put(token.check, param.validate(vcConfig.vcStatusPutInputSchema), controller.updateStatus);
 
 router.route('/:virtualClusterName/resourceUnits')
   /** GET /api/v2/virtual-clusters/:virtualClusterName/resourceUnits - Get virtual cluster available resourceUnits */
