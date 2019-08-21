@@ -34,26 +34,35 @@
     4. Monitor the job
     
         Check the list of jobs at:
-        ```
+
+        ```url
         http://restserver/api/v1/jobs
         ```
+
         or
-        ```
+
+        ```url
         http://restserver/api/v1/user/:username/jobs
         ```
+
         Check your exampleJob status at:
-        ```
+
+        ```url
         http://restserver/api/v1/user/:username/jobs/exampleJob
         ```
+
         Get the job config JSON content:
-        ```
+
+        ```url
         http://restserver/api/v1/user/:username/jobs/exampleJob/config
         ```
+
         Get the job's SSH info:
-        ```
+
+        ```url
         http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
         ```
-    
+
     # RestAPI
     
     ## Root URI
@@ -65,12 +74,12 @@
     ### `POST token`
     
     Authenticated and get an access token in the system.
-    
+
     *Request*
     
     ```json
     POST /api/v1/token
-    
+    ```
 
 *Parameters*
 
