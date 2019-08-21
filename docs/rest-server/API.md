@@ -945,7 +945,7 @@ Admin can change a group's extension.
 *Request*
 
 ```
-POST /api/v2/group/:groupname/extension
+PUT /api/v2/group/:groupname/extension
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -1086,7 +1086,7 @@ Admin can change a group's description.
 *Request*
 
 ```
-POST /api/v2/group/:groupname/description
+PUT /api/v2/group/:groupname/description
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -1148,7 +1148,7 @@ Admin can change a group's externalname, and bind it with another external group
 *Request*
 
 ```
-POST /api/v2/group/:groupname/externalname
+PUT /api/v2/group/:groupname/externalname
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
