@@ -119,7 +119,10 @@ class VirtualCluster {
         try {
           const resJson = typeof res.body === 'object' ?
             res.body : JSON.parse(res.body);
-          const nodeInfo = resJson.nodes.node;
+          let nodeInfo = [];
+          if (resJson.nodes && resJson.nodes.node) {
+            nodeInfo = resJson.nodes.node;
+          }
           let labeledResource = this.getResourceByLabel(nodeInfo);
           let labeledNodes = this.getNodesByLabel(nodeInfo);
           for (let vcName of Object.keys(vcInfo)) {
@@ -239,7 +242,10 @@ class VirtualCluster {
         try {
           const resJson = typeof res.body === 'object' ?
             res.body : JSON.parse(res.body);
-          const nodeInfo = resJson.nodes.node;
+          let nodeInfo = [];
+          if (resJson.nodes && resJson.nodes.node) {
+            nodeInfo = resJson.nodes.node;
+          }
           const nodeResource = {};
           for (let node of nodeInfo) {
             nodeResource[node.nodeHostName] = {
