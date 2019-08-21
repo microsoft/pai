@@ -17,38 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary"
-
-# When changing the patch id, please update it.
-patchId="12940533-12933562-docker_executor-12944563-fix1-20190819"
-
-hadoopBinaryPath="${hadoopBinaryDir}/hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}/${patchId}-done"
-
-
-echo "Hadoop binary path: ${hadoopBinaryDir}"
-
-[[ -f ${cacheVersion} ]] && [[ -f ${hadoopBinaryPath} ]] && [[ ${cacheVersion} -ot ${hadoopBinaryPath} ]] &&
-{
-    echo "Hadoop ai with patch ${patchId} has been built"
-    echo "Skip this build precess"
-    exit 0
-}
-
-[[ ! -f "${hadoopBinaryPath}" ]] ||
-{
-
-    rm -rf ${hadoopBinaryPath}
-
-}
-
-rm ${hadoopBinaryDir}/*-done
-touch ${cacheVersion}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
 
 popd > /dev/null
