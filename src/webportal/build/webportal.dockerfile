@@ -27,6 +27,8 @@ COPY . .
 
 RUN yarn --no-git-tag-version --new-version version \
     "$(cat version/PAI.VERSION)"
+RUN npm install json -g
+RUN json -I -f package.json -e "this.commitVersion=\"`cat version/COMMIT.VERSION`\""
 RUN yarn install
 RUN npm run build
 
