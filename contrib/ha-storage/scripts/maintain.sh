@@ -5,7 +5,9 @@ STATE=${1}
 # constants
 source .env
 resource="drbdha"
-logpath=${LOG_PATH}/actions.log
+DRBD_DEVICE="/dev/drbd0"
+MOUNT_PATH='/data/share/drbdha'
+logpath="/var/log/drbdha/actions.log"
 hostname=$(hostname)
 _docker_adm='/usr/bin/docker'
 _docker_name='paismb'
@@ -102,4 +104,6 @@ case ${STATE} in
     ;;
 esac
 
-python3 /etc/drbdha/sendha.py CHANGE_TO_${STATE} ${hostname}
+if [ -f "/etc/drbdha/sendha.py" ];then
+  python3 /etc/drbdha/sendha.py CHANGE_TO_${STATE} ${hostname}
+fi

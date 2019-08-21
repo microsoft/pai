@@ -14,7 +14,7 @@ error="error"
 
 writelogs() {
   local curtime=$(date "+%F-%H:%M:%S")
-  echo "${curtime} [${hostname}] $@" &>> "${LOG_PATH}/actions.log"
+  echo "${curtime} [${hostname}] $@" &>> "/var/log/drbdha/actions.log"
 }
 
 checkDRBD() {
@@ -65,7 +65,9 @@ checkStatus() {
   if [[ "${error}" != "error" ]]; then
     writelogs "checkStatus: " ${error}
     writelogs "chaha.timer: stopped"
-    python3 /etc/drbdha/sendha.py ${hostname} CHKERROR
+    if [ -f "/etc/drbdha/sendha.py" ];then
+      python3 /etc/drbdha/sendha.py ${hostname} CHKERROR
+    fi
     systemctl stop chkha.timer
   else
     writelogs "checkStatus: " "All services succeeded"

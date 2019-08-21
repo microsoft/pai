@@ -1,5 +1,5 @@
 resource drbdha {
-  device ${DRBD_DEVICE};
+  device /dev/drbd0;
   disk ${DISK};
   meta-disk internal;
   on ${MASTER_HOSTNAME} {

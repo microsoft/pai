@@ -61,14 +61,16 @@ ha-storage
 In this sub-section, you will copy conf files, scripts, and services to specific folders. Please modify the ```.env.template``` first and rename it to ```.env```.
 
 ```sh
-export DRBD_DEVICE=""      # DRBD device name such as "/dev/drbd0"
 export DISK=""             # Disk name such as "/dev/sda1"
 export MASTER_HOSTNAME=""  # Master (primary DRBD host) hostname
 export MASTER_IP=""        # Master host ip
 export BACKUP_HOSTNAME=""  # Backup (secondary DRBD host) hostname
 export BACKUP_IP=""        # Backup host ip
-export LOG_PATH=""         # log path
-export MOUNT_PATH=""       # mount point of DRBD device
+```
+
+```sh
+# These vars are optional
+# If these vars are not set, no email will be sent
 export SMTP_HOST=""        # smtp host to send emails
 export SMTP_PORT=""        # smtp host port
 export SMTP_USER=""        # smtp host user

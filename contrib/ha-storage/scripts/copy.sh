@@ -2,10 +2,15 @@
 
 source ../.env
 envsubst < ../conf/drbdha.res.template > ../conf/drbdha.res
-envsubst < ./sendha.py.template > ./sendha.py
+if [ -n "$SMTP_HOST" ] && [ -n "$SMTP_PORT" ] && [ -n "$SMTP_USER" ] && [ -n "$SMTP_PASS" ] && [ -n "$SMTP_RECIPIENT" ]; then 
+  envsubst < ./sendha.py.template > ./sendha.py
+else
+  echo "Skip configuring emails"
+fi
 echo "Make dirs"
 mkdir -p /etc/drbdha
 mkdir -p /var/log/drbdha
+mkdir -p /data/share/drbdha
 echo "Copy Scripts"
 cp ../scripts/* /etc/drbdha
 chmod +x /etc/drbdha/*
