@@ -84,6 +84,7 @@ class TransferClient:
 
     def load_v2_groups(self):
         ns_pai_group_list = self.list_all_secrets_from_namespace(self.secret_ns_group_v2)
+        print(ns_pai_group_list)
         decode_group_list = []
         vc_set = set()
         for group in ns_pai_group_list:
