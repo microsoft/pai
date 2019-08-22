@@ -24,7 +24,6 @@
  */
 
 import React, {useCallback} from 'react';
-import {Text, Stack, FontWeights, Link} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {FormTextField} from './form-text-field';
 import {FormPage} from './form-page';
@@ -63,16 +62,6 @@ export const JobInformation = React.memo(({jobInformation, onChange, advanceFlag
   return (
     <Card>
       <FormPage>
-        <Stack horizontal gap='m' verticalAlign='baseline'>
-          <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
-            Job submission
-          </Text>
-          <Link
-            target='_blank'
-            href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
-            style={{fontWeight: FontWeights.semibold}}
-          >{'Learn more >'}</Link>
-        </Stack>
         <FormTextField
           sectionLabel={'Job name'}
           sectionTooltip={PROTOCOL_TOOLTIPS.jobName}

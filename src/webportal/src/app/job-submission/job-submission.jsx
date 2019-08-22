@@ -5,7 +5,7 @@
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -23,305 +23,145 @@
  * SOFTWARE.
  */
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
-import React, {useState, useCallback, useEffect, useMemo} from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {
   Fabric,
   Stack,
-  initializeIcons,
-  StackItem,
+  Text,
+  DefaultButton,
+  getTheme,
+  FontSizes,
+  FontWeights,
 } from 'office-ui-fabric-react';
-import {isEmpty, get} from 'lodash';
+import uploadRoot from '../../assets/img/upload-root.svg';
+import uploadHover from '../../assets/img/upload-hover.svg';
+import singleRoot from '../../assets/img/single-root.svg';
+import singleHover from '../../assets/img/single-hover.svg';
+import distributeRoot from '../../assets/img/distribute-root.svg';
+import distributeHover from '../../assets/img/distribute-hover.svg';
 
-import {JobInformation} from './components/job-information';
-import {getFormClassNames} from './components/form-style';
-import {SubmissionSection} from './components/submission-section';
-import {TaskRoles} from './components/task-roles';
-import Context from './components/context';
-import {listUserVirtualClusters} from './utils/conn';
-import {TaskRolesManager} from './utils/task-roles-manager';
-import {initTheme} from '../components/theme';
+import {JobSubmissionPage} from './job-submission-page';
+import Card from '../components/card';
 
-// sidebar
-import {Parameters} from './components/sidebar/parameters';
-import {Secrets} from './components/sidebar/secrets';
-import {EnvVar} from './components/sidebar/env-var';
-import {DataComponent} from './components/data/data-component';
-import {ToolComponent} from './components/tools/tool-component';
-// models
-import {JobBasicInfo} from './models/job-basic-info';
-import {JobTaskRole} from './models/job-task-role';
-import {JobData} from './models/data/job-data';
-import {JobProtocol} from './models/job-protocol';
+const {spacing, palette} = getTheme();
 
-initTheme();
-initializeIcons();
+const IconStyle = {
+  root: {
+    borderRadius: '100%',
+    backgroundColor: 'white',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: '30%',
+    boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
+    width: 300,
+    height: 300,
+  },
+  hover: {
+    borderRadius: '100%',
+    backgroundColor: 'white',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: '30%',
+    borderColor: palette.themePrimary,
+    borderWidth: 3,
+    width: 300,
+    height: 300,
+  },
+};
 
-const formLayout = getFormClassNames().formLayout;
-
-const SIDEBAR_PARAM = 'param';
-const SIDEBAR_SECRET = 'secret';
-const SIDEBAR_ENVVAR = 'envvar';
-const SIDEBAR_DATA = 'data';
-const SIDEBAR_TOOL = 'tool';
-
-const loginUser = cookies.get('user');
-
-const JobSubmission = () => {
-  const [jobTaskRoles, setJobTaskRolesState] = useState([
-    new JobTaskRole({name: 'Default_Task_Role'}),
-  ]);
-  const [parameters, setParametersState] = useState([{key: '', value: ''}]);
-  const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
-  const [jobInformation, setJobInformation] = useState(
-    new JobBasicInfo({
-      name: `${loginUser}_${Date.now()}`,
-      virtualCluster: 'default',
-    }),
-  );
-  const [selected, setSelected] = useState(SIDEBAR_PARAM);
-  const [advanceFlag, setAdvanceFlag] = useState(false);
-  const [jobData, setJobData] = useState(new JobData());
-  const [extras, setExtras] = useState({});
-  const [initJobProtocol, setInitJobProtocol] = useState(new JobProtocol({}));
-
-  // Context variables
-  const [vcNames, setVcNames] = useState([]);
-  const [errorMessages, setErrorMessages] = useState({});
-
-  useEffect(() => {
-    // docker info will be updated in-place
-    const preTaskRoles = JSON.stringify(jobTaskRoles);
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    taskRolesManager.populateTaskRolesDockerInfo();
-    const [
-      updatedSecrets,
-      isUpdated,
-    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
-
-    const curTaskRoles = JSON.stringify(jobTaskRoles);
-    if (preTaskRoles !== curTaskRoles) {
-      setJobTaskRolesState(jobTaskRoles);
-    }
-
-    if (isUpdated) {
-      setSecrets(updatedSecrets);
-    }
-  }, [jobTaskRoles]);
-
-  const setJobTaskRoles = useCallback(
-    (taskRoles) => {
-      if (isEmpty(taskRoles)) {
-        setJobTaskRolesState([new JobTaskRole({name: 'Task_role_1'})]);
-      } else {
-        setJobTaskRolesState(taskRoles);
-      }
-    },
-    [setJobTaskRolesState],
-  );
-
-  useEffect(() => {
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(
-      secrets,
-    );
-    if (isUpdated) {
-      taskRolesManager.populateTaskRolesDockerInfo();
-      setJobTaskRoles(jobTaskRoles);
-    }
-  }, [secrets]);
-
-  const setParameters = useCallback(
-    (param) => {
-      if (isEmpty(param)) {
-        setParametersState([{key: '', value: ''}]);
-      } else {
-        setParametersState(param);
-      }
-    },
-    [setParametersState],
-  );
-
-  const setSecrets = useCallback(
-    (secret) => {
-      if (isEmpty(secret)) {
-        setSecretsState([{key: '', value: ''}]);
-      } else {
-        setSecretsState(secret);
-      }
-    },
-    [setSecretsState],
-  );
-
-  const onSelect = useCallback(
-    (x) => {
-      if (x === selected) {
-        setSelected(null);
-      } else {
-        setSelected(x);
-      }
-    },
-    [selected, setSelected],
-  );
-
-  const setErrorMessage = useCallback(
-    (id, msg) => {
-      setErrorMessages((prev) => {
-        if (isEmpty(msg)) {
-          if (prev !== undefined && prev[id] !== undefined) {
-            const updated = {...prev};
-            delete updated[id];
-            return updated;
-          }
-        } else {
-          if (prev !== undefined && prev[id] !== msg) {
-            return {
-              ...prev,
-              [id]: msg,
-            };
-          }
-        }
-        return prev;
-      });
-    },
-    [setErrorMessages],
-  );
-
-  const contextValue = useMemo(
-    () => ({
-      vcNames,
-      errorMessages,
-      setErrorMessage,
-    }),
-    [vcNames, errorMessages, setErrorMessage],
-  );
-
-  useEffect(() => {
-    listUserVirtualClusters(loginUser)
-      .then((virtualClusters) => {
-        setVcNames(virtualClusters);
-      })
-      .catch(alert);
-  }, []);
-
-  const onToggleAdvanceFlag = useCallback(() => {
-    setAdvanceFlag(!advanceFlag);
-  }, [advanceFlag, setAdvanceFlag]);
-
-  const selectParam = useCallback(() => onSelect(SIDEBAR_PARAM), [onSelect]);
-  const selectSecret = useCallback(() => onSelect(SIDEBAR_SECRET), [onSelect]);
-  const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
-  const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
-  const selectTool = useCallback(() => onSelect(SIDEBAR_TOOL), [onSelect]);
+const JobWizard = () => {
+  const [wizardStatus, setWizardStatus] = useState('wizard');
 
   return (
-    <Context.Provider value={contextValue}>
-      <Fabric style={{height: '100%', overflowX: 'auto'}}>
-        <Stack
-          className={formLayout}
-          styles={{root: {height: '100%', minWidth: 1000}}}
-          verticalAlign='space-between'
-          gap='l1'
-        >
-          {/* top - form */}
-          <Stack
-            styles={{root: {minHeight: 0}}}
-            horizontal
-            gap='l1'
-          >
-            {/* left column */}
-            <StackItem grow styles={{root: {minWidth: 600, flexBasis: 0}}}>
-              <Stack
-                gap='l1'
-                styles={{root: {height: '100%'}}}
-              >
-                <JobInformation
-                  jobInformation={jobInformation}
-                  onChange={setJobInformation}
-                  advanceFlag={advanceFlag}
+    <Fabric style={{height: '100%'}}>
+      {wizardStatus === 'wizard' &&
+        <Card style={{height: '90%', margin: `${spacing.l2}`}}>
+          <Stack horizontalAlign='center' padding={100} gap={100}>
+            <Text styles={{root: {color: palette.themePrimary, fontSize: FontSizes.xxLarge, fontWeight: FontWeights.semibold, alignItems: 'center', position: 'absolute'}}}>
+              Select your job type
+            </Text>
+            <Stack
+              horizontal
+              horizontalAlign='center'
+              gap={100}
+              style={{width: '100%', marginTop: 100}}
+            >
+              <Stack horizontalAlign='center' gap={50}>
+                <DefaultButton
+                  styles={{
+                    root: {
+                      backgroundImage: `url(${uploadRoot})`,
+                      ...IconStyle.root,
+                    },
+                    rootHovered: {
+                      backgroundImage: `url(${uploadHover})`,
+                      ...IconStyle.hover,
+                    },
+                  }}
                 />
-                <TaskRoles
-                  taskRoles={jobTaskRoles}
-                  onChange={setJobTaskRoles}
-                  advanceFlag={advanceFlag}
-                />
+                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+                  Import Config
+                </Text>
               </Stack>
-            </StackItem>
-            {/* right column */}
-            <StackItem shrink styles={{root: {overflowX: 'auto'}}}>
-              <Stack gap='l1' styles={{root: {height: '100%', width: 550}}}>
-                <Parameters
-                  parameters={parameters}
-                  onChange={setParameters}
-                  selected={selected === SIDEBAR_PARAM}
-                  onSelect={selectParam}
+              <Stack horizontalAlign='center' gap={50}>
+                <DefaultButton
+                  styles={{
+                    root: {
+                      backgroundImage: `url(${singleRoot})`,
+                      ...IconStyle.root,
+                    },
+                    rootHovered: {
+                      backgroundImage: `url(${singleHover})`,
+                      ...IconStyle.hover,
+                    },
+                  }}
+                  onClick={() => {
+                    setWizardStatus('single');
+                  }}
                 />
-                <Secrets
-                  secrets={secrets}
-                  onChange={setSecrets}
-                  selected={selected === SIDEBAR_SECRET}
-                  onSelect={selectSecret}
-                />
-                <EnvVar
-                  selected={selected === SIDEBAR_ENVVAR}
-                  onSelect={selectEnv}
-                />
-                <DataComponent
-                  selected={selected === SIDEBAR_DATA}
-                  onSelect={selectData}
-                  jobName={jobInformation.name}
-                  onChange={setJobData}
-                />
-                <ToolComponent
-                  selected={selected === SIDEBAR_TOOL}
-                  onSelect={selectTool}
-                  jobData={jobData}
-                  taskRoles={jobTaskRoles}
-                  extras={extras}
-                  onChange={setExtras}
-                />
+                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+                  Single Job
+                </Text>
               </Stack>
-            </StackItem>
+              <Stack horizontalAlign='center' gap={50}>
+                <DefaultButton
+                  styles={{
+                    root: {
+                      backgroundImage: `url(${distributeRoot})`,
+                      ...IconStyle.root,
+                    },
+                    rootHovered: {
+                      backgroundImage: `url(${distributeHover})`,
+                      ...IconStyle.hover,
+                    },
+                  }}
+                  onClick={() => {
+                    setWizardStatus('general');
+                  }}
+                />
+                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+                  Distributed Job
+                </Text>
+              </Stack>
+            </Stack>
           </Stack>
-          {/* bottom - buttons */}
-          <SubmissionSection
-            jobInformation={jobInformation}
-            jobTaskRoles={jobTaskRoles}
-            parameters={parameters}
-            secrets={secrets}
-            extras={extras}
-            advanceFlag={advanceFlag}
-            onToggleAdvanceFlag={onToggleAdvanceFlag}
-            jobData={jobData}
-            initJobProtocol={initJobProtocol}
-            onChange={(
-              updatedJobInfo,
-              updatedTaskRoles,
-              updatedParameters,
-              updatedSecrets,
-              updatedExtras,
-            ) => {
-              setJobInformation(updatedJobInfo);
-              setJobTaskRoles(updatedTaskRoles);
-              setParameters(updatedParameters);
-              setSecrets(updatedSecrets);
-              setExtras(updatedExtras);
-            }}
-          />
-        </Stack>
-      </Fabric>
-    </Context.Provider>
+        </Card>
+      }
+      {wizardStatus === 'single' &&
+        <JobSubmissionPage isSingle={true}/>
+      }
+      {wizardStatus === 'general' &&
+        <JobSubmissionPage isSingle={false}/>
+      }
+    </Fabric>
   );
 };
 
 const contentWrapper = document.getElementById('content-wrapper');
 
 document.getElementById('sidebar-menu--job-submission').classList.add('active');
-ReactDOM.render(<JobSubmission />, contentWrapper);
+ReactDOM.render(<JobWizard />, contentWrapper);
 
 function layout() {
   setTimeout(function() {
