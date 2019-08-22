@@ -1,0 +1,32 @@
+protocolVersion: 2
+name: remote_dev_job_template
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: openpai/pai.example.tensorflow
+    name: docker_image_0
+taskRoles:
+  Task_role_1:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 0
+      cpu: 1
+      memoryMB: 2048
+    commands:
+      - '`#REMOTE_DEV_START`'
+      - '`#Auto generated code, please do not modify`'
+      - apt-get update
+      - apt-get install --assume-yes nfs-common cifs-utils sshpass wget
+      - umask 000
+      - mkdir --parents /workspace
+      - mount -t nfs4 $hostip:/ /workspace
+      - sleep 10000
+      - '`#REMOTE_DEV_END`'
+    taskRetryCount: 0
+defaults:
+  virtualCluster: default
