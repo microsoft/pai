@@ -65,7 +65,7 @@ echo "parser.py genconf returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # Init plugins
 # priority=12
-python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR} ${FC_TASKROLE_NAME} 2>> ${PAI_LOG_DIR}/initializer.log
+python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME} 2>> ${PAI_LOG_DIR}/initializer.log
 echo "initializer.py returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # write user commands to user.sh
