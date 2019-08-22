@@ -43,7 +43,6 @@ spec:
           - --insecure-bind-address=0.0.0.0
         args:
           - --insecure-port=9090
-          - --apiserver-host={{ cluster_cfg['k8s-dashboard']['api-servers-url'] }}
         volumeMounts:
           - name: kubernetes-dashboard-certs-openpai
             mountPath: /certs
