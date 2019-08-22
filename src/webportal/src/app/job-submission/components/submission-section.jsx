@@ -71,6 +71,7 @@ export const SubmissionSection = (props) => {
     jobData,
     jobProtocol,
     setJobProtocol,
+    setWizardStatus,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
@@ -190,7 +191,9 @@ export const SubmissionSection = (props) => {
   return (
     <Card>
       <Stack horizontal horizontalAlign='space-between'>
-        <DefaultButton text='Back'/>
+        <DefaultButton text='Back' onClick={() => {
+          setWizardStatus('wizard');
+        }}/>
         <Stack horizontal gap='l1'>
           <FormShortSection>
             <Stack horizontal horizontalAlign='space-between'>
@@ -260,4 +263,5 @@ SubmissionSection.propTypes = {
   jobData: PropTypes.object,
   jobProtocol: PropTypes.object,
   setJobProtocol: PropTypes.func,
+  setWizardStatus: PropTypes.func,
 };

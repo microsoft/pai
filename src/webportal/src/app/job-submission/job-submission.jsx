@@ -34,13 +34,14 @@ import {
   FontSizes,
   FontWeights,
 } from 'office-ui-fabric-react';
+import {isNil} from 'lodash';
+
 import uploadRoot from '../../assets/img/upload-root.svg';
 import uploadHover from '../../assets/img/upload-hover.svg';
 import singleRoot from '../../assets/img/single-root.svg';
 import singleHover from '../../assets/img/single-hover.svg';
 import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributeHover from '../../assets/img/distribute-hover.svg';
-
 import {JobSubmissionPage} from './job-submission-page';
 import Card from '../components/card';
 
@@ -72,6 +73,28 @@ const IconStyle = {
 
 const JobWizard = () => {
   const [wizardStatus, setWizardStatus] = useState('wizard');
+  const [yamlText, setYamlText] = useState();
+
+  const uploadFile = React.createRef();
+
+  const _importFile = (event) => {
+    event.preventDefault();
+    const files = event.target.files;
+    if (!files || !files[0]) {
+      return;
+    }
+    const fileReader = new FileReader();
+    fileReader.addEventListener('load', () => {
+      const text = String(fileReader.result);
+      try {
+        setYamlText(text);
+        setWizardStatus('general');
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+    fileReader.readAsText(files[0]);
+  };
 
   return (
     <Fabric style={{height: '100%'}}>
@@ -99,6 +122,16 @@ const JobWizard = () => {
                       ...IconStyle.hover,
                     },
                   }}
+                  onClick = {() => {
+                    uploadFile.current.click();
+                  }}
+                />
+                <input
+                  type='file'
+                  ref={uploadFile}
+                  style={{display: 'none'}}
+                  accept='.yml,.yaml'
+                  onChange={_importFile}
                 />
                 <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
                   Import Config
@@ -149,10 +182,10 @@ const JobWizard = () => {
         </Card>
       }
       {wizardStatus === 'single' &&
-        <JobSubmissionPage isSingle={true}/>
+        <JobSubmissionPage isSingle={true} setWizardStatus={setWizardStatus}/>
       }
       {wizardStatus === 'general' &&
-        <JobSubmissionPage isSingle={false}/>
+        <JobSubmissionPage isSingle={false} setWizardStatus={setWizardStatus} yamlText={yamlText}/>
       }
     </Fabric>
   );

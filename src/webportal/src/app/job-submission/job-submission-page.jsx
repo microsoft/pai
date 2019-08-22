@@ -34,7 +34,7 @@ import {
   initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
-import {isEmpty} from 'lodash';
+import {isNil, isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {JobInformation} from './components/job-information';
@@ -58,6 +58,10 @@ import {JobBasicInfo} from './models/job-basic-info';
 import {JobTaskRole} from './models/job-task-role';
 import {JobData} from './models/data/job-data';
 import {JobProtocol} from './models/job-protocol';
+import {
+  getJobComponentsFromConfig,
+  isValidUpdatedTensorBoardExtras,
+} from './utils/utils';
 
 initTheme();
 initializeIcons();
@@ -72,7 +76,7 @@ const SIDEBAR_TOOL = 'tool';
 
 const loginUser = cookies.get('user');
 
-export const JobSubmissionPage = ({isSingle}) => {
+export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({name: 'Default_Task_Role'}),
   ]);
@@ -94,26 +98,6 @@ export const JobSubmissionPage = ({isSingle}) => {
   const [vcNames, setVcNames] = useState([]);
   const [errorMessages, setErrorMessages] = useState({});
 
-  useEffect(() => {
-    // docker info will be updated in-place
-    const preTaskRoles = JSON.stringify(jobTaskRoles);
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    taskRolesManager.populateTaskRolesDockerInfo();
-    const [
-      updatedSecrets,
-      isUpdated,
-    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
-
-    const curTaskRoles = JSON.stringify(jobTaskRoles);
-    if (preTaskRoles !== curTaskRoles) {
-      setJobTaskRolesState(jobTaskRoles);
-    }
-
-    if (isUpdated) {
-      setSecrets(updatedSecrets);
-    }
-  }, [jobTaskRoles]);
-
   const setJobTaskRoles = useCallback(
     (taskRoles) => {
       if (isEmpty(taskRoles)) {
@@ -124,17 +108,6 @@ export const JobSubmissionPage = ({isSingle}) => {
     },
     [setJobTaskRolesState]
   );
-
-  useEffect(() => {
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(
-      secrets
-    );
-    if (isUpdated) {
-      taskRolesManager.populateTaskRolesDockerInfo();
-      setJobTaskRoles(jobTaskRoles);
-    }
-  }, [secrets]);
 
   const setParameters = useCallback(
     (param) => {
@@ -200,6 +173,67 @@ export const JobSubmissionPage = ({isSingle}) => {
     }),
     [vcNames, errorMessages, setErrorMessage]
   );
+
+  // update component if yamlText is not null
+  useEffect(() => {
+    if (!isNil(yamlText)) {
+      const updatedJob = JobProtocol.fromYaml(yamlText);
+      if (isNil(updatedJob)) {
+        return;
+      }
+      const [
+        updatedJobInformation,
+        updatedTaskRoles,
+        updatedParameters,
+        updatedSecrets,
+        updatedExtras,
+      ] = getJobComponentsFromConfig(updatedJob, {vcNames});
+      if (extras.tensorBoard) {
+        const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
+        if (!isValidUpdatedTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
+          updatedExtras.tensorBoard = extras.tensorBoard;
+        }
+      }
+      setJobInformation(updatedJobInformation);
+      console.log(updatedTaskRoles);
+      setJobTaskRolesState(updatedTaskRoles);
+      setParameters(updatedParameters);
+      setSecrets(updatedSecrets);
+      setExtras(updatedExtras);
+    }
+  }, []);
+
+  useEffect(() => {
+    // docker info will be updated in-place
+    const preTaskRoles = JSON.stringify(jobTaskRoles);
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    taskRolesManager.populateTaskRolesDockerInfo();
+    const [
+      updatedSecrets,
+      isUpdated,
+    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
+
+    const curTaskRoles = JSON.stringify(jobTaskRoles);
+    if (preTaskRoles !== curTaskRoles) {
+      setJobTaskRolesState(jobTaskRoles);
+    }
+
+    if (isUpdated) {
+      setSecrets(updatedSecrets);
+    }
+  }, [jobTaskRoles]);
+
+  useEffect(() => {
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(
+      secrets
+    );
+    if (isUpdated) {
+      taskRolesManager.populateTaskRolesDockerInfo();
+      setJobTaskRoles(jobTaskRoles);
+    }
+  }, [secrets]);
+
 
   useEffect(() => {
     listUserVirtualClusters(loginUser)
@@ -312,6 +346,7 @@ export const JobSubmissionPage = ({isSingle}) => {
             jobData={jobData}
             jobProtocol={jobProtocol}
             setJobProtocol={setJobProtocol}
+            setWizardStatus={setWizardStatus}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
@@ -334,4 +369,6 @@ export const JobSubmissionPage = ({isSingle}) => {
 
 JobSubmissionPage.propTypes = {
   isSingle: PropTypes.bool,
+  setWizardStatus: PropTypes.func,
+  yamlText: PropTypes.string,
 };
