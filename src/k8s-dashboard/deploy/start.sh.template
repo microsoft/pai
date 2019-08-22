@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
-kubectl apply --overwrite=true -f hadoop-name-node.yaml || exit $?
+kubectl apply --overwrite=true -f k8s-dashboard.yaml || exit $?
 {% endif %}
 
 popd > /dev/null
