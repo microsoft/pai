@@ -1,0 +1,11 @@
+resource drbdha {
+  device /dev/drbd0;
+  disk ${DISK};
+  meta-disk internal;
+  on ${MASTER_HOSTNAME} {
+    address ${MASTER_IP}:7789;
+  }
+  on ${BACKUP_HOSTNAME} {
+    address ${BACKUP_IP}:7789;
+  }
+}

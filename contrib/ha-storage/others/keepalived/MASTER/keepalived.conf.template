@@ -1,0 +1,32 @@
+global_defs {
+  router_id paigcr-a-gpu-1107
+}
+
+vrrp_script chk_service {
+    script "/etc/keepalived/bin/checkservices.sh"
+    interval 2
+    weight -20
+}
+
+vrrp_instance nfs_ha_prod {
+  state MASTER
+  interface eth0
+  virtual_router_id 51
+  priority 100
+  advert_int 1
+  authentication {
+    auth_type PASS
+    auth_pass PASSWORD
+  }
+  track_script {
+    chk_service
+  }
+  notify "/etc/keepalived/bin/notify.sh"
+  unicast_src_ip ${MASTER_IP}
+  unicast_peer {
+    ${BACKUP_IP}
+  }
+  virtual_ipaddress {
+    ${VIP}
+  }
+}
