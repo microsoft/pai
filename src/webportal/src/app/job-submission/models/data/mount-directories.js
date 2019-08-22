@@ -284,6 +284,9 @@ export class MountDirectories {
         case 'azureblob':
           returnValue = 'azureblob://' + server.dataStore + '/' + server.containerName;
           break;
+        case 'hdfs':
+          returnValue = 'hdfs://' + server.namenode + ':' + server.port;
+          break;
       }
     }
     return returnValue;
@@ -294,7 +297,9 @@ export class MountDirectories {
     let newTeamDataList = [];
     for (const config of this.selectedConfigs) {
       for (const mountInfo of config.mountInfos) {
-        newTeamDataList.push(new InputData(mountInfo.mountPoint, this.getServerPath(mountInfo.server) + this.normalizePath('/' + mountInfo.path), config.name));
+        const serverRootPath = this.getServerPath(mountInfo.server);
+        const serverPath = serverRootPath + this.normalizePath(serverRootPath.endsWith('/') ? '' : '/' + mountInfo.path);
+        newTeamDataList.push(new InputData(mountInfo.mountPoint, serverPath, config.name));
       }
     }
     return newTeamDataList;
