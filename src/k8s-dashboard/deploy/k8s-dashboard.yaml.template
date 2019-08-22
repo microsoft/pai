@@ -22,8 +22,6 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kubernetes-dashboard-openpai
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
 spec:
   replicas: 1
   selector:
@@ -33,8 +31,6 @@ spec:
     metadata:
       labels:
         k8s-app: kubernetes-dashboard-openpai
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       hostNetwork: true
       nodeSelector:
