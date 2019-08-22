@@ -20,21 +20,36 @@ from __future__ import print_function
 
 import os
 import sys
-sys.path.append("{}/..".format(os.path.split(os.path.realpath(__file__))[0]))
 import collections
 import logging
 import argparse
 import yaml
 
-from plugin_utils import plugin_init, inject_commands
-
 logger = logging.getLogger(__name__)
 
-if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
+def plugin_init():
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+        level=logging.INFO,
+    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("parameters", help="parameters for sshd plugin in yaml")
+    parser.add_argument("pre_script", help="script for pre commands")
+    parser.add_argument("post_script", help="script for post commands")
+    args = parser.parse_args()
 
-    if parameters is not None:
-        if "preCommands" in parameters:
-            inject_commands(parameters["preCommands"], pre_script)
-        if "postCommands" in parameters:
-            inject_commands(parameters["postCommands"], post_script)
+    parameters = yaml.load(args.parameters)
+
+    return [parameters, args.pre_script, args.post_script]
+
+def inject_commands(commands, script):
+    if commands is not None and len(commands) > 0:
+        new_commands = [x+"\n" for x in commands]
+        with open(script, 'a+') as f:
+            f.writelines(new_commands)
+
+
+if __name__ == "__main__":
+    input_data = plugin_init()
+    logger.info(input_data)
+

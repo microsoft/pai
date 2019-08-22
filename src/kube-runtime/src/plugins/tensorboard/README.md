@@ -1,10 +1,10 @@
-# Tensorboard plugin
+# TensorBoard plugin
 
 ## Goal
 The tensorboard plugin 
 
 ## Schema
-```
+```yaml
 extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: tensorboard

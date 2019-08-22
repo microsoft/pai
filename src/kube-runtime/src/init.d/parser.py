@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#!/usr/bin/env python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -134,7 +133,7 @@ if __name__ == "__main__":
     with open(args.framework_json) as f:
         framework = json.load(f)
 
-    {
-        "genenv" : generate_runtime_env,
-        "genconf" : generate_jobconfig
-    }[args.function](framework)
+    if args.function == "genenv":
+        generate_runtime_env(framework)
+    elif args.function == 'genconf':
+        generate_jobconfig(framework)

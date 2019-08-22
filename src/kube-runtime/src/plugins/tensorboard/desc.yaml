@@ -17,4 +17,3 @@
 
 name: tensorboard
 init-script: init.py
-pre-template: ../common/pre.sh

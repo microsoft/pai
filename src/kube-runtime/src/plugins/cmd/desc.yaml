@@ -17,5 +17,3 @@
 
 name: cmd
 init-script: init.py
-pre-template: ../common/pre.sh
-post-template: ../common/post.sh

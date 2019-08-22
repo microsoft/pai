@@ -17,4 +17,3 @@
 
 name: ssh
 init-script: init.py
-pre-template: ../common/pre.sh

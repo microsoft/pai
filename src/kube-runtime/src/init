@@ -60,12 +60,12 @@ echo "parser.py genenv returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # generate jobconfig
 # priority=11
-python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/jobConfig.yaml 2>> ${PAI_LOG_DIR}/parse.log
+python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml 2>> ${PAI_LOG_DIR}/parse.log
 echo "parser.py genconf returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # Init plugins
 # priority=12
-python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/jobConfig.yaml ${PAI_WORK_DIR} 2>> ${PAI_LOG_DIR}/initializer.log
+python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR} ${FC_TASKROLE_NAME} 2>> ${PAI_LOG_DIR}/initializer.log
 echo "initializer.py returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # write user commands to user.sh

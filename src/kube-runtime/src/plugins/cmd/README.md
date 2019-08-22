@@ -1,16 +1,16 @@
-# Cmd plugin
+# CMD plugin
 
 ## Goal
-The cmd plugin offers user to execute pre-commands or post-commands
+The cmd plugin offers user to execute pre-commands or post-commands.
 
 ## Schema
-```
+```yaml
 extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: cmd
       parameters:
-        precommands:
+        preCommands:
           - pre-cmd
-        postcommands:
+        postCommands:
           - post-cmd
 ```

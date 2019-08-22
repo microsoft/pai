@@ -1,30 +1,43 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
 
 import os
 import sys
+sys.path.append("{}/..".format(os.path.split(os.path.realpath(__file__))[0]))
 import collections
 import logging
 import argparse
 import yaml
 
+from plugin_utils import plugin_init, inject_commands
+
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO,
-    )
-    parser = argparse.ArgumentParser()
-    parser.add_argument("parameters", help="parameters for sshd plugin in yaml")
-    parser.add_argument("pre_script", help="pre script")
-    args = parser.parse_args()
+    [parameters, pre_script, post_script] = plugin_init()
 
-    parameters = yaml.load(args.parameters)
-    with open(args.pre_script, 'a+') as f:
-        if parameters is not None and "userssh" in parameters:
-            # export PAI_SSH_PUB_KEY for sshd.sh to use
-            f.write("export PAI_SSH_PUB_KEY='{}'\n".format(parameters["userssh"]))
-        # write call to real executable script
-        f.write("{}/sshd.sh\n".format(os.path.split(os.path.realpath(__file__))[0]))
+    commands = []
+    if parameters is not None and "userssh" in parameters:
+        # export PAI_SSH_PUB_KEY for sshd.sh to use
+        commands.append("export PAI_SSH_PUB_KEY='{}'".format(parameters["userssh"]))
+    # write call to real executable script
+    commands.append("{}/sshd.sh\n".format(os.path.split(os.path.realpath(__file__))[0]))
+
+    inject_commands(commands, pre_script)
