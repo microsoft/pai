@@ -195,7 +195,6 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
         }
       }
       setJobInformation(updatedJobInformation);
-      console.log(updatedTaskRoles);
       setJobTaskRolesState(updatedTaskRoles);
       setParameters(updatedParameters);
       setSecrets(updatedSecrets);

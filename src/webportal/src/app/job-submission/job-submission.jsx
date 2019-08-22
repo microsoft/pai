@@ -34,7 +34,6 @@ import {
   FontSizes,
   FontWeights,
 } from 'office-ui-fabric-react';
-import {isNil} from 'lodash';
 
 import uploadRoot from '../../assets/img/upload-root.svg';
 import uploadHover from '../../assets/img/upload-hover.svg';
