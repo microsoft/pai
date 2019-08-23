@@ -54,8 +54,8 @@ const IconStyle = {
     backgroundPosition: 'center',
     backgroundSize: '30%',
     boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
-    width: 300,
-    height: 300,
+    width: 215,
+    height: 215,
   },
   hover: {
     borderRadius: '100%',
@@ -65,8 +65,8 @@ const IconStyle = {
     backgroundSize: '30%',
     borderColor: palette.themePrimary,
     borderWidth: 3,
-    width: 300,
-    height: 300,
+    width: 215,
+    height: 215,
   },
 };
 
@@ -106,7 +106,7 @@ const JobWizard = () => {
             <Stack
               horizontal
               horizontalAlign='center'
-              gap={100}
+              gap={120}
               style={{width: '100%', marginTop: 100}}
             >
               <Stack horizontalAlign='center' gap={50}>
