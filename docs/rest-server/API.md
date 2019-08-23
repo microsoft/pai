@@ -1,86 +1,100 @@
 # Quick Start
 
-1. Job config file
+## 1. Job config file
 
-    Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
+Prepare a job config file as described [here](../user/training.md), for example, `exampleJob.json`.
 
-2. Authentication
+## 2. Authentication
 
-    ##### a. Basic Mode, user account and password
+### a. Basic Mode, user account and password
 
-    HTTP POST your username and password to get an access token from:
-    ```
-    http://restserver/api/v1/token
-    ```
-    For example, with [curl](https://curl.haxx.se/), you can execute below command line:
-    ```sh
-    curl -H "Content-Type: application/x-www-form-urlencoded" \
-         -X POST http://restserver/api/v1/token \
-         -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
-    ```
-    
-    ##### b. Azure AD - OIDC mode
-    
-    ###### I. Login - get AuthCode
-    
-    HTTP GET the redirect URL of Azure AD for authentication:
-    
-    ```
-    http://restserver/api/v1/authn/oidc/login
-    ```
-    
-    ###### II. Login - get token with AuthCode
-    
-    HTTP POST the token from AAD (AccessToken, IDToken, RefreshToken) to get OpenPAI's access token. Web-browser will call this API automatically after the step I.
-    
-    ```
-    HTTP://restserver/api/v1/authn/oidc/return
-    ```
-    
-    ###### III. Logout
-    
-    HTTP GET the redirect URL of Azure AD to sign out the authentication:
-    
-    ```
-    http://restserver/api/v1/authn/oidc/login 
-    ```   
+HTTP POST your username and password to get an access token from:
 
-3. Submit a job
+```bash
+http://restserver/api/v1/token
+```
 
-    HTTP POST the config file as json with access token in header to:
-    ```
-    http://restserver/api/v1/user/:username/jobs
-    ```
-    For example, you can execute below command line:
-    ```sh
-    curl -H "Content-Type: application/json" \
-         -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X POST http://restserver/api/v1/user/:username/jobs \
-         -d @exampleJob.json
-    ```
+For example, with [curl](https://curl.haxx.se/), you can execute below command line:
 
-4. Monitor the job
+```sh
+curl -H "Content-Type: application/x-www-form-urlencoded" \
+      -X POST http://restserver/api/v1/token \
+      -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
+```
 
-    Check the list of jobs at:
-    ```
-    http://restserver/api/v1/jobs
-    ```
-    or
-    ```
-    http://restserver/api/v1/user/:username/jobs
-    ```
-    Check your exampleJob status at:
-    ```
-    http://restserver/api/v1/user/:username/jobs/exampleJob
-    ```
-    Get the job config JSON content:
-    ```
-    http://restserver/api/v1/user/:username/jobs/exampleJob/config
-    ```
-    Get the job's SSH info:
-    ```
-    http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
-    ```
+### b. Azure AD - OIDC mode
+
+#### I. Login - get AuthCode
+
+HTTP GET the redirect URL of Azure AD for authentication:
+
+```url
+http://restserver/api/v1/authn/oidc/login
+```
+
+#### II. Login - get token with AuthCode
+
+HTTP POST the token from AAD (AccessToken, IDToken, RefreshToken) to get OpenPAI's access token. Web-browser will call this API automatically after the step I.
+
+```url
+HTTP://restserver/api/v1/authn/oidc/return
+```
+
+#### III. Logout
+
+HTTP GET the redirect URL of Azure AD to sign out the authentication:
+
+```url
+http://restserver/api/v1/authn/oidc/login 
+```
+
+## 3. Submit a job
+
+HTTP POST the config file as json with access token in header to:
+
+```bash
+http://restserver/api/v1/user/:username/jobs
+```
+
+For example, you can execute below command line:
+
+```sh
+curl -H "Content-Type: application/json" \
+      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+      -X POST http://restserver/api/v1/user/:username/jobs \
+      -d @exampleJob.json
+```
+
+## 4. Monitor the job
+
+Check the list of jobs at:
+
+```
+http://restserver/api/v1/jobs
+```
+
+or
+```
+http://restserver/api/v1/user/:username/jobs
+```
+
+Check your exampleJob status at:
+
+```
+http://restserver/api/v1/user/:username/jobs/exampleJob
+```
+
+Get the job config JSON content:
+
+```
+http://restserver/api/v1/user/:username/jobs/exampleJob/config
+```
+
+Get the job's SSH info:
+
+```
+http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
+```
 
 # RestAPI
 

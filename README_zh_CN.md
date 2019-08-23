@@ -6,6 +6,8 @@
 
 OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
+**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) 已发布！**
+
 ## 目录
 
 1. [适用场景](#适用场景)
@@ -39,7 +41,7 @@ OpenPAI 提供了预构建的支持主流 AI 框架的 Docker。 支持添加异
 
 ### 全栈解决方案、易于扩展
 
-OpenPAI 是一个支持深度学习，通过虚拟集群管理，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
+OpenPAI 是支持深度学习、虚拟集群，兼容 Hadoop/Kubernetes 生态系统的完整解决方案。 OpenPAI 支持可扩展组件：可根据需要接入扩展模块。
 
 ## 相关项目
 
@@ -48,6 +50,7 @@ OpenPAI 是一个支持深度学习，通过虚拟集群管理，兼容 Hadoop/K
 * [NNI](https://github.com/Microsoft/nni): 用于神经体系结构搜索和超参数调优的开源 AutoML 工具包。 我们鼓励研究人员和学生利用这些项目来加速 AI 开发和研究。
 * [MMdnn](https://github.com/Microsoft/MMdnn)：一个完整、跨框架的解决方案，能够转换、可视化、诊断深度神经网络模型。 MMdnn 中的 "MM" 表示 model management（模型管理），而 "dnn" 是 deep neural network（深度神经网络）的缩写。
 * [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks)：面向自然语言理解（NLP）的深度学习建模工具包，帮助工程师像搭建积木一样创建深度神经网络模型。 该工具包可减少自然语言理解建模时的开发成本，对于训练和推理阶段都适用。
+* [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) 是用于大规模向量的最近邻搜索场景的开源库。
 
 ## 入门
 
@@ -112,7 +115,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 提交训练作业
 
-参考[提交 hello-world Job](docs/zh_CN/user/training.md)，来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
+参考[提交 Job 教程](docs/zh_CN/user/job_submission.md)来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
 
 ### 客户端
 
