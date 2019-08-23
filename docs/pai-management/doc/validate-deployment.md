@@ -223,10 +223,10 @@ If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `w
 ```bash
 python paictl.py service stop \
   [ -c /path/to/kubeconfig ] \
-  [ -n service-name ]
+  [ -n service-list ]
 ```
 
-If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped.
+If the -n parameter is specified, only the given services, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped.
 
 2. ```Boot up single all OpenPAI services.```
 

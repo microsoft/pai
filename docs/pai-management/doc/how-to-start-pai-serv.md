@@ -30,7 +30,7 @@ cd pai
 
 python paictl.py service start \
   [ -c ~/.kube/config] \
-  [ -n service-name ]
+  [ -n service-list ]
 ```
 
 If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
