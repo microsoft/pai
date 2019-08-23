@@ -34,7 +34,7 @@ import {
   initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
-import {isNil, isEmpty} from 'lodash';
+import {isNil, isEmpty, get} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {JobInformation} from './components/job-information';
@@ -42,7 +42,7 @@ import {getFormClassNames} from './components/form-style';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
-import {listUserVirtualClusters} from './utils/conn';
+import {fetchJobConfig, listUserVirtualClusters} from './utils/conn';
 import {TaskRolesManager} from './utils/task-roles-manager';
 import {initTheme} from '../components/theme';
 
@@ -62,6 +62,7 @@ import {
   getJobComponentsFromConfig,
   isValidUpdatedTensorBoardExtras,
 } from './utils/utils';
+import {SpinnerLoading} from '../components/loading';
 
 initTheme();
 initializeIcons();
@@ -75,6 +76,30 @@ const SIDEBAR_DATA = 'data';
 const SIDEBAR_TOOL = 'tool';
 
 const loginUser = cookies.get('user');
+
+function getChecksum(str) {
+  let res = 0;
+  for (const c of str) {
+    res ^= c.charCodeAt(0) & 0xff;
+  }
+  return res.toString(16);
+}
+
+function generateJobName(jobName) {
+  let name = jobName;
+  if (
+    /_\w{8}$/.test(name) &&
+    getChecksum(name.slice(0, -2)) === name.slice(-2)
+  ) {
+    name = name.slice(0, -9);
+  }
+
+  let suffix = Date.now().toString(16);
+  suffix = suffix.substring(suffix.length - 6);
+  name = `${name}_${suffix}`;
+  name = name + getChecksum(name);
+  return name;
+}
 
 export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
@@ -93,6 +118,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   const [jobData, setJobData] = useState(new JobData());
   const [extras, setExtras] = useState({});
   const [jobProtocol, setJobProtocol] = useState(new JobProtocol({}));
+  const [loading, setLoading] = useState(true);
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
@@ -175,6 +201,37 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   );
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('op') === 'resubmit') {
+      const jobName = params.get('jobname') || '';
+      const user = params.get('user') || '';
+      if (user && jobName) {
+        fetchJobConfig(user, jobName)
+          .then((jobConfig) => {
+            const [jobInfo, taskRoles, parameters, , extras] = getJobComponentsFromConfig(
+              jobConfig,
+              {vcNames},
+            );
+            jobInfo.name = generateJobName(jobInfo.name);
+            if (get(jobConfig, 'extras.submitFrom')) {
+              delete jobConfig.extras.submitFrom;
+            }
+            setJobProtocol(new JobProtocol(jobConfig));
+            setJobTaskRoles(taskRoles);
+            setParameters(parameters);
+            setJobInformation(jobInfo);
+            setExtras(extras);
+            setLoading(false);
+          })
+          .catch(alert);
+      }
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+
+  useEffect(() => {
     // docker info will be updated in-place
     const preTaskRoles = JSON.stringify(jobTaskRoles);
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
@@ -252,6 +309,10 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
   const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
   const selectTool = useCallback(() => onSelect(SIDEBAR_TOOL), [onSelect]);
+
+  if (loading) {
+    return <SpinnerLoading />;
+  }
 
   return (
     <Context.Provider value={contextValue}>

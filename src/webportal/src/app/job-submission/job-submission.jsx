@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {
   Fabric,
@@ -94,6 +94,13 @@ const JobWizard = () => {
     });
     fileReader.readAsText(files[0]);
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('op') === 'resubmit') {
+      setWizardStatus('general');
+    }
+  }, []);
 
   return (
     <Fabric style={{height: '100%'}}>
