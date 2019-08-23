@@ -16,13 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import React, {useRef, useContext, useState} from 'react';
-import {Modal, TextField, FontClassNames, PrimaryButton, DefaultButton, Stack, StackItem, mergeStyles, getTheme} from 'office-ui-fabric-react';
+import {Modal, FontClassNames, PrimaryButton, DefaultButton, Stack, StackItem, mergeStyles, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 
 import {updateUserPasswordRequest} from '../conn';
 import {checkPassword} from '../utils';
+import CustomPassword from '../components/CustomPassword';
 
 import Context from './Context';
 
@@ -101,9 +102,8 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
                     Password
                   </td>
                   <td className={tdPaddingStyle} style={{minWidth: '280px'}}>
-                    <TextField
+                    <CustomPassword
                       componentRef={passwordRef}
-                      type='password'
                       placeholder='Enter password'
                     />
                   </td>
@@ -114,7 +114,7 @@ export default function BatchPasswordEditor({isOpen = false, hide}) {
           <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
             <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
               <StackItem>
-                <PrimaryButton type="submit" disabled={lock}>
+                <PrimaryButton type="submit" disabled={lock} autoFocus>
                   Save
                 </PrimaryButton>
               </StackItem>
