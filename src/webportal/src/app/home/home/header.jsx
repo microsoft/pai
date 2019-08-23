@@ -15,18 +15,38 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {statusColor} from '../../components/theme';
-import {mergeStyles} from 'office-ui-fabric-react';
+import c from 'classnames';
+import PropTypes from 'prop-types';
 
-export const SHARED_VC_COLOR = statusColor.succeeded;
-export const DEDICATED_VC_COLOR = statusColor.running;
-export const BREAKPOINT1 = 1400;
-export const BREAKPOINT2 = 1650;
+import {
+  Link,
+  FontClassNames,
+  Stack,
+} from 'office-ui-fabric-react';
+import React from 'react';
 
-export const zeroPaddingClass = mergeStyles({
-  paddingTop: '0px !important',
-  paddingLeft: '0px !important',
-  paddingRight: '0px !important',
-  paddingBottom: '0px !important',
-});
+import t from '../../components/tachyons.scss';
 
+export const Header = ({headerName, linkName, linkHref, showLink, children}) => (
+  <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
+    <div>
+      <Stack horizontal gap='s1'>
+        <div>{headerName}</div>
+        {children}
+      </Stack>
+    </div>
+    {showLink && (
+      <div>
+        <Link href={linkHref}>{linkName}</Link>
+      </div>
+    )}
+  </div>
+);
+
+Header.propTypes = {
+  headerName: PropTypes.string.isRequired,
+  linkName: PropTypes.string,
+  linkHref: PropTypes.string.isRequired,
+  showLink: PropTypes.bool.isRequired,
+  children: PropTypes.object,
+};
