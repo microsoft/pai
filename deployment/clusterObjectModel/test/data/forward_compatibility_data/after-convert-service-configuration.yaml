@@ -1,6 +1,7 @@
 cluster:
   common:
       cluster-id: pai_ut
+      cluster-type: yarn
       data-path: "/datastorage"
   docker-registry:
       namespace: ut
