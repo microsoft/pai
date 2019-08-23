@@ -16,10 +16,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Python_Version=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
-if [ $Python_Version -eq 3 ];then
+PYTHON_VERSION=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
+if [ $PYTHON_VERSION -eq 3 ];then
     pip install nvidia-ml-py3
-elif [ $Python_Version -eq 2 ];then
+elif [ $PYTHON_VERSION -eq 2 ];then
     pip install nvidia-ml-py
 fi
 
@@ -51,7 +51,7 @@ fi
 echo 'container_id:' $CONTAINER_ID
 echo 'container_pid:' $CONTAINER_PID
 echo 'sample_period:' $SAMPLE_PERIOD
-echo 'host_docker:' $HOST_DOCKER
+echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX

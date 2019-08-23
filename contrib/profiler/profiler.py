@@ -19,7 +19,6 @@
 """
 Performance_Profiler is used to profile the using information of the hardware while a deep learing model is running
 """
-# from pynvml import *
 import pynvml as nv
 import glob
 import csv
@@ -108,18 +107,19 @@ def get_container_cpu_ticks(filelist):
     return user_time + system_time
 
 
-def get_cpu_percent(filelist, period):
+def get_cpu_ticks(filelist):
     sys_ticks = get_system_cpu_ticks()
     container_ticks = get_container_cpu_ticks(filelist)
-    time.sleep(period)
+    return [sys_ticks, container_ticks]
+    # time.sleep(period)
 
-    online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
-    sys_delta = get_system_cpu_ticks() - sys_ticks
-    container_Delta = get_container_cpu_ticks(filelist) - container_ticks
+    # online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
+    # sys_delta = get_system_cpu_ticks() - sys_ticks
+    # container_Delta = get_container_cpu_ticks(filelist) - container_ticks
 
-    cpu_percent = (container_Delta * 1.0) / sys_delta * online_cpus * 100.0
+    # cpu_percent = (container_Delta * 1.0) / sys_delta * online_cpus * 100.0
     # return cpuPercent
-    return [container_Delta, sys_delta, online_cpus, cpu_percent]
+    # return [container_Delta, sys_delta, online_cpus, cpu_percent]
 
 
 def get_gpu_utilization(gpu_idx):
@@ -128,9 +128,10 @@ def get_gpu_utilization(gpu_idx):
         util = nv.nvmlDeviceGetUtilizationRates(handle)
         # gpu_util = int(util.gpu)
     except nv.NVMLError as err:
-        error = handleError(err)
+        util = err
+        # error = handleError(err)
         # gpu_util = error
-        util = error
+        # util = error
     return util
 
 
@@ -139,8 +140,8 @@ def get_gpu_memory(gpu_idx):
         handle = nv.nvmlDeviceGetHandleByIndex(gpu_idx)
         mem = nv.nvmlDeviceGetMemoryInfo(handle)
     except nv.NVMLError as err:
-        error = handleError(err)
-        mem = error
+        # error = handleError(err)
+        mem = err
     return mem
 
 
@@ -268,6 +269,7 @@ def analyze_samples(sample_list):
 
 
 def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid):
+    start_time = time.perf_counter()
     if not os.path.exists('./' + dir):
         os.mkdir(dir)
     realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w'))  # , newline=''))
@@ -304,20 +306,23 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
         container_mem_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
         container_blk_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/net/dev'
-    while True:
-        # 1st info about I/O and network
+    while time.perf_counter() - start_time < 600:
+        [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
+
+        # 1st info about I/O, network and CPU
         read_bytes1 = get_disk_read_bytes(container_blk_filelist)
         write_bytes1 = get_disk_write_bytes(container_blk_filelist)
         [network_receive1, network_transmit1] = get_network_bytes(container_net_file)
-
-        # CPU usage will cost time('period') running
-        cpu_usage = get_cpu_percent(container_cpu_filelist, period)[-1]
-        [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
-
-        # 2nd info about I/O and network, calculate how many bytes used in this period
+        [sys_ticks1, container_ticks1] = get_cpu_ticks(container_cpu_filelist)
+        time.sleep(period)
+        # 2nd info about I/O, network and CPU, calculate how many bytes used in this period
         read_bytes2 = get_disk_read_bytes(container_blk_filelist)
         write_bytes2 = get_disk_write_bytes(container_blk_filelist)
         [network_receive2, network_transmit2] = get_network_bytes(container_net_file)
+        [sys_ticks2, container_ticks2] = get_cpu_ticks(container_cpu_filelist)
+
+        online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
+        cpu_usage = (container_ticks2 - container_ticks1) * 1.0 / (sys_ticks2 - sys_ticks1) * online_cpus * 100
 
         # get the usage of the first GPU to analyze
         gpu_util = get_gpu_utilization(gpu_id[0])
