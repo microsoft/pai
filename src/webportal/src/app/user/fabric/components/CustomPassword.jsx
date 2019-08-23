@@ -24,10 +24,12 @@ function CustomPassword(props) {
   const {onChange, onFocus, onBlur, componentRef, ...otherProps} = props;
 
   useEffect(() => {
-    componentRef ? componentRef.current = passwordInputRef.current : null;
+    if (componentRef && passwordInputRef) {
+      componentRef.current = passwordInputRef.current;
+    }
     return () => {
       if (componentRef) {
-        componentRef ? componentRef.current = null : null;
+        componentRef.current = null;
       }
     };
   });
