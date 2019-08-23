@@ -5,55 +5,19 @@ from copy import deepcopy
 
 from openpaisdk import __cluster_config_file__, __logger__
 from openpaisdk.cli_arguments import get_args
-from openpaisdk.io_utils import from_file, to_file
+from openpaisdk.io_utils import from_file, to_file, to_screen
 from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import get_response
+from openpaisdk.utils import get_response, na
 
 
-class Cluster:
-
-    @staticmethod
-    def new(c_dic: dict):
-        dic = {
-            "storages": [],
-            "default_storage_alias": None,
-        }
-        dic.update(c_dic)
-        return dic
-
-    @staticmethod
-    def make_string(pth: str, target: str, iters=(list, dict)):
-        flag = True
-        assert isinstance(target, iters), "not supported type %s (%s)" % (
-            pth, type(target))
-        for i in (target.keys() if isinstance(target, dict) else range(len(target))):
-            pth_next = "%s[%s]" % (pth, i)
-            if isinstance(target[i], iters):
-                flag = flag and Cluster.make_string(pth_next, target[i])
-            elif not (target[i] is None or isinstance(target[i], str)):
-                __logger__.warn(
-                    'only string is allowed in the cluster configuration, %s is %s, replace it by str()', pth_next, type(target[i]))
-                target[i] = str(target[i])
-                flag = False
-        return flag
-
-    @staticmethod
-    def attach_storage(c_dic: dict, storage: dict):
-        if "user" in storage and not storage["user"]:
-            storage["user"] = c_dic["user"]
-        return ol.notified_add(c_dic["storages"], "storage_alias", storage)
-
-    @staticmethod
-    def validate(cluster: dict):
-        assert isinstance(
-            cluster, dict), "cluster configuration should be a dict"
-        assert isinstance(["storages"], list), "storages should be a list"
-        Cluster.make_string(cluster["cluster_alias"], cluster)
-        assert cluster["pai_uri"].startswith("http://") or cluster["pai_uri"].startswith(
-            "https://"), "pai_uri should be a uri starting with http(s)://"
-        assert cluster["user"], "cluster should have a cluster"
-        return cluster
+def get_cluster(alias: str, fname: str = __cluster_config_file__, get_client: bool = True):
+    """the generalized function call to load cluster
+    return cluster client if assert get_client else return config"""
+    if get_client:
+        return ClusterList().load(fname).get_client(alias)
+    else:
+        return ClusterList().load(fname).select(alias)
 
 
 class ClusterList:
@@ -64,16 +28,8 @@ class ClusterList:
     def __init__(self, clusters: list = None):
         self.clusters = clusters if clusters else []
 
-    @staticmethod
-    def validate(clusters: list):
-        assert isinstance(
-            clusters, list), "contents in %s should be a list" % __cluster_config_file__
-        [Cluster.validate(c) for c in clusters]
-        return clusters
-
     def load(self, fname: str = __cluster_config_file__):
         self.clusters = from_file(fname, default=[])
-        ClusterList.validate(self.clusters)
         return self
 
     def save(self):
@@ -84,13 +40,17 @@ class ClusterList:
         lst = deepcopy(self.clusters)
         for dic in lst:
             dic["password"] = "******"
+            dic["token"] = "******"
         return lst
 
     def add(self, cluster: dict):
-        return ol.notified_add(self.clusters, "cluster_alias", Cluster.validate(Cluster.new(cluster)))
+        cfg = Cluster().load(**cluster).check().config
+        ol.add(self.clusters, "cluster_alias", cfg)
+        return self
 
     def delete(self, alias: str):
-        return ol.delete(self.clusters, "cluster_alias", alias)
+        ol.delete(self.clusters, "cluster_alias", alias)
+        return self
 
     def select(self, alias: str = None):
         """return the cluster configuration (dict) with its alias equal to specified one
@@ -107,15 +67,8 @@ class ClusterList:
                              alias, list(dic.keys()), __cluster_config_file__)
         return dic[alias]
 
-    def attach_storage(self, alias: str, storage: dict, as_default: bool = False):
-        cluster = self.select(alias)
-        result = Cluster.attach_storage(cluster, storage)
-        if as_default:
-            cluster["default_storage_alias"] = storage["storage_alias"]
-        return result
-
     def get_client(self, alias: str):
-        return ClusterClient(**self.select(alias))
+        return Cluster().load(**self.select(alias))
 
     def available_resources(self):
         dic = {}
@@ -128,54 +81,68 @@ class ClusterList:
         return dic
 
 
-states_successful, states_failed, states_unfinished = [
-    "SUCCEEDED"], ["FAILED"], ["WAITING", "RUNNING"]
-states_completed = states_successful + states_failed
-states_valid = states_completed + states_unfinished
-
-
-class ClusterClient:
+class Cluster:
     """A wrapper of cluster to access the REST APIs"""
 
-    def __init__(self, pai_uri: str = None, user: str = None, password: str = None, storages: list = [], default_storage_alias: str = None, **kwargs):
-        __logger__.debug('creating cluster from info %s', get_args())
-        self.pai_uri = pai_uri
-        self.user = user
-        self.password = password
-        self.storages = storages
-        self.default_storage_alias = default_storage_alias
-        self.storage_clients = {}
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-        for cfg in storages:
-            self.add_storage(**cfg)
-        if len(storages) == 1:
-            self.default_storage_alias = storages[0]["storage_alias"]
-        self.__token = dict(token=None, time_stamp=None, expiration=3600)
+    def __init__(self, toke_expiration: int = 3600):
+        # ! currently sdk will not handle toke refreshing
+        self.config = {}
+        self.__token_expire = toke_expiration
+        self.__token = None
 
-    def get_storage(self, alias: str = None):
-        if len(self.storage_clients) == 0:
-            return None
-        return self.storage_clients[alias if alias else self.default_storage_alias]
-
-    def add_storage(self, protocol: str = None, storage_alias: str = None, **kwargs):
-        "initialize the connection information"
-        func = 'add_storage_%s' % protocol.lower()
-        return getattr(self, func)(storage_alias, **kwargs)
-
-    def add_storage_webhdfs(self, storage_alias, web_hdfs_uri: str, **kwargs):
-        self.storage_clients[storage_alias] = Storage(
-            protocol='webHDFS', url=web_hdfs_uri, user=kwargs.get('user', self.user))
+    def load(self, cluster_alias: str = None, pai_uri: str = None, user: str = None, password: str = None, token: str = None, **kwargs):
+        self.config.update(get_args())
+        # validate
+        assert self.alias, "cluster must have an alias"
+        assert self.user, "must specify a user name"
+        assert re.match("^(http|https)://(.*[^/])$",
+                        self.pai_uri), "pai_uri should be a uri in the format of http(s)://x.x.x.x"
         return self
 
     @property
+    def alias(self):
+        return self.config["cluster_alias"]
+
+    @property
+    def pai_uri(self):
+        return self.config["pai_uri"].strip("/")
+
+    @property
+    def user(self):
+        return self.config["user"]
+
+    @property
+    def password(self):
+        return str(self.config["password"])
+
+    @property
     def token(self):
-        current_time = time.time()
-        if not self.__token["token"] or not self.__token["time_stamp"] or current_time - self.__token["time_stamp"] >= 0.9 * self.__token["expiration"]:
-            self.__token["token"] = self.rest_api_token(
-                self.__token["expiration"])
-            self.__token["time_stamp"] = time.time()
-        return self.__token["token"]
+        if self.config["token"]:
+            return str(self.config["token"])
+        if not self.__token:
+            self.__token = self.rest_api_token(self.__token_expire)
+        return self.__token
+
+    def check(self):
+        cluster_info = self.rest_api_cluster_info()
+        cluster_info["virtual_clusters"] = self.virtual_clusters()
+        self.config.update(cluster_info)
+        # ! will check authentication types according to AAD enabled or not
+        to_screen("succeeded to connect cluster {}".format(self.alias))
+        return self
+
+    def get_storage(self, alias: str = None):
+        # ! every cluster should have a builtin storage
+        storage_cfg = self.config.get("storages", {}).get(na(alias, "builtin"), None)
+        assert storage_cfg, alias
+        if storage_cfg["protocol"] == "hdfs":
+            uri = storage_cfg.get("uri", self.pai_uri).strip("/")
+            if self.config.get("pylon_enabled", True):
+                uri += "/webhdfs"
+            else:
+                uri += ":%d" % storage_cfg.get("ports", {}).get("webhdfs", 50070)
+            return Storage(protocol='webHDFS', url=uri, user=storage_cfg.get('user', self.user))
+        raise NotImplementedError
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
@@ -193,15 +160,39 @@ class ClusterClient:
         job_list = self.rest_api_jobs(job_name)
         return [j['name'] for j in job_list] if name_only else job_list
 
-    def rest_api_jobs(self, job_name: str = None, info: str = None, user: str = None):
+    def rest_api_cluster_info(self):
+        # ! currently this is a fake
+        return {
+            "pylon_enabled": True,
+            "aad_enabled": False,
+            "storages": {
+                "builtin": {
+                    "protocol": "hdfs",
+                    "ports": {
+                        "webhdfs": "webhdfs",
+                        "native": 9000,
+                    }
+                }
+            }
+        }
+
+    def rest_api_job_list(self, user: str = None):
+        if user is None:
+            pth = '{}/rest-server/api/v1/jobs'.format(self.pai_uri)
+        else:
+            pth = '{}/rest-server/api/v1/user/{}/jobs'.format(
+                self.pai_uri, user)
+        return get_response(pth, headers={}, method='GET').json()
+
+    def rest_api_job_info(self, job_name: str = None, info: str = None, user: str = None):
         user = self.user if user is None else user
-        pth = '{}/rest-server/api/v1/user/{}/jobs'.format(self.pai_uri, user)
-        if job_name:
-            pth = pth + '/' + job_name
-            if info:
-                assert info in [
-                    'config', 'ssh'], ('unsupported query information', info)
-                pth = pth + '/' + info
+        assert job_name, "please specify a job to query"
+        pth = '{}/rest-server/api/v1/user/{}/jobs/{}'.format(
+            self.pai_uri, user, job_name)
+        if info:
+            assert info in [
+                'config', 'ssh'], ('unsupported query information', info)
+            pth = pth + '/' + info
         return get_response(pth, headers={}, method='GET').json()
 
     def rest_api_token(self, expiration=3600):
@@ -237,9 +228,28 @@ class ClusterClient:
                 allowed_status=[202, 201]
             )
 
+    def rest_api_execute_job(self, job_name: str, e_type: str = "STOP"):
+        assert e_type in ["START", "STOP"], "unsupported execute type {}".format(e_type)
+        return get_response(
+            "{}/rest-server/api/v1/user/{}/jobs/{}/executionType".format(
+                self.pai_uri, self.user, job_name),
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+            },
+            body={
+                "value": e_type
+            },
+            method="PUT",
+            allowed_status=[200, 202],
+        ).json()
+
     def rest_api_virtual_clusters(self):
         return get_response(
             '{}/rest-server/api/v1/virtual-clusters'.format(self.pai_uri),
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+                'Content-Type': 'application/json',
+            },
             method='GET',
             allowed_status=[200]
         ).json()
@@ -254,46 +264,12 @@ class ClusterClient:
             },
         ).json()
 
-    def wait(self, jobs: list, t_sleep: float = 10, timeout: float = 3600, exit_states: list = None):
-        exit_states = states_completed if not exit_states else exit_states
-        assert isinstance(jobs, list), "input should be a list of job names"
-
-        t = 0
-        while True:
-            states = [self.rest_api_jobs(j)["jobStatus"].get(
-                "state", None) for j in jobs]
-            assert all(
-                s in states_valid for s in states), "unknown states founded in %s" % states
-            if all(s in exit_states for s in states) or t >= timeout:
-                break
-            else:
-                time.sleep(t_sleep)
-                t = t + t_sleep
-                print('.', end='', flush=True)
-        print('.', flush=True)
-        return states
-
-    def logs(self, job_name: str, task_role: str = 'main', index: int = 0, log_type: str = 'stdout'):
-        assert log_type in [
-            "stdout", "stderr"], "now only support stdout and stderr, not %s" % log_type
-        try:
-            self.wait([job_name], exit_states=states_completed +
-                      states_unfinished)
-            info = self.jobs(job_name)
-            container = info['taskRoles'][task_role]['taskStatuses'][index]
-            container_id = container['containerId']
-            if info['jobStatus']['state'] in states_completed:
-                path_fmt = "http://{ip}:8188/ws/v1/applicationhistory/containers/{container_id}/logs/{stream}?redirected_from_node=true"
-                ip = re.search('://([\d.]+)/yarn',
-                               container['containerLog']).group(1)
-            else:
-                ip = container['containerIp']
-                path_fmt = "http://{ip}:8042/ws/v1/node/containers/{container_id}/logs/{stream}"
-            path = path_fmt.format(
-                ip=ip, container_id=container_id, stream=log_type)
-            return get_response(path, method="GET").content
-        except:
-            return None
+    def virtual_clusters(self, user_info: dict = None):
+        user_info = na(user_info, self.rest_api_user())
+        my_virtual_clusters = user_info["virtualCluster"]
+        if isinstance(my_virtual_clusters, str):
+            my_virtual_clusters = my_virtual_clusters.split(",")
+        return my_virtual_clusters
 
     def virtual_cluster_available_resources(self):
         vc_info = self.rest_api_virtual_clusters()
@@ -310,10 +286,5 @@ class ClusterClient:
         return dic
 
     def available_resources(self):
-        my_virtual_clusters = self.rest_api_user()["virtualCluster"]
-        if isinstance(my_virtual_clusters, str):
-            my_virtual_clusters = my_virtual_clusters.split(",")
-        __logger__.debug("user %s belongs to %s",
-                         self.user, my_virtual_clusters)
         resources = self.virtual_cluster_available_resources()
-        return {k: v for k, v in resources.items() if k in my_virtual_clusters}
+        return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
