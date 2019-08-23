@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 server-port: 9186
-launcher-type: yarn
+launcher-type: k8s
 jwt-secret: pai-secret
 jwt-expire-time: '7d'
 github-owner: Microsoft

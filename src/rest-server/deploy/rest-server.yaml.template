@@ -62,6 +62,8 @@ spec:
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
           value: hivedscheduler
+        - name: LOG_MANAGER_PORT
+          value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
@@ -71,8 +73,6 @@ spec:
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
-        - name: LOG_MANAGER_PORT
-          value: "{{ cluster_cfg['rest-server']['log-manager-port'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: JWT_TOKEN_EXPIRE_TIME

@@ -77,6 +77,7 @@ cluster:
 #
   common:
 #    cluster-id: pai
+#    cluster-type: yarn
 #
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"

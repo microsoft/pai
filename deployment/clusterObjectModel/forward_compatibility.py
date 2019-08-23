@@ -34,11 +34,10 @@ def transform(old_model, old_key, new_model, new_key):
         new_dict = new_dict[key]
     new_dict[new_key_list[-1]] = old_dict
 
-
 def service_configuration_convert(service_configuration):
 
     if "hadoop" not in service_configuration and "rest-server" in service_configuration:
-        return service_configuration, False
+        return service_configuration_add_cluster_type(service_configuration)
 
     new_configuration = {}
 
@@ -93,4 +92,20 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "prometheus.node-exporter-port",
               new_configuration, "node-exporter.port")
 
-    return new_configuration, True
+    return service_configuration_add_cluster_type(new_configuration, True)
+
+
+def service_configuration_add_cluster_type(service_configuration, converted = False):
+    if "cluster" not in service_configuration:
+        service_configuration["cluster"] = {"common": {"cluster-type": "yarn"}}
+        return service_configuration, True
+    else:
+        if "common" not in service_configuration["cluster"]:
+            service_configuration["cluster"]["common"] = {"cluster-type": "yarn"}
+            return service_configuration, True
+        else:
+            if "cluster-type" not in service_configuration["cluster"]["common"]:
+                service_configuration["cluster"]["common"]["cluster-type"] = "yarn"
+                return service_configuration, True
+            else:
+                return service_configuration, converted

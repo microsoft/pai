@@ -18,6 +18,7 @@
 prerequisite:
   - cluster-configuration
   - yarn-frameworklauncher
+  - log-manager
 
 template-list:
   - rest-server.yaml
