@@ -1,0 +1,37 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "StatefulSet",
+  "metadata": {
+    "name": "k8s-frameworkcontroller-sts"
+  },
+  "spec": {
+    "serviceName": "k8s-frameworkcontroller",
+    "selector": {
+      "matchLabels": {
+        "app": "k8s-frameworkcontroller"
+      }
+    },
+    "replicas": 1,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "k8s-frameworkcontroller"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "k8s-frameworkcontroller",
+            "image": "frameworkcontroller/frameworkcontroller",
+            "env": [
+              {
+                "name": "KUBE_APISERVER_ADDRESS",
+                "value": "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
