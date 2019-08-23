@@ -174,6 +174,27 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
     [vcNames, errorMessages, setErrorMessage]
   );
 
+  useEffect(() => {
+    // docker info will be updated in-place
+    const preTaskRoles = JSON.stringify(jobTaskRoles);
+    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
+    taskRolesManager.populateTaskRolesDockerInfo();
+    const [
+      updatedSecrets,
+      isUpdated,
+    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
+
+    const curTaskRoles = JSON.stringify(jobTaskRoles);
+    if (preTaskRoles !== curTaskRoles) {
+      setJobTaskRolesState(jobTaskRoles);
+    }
+
+    if (isUpdated) {
+      setSecrets(updatedSecrets);
+    }
+  }, [jobTaskRoles]);
+
+
   // update component if yamlText is not null
   useEffect(() => {
     if (!isNil(yamlText)) {
@@ -201,26 +222,6 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
       setExtras(updatedExtras);
     }
   }, []);
-
-  useEffect(() => {
-    // docker info will be updated in-place
-    const preTaskRoles = JSON.stringify(jobTaskRoles);
-    const taskRolesManager = new TaskRolesManager(jobTaskRoles);
-    taskRolesManager.populateTaskRolesDockerInfo();
-    const [
-      updatedSecrets,
-      isUpdated,
-    ] = taskRolesManager.getUpdatedSecretsAndLinkTaskRoles(secrets);
-
-    const curTaskRoles = JSON.stringify(jobTaskRoles);
-    if (preTaskRoles !== curTaskRoles) {
-      setJobTaskRolesState(jobTaskRoles);
-    }
-
-    if (isUpdated) {
-      setSecrets(updatedSecrets);
-    }
-  }, [jobTaskRoles]);
 
   useEffect(() => {
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
