@@ -121,7 +121,7 @@ Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resource
 
 ### Submit training jobs
 
-Follow [submitting a hello-world job](docs/user/training.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+Follow [the job submission tutorial](docs/user/job_submission.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
 
 ### Client tool
 
@@ -137,7 +137,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 * [Manage cluster with paictl](docs/paictl/paictl-manual.md)
 * [Monitoring](./docs/webportal/README.md)
-* [Upgrade](./docs/upgrade/upgrade_to_v0.13.md)
+* [Upgrade](./docs/upgrade/upgrade_to_v0.14.0.md)
 
 ## Reference
 

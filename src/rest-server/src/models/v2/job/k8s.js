@@ -24,6 +24,7 @@ const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
+const userModel = require('@pai/models/v2/user');
 
 
 const convertName = (name) => {
@@ -50,7 +51,7 @@ const decodeName = (name, labels) => {
   }
 };
 
-const convertState = (state, exitCode) => {
+const convertState = (state, exitCode, retryDelaySec) => {
   switch (state) {
     case 'AttemptCreationPending':
     case 'AttemptCreationRequested':
@@ -61,8 +62,13 @@ const convertState = (state, exitCode) => {
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
-    case 'AttemptCompleted':
       return 'COMPLETING';
+    case 'AttemptCompleted':
+      if (retryDelaySec == null) {
+        return 'COMPLETING';
+      } else {
+        return 'RETRY_PENDING';
+      }
     case 'Completed':
       if (exitCode === 0) {
         return 'SUCCEEDED';
@@ -81,7 +87,11 @@ const convertFrameworkSummary = (framework) => {
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-    state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
+    state: convertState(
+      framework.status.state,
+      completionStatus ? completionStatus.code : null,
+      framework.status.retryPolicyStatus.retryDelaySec,
+    ),
     subState: framework.status.state,
     executionType: framework.spec.executionType.toUpperCase(),
     retries: framework.status.retryPolicyStatus.totalRetriedCount,
@@ -90,6 +100,7 @@ const convertFrameworkSummary = (framework) => {
       platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
       resource: 0,
     },
+    retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
     createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: completionStatus ? completionStatus.code : null,
@@ -124,7 +135,11 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
-    taskState: convertState(taskStatus.state, completionStatus ? completionStatus.code : null),
+    taskState: convertState(
+      taskStatus.state,
+      completionStatus ? completionStatus.code : null,
+      taskStatus.retryPolicyStatus.retryDelaySec,
+    ),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
@@ -140,7 +155,11 @@ const convertFrameworkDetail = async (framework) => {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-      state: convertState(framework.status.state, completionStatus ? completionStatus.code : null),
+      state: convertState(
+        framework.status.state,
+        completionStatus ? completionStatus.code : null,
+        framework.status.retryPolicyStatus.retryDelaySec,
+      ),
       subState: framework.status.state,
       executionType: framework.spec.executionType.toUpperCase(),
       retries: framework.status.retryPolicyStatus.totalRetriedCount,
@@ -149,6 +168,7 @@ const convertFrameworkDetail = async (framework) => {
         platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
         resource: 0,
       },
+      retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
       createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
       completedTime: new Date(framework.status.completionTime).getTime(),
       appId: framework.status.attemptStatus.instanceUID,
@@ -208,6 +228,11 @@ const generateTaskRole = (taskRole, labels, config) => {
       count: ports[port],
     };
   }
+  // get shared memory size
+  let shmMB = 512;
+  if ('extraContainerOptions' in config.taskRoles[taskRole]) {
+    shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
+  }
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -253,7 +278,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
               ],
@@ -280,12 +305,16 @@ const generateTaskRole = (taskRole, labels, config) => {
               },
               volumeMounts: [
                 {
+                  name: 'dshm',
+                  mountPath: '/dev/shm',
+                },
+                {
                   name: 'pai-vol',
                   mountPath: '/usr/local/pai',
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -297,6 +326,13 @@ const generateTaskRole = (taskRole, labels, config) => {
             },
           ],
           volumes: [
+            {
+              name: 'dshm',
+              emptyDir: {
+                medium: 'Memory',
+                sizeLimit: `${shmMB}Mi`,
+              },
+            },
             {
               name: 'pai-vol',
               emptyDir: {},
@@ -484,8 +520,14 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
+  const [userName] = frameworkName.split(/~(.+)/);
+
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
+  const flag = await userModel.checkUserVC(userName, virtualCluster);
+  if (flag === false) {
+    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+  }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 

@@ -24,149 +24,195 @@ const schedulerResponse = {
             'queueName': 'default',
             'state': 'RUNNING',
             'type': 'capacitySchedulerLeafQueueInfo',
-            "absoluteCapacity": 30.000002,
-            "absoluteMaxCapacity": 100,
-            "capacities": {
-              "queueCapacitiesByPartition": [
+            'absoluteCapacity': 30.000002,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
                 {
-                  "partitionName": "",
-                  "capacity": 30.000002,
-                  "usedCapacity": 0,
-                  "maxCapacity": 100,
-                  "absoluteCapacity": 30.000002,
-                  "absoluteUsedCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "maxAMLimitPercentage": 0
-                }
-              ]
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
             },
-            "resources": {
-              "resourceUsagesByPartition": [
+            'resources': {
+              'resourceUsagesByPartition': [
                 {
-                  "partitionName": "",
-                  "used": {
-                    "memory": 0,
-                    "vCores": 0,
-                    "GPUs": 0
-                  }
-                }
-              ]
-            }
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
           },
           {
             'queueName': 'vc1',
             'state': 'RUNNING',
             'type': 'capacitySchedulerLeafQueueInfo',
-            "capacity": 50.000002,
-            "absoluteCapacity": 0,
-            "absoluteMaxCapacity": 100,
-            "capacities": {
-              "queueCapacitiesByPartition": [
+            'capacity': 50.000002,
+            'absoluteCapacity': 0,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
                 {
-                  "partitionName": "",
-                  "capacity": 30.000002,
-                  "usedCapacity": 0,
-                  "maxCapacity": 100,
-                  "absoluteCapacity": 30.000002,
-                  "absoluteUsedCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "maxAMLimitPercentage": 0
-                }
-              ]
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
             },
-            "resources": {
-              "resourceUsagesByPartition": [
+            'resources': {
+              'resourceUsagesByPartition': [
                 {
-                  "partitionName": "",
-                  "used": {
-                    "memory": 0,
-                    "vCores": 0,
-                    "GPUs": 0
-                  }
-                }
-              ]
-            }
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
           },
           {
             'queueName': 'vc2',
             'state': 'RUNNING',
             'type': 'capacitySchedulerLeafQueueInfo',
-            "capacity": 19.999996,
-            "absoluteCapacity": 0,
-            "absoluteMaxCapacity": 100,
-            "capacities": {
-              "queueCapacitiesByPartition": [
+            'capacity': 19.999996,
+            'absoluteCapacity': 0,
+            'absoluteMaxCapacity': 100,
+            'capacities': {
+              'queueCapacitiesByPartition': [
                 {
-                  "partitionName": "",
-                  "capacity": 30.000002,
-                  "usedCapacity": 0,
-                  "maxCapacity": 100,
-                  "absoluteCapacity": 30.000002,
-                  "absoluteUsedCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "maxAMLimitPercentage": 0
-                }
-              ]
+                  'partitionName': '',
+                  'capacity': 30.000002,
+                  'usedCapacity': 0,
+                  'maxCapacity': 100,
+                  'absoluteCapacity': 30.000002,
+                  'absoluteUsedCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'maxAMLimitPercentage': 0,
+                },
+              ],
             },
-            "resources": {
-              "resourceUsagesByPartition": [
+            'resources': {
+              'resourceUsagesByPartition': [
                 {
-                  "partitionName": "",
-                  "used": {
-                    "memory": 0,
-                    "vCores": 0,
-                    "GPUs": 0
-                  }
-                }
-              ]
-            }
-          }
-        ]
+                  'partitionName': '',
+                  'used': {
+                    'memory': 0,
+                    'vCores': 0,
+                    'GPUs': 0,
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
       'type': 'capacityScheduler',
-      'usedCapacity': 0.0
-    }
-  }
+      'usedCapacity': 0.0,
+    },
+  },
 };
 
 const nodeResponse = {
-  "nodes": {
-    "node": [
+  'nodes': {
+    'node': [
       {
-        "rack": "/default-rack",
-        "state": "RUNNING",
-        "id": "10.151.40.132:8041",
-        "nodeHostName": "10.151.40.132",
-        "nodeHTTPAddress": "10.151.40.132:8042",
-        "numContainers": 2,
-        "usedMemoryMB": 3072,
-        "availMemoryMB": 205824,
-        "usedVirtualCores": 2,
-        "availableVirtualCores": 22,
-        "usedGPUs": 1,
-        "availableGPUs": 3,
-        "availableGPUAttribute": 14,
-        "nodeLabels": [
-          "test_vc"
+        'rack': '/default-rack',
+        'state': 'RUNNING',
+        'id': '10.151.40.132:8041',
+        'nodeHostName': '10.151.40.132',
+        'nodeHTTPAddress': '10.151.40.132:8042',
+        'numContainers': 2,
+        'usedMemoryMB': 3072,
+        'availMemoryMB': 205824,
+        'usedVirtualCores': 2,
+        'availableVirtualCores': 22,
+        'usedGPUs': 1,
+        'availableGPUs': 3,
+        'availableGPUAttribute': 14,
+        'nodeLabels': [
+          'test_vc',
         ],
       },
       {
-        "rack": "/default-rack",
-        "state": "RUNNING",
-        "id": "10.151.40.131:8041",
-        "nodeHostName": "10.151.40.131",
-        "nodeHTTPAddress": "10.151.40.131:8042",
-        "numContainers": 2,
-        "usedMemoryMB": 3072,
-        "availMemoryMB": 205824,
-        "usedVirtualCores": 2,
-        "availableVirtualCores": 22,
-        "usedGPUs": 1,
-        "availableGPUs": 3,
-        "availableGPUAttribute": 14,
-      }
-    ]
-  }
+        'rack': '/default-rack',
+        'state': 'RUNNING',
+        'id': '10.151.40.131:8041',
+        'nodeHostName': '10.151.40.131',
+        'nodeHTTPAddress': '10.151.40.131:8042',
+        'numContainers': 2,
+        'usedMemoryMB': 3072,
+        'availMemoryMB': 205824,
+        'usedVirtualCores': 2,
+        'availableVirtualCores': 22,
+        'usedGPUs': 1,
+        'availableGPUs': 3,
+        'availableGPUAttribute': 14,
+      },
+    ],
+  },
+};
+
+const user1Schema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '7573657231', // user1
+  },
+  'data': {
+    'email': '',
+    'extension': 'e30=', // {}
+    'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=', // ["default","vc1"]
+    'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
+    'username': 'dXNlcjE=', // user1
+  },
+  'type': 'Opaque',
+};
+
+const defaultGroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '64656661756c74', // default
+  },
+  'data': {
+    'groupname': 'ZGVmYXVsdA==', // default
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
+  },
+  'type': 'Opaque',
+};
+
+const vc1GroupSchema = {
+  'kind': 'Secret',
+  'apiVersion': 'v1',
+  'metadata': {
+    'name': '766331', // vc1
+  },
+  'data': {
+    'groupname': 'dmMx', // vc1
+    'description': 'dGVzdA==',
+    'externalName': 'MTIzNA==',
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+  },
+  'type': 'Opaque',
 };
 
 describe('Submit job: POST /api/v2/user/:username/jobs', () => {
@@ -237,21 +283,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque'
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -332,21 +368,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque'
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -405,21 +431,11 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-            'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque'
-    });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
   };
 
   const prepareNockForCaseN08 = prepareNockForCaseN03;
@@ -430,7 +446,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[P-01] Submit a job to the default vc', (done) => {
     prepareNockForCaseP01('user1', 'new_job');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'});
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job', 'virtualCluster': 'default'});
     global.chai.request(global.server)
       .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -447,8 +463,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
 
   it('[P-02] Submit a job to a valid virtual cluster', (done) => {
     prepareNockForCaseP02('user1', 'new_job_in_vc1');
-    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1'});
-    jobConfig['virtualCluster'] = 'vc1';
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1', 'virtualCluster': 'vc1'});
     global.chai.request(global.server)
       .post('/api/v2/user/user1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -469,7 +484,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job');
@@ -479,13 +494,13 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       });
   });
 
-  it('[P-03] Submit a job using PUT method, but not created in launcher on time', (done) => {
+  it('[P-04] Submit a job using PUT method, but not created in launcher on time', (done) => {
     prepareNockForCaseP04('user1', 'new_job');
     global.chai.request(global.server)
       .put('/api/v2/user/user1/jobs/new_job')
       .set('Authorization', 'Bearer ' + validToken)
       .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'location header').to.have.header('location', 'http://example.test/api/v2/user/user1/jobs/new_job');
@@ -520,7 +535,7 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body, 'response body content').include({ code: 'InvalidParametersError' });
+        global.chai.expect(res.body, 'response body content').include({code: 'InvalidParametersError'});
         done();
       });
   });
@@ -609,7 +624,6 @@ describe('Submit job: POST /api/v2/user/:username/jobs', () => {
         done();
       });
   });
-
 });
 
 describe('Submit job: POST /api/v1/jobs', () => {
@@ -677,21 +691,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
     //
     nock(global.apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7573657231')
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-          'name': '7573657231',
-        },
-        'data': {
-          'email': '',
-          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIl19',
-          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
-          'password': 'ZmE5NGU5MDE0ZWI1MmU4YTk3Mjg2ZjJmNjVhOWU1OTdlMjIyMTVjMmM1NmIzYjJhYmJhOWRmY2ZmZjJmZjM3MTgzM2ZkOTExYWFhZWM0YmI4N2VkYmI0YTc5NWQ3Nzk5OWNkMWI0MWY4MDg3ODQ4NmE3ZTIwYWJmOGM0YWQ1ODc=',
-          'username': 'dXNlcjE=',
-        },
-        'type': 'Opaque'
-      });
+      .reply(200, user1Schema)
+      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
+      .reply(200, defaultGroupSchema)
+      .get('/api/v1/namespaces/pai-group/secrets/766331')
+      .reply(200, vc1GroupSchema);
 
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')

@@ -20,6 +20,7 @@ import {getTheme, ColorClassNames, CommandBar, CommandBarButton, SearchBox, Stac
 
 import Context from './Context';
 import Filter from './Filter';
+import {getStatusText} from './utils';
 
 import webportalConfig from '../../../../config/webportal.config';
 import FilterButton from './FilterButton';
@@ -78,7 +79,7 @@ function TopBar() {
         alert(err.message);
       });
 
-    fetch(`${webportalConfig.restServerUri}/api/v1/virtual-clusters`)
+    fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`)
       .then((response) => {
         return response.json();
       }).then((body) => {
@@ -174,8 +175,12 @@ function TopBar() {
     };
   }
 
+  const ableStop = selectedJobs.length > 0 && selectedJobs.every((job) => {
+    return getStatusText(job) === 'Waiting' || getStatusText(job) === 'Running';
+  });
+
   const topBarItems = [
-    selectedJobs.length ? getStop() : getNew(),
+    ableStop ? getStop() : getNew(),
     getRefresh(),
   ];
   const topBarFarItems = [getFilters()];

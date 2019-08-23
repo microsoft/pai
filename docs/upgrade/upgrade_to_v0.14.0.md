@@ -16,8 +16,10 @@ The [dev-box](../pai-management/doc/how-to-setup-dev-box.md) is a docker contain
 
 ```bash
 # build dev-box
-git clone -b v0.14.0 https://github.com/Microsoft/pai.git
-cd pai/src/dev-box
+git clone https://github.com/Microsoft/pai.git
+cd pai
+git checkout v0.14.0
+cd src/dev-box
 sudo docker build -t dev-box . --file=./build/dev-box.dockerfile
 
 # create dev-box
@@ -34,6 +36,7 @@ sudo docker run -itd \
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
+pip install future
 cd /pai
 
 # setup kubernetes environments
@@ -59,6 +62,8 @@ There should be four files under the `<path_of_config>`:
 2. `k8s-role-definition.yaml`
 3. `kubernetes-configuration.yaml`
 4. `services-configuration.yaml`
+
+> Whenever you were asked to input the cluster id, you could run ```./paictl.py config get-id``` to get it.
 
 ### Change PAI Cluster Version
 

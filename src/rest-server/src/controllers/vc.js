@@ -17,7 +17,7 @@
 
 // module dependencies
 const util = require('util');
-const VirtualCluster = require('@pai/models/vc');
+const VirtualCluster = require('@pai/models/v1/virtual-cluster');
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const authConfig = require('@pai/config/authn');
@@ -83,8 +83,8 @@ const update = async (req, res, next) => {
     let operationType = 'update';
     try {
       const groupInfo = await groupModel.getGroup(req.params.vcName);
-      if (!groupInfo.extension.groupType || groupInfo.extension.groupType !== 'vc') {
-        return next(createError('Conflict', 'ConflictVcError', `Name ${req.body.username} already exists.`));
+      if (!groupInfo.extension.acls || groupInfo.extension.acls.virtualClusters.length !== 1 || !groupInfo.extension.acls.virtualClusters.includes(req.params.vcName)) {
+        return next(createError('Conflict', 'ConflictVcError', `Group name ${req.params.vcName} already exists.`));
       }
     } catch (error) {
       if (error.status !== 404) {
@@ -103,7 +103,11 @@ const update = async (req, res, next) => {
       });
     }
     const groupname = req.params.vcName;
-    const extension = {'groupType': 'vc'};
+    const extension = {
+      acls: {
+        virtualClusters: [req.params.vcName],
+      },
+    };
     const externalName = req.body.externalName;
     const description = req.body.description;
     const groupValue = {
@@ -113,6 +117,7 @@ const update = async (req, res, next) => {
       extension: extension,
     };
     await groupModel.createGroup(groupname, groupValue);
+    await groupModel.addVCintoAdminGroup(req.params.vcName);
     return res.status(201).json({
       message: `create vc: ${vcName} to capacity: ${vcCapacity} successfully`,
     });
@@ -173,6 +178,7 @@ const remove = async (req, res, next) => {
     const vcName = req.params.vcName;
     await util.promisify(VirtualCluster.prototype.removeVc).apply(VirtualCluster.prototype, [vcName]);
     await groupModel.deleteGroup(vcName);
+    await groupModel.deleteVCfromAllGroup(vcName);
     return res.status(201).json({
       message: `Remove vc: ${vcName} successfully`,
     });

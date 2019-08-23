@@ -80,7 +80,7 @@ const JobStatus = ({className, jobs}) => {
   let succeeded = 0;
   if (!isEmpty(jobs)) {
     waiting = jobs.filter((x) => getHumanizedJobStateString(x) === 'Waiting').length;
-    running = jobs.filter((x) => ['Running', 'Stopping', 'Completing'].includes(getHumanizedJobStateString(x))).length;
+    running = jobs.filter((x) => ['Running', 'Stopping', 'Completing', 'RetryPending'].includes(getHumanizedJobStateString(x))).length;
     stopped = jobs.filter((x) => getHumanizedJobStateString(x) === 'Stopped').length;
     failed = jobs.filter((x) => getHumanizedJobStateString(x) === 'Failed').length;
     succeeded = jobs.filter((x) => getHumanizedJobStateString(x) === 'Succeeded').length;

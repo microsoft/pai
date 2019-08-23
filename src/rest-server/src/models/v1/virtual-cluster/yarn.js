@@ -22,14 +22,6 @@ const xml2js = require('xml2js');
 const yarnConfig = require('@pai/config/yarn');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
-const dbUtility = require('@pai/utils/dbUtil');
-const secretConfig = require('@pai/config/secret');
-
-
-const db = dbUtility.getStorageObject('UserSecret', {
-  'paiUserNameSpace': secretConfig.paiUserNameSpace,
-  'requestConfig': secretConfig.requestConfig(),
-});
 
 class VirtualCluster {
   getCapacitySchedulerInfo(queueInfo) {
@@ -119,7 +111,10 @@ class VirtualCluster {
         try {
           const resJson = typeof res.body === 'object' ?
             res.body : JSON.parse(res.body);
-          const nodeInfo = resJson.nodes.node;
+          let nodeInfo = [];
+          if (resJson.nodes && resJson.nodes.node) {
+            nodeInfo = resJson.nodes.node;
+          }
           let labeledResource = this.getResourceByLabel(nodeInfo);
           let labeledNodes = this.getNodesByLabel(nodeInfo);
           for (let vcName of Object.keys(vcInfo)) {
@@ -146,6 +141,42 @@ class VirtualCluster {
     });
   }
 
+  addDedicatedInfoPromise(vcInfo) {
+    return new Promise((res, rej) => {
+      unirest.get(yarnConfig.yarnNodeInfoPath)
+        .headers(yarnConfig.webserviceRequestHeaders)
+        .end((response) => {
+          if (response.error) {
+            rej(response.error);
+          } else {
+            const resJson = typeof response.body === 'object' ?
+              response.body : JSON.parse(response.body);
+            const nodeInfo = resJson.nodes.node;
+            let labeledResource = this.getResourceByLabel(nodeInfo);
+            let labeledNodes = this.getNodesByLabel(nodeInfo);
+            for (let vcName of Object.keys(vcInfo)) {
+              let resourcesTotal = {
+                vCores: 0,
+                memory: 0,
+                GPUs: 0,
+              };
+              let vcLabel = vcInfo[vcName].defaultLabel;
+              delete vcInfo[vcName].defaultLabel;
+              if (labeledResource.hasOwnProperty(vcLabel)) {
+                let p = vcInfo[vcName].capacity;
+                resourcesTotal.vCores = labeledResource[vcLabel].vCores * p / 100;
+                resourcesTotal.memory = labeledResource[vcLabel].memory * p / 100;
+                resourcesTotal.GPUs = labeledResource[vcLabel].GPUs * p / 100;
+              }
+              vcInfo[vcName].resourcesTotal = resourcesTotal;
+              vcInfo[vcName].nodeList = labeledNodes[vcLabel] || [];
+            }
+            res(vcInfo);
+          }
+        });
+    });
+  }
+
   getVcList(next) {
     unirest.get(yarnConfig.yarnVcInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -166,6 +197,39 @@ class VirtualCluster {
           next(null, error);
         }
       });
+  }
+
+  getVcListPromise() {
+    return new Promise((res, rej) => {
+      unirest.get(yarnConfig.yarnVcInfoPath)
+        .headers(yarnConfig.webserviceRequestHeaders)
+        .end((response) => {
+          if (response.error) {
+            rej(response.error);
+          } else {
+            res(response.body);
+          }
+        });
+    });
+  }
+
+  async getVcListAsyc() {
+    try {
+      const response = await this.getVcListPromise();
+      const resJson = typeof response === 'object' ?
+        response : JSON.parse(response);
+      const schedulerInfo = resJson.scheduler.schedulerInfo;
+      if (schedulerInfo.type === 'capacityScheduler') {
+        let vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
+        let ret = await this.addDedicatedInfoPromise(vcInfo);
+        return ret;
+      } else {
+        throw createError('Internal Server Error', 'BadConfigurationError',
+          `Scheduler type ${schedulerInfo.type} is not supported.`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   generateUpdateInfo(updateData) {
@@ -279,22 +343,6 @@ class VirtualCluster {
             if (err) {
               return callback(err);
             } else {
-              // update admin users' permission
-              try {
-                const userList = await db.get('', null);
-                for (const user of userList) {
-                  if (user.admin === 'true') {
-                    const vc = user.virtualCluster.trim().split(',');
-                    if (!vc.find((x) => x === vcName)) {
-                      vc.push(vcName);
-                    }
-                    user.virtualCluster = vc.join(',');
-                    await db.set(user.username, user, {update: true});
-                  }
-                }
-              } catch (e) {
-                return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
-              }
               return callback(null);
             }
           });
@@ -431,19 +479,6 @@ class VirtualCluster {
                     }
                   });
                 } else {
-                  // update permission
-                  try {
-                    const userList = await db.get('', null);
-                    for (const user of userList) {
-                      const vc = user.virtualCluster.trim().split(',');
-                      if (vc.find((x) => x === vcName)) {
-                        user.virtualCluster = vc.filter((x) => x !== vcName).join(',');
-                        await db.set(user.username, user, {update: true});
-                      }
-                    }
-                  } catch (e) {
-                    return callback(createError('Internal Server Error', 'UnknownError', `Failed to update user's permission`));
-                  }
                   return callback(null);
                 }
               });

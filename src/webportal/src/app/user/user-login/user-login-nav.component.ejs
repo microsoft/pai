@@ -15,6 +15,7 @@
 <% if (window.ENV.authnMethod !== 'OIDC') { %>
       <li><a href="#" onclick="window.location.replace('/change-password.html')">Change password</a></li>
 <% } %>
+      <li><a href="#" onclick="showUserToken()">View token</a></li>
       <li><a href="#" onclick="userLogout('/home.html')">Logout</a></li>
     </ul>
   </li>

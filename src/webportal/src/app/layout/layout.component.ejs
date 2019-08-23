@@ -105,9 +105,17 @@
             %>]" target="_blank">
               <i class="fa fa-comments"></i>
               <span>Feedback</span>
+              <% if (htmlWebpackPlugin.options.commitVersion) { %>
+              <span class="pull-right-container" style="margin-top: -16px">
+                <small class="label pull-right bg-blue"><%= htmlWebpackPlugin.options.version %></small>
+                <br>
+                <small class="label pull-right bg-blue">webportal@<%= htmlWebpackPlugin.options.commitVersion %></small>
+              </span>
+              <% } else { %>
               <span class="pull-right-container">
                 <small class="label pull-right bg-blue"><%= htmlWebpackPlugin.options.version %></small>
               </span>
+              <% } %>
             </a>
           </li>
         </ul>

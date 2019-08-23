@@ -1,0 +1,17 @@
+files:
+  - source: '/**/*.[mM][dD]'
+    ignore:
+      - '*%locale_with_underscore%*'
+      - /.github/**/*
+      - /docs
+      - /src
+      - /examples
+      - /subprojects
+      - /contrib/submit*
+      - /contrib/storage*
+      - /contrib/marketplace
+    translation: /%original_path%/%file_name%_%locale_with_underscore%.%file_extension%
+  - source: /docs/**/*
+    ignore:
+      - '*%locale_with_underscore%*'
+    translation: /docs/%locale_with_underscore%/**/%original_file_name%
