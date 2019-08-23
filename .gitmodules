@@ -1,0 +1,3 @@
+[submodule "src/k8s-frameworkcontroller/src"]
+	path = src/k8s-frameworkcontroller/src
+	url = https://github.com/microsoft/frameworkcontroller
