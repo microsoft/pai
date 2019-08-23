@@ -36,6 +36,7 @@ import {Header} from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
 import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
 import {stopJob} from './conn';
+import {cloneDeep} from 'lodash';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -174,9 +175,9 @@ const AbnormalJobList = ({jobs}) => {
   const stopAbnormalJob = useCallback((job) => {
     userAuth.checkToken(() => {
       stopJob(job).then(() => {
-        job.executionType = 'STOP';
-        const copyJobs = [...abnormalJobs];
-        setAbnormalJobs(copyJobs);
+        const cloneJobs = cloneDeep(abnormalJobs);
+        cloneJobs.executionType = 'STOP';
+        setAbnormalJobs(cloneJobs);
       }).catch(alert);
     });
   }, [abnormalJobs]);
