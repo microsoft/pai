@@ -35,7 +35,7 @@ const userLoginNavHtml = userLoginNavComponent({cookies});
 const showUserToken = () => {
   const token = cookies.get('token');
   const expiration = new Date(jwt.decode(token).exp * 1000);
-  alert(`token : \r` + token + `\r\rexpiration date : \r` + expiration);
+  prompt(`Expiration date\n${expiration}\n\nToken`, token);
 };
 
 window.showUserToken = showUserToken;

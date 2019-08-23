@@ -99,7 +99,7 @@ function generateJobName(jobName) {
 
 const JobSubmission = () => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
-    new JobTaskRole({name: 'Task_role_1'}),
+    new JobTaskRole({name: 'taskrole1'}),
   ]);
   const [parameters, setParametersState] = useState([{key: '', value: ''}]);
   const [secrets, setSecretsState] = useState([{key: '', value: ''}]);
@@ -143,7 +143,7 @@ const JobSubmission = () => {
   const setJobTaskRoles = useCallback(
     (taskRoles) => {
       if (isEmpty(taskRoles)) {
-        setJobTaskRolesState([new JobTaskRole({name: 'Task_role_1'})]);
+        setJobTaskRolesState([new JobTaskRole({name: 'taskrole1'})]);
       } else {
         setJobTaskRolesState(taskRoles);
       }

@@ -8,7 +8,7 @@ import {createUniqueName} from '../utils/utils';
 import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 
-const HEADER_PREFIX = 'Task_role';
+const HEADER_PREFIX = 'taskrole';
 let taskRoleSeq = 1;
 
 function generateUniqueTaskName(taskRoles, curIndex) {
