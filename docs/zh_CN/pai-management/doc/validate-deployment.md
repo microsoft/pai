@@ -22,9 +22,9 @@
 ### Index:
 
 - [1 Drivers](#gpu_check)
-    
+
     - [1.1 Check Drivers service's log](#drivers_log)
-    
+
     - [2.1 Check Drivers version](#drivers_version)
 
 - [2 Data path check](#datapath_check)
@@ -32,11 +32,11 @@
 - [3 Admin Account in Webportal](#admin_check)
 
 - [4 Troubleshooting OpenPAI services](#troubleshooting_4)
-    
+
     - [4.1 Diagnosing the problem](#troubleshooting_4.1)
-    
+
     - [4.2 Fix problem](#troubleshooting_4.2)
-    
+
     - [4.3 Reboot service](#troubleshooting_4.3)
 
 - [5 Troubleshooting Kubernetes Clusters](#troubleshooting_5)
@@ -50,7 +50,7 @@
 Dashboard:
 
     http://<master>:9090
-    
+
 
 search driver, view driver status
 
@@ -114,7 +114,7 @@ hadooptmp  hdfs  launcherlogs  prometheus  yarn  zoodata
 Dashboard:
 
     http://<master>:9286/virtual-clusters.html
-    
+
 
 try to login:
 
@@ -133,7 +133,7 @@ Note: The username and password are configured in the ```service-configuraiton.y
 Dashboard:
 
     http://<master>:9090
-    
+
 
 ![PAI_deploy_log](./images/PAI_deploy_pod.png)
 
@@ -175,14 +175,14 @@ Check and refine 4 yaml files:
         - kubernetes-configuration.yaml
         - k8s-role-definition.yaml
         - serivices-configuration.yaml
-    
+
 
 - Customize config for specific service
 
 If user want to customize single service, you could find service config file at [src](../../../../src) and find image dockerfile at [src](../../../../src).
 
 - Update Code & Image
-    
+
     - Customize image dockerfile or code
 
 User could find service's image dockerfile at [src](../../../../src) and customize them.
@@ -212,10 +212,10 @@ If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `w
 ```bash
 python paictl.py service stop \
   [ -c /path/to/kubeconfig ] \
-  [ -n service-name ]
+  [ -n service-list ]
 ```
 
-If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped.
+If the -n parameter is specified, only the given services, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped.
 
 2.     Boot up single all OpenPAI services.
 
