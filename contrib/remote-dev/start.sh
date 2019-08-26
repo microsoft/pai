@@ -90,5 +90,7 @@ fi
 log_output "SSH IP: ${sship}"
 log_output "SSH Port: ${sshport}"
 log_output "SSH Key: ~/.openpai/${jobname}.key"
-log_output "SSH into your container now..."
+log_output "SSH CMD: ssh -i ~/.openpai/${jobname}.key -p ${sshport} root@${sship}\"
+log_output "SSH into your container..."
+read_input
 ssh -i ~/.openpai/${jobname}.key -p ${sshport} root@${sship}
