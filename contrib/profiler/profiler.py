@@ -269,7 +269,7 @@ def analyze_samples(sample_list):
 
 
 def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid):
-    start_time = time.perf_counter()
+    start_time = time.time()
     if not os.path.exists('./' + dir):
         os.mkdir(dir)
     realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w'))  # , newline=''))
@@ -306,7 +306,7 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
         container_mem_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
         container_blk_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/net/dev'
-    while time.perf_counter() - start_time < 600:
+    while time.time() - start_time < 600:
         [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
 
         # 1st info about I/O, network and CPU
