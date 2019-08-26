@@ -10,6 +10,19 @@ import base64
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
+
 logger = logging.getLogger(__name__)
 setup_logger_config(logger)
 
@@ -237,19 +250,6 @@ class TransferClient:
 
     def create_secret_group_v2(self, payload):
         self.create_secret_in_namespace_if_not_exist(payload, self.secret_ns_group_v2)
-
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
 
 def main():
     parser = argparse.ArgumentParser(description="pai build client")
