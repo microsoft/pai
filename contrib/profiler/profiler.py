@@ -89,11 +89,11 @@ def get_system_cpu_ticks():
 
 
 # To get the CPU running time of container from being booted
-def get_container_cpu_ticks(filelist):
+def get_container_cpu_ticks(file_list):
     # docker_cpu_path = '/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat'
     user_time = 0
     system_time = 0
-    for filename in filelist:
+    for filename in file_list:
         with open(filename, 'r') as f:
             for line in f:
                 items = line.split()
@@ -107,15 +107,15 @@ def get_container_cpu_ticks(filelist):
     return user_time + system_time
 
 
-def get_cpu_ticks(filelist):
+def get_cpu_ticks(file_list):
     sys_ticks = get_system_cpu_ticks()
-    container_ticks = get_container_cpu_ticks(filelist)
+    container_ticks = get_container_cpu_ticks(file_list)
     return [sys_ticks, container_ticks]
     # time.sleep(period)
 
     # online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
     # sys_delta = get_system_cpu_ticks() - sys_ticks
-    # container_Delta = get_container_cpu_ticks(filelist) - container_ticks
+    # container_Delta = get_container_cpu_ticks(file_list) - container_ticks
 
     # cpu_percent = (container_Delta * 1.0) / sys_delta * online_cpus * 100.0
     # return cpuPercent
@@ -145,13 +145,13 @@ def get_gpu_memory(gpu_idx):
     return mem
 
 
-def get_memory_percent(filelist):
+def get_memory_percent(file_list):
     # docker_memory_used_path = '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes'
     total_memory_path = '/proc/meminfo'
 
     memory_docker_used = 0.0
     total_memory = 1.0
-    for filename in filelist:
+    for filename in file_list:
         with open(filename, 'r') as f:
             for line in f:
                 memory_docker_used = int(line)
@@ -165,10 +165,10 @@ def get_memory_percent(filelist):
     return [memory_docker_used, total_memory]
 
 
-def get_disk_read_bytes(filelist):
+def get_disk_read_bytes(file_list):
     # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     read_bytes = 0
-    for filename in filelist:
+    for filename in file_list:
         with open(filename, 'r') as f:
             for line in f:
                 items = line.split()
@@ -179,10 +179,10 @@ def get_disk_read_bytes(filelist):
     return read_bytes
 
 
-def get_disk_write_bytes(filelist):
+def get_disk_write_bytes(file_list):
     # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     write_bytes = 0
-    for filename in filelist:
+    for filename in file_list:
         with open(filename, 'r') as f:
             for line in f:
                 items = line.split()
@@ -268,12 +268,12 @@ def analyze_samples(sample_list):
             sum(disk_read_when_gpu_low) / length_gpu_low]
 
 
-def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid):
+def start_sample(container_id, period, analyze_period, one_duration, output_dir, gpu_id, *container_pid):
     start_time = time.time()
-    if not os.path.exists('./' + dir):
-        os.mkdir(dir)
-    realtime_log = csv.writer(open('./' + dir + '/log_result.csv', 'w'))  # , newline=''))
-    analyze_log = csv.writer(open('./' + dir + '/analyze_result.csv', 'w'))  # , newline=''))
+    if not os.path.exists('./' + output_dir):
+        os.mkdir(output_dir)
+    realtime_log = csv.writer(open('./' + output_dir + '/log_result.csv', 'w'))  # , newline=''))
+    analyze_log = csv.writer(open('./' + output_dir + '/analyze_result.csv', 'w'))  # , newline=''))
 
     str_write_realtime = ['cpu_usage', 'mem_used', 'IO_read', 'IO_write', 'network_receive', 'network_transmit']
     for i in range(len(gpu_id)):
@@ -285,9 +285,9 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
                           'avg_cpu_gpu_low', 'avg_mem_gpu_low', 'avg_IO_gpu_low'])
     nv.nvmlInit()
     sample_list = list()
-    container_cpu_filelist = list()
-    container_mem_filelist = list()
-    container_blk_filelist = list()
+    container_cpu_file_list = list()
+    container_mem_file_list = list()
+    container_blk_file_list = list()
     # container_net_file = ''
 
     print(
@@ -295,31 +295,31 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
         '\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
 
     if container_pid:
-        container_cpu_filelist = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
-        container_mem_filelist = glob.glob(
+        container_cpu_file_list = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
+        container_mem_file_list = glob.glob(
             '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')
-        container_blk_filelist = glob.glob(
+        container_blk_file_list = glob.glob(
             '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/' + str(container_pid[0]) + '/net/dev'
     else:
-        container_cpu_filelist.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
-        container_mem_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
-        container_blk_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
+        container_cpu_file_list.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
+        container_mem_file_list.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
+        container_blk_file_list.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/net/dev'
     while time.time() - start_time < one_duration * 60:
-        [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
+        [mem_used, mem_total] = get_memory_percent(container_mem_file_list)
 
         # 1st info about I/O, network and CPU
-        read_bytes1 = get_disk_read_bytes(container_blk_filelist)
-        write_bytes1 = get_disk_write_bytes(container_blk_filelist)
+        read_bytes1 = get_disk_read_bytes(container_blk_file_list)
+        write_bytes1 = get_disk_write_bytes(container_blk_file_list)
         [network_receive1, network_transmit1] = get_network_bytes(container_net_file)
-        [sys_ticks1, container_ticks1] = get_cpu_ticks(container_cpu_filelist)
+        [sys_ticks1, container_ticks1] = get_cpu_ticks(container_cpu_file_list)
         time.sleep(period)
         # 2nd info about I/O, network and CPU, calculate how many bytes used in this period
-        read_bytes2 = get_disk_read_bytes(container_blk_filelist)
-        write_bytes2 = get_disk_write_bytes(container_blk_filelist)
+        read_bytes2 = get_disk_read_bytes(container_blk_file_list)
+        write_bytes2 = get_disk_write_bytes(container_blk_file_list)
         [network_receive2, network_transmit2] = get_network_bytes(container_net_file)
-        [sys_ticks2, container_ticks2] = get_cpu_ticks(container_cpu_filelist)
+        [sys_ticks2, container_ticks2] = get_cpu_ticks(container_cpu_file_list)
 
         online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
         cpu_usage = (container_ticks2 - container_ticks1) * 1.0 / (sys_ticks2 - sys_ticks1) * online_cpus * 100
@@ -342,7 +342,7 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
             str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
         realtime_log.writerow(str_write_realtime)
 
-        if len(sample_list) > one_duration / period:
+        if len(sample_list) > analyze_period / period:
             analyze_log.writerow(analyze_samples(sample_list))
             sample_list = list()
 
@@ -352,6 +352,7 @@ parser = argparse.ArgumentParser(description='The profiler to collect the hardwa
 parser.add_argument('--container_id', '-i', help='The SHA of the docker container', required=True)
 parser.add_argument('--container_pid', '-p', help='The pid of the docker container', required=True)
 parser.add_argument('--sample_period', help='The period of the CPU usage collecting', required=True, type=float)
+parser.add_argument('--analyze_period', help='The period of the CPU usage analyzing', required=True, type=float)
 parser.add_argument('--host_docker', help='Whether the profiler running on host or docker', required=True)
 parser.add_argument('--duration', help='The duration of sampling the data once', required=True, type=float)
 parser.add_argument('--output_dir', '-o', help='The output directory to store the files', required=True)
@@ -363,7 +364,8 @@ if __name__ == '__main__':
     GPU_INDEX = list(map(int, args.gpu_index.split(',')))
     # whether the profiler running on host or docker
     if args.host_docker == 'Host':
-        start_sample(args.container_id, args.sample_period, args.duration, args.output_dir, GPU_INDEX,
-                     args.container_pid)
+        start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir,
+                     GPU_INDEX, args.container_pid)
     else:
-        start_sample(args.container_id, args.sample_period, args.duration, args.output_dir, GPU_INDEX)
+        start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir,
+                     GPU_INDEX)

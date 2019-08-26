@@ -58,4 +58,4 @@ echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --host_docker $HOST_DOCKER --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
+exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 10 --host_docker $HOST_DOCKER --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
