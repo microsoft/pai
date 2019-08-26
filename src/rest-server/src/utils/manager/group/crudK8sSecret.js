@@ -19,6 +19,7 @@ const Group = require('./group');
 const axios = require('axios');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
+const logger = require('@pai/config/logger');
 
 /**
  * @typedef Config
@@ -117,13 +118,17 @@ async function readAll(config) {
     let allGroupInstance = [];
     let groupData = response['data'];
     for (const item of groupData['items']) {
-      let groupInstance = Group.createGroup({
-        'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
-        'description': Buffer.from(item['data']['description'], 'base64').toString(),
-        'externalName': Buffer.from(item['data']['externalName'], 'base64').toString(),
-        'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-      });
-      allGroupInstance.push(groupInstance);
+      try {
+        let groupInstance = Group.createGroup({
+          'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
+          'description': Buffer.from(item['data']['description'], 'base64').toString(),
+          'externalName': Buffer.from(item['data']['externalName'], 'base64').toString(),
+          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        });
+        allGroupInstance.push(groupInstance);
+      } catch (error) {
+        logger.debug(`secret ${item['metadata']['name']} is filtered in ${config.namespace} due to group schema`);
+      }
     }
     return allGroupInstance;
   } catch (error) {

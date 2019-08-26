@@ -10,6 +10,22 @@ import base64
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
+
+logger = logging.getLogger(__name__)
+setup_logger_config(logger)
+
 class EtcdUser:
 
     def __init__(self, user_name):
@@ -87,20 +103,23 @@ class TransferClient:
         decode_group_list = []
         vc_set = set()
         for group in ns_pai_group_list:
-            meta_dict = dict()
-            meta_dict['name'] = bytes.fromhex(group.metadata.name).decode('utf-8')
-            group_dict = {
-                'groupname': str(base64.b64decode(group.data['groupname'].encode('utf-8')), 'utf-8'),
-                'description': str(base64.b64decode(group.data['description'].encode('utf-8')), 'utf-8'),
-                'externalName': str(base64.b64decode(group.data['externalName'].encode('utf-8')), 'utf-8'),
-                'extension': json.loads(str(base64.b64decode(group.data['extension'].encode('utf-8')), 'utf-8')),
-            }
-            decode_group_list.append({
-                'metadata': meta_dict,
-                'data': group_dict,
-            })
-            if group_dict['extension'].get('groupType') == 'vc':
-                vc_set.add(group_dict['groupname'])
+            try:
+                meta_dict = dict()
+                meta_dict['name'] = bytes.fromhex(group.metadata.name).decode('utf-8')
+                group_dict = {
+                    'groupname': str(base64.b64decode(group.data['groupname'].encode('utf-8')), 'utf-8'),
+                    'description': str(base64.b64decode(group.data['description'].encode('utf-8')), 'utf-8'),
+                    'externalName': str(base64.b64decode(group.data['externalName'].encode('utf-8')), 'utf-8'),
+                    'extension': json.loads(str(base64.b64decode(group.data['extension'].encode('utf-8')), 'utf-8')),
+                }
+                decode_group_list.append({
+                    'metadata': meta_dict,
+                    'data': group_dict,
+                })
+                if group_dict['extension'].get('groupType') == 'vc':
+                    vc_set.add(group_dict['groupname'])
+            except Exception as e:
+                logger.debug("Filter the secret {0} in namespace {1} due to group schema.".format(group.metadata.name, self.secret_ns_group_v2))
         return decode_group_list, vc_set
 
     def convert_v2_group(self, data_dict, all_vcs):
@@ -232,22 +251,6 @@ class TransferClient:
     def create_secret_group_v2(self, payload):
         self.create_secret_in_namespace_if_not_exist(payload, self.secret_ns_group_v2)
 
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
-
-logger = logging.getLogger(__name__)
-setup_logger_config(logger)
-
 def main():
     parser = argparse.ArgumentParser(description="pai build client")
     parser.add_argument(
@@ -270,8 +273,11 @@ def main():
     if res[0] == 1 and res[1] == 1:
         ns_pai_user_list = transferCli.namespace_v1_data_prepare()
         for user in ns_pai_user_list:
-            secret_post_data = transferCli.secret_data_prepare_v2(user)
-            transferCli.create_secret_user_v2(secret_post_data)
+            try:
+                secret_post_data = transferCli.secret_data_prepare_v2(user)
+                transferCli.create_secret_user_v2(secret_post_data)
+            except Exception as e:
+                logger.debug("skip the secret {0} in  secret_data_prepare_v2 ".format(user))
         vc_set = transferCli.vc_set
         for vc in vc_set:
             secret_post_data = transferCli.secret_data_prepare_v2_group(vc)
