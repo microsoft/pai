@@ -19,6 +19,7 @@ const User = require('./user');
 const axios = require('axios');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
+const logger = require('@pai/config/logger');
 
 /**
  * @typedef Config
@@ -118,16 +119,18 @@ async function readAll(config) {
     let allUserInstance = [];
     let userData = response['data'];
     for (const item of userData['items']) {
-      // eslint-disable-next-line no-console
-      console.log(item);
-      let userInstance = User.createUser({
-        'username': Buffer.from(item['data']['username'], 'base64').toString(),
-        'password': Buffer.from(item['data']['password'], 'base64').toString(),
-        'grouplist': JSON.parse(Buffer.from(item['data']['grouplist'], 'base64').toString()),
-        'email': Buffer.from(item['data']['email'], 'base64').toString(),
-        'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
-      });
-      allUserInstance.push(userInstance);
+      try {
+        let userInstance = User.createUser({
+          'username': Buffer.from(item['data']['username'], 'base64').toString(),
+          'password': Buffer.from(item['data']['password'], 'base64').toString(),
+          'grouplist': JSON.parse(Buffer.from(item['data']['grouplist'], 'base64').toString()),
+          'email': Buffer.from(item['data']['email'], 'base64').toString(),
+          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        });
+        allUserInstance.push(userInstance);
+      } catch (error) {
+        logger.debug(`secret ${item['metadata']['name']} is filtered in ${config.namespace} due to user schema`);
+      }
     }
     return allUserInstance;
   } catch (error) {
