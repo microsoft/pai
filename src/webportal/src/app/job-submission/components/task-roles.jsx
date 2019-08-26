@@ -20,7 +20,7 @@ function generateUniqueTaskName(taskRoles, curIndex) {
   return newName;
 }
 
-export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
+export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag, isSingle}) => {
   const _onItemChange = (items) => {
     if (onChange === undefined) {
       return;
@@ -88,6 +88,7 @@ export const TaskRoles = React.memo(({taskRoles, onChange, advanceFlag}) => {
       onItemDelete={_onItemDelete}
       onItemsChange={_onItemChange}
       advanceFlag={advanceFlag}
+      isSingle={isSingle}
     />
   );
 });
@@ -96,4 +97,5 @@ TaskRoles.propTypes = {
   taskRoles: PropTypes.arrayOf(PropTypes.instanceOf(JobTaskRole)).isRequired,
   onChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
+  isSingle: PropTypes.bool,
 };

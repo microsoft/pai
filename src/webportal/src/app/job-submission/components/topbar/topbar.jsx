@@ -5,7 +5,7 @@
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -24,50 +24,36 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import {Text, Stack, FontWeights, Link} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {SidebarCard} from '../sidebar/sidebar-card';
-import {Hint} from '../sidebar/hint';
-import {TensorBoard} from './tensorboard';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
 
-export const ToolComponent = React.memo(({
-  jobData,
-  taskRoles,
-  extras,
-  onChange,
-  selected,
-  onSelect,
-}) => {
+import {ExportConfig} from './export-config';
+import {ImportConfig} from './import-config';
+
+export const Topbar = React.memo(({jobData, jobProtocol, onChange, extras}) => {
   return (
-    <SidebarCard
-      title='Tools'
-      tooltip={PROTOCOL_TOOLTIPS.tools}
-      selected={selected}
-      onSelect={onSelect}
-    >
-      <Stack gap='m'>
-        <Hint>
-          Tools section is used to configure the tools that are useful for jobs.
-        </Hint>
-        <div>
-          <TensorBoard
-            jobData={jobData}
-            taskRoles={taskRoles}
-            extras={extras}
-            onChange={onChange}
-          />
-        </div>
+    <Stack styles={{root: {height: '5%'}}} horizontal horizontalAlign='space-between' padding='l1 l2 l1 l2'>
+      <Stack horizontal gap='m' verticalAlign='baseline'>
+        <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
+          Job submission
+        </Text>
+        <Link
+          target='_blank'
+          href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
+          style={{fontWeight: FontWeights.semibold}}
+        >{'Learn more >'}</Link>
       </Stack>
-    </SidebarCard>
+      <Stack horizontal gap='s1'>
+        <ExportConfig jobData={jobData} jobProtocol={jobProtocol}/>
+        <ImportConfig extras={extras} onChange={onChange}/>
+      </Stack>
+    </Stack>
   );
 });
 
-ToolComponent.propTypes = {
-  jobData: PropTypes.object.isRequired,
-  taskRoles: PropTypes.array.isRequired,
-  extras: PropTypes.object,
-  onChange: PropTypes.func.isRequired,
-  selected: PropTypes.bool,
-  onSelect: PropTypes.func,
+Topbar.propTypes = {
+  jobData: PropTypes.object,
+  jobProtocol: PropTypes.object,
+  onChange: PropTypes.func,
+  extras: PropTypes.object.isRequired,
 };
