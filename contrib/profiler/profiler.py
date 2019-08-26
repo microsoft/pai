@@ -278,7 +278,9 @@ def start_sample(container_id, period, analyze_period, one_duration, output_dir,
     str_write_realtime = ['cpu_usage', 'mem_used', 'IO_read', 'IO_write', 'network_receive', 'network_transmit']
     for i in range(len(gpu_id)):
         str_write_realtime.append('gpu_usage_' + str(gpu_id[i]))
-        str_write_realtime.append('gpu_mem_used_' + str(gpu_id[i]))
+        str_write_realtime.append('gpu_mem_usage_' + str(gpu_id[i]))
+        # str_write_realtime.append('gpu_mem_used_' + str(gpu_id[i]))
+        # str_write_realtime.append('gpu_mem_total_' + str(gpu_id[i]))
     realtime_log.writerow(str_write_realtime)
 
     analyze_log.writerow(['max_gpu', 'avg_gpu', 'max_cpu', 'avg_cpu', 'max_mem', 'avg_mem', 'max_read', 'sum_read',
@@ -339,7 +341,9 @@ def start_sample(container_id, period, analyze_period, one_duration, output_dir,
         # the real-time file will log the information of all the GPUs that the model use
         for i in range(len(gpu_id)):
             str_write_realtime.append(get_gpu_utilization(gpu_id[i]).gpu)
-            str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
+            str_write_realtime.append(get_gpu_utilization(gpu_id[i]).memory)
+            # str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
+            # str_write_realtime.append(get_gpu_memory(gpu_id[i]).total)
         realtime_log.writerow(str_write_realtime)
 
         if len(sample_list) > analyze_period / period:
