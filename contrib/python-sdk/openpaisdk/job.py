@@ -13,7 +13,7 @@ from openpaisdk import get_install_uri
 from openpaisdk.cli_arguments import get_args
 from openpaisdk.io_utils import from_file, to_file, to_screen, safe_open, browser_open
 from openpaisdk.defaults import get_defaults, __default_job_resources__
-from openpaisdk.utils import find, na, get_response, NotReadyError, Retry
+from openpaisdk.utils import find, na, na_lazy, get_response, NotReadyError, Retry, concurrent_map, exception_free, RestSrvError
 from openpaisdk.cluster import get_cluster
 
 __protocol_filename__ = "job_protocol.yaml"
@@ -407,7 +407,7 @@ class Job:
         return self.client.rest_api_job_info(self.name)
 
     def state(self, status: dict = None):
-        status = na(status, self.status())
+        status = na_lazy(status, self.status)
         return status.get("jobStatus", {}).get("state", None)
 
     def wait(self, t_sleep: float = 10, timeout: float = 3600, silent: bool = False):
@@ -434,12 +434,13 @@ class Job:
             self.state
         )
 
-    def get_logs_url(self, status: dict=None, task_role: str = 'main', index: int = 0, logs: dict=None):
+    def get_logs_url(self, status: dict=None, task_role: str = 'main', index: int = 0, log_type: dict=None):
         """change to use containerLog"""
-        logs = na(logs, {
-            "stdout": "user.pai.stdout", "stderr": "user.pai.stderr"
+        log_type = na(log_type, {
+            "stdout": "user.pai.stdout/?start=0",
+            "stderr": "user.pai.stderr/?start=0"
         })
-        status = na(status, self.status())
+        status = na_lazy(status, self.status)
         containers = status.get("taskRoles", {}).get(task_role, {}).get("taskStatuses", [])
         if len(containers) < index + 1:
             return None
@@ -448,16 +449,17 @@ class Job:
             return None
         return {
             k: "{}{}".format(containerLog, v)
-            for k, v in logs.items()
+            for k, v in log_type.items()
         }
 
-    def logs(self, status: dict = None, task_role: str = 'main', index: int = 0, logs: dict = None):
-        status = na(status, self.status())
-        urls = self.get_logs_url(status, task_role, index, logs)
+    @exception_free(Exception, None)
+    def logs(self, status: dict = None, task_role: str = 'main', index: int = 0, log_type: dict = None):
+        status = na_lazy(status, self.status)
+        urls = self.get_logs_url(status, task_role, index, log_type)
         if not urls:
             return None
         return {
-            k: html2text(get_response(v, method='GET').text) for k, v in urls.items()
+            k: html2text(get_response('GET', v).text) for k, v in urls.items()
         }
 
     def plugin_uploadFiles(self, plugin: dict):
@@ -499,7 +501,7 @@ class Job:
 
     def connect_jupyter_batch(self, status: dict = None):
         "fetch the html result if ready"
-        status = na(status, self.status())
+        status = na_lazy(status, self.status)
         state = self.state(status)
         url = None
         if state in __job_states__["successful"]:
@@ -512,12 +514,12 @@ class Job:
 
     def connect_jupyter_interactive(self, status: dict=None):
         "get the url of notebook if ready"
-        status = na(status, self.status())
+        status = na_lazy(status, self.status)
         state = self.state(status)
         url = None
         if state == "RUNNING":
             log_url = self.get_logs_url(status)["stderr"]
-            job_log = html2text(get_response(log_url, method='GET').text).split('\n')
+            job_log = html2text(get_response('GET', log_url).text).split('\n')
             for line in job_log:
                 if re.search("The Jupyter Notebook is running at:", line):
                     container = status["taskRoles"]["main"]["taskStatuses"][0]
@@ -551,3 +553,36 @@ __job_states__ = {
 __job_states__["completed"] = __job_states__["successful"] + __job_states__["failed"]
 __job_states__["ready"] = __job_states__["completed"] + ["RUNNING"]
 __job_states__["valid"] = [s for sub in __job_states__.values() for s in sub]
+
+
+@exception_free(Exception, None)
+def get_logs(status: dict):
+    logs = {
+        'stdout': {}, 'stderr': {}
+    }
+    for tr_name, tf_info in status['taskRoles'].items():
+        for task_status in tf_info['taskStatuses']:
+            task_id = '{}[{}]'.format(tr_name, task_status['taskIndex'])
+            task_logs = Job().logs(status, tr_name, task_status['taskIndex'])
+            logs['stdout'][task_id] = task_logs['stdout']
+            logs['stderr'][task_id] = task_logs['stderr']
+    return logs
+
+
+def job_spider(cluster, jobs: list = None):
+    jobs = na_lazy(jobs, cluster.rest_api_job_list)
+    to_screen("{} jobs to be captured in the cluster {}".format(len(jobs), cluster.alias))
+    job_statuses = concurrent_map(
+        lambda j: cluster.rest_api_job_info(j['name'], info=None, user=j['username']),
+        jobs
+    )
+    job_configs = concurrent_map(
+        lambda j: cluster.rest_api_job_info(j['name'], info='config', user=j['username']),
+        jobs
+    )
+    job_logs = concurrent_map(get_logs, job_statuses)
+    for job, sta, cfg, logs in zip(jobs, job_statuses, job_configs, job_logs):
+        job['status'] = sta
+        job['config'] = cfg
+        job['logs'] = logs
+    return jobs

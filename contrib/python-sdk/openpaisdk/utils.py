@@ -3,16 +3,44 @@ common functions to
 """
 import importlib
 import os
-import functools
 import time
 from typing import Union
 from copy import deepcopy
+from functools import wraps
+from collections import Iterable
 from requests import Response, request
 from requests_toolbelt.utils import dump
 
 import subprocess
 from openpaisdk import __logger__
 from openpaisdk.io_utils import safe_chdir, to_screen
+
+
+def exception_free(err_type, default):
+    "return the default value if the exception is caught"
+    def inner_func(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            try:
+                return fn(*args, **kwargs)
+            except err_type as e:
+                to_screen(str(e), is_warn=True)
+                return default
+            except Exception as e:
+                raise e
+        return wrapper
+    return inner_func
+
+
+def concurrent_map(fn, it, max_workers=None):
+    "a wrapper of concurrent.futures.ThreadPoolExecutor.map, retrieve the results"
+    from concurrent.futures import ThreadPoolExecutor
+    ret = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = executor.map(fn, it)
+        for f in futures:
+            ret.append(f)
+    return ret
 
 
 class OrganizedList:
@@ -137,42 +165,40 @@ class Retry:
                 time.sleep(self.t_sleep)
 
 
-def get_response(
-        path: str,
-        headers: dict = {'Content-Type': 'application/json'},
-        body: dict = dict(),
-        method: str = 'POST',
-        allowed_status=[200],  # type: list[int]
-        max_try: int = 1) -> Response:
+def get_response(method: str, path: Union[list, str], headers: dict = None, body: dict = None, allowed_status: list = [200], **kwargs):
+    """an easy wrapper of request, including:
+    - path accept a list of strings and more complicated input
+        - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'
+        - ['aaa', 'bbb', ('xxx', None), 'ddd'] -> 'aaa/bbb/ccc'
+        - ['aaa', 'bbb', ('xxx', 'x-val'), 'ddd'] -> 'aaa/bbb/xxx/x-val/ccc'
+    - will checked the response status_code, raise RestSrvError if not in the allowed_status
     """
-    Send request to REST server and get the response.
+    def path_join(path):
+        def is_single_element(x):
+            return isinstance(x, str) or not isinstance(x, Iterable)
+        if is_single_element(path):
+            return str(path)
+        p_lst = []
+        for p in path:
+            if not p:
+                continue
+            if is_single_element(p):
+                p_lst.append(str(p))
+            elif all(p):
+                p_lst.extend([str(x) for x in p])
+        return '/'.join(p_lst)
 
-    Args:
-        path (str): REST server path
-        headers (dict, optional): Defaults to {'Content-Type': 'application/json'}. request headers
-        body (dict, optional): Defaults to dict(). data body of the request (default is json format)
-        method (str, optional): Defaults to 'POST'. POST / PUT / GET
-        allowed_status (list, optional): Defaults to [200]. raise exception if the status_code of response not in the list
-
-    Returns:
-        [Response]: request response
-    """
-    num, successful = 0, False
-    # deal with body format
-    dic = dict(headers=headers)
-    if headers.get('Content-Type', 'application/json'):
-        dic["json"] = body
-    else:
-        dic["data"] = body
-    while num < max_try:
-        num += 1
-        response = request(method, path, **dic)
-        __logger__.debug('----------Response-------------\n%s',
-                         dump.dump_all(response).decode('utf-8'))
-        if response.status_code in allowed_status:
-            successful = True
-            break
-    assert successful, (response.status_code, response.reason)
+    path = path_join(path)
+    headers = na(headers, {})
+    body = na(body, {})
+    application_json = 'Content-Type' not in headers or headers['Content-Type'] == 'application/json'
+    response = request(method, path, headers=headers, **kwargs, **{
+        "json" if application_json else "data": body
+    })
+    __logger__.debug('----------Response-------------\n%s', dump.dump_all(response).decode('utf-8'))
+    if allowed_status and response.status_code not in allowed_status:
+        __logger__.warn(response.status_code, response.json())
+        raise RestSrvError(response.status_code, response.json())
     return response
 
 
@@ -195,3 +221,11 @@ def find(fmt: str, s: str, g: int = 1, func=None):
 
 def na(a, default):
     return a if a is not None else default
+
+
+def na_lazy(a, fn, *args, **kwargs):
+    return a if a is not None else fn(*args, **kwargs)
+
+
+def flatten(lst: list):
+    return sum(lst, [])

@@ -8,7 +8,7 @@ from openpaisdk.cli_arguments import get_args
 from openpaisdk.io_utils import from_file, to_file, to_screen
 from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import get_response, na
+from openpaisdk.utils import get_response, na, exception_free, RestSrvError, concurrent_map
 
 
 def get_cluster(alias: str, fname: str = __cluster_config_file__, get_client: bool = True):
@@ -71,11 +71,9 @@ class ClusterList:
 
     def available_resources(self):
         "concurrent version to get available resources"
-        import concurrent.futures
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            aliases = self.aliases
-            ret = executor.map(Cluster.available_resources, (self.get_client(a) for a in aliases))
-            return {a: r for a, r in zip(aliases, ret) if r is not None}
+        aliases = self.aliases
+        ret = concurrent_map(Cluster.available_resources, (self.get_client(a) for a in aliases))
+        return {a: r for a, r in zip(aliases, ret) if r is not None}
 
     @property
     def aliases(self):
@@ -148,18 +146,9 @@ class Cluster:
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
 
-    def jobs(self, job_name: str = None, name_only: bool = False):
-        """
-        query the list of jobs
-            jobName (str, optional): Defaults to None. [description]
-            name_only (bool, optional): Defaults to False. [description]
-
-        Returns:
-            [type]: [description]
-        """
-
-        job_list = self.rest_api_jobs(job_name)
-        return [j['name'] for j in job_list] if name_only else job_list
+    @property
+    def rest_srv(self):
+        return '{}/rest-server/api'.format(self.pai_uri)
 
     def rest_api_cluster_info(self):
         # ! currently this is a fake
@@ -177,39 +166,35 @@ class Cluster:
             }
         }
 
+    @exception_free(RestSrvError, None)
     def rest_api_job_list(self, user: str = None):
-        if user is None:
-            pth = '{}/rest-server/api/v1/jobs'.format(self.pai_uri)
-        else:
-            pth = '{}/rest-server/api/v1/user/{}/jobs'.format(
-                self.pai_uri, user)
-        return get_response(pth, headers={}, method='GET').json()
+        return get_response(
+            'GET', [self.rest_srv, 'v1', ('user', user), 'jobs']
+        ).json()
 
+    @exception_free(RestSrvError, None)
     def rest_api_job_info(self, job_name: str = None, info: str = None, user: str = None):
         user = self.user if user is None else user
-        assert job_name, "please specify a job to query"
-        pth = '{}/rest-server/api/v1/user/{}/jobs/{}'.format(
-            self.pai_uri, user, job_name)
-        if info:
-            assert info in [
-                'config', 'ssh'], ('unsupported query information', info)
-            pth = pth + '/' + info
-        return get_response(pth, headers={}, method='GET').json()
-
-    def rest_api_token(self, expiration=3600):
-        __logger__.debug("getting token @ time %s", time.time())
+        assert info in [None, 'config', 'ssh'], ('unsupported query information', info)
         return get_response(
-            '{}/rest-server/api/v1/token'.format(self.pai_uri),
+            'GET', [self.rest_srv, 'v1', 'user', user, 'jobs', job_name, info]
+        ).json()
+
+    @exception_free(Exception, None)
+    def rest_api_token(self, expiration=3600):
+        return get_response(
+            'POST', [self.rest_srv, 'v1', 'token'],
             body={
                 'username': self.user, 'password': self.password, 'expiration': expiration
             }
         ).json()['token']
 
+    @exception_free(RestSrvError, None)
     def rest_api_submit(self, job: dict):
         use_v2 = str(job.get("protocolVersion", 1)) == "2"
         if use_v2:
             return get_response(
-                '{}/rest-server/api/v2/jobs'.format(self.pai_uri),
+                'POST', [self.rest_srv, 'v2', 'jobs'],
                 headers={
                     'Authorization': 'Bearer {}'.format(self.token),
                     'Content-Type': 'text/yaml',
@@ -219,8 +204,7 @@ class Cluster:
             )
         else:
             return get_response(
-                '{}/rest-server/api/v1/user/{}/jobs'.format(
-                    self.pai_uri, self.user),
+                'POST', [self.rest_srv, 'v1', 'user', self.user, 'jobs'],
                 headers={
                     'Authorization': 'Bearer {}'.format(self.token),
                     'Content-Type': 'application/json',
@@ -229,39 +213,37 @@ class Cluster:
                 allowed_status=[202, 201]
             )
 
+    @exception_free(RestSrvError, None)
     def rest_api_execute_job(self, job_name: str, e_type: str = "STOP"):
         assert e_type in ["START", "STOP"], "unsupported execute type {}".format(e_type)
         return get_response(
-            "{}/rest-server/api/v1/user/{}/jobs/{}/executionType".format(
-                self.pai_uri, self.user, job_name),
+            'PUT', [self.rest_srv, 'v1', 'user', self.user, 'jobs', job_name, 'executionType'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
             },
             body={
                 "value": e_type
             },
-            method="PUT",
             allowed_status=[200, 202],
         ).json()
 
+    @exception_free(RestSrvError, None)
     def rest_api_virtual_clusters(self):
         return get_response(
-            '{}/rest-server/api/v1/virtual-clusters'.format(self.pai_uri),
+            'GET', [self.rest_srv, 'v1', 'virtual-clusters'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
                 'Content-Type': 'application/json',
             },
-            method='GET',
             allowed_status=[200]
         ).json()
 
-    def rest_api_user(self):
+    @exception_free(RestSrvError, None)
+    def rest_api_user(self, user: str = None):
         return get_response(
-            '{}/rest-server/api/v1/user/{}'.format(self.pai_uri, self.user),
-            method='GET',
+            'GET', [self.rest_srv, 'v1', 'user', user if user else self.user],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
-                'Content-Type': 'text/yaml',
             },
         ).json()
 
@@ -282,13 +264,11 @@ class Cluster:
                     k: max(0, int(total[k] - used[k])) for k in total
                 }
             else:
-                   # return -1 if the REST api not supported
+                # return -1 if the REST api not supported
                 dic[key] = dict(GPUs=-1, memory=-1, vCores=-1)
         return dic
 
+    @exception_free(Exception, None)
     def available_resources(self):
-        try:
-            resources = self.virtual_cluster_available_resources()
-            return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
-        except:
-            return None
+        resources = self.virtual_cluster_available_resources()
+        return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
