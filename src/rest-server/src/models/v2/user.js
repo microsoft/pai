@@ -31,7 +31,7 @@ if (k8sConfig.ca) {
 if (k8sConfig.token) {
   optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
 }
-const crudConfig = crudUser.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
+const crudConfig = crudUser.initConfig(k8sConfig.uri, optionConfig);
 
 // crud user wrappers
 const getUser = async (username) => {

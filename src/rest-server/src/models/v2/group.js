@@ -34,7 +34,7 @@ if (k8sConfig.ca) {
 if (k8sConfig.token) {
   optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
 }
-const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
+const crudConfig = crudGroup.initConfig(k8sConfig.uri, optionConfig);
 
 let externalName2Groupname = {};
 
