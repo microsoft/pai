@@ -111,15 +111,6 @@ def get_cpu_ticks(file_list):
     sys_ticks = get_system_cpu_ticks()
     container_ticks = get_container_cpu_ticks(file_list)
     return [sys_ticks, container_ticks]
-    # time.sleep(period)
-
-    # online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
-    # sys_delta = get_system_cpu_ticks() - sys_ticks
-    # container_Delta = get_container_cpu_ticks(file_list) - container_ticks
-
-    # cpu_percent = (container_Delta * 1.0) / sys_delta * online_cpus * 100.0
-    # return cpuPercent
-    # return [container_Delta, sys_delta, online_cpus, cpu_percent]
 
 
 def get_gpu_utilization(gpu_idx):
@@ -279,8 +270,8 @@ def start_sample(container_id, period, analyze_period, one_duration, output_dir,
     for i in range(len(gpu_id)):
         str_write_realtime.append('gpu_usage_' + str(gpu_id[i]))
         str_write_realtime.append('gpu_mem_usage_' + str(gpu_id[i]))
-        # str_write_realtime.append('gpu_mem_used_' + str(gpu_id[i]))
-        # str_write_realtime.append('gpu_mem_total_' + str(gpu_id[i]))
+        str_write_realtime.append('gpu_mem_used_' + str(gpu_id[i]))
+        str_write_realtime.append('gpu_mem_total_' + str(gpu_id[i]))
     realtime_log.writerow(str_write_realtime)
 
     analyze_log.writerow(['max_gpu', 'avg_gpu', 'max_cpu', 'avg_cpu', 'max_mem', 'avg_mem', 'max_read', 'sum_read',
@@ -342,8 +333,8 @@ def start_sample(container_id, period, analyze_period, one_duration, output_dir,
         for i in range(len(gpu_id)):
             str_write_realtime.append(get_gpu_utilization(gpu_id[i]).gpu)
             str_write_realtime.append(get_gpu_utilization(gpu_id[i]).memory)
-            # str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
-            # str_write_realtime.append(get_gpu_memory(gpu_id[i]).total)
+            str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
+            str_write_realtime.append(get_gpu_memory(gpu_id[i]).total)
         realtime_log.writerow(str_write_realtime)
 
         if len(sample_list) > analyze_period / period:
