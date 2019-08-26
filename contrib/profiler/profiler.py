@@ -306,7 +306,7 @@ def start_sample(container_id, period, one_duration, dir, gpu_id, *container_pid
         container_mem_filelist.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
         container_blk_filelist.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/net/dev'
-    while time.time() - start_time < 600:
+    while time.time() - start_time < one_duration * 60:
         [mem_used, mem_total] = get_memory_percent(container_mem_filelist)
 
         # 1st info about I/O, network and CPU

@@ -36,8 +36,6 @@ else
     CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
 fi
 
-DURATION=10
-
 SAMPLE_PERIOD=0.03
 if [ $param_num -ge 3 ];then
     SAMPLE_PERIOD=$3
@@ -46,6 +44,11 @@ fi
 OUTPUT_DIR=./Profiling_dir
 if [ $param_num -ge 4 ];then
     OUTPUT_DIR=$4
+fi
+
+DURATION=10
+if [ $param_num -ge 5 ];then
+    DURATION=$5
 fi
 
 echo 'container_id:' $CONTAINER_ID

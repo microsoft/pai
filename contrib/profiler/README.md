@@ -20,6 +20,8 @@ The second argument is the index of GPU that your model will use.(If there are s
 
 Such as `./run.sh 32f4 1,2,3` if your container's SHA contains `32f4` and the GPU INDEX `1,2 and 3` will be used to train.
 
-Also you can add the third argument to set the period of the sampling, and add the fourth argument to set the directory to store the output data.
+Also you can add the third argument to set the period of the sampling, add the fourth argument to set the directory to store the output data,
+and add the fifth argument to set how long the profiler will execute(the unit is minute).
 
-Such as `/run.sh 32f4 1,2,3 0.02 My_Data`, then the Profiler will collect the information each `0.02s` and store the log file at `./My_Data`
+Such as `/run.sh 32f4 1,2,3 0.02 My_Data 10`, then the Profiler will collect the information each `0.02s` and store the log file at `./My_Data`,
+and it will stop after 10 minutes.
