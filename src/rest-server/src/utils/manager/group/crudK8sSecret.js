@@ -17,7 +17,6 @@
 
 const Group = require('./group');
 const axios = require('axios');
-const {readFileSync} = require('fs');
 const {Agent} = require('https');
 
 /**
