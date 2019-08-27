@@ -29,6 +29,7 @@ Generated configuration means the object model after parsing. The parsed data wi
 cluster:
     common:
       cluster-id: pai
+      cluster-type: yarn
       data-path: "/datastorage"
       qos-switch: "true"
       az-rdma: "false"
@@ -60,6 +61,12 @@ cluster:
     <td>cluster.common.cluster-id</td>
     <td>com["cluster"]["common"]["cluster-id"]</td>
     <td>cluster_cfg["cluster"]["common"]["cluster-id"]</td>
+    <td>string</td>
+</tr>
+<tr>
+    <td>cluster.common.cluster-type</td>
+    <td>com["cluster"]["common"]["cluster-type"]</td>
+    <td>cluster_cfg["cluster"]["common"]["cluster-type"]</td>
     <td>string</td>
 </tr>
 <tr>
