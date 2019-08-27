@@ -60,10 +60,7 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
     throw error;
   }
 }
-// eslint-disable-next-line no-console
-console.log(apiserverConfig.uri);
+
 assert(apiserverConfig.uri, 'K8S_APISERVER_URI should be set in environments');
-// eslint-disable-next-line no-console
-console.log(apiserverConfig.uri);
 
 module.exports = config;

@@ -24,7 +24,8 @@ const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const vcModel = require('@pai/models/v2/virtual-cluster');
 const k8sConfig = require('@pai/config/kubernetes');
-
+// eslint-disable-next-line no-console
+console.log(k8sConfig);
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
 let optionConfig = {};
@@ -34,7 +35,7 @@ if (k8sConfig.ca) {
 if (k8sConfig.token) {
   optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
 }
-// eslint-disable-next-line no-console
+// eslint-disable-next-line no-consoleuri
 console.log(k8sConfig.uri);
 const crudConfig = crudGroup.initConfig(k8sConfig.uri, optionConfig);
 
