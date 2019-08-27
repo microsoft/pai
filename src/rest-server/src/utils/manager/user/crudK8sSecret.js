@@ -57,11 +57,11 @@ function initConfig(apiServerUri, option = {}) {
     },
   };
   if ('k8sAPIServerCaFile' in option) {
-    const ca = readFileSync(option.k8sAPIServerCaFile);
+    const ca = option.k8sAPIServerCaFile;
     config.requestConfig.httpsAgent = new Agent({ca});
   }
   if ('k8sAPIServerTokenFile' in option) {
-    const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
+    const token = option.k8sAPIServerTokenFile;
     config.requestConfig.headers = {Authorization: `Bearer ${token}`};
   }
   return config;
