@@ -370,7 +370,7 @@ const deleteNonexistVCs = async () => {
   }
 };
 
-const syncGroupsWithVCs = async() => {
+const syncGroupsWithVCs = async () => {
   const vcSet = new Set(Object.keys(await vcModel.list()));
   // 1. create group for existing vc
   for (const vcName of vcSet) {
