@@ -64,8 +64,6 @@ function initConfig(apiServerUri, option = {}) {
     const token = readFileSync(option.k8sAPIServerTokenFile, 'ascii');
     config.requestConfig.headers = {Authorization: `Bearer ${token}`};
   }
-  // eslint-disable-next-line no-console
-  console.log(config);
   return config;
 }
 
