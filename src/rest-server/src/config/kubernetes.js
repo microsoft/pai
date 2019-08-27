@@ -48,7 +48,7 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
   const tokenPath = K8S_APISERVER_TOKEN_FILE || path.join(root, 'token');
   const host = process.env.KUBERNETES_SERVICE_HOST;
   const port = process.env.KUBERNETES_SERVICE_PORT;
-  apiserverConfig.uri = K8S_APISERVER_URI ? K8S_APISERVER_URI : `https://${host}:${port}`;
+  apiserverConfig.uri = `https://${host}:${port}`;
 
   try {
     // Will be a buffer since SSL context can receive a buffer.
