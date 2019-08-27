@@ -22,3 +22,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     - Auto refresh enabled
   - HDFS explorer 
     - You can choose where hdfs explorer will be shown (view container or workspace folder)
+
+## [0.2.1] - 2019-06
+
+### Added
+
+- Generate YAML job config file for Protocol V2 
+  - Submit YAML job file
+  - Snippets and autocomplete for YAML job config

@@ -23,26 +23,10 @@ import React from 'react';
 
 import Card from '../../components/card';
 import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
+import {Header} from './header';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
-
-const Header = ({jobs}) => (
-  <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
-    <div>
-      My rencent jobs
-    </div>
-    {!isEmpty(jobs) && (
-      <div>
-        <Link href={`/job-list.html?user=${cookies.get('user')}`}>More</Link>
-      </div>
-    )}
-  </div>
-);
-
-Header.propTypes = {
-  jobs: PropTypes.array.isRequired,
-};
 
 const DummyContent = () => {
   const {spacing} = getTheme();
@@ -169,7 +153,11 @@ const RecentJobList = ({className, jobs}) => {
     <Card className={c(t.h100, t.ph5)}>
       <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
-          <Header jobs={jobs} />
+          <Header
+            headerName='My rencent jobs'
+            linkHref={`/job-list.html?user=${cookies.get('user')}`}
+            linkName='More'
+            showLink = {isEmpty(jobs)}/>
         </Stack.Item>
         <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
           <Content jobs={jobs} />

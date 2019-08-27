@@ -146,6 +146,7 @@ class ArgumentFactory:
         self.add_argument('--default', help='set current as default', action='store_true', default=False)
         self.add_argument('--update', '-u', action='append', help='replace current key-value pairs with new key=value (key1:key2:...=value for nested objects)')
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
+        self.add_argument('--no-browser', action='store_true', help='does not open the job link in web browser')
         self.add_argument('--interactive', action='store_true', help='enter the interactive mode after job starts')
         self.add_argument('--token', default="abcd", help='authentication token')
         self.add_argument('--enable-sdk', action="store_true", default=False, help="enable sdk installation")
@@ -157,7 +158,7 @@ class ArgumentFactory:
         self.add_argument('--cpu', type=int, default=defaults.get('cpu', 4), help='cpu number per instance')
         self.add_argument('--gpu', type=int, default=defaults.get('gpu', 0), help='gpu number per instance')
         self.add_argument('--memoryMB', type=int, default=defaults.get('memMB', 8192), help='memory #MB per instance')
-        self.add_argument('--cmd-sep', default="&&", help="command separator, default is (&&)")
+        self.add_argument('--cmd-sep', default="\s*&&\s*", help="command separator, default is (&&)")
         self.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
 
         # runtime

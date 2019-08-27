@@ -113,34 +113,6 @@ export const getFormBasicSectionStyle = (optional) => {
   });
 };
 
-export const getFormShortSectionStyle = () => {
-  return ({
-    root: {
-      width: '80%',
-    },
-  });
-};
-
-export const getImportButtonStyle = () => {
-  return ({
-    label: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100%',
-      cursor: 'pointer',
-      fontWeight: FontWeights.semibold,
-    },
-    input: {
-      width: '1px',
-      height: '1px',
-      opacity: '.0001',
-    },
-  });
-};
-
 export const getDockerSectionStyle = () => {
   return ({
     auth: {

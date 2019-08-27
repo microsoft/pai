@@ -138,7 +138,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     taskState: convertState(
       taskStatus.state,
       completionStatus ? completionStatus.code : null,
-      taskStatus.retryPolicy.retryDelaySec,
+      taskStatus.retryPolicyStatus.retryDelaySec,
     ),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
@@ -278,7 +278,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
               ],
@@ -314,7 +314,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {

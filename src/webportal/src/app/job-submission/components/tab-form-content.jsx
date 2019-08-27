@@ -37,7 +37,7 @@ import {PortsList} from './task-role/ports-list';
 import {getDefaultContainerSize} from '../models/container-size';
 import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
-export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
+export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSingle}) => {
   const _onValueChange = (propertyName, propertyValue) => {
     const udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
     udpatedJobTaskRole[propertyName] = propertyValue;
@@ -56,26 +56,30 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag}) => {
 
   return (
     <FormPage>
-      <FormTextField
-        sectionLabel={'Task role name'}
-        sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
-        shortStyle
-        value={jobTaskRole.name}
-        onChange={(value) => _onValueChange('name', value)}
-        placeholder='Enter task role name...'
-      />
+      {!isSingle &&
+        <FormTextField
+          sectionLabel={'Task role name'}
+          sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
+          shortStyle
+          value={jobTaskRole.name}
+          onChange={(value) => _onValueChange('name', value)}
+          placeholder='Enter task role name...'
+        />
+      }
       <CommandSection
         value={jobTaskRole.commands}
         onChange={(value) => _onValueChange('commands', value)}
       />
-      <FormSpinButton
-        sectionLabel={'Instances'}
-        shortStyle
-        textFiledProps={{placeholder: 'Enter instance number...'}}
-        value={jobTaskRole.instances}
-        min={1}
-        onChange={(value) => _onValueChange('instances', value)}
-      />
+      {!isSingle &&
+        <FormSpinButton
+          sectionLabel={'Instances'}
+          shortStyle
+          textFiledProps={{placeholder: 'Enter instance number...'}}
+          value={jobTaskRole.instances}
+          min={1}
+          onChange={(value) => _onValueChange('instances', value)}
+        />
+      }
       <ContainerSizeSection
         value={jobTaskRole.containerSize}
         onEnable={(checked) =>
@@ -123,4 +127,5 @@ TabFormContent.propTypes = {
   jobTaskRole: PropTypes.instanceOf(JobTaskRole).isRequired,
   onContentChange: PropTypes.func,
   advanceFlag: PropTypes.bool,
+  isSingle: PropTypes.bool,
 };

@@ -28,9 +28,12 @@ import styled from 'styled-components';
 
 import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
+import VirtualClusterStatistics from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError} from './home/conn';
+import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, getLowGpuJobInfos, listAllJobs} from './home/conn';
+import {listAbnormalJobs} from '../components/util/job';
 import RecentJobList from './home/recent-job-list';
+import AbnormalJobList from './home/abnormal-job-list';
 import {BREAKPOINT1} from './home/util';
 import {SpinnerLoading} from '../components/loading';
 import {initTheme} from '../components/theme';
@@ -47,11 +50,16 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [gpuPerNode, setGpuPerNode] = useState(null);
+  const [lowGpuJobInfo, setLowGpuJobInfo] = useState(null);
+  const isAdmin = cookies.get('admin') === 'true';
 
   useEffect(() => {
     if (!isEmpty(cookies.get('user'))) {
+      if (isAdmin) {
+        getLowGpuJobInfos().then(setLowGpuJobInfo).catch(alert);
+      }
       Promise.all([
-        listJobs().then(setJobs),
+        isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -99,6 +107,15 @@ const Home = () => {
       }
     `;
 
+    const ResponsiveWidthItem = styled.div`
+    width: 66%;
+    height: auto;
+    @media screen and (max-width: ${BREAKPOINT1}px) {
+      width: 100%;
+      height: 320px;
+    }
+  `;
+
     return (
       <Stack
         styles={{root: [t.w100, t.h100L, {minWidth: 500}]}}
@@ -109,33 +126,46 @@ const Home = () => {
         <Stack.Item>
           <ResponsiveFlexBox>
             <ResponsiveItem>
-              <JobStatus
-                style={{height: '100%'}}
-                jobs={jobs}
-              />
+              <JobStatus style={{height: '100%'}} jobs={jobs} />
             </ResponsiveItem>
             <ResponsiveGap />
-            <ResponsiveItem>
-              <VirtualClusterList
-                style={{height: '100%'}}
-                userInfo={userInfo}
-                virtualClusters={virtualClusters}
-              />
-            </ResponsiveItem>
-            <ResponsiveGap />
-            <ResponsiveItem>
-              <GpuChart
-                style={{height: '100%'}}
-                gpuPerNode={gpuPerNode}
-                userInfo={userInfo}
-                virtualClusters={virtualClusters}
-              />
-            </ResponsiveItem>
+            {isAdmin ? (
+              <ResponsiveWidthItem>
+                <VirtualClusterStatistics
+                  style={{height: '100%'}}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+              </ResponsiveWidthItem>
+            ) : (
+              <React.Fragment>
+                <ResponsiveItem>
+                  <VirtualClusterList
+                    style={{height: '100%'}}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                </ResponsiveItem>
+                <ResponsiveGap />
+                <ResponsiveItem>
+                <GpuChart
+                  style={{height: '100%'}}
+                  gpuPerNode={gpuPerNode}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+                </ResponsiveItem>
+              </React.Fragment>
+            )}
           </ResponsiveFlexBox>
         </Stack.Item>
         {/* recent jobs */}
         <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
-          <RecentJobList className={c(t.h100)} jobs={jobs} />
+          {isAdmin ? (
+            <AbnormalJobList className={c(t.h100)} jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
+          ) : (
+            <RecentJobList className={c(t.h100)} jobs={jobs} />
+          )}
         </Stack.Item>
       </Stack>
     );

@@ -71,7 +71,7 @@ export default function Table() {
    */
   const passwordColumn = {
     key: 'password',
-    minWidth: 120,
+    minWidth: 150,
     maxWidth: 200,
     name: 'Password',
     className: FontClassNames.mediumPlus,
@@ -90,6 +90,7 @@ export default function Table() {
             userInfo.password = newValue;
           }}
           onGetErrorMessage={getErrorMessage}
+          customPasswordStyle={true}
         />
       );
     },

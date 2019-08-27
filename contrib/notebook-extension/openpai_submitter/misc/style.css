@@ -1,0 +1,161 @@
+.openpai-wrapper{
+    position: fixed !important;  /* remove !important will cause problems */
+    border: thin solid rgba(0, 0, 0, 0.38);
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #fff;
+    opacity: .95;
+    z-index: 100;
+    overflow: hidden;
+}
+
+#openpai-panel-wrapper{
+    width: 629px;
+    height: 566px;
+    top: 10%;
+    left: 50%;
+}
+
+#openpai-panel-recent-wrapper{
+    width: 720px;
+    height: 400px;
+    top: 10%;
+    left: 30%;
+}
+#openpai-panel, #openpai-panel-recent{
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 5px; 
+}
+
+.openpai-float-right{
+    float: right;
+}
+
+.openpai-inline{
+    display: inline;
+}
+
+.openpai-header-text{
+    vertical-align: middle;
+    padding-left: 5px;
+}
+
+.openpai-button{
+    padding-top: 8px;
+}
+
+.openpai-panel-header{
+    margin-bottom: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 2px;
+}
+
+table, th{
+    text-align: center;
+}
+
+.openpai-fieldset{
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+.openpai-legend{
+    font-size: 17px;
+    line-height: inherit;
+    border: 0;
+    padding: 2px;
+    width: auto;
+    margin-bottom: 0px;
+}
+
+#basic-setting-fieldset{
+    margin-bottom: 10px;
+    padding-bottom: 0.3em;
+    padding-top: 0.8em;
+    padding-left: 1em;
+    padding-right: 0.35em;
+}
+
+.loading-img{
+    width: 45px;
+    height: 45px;
+}
+
+.loading-img-small{
+    width: 19px;
+    height: 19px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  margin-bottom: 0px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .3s;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 15px;
+  width: 15px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .3s;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #337ab7;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(14px);
+  -ms-transform: translateX(14px);
+  transform: translateX(14px);
+}
+
+.slider.round {
+  border-radius: 30px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#openpai-hide-jobs-toggle{
+    margin-right: 1em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
+.openpai-fieldset .openpai-table-button{
+  color: #337ab7;
+  line-height: 1;
+}

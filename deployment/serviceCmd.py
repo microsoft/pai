@@ -51,7 +51,7 @@ class ServiceCmd():
 
         def add_arguments(parser):
             parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
-            parser.add_argument("-n", "--service-name", dest="service_name", default="all", help="Build and push the target image to the registry")
+            parser.add_argument("-n", "--service-list", nargs='+', dest="service_list", default=None, help="Service list to manage")
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
@@ -59,14 +59,9 @@ class ServiceCmd():
         add_arguments(refresh_parser)
 
     def process_args(self, args):
-        if args.kube_config_path != None:
+        if args.kube_config_path is not None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
-
-        service_list = None
-        if args.service_name != "all":
-            service_list = [args.service_name]
-
-        return service_list
+        return args.service_list
 
     def service_start(self, args):
         service_list = self.process_args(args)
