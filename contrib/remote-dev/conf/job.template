@@ -21,11 +21,11 @@ taskRoles:
       - '`#REMOTE_DEV_START`'
       - '`#Auto generated code, please do not modify`'
       - apt-get update
-      - apt-get install --assume-yes nfs-common cifs-utils sshpass wget
+      - apt-get install -y nfs-common cifs-utils sshpass wget
       - umask 000
-      - mkdir --parents /workspace
-      - mount -t nfs4 $hostip:/ /workspace
-      - sleep 10000
+      - mkdir -p /root/workspace
+      - mount.cifs //sharepath /root/workspace -o username=***,password=***
+      - sleep 18000
       - '`#REMOTE_DEV_END`'
     taskRetryCount: 0
 defaults:
