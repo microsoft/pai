@@ -34,6 +34,8 @@ if (k8sConfig.ca) {
 if (k8sConfig.token) {
   optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
 }
+// eslint-disable-next-line no-console
+console.log(k8sConfig.uri);
 const crudConfig = crudGroup.initConfig(k8sConfig.uri, optionConfig);
 
 let externalName2Groupname = {};
