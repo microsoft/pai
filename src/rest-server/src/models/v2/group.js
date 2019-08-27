@@ -186,10 +186,12 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
   } catch (error) {
     if (error.status === 404) {
       await createGroup(groupname, groupValue);
+      return true;
     } else {
       throw error;
     }
   }
+  return false;
 };
 
 // TODO: replace updateGroup2ExnternalMapper
@@ -355,8 +357,8 @@ const deleteNonexistVCs = async () => {
       if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters) {
         const checkedVCs = groupItem.extension.acls.virtualClusters.filter((vcname) => vcSet.has(vcname));
         if (checkedVCs.length !== groupItem.extension.acls.virtualClusters.length) {
-          logger.info(`Update group: [${groupItem.groupname}] vc list. 
-          old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
+          logger.info(`Update group: ${groupItem.groupname} vc list, ` +
+            `old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
           groupItem.extension.acls.virtualClusters = checkedVCs;
           await updateGroup(groupItem.groupname, groupItem);
         }
@@ -368,6 +370,40 @@ const deleteNonexistVCs = async () => {
   }
 };
 
+const syncGroupsWithVCs = async() => {
+  const vcSet = new Set(Object.keys(await vcModel.list()));
+  // 1. create group for existing vc
+  for (const vcName of vcSet) {
+    const groupItem = {
+      groupname: vcName,
+      description: '',
+      externalName: '',
+      extension: {
+        acls: {
+          admin: false,
+          virtualClusters: [vcName],
+        },
+      },
+    };
+    const created = await createGroupIfNonExistent(groupItem.groupname, groupItem);
+    if (created) {
+      logger.info(`Created group for vc ${vcName}`);
+    }
+  }
+
+  // 2. delete meaningless group
+  const groupItems = await getAllGroup();
+  const filterGroups = groupItems.filter((groupItem) => {
+    return groupItem.extension.acls && groupItem.extension.acls.virtualClusters
+      && groupItem.extension.acls.virtualClusters.length === 0
+      && groupItem.extension.acls.admin === false;
+  });
+  await Promise.all(filterGroups.map(async (groupItem) => {
+    await deleteGroup(groupItem.groupname);
+    logger.info(`Deleted group ${groupItem.groupname}`);
+  }));
+};
+
 const groupAndUserDataInit = async () => {
   // init configuration groups
   await initGrouplistInCfg();
@@ -376,6 +412,7 @@ const groupAndUserDataInit = async () => {
   if (authConfig.authnMethod !== 'OIDC') {
     // create default admin user
     await createDefaultAdminUser();
+    await syncGroupsWithVCs();
   } else {
     // load all groupname and their external name
     await updateGroup2ExnternalMapper();
